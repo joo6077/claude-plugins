@@ -2,7 +2,7 @@
 
 계약: `.harness/sprint-contract-after-0924-docs-common-css.md` (봉인 `sha256:11225a00534b06ba`, 26 조건).
 가지 `chore/ak-docs`, 작업 폴더 `/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak-docs`.
-QA 판정은 이 기록에 적지 않는다 — 다음 단계의 qa-evaluator 가 한다.
+QA 판정: APPROVE (Iteration 1, 26 조건 — 리포트 `.harness/sprint-feedback-after-0924-docs-common-css.md`, 커밋 `56e4476`, 계약 `status` 는 `done`). 독립 검토는 BLOCKING 0 이고, 판정을 바꾸지 않는 세 건은 아래 「다음 사이클 메모」 로 옮겼다.
 
 ## 한 일
 
@@ -41,7 +41,7 @@ QA 판정은 이 기록에 적지 않는다 — 다음 단계의 qa-evaluator �
 
 ## 문서 드리프트
 
-`python3 scripts/detect-docs-drift.py` 결과는 13 줄이고 d1 기록과 같은 목록이다. 이 묶음은 원본 문서를 바꾸지 않아 새로 생긴 드리프트는 없다. 대응 페이지가 없는 여섯(research-log · reflect-digest · rust-kit project-detection · adapter-contract · adapter-dart-flutter · locale-korean)도 그대로다. 페이지 재생성은 하지 않았다 — 부모가 모아서 한다.
+`python3 scripts/detect-docs-drift.py` 결과는 13 줄이고 d1 기록과 같은 목록이다. 이 값은 로컬 `main` 이 `88ddfe5` 이던 때 잰 것이다 — 뒤에 `main` 이 나아가 지금은 16 줄이다(다음 사이클 메모 N3). 이 묶음은 원본 문서를 바꾸지 않아 새로 생긴 드리프트는 없다. 대응 페이지가 없는 여섯(research-log · reflect-digest · rust-kit project-detection · adapter-contract · adapter-dart-flutter · locale-korean)도 그대로다. 페이지 재생성은 하지 않았다 — 부모가 모아서 한다.
 
 ## tone-guide 결과
 
@@ -68,3 +68,24 @@ QA 판정은 이 기록에 적지 않는다 — 다음 단계의 qa-evaluator �
 - 계약에서 뗀 측정 도우미와 자기 측정 실행 파일: `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/d2/self-measure.sh` (뗀 파일은 같은 폴더 `self/d2-measure.sh`)
 - 구현에 쓴 편집 스크립트: 같은 폴더 `mock-edit.py` (봉인 전 모의 판에 쓴 것과 같은 파일), 커밋 스크립트 `commit1.sh` · `commit23.sh`
 - 로컬 CI: `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh` — 도우미 `m DG-05` 가 이 기록을 커밋한 뒤 돌린다
+
+## 다음 사이클 메모
+
+독립 검토(2026-09-26, BLOCKING 0)가 찾은 두 건과 QA 가 조건 밖에서 남긴 한 건이다. 판정을 바꾸지 않아 이 묶음에서는 쪽과 스킬 파일을 다시 열지 않았다. 세 건 모두 부모가 이 작업 폴더에서 다시 재 같은 값을 얻었다. 검토가 쓴 재현 파일은 세션 스크래치 `rev/hid.js` 에 있다.
+
+| # | 항목 | 자리 | 받을 곳 · 할 일 |
+| --- | --- | --- | --- |
+| N1 | 지금의 `origin/main` 과 합치면 `contract-schema` 쪽에서 충돌이 난다 | `docs/harness/contract-schema.html:6-7` | 이 가지를 `main` 에 합치는 단계. 가지를 딴 뒤(`88ddfe5`) `origin/main` 이 `6ad3cbc`(harness v0.15.0, #114 · #115)로 나아가며 이 쪽 `<title>` 줄을 v5.5 에서 v5.6 으로 바꿨고, `c5aae49` 는 바로 다음 줄에 공통 파일 링크를 넣었다. `git merge-tree --write-tree --name-only origin/main chore/ak-docs` 가 `CONFLICT (content)` 를 낸다. 이 묶음 시작점 `4d1de5f` 와 부모 가지 `chore/after-kaizen-0926` 은 깨끗이 합쳐진다. 풀 때 v5.6 제목과 링크 줄을 둘 다 남기고, 합친 뒤 AR-01(177 쪽 링크 한 줄)을 다시 잰다. 한쪽만 고르면 이 쪽은 공통 파일을 잃는다 |
+| N2 | docs-site `SKILL.md` 안에 공통 파일 규칙과 어긋나는 안내가 남았다 | `.claude/skills/docs-site/SKILL.md:109` 「**Motion**: … prefers-reduced-motion 대응」 · 같은 파일 `:16` | 다음 docs-site 스킬 손질 묶음. `:16` 은 움직임 줄이기와 본문 행간 1.7 을 공통 파일이 맡으니 쪽에 다시 적지 말라고 하는데, `:109` 는 새 쪽을 쓸 때 움직임 줄이기에 따로 대응하라고 시킨다. 새 쪽을 쓰는 모델이 규칙을 쪽에 다시 적을 여지가 있고, RE-02 는 이 묶음에서 더한 줄만 재므로 앞으로 생길 쪽은 막지 못한다. `:109` 를 「공통 파일이 맡는다」 로 바꾼다. `:16` 한 줄 안의 「반드시 standalone HTML(혼자서 열리는 단일 파일)」 과 「공통 파일 링크 한 줄」 도 함께 읽으면 어긋나 보이니 같이 고친다. 계약 범위 경계 표는 `:109` 를 현재 상태로만 적고 판단을 빠뜨렸다 — 계약 쪽 교훈은 어긋나는 줄을 찾으면 넘김 사유까지 같은 칸에 적는 것이다 |
+| N3 | 드리프트 도구 결과가 13 줄에서 16 줄이 됐다 | `scripts/detect-docs-drift.py` (기준 로컬 `main`) | 부모의 문서 페이지 다시 맞추기. 로컬 `main` 이 18:06 에 `6ad3cbc` 로 나아가 harness 원본이 바뀌었다. `--since 88ddfe5` 로 재면 13 줄이 그대로 나오고, 늘어난 세 줄은 `contract-design-guide` · `qa-evaluation-guide` · `contract-schema` 세 harness 쪽이다(`plugin-validation` 은 d1 때부터 있던 줄). 이 묶음이 만든 드리프트가 아니다. 다음에 이 목록을 비교 기준값으로 쓰기 전에 기준 커밋을 적고 다시 잰다. `contract-schema` 는 N1 충돌과 같은 쪽이라 합친 뒤에 맞춘다 |
+
+QA 피드백 YAML(`~/.harness/feedback/evaluator/1a3bcba6-2026-09-26T181118-bda55d45-29964.yaml`)의 `cross_diagnosis_by: pending-parent` 는 부모가 교차 진단을 마치면 채운다.
+
+## QA 뒤 로컬 CI
+
+`56e4476` 위에 이 notes 수정만 커밋 전으로 올린 상태에서 `ci-local.sh` 를 다시 돌렸다(2026-09-26 09:20 ~ 09:23 UTC, `TMPDIR` 은 세션 스크래치 `d2fin/ci`, 도구 sha256 앞자리 `a415eaff98a46b86` 로 d1 때와 같다, 시작 전 다른 `save-test.sh` · `ci-local.sh` 실행 0 개). CI 단계는 `.harness/.meta/` 를 읽지 않는다.
+
+- `rc=0` 22 줄, `feedback-agg-test SKIP (yq 없음)` 한 줄, 도구 종료 코드 0
+- 도구 밖 단계 `python3 scripts/run-kaizen-assertions.py`(d1 R3)를 따로 돌렸다 — `Total: 14 passed, 0 failed`, 종료 코드 0
+- CI 파일에만 있는 나머지 줄은 설치 단계(`pip install pyyaml` · zsh 설치 · `npm ci` · playwright 설치)와 `yq` 가 있을 때만 도는 `aggregation-test.sh` 블록뿐이다
+- 실행 뒤 작업 폴더에 새로 생긴 파일 0 개(이 notes 수정 한 줄만 남음)
