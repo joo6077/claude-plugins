@@ -2,7 +2,8 @@
 # commit-guard.sh 를 임시 저장소에서 사고 형태와 정상 형태로 돌려 exit 코드와 출력을 대조한다.
 # 번호는 계약 조건 SC-01 ①~⑤ · SC-02 ⑥~⑭ · SC-03 ⑮⑯ · ER-01 · ER-02 (insights-0924-hooks-skill-collector) 와
 # ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) · ㉖~㉚ (kaizen-0924-f1-harness-followups 이름 바꾸기) ·
-# ㉛~㊴ (after-0924-harness-orch -a · 같은 명령 git add 이름 바꾸기와 -i 막힘 설명) 을 따른다.
+# ㉛~㊴ (after-0924-harness-orch -a · 같은 명령 git add 이름 바꾸기와 -i 막힘 설명) ·
+# ㊵~㊿ (같은 계약 교차 진단 — 파일 ↔ 폴더 바뀜 · 경로를 좁힌 git add · 목록 사본에 못 얹음) 을 따른다.
 # COMMIT_GUARD_HOOK 으로 훅 경로를 바꿀 수 있다 — 판정 줄을 지운 사본으로 음성 대조를 돌릴 때 쓴다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -220,6 +221,36 @@ r=$work/c39; mk_repo "$r"; rm_staged "$r" 51
 run pre 'git commit -i d1 -m x' "$r"; expect ㊴ 2 '' '삭제 51 개'
 ok=1; grep -qF '작업 폴더 삭제 포함' "$work/err" && ok=0
 report ㊴-설명 "$ok" "stderr 에 '작업 폴더 삭제 포함' 없음" "$(grep -cF '작업 폴더 삭제 포함' "$work/err") 줄"
+
+# ── 같은 명령의 git add 가 얹는 새 파일: git 이 실제로 싣는 삭제만큼 센다 ──
+# 파일 자리가 폴더가 되면 목록 사본에 얹기가 실패해 목록의 삭제까지 0 이 되던 경우 (git rm 60 + a.txt 1)
+r=$work/c40; mk_repo "$r"; git -C "$r" rm -rq d1; rm "$r/a.txt"; mkdir "$r/a.txt"; echo q >"$r/a.txt/q"
+run pre 'git add -A && git commit -m x' "$r"; expect ㊵ 2 '' '삭제 61 개'
+run pre 'git add . && git commit -m x' "$r"; expect ㊶ 2 '' '삭제 61 개'
+
+r=$work/c42; mk_repo "$r"; rm -rf "$r/d1"; mkdir -p "$r/d1/f001"; echo z >"$r/d1/f001/z"
+run pre 'git add -A && git commit -m x' "$r"; expect ㊷ 2 '' '삭제 60 개'
+
+r=$work/c43; mk_repo "$r"; rm -rf "$r/d1"; echo file >"$r/d1"
+run pre 'git add -A && git commit -m x' "$r"; expect ㊸ 2 '' '삭제 60 개'
+
+# 추적 안 된 사본 backup/ 은 경로를 좁힌 add · -u · -n 이 올리지 않는다 — 진짜 삭제 60
+r=$work/c44; mk_repo "$r"; cp -R "$r/d1" "$r/backup"; rm -rf "$r/d1"
+run pre 'git add -A d1 && git commit -m x' "$r"; expect ㊹ 2 '' '삭제 60 개'
+run pre 'git add -A -- d1 && git commit -m x' "$r"; expect ㊺ 2 '' '삭제 60 개'
+run pre 'git add -u . && git commit -m x' "$r"; expect ㊻ 2 '' '삭제 60 개'
+run pre 'git add -n -A && git commit -a -m x' "$r"; expect ㊼ 2 '' '삭제 60 개'
+# 경로 없는 add -A 는 backup/ 도 올려 git 도 이름 바꾸기로 싣는다
+run pre 'git add -A && git commit -m x' "$r"; expect ㊽ 0 empty
+
+# 같은 명령에서 새 경로를 경로 지정 add 로 올리는 -a 는 이름 바꾸기다
+r=$work/c49; mk_repo "$r"; mv "$r/d1" "$r/d2"
+run pre 'git add d2 && git commit -a -m x' "$r"; expect ㊾ 0 empty
+
+# 읽을 수 없는 새 파일이 있어 목록 사본에 못 얹어도 작업 폴더 삭제는 센다
+r=$work/c50; mk_repo "$r"; rm -rf "$r/d1"; echo u >"$r/u.txt"; chmod 000 "$r/u.txt"
+run pre 'git add -A; git commit -m x' "$r"; expect ㊿ 2 '' '삭제 60 개'
+chmod 644 "$r/u.txt"
 
 # ── SC-03 커밋 직후 알림 ──
 r=$work/c15; mk_repo "$r"; rm_staged "$r" 60; git -C "$r" commit -qm del
