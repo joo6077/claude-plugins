@@ -36,6 +36,7 @@ user-invocable: true
 1. **원칙 문서**: `docs/planning/prd-patterns.md` (Amazon PR/FAQ · Shape Up Pitch · Linear/Stripe/Notion 공개 템플릿). 없으면 `/planning-research prd-patterns` 권고 후 중단.
 2. **이전 단계 산출물**: `.planning/discover-*.md` (discovery) 가 있으면 로드. 없으면 Step 1 에서 Problem/User/JTBD/Success Metric 명시 여부 확인.
 3. **선택 참조**: `.planning/ideate-*.md` (발산/수렴 맥락), `.planning/reference-*.md` (경쟁 teardown, 차별화 근거).
+4. **`PRD 없음` 기록**: PRD 가 없을 때 계약 `범위 경계` 에 적어 둔 이 기능의 폐기 결정이다. `grep -rnE 'PRD 없음[[:space:]]*[|]?[[:space:]]*$' .harness .design 2>/dev/null` 로 찾는다(harness `/sprint` Step 0.5 와 같은 모양). 이 기능의 줄이 있으면 Step 3 에서 `## Non-goals (폐기한 결정 포함)` 표(Shape Up `## No-gos`)에 네 칸 그대로 한 줄씩 옮기고, 원래 줄 끝의 `PRD 없음` 을 `→ .planning/prd-<slug>.md` 로 바꾼다 — 원문은 PRD 표 하나로 남는다 (Gotcha 14). 다른 기능의 줄은 옮기지 않는다.
 
 원칙 문서 없이 Step 1 진입 금지 — 학습 데이터 기반 PRD 는 Shape Up / PR/FAQ 포맷 엄밀성을 보증하지 못한다.
 
