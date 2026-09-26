@@ -95,6 +95,11 @@ bash 는 패턴 문자열을 그대로 넘기므로 같은 코드가 bash 에서
   `for x in "${arr[@]}"` 로 원소를 돈다. 실측(2026-09-22): 0 부터 센다고 가정한 zsh 측정이 한 칸 밀린 값을 냈다
   ([zsh 매뉴얼 — Array Parameters](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters) ·
   [Bash 매뉴얼 — Arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html)).
+- **`$변수` 바로 뒤에 `[` 를 붙이지 마라 — `${n}[` 로 감싼다 (2026-09-24 추가).** zsh 는 `$n[...]` 을 배열 첨자로 읽는다.
+  `grep -cE "templates/ $n[^0-9]"` 가 `bad math expression: operand expected at '^0-9'` 로 명령째 죽었다. bash 에서는 멀쩡해서
+  bash 로만 시험한 측정 명령이 봉인까지 갔다. 정규식 문자 클래스를 변수 뒤에 붙일 때 특히 걸린다.
+- **`path` 라는 변수 이름을 쓰지 마라 (2026-09-24 추가).** zsh 는 소문자 `path` 배열을 `PATH` 에 묶어 두어, `path=$(...)` 한 번으로
+  명령 검색 경로가 덮인다. 같은 셸에서 `tail: command not found` 가 났다. `fb` · `out_file` 같은 다른 이름을 쓴다.
 - 선례: `harness/skills/harness-kaizen/scripts/trigger-check.sh` 의 `current_feedback_files()` /
   `history_feedback_files()` 가 `find` 형태이고, `check_repeated_antipatterns()` 가 배열 형태다.
   새 구현은 그 형태를 따른다.
