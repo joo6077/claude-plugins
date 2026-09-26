@@ -1759,13 +1759,19 @@ for p in sys.argv[1:]:
                     print(f"WARN {f}: 유량비 {worst:.1f}x ({who} 슬롯 {slot}) — 3~5x 경고 구간. notes.md 에 사유를 적어라")
         else:
             unverified.append(f"{f}: layer_height/outer_wall_speed/line_width 결측 — 유량비 미계산")
-        # 벽 예산 검사 (2026-09-19 신규 · surface-recipes.md §2.8) — classic 은 벽이 못 들어가는 틈을 가는 선(갭필)으로 메워 덩어리가 솟는다
+        # 벽 예산 검사 (2026-09-19 신규 · 2026-09-26 파편화 갈래 추가 · surface-recipes.md §2.8)
+        # classic 이 틈을 갭필로 메우는 것 자체가 겉에 드러나는 게 아니다 — 드러나는 것은 그때 외벽까지 조각날 때다.
+        # 그래서 벽 예산만 보고 막지 않고 외벽 파편화 배수를 요구한다. 안 재고 넘기는 길은 두지 않는다.
         short_share = num(d.get("_wall_budget_short_share"))
         generator = eff.get("wall_generator") or "classic"
+        frag = num(d.get("_wall_outer_block_ratio"))
         if short_share is None:
             unverified.append(f"{f}: _wall_budget_short_share 미기록 — 벽 예산 미검증 (Phase 1.0 형상 측정을 WALL_LOOPS 와 함께 돌려라)")
         elif short_share >= 0.10 and generator == "classic":   # 10 % 는 추정 — 결함 실측 22~90 %, 결함 없던 부품 0 %
-            errs.append(f"벽 예산 미달 비율 {short_share:.0%} 인데 wall_generator=classic — 틈을 갭필로 메워 덩어리가 솟는다. arachne 로 (surface-recipes.md §2.8)")
+            if frag is None:
+                errs.append(f"벽 예산 미달 비율 {short_share:.0%} 인데 wall_generator=classic 이고 _wall_outer_block_ratio 미기록 — 두 생성기로 잘라 외벽 파편화를 재라 (surface-recipes.md §2.8)")
+            elif frag >= 1.3:   # 1.3 은 추정 — 조각난 실측 1.850 (래티스 통), 안 조각난 실측 0.993 (H2 배기관)
+                errs.append(f"외벽 파편화 {frag:.3f} 배 (_wall_outer_block_ratio) · 벽 예산 미달 {short_share:.0%} — classic 이 외벽까지 조각낸다. arachne 로 (surface-recipes.md §2.8)")
         # 허공 위 속도 검사 (2026-09-22 신규 · 2026-09-23 범위 확대 · surface-recipes.md §4)
         # 형상을 재서 기록한 설정이면 외벽을 안 낮췄어도 부모 bridge_speed 50 이 그대로 남는다
         wall_lowered = [i for i,own,parent in slots(d.get("outer_wall_speed"), par.get("outer_wall_speed")) if own < parent]
@@ -1863,7 +1869,9 @@ scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) �
 | `evals/gate-fixtures/process-class-unknown.json` | bambu | 형상 클래스 허용값 **FAIL 1 건** (`lattice`) | `_geometry_class=.geometry.r.` 줄을 `pass` 로 | 허용 밖 형상 클래스가 통과한다 |
 | `evals/gate-fixtures/process-speed-without-class.json` | bambu | 형상 클래스 없음 **FAIL 1 건** | `outer_wall_speed 를 명시했는데` 줄을 `pass` 로 | 형상을 재지 않고 외벽을 낮춘 설정이 통과한다 |
 | `evals/gate-fixtures/process-thin-speed-lowered.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 1) | `_geometry_class=thin` 줄을 `pass` 로 | thin 인데 외벽을 낮춘 설정이 통과한다 |
-| `evals/gate-fixtures/process-wall-budget-classic.json` | bambu | 벽 예산 **FAIL 1 건** (72 %) | `벽 예산 미달 비율` 줄을 `pass` 로 | 벽이 못 들어가는 틈을 갭필로 메우는 설정이 통과한다 |
+| `evals/gate-fixtures/process-wall-budget-classic.json` | bambu | 벽 예산 **FAIL 1 건** (72 % · 파편화 미기록) | `벽 예산 미달 비율` 줄을 `pass` 로 | 벽이 못 들어가는 틈을 갭필로 메우는 설정이 통과한다 |
+| `evals/gate-fixtures/process-wall-budget-classic-high-frag.json` | bambu | 외벽 파편화 **FAIL 1 건** (1.850) | `외벽 파편화` 줄을 `pass` 로 | classic 이 외벽까지 조각내는 형상이 통과한다 |
+| `evals/gate-fixtures/process-wall-budget-classic-low-frag.json` | bambu | **PASS** (93 % · 파편화 0.993) | — (PASS 기대라 변이 없음) | — |
 | `evals/gate-fixtures/process-flow-ratio-over.json` | bambu | 유량비 **FAIL 1 건** (`sparse_infill_speed` 7.1x) | `유량비` 줄을 `pass` 로 | 인접 속도가 외벽의 5 배를 넘어도 통과한다 |
 | `evals/gate-fixtures/process-scarf-ratio-over.json` | bambu | scarf 길이 비율 **FAIL 1 건** (20 %) | `scarf 길이 .L.mm 가 루프` 줄을 `pass` 로 | scarf 가 루프 둘레의 15 % 를 넘어도 통과한다 |
 | `evals/gate-fixtures/filament-retraction-over-parent.json` | bambu | 소재 부모값 **FAIL 1 건** (`filament_retraction_length` 슬롯 1) | `.k. 슬롯` 줄을 `pass` 로 | 소재 부모값의 1.5 배를 넘긴 되감기가 통과한다 |
@@ -1933,6 +1941,8 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-class-unknown.json; echo "exit=$
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-speed-without-class.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-speed-lowered.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic-high-frag.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic-low-frag.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-flow-ratio-over.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-scarf-ratio-over.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/filament-retraction-over-parent.json; echo "exit=$?"
@@ -1968,6 +1978,8 @@ drop "outer_wall_speed 를 명시했는데" noclass
 TARGET_SLICER=bambu python3 "$GATE.noclass" $FX/process-speed-without-class.json; echo "exit=$?"
 drop "벽 예산 미달 비율" budget
 TARGET_SLICER=bambu python3 "$GATE.budget" $FX/process-wall-budget-classic.json; echo "exit=$?"
+drop "외벽 파편화" frag                            # 「벽 예산 미달 비율」 은 미기록 갈래만 잡는다 — 파편화 갈래는 따로 지운다
+TARGET_SLICER=bambu python3 "$GATE.frag" $FX/process-wall-budget-classic-high-frag.json; echo "exit=$?"
 drop "유량비" flow
 TARGET_SLICER=bambu python3 "$GATE.flow" $FX/process-flow-ratio-over.json; echo "exit=$?"
 drop "scarf 길이 .L.mm 가 루프" scarf              # 하한 3mm 줄도 「scarf 길이」 로 시작한다
@@ -2438,6 +2450,7 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
   Phase 4.3 게이트가 옵션 목록의 enum 줄로 모든 enum 키를 검사해 `받지 않는 값` 으로 잡고, 슬라이서가 옛 값을
   바꿔 읽는 경우(오르카 `top_surface_pattern: zig-zag` → `rectilinear`)는 `옛 값` 경고로 알린다.
 - ☐ **(2026-09-08 신규) `_geometry_class` 를 측정으로 정해 process JSON 에 기록했는지** — Phase 1.0 probe 출력의 `planar` | `thin`. `thin` 인데 `outer_wall_speed` 를 낮췄으면 정책 위반이고 Phase 4.3 게이트가 FAIL 한다 (`surface-recipes.md` §2.7).
+- ☐ **(2026-09-26 신규) 벽 예산이 부족한데 `classic` 을 쓴다면 `_wall_outer_block_ratio` 를 재서 기록했는지** — 같은 3mf 를 두 생성기로 잘라 `; FEATURE:Outer wall` 블록 수를 나눈 값이다. 안 기록하면 Phase 4.3 게이트가 `classic` 을 통과시키지 않는다. 1.3 이상이면 `arachne` 로 (`surface-recipes.md` §2.8 「측정」).
 - ☐ **(2026-09-08 신규) 키를 넣기 전에 설치본 스코프(process / filament)를 확인했는지** — 냉각 키(`overhang_fan_threshold` 등)는 filament 스코프라 process 에 넣으면 조용히 무시된다. 게이트가 옵션 목록의 프리셋 종류 줄로 검사한다 (`bambu-fields-baseline.md` §10.5 · §11.1).
 - ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
 - ☐ **(2026-09-22 신규) 외벽을 낮췄으면 `bridge_speed` 를 `20-30` 으로 같이 넣었는지, ABS · ASA 에 다림질을 기본으로 켜지 않았는지** — 둘 다 부모값·기본값이 조용히 살아남는 자리다. 허공 위 속도는 Phase 4.3 게이트가 FAIL 로 잡는다 (`surface-recipes.md` §4 · §5.1).
