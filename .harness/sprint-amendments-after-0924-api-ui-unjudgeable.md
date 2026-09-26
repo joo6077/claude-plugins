@@ -36,3 +36,9 @@ f81568d  block=140-141 MD060_out=20 MD022_out=4 MD032_out=4
 세션 `de8c7935-a5b6-4df5-9106-fafa73c288a0`, cwd `/Users/jackson/Hub/10_Dev/claude-plugins`
 (세션 기록 `/Users/jackson/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/de8c7935-a5b6-4df5-9106-fafa73c288a0.jsonl`).
 이 개정을 콕 집어 묻고 받은 동의가 아니라 이어질 일을 묻지 말고 끝까지 하라는 일반 위임이다. `anchored` 로 인정할지는 평가자가 정한다.
+
+## 사용자 동의 — A-01 (2026-09-26 18:03 KST)
+
+- 부모 교차 진단이 A-01 을 조건을 느슨하게 하는 개정(DG-02)으로 계산했고, 동의 근거가 일반 위임뿐이라 판정을 뒤집었다(contract-schema.md 「완화의 승인 주체는 사용자뿐」).
+- 사용자에게 이 개정만 콕 집어 물었고 「승인」 을 받았다: AskUserQuestion 답 `2026-09-26T09:03:30.690Z`, 세션 기록 `/Users/jackson/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72.jsonl`, 작업 폴더 `/Users/jackson/Hub/10_Dev/claude-plugins`.
+- 이 줄은 답보다 뒤에 커밋한다. 조건 줄 · 측정은 바꾸지 않는다 — DG-02 의 판정은 이 동의로 성립한다.
