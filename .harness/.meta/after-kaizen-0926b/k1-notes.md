@@ -102,7 +102,32 @@
 
 측정 도우미 사본: `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/k1/m.sh` (계약 「회귀 게이트」 블록을 뗀 것). 작업 폴더 판을 재는 보조 `runwt.sh`, 마크다운 새 경고 `mdwt.sh` 도 같은 폴더에 있다. 로컬 CI 는 `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh`.
 
-값은 QA 에 넘기기 전 마지막 측정에서 채웠다 — 아래 「최종 측정」 절.
+끝점 `6f421dd`(이 줄을 더하기 직전 커밋)에서 `m` 으로 잰 값. 출력 원문: 같은 폴더 `final-measure-2.out`.
+
+| 조건 | 값 | 기대 |
+| --- | --- | --- |
+| SK-01 | `clauses=1 req=1 prov=1 old=0 md029=1/1` | 맞음 |
+| SK-02 | `env_gaps=3 invalid=3 rep_env=1 rep_inv=1 rule_old=0 rule_inv=1 l3_4req=1` | 맞음 |
+| SK-03 | `cases=24 ids_ok=1 skip_case=1 case16_same=1` · `Total: 24 passed, 0 failed` 종료 코드 0 | 맞음 |
+| SK-04 | `cases=24 commands=24개 conventions=24개` | 맞음 |
+| SK-05 | `1` | 맞음 |
+| SK-06 | `api=1 feature=1 screen=1` | 맞음 |
+| SK-07 | `flutter_test=1 dart_verify=0 skill=flutter-test` | 맞음 |
+| SK-08 | `old216=0 joined=1 flags=[2/2 2/2 2/2]` | 맞음 (중간에 `2/3` 이 나와 `5e297c9` 로 고쳤다) |
+| SK-09 · SK-10 | 둘 다 `sec=24 prov=1 rows=5/5 merge_base=2 wt=1 prep=2` | 맞음 |
+| SK-11 | `gotcha=1 wrapper=6/7 agent=1` | 맞음 (「남은 것」 첫 줄 참조) |
+| SK-12 | `call=1 keys_same=1 nkeys=11 script_changed=0` | 맞음 |
+| SK-13 | `1` · `apiVersion=2022-11-28` 2 | 맞음 (「남은 것」 첫 줄 참조) |
+| SK-14 | `row=2 canary_wait=0 v193=2` | 맞음 |
+| SK-15 | 여덟 줄 모두 `lu=1 … miss=0` (commits 9 · 7 · 2 · 6 · 3 · 5 · 9 · 6 = 47) | 맞음 |
+| SK-16 | `dev_strict=1 step8=0 passed=1 skipped=1 split=1 verdict=1` · `g1_tpl=1 g1_strict=4 vt=4 fi_link=2 rep=2,2,2,2,2,3,` | 맞음 |
+| ER-01 | `flutter=[0 1 1] react=[0 1 1]` | 맞음 |
+| AR-01 | `changed=25 extra=0 multi_top=0 flutter=8 react=4 planning=1 docs_react=9 root=1` | 맞음 (이 줄을 더한 뒤 다시 잰다) |
+| AR-02 | `committed=1` 과 스물셋 모두 1 이상 · `rc=0 pages=10 miss=0` | 맞음 (이 줄을 더한 뒤 다시 잰다) |
+| AP-03 · AP-04 | validate-plugin 종료 코드 0 · 0 | 맞음 |
+| SC-00 · RE-01 · DG-01 · DG-03 | 0 · 0 줄 · 0 · 0 | 맞음 |
+| DG-02 | `md_new=0 json_bad=0` | 맞음 |
+| DG-05 | 끝점 `6f421dd`, 작업 폴더 깨끗, `rc=0` 25 줄 · 나머지 한 줄 `feedback-agg-test SKIP (yq 없음)` (요약: 같은 폴더 `ci-final/ci-local/summary.txt`) | 맞음 |
 
 ## 남은 것
 
