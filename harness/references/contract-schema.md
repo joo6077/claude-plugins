@@ -3,7 +3,9 @@
 > sprint-contract 와 qa-evaluator 가 공유하는 계약 포맷 정의.
 > contract-kaizen 이 변경 제안 가능, evaluator-kaizen 이 읽어서 평가 루브릭에 반영.
 >
-> **최근 갱신: 2026-09-24 (Phase 2 kaizen · v5.5)** — 재는 명령의 준비 단계 실측(값만 면제), 알려진 답 대조 패턴, 조건 수는 기능 조건만 센다, 여러 주체가 한 가지에 커밋할 때의 서명 줄, 검사 스크립트는 이 스프린트 몫의 줄로 한정, zsh 배열 첨자, 시각 필드는 `date` 출력으로.
+> **최근 갱신: 2026-09-26 (v5.6)** — 조건 아래 들여쓴 줄(측정 명령 · 음성 대조 · 픽스처 · 조건의 둘째 줄)을 따로 잠그는 선택 필드 `measurement_digest` 와 검증 함수 `verify_measurement` 를 더했다. `conditions_digest` 는 그대로다 (§계약 봉인 > 측정 줄 봉인).
+>
+> 이전: 2026-09-24 (Phase 2 kaizen · v5.5) — 재는 명령의 준비 단계 실측(값만 면제), 알려진 답 대조 패턴, 조건 수는 기능 조건만 센다, 여러 주체가 한 가지에 커밋할 때의 서명 줄, 검사 스크립트는 이 스프린트 몫의 줄로 한정, zsh 배열 첨자, 시각 필드는 `date` 출력으로.
 >
 > 이전: 2026-09-08 (amend_direction 극성 · v5.3 보강) — 오라클(diff-scope 베이스라인 · 제외 pathspec · 측정 명령)을 바꾸는 amendment 의 direction 을 **측정 집합** 전용 헬퍼 `amend_direction_oracle` 로 계산한다. 기존 `amend_direction` 은 **허용 집합** 전용이며, 측정 집합을 넣으면 극성이 뒤집혀 `relaxing` 이 `narrowing` 으로 적힌다 (실측 howto-kit A-01, 39 → 37 경로). 결측 입력은 조용한 `unknown` 이 아니라 `unknown missing_input=` 으로 드러낸다. 버전 번호는 올리지 않는다 — 다음 번호는 다른 브랜치(`fix/contract-schema-unmeasured-oracle`)가 선점했다.
 >
@@ -202,6 +204,7 @@ slug: {slug}                # v5 — 접미형일 때 필수, plain 모드면 �
 status: active              # v5 — active | done. 따옴표 없이
 owner_session: {세션 ID}    # v5 — $CLAUDE_CODE_SESSION_ID. 값이 없으면 필드 자체를 생략. 따옴표 없이
 conditions_digest: sha256:{16hex}   # v5.3 — 조건 봉인. 따옴표 없이
+measurement_digest: sha256:{16hex}  # v5.6 — 조건 아래 들여쓴 줄 봉인. 따옴표 없이
 locked_at: "{YYYY-MM-DD HH:mm}"     # v5.3 — 봉인 시각
 ```
 
@@ -320,6 +323,23 @@ verify_seal() {  # verify_seal <계약파일> → SEAL_OK | SEAL_BROKEN | SEAL_A
   if [ "$rec" = "$act" ]; then echo "SEAL_OK $1"
   else echo "SEAL_BROKEN $1 recorded=$rec actual=$act"; fi
 }
+
+measurement_digest() {  # measurement_digest <계약파일> — 조건 번호 + 그 아래 들여쓴 줄
+  awk '
+    /^- \[[ x]\] [A-Z][A-Z]+-[0-9][0-9]/ { inb=1; match($(0), /[A-Z][A-Z]+-[0-9][0-9]/); print substr($(0), RSTART, RLENGTH); next }
+    inb && /^[ \t]+[^ \t]/ { line=$(0); sub(/[ \t]+$/, "", line); print line; next }
+    inb && /^[ \t]*$/      { next }
+    { inb=0 }
+  ' "$1" | sha256_16
+}
+
+verify_measurement() {  # verify_measurement <계약파일> → MEASURE_OK | MEASURE_BROKEN | MEASURE_ABSENT
+  rec=$(fm_get "$1" measurement_digest); rec=${rec#sha256:}
+  if [ -z "$rec" ]; then echo "MEASURE_ABSENT $1"; return 0; fi
+  act=$(measurement_digest "$1")
+  if [ "$rec" = "$act" ]; then echo "MEASURE_OK $1"
+  else echo "MEASURE_BROKEN $1 recorded=$rec actual=$act"; fi
+}
 ```
 
 **하위호환 — 부재는 실패가 아니다.** 두 필드는 **선택 필드**다. `conditions_digest` 가 없으면
@@ -331,6 +351,32 @@ verify_seal() {  # verify_seal <계약파일> → SEAL_OK | SEAL_BROKEN | SEAL_A
 **`SEAL_BROKEN` 을 만났을 때** — 조용히 다시 봉인하지 마라. 그것은 위반을 지우는 행위다.
 사용자에게 `recorded` / `actual` 두 값과 함께 보고하고, 변경 의도가 정당하면 **사이드카
 amendment** 로 기록한다 (§Amendment 사이드카).
+
+#### 측정 줄 봉인 — `measurement_digest` (v5.6 · E3)
+
+`conditions_digest` 는 조건 체크박스 줄만 덮는다. 조건 아래 **들여쓴 줄** — 측정 명령 · 음성 대조 · 픽스처 ·
+두 줄로 이어 쓴 조건의 둘째 줄 — 을 고쳐도 `SEAL_OK` 다. 그런데 그 줄이 통과 기준이다. 측정을 바꾸면 조건
+문구를 바꾼 것과 결과가 같다. 실측(2026-09-26, 이 레포): 봉인 커밋이 있는 계약 74 개 중 4 개가 봉인 뒤 측정
+줄을 고쳤고 넷 다 `SEAL_OK` 였다. 그중 하나는 "바뀐 파일 3 개와 정확히 일치" 를 "5 경로" 로 넓혔다.
+
+**정의** — 조건 체크박스 줄마다 **조건 번호 한 줄**을 쓰고, 이어서 그 아래 **들여쓴 줄**을 줄 끝 공백을 지워
+모은다. 빈 줄은 건너뛰고, 들여쓰지 않은 줄을 만나면 그 조건의 묶음이 끝난다. 이것을 파일 순서대로 이어
+`sha256_16` 을 취한다. 함수는 위 봉인 코드 블록의 `measurement_digest` · `verify_measurement` 다.
+
+- 조건 줄 판정은 `contract_digest` 와 같은 모양(대문자 2 자 이상 · `-` · 숫자 2 자)이다. 조건 문구는
+  `conditions_digest` 가 이미 덮으므로 여기서는 번호만 넣는다 — 측정 묶음이 다른 조건 밑으로 옮겨 가면 깨진다
+- **측정 줄은 조건 아래 들여써 적는다.** 들여쓰지 않고 조건 바로 뒤에 붙인 줄, 조건 밖 서술 절(`### 공통 정의` 등)은
+  이 봉인 밖이다. 그 줄은 §봉인 커밋 대조(평가자 1-e-3)의 산문 차이로만 드러난다
+- 체크박스 토글 · `status` 전환 · 서술 절 편집 · 줄 끝 공백은 깨지 않는다. 측정 줄 문구 변경 · 측정 줄 추가 · 삭제 ·
+  들여쓴 픽스처 블록 안 변경은 반드시 깬다
+
+**하위호환 — 없으면 경고이지 실패가 아니다.** `measurement_digest` 가 없는 계약은 `MEASURE_ABSENT` 이고 종료 코드는
+0 이다. 실측(2026-09-26): 기존 계약 104 개 전부가 `MEASURE_ABSENT` 였고 `SEAL_*` 판정은 하나도 바뀌지 않았다.
+**옛 계약에 소급해서 써 넣지 마라** — `conditions_digest` 와 같은 이유다.
+
+**`MEASURE_BROKEN` 을 만났을 때** — `SEAL_BROKEN` 과 같게 다룬다. 조용히 다시 봉인하지 말고 `recorded` / `actual` 을
+보고한다. 측정을 바꿔야 하면 계약 본문이 아니라 개정 파일에 쓴다. 측정을 바꾸는 개정은 `amend_direction_oracle`
+로 방향을 계산하고, 느슨해지는 쪽이면 `consent: anchored` 가 필요하다 (§Amendment 사이드카).
 
 ### status 해석 규칙 (backward-compat 의 핵심)
 
