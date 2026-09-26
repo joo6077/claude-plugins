@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>api-kit 연구 기록 — API Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#A3E635;--accent2:#D9F99D;--accent-dim:rgba(163,230,53,0.12);
+    --accent-line:rgba(163,230,53,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#3F6212;--accent2:#365314;--accent-dim:rgba(63,98,18,0.10);
+    --accent-line:rgba(63,98,18,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; API Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">API Kit · 연구 기록</span>
+  <h1>api-kit 연구 기록</h1>
+  <p class="orig-title">원본 제목: <strong>api-kit Research Log</strong></p>
+  <p class="subtitle">킷을 만든 날부터 카이젠까지, <strong>무엇을 재 봤고 무엇이 문서와 달랐는지</strong>를 날짜 순으로 남긴 기록이다. 틀렸던 단서도 지우지 않고 정정 표시를 붙여 둔다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>docs/api/research-log.md</code></span>
+    <span class="badge">판 0.3.0</span>
+    <span class="badge">마지막 갱신 2026-09-24</span>
+    <span class="badge">날짜 절 넷</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>2026-09-04 · 첫 조사</h3>
+      <p>Codex 다섯 번으로 12 주제를 골랐고 고유 출처 주소 108 개를 모았다. <code>pin</code> 의 뜻을 「값 고정」 에서 「경로별 명시 검사」 로 다시 정했다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-09-05 · Hurl 8.0.1 실측</h3>
+      <p>미검증 다섯 건을 실제로 돌려 봤다. 넷은 문서와 같았고 <code>--secret</code> 가리기는 문서보다 새는 곳이 넓었다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-09-24 · 첫 카이젠</h3>
+      <p>경로 사이 불변식을 Hurl 에 적어 보고, 뷰어를 브라우저로 열어 봤다. 문서와 실측이 어긋난 곳과 이월할 후보를 적었다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-09-26 · 게이트 가름</h3>
+      <p>I-JSON 게이트 목록에 넣었던 <code>-0</code> 을 RFC 7493 에 없는 규칙이라 게이트 다음 검사로 옮겼다.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>[2026-09-04] — 최초 리서치 (킷 생성)</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>[2026-09-05] — Hurl 8.0.1 실측 대조</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>[2026-09-24] — 첫 카이젠 (Phase 16)</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>[2026-09-26] — I-JSON 게이트와 -0 검사를 가름</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="table-wrap"><table class="fm">
+<thead><tr><th>머리 설정 키</th><th>값</th></tr></thead><tbody>
+<tr><td><code>version</code></td><td class="fm-val">0.3.0</td></tr>
+<tr><td><code>last_updated</code></td><td class="fm-val">2026-09-24</td></tr>
+</tbody></table></div>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>[2026-09-04] — 최초 리서치 (킷 생성)</h2>
+  <div class="doc-body">
+<p><code>/create-kit</code> Phase 1. 외부 조회는 Codex 5 런(read-only, foreground)으로 수행했고, 그 결과가 <code>docs/api/</code> 12 문서의 유일한 외부 근거다.</p>
+<h3 class="sub">리서치 런</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">런</div></th>
+  <th><div class="c">범위</div></th>
+  <th><div class="c">소요</div></th>
+  <th><div class="c">산출</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">Step 1.1</div></td>
+  <td><div class="c">영역 분석 + 12 주제 선정</div></td>
+  <td><div class="c">4m 5s</div></td>
+  <td><div class="c">P1 8 + P2 4 주제, Top 10 자동화 대상</div></td>
+</tr>
+<tr>
+  <td><div class="c">배치 A</div></td>
+  <td><div class="c">인벤토리 정규화 · Probe/Hurl 의미론 · 상호운용</div></td>
+  <td><div class="c">4m 40s</div></td>
+  <td><div class="c">190 줄</div></td>
+</tr>
+<tr>
+  <td><div class="c">배치 B</div></td>
+  <td><div class="c">안전 게이트 · 인증/시크릿 · 오류 계약</div></td>
+  <td><div class="c">3m 40s</div></td>
+  <td><div class="c">192 줄</div></td>
+</tr>
+<tr>
+  <td><div class="c">배치 C</div></td>
+  <td><div class="c">스냅샷 봉인 · 계약 추출 모드 · 다중 샘플</div></td>
+  <td><div class="c">4m 15s</div></td>
+  <td><div class="c">167 줄</div></td>
+</tr>
+<tr>
+  <td><div class="c">배치 D</div></td>
+  <td><div class="c">회귀 diff · 정적 뷰어 · baseline 거버넌스</div></td>
+  <td><div class="c">4m 55s</div></td>
+  <td><div class="c">237 줄</div></td>
+</tr>
+</tbody></table></div>
+<p>고유 출처 URL <strong>108 개</strong>. 1 차 출처(RFC · 공식 사양 · 공식 문서) 우선.</p>
+<h3 class="sub">이 사이클에서 뒤집힌 결정</h3>
+<p><strong><code>pin</code> 의 의미.</strong> 설계문서 초안은 "지정 필드는 값까지 고정" 이라고 적었는데, 픽스처에서 pin 을 건 <code>$.meta.total</code>(주문 총건수)이 매 호출 변하는 값이라 자기모순이었다. 리서치 결과 <code>pin</code> 은 조사한 주류 도구 어디에서도 그 뜻으로 쓰이지 않는다 — 발견된 용례는 버전 pin 과 기준 snapshot pin 뿐이다. 필드별 검증 강도의 실제 어휘는 Hurl assert + predicate, Karate schema marker, Pact matcher, JSON Schema <code>const</code>/<code>enum</code> 이다.</p>
+<p>이름은 UI 전반에 아이콘이 깔려 있어 <code>pin</code> 으로 유지하되 <strong>의미를 '경로별 명시 assertion' 으로 재정의</strong>했다. 값 고정은 pin 이 표현할 수 있는 assertion 한 종류일 뿐이다. 상세는 설계문서 §9.2.</p>
+<h3 class="sub">미검증 항목 — 구현 단계에서 실측 대조 필요</h3>
+<p>로컬에 <code>hurl</code> 바이너리가 없어 아래는 <strong>공식 문서 기재를 옮긴 것이고 실행으로 확인하지 않았다.</strong> <code>/api-probe</code> 구현 시 실제 Hurl 8.0.1 로 대조하라.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">항목</div></th>
+  <th><div class="c">문서에 기재한 값</div></th>
+  <th><div class="c">출처</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">옵션 우선순위</div></td>
+  <td><div class="c"><code>env &lt; CLI &lt; [Options]</code></div></td>
+  <td><div class="c">hurl.dev/docs/manual.html#configuration</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--retry-interval</code> 기본</div></td>
+  <td><div class="c"><code>1000 ms</code></div></td>
+  <td><div class="c">hurl.dev/docs/manual.html#run-options</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--max-redirs</code> 기본</div></td>
+  <td><div class="c"><code>50</code> (<code>-1</code> 은 무제한)</div></td>
+  <td><div class="c">hurl.dev/docs/manual.html#http-options</div></td>
+</tr>
+<tr>
+  <td><div class="c">exit code</div></td>
+  <td><div class="c"><code>0</code> 성공 / <code>1</code> CLI 파싱 / <code>2</code> 입력 파싱 / <code>3</code> 런타임 / <code>4</code> assert</div></td>
+  <td><div class="c">hurl.dev/docs/manual.html#exit-codes</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--secret</code> 마스킹 범위</div></td>
+  <td><div class="c">stderr 로그·리포트만. <strong>stdout 응답과 <code>--json</code> stdout 은 가리지 않음</strong></div></td>
+  <td><div class="c">hurl.dev/docs/templates.html#secrets</div></td>
+</tr>
+</tbody></table></div>
+<p>마지막 항목이 가장 중요하다 — api-kit 의 redaction 설계 전체가 여기 걸린다. Hurl 에 맡기지 않고 킷이 자체 scrubber 를 거친 데이터만 저장·렌더한다는 결정(설계문서 §8.2)의 근거이므로, 실측에서 다르게 나오면 §8.2 를 다시 봐야 한다.</p>
+<blockquote class="quote"><p><strong>[2026-09-05 해소]</strong> 아래 사이클에서 5 건 전부 실측했다. 4 건은 문서와 일치했고 <code>--secret</code> 마스킹 범위는 <strong>문서보다 새는 면적이 넓었다.</strong> 이 표는 그때 무엇을 몰랐는지를 남기려고 원문 그대로 둔다.</p></blockquote>
+<h3 class="sub">사용자 확정 (2026-09-04)</h3>
+<p>리서치가 남긴 열린 질문 4 건에 대한 결정이다. 상세는 설계문서 §12.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">질문</div></th>
+  <th><div class="c">결정</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>exact</code> 모드가 헤더까지 보는가</div></td>
+  <td><div class="c"><strong>본문만.</strong> 헤더는 <code>Date</code>·<code>X-Request-Id</code> 등이 매번 변해 상시 실패한다. 필요한 헤더는 pin 으로 개별 지정</div></td>
+</tr>
+<tr>
+  <td><div class="c">prod read-only 범위</div></td>
+  <td><div class="c"><strong>미확정.</strong> 기본 GET/HEAD/OPTIONS 로 두고 allowlist 여지만 남긴다</div></td>
+</tr>
+<tr>
+  <td><div class="c">enum 승격 최소 샘플</div></td>
+  <td><div class="c"><strong>1 샘플은 후보 표시만(경고), 3 샘플 이상에서 승격.</strong> 오탐 실패가 도구 신뢰를 가장 빨리 깎는다</div></td>
+</tr>
+<tr>
+  <td><div class="c">baseline 에 raw 보관 여부</div></td>
+  <td><div class="c"><strong>보관.</strong> 단 시크릿 값만 마스킹한 raw</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>[2026-09-05] — Hurl 8.0.1 실측 대조</h2>
+  <div class="doc-body">
+<p><code>brew install hurl</code> (8.0.1, <code>x86_64-apple-darwin25.0</code>, libcurl/8.7.1) 로 로컬 바이너리를 확보하고, <code>127.0.0.1:8731</code> 에 고정 JSON 을 돌려주는 로컬 픽스처 서버를 띄워 대조했다. 외부 호출은 없다. 픽스처 본문은 <code>{"token":"sekret-abc123","data":[{"id":1,"status":"paid"}],"meta":{"total":1}}</code> 로, 시크릿 값이 <strong>응답 본문에 그대로 들어 있는</strong> 형태다. 마스킹 여부를 재려면 가릴 것이 있어야 한다.</p>
+<p>판정: <strong>CHANGED 1 건 · NO-CHANGE 4 건.</strong> 외부 조회 0 회 (전부 로컬 실행).</p>
+<h3 class="sub">4 건은 문서와 일치했다</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">항목</div></th>
+  <th><div class="c">문서 기재</div></th>
+  <th><div class="c">실측</div></th>
+  <th><div class="c">방법</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">옵션 우선순위</div></td>
+  <td><div class="c"><code>env &lt; CLI &lt; [Options]</code></div></td>
+  <td><div class="c">일치</div></td>
+  <td><div class="c"><code>HURL_MAX_REDIRS=3</code> → <code>--max-redirs 5</code> → <code>[Options] max-redirs: 7</code> 를 겹쳐 걸고 <code>--json</code> 의 <code>curl_cmd</code> 에서 3 / 5 / 7 을 순서대로 관측</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--retry-interval</code> 기본</div></td>
+  <td><div class="c"><code>1000 ms</code></div></td>
+  <td><div class="c">일치</div></td>
+  <td><div class="c"><code>hurl --help</code> → <code>[default: 1000]</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--max-redirs</code> 기본</div></td>
+  <td><div class="c"><code>50</code>, <code>-1</code> 무제한</div></td>
+  <td><div class="c">일치</div></td>
+  <td><div class="c"><code>hurl --help</code> → <code>[default: 50]</code>; man → "-1 to make it unlimited"</div></td>
+</tr>
+<tr>
+  <td><div class="c">exit code</div></td>
+  <td><div class="c"><code>0</code>/<code>1</code>/<code>2</code>/<code>3</code>/<code>4</code></div></td>
+  <td><div class="c">일치</div></td>
+  <td><div class="c">5 종을 각각 재현 — 정상 실행 / <code>--no-such-flag</code> / 깨진 <code>[Asserts</code> 블록 / 닫힌 포트 9999 / 틀린 jsonpath</div></td>
+</tr>
+</tbody></table></div>
+<p>우선순위 항목에는 문서에 없던 단서가 하나 붙는다. 이 규칙은 <strong>옵션에만</strong> 적용된다. <code>HURL_who=from-env</code> 를 걸어도 <code>{{who}}</code> 변수는 채워지지 않고 assert 가 <code>actual: none</code> 으로 실패한다. 변수는 <code>--variable</code> / <code>--variables-file</code> / <code>--secret</code> / <code>--secrets-file</code> / <code>[Options] variable:</code> 로만 들어온다.</p>
+<blockquote class="quote"><p><strong>[2026-09-24 정정]</strong> 이 단서는 <code>HURL_who</code> 만 재서 나온 것이다. Hurl 8.0.0 부터 변수 접두는 <code>HURL_VARIABLE_</code> 이고, <code>HURL_VARIABLE_who</code> 는 <code>{{who}}</code> 를 채운다. 아래 2026-09-24 절에 다시 잰 값이 있다. 이 문단은 그때 무엇을 몰랐는지 남기려고 원문 그대로 둔다.</p></blockquote>
+<h3 class="sub"><code>--secret</code> 은 문서보다 새는 면적이 넓다 (CHANGED)</h3>
+<p>"stderr 로그·리포트만 가린다" 는 기재는 <strong>리포트 쪽이 부정확</strong>하다. 리포트는 두 종류의 파일을 쓰고 그 둘의 처리가 다르다. 그리고 문서가 아예 언급하지 않은 유출 경로가 둘 더 있다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">채널</div></th>
+  <th><div class="c">본문/값을 담나</div></th>
+  <th><div class="c">시크릿</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">stdout 기본 응답 출력</div></td>
+  <td><div class="c">담는다</div></td>
+  <td><div class="c"><strong>평문</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--include</code> stdout</div></td>
+  <td><div class="c">담는다</div></td>
+  <td><div class="c"><strong>평문</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--output &lt;file&gt;</code></div></td>
+  <td><div class="c">담는다</div></td>
+  <td><div class="c"><strong>평문</strong> — 문서에 없던 경로</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--json</code> stdout 의 <code>curl_cmd</code> · 요청 헤더 · <code>captures[].value</code></div></td>
+  <td><div class="c">담는다</div></td>
+  <td><div class="c"><strong>평문</strong> — 문서에 없던 경로</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--report-json</code> 의 <code>store/*_response.json</code></div></td>
+  <td><div class="c">원본 응답 본문</div></td>
+  <td><div class="c"><strong>평문</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--report-json</code> 의 <code>report.json</code> (<code>curl_cmd</code> · 헤더)</div></td>
+  <td><div class="c">담는다</div></td>
+  <td><div class="c"><code>***</code> 로 마스킹</div></td>
+</tr>
+<tr>
+  <td><div class="c">stderr <code>--very-verbose</code></div></td>
+  <td><div class="c">담는다</div></td>
+  <td><div class="c"><code>***</code> 로 마스킹</div></td>
+</tr>
+<tr>
+  <td><div class="c">stderr <code>--verbose</code></div></td>
+  <td><div class="c"><strong>본문을 안 찍는다</strong></div></td>
+  <td><div class="c">해당 없음</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--report-html</code></div></td>
+  <td><div class="c"><strong>본문을 안 담는다</strong></div></td>
+  <td><div class="c">해당 없음</div></td>
+</tr>
+</tbody></table></div>
+<p>아래 두 줄은 "0 건" 을 통과로 읽으면 안 되는 자리다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--json</code> stdout 의 <code>response</code> 에는 <strong><code>body</code> 필드 자체가 없다.</strong> 여기서 시크릿이 안 보이는 것은 마스킹이 아니라 미수록이다. 대신 같은 출력의 <code>curl_cmd</code> · 요청 헤더 · <code>captures</code> 가 평문이다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--verbose</code> stderr 에도 본문이 안 찍힌다. 본문이 찍히는 건 <code>--very-verbose</code> 부터이고, 거기서는 실제로 <code>***</code> 로 바뀐다.</div></li>
+</ul>
+<p>exact match 라는 기재도 실측으로 확인했다. <code>--secret token=sekret-abc123</code> 을 걸고 같은 값의 base64 본(<code>c2VrcmV0LWFiYzEyMw==</code>)을 별도 헤더로 보내면 원본은 <code>***</code> 가 되지만 base64 본은 stderr · <code>curl_cmd</code> · 리포트 3 곳에 평문으로 남는다.</p>
+<h3 class="sub"><code>redact</code> capture 의 사정거리는 더 좁다</h3>
+<p>문서는 <code>redact</code> 를 "이후 로그·리포트 마스킹 대상에 넣는다" 고만 적었다. 실측은 다르다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--json</code> stdout 의 <code>captures[].value</code> 가 평문이다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">캡처값을 다음 entry 의 <code>Authorization</code> 헤더로 넘기면 <code>--json</code> 의 <code>curl_cmd</code> 와 요청 헤더에 평문으로 나타난다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--report-json</code> 의 <code>store/*_response.json</code> 도 평문이다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>--very-verbose</code> 와 함께 쓰면 Hurl 이 실행을 거부한다</strong> — <code>error: Invalid redacted secret ... redacted secret not authorized in verbose</code>. 진단하려고 verbose 를 켜는 순간 파일이 안 돈다.</div></li>
+</ul>
+<h3 class="sub">설계에 미치는 영향</h3>
+<p>§8.2 의 결정(Hurl 에 맡기지 않고 킷 자체 scrubber 를 통과한 데이터만 저장·렌더)은 <strong>뒤집히지 않고 오히려 강화된다.</strong> 다만 scrubber 를 걸어야 할 경로 목록이 늘었다 — <code>--output</code> 과 <code>--report-json</code> 의 <code>store/</code> 디렉토리, 그리고 <code>--json</code> stdout 을 artifact 로 남기는 경우다. <code>/api-probe</code> 가 리포트를 켜면 시크릿이 파일로 떨어진다는 뜻이므로, 리포트 디렉토리도 스냅샷과 같은 fail-closed 게이트를 지나야 한다.</p>
+<h3 class="sub">재현 방법</h3>
+<p><code>hurl 8.0.1</code> 과 로컬 픽스처 서버만 있으면 된다. 서버는 고정 JSON 하나를 200 으로 돌려주면 충분하고, 그 본문에 시크릿으로 등록할 값을 넣어 두는 것이 요점이다. 채널별 판정은 <code>grep -c '&lt;시크릿&gt;' &lt;출력&gt;</code> 으로 하되, <strong>그 채널이 본문을 담기는 하는지</strong> 를 먼저 확인해야 한다 (비밀 아닌 값 하나를 같이 넣어 두고 그것으로 채널의 수록 여부를 재는 편이 안전하다).</p>
+<h3 class="sub">다음 사이클 후보</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">JSON Schema 역추론 도구(quicktype · GenSON · json-schema-inferrer) 최신 버전 pinning — 설계문서 §13 이 이미 미해결로 표시한 항목</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>exact</code> 모드의 배열 순서 정책 — 순서 보장 없는 컬렉션에 exact 를 허용할지</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--secrets-file</code> 의 파일 권한·수명 실측 — 이번 사이클에서 <code>--secret</code> 만 봤다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Hurl 리포트 디렉토리에 대한 scrubber 게이트 설계 (2026-09-05 실측에서 새로 생긴 요구)</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>[2026-09-24] — 첫 카이젠 (Phase 16)</h2>
+  <div class="doc-body">
+<p>카이젠 2026-09-24 Phase 16. 외부 근거는 <code>.harness/.meta/evidence/phase16.md</code> 하나이고, 이 절의 실측은 로컬 <code>hurl 8.0.1</code> 과 <code>127.0.0.1</code> 픽스처 서버, 헤드리스 크로미엄(Playwright 1.58.2)으로만 돌렸다. 외부 요청은 없다. 처리 배정표 키는 <code>other-kits:P7</code>(경로 간 조건에 양쪽 값 · 판정 불가)과 <code>other-kits:P8</code>(뷰어를 브라우저로 여는 확인)이다. 실측은 2026-09-24(근거 수집)와 2026-09-25(계약 초안 · 검토)에 돌렸다. 소제목 날짜는 절을 연 날이다.</p>
+<h3 class="sub">경로 간 불변식을 Hurl 에 적어 본 결과 (2026-09-24)</h3>
+<p><code>len($.data) &lt;= $.meta.total</code> 을 한 요청 안에서 <code>[Captures] total: jsonpath "$.meta.total"</code> 다음 <code>[Asserts] jsonpath "$.data" count &lt;= {{total}}</code> 로 적었다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">응답</div></th>
+  <th><div class="c">종료 코드</div></th>
+  <th><div class="c">출력</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>total=47</code> · 항목 10</div></td>
+  <td><div class="c"><code>0</code></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>total=-1</code> · 항목 10</div></td>
+  <td><div class="c"><code>4</code></div></td>
+  <td><div class="c"><code>actual: integer &lt;10&gt;</code> · <code>expected: less or equal than integer &lt;-1&gt;</code> — <code>-1</code> 이 <code>$.meta.total</code> 에서 왔다는 말은 없다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>$.meta</code> 없음</div></td>
+  <td><div class="c"><code>3</code></div></td>
+  <td><div class="c"><code>No query result</code> — capture 에서 멈춘다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>$.meta</code> 없음, <code>jsonpath "$.meta.total" &gt;= 10</code> 을 바로 검사</div></td>
+  <td><div class="c"><code>4</code></div></td>
+  <td><div class="c"><code>actual: none</code></div></td>
+</tr>
+</tbody></table></div>
+<p>적을 수는 있다. 그래서 킷이 네 곳에 적어 둔 「Hurl 로 표현 불가」 는 틀렸다. 그러나 경로가 없으면 <code>3</code>(킷 분류로 환경 실패) 또는 <code>4</code>(계약 실패) 가 되고 셋째 상태가 없다. 후처리에 두는 결론은 그대로이고 이유가 바뀌었다 — 표현할 수 없어서가 아니라 <code>판정 불가</code> 를 가를 곳이 후처리뿐이라서다.</p>
+<h3 class="sub">뷰어를 브라우저로 연 결과 (2026-09-24)</h3>
+<p>확정 시안 <code>.mockups/api-ui-v7.html</code> 사본(sha256 앞 16 자리 <code>c4bd563ec8b71a95</code>)을 1280×720 창에서 열었다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">항목</div></th>
+  <th><div class="c">값</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">인라인 <code>EP</code> 키 · 화면에 보이는 <code>[data-ep]</code></div></td>
+  <td><div class="c">14 · 14</div></td>
+</tr>
+<tr>
+  <td><div class="c">보이는 누르는 요소 (버튼 · 링크 · 입력 · 탭 · 스위치 · 메뉴 항목 · 선택지)</div></td>
+  <td><div class="c">56</div></td>
+</tr>
+<tr>
+  <td><div class="c">요소 상자 가로나 세로가 24 CSS px 미만</div></td>
+  <td><div class="c">0</div></td>
+</tr>
+<tr>
+  <td><div class="c">44 CSS px 미만</div></td>
+  <td><div class="c">39</div></td>
+</tr>
+<tr>
+  <td><div class="c">콘솔 error — <code>127.0.0.1</code> 웹 서버, 아이콘을 부르는 크로미엄</div></td>
+  <td><div class="c">1 (<code>favicon.ico</code> 404)</div></td>
+</tr>
+<tr>
+  <td><div class="c">콘솔 error — 헤드리스 셸</div></td>
+  <td><div class="c">0 (아이콘을 부르지 않는다)</div></td>
+</tr>
+</tbody></table></div>
+<p>누르는 요소 56 은 <code>/api-ui</code> §7 식이 센 수다(버튼 53 · 입력칸 2 · 선택 상자 1). 근거 파일 L7 은 셀 대상을 다르게 골라 59 개로 셌다 — 44 미만 39 · 24 미만 0 은 두 셈이 같다. 근거 수집 때 브라우저 조종 도구로 <code>file://</code> 를 열자 <code>Access to "file:" protocol is blocked</code> 가 났다(근거 파일 L7). 킷이 적어 둔 누르는 자리 44px 의 근거 「확정 시안 실측」 은 이 값과 맞지 않는다. WCAG 2.2 는 2.5.8(AA)이 24, 2.5.5(AAA)가 44 다.</p>
+<h3 class="sub">문서와 실측이 어긋난 것 (2026-09-24)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">항목</div></th>
+  <th><div class="c">킷에 적혀 있던 것</div></th>
+  <th><div class="c">실측 · 출처</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">환경변수로 넣는 변수</div></td>
+  <td><div class="c"><code>HURL_*</code> 는 변수에 안 붙는다 (2026-09-05 절 · 스킬 참조 문서 · 문서 둘)</div></td>
+  <td><div class="c"><code>HURL_who</code> 는 안 채우지만 <code>HURL_VARIABLE_who</code> 는 채운다. <code>HURL_SECRET_tok</code> 은 <code>***</code> 로 가려진다. <code>--variable</code> 을 겹치면 명령줄 값. Hurl 8.0.0 에서 접두가 바뀌었다</div></td>
+</tr>
+<tr>
+  <td><div class="c">경로 간 불변식</div></td>
+  <td><div class="c">Hurl 로 표현 불가 (스킬 둘 · 참조 문서 둘)</div></td>
+  <td><div class="c">위 표 — 적을 수 있다</div></td>
+</tr>
+<tr>
+  <td><div class="c">누르는 자리</div></td>
+  <td><div class="c">44px, 확정 시안 실측 (스킬 · 뷰어 스펙 · 뷰어 계약)</div></td>
+  <td><div class="c">위 표 — 44 미만 39</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>--secret</code> 이 가리는 곳</div></td>
+  <td><div class="c">stderr 와 리포트 (스킬 셋 · README)</div></td>
+  <td><div class="c">2026-09-05 절 실측 — 리포트 가운데 <code>report.json</code> 만 가린다. 스킬 Gotcha 네 곳이 그 실측을 안 따라갔다</div></td>
+</tr>
+<tr>
+  <td><div class="c">I-JSON 게이트 목록</div></td>
+  <td><div class="c"><code>-0</code> 없음</div></td>
+  <td><div class="c">RFC 8785 정정 7920 (기술 정정, 2024-05-15 확인) — <code>-0</code> 은 <code>0</code> 으로 적히므로 파서가 오류를 내야 한다</div></td>
+</tr>
+</tbody></table></div>
+<blockquote class="quote"><p><strong>[2026-09-26 보탬]</strong> 이때 <code>-0</code> 을 I-JSON 게이트 목록에 넣었지만 RFC 7493 에는 없는 규칙이었다. 게이트 다음의 -0 검사로 옮겼다 — 맨 아래 「[2026-09-26] — I-JSON 게이트와 -0 검사를 가름」 절.</p></blockquote>
+<p><code>--curl &lt;파일&gt;</code> 과 <code>--error-format long</code> stderr 도 등록한 시크릿을 <code>***</code> 로 가렸다. 시크릿으로 등록하지 않은 값은 그대로다. 이 <code>--curl</code> 결과를 <code>hurl-execution.md</code> §6 표와 <code>auth-secret-lifecycle.md</code> 세 자리(§6 문장 · 수치 표 · Gotcha 머리)에 더했다.</p>
+<h3 class="sub">이번에 정한 것 (2026-09-24)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>판정 불가</code> 는 PASS 로도 FAIL 로도 세지 않고 따로 세며, 그 자체로는 게이트를 깨지 않는다. 사라진 경로가 <code>required</code> 면 schema drift(필드 삭제 = 계약 실패)가 따로 잡는다. I-JSON 게이트 실패를 「비교 불가」 로 따로 두는 기존 규칙과 같은 모양이다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">누르는 자리의 통과선은 요소 상자 24×24 CSS px 미만 0 개다. 44 는 권장값으로 보고에만 적는다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">경로 간 불변식은 후처리에 둔다(확정 결정 유지). 바뀐 것은 이유다</div></li>
+</ul>
+<h3 class="sub">이월 — 다음 사이클 후보 (2026-09-24)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">OpenAPI 3.2(최신 3.2.1) 의 <code>query</code> 메서드 · <code>additionalOperations</code> · <code>in: querystring</code> · <code>itemSchema</code> 대응 — <code>query</code> 를 안전 메서드로 볼 근거를 이번에 가져오지 않았다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Hurl 8 은 jsonpath 결과가 1 개면 배열을 벗긴다 — 항목 1 개 목록에 <code>[*]</code> 와 <code>count</code> 를 쓰면 <code>4</code> 다. <code>/api-contract</code> §9 예시 <code>jsonpath "$.data[0].id" isString</code> 이 같은 파일 Gotcha 의 index assertion 금지와 어긋나는데, 바꿀 표현이 이 동작에 걸리는지 hurl 로 먼저 재야 한다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">뷰어 텍스트 대비 · 테마 실측</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Pact pending 은 공급자 브랜치별로 풀린다 — baseline <code>state</code> 에 브랜치 축을 둘지</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Hurl 8.1.0(미출시) 의 보안 수정 두 건과 <code>--no-jsonpath-coercion</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">2026-09-05 절 후보 넷(역추론 도구 버전 · exact 배열 순서 · <code>--secrets-file</code> 권한 · 리포트 폴더 scrubber)은 그대로 남았다</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>[2026-09-26] — I-JSON 게이트와 -0 검사를 가름</h2>
+  <div class="doc-body">
+<p>근거 파일: <code>.harness/.meta/evidence/rfc7493-ijson-2026-09-26.md</code> (Codex 가 rfc-editor.org 에서 RFC 7493 · RFC 8259 · RFC 8785 · 정정 7920 원문을 받아 인용했다).</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">RFC 7493 §2.1 은 surrogate 와 noncharacter 를 MUST NOT 으로 막는다. noncharacter 를 api-verify · api-probe 목록에도 넣었다 — 전에는 api-contract 표에만 있었다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>-0</code> 은 RFC 7493 에 없다(전문 검색 0 건). RFC 8259 문법상 올바른 JSON 숫자다. 막는 근거는 RFC 8785 정정 7920 의 SHOULD 다 — JCS 가 <code>0</code> 으로 적어 부호가 사라진다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">그래서 <code>-0</code> 을 I-JSON 게이트 목록에서 빼고 게이트 다음의 -0 검사로 따로 적었다. 분류(봉인 불가 · 비교 불가)는 그대로다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">binary64 밖 숫자는 RFC 7493 §2.2 가 SHOULD NOT 으로 둔다. 이 킷은 실패로 막는다 — 표준보다 엄격한 쪽이다. NaN/Infinity 는 JSON 문법이 막는다.</div></li>
+</ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>docs/api/research-log.md</code> 의 기준 판은 커밋 <code>6378948</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>
