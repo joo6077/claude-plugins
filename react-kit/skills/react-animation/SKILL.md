@@ -12,7 +12,7 @@ argument-hint: "<target_path|scenario> [--tier=1|2|3]"
 user-invocable: true
 ---
 
-# Gotchas
+## Gotchas
 
 1. **라이브러리 0개 원칙 — 절대 예외 없음**: Motion(framer-motion) / dnd-kit / react-spring / react-transition-group / @formkit/auto-animate / react-dnd / gsap / lottie-react / react-beautiful-dnd / animate.css 는 **설치 및 import 금지**. 이들의 import 구문이 코드베이스에 존재하면 `/react-audit` 이 빌드 실패를 발행한다. 사용자가 요청하더라도 대안 구현을 제시하고 라이브러리 사용을 거부한다.
 
@@ -43,6 +43,8 @@ user-invocable: true
     **증거 확보를 위해 애니메이션 라이브러리를 도입하지 않는다.** Library Policy (Gotcha #1) 는 이 규약보다 상위이며 어떤 검증 편의로도 완화되지 않는다.
 
 14. **기준 캡처는 편집 전에 찍는다** — `react-kit/references/render-evidence-protocol.md` §1 Step 0 과 §2 비교 반복 순서의 1 번을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 지금 모습의 캡처 경로와 바뀌어야 할 표식)를 응답에 남긴다. 편집한 뒤에는 편집 전 모습을 다시 찍을 수 없다.
+
+15. **Tier 2 는 업데이트 종류로 가른다 — React 19.3 `<ViewTransition>` 은 안정 API 다 (2026-09-26 추가)**: `react` 에서 가져오는 `<ViewTransition>` 은 19.3 에서 실험 API 가 아니라 안정 API 가 됐다. 감싼 자식이 Transition 으로 표시된 업데이트(`startTransition` 안의 갱신 · Suspense reveal · `useDeferredValue`)로 스타일이 바뀌거나 마운트 · 언마운트될 때 돌고, DOM 에서만 동작한다 (출처: <https://react.dev/blog/2026/09/09/react-19-3> 「We shared it as an experimental API last year, and in 19.3 it's stable and ready to use.」). 그러니 Transition 으로 표시된 React 상태 갱신에는 `<ViewTransition>` 을 쓰고, 그 밖의 DOM 갱신(Transition 이 아닌 동기 갱신 · React 밖 DOM 조작)에는 §3.1 `withViewTransition` 래퍼를 그대로 쓴다. 래퍼를 지우지 않는다. react 패키지 안의 컴포넌트라 라이브러리 0개 원칙(#1)에 걸리지 않는다. 프로젝트 `react` 판이 19.3 미만이면 래퍼만 쓴다
 
 # Process
 
