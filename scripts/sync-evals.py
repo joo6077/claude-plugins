@@ -29,7 +29,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # 대상 플러그인 (evals.json 을 가진 것만)
-TARGET_KITS = ["flutter-toolkit", "rust-kit", "react-kit", "design-kit", "backend-kit", "infra-kit", "tone-kit"]
+TARGET_KITS = ["flutter-toolkit", "rust-kit", "react-kit", "design-kit", "backend-kit", "infra-kit", "tone-kit", "api-kit"]
 
 
 def load_evals(kit: str) -> dict | None:
@@ -63,21 +63,19 @@ def discover_skills(kit: str) -> set[str]:
 
 
 def get_eval_list(data: dict) -> list[dict]:
-    """Return the list of eval entries from either {evals: []} or {tests: []}."""
-    if "evals" in data:
-        return data["evals"]
-    if "tests" in data:
-        return data["tests"]
+    """Return the list of eval entries from {evals: []}, {tests: []} or {cases: []} (api-kit)."""
+    for key in ("evals", "tests", "cases"):
+        if key in data:
+            return data[key]
     return []
 
 
 def set_eval_list(data: dict, entries: list[dict]) -> None:
-    if "evals" in data:
-        data["evals"] = entries
-    elif "tests" in data:
-        data["tests"] = entries
-    else:
-        data["tests"] = entries
+    for key in ("evals", "tests", "cases"):
+        if key in data:
+            data[key] = entries
+            return
+    data["tests"] = entries
 
 
 def get_skill_field(entry: dict) -> str:
