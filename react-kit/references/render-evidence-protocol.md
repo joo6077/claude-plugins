@@ -23,7 +23,7 @@ enforcement: E2 (체크리스트 아티팩트)
 
 **형제 규약과 같은 숫자:** §1 의 「같은 역할 기존 화면 2 개 이상」 과 §2 의 「스스로 고치기 최대 3 회」 는
 flutter-toolkit `references/visual-evidence-protocol.md` Step 0 · Step 2, design-kit `references/visual-change-protocol.md` §0 · §3 과 같은 값이다.
-세 규약이 같이 쓰는 규칙의 정본은 harness `skill-design-guide.md` 한 절에 두기로 했고 그 절은 아직 없다 — 생기기 전까지는 한쪽 값을 바꾸면 다른 두 쪽도 같이 바꾼다.
+세 규약이 같이 쓰는 두 숫자의 정본은 harness `skill-design-guide.md` §8.9 다. 킷은 따로 설치되어 그 파일을 읽지 못하므로 숫자는 이 문서에도 남긴다 — 값을 바꿀 때는 §8.9 를 먼저 고치고 세 규약을 같이 바꾼다.
 
 ## 왜 필요한가
 
