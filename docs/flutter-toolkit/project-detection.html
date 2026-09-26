@@ -265,7 +265,7 @@ a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 <section class="section" aria-labelledby="makefile-title">
   <div class="section-label">Step 2b · Monorepo</div>
   <h2 class="section-title" id="makefile-title">Makefile 기반 monorepo 감지</h2>
-  <p class="section-desc">프로젝트 루트에 <code>Makefile</code>이 있고 Flutter 관련 타겟(<code>app-run</code>, <code>app-test</code>, <code>app-analyze</code>, <code>app-codegen</code>, <code>app-preflight</code> 등)이 정의되어 있으면 <code>HAS_MAKEFILE = true</code>다. 이 경우 flutter-preflight와 flutter-run 스킬은 <code>$FLUTTER</code> 직접 호출 대신 <code>make &lt;target&gt;</code>을 우선 사용한다.</p>
+  <p class="section-desc">프로젝트 루트에 <code>Makefile</code>이 있고 Flutter 관련 타겟(<code>app-run</code>, <code>app-test</code>, <code>app-analyze</code>, <code>app-codegen</code>, <code>app-preflight</code> 등)이 정의되어 있으면 <code>HAS_MAKEFILE = true</code>다. 이 경우 flutter-preflight와 flutter-run 스킬은 그 단계의 타겟이 실제로 있을 때만 <code>$FLUTTER</code> 직접 호출 대신 <code>make &lt;target&gt;</code>을 우선 사용한다(아래 감지 순서 4 번).</p>
   <div class="warn">
     <div class="warn-title">Makefile을 먼저 쓰는 이유</div>
     <p><code>dart-define-from-file=.dart_defines.json</code>, <code>--observatory-port=8181</code>, launch.json/tasks.json 연동 설정이 Makefile 타겟 한 곳에 모여 있기 때문이다. <code>fvm flutter run</code>을 직접 호출하면 이 설정이 누락되어 앱이 다른 환경으로 기동되거나 디버거가 연결되지 않는다. 이 규칙은 실제 앱 프로젝트 sprint-feedback iter 2 AC-6에 근거한다.</p>
@@ -277,6 +277,7 @@ a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
         <li><span class="check">1</span><span>프로젝트 루트에서 <code>Makefile</code> 존재를 확인한다.</span></li>
         <li><span class="check">2</span><span><code>app-run</code>, <code>app-run-staging</code>, <code>app-run-prod</code>, <code>app-run-profile</code>, <code>app-test</code>, <code>app-analyze</code>, <code>app-fix</code>, <code>app-clean</code>, <code>app-codegen</code>, <code>app-codegen-filter</code>, <code>app-build</code>, <code>app-preflight</code> 중 하나 이상을 찾는다.</span></li>
         <li><span class="check">3</span><span><code>$MAKE = make</code>를 제공한다. Windows에서는 <code>gmake</code> 또는 프로젝트 관습을 우선한다.</span></li>
+        <li><span class="check">4</span><span>아래 표의 행마다 그 행이 부르는 타겟(<code>app-codegen</code> · <code>app-analyze</code> · <code>app-fix</code> · <code>app-test</code>)을 하나씩 확인한다. <code>&lt;타겟&gt;</code> 자리에 타겟 이름을 넣어 <code>grep -qE '^&lt;타겟&gt;[[:space:]]*:' Makefile</code> 을 돌린다. 종료 코드가 0 이면 그 행은 Makefile 우선 동작을 쓰고, 그 타겟이 없으면 그 행은 기본 동작을 쓴다.</span></li>
       </ul>
     </article>
     <article class="card">
@@ -291,7 +292,8 @@ a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
       </div>
     </article>
   </div>
-  <h3 class="subheading"><code>HAS_MAKEFILE = true</code> 스킬 매핑</h3>
+  <p class="section-desc"><code>HAS_MAKEFILE = true</code> 는 타겟이 하나라도 있다는 뜻일 뿐이다 — 묶음 타겟(<code>app-preflight</code> · <code>app-build</code>)만 있는 Makefile 은 표의 모든 행이 기본 동작이 된다.</p>
+  <h3 class="subheading"><code>HAS_MAKEFILE = true</code> 일 때 주요 스킬 매핑 (Makefile 우선 동작은 4 번에서 타겟이 확인된 행만)</h3>
   <div class="table-wrap">
     <table>
       <thead>
@@ -547,7 +549,7 @@ test → $MAKE app-test</pre>
 SDK Manager: {fvm|asdf|system}
 Flutter: {$FLUTTER}
 Dart: {$DART}
-Makefile: {true|false}  # HAS_MAKEFILE — true 면 $MAKE &lt;target&gt; 우선
+Makefile: {true|false}  # HAS_MAKEFILE — true 여도 Step 2b 4 번에서 타겟이 확인된 단계만 $MAKE &lt;target&gt; 우선
 Architecture: {clean|feature_first|flat|mvvm}
 Dependencies: {감지된 패키지 목록}
 Design System: {true|false}
