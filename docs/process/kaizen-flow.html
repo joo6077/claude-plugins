@@ -727,8 +727,8 @@ function log(stage, msg) {
 function delay(ms) { return new Promise(r => simTimeout = setTimeout(r, ms)); }
 
 function clearFlow() {
-  document.querySelectorAll('.phase-card').forEach(c => { c.classList.remove('active','completed','rejected'); });
-  document.querySelectorAll('.flow-connector').forEach(c => { c.classList.remove('active'); });
+  document.querySelectorAll('.phase-card').forEach(card => { card.classList.remove('active','completed','rejected'); });
+  document.querySelectorAll('.flow-connector').forEach(conn => { conn.classList.remove('active'); });
 }
 
 async function runSerialPhase(phase, rejectFirst) {
