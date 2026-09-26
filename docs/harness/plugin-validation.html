@@ -275,8 +275,8 @@ python3 scripts/validate-plugin.py --fix</pre>
     </div>
     <div class="v-card">
       <div class="v-badge">V8</div>
-      <div class="v-title">Hook 스크립트 실행 비트</div>
-      <div class="v-desc"><code>hooks/hooks.json</code> 이 인터프리터 없이 <strong>직접 실행</strong>하는 <code>.sh</code> 가 실행 비트(mode 0755)를 가지는지 본다. <code>100644</code> 로 커밋되면 모든 설치본에서 <code>Permission denied</code> 로 실패한다.</div>
+      <div class="v-title">Hook 스크립트 실행 비트 · 따옴표</div>
+      <div class="v-desc"><code>hooks/hooks.json</code> 명령 안의 <code>${CLAUDE_PLUGIN_ROOT}</code> 가 모두 큰따옴표 안에 있는지, 인터프리터 없이 <strong>직접 실행</strong>하는 <code>.sh</code> 가 실행 비트(mode 0755)를 가지는지 본다. 따옴표 밖이면 설치 경로에 빈칸이 있을 때 훅이 돌지 않고, <code>100644</code> 로 커밋되면 모든 설치본에서 <code>Permission denied</code> 로 실패한다.</div>
       <div class="v-meta"><span class="tag">hook-exec</span></div>
     </div>
     <div class="v-card">
@@ -404,24 +404,25 @@ if line.startswith("```") and not in_block:
 
 <!-- ── 5. V8 ── -->
 <div class="section" id="v8">
-  <div class="section-label">5 · V8 Hook 스크립트 실행 비트</div>
-  <p class="desc"><code>hooks/hooks.json</code> 이 <strong>인터프리터 없이 직접 실행</strong>하는 <code>.sh</code> 스크립트(<code>"command": "${CLAUDE_PLUGIN_ROOT}/scripts/x.sh"</code>)가 실행 비트(mode 0755)를 가지는지 본다. git 은 파일 모드를 추적하므로, 스크립트가 <code>100644</code>(비실행)로 커밋되면 marketplace clone · 플러그인 설치본 등 <strong>모든 설치본</strong>에서 그 훅이 <code>Permission denied</code> 로 실패한다.</p>
+  <div class="section-label">5 · V8 Hook 스크립트 실행 비트 · 따옴표</div>
+  <p class="desc">두 가지를 본다. (1) <code>hooks/hooks.json</code> 명령 안의 <code>${CLAUDE_PLUGIN_ROOT}</code> 가 모두 큰따옴표 안에 있는지 — JSON 에는 <code>"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/x.sh\""</code> 처럼 이스케이프한 따옴표로 적는다. (2) <strong>인터프리터 없이 직접 실행</strong>하는 <code>.sh</code> 스크립트가 실행 비트(mode 0755)를 가지는지. git 은 파일 모드를 추적하므로, 스크립트가 <code>100644</code>(비실행)로 커밋되면 marketplace clone · 플러그인 설치본 등 <strong>모든 설치본</strong>에서 그 훅이 <code>Permission denied</code> 로 실패한다.</p>
 
   <div class="grid-3">
     <div class="card">
       <h3>왜 중요한가</h3>
       <p>2026-06 reflect 로그 30 일 집계에서 훅 <code>permission-denied</code> 계열이 <strong>24 개 프로젝트 957 건(전체 마찰의 38%)</strong>으로 가장 큰 마찰 하나였다. 원인은 <code>harness/scripts/{env-check,run-guard,sdk-guard}.sh</code> 와 <code>design-kit/scripts/env-check.sh</code> 4 종이 <code>100644</code> 로 커밋된 것이었다. SessionStart · PreToolUse 훅은 매 세션 · 매 Bash 호출마다 돌아, 비실행 스크립트 하나가 전 프로젝트에 실패를 쌓는다.</p>
+      <p style="margin-top:10px">따옴표도 같은 급의 실패다. 설치 경로에 빈칸이 있으면 따옴표 밖 변수는 셸이 둘로 쪼개 훅이 아예 돌지 않는다 — 킷 넷의 명령 10 개를 빈칸 든 경로에서 돌려 10 개 모두 실패하는 것을 확인했다(2026-09-26). Hooks reference 도 이 변수를 큰따옴표로 감싸라고 한다.</p>
       <a class="card-source" href="https://code.claude.com/docs/en/hooks">code.claude.com · Hooks</a>
     </div>
     <div class="card">
       <h3>직접 실행 vs 인터프리터 경유</h3>
-      <p><code>${CLAUDE_PLUGIN_ROOT}/x.sh</code> 가 명령의 첫 토막이면 직접 실행이라 실행 비트가 꼭 있어야 한다. <code>bash ${CLAUDE_PLUGIN_ROOT}/x.sh</code> 처럼 인터프리터(<code>bash</code> · <code>sh</code> · <code>source</code>)가 앞서면 읽기 권한만 있으면 되므로 V8 대상이 아니다 — reflect-kit 의 <code>log-prompt.sh</code> 는 <code>bash</code> 경유라 PASS.</p>
+      <p><code>"${CLAUDE_PLUGIN_ROOT}/x.sh"</code> 가 명령의 첫 토막이면 직접 실행이라 실행 비트가 꼭 있어야 한다. 경로를 여는 따옴표는 토막으로 치지 않으므로 <code>"${CLAUDE_PLUGIN_ROOT}"/x.sh</code> 꼴도 직접 실행이다. <code>bash "${CLAUDE_PLUGIN_ROOT}/x.sh"</code> 처럼 인터프리터(<code>bash</code> · <code>sh</code> · <code>source</code>)가 앞서면 읽기 권한만 있으면 되므로 실행 비트 대상이 아니다 — reflect-kit 의 <code>log-prompt.sh</code> 는 <code>bash</code> 경유라 PASS. 따옴표 검사는 두 경우 모두에 걸린다.</p>
       <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V8</a>
     </div>
     <div class="card">
       <h3>고치는 흐름</h3>
-      <p><code>chmod +x &lt;script&gt;</code> 후 커밋하면 git 이 모드를 <code>100755</code> 로 추적한다. 기존 설치본에 남은 옛 사본은 <code>release.sh</code> 로 새 버전을 배포해야 바뀐다.</p>
-      <p><strong>예외</strong> — <code>hooks/hooks.json</code> 이 없는 킷은 OK(<code>no hooks.json</code>). 직접 실행 <code>.sh</code> 참조가 0 건이어도 OK.</p>
+      <p>실행 비트는 <code>chmod +x &lt;script&gt;</code> 후 커밋하면 git 이 모드를 <code>100755</code> 로 추적한다. 따옴표는 경로를 <code>\"…\"</code> 로 감싸고 인자는 따옴표 밖에 둔다 — <code>"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/commit-guard.sh\" pre"</code>. 기존 설치본에 남은 옛 사본은 <code>release.sh</code> 로 새 버전을 배포해야 바뀐다.</p>
+      <p><strong>예외</strong> — <code>hooks/hooks.json</code> 이 없는 킷은 OK(<code>no hooks.json</code>). 직접 실행 <code>.sh</code> 참조가 0 건이면 실행 비트는 볼 것이 없다(<code>직접 실행 hook 스크립트 없음 — OK</code>).</p>
       <a class="card-source" href="https://git-scm.com/docs/git-update-index">git-scm.com · git update-index</a>
     </div>
   </div>
@@ -479,9 +480,25 @@ if line.startswith("```") and not in_block:
       <h3>어떻게 — 고립 행 판정</h3>
       <p>표 행(<code>|</code> 로 시작) 가운데 바로 위가 표 행이 <strong>아니고</strong>, 바로 아래도 헤더 구분선(<code>|</code> 로 시작하고 파이프 · 붙임표 · 콜론 · 공백만으로 이뤄진 줄)이 <strong>아닌</strong> 행을 고립으로 본다. 정상 표는 헤더 행 다음에 구분선이 오므로 걸리지 않는다.</p>
       <p><strong>표 행은 왼쪽 공백을 벗겨서 판정한다.</strong> 표는 목록 · 인용 안에서 들여쓰여 쓰이고, 왼쪽 끝만 보면 그것이 전부 검사에서 빠진다. <code>|</code> 로 시작하면서 <code>|</code> 가 둘 이상인 줄만 표 행으로 본다 — 목록 안의 <code>|</code> 로 시작하는 보통 문장을 잘못 잡지 않는다.</p>
-      <p><strong>코드 블록 판정은 CommonMark 0.31.2 §4.5 를 따른다</strong> (1.4.1). 닫는 줄은 여는 줄과 같은 문자(백틱 또는 <code>~</code>)이면서 길이가 같거나 길고, 뒤에 공백만 와야 한다. 백틱으로 여는 줄 뒤에 백틱이 있으면 줄 안 코드라 블록이 아니고, 닫는 줄이 없으면 문서 끝까지가 블록이다. 그래서 <code>~~~markdown</code> 블록에 담긴 PR 본문 틀의 표 24 행은 검사 밖이다. 4 칸 들여쓴 코드 블록은 판정하지 않는다. 목록 · 인용 · HTML 블록 문맥을 따라가지 않으려고 여닫는 줄의 들여쓰기 칸 수와 그 경계도 보지 않는다 — 레포 254 파일에서 끊긴 표 판정은 규격과 같다 (코드 블록 줄 판정은 인용 안 블록 한 곳이 다르고, 그 안에 표 행은 없다).</p>
       <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V10</a>
     </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>코드 블록 · 표 행 판정 — 1.4.1</h3>
+    <p><strong>코드 블록 판정은 CommonMark 0.31.2 §4.5 를 따른다</strong> (1.4.1). 닫는 줄은 여는 줄과 같은 문자(백틱 또는 <code>~</code>)이면서 길이가 같거나 길고, 뒤에 공백만 온다. 백틱으로 여는 줄의 뒤쪽 글에 백틱이 있으면 줄 안 코드라 블록이 아니다. 닫는 줄이 없으면 문서 끝까지가 블록이다. 백틱 3 개로 시작하는 줄마다 켜고 끄기만 뒤집던 1.4.0 까지의 판은 백틱 4 개 블록 안의 백틱 3 개 블록 · <code>~~~</code> 블록 · 줄 안 코드로 시작하는 줄에서 끊긴 표를 잘못 잡거나 놓쳤다. 그 결과 카이젠 스킬 넷의 <code>pr-template.md</code> 가 <code>~~~markdown</code> 블록에 담은 PR 본문 틀의 표 24 행은 코드라 검사 밖이다 (그중 끊긴 표는 0 개였다).</p>
+    <p><strong><code>|</code> 가 두 개 이상인 줄만 표 행으로 본다</strong> — 왼쪽 공백을 벗겨 <code>|</code> 로 시작하는 줄 가운데서 고른다. 목록 안에서 <code>|</code> 로 시작하는 보통 문장을 잘못 잡지 않게 한다. 줄 앞 조건을 빼면 <code>argument-hint: "&lt;a&gt; | &lt;b&gt;"</code> 같은 frontmatter 줄이 표 행이 된다. 앞 <code>|</code> 하나만 쓰는 한 칸짜리 표(<code>| a</code>)는 표 행으로 보지 않는다 — 레포에 0 개다.</p>
+    <p><strong>4 칸 들여쓴 코드 블록은 판정하지 않는다</strong> — 목록 안에 들여쓴 표와 가르려면 목록 문맥을 따라가야 한다. 레포에 그런 블록 안 <code>|</code> 줄은 0 개다.</p>
+    <p><strong>규격과 다르게 단순화한 곳이 있다</strong> — 목록 · 인용 · HTML 블록 문맥을 따라가지 않으려고 줄였다.</p>
+    <ol class="plain-list" style="margin-top:6px;list-style:decimal">
+      <li>여닫는 줄의 들여쓰기 칸 수를 보지 않는다 — 목록 안 블록을 알아보려고 왼쪽 공백을 모두 벗기므로 4 칸 이상 들여쓴 여닫는 줄(백틱 · <code>~</code>)도 여닫는 줄이 된다.</li>
+      <li>목록 · 인용 경계를 보지 않는다 — 닫는 줄이 없으면 문서 끝까지를 블록으로 보고, 목록 밖의 줄이 목록 안 블록을 닫기도 한다.</li>
+      <li>인용(<code>&gt;</code>) 안의 코드 블록은 알아보지 않는다 — 인용 안 표 행은 줄 앞이 <code>&gt;</code> 라 원래 표 행으로 보지 않는다.</li>
+      <li>HTML 블록(<code>&lt;!-- … --&gt;</code> 등) 안의 백틱 줄도 여닫는 줄로 본다.</li>
+      <li>닫는 줄 뒤의 공백 판정이 규격(공백 · 탭)보다 넓어 전각 공백도 공백으로 본다.</li>
+    </ol>
+    <p>레포 254 파일에서 <strong>끊긴 표 판정은 규격과 같다</strong> — 코드 블록 줄 판정이 다른 곳은 <code>rust-kit/skills/rust-feature/SKILL.md</code> 102–104 행의 인용 안 블록 하나이고 그 안 표 행은 0 개다 (2026-09-26 교차 진단이 markdown-it · micromark 두 구현과 대조했다).</p>
+    <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V10 (1.4.1)</a>
   </div>
 
   <h3 style="margin-top:28px">범위 — V6 보다 넓다</h3>
@@ -771,9 +788,9 @@ const x: number = 1;
 
   <div class="compare">
     <div class="compare-bad">
-      <div class="compare-label">✗ V8 — 비실행 훅 스크립트</div>
+      <div class="compare-label">✗ V8 FAIL 예시 1 — 100644 로 커밋된 직접 실행 스크립트</div>
       <pre><span style="color:var(--text3)"># harness/hooks/hooks.json</span>
-{ "command": "${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh" }
+{ "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh\"" }
 <span style="color:var(--text3)"># 그런데 git ls-files -s 결과 100644 (비실행)</span>
 <span style="color:var(--red)"># → FAIL: 직접 실행 hook 스크립트가 비실행 (mode 0o644 — chmod +x 필요)</span></pre>
     </div>
@@ -785,6 +802,24 @@ chmod +x harness/scripts/run-guard.sh
 <span style="color:var(--text3)"># git ls-files -s 결과</span>
 100755 ... run-guard.sh
 <span style="color:var(--green)"># 직접 실행 가능 → PASS</span></pre>
+    </div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-bad">
+      <div class="compare-label">✗ V8 FAIL 예시 2 — 따옴표 밖 변수</div>
+      <pre><span style="color:var(--text3)"># design-kit/hooks/hooks.json</span>
+{ "command": "${CLAUDE_PLUGIN_ROOT}/scripts/env-check.sh" }
+{ "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh" }
+<span style="color:var(--red)"># → FAIL design-kit/hooks/hooks.json: ${CLAUDE_PLUGIN_ROOT} 가 큰따옴표 밖 — 설치 경로에 빈칸이 있으면 실행이 깨진다</span></pre>
+    </div>
+    <div class="compare-good">
+      <div class="compare-label">✓ V8 — 경로를 큰따옴표로 감쌈</div>
+      <pre><span style="color:var(--text3)"># 경로는 \"…\" 안, 인자는 따옴표 밖</span>
+{ "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/env-check.sh\"" }
+{ "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh\"" }
+{ "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/commit-guard.sh\" pre" }
+<span style="color:var(--green)"># 빈칸 든 설치 경로에서도 한 토막 → PASS</span></pre>
     </div>
   </div>
 
