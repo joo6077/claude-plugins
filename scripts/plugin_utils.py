@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """플러그인 공통 유틸리티.
 
-validate-plugin.py 와 sync-docs.py 가 공유하는 헬퍼 함수 모음.
+validate-plugin.py · sync-docs.py · sync-orchestrator.py 가 공유하는 헬퍼 함수와 표.
 표준 라이브러리(pathlib, json) + pyyaml 만 의존한다.
 """
 from __future__ import annotations
@@ -14,6 +14,21 @@ import yaml
 
 REPO_ROOT = Path(__file__).parent.parent
 _MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
+
+# 킷 → 그 킷 카이젠이 읽는 리서치 원본 폴더. validate-plugin V10 과 sync-orchestrator 가 함께 읽는다 —
+# 두 스크립트가 따로 두면 한쪽만 늘어나 V10 이 새 킷의 원본을 조용히 빠뜨린다
+KIT_RESEARCH_DOCS: dict[str, str] = {
+    "backend-kit": "docs/backend/",
+    "infra-kit": "docs/infra/",
+    "rust-kit": "docs/rust/",
+    "react-kit": "docs/react/",
+    "flutter-toolkit": "docs/flutter/",
+    "design-kit": "design-kit/docs/design/",
+    "planning-kit": "docs/planning/",
+    "tone-kit": "docs/tone/",
+    "api-kit": "docs/api/",
+    "howto-kit": "docs/howto/",
+}
 
 
 def load_marketplace(path: Path | None = None) -> dict:
