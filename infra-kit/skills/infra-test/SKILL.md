@@ -283,7 +283,7 @@ if [ "$co_rc" = 0 ]; then
     case "$verdict" in
       YES) echo "PASS            : $f checkout 존재" ;;
       NO)  echo "VIOLATION       : $f checkout 스텝 없음"; violation=$((violation + 1)) ;;
-      *)   echo "EXECUTION_ERROR : $f — YAML 파싱 실패 (checkout rule)"; exec_error=$((exec_error + 1)) ;;
+      *)   echo "EXECUTION_ERROR : $f — YAML 읽기 실패 (checkout rule)"; exec_error=$((exec_error + 1)) ;;
     esac
   done <<< "$co_out"
 elif [ "$co_rc" = 3 ]; then
@@ -386,7 +386,7 @@ exit 0
 |------|----------------|
 | 머리말 4 카운터 | "위반 0" 의 분모를 알 수 없다. 대상 0 건인지, 도구가 없어 못 돈 건지 리포트만 보고 구분 불가 |
 | checkout rule 의 YAML 구조 읽기 | 줄 검사만 쓰면 `run: \|` 본문 안의 `uses: actions/checkout@v4` 글자로 PASS 하고, 흐름 표기 스텝(`- {uses: actions/checkout@v4}`)은 `checkout 스텝 없음` 으로 오보한다. python3 · PyYAML 이 없을 때만 줄 검사로 돌고 그 사실을 한 줄 찍는다 |
-| 핵심 도구 사전 검사 (`CORE_TOOLS`) | `grep` 부재 환경에서 `grep -q` 가 비영 종료해 **`checkout 스텝 없음` VIOLATION 을 오보**하고 exit 1 로 끝난다 |
+| 핵심 도구 사전 검사 (`CORE_TOOLS`) | python3 · PyYAML 이 없어 checkout rule 이 줄 검사로 돌 때 `grep` 까지 없으면 `grep -q` 가 비영 종료해 **`checkout 스텝 없음` VIOLATION 을 오보**한다 (종료 코드는 핀닝 rule 이 같은 까닭으로 `[미검증]` 이라 2). python3 · PyYAML 이 있으면 checkout rule 은 grep 을 쓰지 않아 이 오보가 없지만, 사전 검사가 그보다 먼저 돌아 grep 만 없는 환경도 exit 2 로 멈춘다 — 오보를 내는 갈래를 남기느니 멈추는 쪽을 골랐다 |
 | `${#workflows[@]}` 가드 + `exit 3` | 워크플로 0 개 프로젝트가 **exit 0(PASS)** 이 되어 검사한 적 없는 레포가 green 으로 기록된다 |
 | `shopt -s nullglob` | 매칭 없는 glob 이 리터럴 패턴으로 남아 존재하지 않는 파일을 열려다 "YAML syntax error" 를 오보 |
 | YAML 파서 (`yaml.safe_load`) | grep 은 `jobs.<id>.uses`(재사용 워크플로)·로컬 `./`·`docker://` 를 구분하지 못한다. 앵커 있는 grep 도 `actions/*` 를 조용히 면제해 **미핀닝 6 건 전부를 0 건으로 보고**했다 (실측) |
