@@ -2,7 +2,8 @@
 
 작업 폴더 `/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak-c4a` · 가지 `chore/ak-c4a` · 시작 판 `f81568d`.
 계약 `.harness/sprint-contract-after-0924-api-ui-unjudgeable.md` (30 조건 · 봉인 `sha256:fffdc2c0e91aa217` · 2026-09-26 15:10).
-QA 판정은 아직이다. 계약 status 는 active 그대로 둔다.
+QA 판정: APPROVE (Iteration 1, 30 조건 통과 · 해당 없음 3 — 리포트 `.harness/sprint-feedback-after-0924-api-ui-unjudgeable.md`, 커밋 `b74a489`). 계약 status 는 done.
+독립 검토는 막는 결함 0 건이다. 판정을 바꾸지 않는 네 건과 사용자가 다시 볼 판단 하나는 아래 「다음 사이클 메모」 로 옮겼다.
 
 ## 한 일
 
@@ -68,6 +69,13 @@ sync-docs 가 쓰는 표 구분 줄 `|------|------|` 이 MD060 을 4 번 내 DG
 새 단계 `npx playwright test api-kit/evals/` 는 ci-local.sh 목록에 없다(그 스크립트의 "밖의 것" 거르기가 `npx playwright test` 앞머리로 걸러서 밖으로도 안 나온다). 그 단계는 `m CI` 가 따로 돌려 8 passed.
 그 밖에 `python3 scripts/validate-plugin.py api-kit` Exit 0, `python3 scripts/sync-docs.py --check-only` 0, `python3 scripts/sync-evals.py --check-only` 0.
 
+QA 뒤 다시 돌림(판 `b74a489`, 이 notes 수정은 커밋 전 — CI 단계는 `.harness/.meta/` 를 읽지 않는다. `TMPDIR` 은 세션 스크래치 `c4a/ci-final`, 16:07 ~ 16:11, 시작 전 다른 `ci-local.sh` · `save-test.sh` 실행 0 개):
+
+- `ci-local.sh` — `rc=0` 22 줄, `feedback-agg-test SKIP (yq 없음)` 한 줄, 종료 코드 0
+- CI 파일에만 있는 줄 — 설치 단계(`pip install pyyaml` · zsh 설치 · `npm ci` · `npx playwright install --with-deps chromium`)와 yq 가 없으면 건너뛰는 `aggregation-test.sh` 여러 줄 단계(`ci.yml:152`)뿐이다
+- 새 단계 `npx playwright test api-kit/evals/` (`ci.yml:126`) 를 따로 돌림 — 8 passed, 종료 코드 0
+- 실행 뒤 `scenario-report-ut` 단계가 16:11 에 만든 추적 안 된 `__pycache__` 폴더 둘(`flutter-toolkit/evals/scenario-report/` · `flutter-toolkit/skills/flutter-scenario-report/scripts/` 아래)을 지웠다. 그 뒤 `git status --porcelain -uall` 0 줄
+
 ## 넘긴 것
 
 - 보류 · flaky 를 화면이 어떻게 보일지 — 뷰어 규칙에 자리가 없어 만드는 쪽이 짐작한다(계약 범위 경계). 이번엔 판정 불가 한 칸만
@@ -89,3 +97,18 @@ sync-docs 가 쓰는 표 구분 줄 `|------|------|` 이 MD060 을 4 번 내 DG
 - `.harness/.meta/after-0924-api-ui-unjudgeable/readme-md060.sh` (개정 A-01, sha256 앞 16 자리 `24c5720f6f3abb2c`)
 - 측정기 출력 `probe-v8.txt` · `probe-example.txt`, 캡처 `cap/`, 확인 기록 `evidence.md` — 같은 폴더
 - 양성 대조 매달린 커밋(가지 밖): `21d13ce`(README 블록 밖 한 줄) · `bd20291`(블록 안 한 줄) · `e6b9b27`(블록 밖 표)
+
+## 다음 사이클 메모
+
+독립 검토(2026-09-26, 막는 결함 0 건)가 조건 밖에서 찾은 네 건(R1 ~ R4), 사용자가 다시 볼 판단 하나(R5), QA 개선 제안 하나(R6). 판정을 바꾸지 않아 이 묶음에서는 고치지 않았다. R1 ~ R4 는 이 가지 끝 `b74a489` 에서 다시 재현했다.
+
+| # | 항목 | 자리 | 받을 곳 · 할 일 |
+| --- | --- | --- | --- |
+| R1 | `/api-ui` 보고 목록에 새로 정한 `chips` · `rows` 값이 빠졌다 | `api-kit/skills/api-ui/SKILL.md:241` (값을 정한 곳 `:198`, 받은 숫자를 보고에 옮기라는 곳 `:186`) | api-kit 다음 사이클. 8절 보고 목록 Step 7 줄에 상태 네 가지의 칩 숫자 · 트리 줄 수를 더한다. 재현 `grep -n "Step 7 브라우저 확인" api-kit/skills/api-ui/SKILL.md` → 241 줄에 `ep` · `shown` · `under24` · `under44` 만 있다. SK-02 (d) 는 네 상태 개수 줄만 요구해 조건은 통과다 |
+| R2 | 커밋 `875a6c2` 메시지가 쉬운 말 목록에 든 영어 낱말을 쓴다 | 메시지 셋째 줄 `(개정 A-01, …)` 괄호 안 — 목록이 「조건이 느슨해짐」 으로 바꿔 쓰라고 한 말 | 고치지 않았다. QA 리포트가 이 커밋 번호를 적어 두었다(`Deletions` 절 `:35` · SK-01 근거 `:52`). 메시지를 고쳐 번호가 바뀌면 리포트가 없는 커밋을 가리킨다. PR 을 `--merge` 로 합치면 이 메시지는 기록에 남는다. 다음 커밋부터 풀어 쓴다 |
+| R3 | 증거 캡처 PNG 12 장(1,645,931 바이트)이 커밋에 들어갔다 | `.harness/.meta/after-0924-api-ui-unjudgeable/cap/` (커밋 `875a6c2`) | 오케스트레이터가 PR 전에 정한다. origin/main 의 `.harness` 에는 PNG 가 0 개다(`git ls-tree -r --name-only origin/main .harness \| grep -c '\.png$'` → 0). AR-06 은 캡처가 폴더에 있기만 요구하고 커밋은 요구하지 않는다. 빼려면 새 커밋으로 지워도 기록에는 남으니, 기록에서 없애려면 이 가지를 다시 써야 한다 — R2 와 같은 이유로 QA 리포트의 커밋 번호가 틀어진다. 이 묶음은 그대로 둔다 |
+| R4 | 판정 줄이 어느 항목 것인지 적는 방식을 `/api-verify` 가 정하지 않았다 | 예시 입력 `api-kit/evals/fixtures/unjudged/.api/reports/2026-09-02T1422-dev/report.md:23` 은 `- products.list: …` 로 항목 이름을 앞에 붙이고, 예시 `api-kit/evals/fixtures/unjudged/.api/ui.html:1509` 는 이름을 떼고 넣는다. `api-kit/skills/api-ui/SKILL.md:90` 은 판정 줄을 「글자 그대로」 옮기라 한다. `api-kit/skills/api-verify/SKILL.md:136` · `:177` 의 판정 줄 모양에는 항목 이름이 없다 | api-kit 다음 사이클. `/api-verify` 가 판정 줄을 항목별로 적는 모양(항목 이름 앞머리 등)을 정하고, `/api-ui` `:90` 은 그 앞머리를 떼고 나머지를 글자 그대로 옮긴다고 적는다. 지금은 `/api-ui` 가 줄을 항목에 짝지을 근거가 규칙에 없다. 만드는 쪽은 이번 계약이 일부러 안 바꾼 범위다(AR-07) |
+| R5 | DG-02 를 개정 A-01 로 통과시킨 판단 — 동의가 이 개정만 두고 받은 것이 아니다 | `.harness/sprint-amendments-after-0924-api-ui-unjudgeable.md` A-01 · `harness/references/contract-schema.md:1166` 「사용자 재승인 성립」 | 사용자가 다시 볼 판단. 이 묶음에서 판정이 뒤집힐 수 있는 유일한 자리다 — 엄하게 읽으면 DG-02 는 실패이고 판정은 REJECT 다. QA 는 일반 위임(user `2026-09-26T01:04:21.505Z`, 세션 기록 `de8c7935-….jsonl`, 글자 · 시각 · 폴더 일치 확인)을 근거로 받아들였고, 독립 검토도 결함으로 세지 않았다. 이유 셋: 이번 지시가 「C4 다섯 가지 말고는 묻지 말라」 이다 · 같은 인용으로 받아들인 개정이 이미 있다(가지 `chore/ak-c3-kits` 의 `.harness/sprint-amendments-after-0924-kits-a.md`) · 빠지는 것은 생성기가 쓴 5 줄뿐이고 블록 밖이 늘면 잡힌다. 재현: `readme-md060.sh` 로 시작 판 `f81568d` 는 `MD060_out=20`, 구현 판 `6ab405a` 는 `MD060_out=20 MD060_in=4`. 블록 안 구분 줄을 `\| ---- \| ---- \|` 로 바꾼 사본은 `sync-docs.py --check-only` 가 「동기화가 필요합니다」 를 내서 PR 마다 도는 CI 가 떨어진다. 표를 만드는 `scripts/sync-docs.py:251-256` 은 계약 범위 밖이다 |
+| R6 | 계약이 자동 생성 블록의 경고를 봉인 전에 재지 않았다 | 계약 DG-02 · 「정한 것」 11 · QA 리포트 `Improvement Suggestions` | harness 다음 사이클(sprint-contract). 봉인 전에 README 의 `AUTO:evals` 블록이 바뀔 줄 알았는데 그 표의 MD060 을 재 보지 않았다. 편집기 경고 조건은 처음부터 `<!-- AUTO:* -->` 블록 안 · 밖을 나눠 재게 한다. 뿌리는 「넘긴 것」 의 sync-docs 표 구분 줄 꼴이다 |
+
+QA 피드백 YAML(`~/.harness/feedback/evaluator/1a3bcba6-2026-09-26T155431-bda55d45-31464.yaml`)의 `cross_diagnosis_by: pending-parent` 는 부모가 교차 진단을 마치면 채운다. QA 가 넘긴 두 질문에 독립 검토가 답했다 — (1) DG-02 판단은 뒤집지 않았고 사용자 몫으로 R5 에 남겼다, (2) 빈 출력으로 통과한 자리를 찾으려고 예시 `ui.html` 변이 다섯 가지(FAIL 항목의 판정 불가 줄 삭제 · 판정 불가 항목의 줄 삭제 · FAIL 을 판정 불가로 바꿈 · `실패 원인` 탭 알림 상자 제거 · 본문 탭 알림 상자 제거)를 넣었고 모두 시험을 떨어뜨렸다(rc=1). §7 식 직접 실행 값(v8 1280 `ep 14 · shown 14 · targets 57 · under24 0 · under44 40`, 칩 = 트리 `10/1/2/1`, 예시 `2/2/1/1`)도 인용 수치와 같았다.
