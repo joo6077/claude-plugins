@@ -349,9 +349,9 @@ tbody tr:hover{background:var(--accent-glow)}
   <div class="card">
     <div style="display:flex;gap:32px;align-items:center;flex-wrap:wrap">
       <div>
-        <canvas id="colorWheel" width="280" height="280" style="display:block"></canvas>
+        <canvas id="colorWheel" width="280" height="280" style="display:block;max-width:100%;height:auto"></canvas>
       </div>
-      <div style="flex:1;min-width:240px">
+      <div style="flex:1;min-width:min(240px,100%)">
         <div id="harmonyInfo" style="font-size:14px;line-height:1.7;color:var(--text2)"></div>
         <div id="harmonySwatches" style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"></div>
       </div>
@@ -381,7 +381,7 @@ tbody tr:hover{background:var(--accent-glow)}
 
   <div class="card">
     <div style="display:flex;gap:32px;flex-wrap:wrap">
-      <div style="flex:1;min-width:260px">
+      <div style="flex:1;min-width:min(260px,100%)">
         <div class="cc-input">
           <label>전경색</label>
           <input type="color" class="cc-color-input" id="ccFg" value="#F5F0E8">
@@ -397,7 +397,7 @@ tbody tr:hover{background:var(--accent-glow)}
           <div class="cc-badges" id="ccBadges"></div>
         </div>
       </div>
-      <div style="flex:1;min-width:260px">
+      <div style="flex:1;min-width:min(260px,100%)">
         <div id="ccPreview" style="border-radius:var(--radius);overflow:hidden">
           <div id="ccPreviewBox" style="padding:32px;text-align:center">
             <div id="ccPreviewLg" style="font-size:24px;font-weight:700;margin-bottom:8px">대형 텍스트 (24px)</div>

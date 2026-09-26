@@ -43,6 +43,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 .card:hover{border-color:rgba(232,150,90,0.3)}
 .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
 .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
+.grid-2>*,.grid-3>*{min-width:0}
 .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
 button,.btn{
   background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;
@@ -257,7 +258,7 @@ button.active,.btn.active{background:rgba(232,150,90,0.15);border-color:var(--ac
         <div style="font-size:14px;font-weight:600">페이지 A</div>
         <div style="font-size:12px;color:var(--text3);margin-top:4px">리스트 뷰</div>
       </div>
-      <div id="transPage2" style="text-align:center;position:absolute;opacity:0;transform:translateX(100%);transition:all 0.35s cubic-bezier(0.05,0.7,0.1,1)">
+      <div id="transPage2" aria-hidden="true" style="text-align:center;position:absolute;opacity:0;transform:translateX(100%);transition:all 0.35s cubic-bezier(0.05,0.7,0.1,1)">
         <div style="width:120px;height:80px;background:var(--accent2);border-radius:16px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#0d0d14" id="morphEl2">B</div>
         <div style="font-size:14px;font-weight:600">페이지 B</div>
         <div style="font-size:12px;color:var(--text3);margin-top:4px">상세 뷰</div>
@@ -795,6 +796,10 @@ function toggleTransitionPage() {
   const p2 = document.getElementById('transPage2');
   showingPage1 = !showingPage1;
 
+  // 안 보이는 쪽은 화면 읽기 프로그램에서도 뺀다
+  p1.setAttribute('aria-hidden', String(!showingPage1));
+  p2.setAttribute('aria-hidden', String(showingPage1));
+
   // Reset
   p1.style.transition = p2.style.transition = 'all 0.35s cubic-bezier(0.05,0.7,0.1,1)';
 
@@ -884,7 +889,10 @@ function playSpring() {
 /* ============ RIVE DEMO ============ */
 let riveAngle = 0;
 const riveDemo = document.getElementById('riveDemo');
-let riveInterval = setInterval(() => {
+// 움직임 줄이기 설정이면 돌리지 않고 한 장면만 그린다
+const riveStill = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (riveStill) riveDemo.style.background = 'conic-gradient(var(--accent2) 120deg, transparent 120deg)';
+let riveInterval = riveStill ? null : setInterval(() => {
   riveAngle = (riveAngle + 3) % 360;
   riveDemo.style.background = `conic-gradient(var(--accent2) ${riveAngle}deg, transparent ${riveAngle}deg)`;
 }, 30);
