@@ -62,6 +62,9 @@ LINK_PATTERN = re.compile(r'\[(?:[^\]]*)\]\(([^)#][^)]*)\)')
 # V7 마켓플레이스 버전 태그 패턴
 MARKETPLACE_VERSION_PATTERN = re.compile(r'\[v(\d+\.\d+\.\d+)\s*[·•]\s*\d{4}-\d{2}-\d{2}\]')
 
+# V10 코드 블록 여닫는 줄 — 같은 문자(백틱 또는 ~) 3 개 이상과 그 뒤 글
+CODE_FENCE_PATTERN = re.compile(r'^(`{3,}|~{3,})(.*)$')
+
 # V4 kit-specific context tokens — description 에 해당 kit 의 고유 단어가 포함되면
 # exact-match cross-kit 중복은 disambiguation 성공으로 간주하여 WARN 제거.
 # 이는 "같은 개념 다른 프레임워크" 케이스 (예: React `테스트 만들어줘` vs Flutter `테스트 만들어줘`)
@@ -757,6 +760,35 @@ def check_v9_arg_substitution(ctx: CheckContext) -> CheckResult:
     return result
 
 
+def _lines_outside_code_blocks(lines: list[str]) -> list[tuple[int, str]]:
+    """코드 블록 밖 줄만 (줄 번호, 줄) 로 돌려준다. 여닫는 줄은 CommonMark 0.31.2 §4.5 를 따른다.
+
+    닫는 줄은 여는 줄과 같은 문자이면서 길이가 같거나 길고 뒤에 공백만 온다. 백틱으로 여는 줄의 뒤쪽 글에
+    백틱이 있으면 줄 안 코드라 블록이 아니고, 닫는 줄이 없으면 문서 끝까지가 블록이다.
+    """
+    kept: list[tuple[int, str]] = []
+    open_fence: tuple[str, int] | None = None
+    for lineno, line in enumerate(lines, start=1):
+        # 목록 안에서 들여쓴 블록도 알아보도록 왼쪽 공백을 벗긴다. 4 칸 들여쓴 코드 블록은 판정하지 않는다 —
+        # 목록 안 표와 가르려면 목록 문맥을 따라가야 한다
+        fence = CODE_FENCE_PATTERN.match(line.strip())
+        if open_fence is None:
+            if fence and not (fence.group(1)[0] == "`" and "`" in fence.group(2)):
+                open_fence = (fence.group(1)[0], len(fence.group(1)))
+                continue
+            kept.append((lineno, line))
+        elif (fence and fence.group(1)[0] == open_fence[0]
+              and len(fence.group(1)) >= open_fence[1] and not fence.group(2).strip()):
+            open_fence = None
+    return kept
+
+
+def _is_table_row(line: str) -> bool:
+    """목록 안에서 `|` 로 시작하는 보통 문장을 표 행으로 잡지 않으려고 `|` 를 둘 이상 요구한다."""
+    stripped = line.lstrip()
+    return stripped.startswith("|") and stripped.count("|") >= 2
+
+
 def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
     """마크다운 표가 헤더 없이 끊긴 자리를 잡는다.
 
@@ -780,6 +812,11 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
     표행 판정은 왼쪽 공백을 벗겨서 한다. 표는 목록·인용 안에서 들여쓰여 쓰이고,
     왼쪽 끝만 보면 그것이 전부 검사에서 빠진다.
 
+    코드 블록 판정은 CommonMark 0.31.2 §4.5 를 따른다 (_lines_outside_code_blocks). 백틱 3 개로 시작하는 줄마다
+    켜고 끄기만 뒤집던 판은 백틱 4 개 블록 안의 백틱 3 개 블록 · `~~~` 블록 · 줄 안 코드로 시작하는 줄에서
+    끊긴 표를 잘못 잡거나 놓쳤다 (교차 진단 합성 재현 2026-09-24). 그 결과 카이젠 스킬 넷의 pr-template.md 가
+    `~~~markdown` 블록에 담은 PR 본문 틀의 표 24 행은 코드라 검사 밖이다.
+
     --fix 는 제공하지 않는다. 끊긴 표를 어디로 되돌려야 하는지는 의미 판단이다.
     """
     result = CheckResult("V10", "table-integrity")
@@ -795,29 +832,16 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
     failures: list[str] = []
 
     for path in sorted(set(md_files)):
-        lines = ctx.read(path).splitlines()
-        # 코드 블록 밖 줄만 남기되 원래 줄 번호를 유지한다
-        kept: list[tuple[int, str]] = []
-        in_fence = False
-        for lineno, line in enumerate(lines, start=1):
-            # 들여쓴 코드 블록도 코드 블록이다. V6 와 같은 기준을 쓴다 —
-            # startswith 만 쓰면 들여쓴 블록을 못 알아보고 그 안의 줄을 검사한다
-            if line.strip().startswith("```"):
-                in_fence = not in_fence
-                continue
-            if in_fence:
-                continue
-            kept.append((lineno, line))
+        kept = _lines_outside_code_blocks(ctx.read(path).splitlines())
 
         for idx, (lineno, line) in enumerate(kept):
             # 표는 목록·인용 안에서 들여쓰여 쓰인다. 왼쪽 끝만 보면 그것이 전부 빠진다 —
             # 실측(2026-09-24): 대상 210 파일에 들여쓴 표행이 84 줄(9 파일) 있었고, 그 안에
             # 실제로 끊긴 표가 숨어 있었다 (reflect-promote/SKILL.md 의 8 행 표 한가운데에
             # 산문 한 문단이 들어가 행 4~7 이 고립). 교차 진단이 찾았다
-            stripped = line.lstrip()
-            if not stripped.startswith("|"):
+            if not _is_table_row(line):
                 continue
-            prev_is_row = idx > 0 and kept[idx - 1][1].lstrip().startswith("|")
+            prev_is_row = idx > 0 and _is_table_row(kept[idx - 1][1])
             nxt = kept[idx + 1][1].lstrip() if idx + 1 < len(kept) else ""
             next_is_sep = nxt.startswith("|") and set(nxt) <= set("|-: ")
             if not prev_is_row and not next_is_sep:
