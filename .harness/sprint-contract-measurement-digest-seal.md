@@ -4,7 +4,7 @@ slug: measurement-digest-seal
 created: "2026-09-26 17:29"
 complexity: "중간"
 conditions: 23
-status: active
+status: done
 owner_session: f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0
 conditions_digest: sha256:bcea1a2c7f50997a
 measurement_digest: sha256:423bec66e0f41168
