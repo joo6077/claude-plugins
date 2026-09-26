@@ -55,7 +55,7 @@ user-invocable: true
 
 헬퍼: `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh`
 - `compute_project_id "$cwd"` — 쓰기용 id 계산 (basename 또는 hash fallback)
-- `project_root "$cwd"` — 본 레포 root (링크된 워크트리면 본 레포, git 밖이면 cwd)
+- `project_root "$cwd"` — 본 레포 root (링크된 워크트리면 본 레포, 지워진 워크트리 경로(`.claude/worktrees/` 아래)도 본 레포, 그 밖의 git 밖 폴더는 cwd)
 - `normalize_project_query "<query>"` — 읽기용 glob pattern union 확장
 
 ### 정규화 쿼리 동작
