@@ -290,7 +290,7 @@ echo "status=[$(read_fm status "$CF")] owner=[$(read_fm owner_session "$CF")]"
 **분기 전에 봉인부터 검증한다 (v5.3).** 이어작업으로 기존 계약을 다시 여는 이 시점이, 지난
 스프린트에서 조건 본문이 변조됐는지 확인할 수 있는 **작성 측의 유일한 검사 지점**이다. 검증
 함수 정의는 `harness/references/contract-schema.md` §계약 봉인 이 SSOT 다 — 여기서 재정의하지
-말고 그대로 쓴다 (`sha256_16` · `contract_digest` · `verify_seal`).
+말고 그대로 쓴다 (`sha256_16` · `contract_digest` · `verify_seal` · `measurement_digest` · `verify_measurement`).
 
 ```bash
 REC=$(read_fm conditions_digest "$CF"); REC=${REC#sha256:}
@@ -301,10 +301,14 @@ else
   [ "$REC" = "$ACT" ] && echo "SEAL_OK $CF" \
     || echo "SEAL_BROKEN $CF recorded=$REC actual=$ACT"
 fi
+# 조건 아래 들여쓴 측정 줄 (v5.6) — 필드가 없으면 MEASURE_ABSENT
+verify_measurement "$CF"
 ```
 
-- `SEAL_BROKEN` — **조용히 다시 봉인하지 마라.** 두 값을 그대로 사용자에게 보고하고, 아래 3 분기
+- `SEAL_BROKEN` · `MEASURE_BROKEN` — **조용히 다시 봉인하지 마라.** 두 값을 그대로 사용자에게 보고하고, 아래 3 분기
   중 무엇을 택할지 함께 정한다. 변경이 정당했다면 그 내용을 사이드카 amendment 로 옮겨 적는다.
+  `MEASURE_BROKEN` 은 조건 문구는 그대로인데 측정 · 음성 대조 · 픽스처 줄이 봉인 뒤에 바뀌었다는 뜻이다.
+  통과 기준이 바뀐 것이라 조건 문구 변조와 같게 다룬다.
 - `SEAL_ABSENT` — 레거시 계약이다. 경고만 남기고 정상 진행한다. **소급으로 봉인을 써 넣지 마라** —
   원문이 무엇이었는지 증명할 수 없는 봉인이 된다.
 
@@ -583,6 +587,7 @@ conditions: {Step 6.2 가 계산한 값}
 status: active
 owner_session: {$CLAUDE_CODE_SESSION_ID}
 conditions_digest: sha256:{Step 6.6 이 계산한 값}
+measurement_digest: sha256:{Step 6.6 이 계산한 값}
 locked_at: "{YYYY-MM-DD HH:mm}"
 ---
 
@@ -606,7 +611,7 @@ locked_at: "{YYYY-MM-DD HH:mm}"
   이 스킬이 새로 쓰는 계약에는 **반드시 `status` 를 적는다**
 - `owner_session` — `$CLAUDE_CODE_SESSION_ID` 를 그대로 쓴다. 환경변수가 비어 있으면
   **필드 자체를 생략**한다. 빈 문자열이나 `unknown` 같은 자리표시자를 쓰지 마라
-- `conditions_digest` · `locked_at` — **Step 6.6 에서 채운다.** 본문 저장 시점에는 값을 모르므로
+- `conditions_digest` · `measurement_digest` · `locked_at` — **Step 6.6 에서 채운다.** 본문 저장 시점에는 값을 모르므로
   자리표시자를 넣지 말고, Step 6.6 이 계산한 값을 그때 써 넣는다
 - `created` — 본문을 저장하는 순간 `date '+%Y-%m-%d %H:%M'` 를 돌려 그 출력을 옮긴다. 짐작해 적지 마라 (2026-09-24 추가).
   실측(2026-09-24): 개정 파일에 `20:50` 이라 적었는데 그 파일을 처음 담은 커밋은 `20:41:11` 이라 뒤에 고쳤다. 개정 파일 ·
@@ -699,20 +704,23 @@ grep -nF '[미실측]' "$CF" && echo "BLOCKED 미실측 오라클 — 실측해 
 
 Step 6.5 를 통과한 직후, 조건을 **봉인**한다. 계산·검증 함수 정의는
 `harness/references/contract-schema.md` §계약 봉인 이 SSOT 다 (`sha256_16` · `contract_digest` ·
-`verify_seal`) — 여기서 재정의하지 말고 그대로 쓴다.
+`verify_seal` · `measurement_digest` · `verify_measurement`) — 여기서 재정의하지 말고 그대로 쓴다.
 
 ```bash
-# (a) digest 계산 — 조건 체크박스 줄만, 체크 상태를 정규화해서 해시
+# (a) digest 계산 — 조건 체크박스 줄만, 체크 상태를 정규화해서 해시.
+#     MD 는 조건 번호와 그 아래 들여쓴 줄(측정 · 음성 대조 · 픽스처)의 지문이다 (v5.6)
 D=$(grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
+MD=$(measurement_digest "$CF")
 
-# (b) frontmatter 2 필드 기록 (없으면 추가, 있으면 치환)
+# (b) frontmatter 3 필드 기록 (없으면 추가, 있으면 치환)
 #     본문의 `conditions_digest:` 예시 줄을 건드리지 않도록 첫 frontmatter 블록만 손댄다
-printf 'conditions_digest=sha256:%s locked_at=%s\n' "$D" "$(date '+%Y-%m-%d %H:%M')"
+printf 'conditions_digest=sha256:%s measurement_digest=sha256:%s locked_at=%s\n' "$D" "$MD" "$(date '+%Y-%m-%d %H:%M')"
 
-# (c) 기록 직후 자기 검증 — 출력을 인용한다
+# (c) 기록 직후 자기 검증 — 출력을 인용한다. 두 줄 다 OK 여야 한다
 REC=$(read_fm conditions_digest "$CF"); REC=${REC#sha256:}
 ACT=$(grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
 [ "$REC" = "$ACT" ] && echo "SEAL_OK $CF" || echo "SEAL_BROKEN $CF recorded=$REC actual=$ACT"
+verify_measurement "$CF"
 ```
 
 **(d) 봉인 이후 조건 본문을 편집하지 마라.** 이 시점부터 계약은 write-once 다. 구현 중에
@@ -730,6 +738,9 @@ ACT=$(grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [
   실측(2026-09-23): 범위를 6 개에서 7 개로 늘리면서 산문 라벨만 고치고 개정에 안 남겼다. 조건 줄
   5 곳에 박힌 "6개" 가 실제와 어긋난 채 통과했다.
 - `SEAL_BROKEN` 이 뜨면 **다시 봉인하지 말고** `recorded` / `actual` 을 사용자에게 보고하라.
+- **측정 줄은 조건 아래 들여써 적는다** (v5.6). `measurement_digest` 는 들여쓴 줄만 모은다 — 조건 바로 뒤에
+  들여쓰지 않고 붙인 줄과 서술 절(`### 공통 정의` 등)은 잠기지 않는다. 봉인 뒤 측정을 바꿔야 하면 조건 문구와
+  마찬가지로 개정 파일에 쓴다. `MEASURE_BROKEN` 도 `SEAL_BROKEN` 처럼 다시 봉인하지 말고 보고하라.
 
 ### 6.7. 봉인 커밋 (E3)
 
@@ -796,7 +807,7 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
    - `conditions_count_typed`: `conditions:` 값을 Step 6.2 명령 출력 대신 손으로 셌는가?
    - `slug_reservation_skipped`: Step 0.5 선점 없이 계약 파일을 썼는가? (선점 없이 쓰면 병렬 세션 덮어쓰기 위험)
    - `slug_adopted_without_confirm`: `SLUG_CONFIRM` 이 떴는데 사용자 확인 없이 채택했는가? 또는 (a-1) 기존 슬러그 재사용 탐색을 건너뛰었는가?
-   - `contract_seal_missing`: Step 6.6 을 건너뛰어 `conditions_digest` / `locked_at` 이 없거나 `SEAL_OK` 출력을 인용하지 않았는가?
+   - `contract_seal_missing`: Step 6.6 을 건너뛰어 `conditions_digest` / `measurement_digest` / `locked_at` 이 없거나 `SEAL_OK` · `MEASURE_OK` 출력을 인용하지 않았는가?
    - `seal_commit_missing`: **Step 6.7** 봉인 직후 계약만 단독 커밋하지 않았는가? (`git show --name-only --format='' HEAD | grep -c .` 가 1 이 아니거나, 전용 가지로 옮기기 전에 커밋했다)
    - `measurement_coverage_gap`: Step 6.5 (4) 의 `UNCOVERED` 가운데 조건 수정도 해소 기록도 없는 건이 남았는가?
    - `factor_matrix_missing`: 2 개 이상 축의 곱이 의미를 결정하는 조건에 축·축 값·`cases_total` 산출 명령이 빠졌는가? (탐색형이면 variant 축 조합 중복 검사까지)

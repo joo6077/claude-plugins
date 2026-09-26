@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sprint Contract 스키마 v5.5 — Harness</title>
+<title>Sprint Contract 스키마 v5.6 — Harness</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -184,14 +184,14 @@ pre code{white-space:pre}
 
 <div class="topbar">
   <div class="brand"><span class="brand-dot"></span>HARNESS · Sprint Contract 스키마</div>
-  <span class="badge">v5.5 · 2026-09-24</span>
+  <span class="badge">v5.6 · 2026-09-26</span>
 </div>
 
 <div class="hero">
   <h1>Sprint Contract 스키마</h1>
   <p class="subtitle"><code>sprint-contract</code> 와 <code>qa-evaluator</code> 가 공유하는 계약 포맷 정의. <code>contract-kaizen</code> 이 변경을 제안하고, <code>evaluator-kaizen</code> 이 읽어서 평가 루브릭에 반영한다. v5.5(2026-09-24 · Phase 2 kaizen)는 재는 명령의 <strong>준비 단계 실측</strong>(값만 면제), <strong>알려진 답 대조</strong> 패턴, <strong>조건 수는 기능 조건만</strong> 센다, 여러 주체가 한 가지에 커밋할 때의 <strong>서명 줄</strong>, 검사 스크립트는 <strong>이 스프린트 몫의 줄로 한정</strong>, zsh 배열 첨자, 시각 필드는 <code>date</code> 출력으로 — 일곱 가지를 더했다.</p>
   <div class="meta">
-    <span>현재 v5.5</span>
+    <span>현재 v5.6</span>
     <span>2026-09-24</span>
     <span>경로·슬러그 SSOT</span>
     <span>봉인 정의</span>
@@ -406,6 +406,7 @@ slug: {slug}                # v5 — 접미형일 때 필수, plain 모드면 �
 status: active              # v5 — active | done. 따옴표 없이
 owner_session: {세션 ID}    # v5 — $CLAUDE_CODE_SESSION_ID. 값이 없으면 필드 자체를 생략. 따옴표 없이
 conditions_digest: sha256:{16hex}   # v5.3 — 조건 봉인. 따옴표 없이
+measurement_digest: sha256:{16hex}  # v5.6 — 조건 아래 들여쓴 줄 봉인. 따옴표 없이
 locked_at: "{YYYY-MM-DD HH:mm}"     # v5.3 — 봉인 시각</code>
     </div>
     <div class="note warn">
@@ -533,6 +534,23 @@ verify_seal() {  # verify_seal &lt;계약파일&gt; → SEAL_OK | SEAL_BROKEN | 
   act=$(contract_digest "$1")
   if [ "$rec" = "$act" ]; then echo "SEAL_OK $1"
   else echo "SEAL_BROKEN $1 recorded=$rec actual=$act"; fi
+}
+
+measurement_digest() {  # measurement_digest &lt;계약파일&gt; — 조건 번호 + 그 아래 들여쓴 줄
+  awk '
+    /^- \[[ x]\] [A-Z][A-Z]+-[0-9][0-9]/ { inb=1; match($(0), /[A-Z][A-Z]+-[0-9][0-9]/); print substr($(0), RSTART, RLENGTH); next }
+    inb &amp;&amp; /^[ \t]+[^ \t]/ { line=$(0); sub(/[ \t]+$/, "", line); print line; next }
+    inb &amp;&amp; /^[ \t]*$/      { next }
+    { inb=0 }
+  ' "$1" | sha256_16
+}
+
+verify_measurement() {  # verify_measurement &lt;계약파일&gt; → MEASURE_OK | MEASURE_BROKEN | MEASURE_ABSENT
+  rec=$(fm_get "$1" measurement_digest); rec=${rec#sha256:}
+  if [ -z "$rec" ]; then echo "MEASURE_ABSENT $1"; return 0; fi
+  act=$(measurement_digest "$1")
+  if [ "$rec" = "$act" ]; then echo "MEASURE_OK $1"
+  else echo "MEASURE_BROKEN $1 recorded=$rec actual=$act"; fi
 }</code>
   <div class="seal">
     <div class="sl ok">
@@ -547,6 +565,11 @@ verify_seal() {  # verify_seal &lt;계약파일&gt; → SEAL_OK | SEAL_BROKEN | 
       <h4>SEAL_BROKEN</h4>
       <p><strong>조용히 다시 봉인하지 마라.</strong> 그것은 위반을 지우는 행위다. 사용자에게 <code>recorded</code> / <code>actual</code> 두 값과 함께 보고하고, 변경 의도가 정당하면 <strong>사이드카 amendment</strong> 로 기록한다.</p>
     </div>
+  </div>
+  <div class="note warn">
+    <div class="note-title">측정 줄 봉인 — <code>measurement_digest</code> (v5.6)</div>
+    <p><code>conditions_digest</code> 는 조건 체크박스 줄만 덮는다. 조건 아래 <strong>들여쓴 줄</strong>(측정 명령 · 음성 대조 · 픽스처 · 조건의 둘째 줄)을 고쳐도 <code>SEAL_OK</code> 인데, 그 줄이 통과 기준이다. 실측(2026-09-26): 봉인 커밋이 있는 계약 74 개 중 4 개가 봉인 뒤 측정 줄을 고쳤고 넷 다 <code>SEAL_OK</code> 였다.</p>
+    <p>조건 줄마다 조건 번호 한 줄과 그 아래 들여쓴 줄(줄 끝 공백 제거 · 빈 줄 건너뜀 · 들여쓰지 않은 줄에서 끝)을 모아 <code>sha256_16</code> 을 취한다. <strong>측정 줄은 조건 아래 들여써 적는다</strong> — 들여쓰지 않은 줄과 서술 절은 잠기지 않는다. 필드가 없으면 <code>MEASURE_ABSENT</code>(경고이지 실패가 아니다), 깨지면 <code>MEASURE_BROKEN</code> 이고 <code>SEAL_BROKEN</code> 과 같게 다룬다.</p>
   </div>
   <div class="note bad">
     <div class="note-title">레거시 계약에 봉인을 소급해서 써 넣지 마라</div>
@@ -1391,10 +1414,16 @@ print("미응답 호출:", len(calls))' "$S"</code>
 <!-- ═══ 버전 ═══ -->
 <div class="section" id="versions">
   <div class="section-label">Schema Versions</div>
-  <div class="section-title">스키마 버전 — 현재 v5.5 (2026-09-24)</div>
+  <div class="section-title">스키마 버전 — 현재 v5.6 (2026-09-26)</div>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span class="dot"></span>v5.5 (2026-09-24) — 현재</div>
+      <div class="card-title"><span class="dot"></span>v5.6 (2026-09-26) — 현재</div>
+      <ul>
+        <li><strong>측정 줄 봉인</strong> — 조건 아래 들여쓴 측정 · 음성 대조 · 픽스처 줄을 선택 필드 <code>measurement_digest</code> 로 잠그고 <code>verify_measurement</code> 로 검증한다. <code>conditions_digest</code> 는 그대로다</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>v5.5 (2026-09-24)</div>
       <ul>
         <li><strong>양성 대조</strong>(2026-09-19 추가분의 번호를 확정) · <strong>알려진 답 대조</strong> 두 패턴을 조건 패턴에 올린다</li>
         <li><strong>면제는 기대값에만</strong> — 재는 명령의 준비 단계(경로 · <code>command -v</code> · 도구를 숨기는 전제 · 임시 사본)는 봉인 전에 돌린다</li>
@@ -1450,7 +1479,7 @@ print("미응답 호출:", len(calls))' "$S"</code>
 
 <div class="footer">
   <h3>관련 문서</h3>
-  <p>이 페이지는 <code>harness/references/contract-schema.md</code> (v5.5 · 2026-09-24) 를 시각화한 것이다. 원문이 정본이며, 경로·슬러그·봉인·결함 태그 어휘·amendment 축은 원문 스키마를 따른다. <code>sprint-contract</code> 스킬과 <code>qa-evaluator</code> 에이전트, 각 가이드 문서는 이 스키마를 <strong>인용만</strong> 하고 자체 규칙을 재정의하지 않는다.</p>
+  <p>이 페이지는 <code>harness/references/contract-schema.md</code> (v5.6 · 2026-09-26) 를 시각화한 것이다. 원문이 정본이며, 경로·슬러그·봉인·결함 태그 어휘·amendment 축은 원문 스키마를 따른다. <code>sprint-contract</code> 스킬과 <code>qa-evaluator</code> 에이전트, 각 가이드 문서는 이 스키마를 <strong>인용만</strong> 하고 자체 규칙을 재정의하지 않는다.</p>
   <ul>
     <li><code>harness/skills/sprint-contract/SKILL.md</code> — 작성 절차 (Step 3 금지 패턴 · Step 4 자동 포함 N/A · Step 6.2 조건 수 · Step 6.5 봉인 전 검사 · Step 6.7 봉인 커밋)</li>
     <li><code>harness/agents/qa-evaluator.md</code> — 평가 절차 (규칙 10 · 결함 태그 어휘 사용처)</li>

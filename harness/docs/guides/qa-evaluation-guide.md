@@ -594,13 +594,16 @@ amendment 는 **verdict 를 자동으로 뒤집지 않는다.** PASS 근거로 �
 §계약 봉인** 이다. 평가자는 그 절의 코드 블록을 **그대로 붙여넣어** 정의하고 호출만 한다.
 평가자 문서에 다른 구현을 적으면 두 게이트가 서로 다른 집합을 해싱하게 된다.
 
-### 3 값의 verdict 영향
+### 봉인 검사 결과의 verdict 영향
 
 | 결과 | 의미 | verdict 영향 |
 | ------ | ------ | ------ |
 | `SEAL_OK` | 조건 줄이 봉인 시점과 동일 | 없음 — 정상 진행 |
 | `SEAL_ABSENT` | `conditions_digest` 필드가 없다 (레거시) | **없음 — 경고이지 실패가 아니다.** 실측 109 개 계약 전부가 이 상태이므로 BLOCKED 로 만들면 전 배포본이 죽는다 |
 | `SEAL_BROKEN` | 조건 문구가 변조됐거나 조건이 추가·삭제됐다 | 아래 분기 |
+| `MEASURE_OK` | 조건 아래 들여쓴 측정 · 음성 대조 · 픽스처 줄이 봉인 시점과 동일 (v5.6) | 없음 — 정상 진행 |
+| `MEASURE_ABSENT` | `measurement_digest` 필드가 없다 (v5.6 전 계약) | **없음 — 경고이지 실패가 아니다** |
+| `MEASURE_BROKEN` | 조건 문구는 그대로인데 그 아래 측정 줄이 바뀌었다 — 통과 기준이 바뀐 것이다 | `SEAL_BROKEN` 과 같은 분기 (`measure_status` 에 reconciled / unreconciled) |
 
 **`SEAL_BROKEN` 분기:**
 
