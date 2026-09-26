@@ -70,6 +70,8 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     # 스킬 폴더 전체가 아니라 본문과 references/ 만 잇는다
     ("onboarding-kit/skills/setup-guide/SKILL.md", "docs/onboarding-kit/"),
     ("onboarding-kit/skills/setup-guide/references/", "docs/onboarding-kit/"),
+    # 카이젠 참고 문서 폴더에는 페이지 없는 원본이 섞여 있어 짝이 있는 파일만 잇는다
+    (".claude/skills/kaizen-orchestrator/references/phase-research-templates.md", "docs/process/"),
 ]
 
 
