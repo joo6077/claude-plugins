@@ -116,7 +116,7 @@ design-concept 의 승인 기록은 기존 정의 목록을 그대로 두고 원
 | C-13 자화자찬 (G5) | 0 | 통과 |
 | G7 · G8 짧은 마커 · 끝 번역 주석 | 0 | 통과 |
 | N-07 · E fallback 접두사 | 0 | 통과 |
-| N-08 한 글자 이름 | 1 → 0 | 옮긴 콜백 인자 `c` 를 `card` · `conn` 으로 고침(`6587a04`). 남은 `i` 는 반복 인덱스라 허용, `delay` 의 `r` 은 손대지 않은 옛 줄 |
+| N-08 한 글자 이름 | 1 → 0 | 옮긴 콜백 인자 `c` 를 `card` · `conn` 으로 고침(`6587a04`). 남은 `i` 는 반복문 차례 변수라 허용, `delay` 의 `r` 은 손대지 않은 옛 줄 |
 | S-03 · S-04 추출 | 0 | 통과 — 새 함수 `runSerialPhase` · `runKitBatch` · `clearFlow` 는 각자 책임이 있고 받은 값을 그대로 넘기기만 하지 않는다 |
 | S-06 헬퍼 체인 (관측 컨벤션) | 1 | 알고 둔 한 단 — `runSerialPhase` · `runKitBatch` 가 옛 표시 함수 `activate` · `log` · `complete` 를 부른다. Phase 마다 되풀이되던 블록 열일곱을 줄이는 대가로 두었다. 강도가 관측 컨벤션이라 위반으로 단정하지 않는다 |
 | S-12 · S-13 같은 부류 같은 패턴 | 0 | 통과 — 기준 쪽 하나로 두 수단을 정한 뒤 일곱 쪽에 같게 적용 |
@@ -127,6 +127,21 @@ design-concept 의 승인 기록은 기존 정의 목록을 그대로 두고 원
 | H 보존 주석 | 0 삭제 | 통과 — 지운 주석 없음 |
 
 §9 자기모순 검사 — 이 기록 본문에 번역투 여섯 패턴 0 건.
+
+## 다음 사이클 메모
+
+QA 는 APPROVE(`982e299`), 독립 검토는 판정을 뒤집을 결함 0 이었다. 아래는 독립 검토가 남긴 것 가운데 이 가지에서 고치지 않은 것이다.
+
+1. **c1b 와 합칠 때 kaizen-flow 를 다시 맞춘다.** 가지 `chore/ak-c1b-harness-docs` 가 이 쪽의 원본 `.claude/skills/kaizen-orchestrator/SKILL.md` 를 커밋 다섯 개(`afff36a` 등)로 고친다. 킷 13 개의 `**범위:**` 줄에 agents · hooks · evals · docs 폴더가 더해지고 F2 매핑 표가 빠진다. 합치면 원본 지문 `orch_same` 이 0 이 되어 SK-01 · 02 · 03 · 04 · 08 · 12 측정이 멈춘다. 그 원본으로 재면 SK-08 은 `lost=1`(`flutter-toolkit/evals/`)이고, 킷 카드 13 개 가운데 12 개의 범위 칸이 새 범위 줄보다 좁다. 옛 판 Phase 5 카드에 있던 `flutter-toolkit/evals/evals.json` 표시를 새로 쓰면서 뺐는데, 지금 원본에 그 글자가 없어서 SK-08 이 못 잡았다. 합친 뒤 `docs/process/kaizen-flow.html` 의 킷 카드 범위 칸(403 ~ 545 줄)과 Phase 5 카드를 새 원본 글자로 맞추고 위 조건을 다시 잰다. 위 「c4d 와 겹치는 곳」 의 design-mockup 과 같은 처리다.
+2. **design-concept 나쁜 예 코드 앞 공백 세 칸.** `docs/design-kit/design-concept.html:277` 이 `<pre><code>   | Accent | #E8965A |` 로 시작한다. 원본 `design-kit/skills/design-concept/SKILL.md:24-26` 은 코드 블록을 여는 줄 · 닫는 줄 · 내용 줄이 똑같이 들여쓰여 있어 내용은 0 칸이 맞다. 옆 좋은 예 칸은 0 칸이라 나란히 보면 줄이 어긋난다. 공백을 빼고 SK-10 을 다시 잰다.
+3. **320px 에서 남은 넘침.** 계약 폭은 375 라 판정 대상이 아니었다. 시작 판(34 ~ 76px)보다 크게 줄었지만 두 곳이 남았다.
+   - `docs/design-kit/typography-scale.html` — 글자 간격과 상관없이 9px 넘친다. `.responsive-container` (CSS 179 줄, 마크업 577 줄)
+   - `docs/flutter-toolkit/theming.html` — 글자 간격 +0.06em 일 때 `ColorScheme.fromSeed(seedColor` 코드 한 줄이 카드 밖으로 잘린다
+   - 320 을 기준 폭에 넣을지는 공통 틀 결정(핸드오프 §C4 5 번)과 같이 정한다
+4. **`__pycache__` 가 `ci-local.sh` 를 돌릴 때마다 생긴다.** QA 가 `ci-local.sh` 를 돌리며 `flutter-toolkit/evals/scenario-report/__pycache__/` 와 `flutter-toolkit/skills/flutter-scenario-report/scripts/__pycache__/` 를 남겼다. 이 가지에서는 지웠다. 루트 `.gitignore` 는 `scripts/__pycache__/` 만 적어 루트의 `scripts/` 에만 걸린다. 모든 깊이의 `__pycache__/` 를 무시할지 정한다.
+5. **쉬운 말.** 쉬운 말 목록에 걸리는 낱말이 두 곳 있었다. 이 기록 N-08 줄의 것은 「반복문 차례 변수」 로 고쳤다. 커밋 `5dc249f` 본문의 것은 커밋 이력을 다시 써야 해서 두었다.
+
+독립 검토의 재현 스크립트는 임시 폴더 `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/rev/` 의 `merged-orch.sh`(1 번) · `run-clip.sh` · `clip.js`(3 번)다.
 
 ## 측정 도구
 
