@@ -83,3 +83,9 @@ am02() {
 }
 # === AM-02 측정 끝 ===
 ```
+
+## 사용자 동의 — AM-01 (2026-09-26 18:03 KST)
+
+- 부모 교차 진단이 AM-01 을 조건을 느슨하게 하는 개정(AR-01)으로 계산했고, 동의 근거가 일반 위임뿐이라 판정을 뒤집었다(contract-schema.md 「완화의 승인 주체는 사용자뿐」).
+- 사용자에게 이 개정만 콕 집어 물었고 「승인」 을 받았다: AskUserQuestion 답 `2026-09-26T09:03:30.690Z`, 세션 기록 `/Users/jackson/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72.jsonl`, 작업 폴더 `/Users/jackson/Hub/10_Dev/claude-plugins`.
+- 이 줄은 답보다 뒤에 커밋한다. 조건 줄 · 측정은 바꾸지 않는다 — AR-01 의 판정은 이 동의로 성립한다.
