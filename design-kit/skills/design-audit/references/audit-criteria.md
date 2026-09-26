@@ -116,4 +116,4 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 | 장식 목적성 | blur, gradient, shadow 등 장식 효과에 기능적 목적 존재 | BSWEN AI UI Anti-Patterns |
 | 카피 구체성 | 헤드라인/CTA가 이 제품에만 해당하는 구체적 내용 (범용 문구 아님) | Crea8ive Solution Anti-AI Trends 2026 |
 | 이미지 고유성 | 이미지/일러스트가 프로젝트 고유 스타일임 (제네릭 스톡 느낌 아님) | authentic-design.md |
-| 같은 역할 관례 일치 | 같은 역할의 기존 화면들과 줄 모양(카드/평평한 줄) · 칩·뱃지 모양 · 아이콘 뜻이 같다. 대조할 화면 개수는 `../../../references/visual-change-protocol.md` §0 이 정한다(정본 harness `skill-design-guide.md` §8.9). 대조 화면은 §0 관례 표가 있으면 그 화면, 없으면 감사자가 직접 찾은 화면이다. 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 그 개수에 못 미치면 FAIL 로 적지 않고 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다 | [WCAG 2.2 SC 3.2.4](https://www.w3.org/TR/WCAG22/) |
+| 같은 역할 관례 일치 | 같은 역할의 기존 화면들과 줄 모양(카드/평평한 줄) · 칩·뱃지 모양 · 아이콘 뜻이 같다. 대조할 화면 개수는 `../../../references/visual-change-protocol.md` §0 이 정한다(기준 원본 harness `skill-design-guide.md` §8.9). 대조 화면은 §0 관례 표가 있으면 그 화면, 없으면 감사자가 직접 찾은 화면이다. 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 그 개수에 못 미치면 FAIL 로 적지 않고 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다 | [WCAG 2.2 SC 3.2.4](https://www.w3.org/TR/WCAG22/) |

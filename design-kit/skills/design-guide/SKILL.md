@@ -51,7 +51,7 @@ user-invocable: true
 
 코드를 받았으면 카테고리를 고르기 전에 그 코드가 쓰는 토큰과 기존 컴포넌트를 Grep/Read 로 찾아 `파일:줄` 목록으로
 남긴다 (Gotcha 13 의 탐색 단계). 배치·줄 모양·칩 모양을 묻는 질문이면 `../../references/visual-change-protocol.md`
-§0 관례 표 — 같은 역할의 서로 다른 기존 화면, 개수는 §0 이 정한다(정본 harness `skill-design-guide.md` §8.9) — 를 근거로 쓴다.
+§0 관례 표 — 같은 역할의 서로 다른 기존 화면, 개수는 §0 이 정한다(기준 원본 harness `skill-design-guide.md` §8.9) — 를 근거로 쓴다.
 
 ## Step 2: 원칙 참조
 

@@ -53,7 +53,7 @@ user-invocable: true
 - 승인 기록 존재 → 확정 구성을 지키고, 폐기한 대안·요소는 사용자가 되살리라고 하지 않는 한 시안에 다시 넣지 않는다
   (`../../references/visual-change-protocol.md` §4)
 - PRD 비범위 표 존재 → 그 표의 항목은 시안에 넣지 않는다. 코드에 흔적이 남아 있어도 요구로 읽지 않고, 되살려야 할 것 같으면 만들기 전에 사용자에게 묻는다 (planning-kit plan-prd Gotcha 14)
-- 앱 코드 존재 → §0 관례 표를 만든다. 같은 역할의 서로 다른 기존 화면을 §0 이 정한 개수만큼 읽고(정본 harness `skill-design-guide.md` §8.9), 재사용 부품은 grep 으로
+- 앱 코드 존재 → §0 관례 표를 만든다. 같은 역할의 서로 다른 기존 화면을 §0 이 정한 개수만큼 읽고(기준 원본 harness `skill-design-guide.md` §8.9), 재사용 부품은 grep 으로
   확인한 실제 이름만 쓴다. 관례는 Step 2-a 매트릭스의 `constants` 에 넣는다
 
 ## Step 1: 화면 요구사항 파악
@@ -141,7 +141,7 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
   ```
 
   수정 후 보존 목록의 값이 그대로인지 확인한다. 변했으면 되돌리고 지목된 속성만 다시 적용한다.
-  고치는 순서 · 반영 확인 · 스스로 고치기 횟수 상한은 §3 비교 반복 순서를 따르고(정본 harness `skill-design-guide.md` §8.9), 캡처마다 §3 캡처 점검 목록을 본다.
+  고치는 순서 · 반영 확인 · 스스로 고치기 횟수 상한은 §3 비교 반복 순서를 따르고(기준 원본 harness `skill-design-guide.md` §8.9), 캡처마다 §3 캡처 점검 목록을 본다.
 - 수정 후 HTML 파일 갱신
 - 확정 시 `.design/mockups/` 에 최종본 유지
 
