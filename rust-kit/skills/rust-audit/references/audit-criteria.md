@@ -86,6 +86,7 @@ CI YAML · 클라이언트 코드에는 적용하지 마라 (`unwrap()`/`println
 | ------ | ----------- | ------ |
 | HTTP 메서드 일관성 | CRUD에 적절한 메서드 사용 (GET=조회, POST=생성, PUT/PATCH=수정, DELETE=삭제) | REST 관행 |
 | 응답 코드 일관성 | 성공(200/201), 없음(404), 충돌(409), 입력 검증 실패(422), 서버 에러(500) 등 적절한 상태 코드 | HTTP spec |
-| OpenAPI 정합 | `HAS_UTOIPA`면 모든 공개 엔드포인트에 `#[utoipa::path]` 존재, `ApiDoc` struct에 등록 | utoipa 5.4 docs |
+| OpenAPI 정합 | `HAS_UTOIPA`면 모든 공개 엔드포인트에 `#[utoipa::path]` 존재, `ApiDoc` struct에 등록 | utoipa docs (판은 `rust-kit/references/project-detection.md` Step 2c) |
+| 시각 종류별 저장 | 뜻이 벽시계(반복 일정 · 영업시간 · 알림 시각)인 필드를 순간(`TIMESTAMPTZ` · `DateTime<Utc>`) 하나로만 저장하면 FAIL. 특정 지역에 묶인 벽시계에 IANA 시간대 이름 칸이 없으면 FAIL. 필드의 뜻이 실제로 벽시계일 때만 판정한다 | `docs/rust/data/sqlx-patterns.md` 원칙 6 · backend-kit 감사 기준 「시각 종류별 저장」 행 |
 | Axum 0.8 path 문법 | 모든 `.route(...)` 문자열이 `{id}` 중괄호 문법. `:id` colon 문법 0건 | Axum 0.8 CHANGELOG |
 | Consumer-Owned Port | 모듈이 다른 모듈의 `port.rs`를 직접 import하지 않는다 — adapter는 Composition Root에서 주입 | 실사용 프로젝트의 서버 규칙 §아키텍처 1, 3 |
