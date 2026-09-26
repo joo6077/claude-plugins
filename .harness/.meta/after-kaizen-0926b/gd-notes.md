@@ -2,7 +2,7 @@
 
 - 계약: `.harness/sprint-contract-after-0926-guides.md` — 봉인 커밋 `97d893b`,
   `conditions_digest: sha256:1774b0d356321753` · `measurement_digest: sha256:1292a5ca807199ca` (SEAL_OK · MEASURE_OK)
-- 개정: `.harness/sprint-amendments-after-0926-guides.md` AM-01 — SK-19 측정 결함, `relaxing`, 동의 칸 비어 있음(아래 「남은 것」)
+- 개정: `.harness/sprint-amendments-after-0926-guides.md` AM-01 — SK-19 측정 결함, `relaxing`, 동의 칸 채움(`a37fc21`, 사용자 선택지 답 2026-09-26T16:22:39Z). QA 2회차 APPROVE(33/33, N/A 4 제외) — 리포트 `29a7a1f`
 - 가지 `chore/ak2-gd`, 시작점 `6378948`. QA 판정은 이 기록이 내리지 않는다 — 다음 단계 qa-evaluator 몫이다
 
 ## 항목별 결과
@@ -82,7 +82,9 @@
 
 ## 남은 것
 
-- AM-01(SK-19 측정 결함) — 봉인된 측정이 서명 줄 뒤 줄바꿈 때문에 늘 0 을 내 통과할 수 없다. 고친 측정으로 읽는 개정은 `relaxing` 이라 위임으로 동의 처리하지 않았다. 사용자 동의가 있어야 SK-19 를 고친 측정으로 판정할 수 있다
+- `harness/README.md:473` 「추적 규칙」 절이 아직 `kaizen:` 머리 커밋 규칙을 적고 있다. GD-12 가 harness-kaizen SKILL.md `:194` · `:233` 을
+  「바꾼 종류 머리 + 서명 줄 `Kaizen-Phase:`」 로 바꿨으니 README 한 줄도 같은 규칙으로 맞춘다. AUTO 표지 밖이라 `sync-docs.py --check-only` 가 못 잡는다
+  (독립 검토, 막지 않는 결함. 재현: `git ls-files | grep -v '^\.harness' | xargs /usr/bin/grep -n 'kaizen: sprint-contract few-shot'`)
 - 문서 페이지 재생성 — 위 목록. 문서 사이트 묶음이 모아서 한다
 - KD-3 · CS-3 — 위 「뒤따를 일」
 - VS-26 — 부모가 마지막 단계에서 한다
