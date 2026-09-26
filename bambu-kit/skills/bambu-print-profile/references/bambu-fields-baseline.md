@@ -244,6 +244,7 @@
   **속도는 단일 값이 아니라 유량비로 결정한다** — `surface-recipes.md` §3 표가 정본이고 `SKILL.md` §유량비 게이트가 임계를 갖는다. 여기에 수치를 복제하지 마라.
   ⚠️ `resolution` 하향과 `enable_arc_fitting` 끄기는 **공통값이 아니다** — 2026-09-05 실측에서 이득 근거 없음으로 철회됐다 (`surface-recipes.md` §3).
 - **형상 클래스 축 (2026-09-08)**: `_geometry_class` `planar` | `thin`. `thin` 은 속도 하향 없음 + 확인 후 filament 냉각 키 1 종. 정책은 `surface-recipes.md` §2.7, 키 정본은 §10.5.
+- **외벽 파편화 축 (2026-09-26)**: `_wall_outer_block_ratio`. 벽 예산이 부족해도 `classic` 이 외벽을 조각내지 않는 형상이 있어, 비율만으로 `classic` 을 막지 않는다. 정책은 `surface-recipes.md` §2.8, 키 정본은 §10.5.
 
 ## 9. 미해결 / 검증 필요
 
@@ -335,6 +336,7 @@
 | `slow_down_layer_time` | filament (0 / 553) | `s` | ABS `12` · ABS-GF `4` · PETG HF `10` · PLA Basic `4` | 동일 |
 | `slow_down_min_speed` | filament (0 / 1218) | `mm/s` | 전 소재 `20` | 동일 |
 | `_geometry_class` · `_thin_loop_share` | 킷 전용 주석 키 (0 / 0) | `planar` \| `thin` · 비율 | — | Bambu 는 import 시 버린다. Phase 4.3 게이트만 읽는다 |
+| `_wall_outer_block_ratio` | 킷 전용 주석 키 (0 / 0) | 배수 (소수 3 자리) | — | `classic` 외벽 블록 수 나누기 `arachne` 외벽 블록 수. 1.3 이상이면 Phase 4.3 이 `classic` 을 FAIL 한다. 재는 법은 `surface-recipes.md` §2.8 「측정」 (2026-09-26) |
 
 `thin` 클래스의 자동 결정 대상은 `overhang_fan_threshold` 1 키뿐이고 그것도 사용자 확인 후다
 (`user-preferences.md` §1). 나머지는 키 사전으로만 둔다 — 값을 자동으로 정하지 않는다.
