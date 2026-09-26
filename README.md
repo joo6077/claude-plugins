@@ -82,6 +82,10 @@ claude plugin update react-kit@joo6077-plugins
 claude plugin update planning-kit@joo6077-plugins
 claude plugin update reflect-kit@joo6077-plugins
 claude plugin update bambu-kit@joo6077-plugins
+claude plugin update onboarding-kit@joo6077-plugins
+claude plugin update tone-kit@joo6077-plugins
+claude plugin update api-kit@joo6077-plugins
+claude plugin update howto-kit@joo6077-plugins
 ```
 <!-- /AUTO:update-cmd -->
 
@@ -99,6 +103,10 @@ claude plugin uninstall react-kit@joo6077-plugins
 claude plugin uninstall planning-kit@joo6077-plugins
 claude plugin uninstall reflect-kit@joo6077-plugins
 claude plugin uninstall bambu-kit@joo6077-plugins
+claude plugin uninstall onboarding-kit@joo6077-plugins
+claude plugin uninstall tone-kit@joo6077-plugins
+claude plugin uninstall api-kit@joo6077-plugins
+claude plugin uninstall howto-kit@joo6077-plugins
 ```
 <!-- /AUTO:uninstall-cmd -->
 
@@ -117,6 +125,10 @@ bash scripts/release.sh react-kit patch
 bash scripts/release.sh planning-kit patch
 bash scripts/release.sh reflect-kit patch
 bash scripts/release.sh bambu-kit patch
+bash scripts/release.sh onboarding-kit patch
+bash scripts/release.sh tone-kit patch
+bash scripts/release.sh api-kit patch
+bash scripts/release.sh howto-kit patch
 ```
 <!-- /AUTO:release-cmd -->
 
@@ -133,17 +145,9 @@ bash scripts/release.sh bambu-kit patch
 - **자기진단 + 교차 진단**: 실행 후 글로벌 피드백 저장 (`~/.harness/feedback/`)
 - **Kaizen**: contract-kaizen, evaluator-kaizen, harness-kaizen으로 리서치 기반 지속 개선
 
-**제공 스킬:**
-
-| 스킬 | 트리거 | 설명 |
-|------|--------|------|
-| `init` | `/harness init` | 프로젝트에 `.harness/` 디렉토리 초기화 |
-| `sprint-contract` | `/sprint-contract` | 구현 전 완료 조건 계약 생성 |
-| `harness-kaizen` | `/harness-kaizen` | 리서치 기반 하네스 개선 |
-| `contract-kaizen` | `/contract-kaizen` | sprint-contract 리서치 기반 자기개선 |
-| `evaluator-kaizen` | `/evaluator-kaizen` | qa-evaluator 리서치 기반 자기개선 |
-| `create-skill` | `/create-skill` | 설계 가이드 기반 스킬 생성 |
-| `create-agent` | `/create-agent` | 설계 가이드 기반 에이전트 생성 |
+<!-- AUTO:skills-harness -->
+**스킬 9종** — `contract-kaizen`, `create-agent`, `create-skill`, `evaluator-kaizen`, `harness-kaizen`, `init`, `refactor-checklist`, `sprint`, `sprint-contract` · **에이전트 1종** — `qa-evaluator`
+<!-- /AUTO:skills-harness -->
 
 **사용 시작:**
 ```text
@@ -154,12 +158,14 @@ bash scripts/release.sh bambu-kit patch
 
 ### flutter-toolkit
 
-Flutter 프로젝트 전용 개발 워크플로우 스킬 20종.
+Flutter 프로젝트 전용 개발 워크플로우 스킬.
 
 - FVM(Flutter Version Manager) 필수
 - harness 플러그인과 연동 (`.harness/project.yaml`)
 
-**제공 스킬:** api, audit, build, error, extract, feature, hooks, kaizen, l10n, preflight, provider, responsive, run, scenario-report, screen, skeleton, test, transition, ui-verify, widget
+<!-- AUTO:skills-flutter-toolkit -->
+**스킬 20종** — `flutter-api`, `flutter-audit`, `flutter-build`, `flutter-error`, `flutter-extract`, `flutter-feature`, `flutter-hooks`, `flutter-kaizen`, `flutter-l10n`, `flutter-preflight`, `flutter-provider`, `flutter-responsive`, `flutter-run`, `flutter-scenario-report`, `flutter-screen`, `flutter-skeleton`, `flutter-test`, `flutter-transition`, `flutter-ui-verify`, `flutter-widget` · **에이전트 1종** — `widget-inspector`
+<!-- /AUTO:skills-flutter-toolkit -->
 
 > 자세한 내용은 [flutter-toolkit/README.md](./flutter-toolkit/README.md) 참조.
 
@@ -192,20 +198,28 @@ Flutter 프로젝트 전용 개발 워크플로우 스킬 20종.
 
 ### rust-kit
 
-Rust 전용 백엔드 개발 워크플로우 17종.
+Rust 전용 백엔드 개발 워크플로우.
 
 - Rust 2024 Edition, Axum 0.8, SQLx, SeaORM, tonic gRPC
 - `docs/rust/` 리서치 문서 기반
+
+<!-- AUTO:skills-rust-kit -->
+**스킬 16종** — `rust-api`, `rust-audit`, `rust-auth`, `rust-build`, `rust-docker`, `rust-error`, `rust-feature`, `rust-grpc`, `rust-init`, `rust-l10n`, `rust-middleware`, `rust-model`, `rust-preflight`, `rust-run`, `rust-service`, `rust-test` · **에이전트 1종** — `rust-reviewer`
+<!-- /AUTO:skills-rust-kit -->
 
 > 자세한 내용은 [rust-kit/README.md](./rust-kit/README.md) 참조.
 
 ### react-kit
 
-React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 21종 + 3 에이전트.
+React + Vite + Tauri 2 + Rust WASM 개발 워크플로우.
 
 - React 19, TanStack Router/Query, Zustand, shadcn/ui, Tailwind v4
 - 라이브러리 0개 애니메이션 원칙
 - `docs/react/` 리서치 문서 기반
+
+<!-- AUTO:skills-react-kit -->
+**스킬 21종** — `react-animation`, `react-api`, `react-audit`, `react-build`, `react-error`, `react-extract`, `react-feature`, `react-form`, `react-init`, `react-l10n`, `react-preflight`, `react-query`, `react-responsive`, `react-run`, `react-screen`, `react-skeleton`, `react-store`, `react-tauri`, `react-test`, `react-wasm`, `react-widget` · **에이전트 3종** — `animation-architect-react`, `react-reviewer`, `widget-inspector-react`
+<!-- /AUTO:skills-react-kit -->
 
 > 자세한 내용은 [react-kit/README.md](./react-kit/README.md) 참조.
 
@@ -253,7 +267,7 @@ claude-plugins/
 ├── harness/                     # 범용 QA 하네스
 │   ├── .claude-plugin/plugin.json
 │   ├── agents/                  # QA Evaluator 에이전트
-│   ├── skills/                  # init, sprint-contract, kaizen 등 7종
+│   ├── skills/                  # init, sprint-contract, kaizen 등
 │   ├── hooks/                   # SessionStart, PreToolUse
 │   ├── references/              # 공유 참조 (contract-schema, feedback-schema)
 │   ├── templates/               # 프로젝트 초기화 템플릿
@@ -261,7 +275,7 @@ claude-plugins/
 │   └── scripts/                 # 피드백, 검증, 트리거 스크립트
 ├── flutter-toolkit/             # Flutter 전용
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/                  # 개발 워크플로우 스킬 20종
+│   ├── skills/                  # 개발 워크플로우 스킬
 │   ├── references/              # 프로젝트 감지, AI 규칙
 │   └── hooks/
 ├── design-kit/                  # UI/UX 디자인
@@ -282,14 +296,14 @@ claude-plugins/
 │   └── references/
 ├── rust-kit/                    # Rust 백엔드
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/                  # 개발 워크플로우 스킬 17종
+│   ├── skills/                  # 개발 워크플로우 스킬
 │   ├── agents/
 │   ├── references/
 │   └── templates/
 ├── react-kit/                   # React + Vite + Tauri 2
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/                  # 개발 워크플로우 스킬 21종
-│   ├── agents/                  # 3 에이전트
+│   ├── skills/                  # 개발 워크플로우 스킬
+│   ├── agents/
 │   └── references/
 ├── planning-kit/                # 제품 기획 (harness 0번 단계)
 │   ├── .claude-plugin/plugin.json
