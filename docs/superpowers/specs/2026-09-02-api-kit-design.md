@@ -246,14 +246,21 @@ pin이 하는 일은 **타입이 멀쩡한 채 값만 망가진 회귀를 잡는
 값 고정(`= "Bearer"`)은 pin이 표현할 수 있는 assertion **한 종류**일 뿐이고, 안정 필드
 (discriminator·API 버전·통화 코드·고정 status)에만 쓴다. 변동 필드에는 범위·패턴·불변식을 건다.
 
-**경로 간 불변식은 Hurl assert 로 표현되지 않는다.** Hurl 의 assert 는 경로 1 개에 predicate 1 개다
+**경로 간 불변식은 Hurl assert 로 표현되지 않는다.** (정정 2026-09-26 — 이유가 틀렸다. 아래 정정 문단) Hurl 의 assert 는 경로 1 개에 predicate 1 개다
 (`jsonpath "$.meta.total" >= 0`). `$.meta.total >= len($.data)` 처럼 **두 경로를 비교하는 불변식**은
-Hurl 문법으로 쓸 수 없다. 상수로 근사하지 마라 — `>= 3` 으로 박으면 데이터가 늘어난 순간 무의미해진다.
+Hurl 문법으로 쓸 수 없다(정정: capture 로 쓸 수 있다). 상수로 근사하지 마라 — `>= 3` 으로 박으면 데이터가 늘어난 순간 무의미해진다.
 
 이런 assertion 은 `contracts/*.yaml` 의 `pin` 에만 기록하고, `/api-verify` 가 Hurl 실행 뒤
 **후처리 단계에서 검사**한다. 즉 pin assertion 은 두 부류다 — Hurl 이 직접 검사하는 것과
 킷이 후처리로 검사하는 것. 계약 파일은 둘을 구분해 표기한다.
 (2026-09-04 스킬 작성 중 발견. 설계문서 §5.1 "JSON Schema assert 가 네이티브가 아니다" 의 연장선)
+
+**정정 (2026-09-26).** 위 「표현되지 않는다」 · 「쓸 수 없다」 는 이유가 틀렸다 — 옛 문장은 기록으로 남긴다.
+한쪽 경로를 `capture` 해 판정식 값에 넣으면 Hurl 로도 적을 수 있다: `[Captures] total: jsonpath "$.meta.total"` 다음
+`jsonpath "$.data" count <= {{total}}` (hurl 8.0.1 실측 2026-09-24, `docs/api/research-log.md` 「경로 간 불변식을 Hurl 에
+적어 본 결과」). 후처리에 두는 결론은 그대로이고 이유만 바뀐다 — 한쪽 경로가 없으면 Hurl 은 종료 코드 `3`(킷 분류로
+환경 실패) 또는 `4`(계약 실패)만 내고, `판정 불가` 를 가를 자리가 후처리뿐이다. 지금 규칙은
+`api-kit/skills/api-verify/SKILL.md` 에 있다.
 
 | 필드 성격 | 적합한 assertion | 예 |
 |---|---|---|
