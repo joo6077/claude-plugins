@@ -129,7 +129,7 @@ reviewer 가 FAIL 축과 `[미검증]` 축을 각각 판정해서 돌려준다. 
 **`[미검증]` 축** — 임계값을 여기서 다시 정의하지 않는다. SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 의 「임계값 2 는」 조항이고, `planning-reviewer` 가 그것을 복제 보유한다. 위에서 성립하는 첫 항에서 멈춘다:
 
 - `invalid_evidence` 2 건 이상 → **NEEDS_VERIFICATION** (READY 아님). FAIL 0 이어도 sprint-contract 진행 차단
-- `verified_coverage = (판정한 카테고리 수 − env_gaps) / 판정한 카테고리 수` < 0.60 → **BLOCKED** (`insufficient_verified_coverage`). FAIL 축의 BLOCKED 와 달리 원인이 환경이다 → 재검증 명령을 돌린 뒤 재감사
+- FAIL 0 이고 `verified_coverage = (판정한 카테고리 수 − env_gaps) / 판정한 카테고리 수` < 0.60 → **BLOCKED** (`insufficient_verified_coverage`). FAIL 축의 BLOCKED 와 달리 원인이 환경이다 → 재검증 명령을 돌린 뒤 재감사. FAIL 이 1 개 이상이면 이 항을 건너뛰고 FAIL 축 결과를 쓴다(원문 판정 우선순위는 FAIL 을 먼저 본다)
 - `invalid_evidence` 1 건 → FAIL 축 결과 유지 + 리포트 최상단 경고 명시 (FAIL 0 이면 READY 가능)
 - 그 외 → FAIL 축 결과 그대로. `env_gaps`(4 요건을 다 채운 `[미검증:ENV]`)는 셈에 넣지 않고 수만 적는다
 

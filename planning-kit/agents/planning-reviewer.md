@@ -169,7 +169,7 @@ FAIL 축과 `[미검증]` 축을 **각각** 판정하고, 둘 중 더 강한 제
 **`[미검증]` 축** — 두 카운터로 나눠 센다. 정의는 위 사본의 「임계값 2 는」 조항이며 여기서 다시 정하지 않는다. 위에서 성립하는 첫 항에서 멈춘다:
 
 - `invalid_evidence`(`[미검증:INVALID]` · 접미 없는 `[미검증]`) 2 건 이상: 개별 FAIL 이 없어도 verdict 는 `NEEDS_VERIFICATION` (READY 아님) — 사용자가 수동 검증 후 재실행 필요
-- `verified_coverage = (판정한 카테고리 수 − env_gaps) / 판정한 카테고리 수` 가 0.60 미만: verdict 는 `BLOCKED` (`insufficient_verified_coverage` — FAIL 축의 BLOCKED 와 사유가 다르다. 4 요건 4 항의 재검증 명령을 돌린 뒤 재감사). N/A 카테고리는 판정한 수에서 뺀다
+- FAIL 축이 `READY_FOR_SPRINT_CONTRACT` 이고 `verified_coverage = (판정한 카테고리 수 − env_gaps) / 판정한 카테고리 수` 가 0.60 미만: verdict 는 `BLOCKED` (`insufficient_verified_coverage` — FAIL 축의 BLOCKED 와 사유가 다르다. 4 요건 4 항의 재검증 명령을 돌린 뒤 재감사). N/A 카테고리는 판정한 수에서 뺀다. FAIL 이 1 개 이상이면 이 항을 건너뛰고 FAIL 축 결과를 쓴다 — 원문 판정 우선순위가 FAIL 을 비율보다 먼저 본다
 - `invalid_evidence` 1 건: FAIL 축 결과를 유지하되 **경고를 명시**한다. FAIL 0 이면 `READY_FOR_SPRINT_CONTRACT` 를 줄 수 있으나, 리포트 최상단에 미검증 1 건과 그 사유를 적고 Next Actions 에 수동 검증 항목을 남긴다
 - 그 외: FAIL 축 결과를 그대로 쓴다. `env_gaps`(4 요건을 다 채운 `[미검증:ENV]`)는 위 비율에만 쓰고 `NEEDS_VERIFICATION` 셈에 넣지 않으며, 그 수를 리포트에 적는다
 
