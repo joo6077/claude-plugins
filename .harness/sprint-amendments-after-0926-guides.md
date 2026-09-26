@@ -9,7 +9,7 @@ created: "2026-09-26 20:25"
 조건 줄도 측정 줄도 고치지 않았다. 아래 개정은 「이 조건을 이렇게 읽어라」 를 덧붙일 뿐이다.
 방향은 `harness/references/contract-schema.md` §Amendment 사이드카의 규칙(원 오라클과 개정 오라클로 각각 판정해 FAIL→PASS 면 `relaxing`)으로 정했다.
 
-## AM-01 — relaxing · 동의 칸 비어 있음 (사용자 확인 필요)
+## AM-01 — relaxing · anchored
 
 - 대상 조건: SK-19 의 측정 줄(`m SK-19` 의 `example_in_log`)
 - 무엇이 틀렸나: 봉인된 측정은 `git log --format='%(trailers:key=Kaizen-Phase,valueonly)%x09%s'` 를 쓴다. 서명 줄 값 뒤에 줄바꿈이 붙어
@@ -39,4 +39,9 @@ git -C "$W" log origin/main --no-merges --format='%(trailers:key=Kaizen-Phase,va
   `kaizen` → 0(양성 · 음성 둘 다 나온다)
 - direction: 같은 끝 판(`1ad0754`)에서 원 측정 `example_in_log=0`(FAIL) → 개정 측정 4(PASS). FAIL→PASS 라 `relaxing` 이다
   (`amend_direction_oracle` 은 입력이 경로 집합이라 이 개정에 맞지 않아 쓰지 않았다)
-- consent: (비어 있음 — 이 개정은 조건을 통과할 수 있게 만드는 쪽이라 위임으로 동의 처리하지 않는다. 부모가 사용자에게 묻는다)
+- consent: anchored — 동의자: 사용자(Jackson). 위임이 아니라 이 개정을 콕 집어 고른 선택지 답이다
+  - 앵커(세션 기록의 `AskUserQuestion` 쌍, `tool_use_id=toolu_01XFvGpFRqx7oyRQGCG6Csmv`): 2026-09-26T16:22:39.485Z(답변 시각) · session=bda55d45-296c-491f-89ba-b52042d58e72 · cwd=/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak2-pd · 기록 파일 `~/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72.jsonl` 3648 번째 줄 (호출 시각 2026-09-26T16:21:15.422Z)
+  - 질문 원문: 「위 설명대로, 측정을 고치는 개정 중 동의하는 것을 모두 고르세요. 안 고른 것은 조건 문장을 새로 써서 다시 봉인합니다(시간이 더 듭니다).」
+  - 고른 답 원문(여럿 선택): 「cs: 성공 줄 22→25, gd: 커밋 서명 줄 읽기, vsa: sed 공백 표기, hs: .harness 빼고 세기」 — 이 개정은 「gd: 커밋 서명 줄 읽기」(선택지 설명 「커밋이 두 줄로 쪼개지던 읽기 버그를 고침」)
+  - 앞선 질문: 같은 기록 3632 번째 줄(답변 2026-09-26T16:20:41.030Z, `tool_use_id=toolu_013ZdiSQjynT6irbVY9pvPYY`)에 사용자가 「각의미 설명」 이라 답해, 네 개정의 뜻과 잃는 것을 풀어 설명한 뒤 다시 물었다
+  - 순서: 동의(16:22:39Z)는 이 동의 칸을 채운 커밋보다 앞선다. 개정 본문을 처음 담은 커밋 `0e12747`(2026-09-26T11:26:52Z)은 동의 전이며 그때 동의 칸은 비어 있었다
