@@ -123,6 +123,9 @@ FAIL).
 
 ## 남은 것
 
+- **AR-06 개정 AM-01 동의 대기 (RELAXING_PENDING)** — 원 조건의 「`rc=0` 22 줄」 은 옛 판 CI 스크립트로 잰 값이다. 봉인된
+  `ci-local.sh` 는 기준 판 · 구현 판 모두 `rc=0` 25 · SKIP 1 · 종료 0 이다. 22 → 25 로 고치는 개정은 계산상 `relaxing` 이라
+  `.harness/sprint-amendments-after-0926-contract-schema.md` 에 동의 칸을 비워 두었다. 사용자 동의가 있어야 AR-06 이 통과한다
 - 위 「명시적 미완」 열하나 — 소비면 셋과 판 번호 자리 여덟. 이 묶음 범위(세 파일) 밖이라 계약이 막았다
 - 원래 있던 편집기 경고 8 · 9 건 — 배정 대기
 - 문서 사이트 `docs/harness/contract-schema.html` 재생성 · `feedback-schema.html` 신규 여부 — 부모 몫
