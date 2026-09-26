@@ -4,7 +4,7 @@ slug: after-0926-harness-scripts
 created: "2026-09-26 19:59"
 complexity: "복잡"
 conditions: 29
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:46d0b11f882527e0
 measurement_digest: sha256:457007c4f27ccb5e
