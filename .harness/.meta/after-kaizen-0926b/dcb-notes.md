@@ -23,7 +23,8 @@
 - 매핑 표 `process (공유)` 행: 이 묶음은 원본 칸에 `phase-research-templates.md` 를 더했고, 다른 묶음 vsa 의 VS-13 도 같은 행을 고친다. 합칠 때 이 한 줄이 부딪히며, 합친 행에는 오케스트레이터 `SKILL.md` 와 `phase-research-templates.md` 두 원본을 모두 남겨야 한다.
 - 목록 DC-9 매핑 규칙 결정 가운데 `process (공유)` 원본 칸을 오케스트레이터 `SKILL.md` 로 두는 몫은 VS-13 이 같은 줄에서 하므로, 이 묶음의 더하기와 뜻이 맞선다고 보지 않았고 합친 행에 둘 다 남는지만 부모가 보면 된다.
 - 드리프트 도구 쪽은 vsa 가 고친 둘레가 아니라 onboarding 매핑 바로 아래 두 줄에 더해서 부딪히지 않을 것으로 본다.
-- 원본을 고칠 다른 묶음이 합쳐진 뒤 드리프트 도구로 다시 맞춰야 하는 쪽: reflect-digest 는 VS-21 이 원본 한 줄을 이미 고쳤다. project-detection 은 KR-1 과 KR-3 이 고칠 예정이다. phase-research-templates 는 VS-16 과 VS-17 과 VS-26 이 고칠 예정이다. 이 묶음은 시작 판 `6378948` 원본으로 만들었다.
+- 원본을 고칠 다른 묶음이 합쳐진 뒤 드리프트 도구로 다시 맞춰야 하는 쪽: reflect-digest 는 VS-21 이 원본 한 줄을 이미 고쳤고 KRf-1 이 `:255` · `:315` 를 고칠 예정이다. project-detection 은 KR-1 과 KR-3 이 고칠 예정이다. phase-research-templates 는 VS-16 과 VS-17 과 VS-26 이 고칠 예정이다. adapter-dart-flutter 는 KT-1 이 원본 `:26` 을 고칠 예정이다. 이 묶음은 시작 판 `6378948` 원본으로 만들었다.
+- 그래서 새 쪽 둘은 이미 틀렸다고 알려진 원본 문장을 그대로 싣고 있다: `docs/tone-kit/adapter-dart-flutter.html` 250 번째 줄의 「G-04 줄이 정본」(KT-1), `docs/reflect-kit/reflect-digest.html` 의 「Stop 실패 시도가 1 이상」 두 곳(KRf-1). 원본이 고쳐지기 전에 쪽만 고치면 원본과 쪽이 어긋나므로 원본을 따른다.
 - 그 묶음들이 합쳐진 뒤 `python3 scripts/detect-docs-drift.py --since <합친 기준>` 을 돌리면 이제 짝이 있으니 새 쪽이 아니라 다시 맞출 쪽으로 나온다.
 - 검사 스크립트 `check-api-kit-docs` 는 연구 기록 원본을 건너뛰고, 시작 판에서도 이미 12 쪽 가운데 0 쪽만 통과한다. VS-14 몫이라 이 묶음은 기대지 않았다.
 - 320 폭 레포 검사기는 DC-2(dca 묶음)가 레포 접근성 검사에 넣는 일이고, 이 묶음은 계약 도우미로 320 · 375 · 1280 폭과 두 테마를 따로 재서 42 칸 모두 넘침 0 을 확인했다.
@@ -97,5 +98,6 @@ tone-guide 5 단계 전수 대조 — 대상은 새 쪽의 손으로 쓴 글(머
 
 ## 남은 것
 
-- 옛 값 검사 `check-stale-values` 가 오케스트레이터 참고 문서 폴더를 검사 대상에 넣지 않는다. 등록 킷 폴더와 문서 폴더만 훑기 때문이며 목록 VS-27 과 같은 모양이다. 이 묶음이 고치면 계약의 허용 파일 밖이라 새 남은 일 후보로 부모에게 넘긴다.
-- 매핑 표 `process (공유)` 행의 합칠 때 부딪힘과, 원본을 고칠 다른 묶음이 합쳐진 뒤 세 쪽(reflect-digest · project-detection · phase-research-templates)을 다시 맞추는 일은 위 절에 적은 대로 부모가 모아서 한다.
+- 옛 값 검사 `check-stale-values` 가 오케스트레이터 참고 문서 폴더를 검사 대상에 넣지 않는다. 등록 킷 폴더와 문서 폴더만 훑기 때문이며 목록 VS-27 과 같은 모양이다. 고칠 것은 `SOURCE_DIRS` 한 줄이고, 사본에서 넣어 돌리면 `27/27 · 406 개` / `되살아난 옛 값 없음` / `rc=0` 이다. 계약의 허용 파일을 늘리는 완화 개정이라 개정 파일 A-01 에 동의 칸을 비워 적었다(`.harness/sprint-amendments-after-0926-docs-new-pages.md`). 사용자가 동의하면 이 가지에서 넣고, 아니면 부모가 vsa(같은 목록을 고친 VS-27)와 합치는 통합 가지에서 넣는다.
+- 매핑 표 `process (공유)` 행의 합칠 때 부딪힘과, 원본을 고칠 다른 묶음이 합쳐진 뒤 네 쪽(reflect-digest · project-detection · phase-research-templates · adapter-dart-flutter)을 다시 맞추는 일은 위 절에 적은 대로 부모가 모아서 한다.
+- 독립 검토 결과 BLOCKING 0. 판정을 바꾸지 않는 빈틈 셋 가운데 머리글의 「게이트」 두 곳은 `28c5093` 에서 풀어 썼고, 다시 맞출 쪽 목록에 빠졌던 KT-1 · KRf-1 은 위 절에 더했다. 옛 값 검사 한 줄은 바로 위 항목대로 동의를 기다린다.
