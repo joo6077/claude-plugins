@@ -40,7 +40,7 @@ Flutter 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정�
 
 **필터 없이 전체를 돌리고 전후 삭제 수를 센다 (2026-09-25 추가).** feature 인자가 와도 `--build-filter` 를 붙이지 않는다 — 인자는 보고에 적기만 하고 범위를 좁히지 않는다.
 `app-codegen-filter` 같은 프로젝트 전용 필터 명령은 사용자가 그 이름을 직접 부를 때만 쓴다 — 그때는 첫 codegen 줄만 그 명령으로
-바꾸고 두 번째 줄은 필터 없는 전체 그대로 둔다. `HAS_MAKEFILE = true` 면 두 줄을 `$MAKE app-codegen` 으로 바꾼다.
+바꾸고 두 번째 줄은 필터 없는 전체 그대로 둔다. `references/project-detection.md` Step 2b 4 번의 타겟별 확인으로 `app-codegen` 이 있으면 두 줄을 `$MAKE app-codegen` 으로 바꾼다.
 
 ```bash
 # 코드 생성 전후로 git 이 삭제로 보는 추적 파일을 센다. 0 건에 종료 코드 1 을 내는 grep -c 대신 awk 로 센다

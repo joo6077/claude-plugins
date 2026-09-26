@@ -12,7 +12,7 @@ user-invocable: true
 ## Gotchas
 
 - i18n 라이브러리를 자동 감지한다(slang, easy_localization, intl 등) — 감지 결과를 무시하고 특정 라이브러리를 가정하면 안 된다
-- 번역 키 추가 후 반드시 codegen 재실행 — 명령은 Step 6 표를 따른다. slang 은 `flutter-run` codegen 절 블록으로 build_runner 를 돌려 전후 삭제 수를 세고, intl 은 `fvm flutter gen-l10n`
+- 번역 키 추가 후 반드시 codegen 재실행 — 명령은 Step 6 표를 따른다. slang 은 pubspec 에 `slang_build_runner` 가 있으면 `flutter-run` codegen 절 블록으로 build_runner 를 돌려 전후 삭제 수를 세고, 없으면 `$DART run slang` 으로 돌린다. intl 은 `fvm flutter gen-l10n`
 - 키 네이밍은 프로젝트 기존 패턴을 따른다 — 새 네이밍 규칙을 임의로 만들지 마라
 
 i18n 파일에 번역 문자열을 추가/수정하고 codegen을 재생성한다.
@@ -122,11 +122,14 @@ Examples:
 
 | 라이브러리 | 명령 |
 |-----------|------|
-| Slang | `$DART run build_runner build --delete-conflicting-outputs` — `flutter-run` codegen 절의 블록으로 돌린다 |
+| Slang · pubspec 에 `slang_build_runner` 있음 | `$DART run build_runner build --delete-conflicting-outputs` — `flutter-run` codegen 절의 블록으로 돌린다 |
+| Slang · `slang_build_runner` 없음 | `$DART run slang` — build_runner 는 `slang_build_runner` 없이는 slang 을 생성 대상으로 알지 못한다 |
 | easy_localization | codegen 불필요 (런타임 로드) |
 | intl/ARB | `$FLUTTER gen-l10n` |
 
-Slang 도 `--build-filter` 로 i18n 폴더만 돌리지 않는다 — 필터 한 번에 생성물 267 개가 지워진 적이 있다(2026-09-16). 전체를 돌리고 전후 삭제 수를 센다.
+두 갈래는 pubspec.yaml 에 `slang_build_runner` 줄이 있는지로 가른다(`grep -qE '^[[:space:]]+slang_build_runner:' pubspec.yaml`). 근거는 pub 설치본 `slang-4.14.0/README.md:190` · `:193` 과 `slang_build_runner-4.14.0/README.md:7` 이다.
+
+Slang 을 build_runner 로 돌릴 때도 `--build-filter` 로 i18n 폴더만 돌리지 않는다 — 필터 한 번에 생성물 267 개가 지워진 적이 있다(2026-09-16). 전체를 돌리고 전후 삭제 수를 센다.
 
 ### 7. 보고
 

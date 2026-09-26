@@ -82,15 +82,15 @@
     ],
     [
       "배경",
-      "login_as dev-account, er-04-reset.sql 실행"
+      "<로그인 도구> dev-account, er-04-reset.sql 실행"
     ],
     [
       "시나리오 1",
-      "tap_native_point 355,97 → tap_widget \"방장 넘기기\" → tap_widget \"취소\""
+      "<누르기 도구> 355,97 → <위젯 누르기 도구> \"방장 넘기기\" → <위젯 누르기 도구> \"취소\""
     ],
     [
       "시나리오 2",
-      "tap_native_point 355,97 → tap_widget \"방장 넘기기\" → tap_widget \"PGA 브라보\" → tap_widget \"취소\""
+      "<누르기 도구> 355,97 → <위젯 누르기 도구> \"방장 넘기기\" → <위젯 누르기 도구> \"PGA 브라보\" → <위젯 누르기 도구> \"취소\""
     ]
   ]
 }

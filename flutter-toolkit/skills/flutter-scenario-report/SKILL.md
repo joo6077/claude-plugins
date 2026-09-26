@@ -41,7 +41,9 @@ user-invocable: true
 
 ### 1. 프로젝트 감지
 
-- 플러그인 공용 `references/project-detection.md` 를 실행한다. Step 8 의 `VISUAL_CHANNEL` 이 `mcp:<서버명>` 이어야 이 스킬을 쓸 수 있다. `none` 이면 멈추고 사용자에게 알린다. MCP 서버와 도구 이름은 이 파일에 적지 않는다 — 프로젝트 설정에서 읽은 이름만 쓴다
+- 플러그인 공용 `references/project-detection.md` 를 실행한다. 이 스킬이 쓰는 값은 `VISUAL_CHANNEL` 이 아니라 Step 8 표 3 행(프로젝트 등록 MCP)의 서버 이름이다. Step 8 은 채널 하나만 고르므로 `golden` · `integration_test` 가 먼저 잡힌 프로젝트에서도 3 행 감지를 따로 돌려 서버 이름을 얻는다
+- 3 행 감지가 서버 이름을 못 찾을 때만 멈추고 사용자에게 알린다
+- MCP 서버와 도구 이름은 이 파일에 적지 않는다 — 프로젝트 설정에서 읽은 이름만 쓴다
 - 결과 폴더는 `{앱 루트}/.mcp_screenshots/test-evidence/` 다. git 에서 빠져 있는지 확인한다
 
 ```bash
@@ -51,7 +53,7 @@ git -C {앱 루트} check-ignore -q .mcp_screenshots/test-evidence/index.html &&
 - `tracked` 가 나오면 `{앱 루트}/.gitignore` 에 `.mcp_screenshots/` 한 줄을 더하고 그 사실을 사용자에게 알린다. 결과물은 커밋하지 않는다
 - 앱 실행과 MCP 연결은 프로젝트 규칙(`.claude/rules/`)이 있으면 그것을, 없으면 전역 규칙의 절차를 따른다
 
-완료 기준: 채널 줄(`VISUAL_CHANNEL = mcp:<서버명>`), 결과 폴더 절대 경로, `ignored` 출력이 응답에 있다.
+완료 기준: Step 8 표 3 행 감지로 얻은 MCP 서버 이름, 결과 폴더 절대 경로, `ignored` 출력이 응답에 있다.
 
 ### 2. 시나리오 작성과 사용자 확인
 

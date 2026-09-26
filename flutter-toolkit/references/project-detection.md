@@ -31,7 +31,7 @@ pubspec.yaml에서 추출:
 
 ### Step 2b. Makefile 기반 monorepo 감지
 
-프로젝트 루트에 `Makefile` 이 존재하고 Flutter 관련 타겟 (`app-run`, `app-test`, `app-analyze`, `app-codegen`, `app-preflight` 등) 이 정의되어 있으면 `HAS_MAKEFILE = true`. 이 경우 flutter-preflight / flutter-run 스킬은 `$FLUTTER` 직접 호출 대신 `make <target>` 을 우선 사용한다.
+프로젝트 루트에 `Makefile` 이 존재하고 Flutter 관련 타겟 (`app-run`, `app-test`, `app-analyze`, `app-codegen`, `app-preflight` 등) 이 정의되어 있으면 `HAS_MAKEFILE = true`. 이 경우 flutter-preflight / flutter-run 스킬은 그 단계의 타겟이 실제로 있을 때만 `$FLUTTER` 직접 호출 대신 `make <target>` 을 우선 사용한다 (아래 4 번).
 
 이유: Makefile 기반 monorepo 는 `dart-define-from-file=.dart_defines.json`, `--observatory-port=8181`, launch.json/tasks.json 연동 설정을 Makefile 타겟 한 곳에 집중 관리한다. `fvm flutter run` 을 직접 호출하면 이 설정들이 누락되어 앱이 다른 환경으로 기동되거나 디버거가 연결되지 않는다 (실제 앱 프로젝트 sprint-feedback iter 2 AC-6 기반).
 
@@ -44,8 +44,16 @@ pubspec.yaml에서 추출:
    - `app-codegen`, `app-codegen-filter`
    - `app-build`, `app-preflight`
 3. `$MAKE = make` 변수를 제공 (Windows 에서는 `gmake` 또는 프로젝트 관습 우선)
+4. 아래 표의 행마다 그 행이 부르는 타겟(`app-codegen` · `app-analyze` · `app-fix` · `app-test`)을 하나씩 확인한다. `<타겟>` 자리에 타겟 이름을 넣어 돌린다
 
-`HAS_MAKEFILE = true` 일 때 주요 스킬 매핑:
+```bash
+grep -qE '^<타겟>[[:space:]]*:' Makefile
+```
+
+종료 코드가 0 이면 그 행은 Makefile 우선 동작을 쓰고, 그 타겟이 없으면 그 행은 기본 동작을 쓴다.
+`HAS_MAKEFILE = true` 는 타겟이 하나라도 있다는 뜻일 뿐이다 — 묶음 타겟(`app-preflight` · `app-build`)만 있는 Makefile 은 표의 모든 행이 기본 동작이 된다.
+
+`HAS_MAKEFILE = true` 일 때 주요 스킬 매핑 (Makefile 우선 동작은 4 번에서 타겟이 확인된 행만):
 
 | 스킬 | 기본 동작 | Makefile 우선 동작 |
 |------|----------|-------------------|
@@ -162,7 +170,7 @@ Package: {name}
 SDK Manager: {fvm|asdf|system}
 Flutter: {$FLUTTER}
 Dart: {$DART}
-Makefile: {true|false}  # HAS_MAKEFILE — true 면 $MAKE <target> 우선
+Makefile: {true|false}  # HAS_MAKEFILE — true 여도 Step 2b 4 번에서 타겟이 확인된 단계만 $MAKE <target> 우선
 Architecture: {clean|feature_first|flat|mvvm}
 Dependencies: {감지된 패키지 목록}
 Design System: {true|false}
