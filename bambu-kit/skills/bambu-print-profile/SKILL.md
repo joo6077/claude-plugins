@@ -1600,9 +1600,15 @@ if SYS is not None:
         print(f"OPTION LIST {SLICER}-{installed}.tsv canonical {len(CANONICAL)} · 종류 {len(TYPES)} · enum {len(ENUM)}")
         # 파일이 있기만 하고 비었거나 깨지면 아래 키 검사가 통째로 건너뛰는데, 파일이 없을 때와 달리 아무 말이 없었다 (2026-09-24 재현)
         # enum 줄만 빠진 목록도 같다 — canonical · 종류가 멀쩡해도 enum 검사가 조용히 꺼져 받지 않는 값이 통과한다 (2026-09-25 교차 진단)
-        if not CANONICAL or not TYPES or not ENUM:
+        # 안 돈 검사만 적는다 — enum 줄만 빠졌는데 「키 존재 · 종류 미실행」 이라 적으면 같은 출력의 종류 FAIL 과 어긋난다 (2026-09-26 실측)
+        if not CANONICAL:
+            skipped = "키 존재 · 종류 · enum 값 검사 미실행"
+        else:
+            skipped = " · ".join(note for present, note in ((ENUM, "enum 값 검사 미실행"),
+                                                            (TYPES, "종류 줄이 없어 키 스코프 불일치 FAIL 은 믿지 마라")) if not present)
+        if skipped:
             unverified.append(f"{OPTION_KEY_DIR}/{SLICER}-{installed}.tsv 을 읽었지만 canonical {len(CANONICAL)} · 종류 {len(TYPES)} · enum {len(ENUM)} 줄 — "
-                              "목록이 비었거나 깨졌다. 키 존재 · 종류 · enum 값 검사 미실행")
+                              f"목록이 비었거나 깨졌다. {skipped}")
 # 키 판정에서 제외하는 메타 키 — 필수 메타필드 표의 키. 형식 검사는 아래에서 따로 한다
 META = {"type","name","version","from","inherits","print_settings_id","filament_settings_id",
         "compatible_printers","filament_extruder_variant","instantiation","setting_id"}
@@ -2032,6 +2038,7 @@ SKILL_DIR="$NOENUM" TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-t
 목록이 없을 때는 FAIL 이 사라지는 대신 `[미검증]` 이 남는다 — 이 줄이 있으면 완료를 선언하지 않는다.
 목록 파일이 있기만 하고 비었을 때도 같다 — `[미검증] … 목록이 비었거나 깨졌다` 가 남는다 (2026-09-25 추가. 그전에는 아무 줄 없이 `RESULT: PASS` 였다).
 enum 줄만 빠진 목록도 같다 — `받지 않는 값` FAIL 이 사라지는 대신 `[미검증] … enum 0 줄` 이 남는다 (2026-09-25 추가. 그전에는 `RESULT: PASS` 였다).
+이 줄은 실제로 안 돈 검사만 적는다 — enum 줄만 빠지면 `enum 값 검사 미실행` 이고, 키 존재 · 종류 검사는 그대로 돌아 `키 스코프 불일치` FAIL 을 낸다 (2026-09-26 수정. 그전에는 같은 출력에 종류 FAIL 과 「종류 검사 미실행」 이 함께 나왔다).
 
 **왜 enum 을 따로 보는가.** 슬라이서는 유효하지 않은 enum 값을 **오류 없이 조용히 기본값으로
 강등**한다. 실측 2026-09-14: `seam_slope_type` 에 `hole` 을 넣으면 exit 0 · 경고 0 으로 슬라이스되고
@@ -2235,6 +2242,7 @@ rm -rf "$T"
 세션마다 새로 짠 스크립트가 호(`G2` · `G3`)를 빠뜨렸다 — 호 길이가 빠지고, 호에서 좌표를 안 옮기면 다음 직선이 부풀어 총합이
 그럴듯하게 틀린다 (2026-09-22). 이 킷은 `enable_arc_fitting` 을 끄지 않으므로(§튜닝 정책) 곡선은 호 명령으로 나온다.
 맨 앞의 자기 검사가 알려진 답과 다르면 실제 G-code 는 재지 않고 멈춘다.
+이 블록은 `G91` 을 XY 에만 적용하고 E 모드는 `M82` · `M83` 으로만 바꾼다. 펌웨어가 `G91` 을 E 에도 적용하는지는 확인하지 못했지만, 설치본 H2S 시작 G-code(뱀부 `02.08.02.61` · 오르카 `2.4.2`, 2026-09-26 실측)는 `G91` 이 뱀부 6 번 · 오르카 5 번 나오고 그 구간 안 E 이동이 0 이며 E 모드는 `M83` 뿐(`M82` 0 번)이라 어느 쪽으로 읽어도 재는 길이가 같다. 다른 시작 G-code 를 쓰면 다시 잰다.
 
 ```bash
 python3 - "<G-code 경로>" <<'PY'

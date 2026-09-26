@@ -23,7 +23,7 @@
 | `doc_return_label` | `/// - 반환값: 설명`, void 는 `- 반환값: 없음`. **한국어 축 소유 — 표기 상수의 SSOT 는 `locale-korean.md` 다.** 이 파일은 라벨 문자열을 재정의하지 않는다 |
 | `helper_prefix_forbidden` | `_build*` — 위젯을 반환하는 private 헬퍼 접두사. 접두사 금지만 이 파일 소관이고, 인라인·승격 판정식은 `core-structure.md` |
 | `separator_pattern` | 고정 gap → `Row`/`Column` 의 `spacing:`. 리스트 구분자 → `ListView.separated` 의 `separatorBuilder`. `.expand().skip()` 체이닝과 수동 `SizedBox` 나열 금지 |
-| `fallback_identifier_pattern` | `\b(effective\|resolved)[A-Z]` — 금지 접두사. 처리는 삭제가 아니라 도메인·역할명으로 개명 |
+| `fallback_identifier_pattern` | `effective` · `resolved` 뒤에 대문자가 이어지는 식별자 — 금지 접두사. 정규식은 §4 완료 게이트 G-04 줄이 정본이다(표 칸에 옮기면 대안 기호가 깨진다). 처리는 삭제가 아니라 도메인·역할명으로 개명 |
 | `naming_suffix` | 위젯 `{widget_prefix}...Widget` · Props `...WidgetProps` · raw 상태 `...State` · 파생 뷰 `...ViewState` · 콜백 typedef `...Changed` / `...Tap`. 클래스 UpperCamelCase, 파일 snake_case |
 | `event_vocabulary` | Flutter 공식 제스처 어휘 `on<제스처><단계>` (§3.11). 도메인 이벤트만 프로젝트가 명명 |
 | `state_lib` | Riverpod(`@riverpod` Notifier + `select`) + flutter_hooks(`HookConsumerWidget` · `useState` · `useEffect`) + freezed state 클래스 |

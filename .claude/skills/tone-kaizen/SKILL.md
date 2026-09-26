@@ -97,6 +97,6 @@ chore(tone-kaizen-cycle<N>): [개선 내용 요약]
 
 # References
 
-- ../../../docs/tone/ — 리서치 문서 8종 (개선 근거)
+- ../../../docs/tone/ — 리서치 문서 8종 (overview · research-log · templates 제외, 개선 근거)
 - ../../../tone-kit/references/adapter-contract.md — 어댑터 추가 조건
 - ../../../harness/docs/guides/skill-design-guide.md — 스킬 설계 규칙

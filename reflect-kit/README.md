@@ -81,7 +81,7 @@ Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개
 ~/.claude/logs/<project_id>/
 ├── YYYY-MM.md                  # raw prompt + tool-failure
 ├── reflections-YYYY-MM.md      # Stop 훅 구조화 YAML
-├── .errors.log                 # 훅 실패 메타 로그 + 환경 오설정 억제 기록
+├── .errors.log                 # 훅 실패 메타 로그 + 환경 오설정 억제 기록 + 정상 종료(ok:no-issues)
 ├── .env-issues.tsv             # 환경 오설정 롤업 (tag / first_seen / last_seen / count)
 ├── digest-YYYY-MM-DD.md        # /reflect-digest 리포트 (옵션 저장)
 └── promotions-ledger.md        # /reflect-promote 승격 이력
@@ -96,7 +96,7 @@ Reflexion 방법론(arXiv [2303.11366](https://arxiv.org/abs/2303.11366))을 개
 ## 의존성
 
 - `codex` CLI (`codex exec -s read-only`로 세션 분석)
-- `claude` CLI — codex 가 실패하면 `claude -p --model haiku` 로 한 번 더 분석한다
+- `claude` CLI — codex 가 실패하면 `claude -p --safe-mode --model haiku` 로 한 번 더 분석한다. `--safe-mode` 는 사용자 · 프로젝트 설정의 훅을 띄우지 않는다
 - `jq` (JSON 파싱)
 - `awk`, `sed` (redaction, POSIX ERE)
 - `uuidgen` (rule_id 발급)
