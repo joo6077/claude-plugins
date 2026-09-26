@@ -4,7 +4,7 @@ slug: skill-notes-contract-path-zsh
 created: "2026-09-26 18:09"
 complexity: "단순"
 conditions: 17
-status: active
+status: done
 owner_session: f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0
 conditions_digest: sha256:6ec480a47c7e34c0
 measurement_digest: sha256:aa2bad33ad1b4ac1
