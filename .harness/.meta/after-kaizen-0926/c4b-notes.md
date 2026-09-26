@@ -3,7 +3,9 @@
 - 작업 폴더: `.claude/worktrees/ak-c4b` (가지 `chore/ak-c4b`, 시작 판 `f81568d`)
 - 계약: `.harness/sprint-contract-after-0924-reviewer-unverified.md` — 23 조건, 봉인값 `sha256:3da851e5d1e58f0e` (2026-09-26 17:02)
 - 계약 피드백: `~/.harness/feedback/contract/1a3bcba6-2026-09-26T170324-bda55d45-83561.yaml` (`verify-feedback.sh` PASS)
-- QA 판정은 아직 없다. 다음 단계의 qa-evaluator 가 낸다. 계약 `status` 는 `active` 그대로다
+- QA: 2 회차 APPROVE (2026-09-26 17:44), 리포트 `.harness/sprint-feedback-after-0924-reviewer-unverified.md`,
+  글로벌 피드백 `~/.harness/feedback/evaluator/1a3bcba6-2026-09-26T174502-bda55d45-31682.yaml`. 계약 `status: done`
+- 계약 개정 3 건은 `.harness/sprint-amendments-after-0924-reviewer-unverified.md` (AM-01 이 design-audit 리포트 틀을 범위에 더함)
 
 ## 한 일
 
@@ -18,6 +20,11 @@
 | `446428a` | react-kit — react-reviewer 사본 교체, 판정값 `APPROVE` · `REJECT` · `BLOCKED`, react-audit 리포트 틀과 MUST 줄 |
 | `ff22740` | rust-kit — rust-reviewer 사본 교체(「옮기지 않았다」 메모 삭제), rust-reviewer · rust-audit APPROVE 빈틈 |
 | `8b27b36` | 킷 밖 — `scripts/check-reviewer-protocol-copies.py` 새 검사, CI `validate` 묶음 한 단계, infra-kaizen Gotcha 8 원문 행 |
+| `e5a51d7` | 이 notes 첫 판 |
+| `578e119` | design-kit — design-audit 리포트 틀 판정 칸에 `BLOCKED`, 미검증 절에 ENV · INVALID 구분과 두 셈 · 잰 비율 (독립 검토 차단 1) |
+| `c7f13f0` | planning-kit — FAIL 이 1 개 이상이면 비율 보류(`BLOCKED`) 항을 건너뛰고 FAIL 축 결과를 쓴다 (독립 검토 비차단 2) |
+| `ecce303` | 계약 개정 파일 — AR-01 범위 16 → 17 경로 · SK-07 · DG-02 읽는 법 · 다시 잰 값 |
+| `112dca8` | QA 2 회차 리포트 · 계약 `status: done` |
 
 사본마다 원문 두 덩어리(조항 47 줄 · 4 요건 7 줄)를 글자 그대로 넣고, 앞뒤를 MD029 끄기 · 켜기 주석으로 감쌌다.
 출처 줄 하나에 원문 경로 · `v5.1` · 「계약」 풀이를 함께 적었다. 사본 밖의 「조항 2」 · 「조항 3」 · 「3 분기」 표기는
@@ -76,6 +83,10 @@ backend · rust 감사의 APPROVE 조건이 「전 row PASS」 라 `[미검증:E
 킷마다 `validate-plugin.py` 0 · `sync-docs.py --check-only` 0(바뀐 README 없음) · `sync-evals.py --check-only` 0 · `actionlint` 0.
 ci-local 이 남긴 `__pycache__` 두 폴더는 지웠다.
 
+QA 뒤 다시 돌림(끝 판 `112dca8`, `TMPDIR=<스크래치>/c4b-impl/citmp2`): 22 단계 모두 `rc=0`, 스크립트 종료 코드 0,
+`feedback-agg-test` 만 같은 이유(`yq` 없음)로 건너뜀. 새 검사도 따로 돌려 `checked=7 violations=0 infra_errors=0 excluded=1` · 종료 코드 0.
+이번에도 추적 안 된 `__pycache__` 두 폴더(flutter-scenario-report 스크립트 · 시험)가 생겨 지웠다. 전체 출력은 `c4b-impl/ci2.out`.
+
 ## docs 드리프트
 
 `python3 scripts/detect-docs-drift.py --since f81568d8fbf58382172281388ec5d7756f9f46b2 --verbose` → `No docs drift`.
@@ -90,6 +101,21 @@ ci-local 이 남긴 `__pycache__` 두 폴더는 지웠다.
 - design-reviewer 의 「미검증 0 건 · L3 10 개 미만 → CONDITIONAL APPROVE」 — design-kit 고유 L3 규칙이라 다음 사이클 Phase 6
 - `docs/harness/*.html` 세 쪽의 옛 문턱 설명, `harness/evals/gate-exit-codes.md` 사용처 표에 새 검사 행 — 범위 밖
 - `validate-plugin.py` 에 넣지 않고 따로 둔 까닭: 등록 검사 수가 문서 여러 곳에 적혀 있어 범위 밖 문서까지 고쳐야 한다
+
+## 독립 검토 결과
+
+두 건 모두 QA 2 회차 전에 고쳤다. 차단 1(design-audit 리포트 틀이 `BLOCKED` 를 못 담음)은 계약 개정 AM-01 로 범위에 넣고 `578e119`,
+비차단 2(planning 에서 FAIL 이 있어도 `BLOCKED` 가 이김)는 `c7f13f0`. 그래서 옮길 비차단 결함은 남지 않았고, 그 과정에서 드러난 빈틈만 아래에 적는다.
+
+## 다음 사이클 메모
+
+- 판정 대응표(SK-05 28 칸 · SK-07 24 칸)는 FAIL 0 인 네 경우만 잰다. FAIL 이 있고 비율도 0.60 미만인 조합을 안 봐서
+  planning 의 「더 강한 쪽」 규칙이 원문 순서와 어긋난 것을 표가 못 잡았다. 다음에 판정 규칙을 고치는 계약은 FAIL ≥ 1 칸을 표에 넣는다 (Phase 3 · 각 킷 Phase)
+- 계약 「복잡도」 표의 받아 쓰는 쪽 목록을 감사 스킬 본문만 보고 적어 design-audit 리포트 틀이 빠졌다. 판정값을 바꾸는 계약은
+  `templates/` 아래 리포트 틀까지 판정값 낱말로 검색해 범위를 잡는다 (contract-kaizen, Phase 2)
+- 독립 검토가 이미 넘김으로 적은 것은 위 「넘긴 것」 그대로다: 감사 스킬의 「정본 조항 3」 표기, `gate-exit-codes.md` 사용처 표의 새 검사 행, flutter-audit 옛 사본
+- QA 가 평가 전부터 남아 있던 낡은 리포트(1 회차 내용)와 커밋 안 된 `status: done` 을 발견했다. 같은 세션의 앞선 시도 잔여물로 보이며 판정에는 쓰이지 않았다.
+  QA 를 다시 부를 때는 앞 회차 리포트를 커밋해 두거나 지운 뒤 부른다
 
 ## 킷별 버전 판단 (릴리스는 부모가 PR 을 합친 뒤)
 
