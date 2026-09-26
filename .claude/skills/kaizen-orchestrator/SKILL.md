@@ -513,7 +513,7 @@ exit_codes: [0, 2]
 
 ### Step 16: Phase 16 — api-kit 카이젠
 
-**범위:** `api-kit/skills/*/SKILL.md`, `api-kit/references/`, `api-kit/skills/*/references/`, `api-kit/agents/`
+**범위:** `api-kit/skills/*/SKILL.md`, `api-kit/references/`, `api-kit/skills/*/references/`, `api-kit/agents/`, `api-kit/evals/`
 , `docs/api/` 리서치 문서
 
 공통 실행 패턴에 따라 `/api-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 api-kit 전 스킬을 전수 감사한다. api-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
