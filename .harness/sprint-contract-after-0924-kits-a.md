@@ -4,7 +4,7 @@ slug: after-0924-kits-a
 created: "2026-09-26 11:55"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:03017626965ce499
 locked_at: "2026-09-26 12:12"
