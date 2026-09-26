@@ -4,7 +4,7 @@ slug: h2-flipper-rear-exhaust-abs-fan-screw
 created: "2026-09-26 18:30"
 complexity: "중간"
 conditions: 26
-status: active
+status: done
 owner_session: d204ea78-091c-4f5b-a8db-ec3ead359b73
 conditions_digest: sha256:e686afa5b607ccd7
 locked_at: "2026-09-26 19:01"
