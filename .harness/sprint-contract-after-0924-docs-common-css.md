@@ -4,7 +4,7 @@ slug: after-0924-docs-common-css
 created: "2026-09-26 17:42"
 complexity: "복잡"
 conditions: 26
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:11225a00534b06ba
 locked_at: "2026-09-26 17:49"
