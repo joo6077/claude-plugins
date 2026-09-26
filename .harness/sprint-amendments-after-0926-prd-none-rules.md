@@ -3,6 +3,8 @@ slug: after-0926-prd-none-rules
 created: "2026-09-26 21:35"
 ---
 
+# 개정 — after-0926-prd-none-rules
+
 ## A-01 — 코드 표시 기호 · 마침표로 끝낸 `PRD 없음` 기록을 재는 측정을 더한다
 
 **앵커**: SK-04 (b) · SK-05 (b) · SK-06 의 검색 모양 `'PRD 없음[[:space:]]*[|]?[[:space:]]*$'` 와 SC-01 · SC-02 의 알려진 답 입력.
