@@ -4,7 +4,7 @@ slug: after-0924-docs-regen
 created: "2026-09-26 15:38"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:5f2a4aa254cb4e0c
 locked_at: "2026-09-26 15:58"
