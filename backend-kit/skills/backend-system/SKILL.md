@@ -48,7 +48,7 @@ references/system-principles.md 를 참조하여 필요한 카테고리를 rule 
 | 카테고리 | 필수 여부 | 산출물 |
 |----------|-----------|--------|
 | 아키텍처 패턴 | 필수 | Hexagonal / Clean / DDD 중 프로젝트 규모에 맞는 선택, 도메인-persistence 분리 규약, 의존성 방향(inward-only). 단순 CRUD는 "간소화 계층형" 선택 가능 |
-| API 규격 | 필수 | HTTP 메서드 규칙, **빈 상태 포함 상태코드 매핑**(Gotcha 14), RFC 9457 problem+json 에러 포맷, OpenAPI 3.1 스펙 파일, **timestamp 타임존·직렬화 규칙**(Gotcha 15), **시각 종류 · 시간대 출처 표**(Gotcha 18), **비멱등 write path idempotency 시맨틱** |
+| API 규격 | 필수 | HTTP 메서드 규칙, **빈 상태 포함 상태코드 매핑**(Gotcha 14), RFC 9457 problem+json 에러 포맷, OpenAPI 스펙 파일(3.1 이상 — 최소 지원선이지 최신판이라는 뜻이 아니다), **timestamp 타임존·직렬화 규칙**(Gotcha 15), **시각 종류 · 시간대 출처 표**(Gotcha 18), **비멱등 write path idempotency 시맨틱** |
 | 계약 아티팩트 | 필수 (계약을 새로 정하거나 바꿀 때) | `contracts/<feature>.md` 6 항목(Gotcha 13) + producer/consumer 양면 파일 열거 체크리스트(Gotcha 12) |
 | 쓰기 경로 무결성 | 필수 (상태 전이·중복 방지·재시도 안전성이 걸린 write path 가 있을 때) | invariant 분류 3 줄 + 제약↔upsert 대조 표 + 멱등 계약 6 항목 (Gotcha 16). outbox 를 쓰면 consumer idempotency 를 같은 규격에 포함 (Gotcha 17) |
 | 에러 처리 | 필수 | 에러 분류, 글로벌 핸들러 패턴, retry 정책 (exponential backoff + jitter) |

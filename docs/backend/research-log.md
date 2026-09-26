@@ -1,9 +1,20 @@
 ---
-version: 1.4.0
-last_updated: 2026-09-25
+version: 1.4.1
+last_updated: 2026-09-26
 ---
 
 # Backend Kit Research Log
+
+## [2026-09-26] — 카이젠 뒤 남은 것 (k2)
+
+판정: **CHANGED**. 근거는 Codex 원문 대조 `.harness/.meta/after-kaizen-0926b/ex/EX-7.md`(2026-09-26 조회) 하나다.
+
+| 대상 | 원문 | 반영 |
+| --- | --- | --- |
+| OpenAPI | [spec.openapis.org/oas/latest.html](https://spec.openapis.org/oas/latest.html) — 최신판 3.2.1. 「Tooling which supports OAS 3.1 SHOULD be compatible with all OAS 3.1.* versions.」 | 킷의 「OpenAPI 3.1」 세 자리(backend-system API 규격 행 · backend-audit 5 행 · 감사 기준 JSON Schema 호환 행)에 「3.1 이상 — 최소 지원선」 을 적어 최신판 뜻이 아님을 밝혔다 |
+| AsyncAPI | [asyncapi/spec/releases/tag/v3.1.0](https://github.com/asyncapi/spec/releases/tag/v3.1.0) — 3.1.0 은 2026-01-31 발표, 적힌 기능 변경은 ROS 2 binding 추가 | 킷 문장 「AsyncAPI 3.0+」 은 최소선이라 이 원문으로도 참이다. 킷은 고치지 않고 여기에만 남긴다 |
+
+벽시계 값을 보낼 문자열 형태는 근거 파일에도 원문 대조에도 없어 이번에 규칙으로 올리지 않았다.
 
 ## [2026-09-24] — Phase 7 kaizen
 
