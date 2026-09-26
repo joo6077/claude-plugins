@@ -254,6 +254,13 @@ if [[ -z "$SPRINT_SLUG" && -n "$CONTRACT_PATH" ]]; then
     sprint-contract-*) SPRINT_SLUG="${_base#sprint-contract-}" ;;
   esac
 fi
+# 새 Bash 호출에서 $CF 가 비어 HARNESS_CONTRACT 가 빈 값으로 오면 슬러그 계약 대신 옛 plain 계약에 붙는다 — 초안 이름에서 슬러그를 읽는다
+if [[ -z "$SPRINT_SLUG" && -z "$CONTRACT_PATH" ]]; then
+  _base="$(basename "$DRAFT_PATH")"
+  case "$_base" in
+    feedback-draft-?*.yaml) _base="${_base#feedback-draft-}"; SPRINT_SLUG="${_base%.yaml}" ;;
+  esac
+fi
 
 # contract_path 추론.
 #

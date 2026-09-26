@@ -255,5 +255,16 @@ if [[ "${SAVE_RC}" -ne 0 || "$(top_value contract_root "${SAVED}")" != "${WORK}/
 fi
 echo "PASS: HARNESS_CONTRACT_ROOT 를 주면 그것이 contract_root 다"
 
+# 15. 새 Bash 호출에서 $CF 가 비어 HARNESS_CONTRACT 가 빈 값 — 초안 이름의 슬러그로 슬러그 계약을 잡는다
+: > "${ELSE}/.harness/sprint-contract.md"
+: > "${ELSE}/.harness/sprint-contract-x.md"
+cp "${DRAFT_SRC}" "${WORK}/feedback-draft-x.yaml"
+save_from_elsewhere "${WORK}/feedback-draft-x.yaml" HARNESS_CONTRACT=""
+if [[ "${SAVE_RC}" -ne 0 || "$(top_value contract_path "${SAVED}")" != "${ELSE}/.harness/sprint-contract-x.md" || "$(top_value sprint_slug "${SAVED}")" != x ]]; then
+  echo "FAIL: 빈 HARNESS_CONTRACT + 초안 feedback-draft-x.yaml — contract_path='$(top_value contract_path "${SAVED}")' sprint_slug='$(top_value sprint_slug "${SAVED}")' (rc=${SAVE_RC}), 기대 ${ELSE}/.harness/sprint-contract-x.md · x"
+  exit 1
+fi
+echo "PASS: HARNESS_CONTRACT 가 비면 초안 이름 feedback-draft-<slug>.yaml 의 슬러그 계약에 붙고 옛 plain 계약에 붙지 않는다"
+
 echo ""
 echo "=== ALL TESTS PASSED ==="

@@ -857,7 +857,9 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
    - `diagnosis.cross_diagnosis_notes`: Step 8의 결과
 2. `HARNESS_CONTRACT="$CF" bash harness/scripts/save-feedback.sh contract .harness/feedback-draft-<slug>.yaml` 실행.
    `HARNESS_CONTRACT` 를 빼면 스크립트가 계약 경로를 추측하거나 필드를 뺀다 — 실측(2026-09-26): 슬러그 계약인데
-   `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다
+   `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다.
+   셸 변수는 Bash 호출이 바뀌면 사라진다 — 같은 호출 안에서 `CF=<계약 파일 절대 경로>` 를 다시 적고 부른다.
+   빈 값으로 오면 스크립트는 초안 이름의 `<slug>` 로 계약을 찾는다
 3. 출력된 저장 경로를 기록한다
 
 ### 10. 피드백 검증

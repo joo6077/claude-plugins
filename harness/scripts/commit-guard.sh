@@ -364,7 +364,7 @@ check_commit_post() {  # check_commit_post <저장소 폴더>
 }
 
 handle_git() {  # handle_git <off> <GIT_INDEX_FILE 값> <git 인자…>
-  local off=$1 idx=$2 gdir=$dir glost=$lost sub a take=0 after_dd=0 flag_all=0 flag_update=0 no_new=0 spec_file=0
+  local off=$1 idx=$2 gdir=$dir glost=$lost sub a take=0 after_dd=0 flag_all=0 flag_update=0 no_new=0 no_rm=0 spec_file=0
   local -a specs=()
   shift 2
   while [ $# -gt 0 ]; do
@@ -391,6 +391,7 @@ handle_git() {  # handle_git <off> <GIT_INDEX_FILE 값> <git 인자…>
           --update) flag_update=1 ;;
           --all | --no-ignore-removal) flag_all=1 ;;
           --dry-run | --interactive | --patch | --edit | --intent-to-add) no_new=1 ;;
+          --ignore-removal | --no-all) no_rm=1 ;;
           --pathspec-from-file) spec_file=1; take=1 ;;
           --pathspec-from-file=*) spec_file=1 ;;
           --*) ;;
@@ -408,9 +409,15 @@ handle_git() {  # handle_git <off> <GIT_INDEX_FILE 값> <git 인자…>
       for a in "${specs[@]}"; do case $a in . | :/) add_all=1 ;; esac; done
       # 같은 명령의 커밋이 실을 작업 폴더 상태. 경로를 준 add 는 그 경로 안만, -A · -u 만 주면 저장소 전체다.
       # 경로를 준 add 는 add_all 을 켜지 않는다 — 켜면 공용 목록 되돌림 검사가 꺼진다
-      if [ "$spec_file" = 0 ] && [ "$glost" = 0 ]; then
+      # -n · -p 같은 add 는 목록을 바꾸지 않고, --ignore-removal 은 삭제를 싣지 않는다
+      if [ "$no_new" = 0 ] && [ "$spec_file" = 0 ] && [ "$glost" = 0 ]; then
         g_dir=$gdir g_index=$idx
-        if [ "${#specs[@]}" -gt 0 ]; then
+        if [ "$no_rm" = 1 ] && [ "$flag_update" = 0 ]; then
+          set -- "${specs[@]}"
+          [ $# -gt 0 ] || [ "$flag_all" = 0 ] || set -- :/
+          [ $# -gt 0 ] && add_changed="$add_changed
+$(comm -23 <(g ls-files --full-name -m -- "$@" | sort) <(g ls-files --full-name --deleted -- "$@" | sort))"
+        elif [ "${#specs[@]}" -gt 0 ]; then
           add_deleted="$add_deleted
 $(g ls-files --full-name --deleted -- "${specs[@]}")"
           add_changed="$add_changed

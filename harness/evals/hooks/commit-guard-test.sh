@@ -4,7 +4,7 @@
 # ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) · ㉖~㉚ (kaizen-0924-f1-harness-followups 이름 바꾸기) ·
 # ㉛~㊴ (after-0924-harness-orch -a · 같은 명령 git add 이름 바꾸기와 -i 막힘 설명) ·
 # ㊵~㊿ (같은 계약 교차 진단 — 파일 ↔ 폴더 바뀜 · 경로를 좁힌 git add · 목록 사본에 못 얹음) 을 따른다.
-# HS3-* 는 SC-05, SCOPE-s01~s23 은 SC-06 · ER-02 (after-0926-harness-scripts) 를 따른다.
+# HS3-* 는 SC-05, SCOPE-s01~s23 은 SC-06 · ER-02 (after-0926-harness-scripts) 를 따른다. NOADD-* 는 같은 계약 독립 검토 결함 1 이다.
 # COMMIT_GUARD_HOOK 으로 훅 경로를 바꿀 수 있다 — 판정 줄을 지운 사본으로 음성 대조를 돌릴 때 쓴다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -382,6 +382,18 @@ run_s 'git commit -m x' "$r" S; expect SCOPE-s22-empty-block 0 empty
 nr; printf -- '---\nstatus: active\n---\n\n## 범위 경계\n\n%stext\n# sprint-scope\nd1/f001\n%s\n' "$fence" "$fence" >"$r/.harness/sprint-contract-s.md"
 git -C "$r" add .harness; git -C "$r" commit -qm noowner; echo z >>"$r/a.txt"; git -C "$r" add a.txt
 run_s 'git commit -m x' "$r" S; expect SCOPE-s23-no-owner 0 empty
+
+# ── NOADD 목록을 바꾸지 않는 add · 삭제를 싣지 않는 add (독립 검토 결함 1) ──
+r=$work/n1; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --dry-run d1 && git commit -m x' "$r"; expect NOADD-d1-dry-run 0 empty
+r=$work/n2; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --ignore-removal d1 && git commit -m x' "$r"; expect NOADD-d2-ignore-removal 0 empty
+r=$work/n3; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --no-all d1 && git commit -m x' "$r"; expect NOADD-d3-no-all 0 empty
+nr; echo z >>"$r/d1/f001"; git -C "$r" add d1/f001; echo z >>"$r/a.txt"
+run_s 'git add -n a.txt && git commit -m x' "$r" S; expect NOADD-s1-dry-run 0 empty
+nr; echo z >>"$r/a.txt"; run_s 'git add --ignore-removal a.txt && git commit -m x' "$r" S
+expect NOADD-s2-ignore-removal-out 2 '' 'a.txt'
 
 echo "실패 $fails 건"
 [ "$fails" = 0 ]
