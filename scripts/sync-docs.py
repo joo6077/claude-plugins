@@ -144,7 +144,7 @@ def collect_hooks(plugin_dir: Path) -> list[dict]:
         for entry in entries:
             matcher = entry.get("matcher", "")
             for hook in entry.get("hooks", []):
-                # 스크립트 이름만 추출. 경로를 감싼 따옴표는 표에 옮기지 않는다
+                # 따옴표를 빼지 않으면 훅 표 이름에 `.sh"` 가 샌다
                 cmd = hook.get("command", "").replace('"', "")
                 cmd_name = cmd.split("/")[-1] if "/" in cmd else cmd
                 results.append({
