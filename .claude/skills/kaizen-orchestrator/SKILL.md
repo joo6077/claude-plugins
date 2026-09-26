@@ -310,6 +310,9 @@ exit_codes: [0, 2]
 | 12 Reflect | §0 + §1 Reflexion 패턴 피드백 |
 | 13 Bambu | §0 + §2 실측 dogfood 결과, bambu-kit references SSOT |
 | 14 Onboarding | §0 + §5 validate-plugin 현재 상태 |
+| 15 Tone | §0 + §1 tone-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
+| 16 Api | §0 + §1 api-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
+| 17 Howto | §0 + §1 howto-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
 
 **각 Phase 서브에이전트 프롬프트에 데이터 풀 경로 전달 필수:**
 
