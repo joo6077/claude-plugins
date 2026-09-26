@@ -1,0 +1,29 @@
+{
+  "kit": "api-kit",
+  "runner": "npx playwright test api-kit/evals/",
+  "cases": [
+    {
+      "id": "api-ui-unjudged",
+      "skill": "api-ui",
+      "prompt": "fixtures/unjudged/.api 를 읽어 ui.html 을 만들어줘",
+      "fixture": "fixtures/unjudged",
+      "example": "fixtures/unjudged/.api/ui.html",
+      "expect": {
+        "PASS": 2,
+        "FAIL": 2,
+        "미실행": 1,
+        "판정 불가": 1,
+        "fail_with_unjudged": 1
+      },
+      "assertions": [
+        "SKILL.md §7 브라우저 식이 돌려준 chips · rows 가 네 상태 모두 expect 와 같다 (1280 · 375 × 밝은 · 어두운)",
+        "상단바에 네 칩이 하나씩 보이고 접근 이름에 상태 글자가 든다 — 375 에서도 숫자만 남지 않는다",
+        "1280 첫 화면에서 ep 와 shown 이 같고 under24 가 0 이다",
+        "판정 불가 칩을 누르면 판정 불가 줄만 남고 다시 누르면 전부 돌아온다",
+        "판정 불가 엔드포인트를 고르면 실패 원인 탭 없이 (없음) · → 판정 불가 판정 줄이 보인다",
+        "판정 불가 줄을 가진 FAIL 엔드포인트는 FAIL 로 세고 실패 원인 탭에 그 줄이 함께 보인다 — 그런 엔드포인트 수가 fail_with_unjudged 다",
+        "콘솔 error 가 0 이다 (favicon.ico 는 뺀다)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+version: 1
+id: orders.list
+env: dev
+mode: partial
+request: { method: GET, path: /v1/orders, query: { status: active } }
+response: { status: 200, statusPolicy: exact }
+schema:
+  additionalProperties: open
+  paths:
+    "$.data[].orderId": { type: string,  required: true, description: 주문 식별자 }
+    "$.data[].status":  { type: string,  required: true, enumCandidate: [active, shipped, cancelled], description: "active · shipped · cancelled 중 하나" }
+    "$.data[].total":   { type: integer, required: true, description: 주문 합계 (원) }
+    "$.meta.total":     { type: integer, required: true, description: 필터 조건에 맞는 전체 건수 }
+    "$.meta.hasMore":   { type: boolean, required: true, description: 다음 페이지 존재 여부 }
+pin:
+  - { path: "$.meta.total", assert: ">= len($.data)" }

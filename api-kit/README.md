@@ -138,4 +138,9 @@ exact           정규화 후 본문 전체 diff
 ## Evals
 
 <!-- AUTO:evals -->
+| 파일 | 설명 |
+|------|------|
+| `api-ui.spec.js` | 파일 |
+| `evals.json` | 파일 |
+| `fixtures` | 디렉토리 |
 <!-- /AUTO:evals -->

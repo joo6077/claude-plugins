@@ -1,0 +1,14 @@
+version: 1
+id: users.me
+env: dev
+mode: pin
+request: { method: GET, path: /v1/users/me }
+response: { status: 200, statusPolicy: exact }
+schema:
+  additionalProperties: open
+  paths:
+    "$.userId": { type: string, required: true, description: 사용자 식별자 }
+    "$.name":   { type: string, required: true, description: 표시 이름 }
+    "$.tier":   { type: string, required: true, enumCandidate: [gold, silver, bronze], confirmed: true, description: 회원 등급 }
+pin:
+  - { path: "$.tier", assert: "in [gold, silver, bronze]" }
