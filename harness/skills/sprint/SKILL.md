@@ -66,6 +66,7 @@ for root in "$(git rev-parse --show-toplevel)" "$MAIN"; do
   for dir in .planning .design .harness; do [ -r "$root/$dir" ] || echo "못 읽음: $root/$dir"; done
   find "$root/.planning" -maxdepth 1 -type f -name 'prd-*.md' 2>/dev/null               # 폐기한 결정 원문이 든 PRD
   grep -rnE 'PRD 없음[[:space:]]*[|]?[[:space:]]*$' "$root/.design" "$root/.harness" 2>/dev/null   # 줄 끝에 PRD 없음 을 붙인 폐기 결정
+  grep -rnE 'PRD 없음(`[.]?|[.])[[:space:]]*[|]?[[:space:]]*$' "$root/.design" "$root/.harness" 2>/dev/null   # 안내 글의 `PRD 없음` 을 코드 표시 기호째 옮겨 적었거나 마침표로 끝낸 같은 기록
 done | sort -u
 ```
 
@@ -79,7 +80,7 @@ done | sort -u
 - 불일치: N 건 → 문서 먼저 갱신 후 착수
 ```
 
-폐기한 결정의 원문은 기능 PRD 의 비범위 표 하나다 — planning-kit plan-prd Gotcha 14 의 `## Non-goals (폐기한 결정 포함)` · Shape Up `## No-gos`. 그 기능의 PRD 가 없으면 원문은 계약 `범위 경계` 한 곳에 네 칸으로 적고 줄 끝에 `PRD 없음` 을 붙인다 — 승인 기록은 그 계약 경로를 가리킨다. 위 grep 은 줄 끝의 `PRD 없음`(표 행이면 뒤따르는 빈칸 · `|` 까지)만 찾으므로 규칙을 설명하는 문장처럼 뒤에 글이 이어지는 줄은 걸리지 않는다. 본 작업 폴더(`git worktree list` 첫 줄)도 함께 본다 — 추적하지 않는 `.planning` · `.harness` 는 새 워크트리에 따라오지 않아, 한 폴더만 보면 빈 출력이 「기록 없음」 인지 「못 봄」 인지 가를 수 없다. 여기 든 항목은 사용자가 되살리라고 하지 않는 한 계약 · 구현에 다시 넣지 않는다 — 필요해 보이면 Step 1 전에 묻는다.
+폐기한 결정의 원문은 기능 PRD 의 비범위 표 하나다 — planning-kit plan-prd Gotcha 14 의 `## Non-goals (폐기한 결정 포함)` · Shape Up `## No-gos`. 그 기능의 PRD 가 없으면 원문은 계약 `범위 경계` 한 곳에 네 칸으로 적고 줄 끝에 `PRD 없음` 을 붙인다 — 승인 기록은 그 계약 경로를 가리킨다. 위 두 grep 은 줄 끝의 `PRD 없음`(코드 표시 기호로 감쌌거나 마침표를 찍은 것 포함, 표 행이면 뒤따르는 빈칸 · `|` 까지)만 찾으므로 규칙을 설명하는 문장처럼 뒤에 글이 이어지는 줄은 걸리지 않는다. 본 작업 폴더(`git worktree list` 첫 줄)도 함께 본다 — 추적하지 않는 `.planning` · `.harness` 는 새 워크트리에 따라오지 않아, 한 폴더만 보면 빈 출력이 「기록 없음」 인지 「못 봄」 인지 가를 수 없다. 여기 든 항목은 사용자가 되살리라고 하지 않는 한 계약 · 구현에 다시 넣지 않는다 — 필요해 보이면 Step 1 전에 묻는다.
 
 불일치가 1 건이라도 있으면 **핸드오프 문서를 먼저 고친 뒤** Step 1 로 간다. 문서의 잔여 목록과 git 실측이 어긋난 채 진행하는 것은 스테일 상태를 한 사이클 더 전파하는 것이다.
 
