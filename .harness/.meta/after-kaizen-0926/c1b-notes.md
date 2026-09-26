@@ -20,6 +20,7 @@
 | `4bc33c8` | 킷별 리서치 기록 목록을 네 자리 모두 아홉 개로, PASS 줄 개수를 목록 길이에서 뽑음 | SK-06 · SC-06 |
 | `9c24bbc` | Phase 17 howto-kit 리서치 틀 절 추가, 오케스트레이터 「표가 아직 없다」 문장 삭제 | SK-04 |
 | `1c17532` | 톤 대조 반영 (아래 `## 톤 대조`) | — |
+| `bb4b2b1` | 교차 진단 뒤 고침 — 훅의 파일 ↔ 폴더 바뀜 · 경로를 좁힌 `git add` 구멍, 시험 ㊵~㊿ (아래 `## 교차 진단 뒤 고침`) | SC-01 · SC-02 |
 
 판단이 갈린 곳과 근거:
 
@@ -36,6 +37,8 @@
 - `N4` 매핑 표와 스크립트를 늘 맞대는 검사 — 새 기능이라 이번에는 계약 SK-01 로 한 번만 쟀다.
 - `N5` `scripts/spawn-kaizen-phase.sh` 의 Phase 별 데이터 풀 절 배정(5~10 만 §2 · §3) — 과제 목록 밖.
 - `N6` howto-kit 리서치 기록 파일 — 만들지 않는다. howto-research 가 기록 파일을 쓰지 않는다. Phase 17 틀의 주의 셋째 줄과 오케스트레이터 Gotcha 에 같은 결정을 적었다.
+- `N7` 범위 줄에 킷의 `scripts/` · `templates/` 가 빠져 있다(교차 진단 셋째 지적, 판정 영향 없음). `scripts/sync-orchestrator.py` 의 `KIT_SCOPE_DIRS` 와 `phase-dependencies.md` 에 두 폴더가 없는데, 2026-09-24 카이젠이 `howto-kit/scripts/howto-gate.sh`(`5a96f7c`) · `react-kit/scripts/project-detect.sh` · `react-kit/templates/vite.config.template.ts`(`001c900`) · `bambu-kit/scripts/option-key-probe/generate-option-list.py`(`c012f2b`) 를 고쳤다. 계약 SC-05 가 폴더 다섯 가지로 정해 두어 이번 고침 범위 밖이다.
+- `N8` 커밋 안전 훅이 `f81568d` 때부터 놓치는 두 모양 — 이번 가지가 만든 구멍이 아니다. (a) `-A` · `-u` 없는 `git add <경로>` 도 git 2.x 에서는 그 경로의 삭제를 싣는데 훅은 세지 않는다(`rm -rf d1; git add d1 && git commit` 이 통과, git 이 싣는 삭제 60). `add_all` 로 올리면 가장 흔한 `git add <파일> && git commit` 에서 되돌림 검사가 꺼지므로 따로 설계해야 한다. (b) 하위 폴더에서 `git commit -a` 를 하면 작업 폴더 삭제를 그 폴더 아래만 센다. 두 경우 모두 커밋 직후 알림(`post`)은 뜬다.
 - 기존 경고(범위 밖, 사용자 확인이 필요해 손대지 않음): `.claude/skills/docs-site/SKILL.md` Step 2~7 의 markdownlint 9 건(MD032 · MD031 · MD025), `phase-research-templates.md` 의 12 건(MD024 · MD036, 이번에 더한 절에는 0 건), 오케스트레이터의 줄 길이(MD013 은 검사에서 끔). 이번 구간에서 더한 줄의 새 경고는 0 이다(DG-02).
 
 ## 킷별 버전 판단
@@ -113,3 +116,51 @@
 | K-02 번역투 (SHOULD) | 0 | 통과 — 더한 문서 줄 grep 0 |
 | K-11 새로 지은 이름 (관측 컨벤션) | 1 → 0 | 고침 — docs-site Step 1 의 「낡음 감지」 를 `scripts/detect-docs-drift.py` 로, 검사 이름 G5 · G6 에 괄호로 뜻을 붙임 (`1c17532`) |
 | H 보존 | — | 지운 기존 주석 없음. 훅의 `-i` 설명 주석은 `-a` 까지 덮게 고쳐 썼고 정보는 그대로다 |
+
+## 교차 진단 뒤 고침 (`bb4b2b1`)
+
+QA 는 27/27 로 APPROVE 했지만 교차 진단이 훅에서 판정을 바꾸는 결함 둘을 찾았다. 둘 다 `f81568d` 판 훅은 막던 커밋을 이 가지 훅이 통과시킨 것이다.
+계약 조건 줄은 고치지 않았다 — SC-01 의 「진짜 삭제는 그대로 막는다」 를 이 모양들에서 지키도록 훅을 고치고, 레포 시험에 줄을 더해 SC-02 · SC-08 이 다시 재게 했다. 개정 파일은 만들지 않았다.
+
+| 결함 | 원인 | 고침 |
+| --- | --- | --- |
+| 파일 자리가 폴더로(또는 그 반대로) 바뀐 이름이 있으면 `git add -A` · `git add .` 커밋의 삭제 수가 0 이 된다. 이미 `git rm` 한 삭제도 사라진다 | `overlay_deletes` 에서 `git update-index` 가 종료 코드 128 로 실패하면 빈 값을 냈다 | `--replace` 를 준다(git add 와 같게 옛 항목을 바꿔 넣는다). 그래도 못 얹으면(읽을 수 없는 새 파일 등) 목록 사본의 삭제에 작업 폴더에 없는 이름을 더해 낸다 — 이름 바꾸기는 가리지 않는다 |
+| `git add -A d1` · `git add -A -- d1` 처럼 경로를 좁혀도 경로 밖 추적 안 된 사본(`backup/`)이 삭제와 이름 바꾸기로 짝지어져 진짜 삭제 60 이 통과한다 | `git add` 인자에서 `-A` 만 보고 경로를 버린 뒤 저장소 전체의 추적 안 된 파일을 얹었다 | `handle_git` 이 `git add` 를 볼 때 그 자리에서 `ls-files --others` 를 그 add 의 경로(없으면 `:/`)로 좁혀 `add_untracked` 에 모은다. 새 파일은 `-A`, 또는 `-u` 없이 경로를 준 add 만 올린다. `-n` · `-i` · `-p` · `-e` · `-N` · `--pathspec-from-file` 은 새 파일을 얹지 않는다 |
+
+판단이 갈린 곳:
+
+- `-u .` 는 예전 훅이 `.` 만 보고 새 파일까지 얹었다. git 은 `-u` 에서 새 파일을 올리지 않으므로 얹지 않는다(시험 ㊻).
+- `-u` 없는 경로 지정 add(`git add d2 && git commit -a`)는 git 이 그 경로의 새 파일을 올리므로 얹는다. 예전에는 옮긴 폴더를 삭제 60 으로 잘못 막았다(시험 ㊾). 경로 지정 add 자체를 `add_all` 로 올리지는 않았다 — `N8` (a).
+- 목록 사본에 못 얹을 때의 대체 셈은 `overlay_deletes` 안에 두어 경로 지정 커밋(`check_path_commit`)도 같이 받는다. 예전에는 거기서도 빈 값(통과)이었다.
+- 교차 진단 셋째 지적(범위 줄의 `scripts/` · `templates/`)은 조건 위반이 아니어서 고치지 않고 `N7` 로 넘겼다.
+
+다시 잰 값 (상한 `bb4b2b1`):
+
+| 조건 · 확인 | 값 |
+| --- | --- |
+| 교차 진단 재현(probe2 · probe3 · probe6) | P4b · P5 · P6 · P8 · P9 · `add -A -- d1` 모두 종료 2, 삭제 수가 git 이 실제로 싣는 수와 같다(60 · 61). 경로 없는 `add -A` 는 종료 0 그대로(git 도 이름 바꾸기) |
+| SC-01 · ER-01 | `mismatch=0/9 mismatch_sc=0/7 mismatch_er=0/2` |
+| SC-02 | `old_fail=11 old_rc=1 new_pass=65 new_fail=0 new_rc=0` |
+| 음성 대조 | 고치기 전 훅(`fec3713`)으로 레포 시험을 돌리면 ㊵~㊿ 가운데 ㊽ 을 뺀 10 줄이 FAIL(㊽ 은 통과해야 하는 경우) |
+| 변이 대조 | `--replace` 를 빼면 ㊵ ㊶ ㊷, 대체 셈을 빼면 ㊿, 경로 좁힘을 `:/` 로 바꾸면 ㊹ ㊺, `-n` 판정을 빼면 ㊼ 이 FAIL |
+| SC-07 | `-a` 0.30 · 0.26 · 0.23 초, `add -A` 0.46 · 0.45 · 0.49 초, 여섯 줄 모두 `rc=0` |
+| SC-08 | `steps=14 nonzero=0` |
+| AR-01 | `changed=10 outside=0 missing=0 commits=12 multi_kit=0 no_hangul=0` |
+| AR-03 · AP-03 | `diff` 출력 없음 종료 0 · 종료 0 |
+| RE-01 · RE-02 | 0 · 정의 1 호출 3 |
+| DG-02 | `files=10 new_warnings=0`. `shellcheck` 가 시험 파일 67 · 96 줄에 SC2016(info)을 내지만 둘 다 이번에 더한 줄이 아니다 |
+| 로컬 CI | 스물두 단계 모두 종료 0, `feedback-agg-test` 는 yq 가 없어 SKIP |
+| bash 3.2 | `/bin/bash -n` 통과, 레포 시험을 `/bin/bash` 로 돌려 `실패 0 건` |
+
+톤 대조 (`harness/scripts/commit-guard.sh` · `harness/evals/hooks/commit-guard-test.sh` 에 더한 79 줄):
+
+| 규칙 (강도) | 건수 | 판정 |
+| --- | --- | --- |
+| C-01 why 만 · C-07 해설 3 줄 초과 (SHOULD) | 0 | 통과 — 더한 훅 주석 셋은 실패 모드(H) 이고 한 덩어리가 1~2 줄 |
+| C-02 · A 이름 번역 주석 (SHOULD · MUST) | 0 | 통과 |
+| N-07 fallback 접두사 (관측 컨벤션) | 0 | 통과 — grep 0 |
+| N-08 한 글자 이름 (SHOULD) | 0 | 통과 — 새 이름은 `names` · `name` · `take` · `after_dd` · `flag_all` · `flag_update` · `no_new` · `spec_file` · `specs` · `add_untracked` |
+| S-03 · S-06 추출 · 헬퍼 사슬 (SHOULD · 관측 컨벤션) | 0 | 통과 — 새 함수 없음. `add` 인자 풀이는 같은 파일 `parse_commit_args` 와 같은 꼴(`take` · `after_dd`, S-12) |
+| K-02 번역투 (SHOULD) | 0 | 통과 — 더한 줄 grep 0, 양성 대조 `값을 처리한다` 1 |
+| K-11 새로 지은 이름 (관측 컨벤션) | 0 | 통과 — 「목록 사본」 은 이 파일이 이미 쓰던 말 |
+| H 보존 | — | 지운 주석은 「얹지 못하면 빈 값(통과)이다」 한 구절뿐 — 동작이 바뀌어 거짓이 된 문장이라 대체 셈 주석으로 바꿨다 |
