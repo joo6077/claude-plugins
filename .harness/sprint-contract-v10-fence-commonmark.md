@@ -4,7 +4,7 @@ slug: v10-fence-commonmark
 created: "2026-09-26 04:49"
 complexity: "중간"
 conditions: 19
-status: active
+status: done
 owner_session: f5b7f3a5-c03d-452b-b44b-fc3d15dcd1a0
 conditions_digest: sha256:16ee2de44c5dc820
 locked_at: "2026-09-26 10:05"
