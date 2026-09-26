@@ -1,6 +1,6 @@
 ---
 title: Claude Code 플러그인 검증 가이드
-version: 1.4.1
+version: 1.5.0
 last_updated: 2026-09-26
 scope: "marketplace.json 에 등록된 킷 전부"
 ---
@@ -123,11 +123,11 @@ description: >
 | `.ts`, `.js`, `.tsx` | SKIP |
 | 기타 | SKIP |
 
-`templates/` 가 없으면 "SKIP (no templates/)" 로 출력하고 PASS 처리한다.
+`templates/` 가 없으면 `no templates/ — OK` 로 출력한다. 판정이 OK 인데 줄 글자가 SKIP 이면 V 줄 글자로 판정을 세는 쪽이 헷갈린다 — 1.5.0 에서 글자를 판정에 맞췄다.
 
 **예외**
 
-- `templates/` 없는 킷: V2 체크 전체 SKIP (어느 킷인지는 §6 킷별 예외 카탈로그 참조)
+- `templates/` 없는 킷: 볼 파일이 없어 OK (어느 킷인지는 §6 킷별 예외 카탈로그 참조)
 - `.ts`, `.js` 파일: 언제나 SKIP (parse 실패로 처리하지 않음)
 - `.template` 확장자 파일: 내부 확장자(`.json.template`)로 판별. 예를 들어 `package.json.template` 는 `.json` 파서 적용
 
@@ -158,6 +158,8 @@ SKILL.md 본문에 등장하는 마크다운 링크가 실제 파일로 해소�
 - Markdown 링크: `[text](path)`
 
 절대 URL(`https://`, `http://`)과 앵커만 있는 링크(`#section`)는 제외한다. 코드 인라인 경로(예: 본문에 그대로 적힌 상대 경로 문자열)는 V3 범위 밖이다 — 독자가 눈으로 검증한다.
+
+코드 블록 안의 링크는 보지 않는다. 블록 판정은 V10 과 같은 CommonMark 0.31.2 §4.5 규칙이다 (1.5.0) — `~~~` 블록과 백틱 4 개 블록 안의 링크도 코드다. 백틱 3 개로 시작하는 줄마다 켜고 끄기만 뒤집던 1.4.1 까지의 판은 그 두 블록 안 링크를 없는 파일로 잡았다.
 
 **검증 방법**
 
@@ -301,22 +303,18 @@ export default {
 
 **검증 방법**
 
-마크다운 상태 머신으로 구현한다. ` ``` ` 를 토글 기준으로 `in_block` 상태를 추적한다.
-여는 fence 에서 ` ``` ` 뒤가 공백이면 FAIL.
+여는 줄 판정은 V10 과 같은 CommonMark 0.31.2 §4.5 규칙이다 (1.5.0). 백틱으로 연 블록의 여는 줄 뒤 글이 비어 있으면 FAIL 이다.
+블록 안의 백틱 줄(`~~~` 블록 · 백틱 4 개 블록 안)은 여는 줄이 아니고, 줄 안 코드(` ```x``` `)로 시작하는 줄도 블록을 열지 않는다.
+1.4.1 까지는 백틱 3 개로 시작하는 줄마다 켜고 끄기만 뒤집어, 그 세 경우에 멀쩡한 블록을 잡거나 닫는 줄을 여는 줄로 짚었다.
+`--fix` 는 짚은 여는 줄에 `text` 를 붙인다 — 옛 판은 닫는 줄을 고쳤다.
 
-```python
-# V6 — see harness/docs/guides/plugin-validation-guide.md §3.6
-# ``` 뒤가 비어있으면(strip 후 빈 문자열) FAIL
-if line.startswith("```") and not in_block:
-    hint = line[3:].strip()
-    if not hint:
-        violations.append(...)
-```
+**범위** — 킷의 `skills/*/SKILL.md` · `agents/*.md` · `references/*.md` · `README.md` 에 스킬 폴더 안 `skills/*/references/**/*.md` 를 더했다 (1.5.0).
+1.4.0 에서 이 범위를 미룬 이유였던 언어 힌트 없는 여는 줄 8 개는 킷 `pr-template.md` 의 `~~~markdown` 블록 **안** 줄이라 새 판정에서는 코드다 — 넓혀도 걸리는 것이 0 개다.
 
 **예외**
 
 - 닫는 fence: ` ``` ` 단독 라인은 정상, 체크 대상 아님
-- `~~~` 틸드 fence: 현재 검증 대상 아님 (모노레포 컨벤션은 backtick 사용)
+- `~~~` 틸드로 여는 블록: 언어 힌트를 검사하지 않는다 (모노레포 컨벤션은 backtick 사용). 그 블록 안 줄은 코드로 본다
 
 **FAIL 예시**
 
@@ -394,10 +392,11 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 # V8 — see harness/docs/guides/plugin-validation-guide.md §3.8
 ```
 
-**무엇을 검사하나**: 두 가지를 본다. (1) `hooks/hooks.json` 명령 안의 `${CLAUDE_PLUGIN_ROOT}` 가 모두 큰따옴표 안에 있는지 — JSON 에는 `"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/x.sh\""` 처럼 이스케이프한 따옴표로 적는다. (2) **인터프리터 없이 직접 실행**하는 `.sh` 스크립트가 실행 비트(mode 0755)를 가지는지. git 은 파일 모드를 추적하므로, 스크립트가 `100644`(비실행)로 커밋되면 marketplace clone·plugin cache 등 **모든 설치본**에서 해당 hook 이 `Permission denied` 로 실패한다.
+**무엇을 검사하나**: 두 가지를 본다. (1) `hooks/hooks.json` 명령 안의 `${CLAUDE_PLUGIN_ROOT}` 와 중괄호 없는 `$CLAUDE_PLUGIN_ROOT` 가 모두 큰따옴표 안에 있는지 — JSON 에는 `"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/x.sh\""` 처럼 이스케이프한 따옴표로 적는다. (2) **인터프리터 없이 직접 실행**하는 `.sh` 스크립트가 실행 비트(mode 0755)를 가지는지. git 은 파일 모드를 추적하므로, 스크립트가 `100644`(비실행)로 커밋되면 marketplace clone·plugin cache 등 **모든 설치본**에서 해당 hook 이 `Permission denied` 로 실패한다.
 
 **왜 중요한가**: 2026-06 reflect 로그 30일 집계에서 hook `permission-denied` 계열이 **24개 프로젝트 957건(전체 friction 의 38%)** 으로 단일 최대 마찰원이었다. 근본원인은 `harness/scripts/{env-check,run-guard,sdk-guard}.sh` 와 `design-kit/scripts/env-check.sh` 4종이 `100644` 로 커밋되어 있던 것. SessionStart·PreToolUse hook 은 매 세션·매 Bash 호출마다 발화하므로, 비실행 스크립트 하나가 전 프로젝트에 누적 실패를 만든다.
 따옴표도 같은 급의 실패다. 설치 경로에 빈칸이 있으면 따옴표 밖 변수는 셸이 둘로 쪼개 hook 이 아예 돌지 않는다 — 킷 넷의 명령 10 개를 빈칸 든 경로에서 돌려 10 개 모두 실패하는 것을 확인했다(2026-09-26). [Hooks reference](https://code.claude.com/docs/en/hooks) 도 이 변수를 큰따옴표로 감싸라고 한다.
+중괄호 없는 `$CLAUDE_PLUGIN_ROOT` 도 셸이 같은 변수로 펼치므로 따옴표 검사와 실행 비트 검사를 똑같이 받는다 (1.5.0 — 1.4.1 까지는 중괄호 꼴만 봐서 그 꼴의 두 결함을 놓쳤다). 이름이 더 긴 `$CLAUDE_PLUGIN_ROOT_DIR` 같은 변수는 다른 변수라 보지 않는다.
 
 **직접 실행 vs 인터프리터 경유**: `"${CLAUDE_PLUGIN_ROOT}/x.sh"` 가 명령의 첫 토큰이면 직접 실행 → exec 비트 필수. 경로를 여는 따옴표는 토큰으로 치지 않으므로 `"${CLAUDE_PLUGIN_ROOT}"/x.sh` 꼴도 직접 실행이다. `bash "${CLAUDE_PLUGIN_ROOT}/x.sh"` 처럼 인터프리터(`bash`/`sh`/`source`)가 앞서면 읽기 권한만 있으면 되므로 실행 비트 대상이 아니다 (예: reflect-kit 의 log-prompt.sh 는 `bash` 경유라 PASS). 따옴표 검사는 두 경우 모두에 걸린다.
 
@@ -480,8 +479,15 @@ V6 범위 안이었다 — 넓힌 이유는 "그 파일이 범위 밖이어서" 
 `docs/` 에도 있어서" 다 (교차 진단이 이 서술 오류를 짚었다).
 
 스킬 폴더 안의 `skills/*/references/**/*.md` 도 더한다 (2026-09-25). 킷 최상위 `references/*.md` 만 보면 스킬마다
-둔 참조 문서가 빠진다 — 실측 14 킷에 41 개(표가 있는 파일 40 개)가 검사 밖이었고 끊긴 표는 0 개였다. V6 는 같은
-범위로 넓히지 않았다 — 넓히면 그 안의 언어 힌트 없는 펜스 8 개가 바로 걸린다.
+둔 참조 문서가 빠진다 — 실측 14 킷에 41 개(표가 있는 파일 40 개)가 검사 밖이었고 끊긴 표는 0 개였다. 이 범위는 1.5.0 에서
+V6 에도 넣었다.
+
+킷 폴더 밖 저장소 원본 폴더도 그 킷 결과로 더한다 (1.5.0). 짝은 `scripts/plugin_utils.py` 의 `KIT_RESEARCH_DOCS` 한 곳에 두고
+`scripts/sync-orchestrator.py` 와 함께 읽는다 — backend-kit `docs/backend` · infra-kit `docs/infra` · rust-kit `docs/rust` ·
+react-kit `docs/react` · flutter-toolkit `docs/flutter` · planning-kit `docs/planning` · tone-kit `docs/tone` · api-kit `docs/api` ·
+howto-kit `docs/howto` (design-kit 의 `design-kit/docs/design` 은 원래 킷 안이다). 그 킷 카이젠이 고치는 문서인데 킷 폴더만 보면
+거기서 끊긴 표를 못 잡았다. 짝이 없는 폴더(`docs/superpowers` 등)는 보지 않는다. 짝은 있는데 폴더가 없으면
+`FAIL <폴더>: 킷 원본 폴더 없음` 으로 떨어진다 — 조용히 건너뛰면 원본 표가 통째로 검사 밖으로 빠진다.
 
 **표행은 왼쪽 공백을 벗겨서 판정한다.** 표는 목록·인용 안에서 들여쓰여 쓰이고, 왼쪽 끝만
 보면 그것이 전부 검사에서 빠진다. 실측(2026-09-24): 대상 210 파일에 들여쓴 표행이 84 줄(9 파일)
@@ -693,6 +699,7 @@ python3 scripts/validate-plugin.py <kit-name>
 | 2026-09-24 | 1.3.1 | 사실 정정 — `--check` 체크 이름 10 개 전부, 출력 예시에 V9 · V10 줄과 실제 요약줄 형식(`Total: N plugins, …`), 수동 수정 표에 V8 · V9 · V10, 킷별 예외 표의 `templates/` 항목 수를 실제 값으로(harness 4 · flutter-toolkit 2 · design-kit 8 · rust-kit 5 · tone-kit 6). 금방 낡는 킷 수 · 카이젠 스킬 수 표기와 부분 킷 목록은 뺐다 |
 | 2026-09-25 | 1.4.0 | V10 범위에 스킬 폴더 안 `skills/*/references/**/*.md` 를 더했다 — 14 킷 41 개가 검사 밖이었다 (끊긴 표 0 개 확인). V6 는 같은 범위의 언어 힌트 없는 펜스 8 개 때문에 넓히지 않았다 |
 | 2026-09-26 | 1.4.1 | V10 코드 블록 판정을 CommonMark 0.31.2 §4.5 에 맞췄다 — 여닫는 줄의 문자 · 길이를 맞추고, 백틱 여는 줄 뒤에 백틱이 있으면 줄 안 코드로, 닫는 줄이 없으면 문서 끝까지로 본다. 표 행은 `\|` 로 시작하면서 `\|` 가 둘 이상인 줄만 본다. `~~~` 블록 안 PR 본문 틀의 표 24 행이 검사 밖으로 나갔다 (끊긴 표 0 개 그대로). 규격과 다르게 단순화한 곳(여닫는 줄 들여쓰기 칸 수 · 목록 · 인용 · HTML 블록 경계 · 공백 판정)을 적었다. 변경 이력 순서를 날짜 순으로 바로잡았다 |
+| 2026-09-26 | 1.5.0 | V2 · V3 · V6 · V8 · V10 동작 변경. V2 — `templates/` 없는 킷의 줄 글자를 `no templates/ — OK` 로 판정에 맞췄다. V3 · V6 — V10 과 같은 CommonMark 0.31.2 §4.5 코드 블록 판정을 함께 쓴다(`~~~` 블록 · 백틱 4 개 블록 · 줄 안 코드 오판을 고쳤다, V6 `--fix` 가 여는 줄을 고친다). V6 범위에 `skills/*/references/**/*.md` 를 더했다. V8 — 중괄호 없는 `$CLAUDE_PLUGIN_ROOT` 도 따옴표 · 실행 비트 검사에 넣었다. V10 — 킷의 저장소 원본 폴더(`docs/<원본>`)를 그 킷 결과로 읽는다 |
 
 다음 갱신 예정:
 
