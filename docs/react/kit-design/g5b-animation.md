@@ -1,7 +1,7 @@
 # G5b — Animation (pure, no-library)
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 group: G5b
 scope: react-kit 애니메이션 전용 설계 — 라이브러리 0개 원칙
 skills: [/react-animation]
@@ -45,7 +45,7 @@ react-kit 의 애니메이션은 **외부 라이브러리를 일절 쓰지 않�
 
 1. **성능 우선**: react-kit 의 최상위 원칙. 번들 크기에 +50KB (Motion) 또는 +30KB (dnd-kit) 를 허용하지 않는다
 2. **커스텀 최대화**: 라이브러리가 강제하는 API 와 추상화에 묶이지 않고, 요구사항에 정확히 맞는 구현만 생성
-3. **브라우저 진화 활용**: 2026-01 기준 View Transitions API 가 Chrome/Safari/Firefox 144+ 에 Baseline 으로 안착. 과거에 라이브러리가 해결하던 문제를 네이티브가 더 빠르게 푼다
+3. **브라우저 진화 활용**: same-document View Transitions 가 Baseline 2025 (전역 90.2% · Chrome/Edge 111+ · Safari 18+ · Firefox 144+, 2026-08-13 갱신) 로 안착. 과거에 라이브러리가 해결하던 문제를 네이티브가 더 빠르게 푼다
 4. **디버깅 단순**: 스택 트레이스가 라이브러리 내부로 들어가지 않음. 모든 애니메이션 코드가 사용자 소유
 
 **금지 라이브러리**: `motion`, `framer-motion`, `react-spring`, `@formkit/auto-animate`, `@dnd-kit/*`, `react-dnd`, `gsap`, `lottie-react`. 이들 패키지의 `import` 구문은 `/react-audit` 이 자동 검출 + 빌드 실패.
@@ -169,7 +169,7 @@ Tailwind v4 는 `@theme` 블록을 파싱해 `--animate-*` 변수 + `@keyframes`
 
 ## 2. Tier 2 — View Transitions API
 
-**2026-01 부터 Baseline** (Chrome/Safari/Firefox 144+). 같은 문서 SPA 내 DOM 변경 시 자동 FLIP 애니메이션. 라이브러리가 하던 "shared element transition" 을 네이티브로 해결.
+**same-document 는 Baseline 2025** (전역 90.2% · Chrome/Edge 111+ · Safari 18+ · Firefox 144+, 2026-08-13 갱신). cross-document(`@view-transition`)는 아직 limited availability 다. 같은 문서 SPA 내 DOM 변경 시 자동 FLIP 애니메이션. 라이브러리가 하던 "shared element transition" 을 네이티브로 해결.
 
 ### 2.1 기본 사용법
 
@@ -186,6 +186,15 @@ export function withViewTransition(updateDOM: () => void): void {
 ```
 
 `document.startViewTransition(callback)` 이 핵심. callback 이 실행되기 전의 스냅샷과 이후 상태를 자동 보간.
+
+### 2.1b React 19.3 `<ViewTransition>` 과 가르기
+
+React 19.3 에서 `<ViewTransition>` 이 안정 API 가 됐다 (<https://react.dev/blog/2026/09/09/react-19-3>). `react` 에서 가져와 감싸면, Transition 으로 표시된 업데이트(`startTransition` · Suspense reveal · `useDeferredValue`)로 자식이 바뀌거나 마운트 · 언마운트될 때 돈다. DOM 에서만 동작한다.
+
+- Transition 으로 표시된 React 상태 갱신 → `<ViewTransition>`
+- 그 밖의 DOM 갱신(동기 갱신 · React 밖 DOM 조작) → 위 `withViewTransition` 래퍼
+
+`react` 패키지 안의 컴포넌트라 라이브러리 0개 원칙에 걸리지 않는다. 판정 기준 원본은 `/react-animation` Gotcha 15 다.
 
 ### 2.2 `view-transition-name` CSS 로 공유 요소
 
@@ -865,6 +874,7 @@ react-kit 은 이걸 **자동 제공하지 않는다**. 대신 W3C ARIA Authorin
 - **Tier 3 컴포넌트**: `src/presentation/shared/components/connector.tsx`, `draggable-item.tsx`
 - **전역 drag state**: `src/presentation/shared/stores/drag-store.ts` (Zustand)
 - **절대 금지**: `domain/`, `data/` 에 pointer event / view transition / Zustand drag store import. 애니메이션은 presentation 전용.
+- **렌더 증거**: 모션은 재생돼야 존재가 확인된다. `react-kit/references/render-evidence-protocol.md` 를 편집 전(기준 캡처)과 완료 직전 두 번 실행하고, 증거를 얻으려고 라이브러리를 들이지 않는다.
 
 ## 8. animation-architect-react 에이전트
 
@@ -942,7 +952,7 @@ animation-architect-react  (분석 + 자문)
 
 ## 9. 다른 그룹과의 관계
 
-- **G1 `/react-widget`**: cva / forwardRef 구조를 그대로 확장. 애니메이션 훅은 shared/hooks/, 컴포넌트는 shared/components/
+- **G1 `/react-widget`**: cva / ref-as-prop 구조를 그대로 확장. 애니메이션 훅은 shared/hooks/, 컴포넌트는 shared/components/
 - **G2 `/react-store`**: 전역 drag state 는 Zustand store. 서버 상태 (TanStack Query) 와 섞이지 않음
 - **G4 `/react-test`**: pointer event 테스트는 `@testing-library/user-event` 의 `user.pointer()` API 사용. Vitest + jsdom 환경에서 동작
 - **G5 `/react-responsive`**: 애니메이션도 breakpoint 별 분기 가능 (`md:animate-in lg:slide-in-from-right`)
@@ -978,6 +988,21 @@ animation-architect-react  (분석 + 자문)
 14. Tailwind CSS Animation utilities: https://tailwindcss.com/docs/animation
 15. tailwindcss-animate 플러그인: https://github.com/jamiebuilds/tailwindcss-animate
 
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(머리 블록 `skills` · `agents`)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+이번 현행화에서 표 밖으로 더 고친 것: §2.1b `<ViewTransition>` 가르기(React 19.3, 가지 `chore/ak2-k1` 의 react-kit 커밋) · §9 의 `forwardRef` 언급을 ref-as-prop 로.
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `001c900` | 2026-09-25 | 고친 절: §7 아키텍처 배치 — 렌더 증거를 편집 전 · 완료 직전 두 번 (react-animation Gotcha 14) |
+| `e7b9508` | 2026-08-13 | 고친 절: 문서 목적 3 번 · §2 첫 문단 — same-document Baseline 2025 수치와 cross-document 구분. react-animation §6 표준 커버리지 공백 표는 설계 영향 없음 — 스킬 §6 이 기준 원본이라 옮기지 않았다 |
+| `928fd30` | 2026-07-27 | 고친 절: §7 아키텍처 배치 — `react-kit/references/render-evidence-protocol.md` · 증거 때문에 라이브러리를 들이지 않는다 (Gotcha 13) |
+| `3b98054` | 2026-04-24 | 설계 영향 없음 — animation-architect-react 의 Library Policy 판정 문장이다. 금지 목록은 이 문서 머리 블록과 문서 목적에 이미 있다 |
+| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — `match-element`(§2.5) · animate.css 금지(머리 블록)는 이미 반영돼 있어 확인만 했다. scroll-driven 지원 수치는 스킬 Gotcha 11 이 기준 원본 |
+
 ## 12. 변경 이력
 
 - **2026-04-10** — 초판. `/react-animation` 스킬 + `animation-architect-react` 에이전트 상세 설계. 라이브러리 0개 원칙 선언 (Motion/dnd-kit/react-spring 등 전면 금지). Tier 1 (Tailwind), Tier 2 (View Transitions API, 2026-01 Baseline), Tier 3 (Pointer Events + FSM + SVG) 3단 구조. 복잡 시나리오 3종 (그리드↔보드 / 칸반 DnD / SVG 화살표). 접근성 트레이드오프 명시 경고. Codex 리서치 3차 시도 연속 정체로 WebSearch fallback 사용 (MDN View Transitions / Pointer Events, Chrome Developers 2025 update, W3C APG, tailwindcss-animate 검증).
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.

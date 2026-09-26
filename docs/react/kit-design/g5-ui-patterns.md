@@ -1,7 +1,7 @@
 # G5 — UI Patterns Skills
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 group: G5
 scope: react-kit UI 패턴 스킬 3종
 skills: [/react-responsive, /react-skeleton, /react-extract]
@@ -23,13 +23,14 @@ react-kit **G5 그룹** 은 기존 컴포넌트 위에 **UI 품질 레이어**�
 - **`/react-skeleton`** — 로딩 상태를 CircularProgressIndicator 대신 실 레이아웃 모양의 shimmer skeleton 으로 표시.
 - **`/react-extract`** — feature 내부에 중복·사유화된 위젯을 감지하여 `presentation/shared/components/` 로 추출하고 import 경로 자동 정리.
 
-**의존**: G1 `/react-widget` 이 만든 cva + forwardRef 구조를 전제. G2 `/react-query` 의 `isPending` / `isError` 상태를 skeleton 분기에 사용.
+**의존**: G1 `/react-widget` 이 만든 cva + ref-as-prop 구조를 전제. G2 `/react-query` 의 `isPending` / `isError` 상태를 skeleton 분기에 사용.
 
 ## 공통 설계 원칙
 
 - **기존 구조 비파괴**: 3개 스킬 모두 기존 컴포넌트를 **래핑하거나 변환**하지, 처음부터 다시 만들지 않는다. 이미 잘 동작하는 코드를 건드려서 회귀를 내지 않도록.
-- **Strict TS 유지**: 추출된 공용 컴포넌트도 G1 의 strict 규칙 (`any` 금지, `forwardRef`, Props 타입 명시) 을 그대로 준수.
+- **Strict TS 유지**: 추출된 공용 컴포넌트도 G1 의 strict 규칙 (`any` 금지, ref-as-prop, Props 타입 명시) 을 그대로 준수.
 - **디자인 시스템 호환**: `design-kit` 의 토큰 (컬러, 스페이싱, 라디우스) 을 그대로 쓰는 Tailwind 클래스만 사용. 하드코딩된 픽셀값 금지.
+- **렌더 증거**: `/react-responsive` · `/react-skeleton` 은 `react-kit/references/render-evidence-protocol.md` 를 편집 전(기준 캡처)과 완료 직전 두 번 실행한다.
 - **project-detection 공유**: Tailwind 메이저 버전 감지 — v4 면 `@container` 내장 사용, v3 이면 `@tailwindcss/container-queries` 플러그인 필요.
 
 ## 1. /react-responsive — 반응형 레이아웃 적용
@@ -397,7 +398,7 @@ widget-inspector-react 에이전트   ←── 주기 실행 또는 수동
 
 ## 5. 공유 helpers 및 Cross-group 관계
 
-- **G1 `/react-widget`**: cva + forwardRef 패턴은 G5 의 모든 스킬이 전제. 추출된 공용 컴포넌트도 같은 형식 유지
+- **G1 `/react-widget`**: cva + ref-as-prop 패턴은 G5 의 모든 스킬이 전제. 추출된 공용 컴포넌트도 같은 형식 유지
 - **G2 `/react-query`**: `/react-skeleton` 이 `isPending/isError/empty` 분기의 기반으로 사용
 - **G4 `/react-test`**: G5 변경 후 테스트 자동 갱신. 특히 skeleton 분기는 "loading state" 테스트 케이스 자동 추가
 - **G6 `/react-audit`**: G5 출력물 감사 — 하드코딩된 breakpoint 값, Skeleton 없는 loading 경로, shared 로 승격되지 않은 중복 위젯 검출
@@ -412,6 +413,17 @@ widget-inspector-react 에이전트   ←── 주기 실행 또는 수동
 6. shadcn Skeleton animate-pulse 이슈: https://github.com/shadcn-ui/ui/issues/5809
 7. TanStack Query v5 useQuery 반환 (isPending, isError 등): https://tanstack.com/query/v5/docs/framework/react/reference/useQuery
 
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(머리 블록 `skills` · `agents`)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `001c900` | 2026-09-25 | 고친 절: 공통 설계 원칙 — 렌더 증거를 편집 전 · 완료 직전 두 번 (responsive · skeleton) |
+| `928fd30` | 2026-07-27 | 고친 절: 공통 설계 원칙 — `/react-responsive` · `/react-skeleton` 이 `react-kit/references/render-evidence-protocol.md` 를 따른다 |
+| `d0010b2` | 2026-04-11 | 고친 절: 문서 목적 · 공통 설계 원칙 · §5 의 `forwardRef` 언급 셋 — 같은 커밋이 react-widget 틀을 ref-as-prop 로 바꿨다. react-responsive 의 터치 대상 24×24 Gotcha 는 설계 영향 없음 — §1 산출물은 그대로 |
+
 ## 7. 변경 이력
 
 - **2026-04-10** — 초판. G5 3개 스킬 (`/react-responsive`, `/react-skeleton`, `/react-extract`) 상세 설계. WebSearch fallback 으로 Tailwind v4 container queries 내장 전환, shadcn Skeleton bg-muted 요구사항, TanStack Query isPending 상태 검증.
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.

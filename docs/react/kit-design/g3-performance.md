@@ -1,7 +1,7 @@
 # G3 — Performance Layer Skills
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 group: G3
 scope: react-kit 고성능 레이어 스킬 2종
 skills: [/react-wasm, /react-tauri]
@@ -34,6 +34,7 @@ react-kit **G3 그룹** 은 앱의 "느린 곳"을 풀어내는 두 개 스킬�
 - **Clean Architecture 준수**: WASM 호출은 `data/datasources/wasm/` 레이어, Tauri 호출은 `infrastructure/tauri/` 레이어에만 배치. `domain/` 과 `presentation/` 는 하위 런타임을 모른다.
 - **Feature detection 우선**: 환경 분기는 런타임 감지로만. 빌드 타임 define 플래그 (예: `if (import.meta.env.TAURI)`) 는 웹 빌드와 데스크탑 빌드가 같은 dist 를 공유하는 시나리오에서 혼란을 유발하므로 보조로만 사용.
 - **Strict TypeScript**: WASM 바인딩의 자동 생성 `.d.ts` 를 신뢰하되, 경계 (데이터 진입 시점) 에서 Zod 재검증. Tauri invoke 의 반환값도 마찬가지.
+- **생성 전 전수 스캔 · 요청 범위만**: `/react-wasm` · `/react-tauri` 는 만들기 전에 기존 바인딩 · command · capability 를 열거하고 합의한 뒤 생성한다. 요청하지 않은 permission 을 덧붙이지 않는다.
 - **G0 카탈로그 불변**: `/react-wasm` 이 Rust 이식 제안 시 반드시 `docs/react/wasm-catalog.md` 의 판정 로직을 1차 기준으로 사용. 카탈로그를 무시하고 사용자 요청만으로 이식 결정 금지.
 
 ## /react-wasm vs /react-tauri — 경계 결정 규칙
@@ -514,6 +515,16 @@ Tauri 빌드에서만 쓸 수 있는 것:
 13. Menci/vite-plugin-wasm: https://github.com/Menci/vite-plugin-wasm
 14. docs/react/wasm-catalog.md (G0, 이 레포 내부 문서)
 
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(머리 블록 `skills` 둘)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `644e2df` | 2026-06-05 | 고친 절: 공통 설계 원칙 — 생성 전 전수 스캔 · 요청 범위만 (wasm · tauri) |
+| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — react-wasm(rustwasm 조직 보관 · SIMD) · react-tauri(Raw Payload · Stronghold · Updater · Deep Link) Gotcha 추가뿐이다. 경계 결정 규칙 · 생성 산출물은 그대로 |
+
 ## 6. 변경 이력
 
 - **2026-04-10** — 초판. G3 2개 스킬 (`/react-wasm`, `/react-tauri`) 상세 설계. WebSearch fallback 으로 wasm-bindgen Result, Comlink + Vite 통합, Tauri 2 invoke/capabilities/isTauri 공식 문서 검증. G0 wasm-catalog.md 의 판정 로직 참조 흐름 통합.
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.
