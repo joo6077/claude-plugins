@@ -1,0 +1,14 @@
+version: 1
+id: products.inventory
+env: dev
+mode: partial
+request: { method: GET, path: "/v1/products/{sku}/inventory", pathParams: { sku: SF-1042 } }
+response: { status: 200, statusPolicy: exact }
+schema:
+  additionalProperties: open
+  paths:
+    "$.data.availableQty": { type: integer, required: true,  description: 판매 가능 수량 }
+    "$.data.onHand":       { type: integer, required: false, description: 창고 실재고 }
+pin:
+  - { path: "$.data.availableQty", assert: ">= 0" }
+  - { path: "$.data.onHand",       assert: ">= $.data.availableQty" }

@@ -1,0 +1,45 @@
+{
+  "manifest": {
+    "endpoint": "products.list",
+    "env": "dev",
+    "capturedAt": "2026-09-02T14:22:00+09:00",
+    "mediaType": "application/json",
+    "normalizedDigest": "sha-256:27eb99fc339e2ea3092cbbb26bcbdc92f15b7a7baeea5847ab45ad116b77cf74",
+    "lineage": {
+      "env": "dev",
+      "branch": "main"
+    }
+  },
+  "raw": {
+    "status": 200,
+    "headers": [
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ]
+    ],
+    "body": {
+      "data": [
+        {
+          "sku": "SF-1042",
+          "name": "무선 이어버드 Pro",
+          "price": 189000
+        },
+        {
+          "sku": "SF-2210",
+          "name": "USB-C 충전 독",
+          "price": 42000
+        },
+        {
+          "sku": "SF-3301",
+          "name": "노트북 스탠드 알루미늄",
+          "price": 67000
+        }
+      ],
+      "meta": {
+        "hasMore": false
+      }
+    }
+  },
+  "normalized": "{\"data\":[{\"name\":\"무선 이어버드 Pro\",\"price\":189000,\"sku\":\"SF-1042\"},{\"name\":\"USB-C 충전 독\",\"price\":42000,\"sku\":\"SF-2210\"},{\"name\":\"노트북 스탠드 알루미늄\",\"price\":67000,\"sku\":\"SF-3301\"}],\"meta\":{\"hasMore\":false}}"
+}

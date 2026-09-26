@@ -125,6 +125,11 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test design-kit/evals/visuals.spec.js
 
+      # api-kit 시험은 <킷>/evals/evals.json 에 runner 만 적고 run-evals.py 킷 목록 밖이다 — 여기서 직접 돌린다.
+      # 판정 불가를 PASS 에 합친 ui.html 이면 떨어진다
+      - name: Api-kit viewer test (판정 불가 칸 · 예시 ui.html)
+        run: npx playwright test api-kit/evals/
+
       # visuals.spec.js 는 페이지의 텍스트 대비를 재지 않는다 — color-palette.html 의
       # 대비 체커 위젯이 렌더되는지만 본다. 그래서 CI 가 green 인 채로 172 페이지 중
       # 150 개가 WCAG AA 미달이었다 (실측 2026-09-05). 이 스텝이 그 구멍을 막는다.

@@ -1,0 +1,3135 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>api-kit · 계약 뷰어 — shopflow API</title>
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  /* spacing — 4px 배수 스케일 */
+  --s1:4px;  --s2:8px;  --s3:12px; --s4:16px; --s5:20px;
+  --s6:24px; --s7:28px; --s8:32px; --s10:40px; --s12:48px;
+
+  /* radius */
+  --r-xs:6px; --r-sm:8px; --r-md:10px; --r-lg:14px; --r-full:999px;
+
+  /* type */
+  --font-ui:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Noto Sans KR", sans-serif;
+  --font-mono:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Noto Sans KR", monospace;
+  --fs-xs:12px; --fs-sm:13px; --fs-md:14px; --fs-base:15px; --fs-lg:17px; --fs-xl:21px;
+  --lh-tight:1.3; --lh-base:1.6;
+
+  /* motion */
+  --ease:cubic-bezier(.22,.61,.24,1);
+  --t-fast:150ms var(--ease);
+  --t-mid:200ms var(--ease);
+  --t-slow:250ms var(--ease);
+
+  /* surfaces — light */
+  --bg-app:#f5f7fa;
+  --bg-surface:#ffffff;
+  --bg-sunken:#ebeef5;
+  --bg-code:#faf9f6;
+  --bg-hover:rgba(48,49,51,.05);
+  --bg-active:rgba(48,49,51,.09);
+  --bg-sel:#e0ecd8;
+  --bg-sel-bar:#457335;
+
+  /* lines */
+  --line:#e4e7ed;
+  --line-strong:#dcdfe6;
+
+  /* text */
+  --tx-1:#303133;
+  --tx-2:#606266;
+  /* park-golf 의 text-secondary(#909399)는 흰 배경 3.4:1 이라 본문에 못 쓴다 — 4.8:1 로 내렸다 */
+  --tx-3:#6b7280;
+
+  /* brand + semantic */
+  --accent:#457335;          /* Forest Canopy primary-600 */
+  --accent-hover:#375d2c;    /* primary-700 */
+  --accent-lite:#74a85f;     /* primary-400 — 그라데이션 밝은 쪽 */
+  /* park-golf Glassmorphism */
+  --glass-bg:rgba(255,255,255,.72);
+  --glass-border:rgba(255,255,255,.45);
+  --glass-blur:20px;
+  --sh-btn:0 4px 16px rgba(69,115,53,.32);
+  --sw-thumb:#ffffff;        /* 스위치 손잡이 — 두 테마 모두 흰색 (park-golf .switch-thumb) */
+  --sh-btn-hover:0 8px 24px rgba(116,168,95,.4);
+  --on-solid:#ffffff;
+  --accent-soft:#e0ecd8;     /* primary-100 */
+  --accent-line:#c2d9b3;     /* primary-200 */
+
+  /* park-golf success / danger / warning / info(teal) — 각 700 + 100 + 200 */
+  --ok:#047857;      --ok-soft:#d1fae5;  --ok-line:#a7f3d0;
+  --danger:#b91c1c;  --danger-soft:#fee2e2; --danger-line:#fecaca;
+  --warn:#92400e;    --warn-soft:#fef3c7; --warn-line:#fde68a;
+  --info:#0f766e;    --info-soft:#ccfbf1; --info-line:#99f6e4;
+  --muted-soft:#ebeef5; --muted-line:#dcdfe6;
+  /* 판정 불가 — 네 상태 색이 서로 달라야 칸을 따로 둔 뜻이 산다. 초록 · 빨강 · 회색 · 호박색과 겹치지 않는 파랑 */
+  --unj:#1d4ed8;     --unj-soft:#dbeafe; --unj-line:#bfdbfe;
+
+  /* method colors */
+  --m-get:#0f766e;   --m-get-bg:#ccfbf1;
+  --m-post:#047857;  --m-post-bg:#d1fae5;
+  --m-patch:#92400e; --m-patch-bg:#fef3c7;
+  --m-del:#b91c1c;   --m-del-bg:#fee2e2;
+
+  /* json syntax */
+  /* 보라(#7c3aed)·인디고(#1f3fa8)를 걷어내고 Forest Canopy 안에서만 구분한다 */
+  --j-key:#2d4a2b;         /* primary-800 — 키는 구조라 가장 진하게 */
+  --j-str:#0f766e;         /* info(teal) */
+  --j-num:#92400e;         /* warning */
+  --j-bool:#5b6350;        /* sage 계열 — olive(#a4ac86)는 흰 배경 2.1:1 이라 못 쓴다 */
+  --j-null:var(--tx-3);
+  --j-punc:#6b7280;
+  --j-sentinel-bg:#ebeef5;
+  --j-sentinel-tx:#606266;
+  --j-pin-bg:#fef3c7;
+
+  /* shadow */
+  /* 테마 밖 하드코딩 색 승격 */
+  --toast-icon:#34d399;
+  --seg-tls:#7d8471;       /* sage — 타이밍 막대에서 accent 그린과 구분되는 유일한 보조색 */
+
+  --sh-1:0 4px 16px rgba(0,0,0,.06);
+  --sh-3:0 12px 48px rgba(0,0,0,.14);
+
+  --focus:#457335;
+  --split:40%;
+  --split-v:45%;
+  color-scheme:light;
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg-app:#141414;
+    --bg-surface:#1d1d1d;
+    --bg-sunken:#171717;
+    --bg-code:#1a1a1a;
+    --bg-hover:rgba(255,255,255,.055);
+    --bg-active:rgba(255,255,255,.1);
+    --bg-sel:#1f3520;
+    --bg-sel-bar:#9bc186;
+
+    --line:#333436;
+    --line-strong:#4c4d4f;
+
+    --tx-1:#e5eaf3;
+    --tx-2:#cfd3dc;
+    --tx-3:#a3a6ad;
+
+    --accent:#9bc186;
+    --accent-lite:#c2d9b3;
+    --glass-bg:rgba(30,32,30,.62);
+    --glass-border:rgba(255,255,255,.1);
+    --glass-blur:20px;
+    --sh-btn:0 4px 16px rgba(0,0,0,.42);
+    --sw-thumb:#ffffff;
+    --sh-btn-hover:0 8px 24px rgba(0,0,0,.5);
+    --accent-hover:#c2d9b3;
+    --on-solid:#0f1a10;
+    --accent-soft:#1f3520;
+    --accent-line:#375d2c;
+
+    --ok:#34d399;      --ok-soft:#0c2f22;  --ok-line:#065f46;
+    --danger:#fca5a5;  --danger-soft:#331616; --danger-line:#7f1d1d;
+    --warn:#fcd34d;    --warn-soft:#332708; --warn-line:#78350f;
+    --info:#2dd4bf;    --info-soft:#123531; --info-line:#115e59;
+    --muted-soft:#232323; --muted-line:#3a3b3d;
+    --unj:#93c5fd;     --unj-soft:#172554; --unj-line:#1e3a8a;
+
+    --m-get:#2dd4bf;   --m-get-bg:#123531;
+    --m-post:#34d399;  --m-post-bg:#0c2f22;
+    --m-patch:#fcd34d; --m-patch-bg:#332708;
+    --m-del:#fca5a5;   --m-del-bg:#331616;
+
+    --j-key:#9bc186;
+    --j-str:#5eead4;
+    --j-num:#fcd34d;
+    --j-bool:#a4ac86;
+    --j-null:var(--tx-3);
+    --j-punc:#8f9296;
+    --j-sentinel-bg:#232323;
+    --j-sentinel-tx:#a3a6ad;
+    --j-pin-bg:#332708;
+
+    --toast-icon:#047857;
+    --seg-tls:#a4ac86;
+
+    --sh-1:0 4px 16px rgba(0,0,0,.32);
+    --sh-3:0 12px 48px rgba(0,0,0,.5);
+
+    --focus:#9bc186;
+    color-scheme:dark;
+  }
+}
+
+:root[data-theme="dark"]{
+  --bg-app:#141414;
+  --bg-surface:#1d1d1d;
+  --bg-sunken:#171717;
+  --bg-code:#1a1a1a;
+  --bg-hover:rgba(255,255,255,.055);
+  --bg-active:rgba(255,255,255,.1);
+  --bg-sel:#1f3520;
+  --bg-sel-bar:#9bc186;
+  --line:#333436;
+  --line-strong:#4c4d4f;
+  --tx-1:#e5eaf3;
+  --tx-2:#cfd3dc;
+  --tx-3:#a3a6ad;
+  --accent:#9bc186;
+    --accent-lite:#c2d9b3;
+    --glass-bg:rgba(30,32,30,.62);
+    --glass-border:rgba(255,255,255,.1);
+    --glass-blur:20px;
+    --sh-btn:0 4px 16px rgba(0,0,0,.42);
+    --sw-thumb:#ffffff;
+    --sh-btn-hover:0 8px 24px rgba(0,0,0,.5);
+  --accent-hover:#c2d9b3;
+  --on-solid:#0f1a10;
+  --accent-soft:#1f3520;
+  --accent-line:#375d2c;
+  --ok:#34d399;      --ok-soft:#0c2f22;  --ok-line:#065f46;
+  --danger:#fca5a5;  --danger-soft:#331616; --danger-line:#7f1d1d;
+  --warn:#fcd34d;    --warn-soft:#332708; --warn-line:#78350f;
+  --info:#2dd4bf;    --info-soft:#123531; --info-line:#115e59;
+  --muted-soft:#232323; --muted-line:#3a3b3d;
+  --unj:#93c5fd;     --unj-soft:#172554; --unj-line:#1e3a8a;
+  --m-get:#2dd4bf;   --m-get-bg:#123531;
+  --m-post:#34d399;  --m-post-bg:#0c2f22;
+  --m-patch:#fcd34d; --m-patch-bg:#332708;
+  --m-del:#fca5a5;   --m-del-bg:#331616;
+  --j-key:#9bc186;
+  --j-str:#5eead4;
+  --j-num:#fcd34d;
+  --j-bool:#a4ac86;
+  --j-null:var(--tx-3);
+  --j-punc:#8f9296;
+  --j-sentinel-bg:#232323;
+  --j-sentinel-tx:#a3a6ad;
+  --j-pin-bg:#332708;
+  --toast-icon:#047857;
+  --seg-tls:#a4ac86;
+
+  --sh-1:0 4px 16px rgba(0,0,0,.32);
+  --sh-3:0 12px 48px rgba(0,0,0,.5);
+  --focus:#9bc186;
+  color-scheme:dark;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:var(--font-ui); font-size:var(--fs-base);
+  line-height:var(--lh-base); color:var(--tx-1); background:var(--bg-app);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+button,input,select,textarea{font:inherit; color:inherit}
+button{background:none; border:0; cursor:pointer}
+ul{list-style:none; margin:0; padding:0}
+h1,h2,h3,h4{margin:0; font-weight:600; line-height:var(--lh-tight)}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:var(--r-xs)}
+[hidden]{display:none!important}
+::selection{background:var(--accent-soft); color:var(--tx-1)}
+
+
+/* 시각 밀도는 유지하되 포인터 타깃을 44x44 이상으로 확장.
+   원칙: .hit 은 흐름 배치(flow) 요소에만 쓴다. position:absolute 요소에 붙이면
+   오버레이가 형제 요소(입력창 등)의 클릭 영역을 삼킨다. */
+.hit{position:relative}
+.hit::after{
+  content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:100%;min-width:44px;height:44px;
+}
+.sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.mono{font-family:var(--font-mono); font-variant-ligatures:none}
+
+/* scrollbars */
+*::-webkit-scrollbar{width:11px;height:11px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:var(--r-full);border:3px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-thumb:hover{background:var(--tx-3);background-clip:content-box;border:3px solid transparent}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+#app-shell-0d7{display:grid; grid-template-rows:auto 1fr auto; grid-template-columns:minmax(0,1fr); width:100%; min-width:0; height:100vh}
+
+/* ---------- TOP BAR ---------- */
+#topbar-3f2{
+  display:flex; align-items:center; gap:var(--s4);
+  padding:0 var(--s4); height:56px; flex:0 0 auto;
+  background:var(--bg-surface); border-bottom:1px solid var(--line);
+  box-shadow:var(--sh-1); position:relative; z-index:40;
+}
+.brand{display:flex; align-items:center; gap:var(--s3); padding-right:var(--s4); min-width:0; flex:0 1 auto; overflow:hidden}
+.brand-mark{
+  width:30px;height:30px;border-radius:var(--r-md);flex:0 0 auto;
+  background:linear-gradient(140deg,var(--accent),var(--seg-tls));
+  display:grid;place-items:center;color:var(--on-solid);box-shadow:var(--sh-1)
+}
+.brand-text{display:flex;flex-direction:column;min-width:0}
+.brand-text b{font-size:var(--fs-md);font-weight:650;letter-spacing:-.01em}
+.brand-text span{font-size:var(--fs-xs);color:var(--tx-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.topbar-div{width:1px;height:28px;background:var(--line);flex:0 0 auto}
+#sidebar-toggle-6e4{display:none;flex:0 0 auto}
+.topbar-spacer{flex:1 1 auto}
+
+/* env picker */
+#env-picker-7c4{position:relative}
+.env-btn{
+  display:flex;align-items:center;gap:var(--s2);
+  height:40px;min-height:40px;padding:0 var(--s2) 0 var(--s3);
+  border:1px solid var(--line-strong);border-radius:var(--r-md);
+  background:var(--bg-surface);transition:background var(--t-fast),border-color var(--t-fast),box-shadow var(--t-fast);
+}
+.env-btn:hover{background:var(--bg-hover);border-color:var(--tx-3)}
+.env-btn:active{background:var(--bg-active)}
+.env-btn[aria-expanded="true"]{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.env-dot{width:8px;height:8px;border-radius:var(--r-full);background:var(--ok);flex:0 0 auto}
+.env-dot[data-env="stg"]{background:var(--warn)}
+.env-dot[data-env="prod"]{background:var(--danger)}
+.env-name{font-size:var(--fs-md);font-weight:600}
+.env-url{font-size:var(--fs-xs);color:var(--tx-3);font-family:var(--font-mono)}
+.env-menu{
+  position:absolute;top:calc(100% + 6px);left:0;min-width:290px;z-index:60;
+  background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--sh-3);padding:var(--s1);
+  opacity:0;transform:translateY(-4px) scale(.98);pointer-events:none;visibility:hidden;
+  transition:opacity var(--t-fast),transform var(--t-fast),visibility 0s linear 150ms;
+}
+.env-menu[data-open="true"]{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:0s}
+.env-item{
+  display:flex;align-items:center;gap:var(--s3);width:100%;
+  min-height:44px;padding:var(--s2) var(--s3);border-radius:var(--r-md);
+  text-align:left;transition:background var(--t-fast);
+}
+.env-item:hover{background:var(--bg-hover)}
+.env-item[aria-checked="true"]{background:var(--bg-sel)}
+.env-item .ei-main{flex:1 1 auto;min-width:0}
+.env-item .ei-name{font-size:var(--fs-md);font-weight:600;display:flex;align-items:center;gap:var(--s2)}
+.env-item .ei-url{font-size:var(--fs-xs);color:var(--tx-3);font-family:var(--font-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* token meter */
+#token-meter-b18{display:flex;align-items:center;gap:var(--s3);padding:0 var(--s1);flex:0 1 auto;min-width:0}
+.tm-body{display:flex;flex-direction:column;gap:3px;min-width:118px}
+.tm-top{display:flex;align-items:baseline;gap:var(--s2)}
+.tm-label{font-size:var(--fs-xs);color:var(--tx-3);letter-spacing:.02em}
+.tm-time{font-size:var(--fs-md);font-weight:650;font-family:var(--font-mono);letter-spacing:-.02em}
+.tm-track{height:4px;border-radius:var(--r-full);background:var(--bg-sunken);overflow:hidden}
+.tm-fill{height:100%;border-radius:var(--r-full);background:var(--ok);transition:width 900ms linear,background var(--t-mid)}
+.tm-low .tm-fill{background:var(--warn)}
+.tm-low .tm-time{color:var(--warn)}
+
+/* summary chips */
+#verify-summary-5e0{display:flex;align-items:center;gap:var(--s1);flex:0 1 auto;min-width:0}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;
+  border:1px solid var(--line);border-radius:var(--r-full);background:var(--bg-surface);
+  font-size:var(--fs-sm);font-weight:600;color:var(--tx-2);
+  transition:background var(--t-fast),border-color var(--t-fast),color var(--t-fast),transform var(--t-fast);
+}
+.chip:hover{background:var(--bg-hover);border-color:var(--line-strong)}
+.chip:active{transform:scale(.97)}
+.chip b{font-variant-numeric:tabular-nums;color:var(--tx-1)}
+.chip[data-kind="pass"] svg{color:var(--ok)}
+.chip[data-kind="fail"] svg{color:var(--danger)}
+.chip[data-kind="pending"] svg{color:var(--tx-3)}
+.chip[data-kind="unjudged"] svg{color:var(--unj)}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--tx-1)}
+.chip[aria-pressed="true"] b{color:var(--tx-1)}
+
+/* icon buttons */
+.icon-btn{
+  width:36px;height:36px;min-width:36px;display:grid;place-items:center;
+  border-radius:var(--r-md);border:1px solid transparent;color:var(--tx-2);
+  transition:background var(--t-fast),color var(--t-fast),border-color var(--t-fast);
+}
+.icon-btn:hover{background:var(--bg-hover);color:var(--tx-1);border-color:var(--line)}
+.icon-btn:active{background:var(--bg-active)}
+
+/* ---------- MAIN GRID ---------- */
+#main-8e4{position:relative; display:grid; grid-template-columns:296px minmax(0,1fr); min-width:0; min-height:0; overflow:hidden}
+
+/* ---------- SIDEBAR ---------- */
+#sidebar-c60{
+  display:flex;flex-direction:column;min-height:0;
+  /* park-golf AppSidebar 의 상단 primary 워시 — 단색 패널보다 위계가 읽힌다 */
+  background:linear-gradient(180deg,
+    color-mix(in srgb, var(--accent) 9%, var(--bg-surface)) 0%,
+    var(--bg-surface) 38%);
+  border-right:1px solid var(--line);
+}
+#sidebar-scrim-4f7{display:none}
+.side-head{padding:var(--s3) var(--s3) var(--s2)}
+.kbd{
+  display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;
+  border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:var(--r-xs);
+  background:var(--bg-surface);color:var(--tx-3);font-size:10px;font-family:var(--font-mono);font-weight:600;
+}
+
+.side-meta{display:flex;align-items:center;justify-content:space-between;padding:var(--s2) var(--s4) var(--s1);gap:var(--s2)}
+.side-meta span{font-size:var(--fs-xs);color:var(--tx-3);letter-spacing:.04em;text-transform:uppercase;font-weight:650}
+.link-btn{font-size:var(--fs-xs);color:var(--tx-3);padding:4px 6px;border-radius:var(--r-sm);transition:color var(--t-fast),background var(--t-fast)}
+.link-btn:hover{color:var(--tx-1);background:var(--bg-hover)}
+.link-btn[disabled]{cursor:not-allowed;opacity:.55}
+.link-btn[disabled]:hover{color:var(--tx-3);background:none}
+
+#endpoint-tree-a91{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:0 var(--s2) var(--s4)}
+.grp{margin-bottom:2px}
+.grp-btn{
+  display:flex;align-items:center;gap:var(--s2);width:100%;min-height:36px;
+  padding:var(--s1) var(--s2);border-radius:var(--r-sm);
+  color:var(--tx-2);transition:background var(--t-fast),color var(--t-fast);
+}
+.grp-btn:hover{background:var(--bg-hover);color:var(--tx-1)}
+.grp-btn[disabled]{cursor:not-allowed;opacity:.62}
+.grp-btn[disabled]:hover{background:none;color:var(--tx-2)}
+.grp-btn .chev{transition:transform var(--t-mid);color:var(--tx-3);flex:0 0 auto}
+.grp-btn[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.grp-name{font-size:var(--fs-md);font-weight:650;letter-spacing:-.005em;flex:1 1 auto;text-align:left}
+.grp-count{font-size:var(--fs-xs);color:var(--tx-3);font-variant-numeric:tabular-nums;padding:1px 6px;border-radius:var(--r-full);background:var(--bg-sunken)}
+.grp-list{overflow:hidden}
+.grp[data-open="false"] .grp-list{display:none}
+
+.ep-btn{
+  position:relative;display:flex;align-items:center;gap:var(--s2);width:100%;
+  min-height:44px;padding:var(--s1) var(--s2) var(--s1) 26px;border-radius:var(--r-sm);
+  text-align:left;transition:background var(--t-fast);
+}
+.ep-btn::before{
+  content:"";position:absolute;left:11px;top:6px;bottom:6px;width:2px;border-radius:2px;
+  background:var(--line);transition:background var(--t-fast);
+}
+.ep-btn:hover{background:var(--bg-hover)}
+.ep-btn:hover::before{background:var(--line-strong)}
+.ep-btn:active{background:var(--bg-active)}
+.ep-btn[aria-current="true"]{background:var(--bg-sel)}
+.ep-btn[aria-current="true"]::before{background:var(--bg-sel-bar)}
+.ep-btn[aria-current="true"] .ep-path{color:var(--tx-1);font-weight:600}
+.meth{
+  flex:0 0 auto;display:inline-grid;place-items:center;min-width:42px;height:20px;padding:0 5px;
+  border-radius:var(--r-xs);font-size:10px;font-weight:750;letter-spacing:.04em;font-family:var(--font-mono);
+}
+.meth[data-m="GET"]{color:var(--m-get);background:var(--m-get-bg)}
+.meth[data-m="POST"]{color:var(--m-post);background:var(--m-post-bg)}
+.meth[data-m="PATCH"]{color:var(--m-patch);background:var(--m-patch-bg)}
+.meth[data-m="DELETE"]{color:var(--m-del);background:var(--m-del-bg)}
+/* 말줄임을 없앴다 — 1024px 에서 `/v1/auth/token` 까지 잘려 어느 엔드포인트인지 못 읽었다.
+   경로는 식별자이므로 줄을 넘기더라도 전문을 보여준다. */
+.ep-path{
+  flex:1 1 auto;min-width:0;font-family:var(--font-mono);font-size:var(--fs-sm);
+  color:var(--tx-2);line-height:1.35;overflow-wrap:anywhere;text-align:left;
+}
+.ep-path bdi{direction:ltr}
+.st{flex:0 0 auto;display:grid;place-items:center;width:16px;height:16px}
+.st[data-s="pass"]{color:var(--ok)}
+.st[data-s="fail"]{color:var(--danger)}
+.st[data-s="pending"]{color:var(--tx-3)}
+.st[data-s="unjudged"]{color:var(--unj)}
+
+.tree-empty{padding:var(--s8) var(--s4);text-align:center;color:var(--tx-3);font-size:var(--fs-md)}
+.tree-empty svg{color:var(--line-strong);margin-bottom:var(--s2)}
+
+/* ---------- WORKSPACE ---------- */
+#workspace-4bd{display:grid;grid-template-rows:auto 1fr;grid-template-columns:minmax(0,1fr);min-width:0;min-height:0;background:var(--bg-app)}
+
+#ws-head-1c9{
+  display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s5);
+  background:var(--bg-surface);border-bottom:1px solid var(--line);min-height:64px;
+}
+.ws-title{display:flex;align-items:center;gap:var(--s3);min-width:0;flex:1 1 auto}
+.ws-title .meth{min-width:52px;height:22px;font-size:var(--fs-xs)}
+.ws-path{font-family:var(--font-mono);font-size:var(--fs-xl);font-weight:600;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ws-path .pp{color:var(--accent)}
+.ws-sub{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2);margin-top:2px;min-width:0;font-size:var(--fs-xs);color:var(--tx-3)}
+.ws-sub>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* park-golf .tag — px-3 py-1 rounded-full text-xs font-medium */
+.badge{
+  display:inline-flex;align-items:center;gap:5px;min-height:24px;padding:2px 12px;border-radius:var(--r-full);
+  font-size:var(--fs-xs);font-weight:600;border:1px solid transparent;white-space:nowrap;
+}
+.badge[data-t="ok"]{color:var(--ok);background:var(--ok-soft);border-color:var(--ok-line)}
+.badge[data-t="danger"]{color:var(--danger);background:var(--danger-soft);border-color:var(--danger-line)}
+.badge[data-t="warn"]{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-line)}
+.badge[data-t="info"]{color:var(--info);background:var(--info-soft);border-color:var(--info-line)}
+.badge[data-t="muted"]{color:var(--tx-2);background:var(--muted-soft);border-color:var(--muted-line)}
+.badge[data-t="unj"]{color:var(--unj);background:var(--unj-soft);border-color:var(--unj-line)}
+
+/* ---------- PANES ---------- */
+#panes-b02{display:grid;grid-template-columns:var(--split) 7px 1fr;min-height:0;overflow:hidden}
+.pane{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg-surface)}
+/* park-golf .card-section-header — 패널 머리에 primary 밴드를 깔아 위계를 만든다 */
+.pane-head,#ws-head-1c9{background:color-mix(in srgb, var(--accent) 7%, var(--bg-surface))}
+/* park-golf .glass — 떠 있는 표면에만 적용한다 (패널 전체에 걸면 코드가 읽히지 않는다) */
+.pal__box,#env-menu-6d3,#toast-44a{
+  background:var(--glass-bg);
+  backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+  border-color:var(--glass-border);
+}
+#request-panel-6f3{border-right:0}
+#response-panel-2ef{border-left:1px solid var(--line)}
+
+#pane-resizer-b73{
+  position:relative;cursor:col-resize;background:var(--bg-app);
+  display:grid;place-items:center;transition:background var(--t-fast);
+}
+#pane-resizer-b73::after{content:"";width:2px;height:34px;border-radius:2px;background:var(--line-strong);transition:background var(--t-fast),height var(--t-fast)}
+#pane-resizer-b73:hover::after,#pane-resizer-b73:focus-visible::after{background:var(--accent);height:64px}
+body[data-dragging="true"]{cursor:col-resize;user-select:none}
+body[data-dragging="true"] #pane-resizer-b73::after{background:var(--accent);height:100%;border-radius:0}
+body[data-dragging="true"][data-drag-axis="v"]{cursor:row-resize}
+body[data-dragging="true"][data-drag-axis="v"] #pane-resizer-b73::after{width:100%;height:2px;border-radius:0}
+
+.pane-head{
+  display:flex;align-items:center;gap:var(--s2);padding:0 var(--s4);height:44px;flex:0 0 auto;
+  border-bottom:1px solid var(--line);background:var(--bg-surface);
+}
+.pane-label{
+  display:inline-flex;align-items:center;gap:var(--s3);
+  font-size:var(--fs-xs);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-3);
+  margin-right:var(--s1);
+}
+.pane-label::after{content:"";width:1px;height:16px;background:var(--line)}
+
+/* tabs */
+.tabs{display:flex;align-items:center;gap:2px;height:100%;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  position:relative;display:inline-flex;align-items:center;gap:6px;height:100%;padding:0 10px;
+  font-size:var(--fs-md);font-weight:600;color:var(--tx-3);white-space:nowrap;
+  transition:color var(--t-fast),background var(--t-fast);border-radius:var(--r-sm) var(--r-sm) 0 0;
+}
+.tab:hover{color:var(--tx-1);background:var(--bg-hover)}
+.tab[aria-selected="true"]{color:var(--tx-1)}
+.tab[aria-selected="true"]::after{
+  content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:2px;border-radius:2px 2px 0 0;background:var(--accent);
+}
+.tab-badge{
+  display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:var(--r-full);
+  font-size:10px;font-weight:750;font-variant-numeric:tabular-nums;
+  background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn-line);
+}
+.tab-dot{width:6px;height:6px;border-radius:var(--r-full);background:var(--danger)}
+
+.pane-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;min-height:0}
+.tabpanel{display:none;padding:var(--s5)}
+.tabpanel[data-active="true"]{display:block}
+.tabpanel.flush{padding:0}
+
+/* ---------- REQUEST FORM ---------- */
+.sec{margin-bottom:var(--s6)}
+.sec:last-child{margin-bottom:0}
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
+.sec-title{font-size:var(--fs-md);font-weight:650;letter-spacing:-.005em;display:flex;align-items:center;gap:var(--s2)}
+.sec-note{font-size:var(--fs-xs);color:var(--tx-3)}
+
+.field-grid{display:flex;flex-direction:column;gap:var(--s3)}
+.field{
+  display:grid;grid-template-columns:132px 1fr;gap:var(--s3);align-items:start;
+}
+.field-label{padding-top:9px;min-width:0}
+.field-label .fl-name{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:600;color:var(--tx-1);display:block;overflow-wrap:anywhere}
+.field-label .fl-type{font-size:var(--fs-xs);color:var(--tx-3)}
+.field-label .req{color:var(--danger);margin-left:2px}
+.control{display:flex;flex-direction:column;gap:5px;min-width:0}
+/* park-golf .input — glass · rounded-lg · focus ring-2 primary/50 */
+.inp{
+  width:100%;height:40px;padding:0 var(--s3);border:1px solid var(--line-strong);border-radius:var(--r-md);
+  background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+  font-size:var(--fs-md);font-family:var(--font-mono);
+  transition:all var(--t-mid);
+}
+.inp:hover{border-color:var(--accent-line)}
+.inp:focus{border-color:var(--accent-lite);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 50%, transparent)}
+.inp:focus:not(:focus-visible){box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}
+.inp::placeholder{color:var(--tx-3);font-family:var(--font-ui)}
+.inp[readonly]{background:var(--bg-sunken);color:var(--tx-2);cursor:default}
+select.inp{appearance:none;padding-right:34px;background-image:none;cursor:pointer}
+.sel-wrap{position:relative;display:flex}
+.sel-wrap>svg{position:absolute;right:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--tx-3)}
+textarea.inp{height:auto;min-height:118px;padding:var(--s3);line-height:1.6;resize:vertical}
+.field-hint{font-size:var(--fs-xs);color:var(--tx-3)}
+.enum-row{display:flex;flex-wrap:wrap;gap:5px}
+.enum-pill{
+  min-height:28px;padding:2px 12px;border-radius:var(--r-full);border:1px solid var(--line);
+  background:var(--bg-surface);font-size:var(--fs-xs);font-family:var(--font-mono);color:var(--tx-2);
+  transition:all var(--t-mid);
+}
+.enum-pill:hover{border-color:var(--tx-3);color:var(--tx-1)}
+.enum-pill[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--tx-1);font-weight:650}
+
+.kv-row{
+  display:grid;grid-template-columns:150px 1fr auto;gap:var(--s3);align-items:center;
+  padding:var(--s2) 0;border-bottom:1px solid var(--line);
+}
+.kv-row:last-child{border-bottom:0}
+.kv-k{font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:600;color:var(--tx-2);overflow-wrap:anywhere}
+.kv-v{font-family:var(--font-mono);font-size:var(--fs-sm);color:var(--tx-1);overflow-wrap:anywhere;min-width:0}
+.masked{
+  display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:var(--r-sm);
+  background:var(--bg-sunken);border:1px dashed var(--line-strong);color:var(--tx-2);
+}
+
+.callout{
+  display:flex;gap:var(--s3);padding:var(--s3) var(--s4);border-radius:var(--r-md);
+  border:1px solid var(--line);background:var(--bg-sunken);font-size:var(--fs-md);color:var(--tx-2);
+}
+.callout[data-t="warn"]{background:var(--warn-soft);border-color:var(--warn-line);color:var(--tx-1)}
+.callout[data-t="danger"]{background:var(--danger-soft);border-color:var(--danger-line);color:var(--tx-1)}
+.callout[data-t="info"]{background:var(--info-soft);border-color:var(--info-line);color:var(--tx-1)}
+.callout[data-t="unj"]{background:var(--unj-soft);border-color:var(--unj-line);color:var(--tx-1)}
+.callout svg{flex:0 0 auto;margin-top:2px}
+.callout b{display:block;margin-bottom:2px;color:var(--tx-1)}
+.callout .em{font-weight:700;color:var(--tx-1)}
+.callout[data-t="warn"] svg{color:var(--warn)}
+.callout[data-t="danger"] svg{color:var(--danger)}
+.callout[data-t="info"] svg{color:var(--info)}
+.callout[data-t="unj"] svg{color:var(--unj)}
+
+/* auth card */
+#auth-card-1a8{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--bg-surface)}
+.auth-top{display:flex;align-items:center;gap:var(--s3);padding:var(--s4);border-bottom:1px solid var(--line);background:var(--bg-sunken)}
+.auth-avatar{width:38px;height:38px;border-radius:var(--r-md);display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:0 0 auto}
+.auth-name{font-size:var(--fs-base);font-weight:650}
+.auth-kind{font-size:var(--fs-xs);color:var(--tx-3);font-family:var(--font-mono)}
+.auth-rows{padding:var(--s2) var(--s4) var(--s3)}
+
+/* ---------- COMMAND BAR ---------- */
+#command-bar-0c5{
+  flex:0 0 auto;border-top:1px solid var(--line);background:var(--bg-sunken);padding:var(--s3) var(--s4);
+}
+.cmd-label{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s2)}
+.cmd-label span{font-size:var(--fs-xs);font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--tx-3)}
+/* 커맨드는 이 화면의 유일한 산출물이다 — 가로로 잘라 숨기지 않고 최대 4줄까지 접어 보여준다. */
+.cmd-row{display:flex;flex-direction:column;align-items:stretch;gap:var(--s2)}
+.cmd-code-wrap{position:relative;min-width:0}
+.cmd-code{
+  width:100%;min-width:0;padding:10px var(--s3);border-radius:var(--r-md);
+  border:1px solid var(--line-strong);background:var(--bg-code);
+  font-family:var(--font-mono);font-size:var(--fs-sm);line-height:1.55;color:var(--tx-1);
+  white-space:pre-wrap;word-break:break-all;
+  max-height:96px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;
+}
+/* 잘림을 시각적으로 알린다 — 넘칠 때만 하단 페이드 */
+.cmd-code-wrap[data-clipped="true"]::after{
+  content:"";position:absolute;left:1px;right:1px;bottom:1px;height:12px;pointer-events:none;
+  border-radius:0 0 var(--r-md) var(--r-md);
+  background:linear-gradient(transparent,var(--bg-code));
+}
+.cmd-actions{display:flex;justify-content:flex-end;gap:var(--s2)}
+.cmd-blocked{color:var(--tx-2);font-style:normal}
+.cmd-code .c-flag{color:var(--j-key)}
+.cmd-code .c-val{color:var(--j-str)}
+.cmd-code .c-cmd{color:var(--accent);font-weight:650}
+/* park-golf .btn — font-semibold · rounded · transition-all 300ms · active:scale(.97) */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:0 var(--s5);border-radius:var(--r-md);
+  font-size:var(--fs-md);font-weight:650;white-space:nowrap;
+  border:1px solid transparent;transition:all var(--t-slow);
+}
+.btn:active{transform:scale(.97)}
+/* .btn-primary — gradient + shadow-btn-primary + hover lift */
+.btn-primary{
+  background:linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-lite) 100%);
+  color:var(--on-solid);box-shadow:var(--sh-btn);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:var(--sh-btn-hover)}
+.btn-primary:active{transform:translateY(0) scale(.97)}
+/* .btn-secondary 계보 — glass 표면에 primary hover */
+.btn-ghost{
+  border-color:var(--glass-border);color:var(--tx-2);
+  background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));
+  box-shadow:var(--sh-1);
+}
+.btn-ghost:hover{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-hover)}
+.btn-ghost:active{background:var(--accent-soft);transform:scale(.97)}
+.btn-sm{min-height:32px;height:32px;padding:0 10px;font-size:var(--fs-sm);border-radius:var(--r-sm)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;pointer-events:none}
+.btn.done{background:var(--ok);border-color:var(--ok);color:var(--on-solid)}
+
+/* ---------- RESPONSE HEADER STRIP ---------- */
+/* 응답 패널의 좌우 인셋은 var(--s5) 하나로 고정한다 — 탭 전환 시 가로 점프 방지 */
+#response-body-wrap-8d1 .tabpanel>*{padding-left:var(--s5);padding-right:var(--s5)}
+/* grid + max-content 는 좁은 폭에서 트랙이 컨테이너를 넘어 content-type 칸이 잘렸다.
+   flex-wrap 은 남는 폭만큼만 넣고 나머지를 다음 줄로 내린다. */
+.resp-strip{
+  display:flex;flex-wrap:wrap;align-items:center;min-width:0;
+  column-gap:var(--s4);row-gap:var(--s2);
+  padding:var(--s3) var(--s5);border-bottom:1px solid var(--line);background:var(--bg-sunken);
+}
+/* 그룹 경계는 셀 자체의 보더로 표현한다. 줄바꿈으로 행 첫 셀이 된 칸은
+   보더를 떼어 아무것도 구분하지 않는 유령 세로선이 생기지 않게 한다. */
+.resp-strip .sep-before{border-left:1px solid var(--line);padding-left:var(--s4)}
+.resp-strip .sep-before[data-row-start="true"]{border-left:0;padding-left:0}
+.stat-pill{
+  display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:var(--r-sm);
+  font-family:var(--font-mono);font-size:var(--fs-sm);font-weight:700;border:1px solid;
+}
+.stat-pill[data-t="ok"]{color:var(--ok);background:var(--ok-soft);border-color:var(--ok-line)}
+.stat-pill[data-t="danger"]{color:var(--danger);background:var(--danger-soft);border-color:var(--danger-line)}
+.metric{display:flex;flex-direction:column;line-height:1.3}
+.metric .mv{font-size:var(--fs-md);font-weight:650;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.metric .mk{font-size:10px;color:var(--tx-3);letter-spacing:.05em;text-transform:uppercase;font-weight:650}
+
+.pin-strip{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap;padding:var(--s2) var(--s5);border-bottom:1px solid var(--line);background:var(--bg-surface)}
+.pin-strip .pl{font-size:var(--fs-xs);color:var(--tx-3);font-weight:650;letter-spacing:.03em}
+.pin-chip{
+  display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:var(--r-sm);
+  background:var(--j-pin-bg);border:1px solid var(--warn-line);color:var(--tx-1);
+  font-family:var(--font-mono);font-size:var(--fs-xs);
+}
+.pin-chip svg{color:var(--warn)}
+
+/* ---------- JSON VIEWER ---------- */
+#json-viewer-5d1{padding-top:var(--s3);padding-bottom:var(--s8);font-family:var(--font-mono);font-size:var(--fs-md);line-height:1.72}
+.j-row{display:flex;align-items:center;min-height:26px;border-radius:var(--r-xs);position:relative;padding-right:var(--s2)}
+/* 코드 열은 남는 폭을 다 먹되 자기 안에서 말줄임하고, 스키마 열은 절대 밀리지 않는다.
+   (margin-left:auto 만 쓰면 긴 줄에서 배지가 패널 밖으로 나갔다 — 1024px 에서 실측) */
+/* .j-tog 가 display:grid(블록) 라서 인라인 컨테이너로 두면 줄이 갈라진다 — flex 행으로 둔다 */
+.j-code{display:flex;align-items:center;flex:1 1 auto;min-width:0;overflow:hidden;white-space:nowrap}
+.j-code > *{flex:0 0 auto}
+/* 값이 길면 하드 클립 대신 말줄임한다 (긴 토큰·주소 라인) */
+.j-code > .j-str,.j-code > .j-sentinel{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* 축소 우선순위: 설명 → 그 외. flex-shrink 를 크게 줘서 코드(값)보다 먼저 접히게 한다.
+   (동일 shrink 로 두면 "discountRate": 0.15 의 값이 먼저 잘렸다 — 실측) */
+/* 진짜 테이블처럼 — 메타 쪽 모든 열을 고정폭으로 두어야 헤더와 전 행이 같은 열에 선다.
+   가변으로 두면 행마다 열 위치가 달라져(실측 desc 1084 vs 1147) 헤더가 의미를 잃는다.
+   대신 코드 열이 좁아지면 값은 말줄임으로 접힌다. */
+.j-meta{flex:0 0 auto;display:inline-flex;align-items:center;gap:0;padding-left:var(--s3)}
+/* 메타 셀은 전부 같은 높이의 inline-flex 로 둔다.
+   span 의 기본값은 display:inline 이라 justify-content 가 먹지 않아 중앙 정렬이 실패하고,
+   높이 고정이 없어 셀마다 크기가 달라지며, `+` 와 `−` 의 글리프 폭 차이가 배지 폭 차이로 드러난다. */
+.j-type,.j-req,.j-note,.j-pin{
+  flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  height:18px;line-height:1;
+}
+.j-star{
+  display:inline-flex;align-items:center;justify-content:center;width:10px;flex:0 0 auto;
+  color:var(--danger);font-weight:700;margin-left:2px;
+}
+.j-row.clickable{cursor:pointer}
+.j-row.clickable:hover{background:var(--bg-hover)}
+.j-row.pinned{background:var(--j-pin-bg)}
+.j-row.pinned:hover{background:var(--j-pin-bg);filter:brightness(.97)}
+.j-ind{flex:0 0 auto;display:inline-block}
+/* WCAG 2.2 AA 2.5.8 — 최소 24x24 타깃 */
+.j-tog{
+  width:24px;height:24px;flex:0 0 auto;display:grid;place-items:center;margin-right:2px;
+  color:var(--j-punc);border-radius:var(--r-xs);transition:color var(--t-fast),background var(--t-fast),transform var(--t-mid);
+}
+.j-tog:hover{color:var(--tx-1);background:var(--bg-active)}
+.j-tog svg{transition:transform var(--t-mid)}
+.j-tog[aria-expanded="false"] svg{transform:rotate(-90deg)}
+.j-key{color:var(--j-key)}
+.j-punc{color:var(--j-punc)}
+.j-str{color:var(--j-str)}
+.j-num{color:var(--j-num)}
+.j-bool{color:var(--j-bool)}
+.j-null{color:var(--j-null)}
+.j-preview{color:var(--j-punc);font-style:italic;margin:0 4px}
+.j-pin{width:18px;color:var(--warn);margin-left:5px}
+.j-sentinel{
+  display:inline-flex;align-items:center;gap:5px;padding:0 7px;border-radius:var(--r-sm);
+  background:var(--j-sentinel-bg);border:1px dashed var(--line-strong);color:var(--j-sentinel-tx);
+  font-size:var(--fs-sm);font-style:normal;
+}
+.j-sentinel svg{opacity:.75}
+.j-children{display:block}
+.j-children[hidden]{display:none}
+
+.json-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2);padding-top:var(--s2);padding-bottom:var(--s2);border-bottom:1px solid var(--line)}
+.json-toolbar .spacer{flex:1 1 auto}
+.legend{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-xs);color:var(--tx-3)}
+.legend .sw{width:11px;height:11px;border-radius:3px;border:1px dashed var(--line-strong);background:var(--j-sentinel-bg)}
+.legend .sw.pin{background:var(--j-pin-bg);border:1px solid var(--warn-line)}
+/* pin 칩은 경로만 보여주면 무슨 검사인지 알 수 없다 — 조건을 함께 싣는다 */
+.pin-chip .pc-p{font-family:var(--font-mono)}
+.pin-chip .pc-c{
+  margin-left:6px;padding-left:6px;border-left:1px solid var(--warn-line);
+  font-family:var(--font-ui);font-size:var(--fs-xs);color:var(--tx-2);
+}
+.sch-cond{
+  margin-left:6px;font-family:var(--font-ui);font-size:var(--fs-xs);
+  color:var(--warn);white-space:nowrap;
+}
+
+/* ---------- DIFF ---------- */
+#diff-list-c39{padding-top:var(--s4);padding-bottom:var(--s4)}
+.diff-item{
+  display:grid;grid-template-columns:auto 1fr;gap:var(--s3);align-items:start;
+  padding:var(--s3);border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:var(--s2);
+  background:var(--bg-surface);transition:border-color var(--t-fast),background var(--t-fast);
+}
+.diff-item:hover{border-color:var(--line-strong)}
+.diff-mark{
+  display:grid;place-items:center;width:26px;height:26px;border-radius:var(--r-sm);
+  font-family:var(--font-mono);font-weight:800;font-size:var(--fs-base);border:1px solid;
+}
+.diff-item[data-k="add"] .diff-mark{color:var(--ok);background:var(--ok-soft);border-color:var(--ok-line)}
+.diff-item[data-k="rm"]  .diff-mark{color:var(--danger);background:var(--danger-soft);border-color:var(--danger-line)}
+.diff-item[data-k="chg"] .diff-mark{color:var(--warn);background:var(--warn-soft);border-color:var(--warn-line)}
+.diff-body{min-width:0}
+.diff-top{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap;margin-bottom:3px}
+.diff-kind{font-size:var(--fs-xs);font-weight:700;letter-spacing:.04em}
+.diff-item[data-k="add"] .diff-kind{color:var(--ok)}
+.diff-item[data-k="rm"] .diff-kind{color:var(--danger)}
+.diff-item[data-k="chg"] .diff-kind{color:var(--warn)}
+.diff-path{font-family:var(--font-mono);font-size:var(--fs-md);font-weight:600;overflow-wrap:anywhere}
+.diff-note{font-size:var(--fs-sm);color:var(--tx-2)}
+.diff-note code{font-family:var(--font-mono);font-size:var(--fs-sm);padding:1px 5px;border-radius:var(--r-xs);background:var(--bg-sunken);border:1px solid var(--line)}
+.arrow{color:var(--tx-3);margin:0 4px}
+
+/* ---------- TIMING ---------- */
+#timing-chart-70a{padding-top:var(--s5);padding-bottom:var(--s5)}
+.tbar{display:flex;height:34px;border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--line);margin-bottom:var(--s4)}
+.tseg{transition:filter var(--t-fast)}
+.tseg:hover{filter:brightness(1.12)}
+.tlegend{display:flex;flex-direction:column;gap:0}
+.tlrow{display:grid;grid-template-columns:14px 1fr auto auto;gap:var(--s3);align-items:center;padding:var(--s2) 0;border-bottom:1px solid var(--line)}
+.tlrow:last-child{border-bottom:0}
+.tlsw{width:11px;height:11px;border-radius:3px}
+.tlname{font-size:var(--fs-md);color:var(--tx-2)}
+.tlval{font-family:var(--font-mono);font-size:var(--fs-md);font-weight:650;font-variant-numeric:tabular-nums}
+.tlpct{font-size:var(--fs-xs);color:var(--tx-3);font-variant-numeric:tabular-nums;min-width:42px;text-align:right}
+
+/* ---------- FAIL REPORT ---------- */
+#fail-report-e8c{padding-top:var(--s5);padding-bottom:var(--s5)}
+.fail-hero{
+  display:flex;gap:var(--s4);padding:var(--s4);border-radius:var(--r-lg);
+  background:var(--danger-soft);border:1px solid var(--danger-line);margin-bottom:var(--s5);
+}
+.fail-icon{flex:0 0 auto;width:40px;height:40px;border-radius:var(--r-md);display:grid;place-items:center;background:var(--danger);color:var(--on-solid)}
+.fail-hero h3{font-size:var(--fs-lg);margin-bottom:var(--s1)}
+.fail-hero p{margin:0;font-size:var(--fs-md);color:var(--tx-2)}
+.viol{
+  display:grid;grid-template-columns:auto 1fr;gap:var(--s3);padding:var(--s3) var(--s4);
+  border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:var(--s2);background:var(--bg-surface);
+}
+.viol-n{
+  width:24px;height:24px;border-radius:var(--r-full);display:grid;place-items:center;
+  background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger-line);
+  font-size:var(--fs-xs);font-weight:750;font-variant-numeric:tabular-nums;
+}
+.viol h4{font-size:var(--fs-md);margin-bottom:var(--s1)}
+.cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:var(--s3);align-items:center;margin-top:var(--s2)}
+.cmp-box{padding:var(--s2) var(--s3);border-radius:var(--r-sm);border:1px solid var(--line);background:var(--bg-sunken)}
+.cmp-box .cl{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx-3);font-weight:700;display:block;margin-bottom:2px}
+.cmp-box .cv{font-family:var(--font-mono);font-size:var(--fs-md);font-weight:650}
+.cmp-box[data-t="exp"] .cv{color:var(--ok)}
+.cmp-box[data-t="act"]{background:var(--danger-soft);border-color:var(--danger-line)}
+.cmp-box[data-t="act"] .cv{color:var(--danger)}
+
+/* ---------- EMPTY STATE ---------- */
+/* #empty-state-3b6 = 미실행 전용 · #diff-empty-9c2 = 구조 변경 없음 전용 (식별자 분리) */
+#empty-state-3b6,#diff-empty-9c2{padding-top:var(--s12);padding-bottom:var(--s12);display:grid;place-items:center;text-align:center}
+.empty-inner{max-width:420px}
+.empty-icon{
+  width:62px;height:62px;border-radius:var(--r-lg);display:grid;place-items:center;margin:0 auto var(--s4);
+  background:var(--bg-sunken);border:1px dashed var(--line-strong);color:var(--tx-3);
+}
+.empty-inner h3{font-size:var(--fs-lg);margin-bottom:var(--s2)}
+.empty-inner p{margin:0 0 var(--s5);font-size:var(--fs-md);color:var(--tx-2);line-height:1.6}
+
+/* ---------- STATUS BAR ---------- */
+#statusbar-9f1{
+  display:flex;align-items:center;gap:var(--s4);height:32px;padding:0 var(--s4);flex:0 0 auto;
+  background:var(--bg-surface);border-top:1px solid var(--line);
+  font-size:var(--fs-xs);color:var(--tx-3);
+  min-width:0;overflow-x:auto;scrollbar-width:none;
+}
+#statusbar-9f1::-webkit-scrollbar{display:none}
+#statusbar-9f1 .sb-item{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:0 0 auto}
+#statusbar-9f1 .sb-item b{color:var(--tx-2);font-weight:600;font-family:var(--font-mono)}
+#statusbar-9f1 .spacer{flex:1 1 auto}
+.ro-flag{color:var(--danger);font-weight:650}
+
+/* ---------- TOAST ---------- */
+#toast-44a{
+  position:fixed;right:var(--s5);bottom:var(--s10);z-index:90;
+  display:flex;align-items:center;gap:var(--s2);
+  padding:11px var(--s4);border-radius:var(--r-md);
+  background:var(--tx-1);color:var(--bg-surface);box-shadow:var(--sh-3);
+  font-size:var(--fs-md);font-weight:600;
+  opacity:0;transform:translateY(10px) scale(.97);pointer-events:none;
+  transition:opacity var(--t-slow),transform var(--t-slow);
+}
+#toast-44a[data-show="true"]{opacity:1;transform:none}
+#toast-44a svg{color:var(--toast-icon)}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:1180px){
+  #main-8e4{grid-template-columns:250px 1fr}
+  .field{grid-template-columns:112px 1fr}
+  .kv-row{grid-template-columns:128px 1fr auto}
+}
+@media (max-width:1024px){
+  #topbar-3f2{gap:var(--s3);padding:0 var(--s3)}
+  .brand-text span{display:none}
+  #token-meter-b18 .tm-body{min-width:92px}
+  .env-url{display:none}
+  #main-8e4{grid-template-columns:224px 1fr}
+  #panes-b02{grid-template-columns:minmax(300px,var(--split)) 7px minmax(320px,1fr)}
+  .tabpanel{padding:var(--s4)}
+  .ws-path{font-size:var(--fs-base)}
+}
+/* 좁은 폭에서는 보조 정보부터 접는다 — 토큰 게이지 → 브랜드 텍스트 → 구분선 */
+@media (max-width:760px){
+  #token-meter-b18,#topbar-div-tm-3a2{display:none}
+  #topbar-3f2{gap:var(--s2);padding:0 var(--s2)}
+  .brand{padding-right:0}
+  .brand-text{display:none}
+  .topbar-div{display:none}
+}
+/* 드롭다운이 화면 밖으로 나가지 않도록 좁은 폭에서는 상단 고정 시트로 */
+@media (max-width:880px){
+  .env-menu{position:fixed;top:60px;left:var(--s3);right:var(--s3);min-width:0;width:auto}
+}
+@media (max-width:880px){
+  /* 세로 분할 — var(--split-v) 가 실제로 트랙에 연결된다 */
+  #panes-b02{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(200px,var(--split-v)) 7px minmax(200px,1fr)}
+  #pane-resizer-b73{cursor:row-resize}
+  #pane-resizer-b73::after{width:34px;height:2px}
+  #response-panel-2ef{border-left:0;border-top:1px solid var(--line)}
+  /* 칩 네 개가 한 줄에 안 들어가 브랜드 · 토큰 글자가 두 줄로 접히고 375 에서는 테마 버튼을 덮었다 — 칩 묶음을 둘째 줄로 내린다 */
+  #topbar-3f2{flex-wrap:wrap;height:auto;padding-top:var(--s2);padding-bottom:var(--s2);row-gap:var(--s2)}
+  #verify-summary-5e0{order:1;flex:1 0 100%}
+  #ws-head-1c9{flex-wrap:wrap}
+  #statusbar-9f1 .sb-hint{display:none}
+
+  /* 사이드바 → 오버레이 드로어 */
+  #main-8e4{grid-template-columns:minmax(0,1fr)}
+  #sidebar-toggle-6e4{display:grid}
+  #sidebar-c60{
+    position:absolute;top:0;bottom:0;left:0;width:min(300px,84vw);z-index:50;
+    transform:translateX(-100%);visibility:hidden;box-shadow:var(--sh-3);
+    transition:transform var(--t-mid),visibility 0s linear 200ms;
+  }
+  #main-8e4[data-drawer="open"] #sidebar-c60{transform:none;visibility:visible;transition-delay:0s}
+  #sidebar-scrim-4f7{position:absolute;inset:0;z-index:45;background:rgba(9,12,18,.44);display:none}
+  #main-8e4[data-drawer="open"] #sidebar-scrim-4f7{display:block}
+}
+/* 확대(200%) 등으로 세로가 짧아져도 두 패널이 모두 남도록 최소 높이를 낮춘다 */
+@media (max-width:880px) and (max-height:600px){
+  #panes-b02{grid-template-rows:minmax(140px,var(--split-v)) 7px minmax(140px,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:1ms!important;animation-duration:1ms!important}
+}
+/* ============================================================
+   COMMAND PALETTE  (v2 계보 — v1 인라인 검색창 대체)
+   ============================================================ */
+/* 타입 스케일을 한 단 올리면서 좁은 폭의 상단바가 먼저 터진다.
+   1120px 아래에서는 브랜드 부제를 접고 요약 칩은 숫자만 보인다.
+   칩 라벨을 display:none 으로 숨기면 접근 이름이 숫자뿐이라 네 칩이 구분되지 않는다 — 화면에서만 감춘다. */
+@media (max-width:1120px){
+  .brand-text .mono{display:none}
+  #verify-summary-5e0 .chip > span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+}
+
+/* ============================================================
+   TABLE HEAD  (park-golf .table th — px-4 py-3 · text-sm · font-semibold
+   · text-secondary · bg-primary-700/10)
+   ============================================================ */
+.tbl-head{
+  display:grid;align-items:center;gap:var(--s3);
+  padding:var(--s3) var(--s4);
+  background:color-mix(in srgb, var(--accent) 10%, var(--bg-surface));
+  border-bottom:1px solid var(--line);
+  font-size:var(--fs-sm);font-weight:600;color:var(--tx-2);
+  letter-spacing:.01em;
+}
+.tbl-head > span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 요청 파라미터 — .field 와 같은 132px / 1fr 트랙 */
+.tbl-head[data-for="field"]{grid-template-columns:132px 1fr;margin-bottom:var(--s3)}
+/* 응답 헤더 — .kv-row 와 같은 150px / 1fr / auto 트랙 */
+.tbl-head[data-for="kv"]{grid-template-columns:150px 1fr auto;margin-bottom:var(--s2)}
+
+
+/* ---------- 사용자가 더한 행 ---------- */
+.xrow{
+  display:grid;grid-template-columns:minmax(0,132px) minmax(0,1fr) 36px;
+  gap:var(--s3);align-items:center;margin-top:var(--s2);
+}
+.xrow .inp{height:36px;font-size:var(--fs-sm)}
+.x-del{
+  display:grid;place-items:center;width:36px;height:36px;border-radius:var(--r-sm);
+  color:var(--tx-3);border:1px solid transparent;transition:all var(--t-fast);
+}
+.x-del:hover{color:var(--danger);background:var(--danger-soft);border-color:var(--danger-line)}
+.add-btn{
+  display:inline-flex;align-items:center;gap:6px;min-height:36px;margin-top:var(--s3);
+  padding:0 var(--s3);border:1px dashed var(--line-strong);border-radius:var(--r-md);
+  background:none;color:var(--tx-2);font-size:var(--fs-sm);font-weight:600;
+  transition:all var(--t-fast);
+}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);border-style:solid}
+.sec-head .add-btn{margin-top:0;min-height:30px;font-size:var(--fs-xs)}
+
+/* ---------- 데이터 구조 표 ---------- */
+.tbl-head[data-for="schema"]{grid-template-columns:minmax(0,2fr) 84px 54px minmax(0,1.6fr)}
+#schema-table-4b1{padding-top:var(--s6);padding-bottom:var(--s6)}
+.sch-row{
+  display:grid;grid-template-columns:minmax(0,2fr) 84px 54px minmax(0,1.6fr);
+  gap:var(--s3);align-items:center;min-height:38px;
+  padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);
+}
+.sch-row:hover{background:var(--bg-hover)}
+.sch-row[data-k="add"]{background:var(--ok-soft)}
+.sch-row[data-k="del"]{background:var(--danger-soft)}
+.sch-row[data-k="chg"]{background:var(--warn-soft)}
+.sch-mark{
+  display:inline-block;width:14px;font-family:var(--font-mono);font-weight:700;
+}
+.sch-row[data-k="add"] .sch-mark{color:var(--ok)}
+.sch-row[data-k="del"] .sch-mark{color:var(--danger)}
+.sch-row[data-k="chg"] .sch-mark{color:var(--warn)}
+.sch-row[data-k="del"] .sch-path{text-decoration:line-through;opacity:.8}
+.sch-path{
+  font-family:var(--font-mono);font-size:var(--fs-sm);color:var(--tx-1);
+  min-width:0;overflow-wrap:anywhere;
+}
+.sch-type{font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--tx-2)}
+.sch-req{display:flex;justify-content:flex-start}
+.sch-desc{font-size:var(--fs-xs);color:var(--tx-2);min-width:0;overflow-wrap:anywhere}
+.sch-dash{color:var(--tx-3)}
+
+.pal-launcher{
+  display:flex;align-items:center;gap:var(--s2);width:100%;min-height:44px;
+  padding:0 var(--s3);border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--bg-surface);color:var(--tx-3);cursor:pointer;
+  transition:border-color var(--t-fast),background var(--t-fast);
+}
+.pal-launcher:hover{border-color:var(--line-strong);background:var(--bg-hover)}
+.pal-launcher__t{flex:1;min-width:0;text-align:left;font-size:var(--fs-sm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.pal{position:fixed;inset:0;z-index:120;display:grid;place-items:start center;padding-top:11vh}
+.pal[hidden]{display:none}
+.pal__scrim{position:absolute;inset:0;background:rgba(9,12,18,.44);animation:pal-fade var(--t-mid)}
+@keyframes pal-fade{from{opacity:0}to{opacity:1}}
+.pal__box{
+  position:relative;width:min(640px,calc(100vw - 32px));
+  background:var(--bg-surface);border:1px solid var(--line-strong);
+  border-radius:var(--r-lg);box-shadow:var(--sh-3);overflow:hidden;
+  animation:pal-pop var(--t-slow);
+}
+@keyframes pal-pop{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:none}}
+.pal__search{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}
+.pal__search > svg{color:var(--tx-3);flex:none}
+#palette-input-k08{
+  flex:1;border:0;background:none;font-family:var(--font-ui);font-size:var(--fs-lg);
+  color:var(--tx-1);padding:var(--s1) 0;min-width:0;
+}
+#palette-input-k08::placeholder{color:var(--tx-3)}
+.pal__scope{
+  display:inline-flex;align-items:center;gap:4px;flex:none;white-space:nowrap;
+  font-size:var(--fs-xs);font-weight:700;padding:3px 4px 3px 9px;border-radius:var(--r-full);
+  background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);
+}
+.pal__scope[hidden]{display:none}
+.pal__scope-x{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:var(--r-full);color:inherit}
+.pal__scope-x:hover{background:var(--accent-line)}
+.pal__list{max-height:min(50vh,404px);overflow-y:auto;padding:var(--s2);margin:0;list-style:none}
+.pal__grp{list-style:none;margin:0;padding:0}
+.pal__sec{
+  display:flex;align-items:center;gap:var(--s2);
+  padding:var(--s3) var(--s2) var(--s1);
+  font-size:var(--fs-xs);font-weight:700;letter-spacing:.07em;color:var(--tx-2);
+}
+.pal__list > li:first-child > .pal__sec{padding-top:var(--s1)}
+.pal__item{
+  display:flex;align-items:center;gap:var(--s3);width:100%;min-height:44px;
+  padding:var(--s2);border-radius:var(--r-md);border:1px solid transparent;
+  text-align:left;color:var(--tx-2);cursor:pointer;
+}
+.pal__item[data-active="1"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--tx-1)}
+.pal__item:hover{background:var(--bg-hover)}
+.pal__item[data-active="1"]:hover{background:var(--accent-soft)}
+.pal__label{font-family:var(--font-mono);font-size:var(--fs-md);color:var(--tx-1);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pal__label mark{background:var(--accent-soft);color:var(--accent);border-radius:2px;padding:0 1px}
+.pal__grpname{font-size:var(--fs-xs);color:var(--tx-3);flex:none}
+.pal__right{margin-left:auto;display:flex;align-items:center;gap:var(--s2);flex:none}
+.pal__enter{opacity:0;font-size:var(--fs-xs);color:var(--tx-3)}
+.pal__item[data-active="1"] .pal__enter{opacity:1}
+.pal__foot{
+  display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap;
+  padding:var(--s2) var(--s4);border-top:1px solid var(--line);
+  background:var(--bg-sunken);font-size:var(--fs-xs);color:var(--tx-2);
+}
+.pal__foot span{display:inline-flex;align-items:center;gap:5px}
+.pal__none{padding:var(--s8) var(--s4);text-align:center;color:var(--tx-2);font-size:var(--fs-md)}
+.pal__none b{display:block;color:var(--tx-1);margin-bottom:var(--s1);font-family:var(--font-mono)}
+
+/* ============================================================
+   SCHEMA + INLINE DIFF  (응답 본문 트리에 병기)
+   ============================================================ */
+.diff-switch{
+  display:inline-flex;align-items:center;gap:var(--s2);min-height:44px;
+  padding:0 var(--s2);border-radius:var(--r-md);color:var(--tx-2);
+  font-size:var(--fs-sm);font-weight:600;cursor:pointer;
+}
+.diff-switch:hover{background:var(--bg-hover)}
+/* park-golf .switch — h-6 w-11, thumb h-5 w-5, checked 는 gradient-primary */
+.sw-track{
+  position:relative;flex:none;width:44px;height:24px;border-radius:var(--r-full);
+  background:var(--bg-sunken);border:1px solid var(--line-strong);
+  transition:background var(--t-mid),border-color var(--t-mid);
+}
+.sw-thumb{
+  position:absolute;top:1px;left:1px;width:20px;height:20px;border-radius:var(--r-full);
+  background:var(--sw-thumb);box-shadow:0 2px 6px rgba(0,0,0,.28);
+  transition:transform var(--t-mid);
+}
+.diff-switch[aria-checked="true"] .sw-track{
+  background:linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-lite) 100%);
+  border-color:transparent;
+}
+.diff-switch[aria-checked="true"] .sw-thumb{transform:translateX(20px)}
+.diff-switch[aria-checked="true"]{color:var(--tx-1)}
+
+.j-gut{
+  flex:0 0 auto;width:18px;text-align:center;
+  font-family:var(--font-mono);font-weight:700;font-size:var(--fs-sm);
+  color:var(--tx-3);user-select:none;
+}
+.j-gut[data-k="add"]{color:var(--ok)}
+.j-gut[data-k="del"]{color:var(--danger)}
+.j-gut[data-k="chg"]{color:var(--warn)}
+#json-viewer-5d1[data-diff="off"] .j-gut{display:none}
+
+.j-row--add{background:var(--ok-soft)}
+.j-row--del{background:var(--danger-soft)}
+.j-row--chg{background:var(--warn-soft)}
+.j-row--add:hover,.j-row--del:hover,.j-row--chg:hover{filter:brightness(.97)}
+
+.j-type{
+  min-width:58px;justify-content:flex-end;
+  font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--tx-3);
+}
+.j-req{
+  margin-left:5px;min-width:32px;font-size:10px;font-weight:700;
+  border:1px solid var(--line-strong);border-radius:var(--r-xs);padding:0 4px;
+  color:var(--tx-3);
+}
+.j-req[data-r="y"]{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)}
+.j-req--none{border-color:transparent;background:none}
+.j-note{
+  margin-left:6px;min-width:22px;font-size:11px;font-weight:700;
+  padding:0 6px;border-radius:var(--r-full);
+  background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn-line);
+}
+.j-note--add{background:var(--ok-soft);color:var(--ok);border-color:var(--ok-line)}
+.j-note--del{background:var(--danger-soft);color:var(--danger);border-color:var(--danger-line)}
+.j-note--none{background:none;border-color:transparent}
+.j-ghost .j-key,.j-ghost .j-punc{text-decoration:line-through;opacity:.8}
+</style>
+</head>
+<body>
+
+<div id="app-shell-0d7">
+
+  <!-- ============ TOP BAR ============ -->
+  <header id="topbar-3f2">
+    <button class="icon-btn hit" id="sidebar-toggle-6e4" type="button" aria-label="엔드포인트 목록 열기" aria-expanded="false" aria-controls="sidebar-c60">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+      <div class="brand-text">
+        <b>shopflow API 계약</b>
+        <span class="mono">.api/ui.html · 읽기 전용 뷰어</span>
+      </div>
+    </div>
+
+    <div class="topbar-div" aria-hidden="true"></div>
+
+    <!-- 환경 셀렉터 -->
+    <div id="env-picker-7c4">
+      <button class="env-btn hit" id="env-btn-1f5" aria-haspopup="true" aria-expanded="false" aria-label="환경 선택, 현재 dev">
+        <span class="env-dot" data-env="dev" id="env-dot-2a6" aria-hidden="true"></span>
+        <span class="env-name" id="env-name-4b7">dev</span>
+        <span class="env-url mono" id="env-url-5e9">dev.api.shopflow.io</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="env-menu" id="env-menu-6d3" role="menu" data-open="false" aria-label="환경 목록"></div>
+    </div>
+
+    <div class="topbar-div" id="topbar-div-tm-3a2" aria-hidden="true"></div>
+
+    <!-- 토큰 만료 -->
+    <div id="token-meter-b18" title="svc-dev · OAuth2 client_credentials">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="color:var(--tx-3)" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <div class="tm-body">
+        <div class="tm-top">
+          <span class="tm-label" id="tm-label-5c1">토큰 만료</span>
+          <span class="tm-time" id="tm-time-6b2">42:00</span>
+        </div>
+        <div class="tm-track" id="tm-track-2f8" role="progressbar" aria-labelledby="tm-label-5c1"
+             aria-valuemin="0" aria-valuemax="3600" aria-valuenow="2520" aria-valuetext="42분 00초 남음">
+          <div class="tm-fill" id="tm-fill-4c9" style="width:70%"></div>
+        </div>
+      </div>
+      <span class="sr" id="token-status-7d1" role="status" aria-live="polite"></span>
+    </div>
+
+    <div class="topbar-spacer"></div>
+
+    <!-- 검증 요약 -->
+    <div id="verify-summary-5e0" role="group" aria-label="검증 결과 요약 · 클릭하면 목록을 필터링합니다">
+      <button class="chip hit" data-kind="pass" aria-pressed="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-5"/></svg>
+        <b></b><span>PASS</span>
+      </button>
+      <button class="chip hit" data-kind="fail" aria-pressed="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+        <b></b><span>FAIL</span>
+      </button>
+      <button class="chip hit" data-kind="pending" aria-pressed="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>
+        <b></b><span>미실행</span>
+      </button>
+      <button class="chip hit" data-kind="unjudged" aria-pressed="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9.6a2.4 2.4 0 1 1 3.2 2.3c-.6.2-.9.7-.9 1.3v.4M12 16.5v.1"/></svg>
+        <b></b><span>판정 불가</span>
+      </button>
+    </div>
+
+    <div class="topbar-div" aria-hidden="true"></div>
+
+    <button class="icon-btn hit" id="theme-toggle-2d9" aria-label="다크 모드로 전환" title="테마 전환">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" id="theme-icon-7f3" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2M12 19.4v2M4.4 4.4l1.4 1.4M18.2 18.2l1.4 1.4M2.6 12h2M19.4 12h2M4.4 19.6l1.4-1.4M18.2 5.8l1.4-1.4"/></svg>
+    </button>
+  </header>
+
+  <!-- ============ MAIN ============ -->
+  <div id="main-8e4">
+
+    <!-- 드로어 배경 (880px 이하에서만 표시) -->
+    <div id="sidebar-scrim-4f7" aria-hidden="true"></div>
+
+    <!-- ---------- SIDEBAR ---------- -->
+    <aside id="sidebar-c60" aria-label="엔드포인트 컬렉션">
+      <div class="side-head">
+        <!-- v1 의 인라인 검색창을 팔레트 런처로 교체했다. 검색 대상이 엔드포인트를 넘어
+             액션·최근 실행·pin·단축키까지 넓어져 사이드바 폭에 가둘 이유가 없다. -->
+        <button class="pal-launcher" id="palette-launcher-5a8" type="button" data-open-palette=""
+                aria-haspopup="dialog" aria-label="검색 팔레트 열기 (Command 또는 Ctrl + K)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+          <span class="pal-launcher__t">엔드포인트 검색</span>
+          <span class="kbd" aria-hidden="true">⌘K</span>
+        </button>
+      </div>
+
+      <div class="side-meta">
+        <span id="tree-count-label-3a7">엔드포인트 14</span>
+        <button class="link-btn hit" id="collapse-all-btn-8c4" type="button">모두 접기</button>
+      </div>
+
+      <nav id="endpoint-tree-a91" aria-label="API 컬렉션 트리"></nav>
+    </aside>
+
+    <!-- ---------- WORKSPACE ---------- -->
+    <section id="workspace-4bd" aria-label="엔드포인트 작업 영역">
+
+      <div id="ws-head-1c9">
+        <div class="ws-title">
+          <span class="meth" data-m="GET" id="ws-method-8e2">GET</span>
+          <div style="min-width:0">
+            <div class="ws-path mono" id="ws-path-1c6">/v1/orders</div>
+            <div class="ws-sub" id="ws-sub-9d3"></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--s2)" id="ws-actions-5f8"></div>
+      </div>
+
+      <div id="panes-b02">
+
+        <!-- ===== REQUEST PANE ===== -->
+        <div class="pane" id="request-panel-6f3">
+          <div class="pane-head">
+            <span class="pane-label">요청</span>
+            <div class="tabs" role="tablist" id="request-tabs-9e7" aria-label="요청 상세 탭">
+              <button class="tab" role="tab" aria-selected="true"  aria-controls="param-table-d22"      tabindex="0"  data-tab="params"  id="rt-params-a31">파라미터</button>
+              <button class="tab" role="tab" aria-selected="false" aria-controls="header-table-e51"     tabindex="-1" data-tab="headers" id="rt-headers-b42">헤더</button>
+              <button class="tab" role="tab" aria-selected="false" aria-controls="auth-panel-wrap-b91"  tabindex="-1" data-tab="auth"    id="rt-auth-c53">인증</button>
+            </div>
+          </div>
+
+          <div class="pane-body">
+            <div class="tabpanel" data-panel="params" data-active="true" role="tabpanel" aria-labelledby="rt-params-a31" id="param-table-d22"></div>
+            <div class="tabpanel" data-panel="headers" role="tabpanel" aria-labelledby="rt-headers-b42" id="header-table-e51"></div>
+            <div class="tabpanel" data-panel="auth" role="tabpanel" aria-labelledby="rt-auth-c53" id="auth-panel-wrap-b91"></div>
+          </div>
+
+          <!-- 커맨드 바 -->
+          <div id="command-bar-0c5">
+            <div class="cmd-label">
+              <span>Claude 에 붙여넣을 커맨드</span>
+              <span class="sec-note">브라우저는 요청을 보내지 않습니다</span>
+              <!-- 전문 낭독 대신 변경 사실만 알린다 -->
+              <span class="sr" id="cmd-status-3e8" role="status" aria-live="polite"></span>
+            </div>
+            <div class="cmd-row">
+              <div class="cmd-code-wrap" id="cmd-code-wrap-9a2" data-clipped="false">
+                <div class="cmd-code mono" id="cmd-code-7b3"></div>
+              </div>
+              <div class="cmd-actions">
+                <button class="btn btn-primary" id="copy-cmd-btn-4e1" type="button" aria-describedby="cmd-code-7b3">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.2"/><path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5v-9A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5V5"/></svg>
+                  <span>커맨드 복사</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== RESIZER ===== -->
+        <div id="pane-resizer-b73" role="separator" aria-orientation="vertical" tabindex="0"
+             aria-label="요청/응답 패널 너비 조절 (좌우 방향키, 더블클릭으로 초기화)"
+             aria-valuemin="28" aria-valuemax="72" aria-valuenow="46"></div>
+
+        <!-- ===== RESPONSE PANE ===== -->
+        <div class="pane" id="response-panel-2ef">
+          <div class="pane-head">
+            <span class="pane-label">응답</span>
+            <div class="tabs" role="tablist" id="response-tabs-af4" aria-label="응답 상세 탭"></div>
+          </div>
+          <div class="pane-body" id="response-body-wrap-8d1"></div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ STATUS BAR ============ -->
+  <footer id="statusbar-9f1">
+    <span class="sb-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.9 2.6 15.1 0 18M12 3c-2.6 2.9-2.6 15.1 0 18"/></svg>
+      base <b id="sb-base-1d4">https://dev.api.shopflow.io</b>
+    </span>
+    <span class="sb-item" id="sb-ro-2e5" hidden>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <span class="ro-flag">read-only 프로파일</span>
+    </span>
+    <span class="sb-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      마지막 실행 <b>12분 전</b> <span class="mono">(2026-09-02 14:22)</span>
+    </span>
+    <span class="spacer"></span>
+    <span class="sb-item sb-hint"><span class="kbd">/</span> 검색</span>
+    <span class="sb-item sb-hint"><span class="kbd">↑</span><span class="kbd">↓</span> 이동</span>
+    <span class="sb-item sb-hint"><span class="kbd">Esc</span> 닫기</span>
+  </footer>
+</div>
+
+<!-- ---------- COMMAND PALETTE ---------- -->
+<div class="pal" id="command-palette-k07" hidden>
+  <div class="pal__scrim" data-close-palette></div>
+  <div class="pal__box" role="dialog" aria-modal="true" aria-label="검색 팔레트">
+    <div class="pal__search">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input id="palette-input-k08" type="text" placeholder="엔드포인트, 그룹, 액션 검색…" autocomplete="off" spellcheck="false"
+             role="combobox" aria-expanded="true" aria-controls="palette-list-k09" aria-autocomplete="list" aria-label="검색어">
+      <span class="pal__scope" id="palette-scope-k0a" hidden>
+        <span id="palette-scope-name-k0c"></span>
+        <button type="button" class="pal__scope-x" id="palette-scope-clear-k0d" aria-label="스코프 해제 — 전체 검색으로">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </span>
+    </div>
+    <ul class="pal__list" id="palette-list-k09" role="listbox" aria-label="검색 결과"></ul>
+    <div class="pal__foot">
+      <span><span class="kbd">↑</span><span class="kbd">↓</span> 이동</span>
+      <span><span class="kbd">↵</span> 선택</span>
+      <span><span class="kbd">esc</span> 닫기</span>
+      <span style="margin-left:auto" id="palette-count-k0b"></span>
+    </div>
+  </div>
+</div>
+
+<div id="toast-44a" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   ICONS
+   ============================================================ */
+const I = {
+  chevR:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  chevD:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+  chevSm:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+  pass:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.4 12.4l2.4 2.4 4.8-5.2"/></svg>',
+  fail:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  pending:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/><path d="M8.5 12h7"/></svg>',
+  unjudged:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.7-.9 1.3v.5M12 16.6v.1"/></svg>',
+  plus:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  xmark:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  pin:'<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.5 2.5a1 1 0 0 1 1.7.7v3.1l3.1 3.1a1 1 0 0 1-.7 1.7h-4.2l-1.6 5.3a1 1 0 0 1-1.7.4l-3-3-4 4-1.1-1.1 4-4-3-3a1 1 0 0 1 .4-1.7l5.3-1.6V2.5z"/></svg>',
+  lock:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  warn:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5l9 15.5H3z"/><path d="M12 10v4M12 17.2v.1"/></svg>',
+  info:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.8v.1"/></svg>',
+  check:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>',
+  copy:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.2"/><path d="M5 15H4.5A1.5 1.5 0 0 1 3 13.5v-9A1.5 1.5 0 0 1 4.5 3h9A1.5 1.5 0 0 1 15 4.5V5"/></svg>',
+  ghost:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V8a8 8 0 0 1 16 0v12l-2.7-2-2.6 2-2.7-2-2.7 2-2.6-2z"/><path d="M9 10v.1M15 10v.1"/></svg>',
+  search:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+  key:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8 2 2-2 2 2 2-2.5 2.5L16 10l-2 2"/></svg>',
+  bolt:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2.5L4.5 13.5H11l-1 8 8.5-11H12z"/></svg>',
+  masked:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.4"/><path d="M4 20L20 4"/></svg>',
+  norm:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h6l2-5 4 10 2-5h2"/></svg>'
+};
+
+/* ============================================================
+   DATA — 픽스처
+   ============================================================ */
+const S = (token, hint) => ({ __s: token, hint });
+
+/* ------------------------------------------------------------
+   스키마 — 타입은 실제 응답 값에서 유도하고, 값만 봐서는 알 수 없는 것
+   (필수 여부 · enum 후보 · 직전 스냅샷에만 있던 필드) 만 여기에 적는다.
+   removed:true 행은 응답에 없지만 계약에는 남아 있는 필드다.
+   ------------------------------------------------------------ */
+const SCHEMA = {
+  'auth.token':{
+    '$.access_token':{ req:true,  d:'이후 모든 프로브가 Authorization 헤더에 실어 보낸다' },
+    '$.token_type':  { req:true,  d:'항상 Bearer. 계약에 pin 되어 있다' },
+    '$.expires_in':  { req:true,  d:'만료까지 남은 초' }
+  },
+  'orders.list':{
+    '$.data[].orderId': { req:true, d:'주문 식별자' },
+    '$.data[].status':  { req:true, t:'enum', d:'active · shipped · cancelled 중 하나' },
+    '$.data[].total':   { req:true, d:'주문 합계 (원)' },
+    '$.meta.total':     { req:true, d:'필터 조건에 맞는 전체 건수' },
+    '$.meta.hasMore':   { req:true, d:'다음 페이지 존재 여부' }
+  },
+  'products.list':{
+    '$.data[].sku':   { req:true,  d:'상품 SKU' },
+    '$.data[].name':  { req:true,  d:'상품 표시명' },
+    '$.data[].price': { req:true,  d:'판매가 (원)' },
+    '$.meta.total':   { req:false, t:'integer', removed:true, d:'전체 건수. 옵션이라 빠져도 계약 실패가 아니다' },
+    '$.meta.hasMore': { req:true,  d:'다음 페이지 존재 여부' }
+  },
+  'products.inventory':{
+    '$.data.availableQty': { req:true,  t:'integer', removed:true, d:'판매 가능 수량' },
+    '$.data.onHand':       { req:false, t:'integer', removed:true, d:'창고 실재고' }
+  },
+  'users.me':{
+    '$.userId': { req:true, d:'사용자 식별자' },
+    '$.name':   { req:true, d:'표시 이름' },
+    '$.tier':   { req:true, t:'enum', d:'회원 등급' }
+  }
+};
+
+const RECENT_IDS = ['orders.list','products.list','products.inventory','users.me'];
+
+const HELP_KEYS = [
+  ['⌘K / Ctrl+K','검색 팔레트 열기'],
+  ['/','검색 팔레트 열기'],
+  ['↑ ↓','결과 이동'],
+  ['↵','선택'],
+  ['esc','팔레트 닫기 · 필터 초기화'],
+  ['⌫','스코프 해제 (입력이 비어 있을 때)']
+];
+
+const ENVS = [
+  { id:'dev',  base:'https://dev.api.shopflow.io',  label:'개발 · 프로브 실행 가능', ro:false },
+  { id:'stg',  base:'https://stg.api.shopflow.io',  label:'스테이징 · 야간 배포 반영', ro:false },
+  { id:'prod', base:'https://api.shopflow.io',      label:'프로덕션 · 쓰기 메서드 차단', ro:true }
+];
+
+const RESP_HEADERS_BASE = [
+  ['content-type','application/json; charset=utf-8'],
+  ['x-request-id', '__SENTINEL_REQID__'],
+  ['x-ratelimit-remaining','4987'],
+  ['cache-control','no-store'],
+  ['date','__SENTINEL_DATE__'],
+  ['server','shopflow-edge/2.14']
+];
+
+const TIMING_DEFAULT = ms => ([
+  ['DNS 조회',        Math.round(ms*0.04), 'var(--info)'],
+  ['TCP 연결',        Math.round(ms*0.06), 'var(--accent)'],
+  ['TLS 핸드셰이크',  Math.round(ms*0.11), 'var(--seg-tls)'],
+  ['서버 처리(TTFB)', Math.round(ms*0.68), 'var(--warn)'],
+  ['본문 다운로드',   ms - Math.round(ms*0.04) - Math.round(ms*0.06) - Math.round(ms*0.11) - Math.round(ms*0.68), 'var(--ok)']
+]);
+
+const GROUPS = [
+  { id:'auth', name:'auth', eps:['auth.token'] },
+  { id:'orders', name:'orders', eps:['orders.list'] },
+  { id:'products', name:'products', eps:['products.list','products.inventory','products.create'] },
+  { id:'users', name:'users', eps:['users.me'] }
+];
+
+const EP = {
+  'auth.token':{
+    method:'POST', path:'/v1/auth/token', state:'pass', contract:'full',
+    pins:[{p:'$.token_type',c:'= "Bearer"'},{p:'$.expires_in',c:'≥ 60'}],
+    resp:{ code:200, text:'OK', ms:128, size:'0.1KB' },
+    params:[], pathParams:[],
+    reqBody:{ grant_type:'client_credentials', client_id:'svc-dev', client_secret:'<SECRET>' },
+    body:{ access_token:S('<TOKEN>','JWT · 정규화됨'), token_type:'Bearer', expires_in:3600 },
+    diff:[]
+  },
+  'orders.list':{
+    method:'GET', path:'/v1/orders', state:'pass', contract:'partial',
+    pins:[{p:'$.meta.total',c:'≥ $.data 길이'}],
+    resp:{ code:200, text:'OK', ms:340, size:'0.2KB' },
+    pathParams:[],
+    params:[{ name:'status', type:'enum', enum:['active','shipped','cancelled'], value:'active', desc:'주문 상태 필터' }],
+    body:{ data:[ { orderId:'ord_8f21c', status:'active', total:244700 },
+                  { orderId:'ord_8f19a', status:'active', total:60300 } ],
+           meta:{ total:47, hasMore:true } },
+    diff:[]
+  },
+  'products.list':{
+    method:'GET', path:'/v1/products', state:'unjudged', contract:'partial',
+    pins:[{p:'$.meta.total',c:'≥ $.data 길이'}],
+    resp:{ code:200, text:'OK', ms:289, size:'0.2KB' },
+    pathParams:[],
+    params:[{ name:'limit', type:'integer', value:'20', desc:'페이지 크기 (1–100)' }],
+    body:{ data:[ { sku:'SF-1042', name:'무선 이어버드 Pro', price:189000 },
+                  { sku:'SF-2210', name:'USB-C 충전 독', price:42000 },
+                  { sku:'SF-3301', name:'노트북 스탠드 알루미늄', price:67000 } ],
+           meta:{ hasMore:false } },
+    unjudged:['$.meta.total=(없음) · len($.data)=3 → 판정 불가'],
+    diff:[{ k:'rm', path:'$.meta.total', note:'이전 스냅샷에 있던 <code>integer</code> 필드가 사라졌습니다. 옵션 필드라 계약 실패는 아닙니다.' }]
+  },
+  'products.inventory':{
+    method:'GET', path:'/v1/products/{sku}/inventory', state:'fail', contract:'partial',
+    pins:[{p:'$.data.availableQty',c:'≥ 0'},{p:'$.data.onHand',c:'≥ $.data.availableQty'}],
+    resp:{ code:503, text:'Service Unavailable', ms:1204, size:'0.1KB', expected:'200 OK' },
+    pathParams:[{ name:'sku', type:'string', value:'SF-1042', desc:'상품 SKU' }],
+    params:[],
+    body:{ error:{ code:'UPSTREAM_UNAVAILABLE', message:'재고 서비스에 연결할 수 없습니다' } },
+    violations:[
+      { title:'상태 코드 불일치', exp:'200 OK', act:'503 Service Unavailable',
+        note:'계약에 고정된 상태 코드와 다릅니다. 게이트웨이가 업스트림 오류를 그대로 전달했습니다.' },
+      { title:'필수 필드 누락', path:'$.data.availableQty',
+        note:'계약이 필수로 둔 필드가 응답 본문에 없습니다.' }
+    ],
+    unjudged:['$.data.onHand=(없음) · $.data.availableQty=(없음) → 판정 불가'],
+    diff:[]
+  },
+  'products.create':{
+    method:'POST', path:'/v1/products', state:'pending', contract:'none',
+    pins:[], resp:null, pathParams:[], params:[],
+    reqBody:{ sku:'SF-4410', name:'메커니컬 키보드 TKL', price:139000 },
+    body:null, diff:[]
+  },
+  'users.me':{
+    method:'GET', path:'/v1/users/me', state:'fail', contract:'full',
+    pins:[{p:'$.tier',c:'∈ gold·silver·bronze'}],
+    resp:{ code:200, text:'OK', ms:88, size:'0.1KB' },
+    pathParams:[], params:[],
+    body:{ userId:'usr_3a91', name:'김민준', tier:'platinum' },
+    violations:[
+      { title:'추가 검사 실패 — 허용 값 밖', exp:'gold · silver · bronze', act:'"platinum"',
+        note:'<code>$.tier</code> 는 타입이 string 그대로라 기본 검사는 통과했지만 값이 허용 목록 밖입니다.' }
+    ],
+    diff:[]
+  }
+};
+
+const ENDPOINT_IDS = Object.keys(EP);
+const EP_LIST = ENDPOINT_IDS.map(id => {
+  const g = GROUPS.find(x => x.eps.includes(id));
+  return { id, grp: g ? g.name : '', d: EP[id] };
+});
+
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  env:'dev',
+  selected:'orders.list',
+  query:'',
+  statusFilter:null,
+  reqTab:'params',
+  respTab:'body',
+  openGroups:{ auth:true, orders:true, products:true, users:true },
+  formValues:{},   // epId -> {paramName: value, __body: string}
+  /* 사용자가 직접 더한 것들 — 픽스처에 없는 쿼리·헤더·본문. epId 별로 따로 산다 */
+  extra:{},        // epId -> { params:[{n,v}], headers:[{n,v}], body:null|string }
+  split:40,        // 좌우 분할 (881px 이상) — 응답이 스키마 열까지 품으므로 더 넓게 준다
+  splitV:45,       // 상하 분할 (880px 이하)
+  drawer:false,
+  diffOn:true,     // 응답 트리의 변경 표시 on/off
+  palOpen:false,
+  palScope:'',     // '' | 'fail' | 'recent' | 'pin' | 'help'
+  palIndex:0,
+  palRows:[]
+};
+
+const $  = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ST_LABEL = { pass:'PASS', fail:'FAIL', pending:'미실행', unjudged:'판정 불가' };
+const ST_TONE  = { pass:'ok', fail:'danger', pending:'muted', unjudged:'unj' };
+const stIcon = s => I[s];
+const stText = s => ST_LABEL[s];
+
+/* pin 은 '값 고정' 이 아니라 '이 경로에 추가 검사를 건다' 는 뜻이다.
+   기본 검사(존재·타입·enum)로는 타입이 멀쩡한 채 값만 망가진 회귀를 못 잡는다.
+   조사한 도구들(Hurl assert · Karate schema marker · JSON Schema const)의 어휘와 같은 층위다. */
+const pinPaths = d => (d.pins || []).map(x => x.p);
+const pinOf = (d, path) => (d.pins || []).find(x => x.p === path);
+
+function extraOf(epId){
+  state.extra[epId] = state.extra[epId] || { params:[], headers:[], body:null };
+  return state.extra[epId];
+}
+
+function valueOf(epId, name, fallback){
+  const v = state.formValues[epId];
+  return (v && name in v) ? v[name] : fallback;
+}
+function setValue(epId, name, val){
+  state.formValues[epId] = state.formValues[epId] || {};
+  state.formValues[epId][name] = val;
+}
+
+/* ============================================================
+   ENV MENU
+   ============================================================ */
+function renderEnvMenu(){
+  const menu = $('#env-menu-6d3');
+  menu.innerHTML = ENVS.map(e => `
+    <button class="env-item" role="menuitemradio" aria-checked="${e.id===state.env}" data-env="${e.id}">
+      <span class="env-dot" data-env="${e.id}" aria-hidden="true"></span>
+      <span class="ei-main">
+        <span class="ei-name">${e.id}${e.ro?` <span class="badge" data-t="danger">${I.lock} read-only</span>`:''}</span>
+        <span class="ei-url">${esc(e.base)}</span>
+      </span>
+      ${e.id===state.env ? `<span style="color:var(--accent)">${I.check}</span>` : ''}
+    </button>`).join('') +
+    `<div style="padding:var(--s2) var(--s3);border-top:1px solid var(--line);margin-top:var(--s1);font-size:var(--fs-xs);color:var(--tx-3)">
+       환경을 바꾸면 복사되는 커맨드의 <span class="mono">--env</span> 값이 함께 바뀝니다.
+     </div>`;
+  menu.querySelectorAll('.env-item').forEach(b => {
+    b.addEventListener('click', () => { setEnv(b.dataset.env); closeEnvMenu(); $('#env-btn-1f5').focus(); });
+  });
+  if (menu.dataset.open !== 'true') menu.setAttribute('inert','');
+}
+function setEnv(id){
+  state.env = id;
+  const e = ENVS.find(x=>x.id===id);
+  $('#env-name-4b7').textContent = id;
+  $('#env-url-5e9').textContent = e.base.replace('https://','');
+  $('#env-dot-2a6').dataset.env = id;
+  $('#env-btn-1f5').setAttribute('aria-label', `환경 선택, 현재 ${id}`);
+  $('#sb-base-1d4').textContent = e.base;
+  $('#sb-ro-2e5').hidden = !e.ro;
+  renderEnvMenu();
+  renderWorkspace();
+}
+function openEnvMenu(){
+  const menu = $('#env-menu-6d3');
+  menu.dataset.open = 'true';
+  menu.removeAttribute('inert');
+  $('#env-btn-1f5').setAttribute('aria-expanded','true');
+  (menu.querySelector('.env-item[aria-checked="true"]') || menu.querySelector('.env-item'))?.focus();
+}
+function closeEnvMenu(){
+  const menu = $('#env-menu-6d3');
+  if (menu.dataset.open !== 'true' && menu.hasAttribute('inert')) return;
+  menu.dataset.open = 'false';
+  menu.setAttribute('inert','');
+  $('#env-btn-1f5').setAttribute('aria-expanded','false');
+}
+/* role=menu 안에서의 방향키 이동 (WAI-ARIA Menu 패턴) */
+$('#env-menu-6d3').addEventListener('keydown', e => {
+  const items = $$('.env-item', e.currentTarget);
+  if (!items.length) return;
+  const i = items.indexOf(document.activeElement);
+  let n = -1;
+  if (e.key === 'ArrowDown') n = i < 0 ? 0 : (i + 1) % items.length;
+  else if (e.key === 'ArrowUp') n = i < 0 ? items.length - 1 : (i - 1 + items.length) % items.length;
+  else if (e.key === 'Home') n = 0;
+  else if (e.key === 'End') n = items.length - 1;
+  if (n < 0) return;
+  e.preventDefault();
+  items[n].focus();
+});
+
+/* ============================================================
+   TREE
+   ============================================================ */
+/* 텍스트 검색은 팔레트가 맡는다 — 트리는 상태 필터만 본다 */
+function matches(id){
+  const d = EP[id];
+  if (state.statusFilter && d.state !== state.statusFilter) return false;
+  return true;
+}
+
+function renderTree(){
+  const nav = $('#endpoint-tree-a91');
+  let shown = 0;
+  const forceOpen = false;   /* 검색이 팔레트로 빠지면서 강제 오픈 트리거가 사라졌다 */
+  const html = GROUPS.map(g => {
+    const eps = g.eps.filter(matches);
+    shown += eps.length;
+    if (!eps.length) return '';
+    /* 강제 오픈은 검색어에만 한정한다 — 상태 필터는 항목을 거를 뿐 개폐를 강제하지 않는다 */
+    const open = forceOpen ? true : state.openGroups[g.id];
+    return `
+    <div class="grp" data-grp="${g.id}" data-open="${open}">
+      <button class="grp-btn" aria-expanded="${open}" data-grp-toggle="${g.id}"
+        ${forceOpen ? 'disabled title="검색 중에는 모든 그룹이 펼쳐집니다"' : ''}>
+        <span class="chev">${I.chevR}</span>
+        <span class="grp-name">${g.name}</span>
+        <span class="grp-count">${eps.length}</span>
+      </button>
+      <ul class="grp-list">
+        ${eps.map(id => {
+          const d = EP[id];
+          const sel = id === state.selected;
+          return `<li>
+            <button class="ep-btn" data-ep="${id}" aria-current="${sel}">
+              <span class="meth" data-m="${d.method}">${d.method}</span>
+              <span class="ep-path"><bdi>${esc(d.path)}</bdi></span>
+              <span class="st" data-s="${d.state}" title="${stText(d.state)}">${stIcon(d.state)}<span class="sr">${stText(d.state)}</span></span>
+            </button></li>`;
+        }).join('')}
+      </ul>
+    </div>`;
+  }).join('');
+
+  nav.innerHTML = html || `
+    <div class="tree-empty">
+      ${I.search}
+      <div><b style="color:var(--tx-2)">일치하는 엔드포인트가 없습니다</b></div>
+      <div style="margin-top:var(--s1);font-size:var(--fs-sm)">검색어나 상태 필터를 지워보세요.</div>
+      <button class="btn btn-ghost btn-sm hit" id="reset-filter-btn-7e2" style="margin-top:var(--s4)">필터 초기화</button>
+    </div>`;
+
+  $('#tree-count-label-3a7').textContent = state.statusFilter
+    ? `${shown} / ${EP_LIST.length} 표시` : `엔드포인트 ${EP_LIST.length}`;
+
+  nav.querySelectorAll('[data-grp-toggle]').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.grpToggle;
+      /* 검색어는 건드리지 않는다 — 입력창 value 와 상태가 어긋나면 화면이 두 개의 답을 준다 */
+      state.openGroups[id] = !(b.getAttribute('aria-expanded') === 'true');
+      renderTree();
+    });
+  });
+  nav.querySelectorAll('.ep-btn').forEach(b => {
+    b.addEventListener('click', () => select(b.dataset.ep));
+  });
+  const rf = $('#reset-filter-btn-7e2');
+  if (rf) rf.addEventListener('click', resetFilters);
+
+  /* '모두 접기' 라벨은 이벤트가 아니라 상태에서 파생시킨다 */
+  const anyOpen = GROUPS.some(g => state.openGroups[g.id]);
+  const cb = $('#collapse-all-btn-8c4');
+  cb.textContent = anyOpen ? '모두 접기' : '모두 펼치기';
+  cb.setAttribute('aria-expanded', String(anyOpen));
+  cb.disabled = forceOpen;
+  cb.title = forceOpen ? '검색 중에는 모든 그룹이 펼쳐집니다' : '';
+}
+
+function resetFilters(){
+  state.statusFilter=null;
+  $$('#verify-summary-5e0 .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+  renderTree();
+}
+
+function select(id){
+  state.selected = id;
+  state.reqTab = 'params';
+  state.respTab = EP[id].state === 'fail' ? 'fail' : 'body';
+  renderTree();
+  renderWorkspace();
+  $('#response-body-wrap-8d1').scrollTop = 0;
+  /* renderTree 가 트리를 통째로 교체하므로 포커스 노드를 복원한다 — ↑↓ 이동이 1회용이 되지 않게 */
+  $(`.ep-btn[data-ep="${id}"]`)?.focus({ preventScroll:true });
+}
+
+/* ============================================================
+   WORKSPACE HEADER
+   ============================================================ */
+function contractBadge(c){
+  if (c==='full')    return `<span class="badge" data-t="ok">계약 full</span>`;
+  if (c==='partial') return `<span class="badge" data-t="warn">계약 partial</span>`;
+  return `<span class="badge" data-t="muted">계약 없음</span>`;
+}
+
+function renderWorkspace(){
+  const id = state.selected, d = EP[id];
+  const env = ENVS.find(e=>e.id===state.env);
+  const writeBlocked = env.ro && d.method !== 'GET';
+
+  $('#ws-method-8e2').textContent = d.method;
+  $('#ws-method-8e2').dataset.m = d.method;
+  $('#ws-path-1c6').innerHTML = esc(d.path).replace(/\{(\w+)\}/g, '<span class="pp">{$1}</span>');
+  $('#ws-sub-9d3').innerHTML = `
+    <span class="mono">${esc(env.base)}</span>
+    <span aria-hidden="true">·</span>
+    <span class="mono">${esc(id)}</span>`;
+
+  $('#ws-actions-5f8').innerHTML = `
+    ${contractBadge(d.contract)}
+    ${d.pins.length ? `<span class="badge" data-t="muted" title="추가 검사가 걸린 필드 수">${I.pin} 검사 ${d.pins.length}</span>` : ''}
+    <span class="badge" data-t="${ST_TONE[d.state]}">
+      ${stIcon(d.state)} ${stText(d.state)}
+    </span>`;
+
+  renderRequest(d, id, writeBlocked);
+  renderResponse(d, writeBlocked);
+  renderCommand();
+}
+
+/* ============================================================
+   REQUEST PANE
+   ============================================================ */
+function renderRequest(d, id, writeBlocked){
+  /* --- 파라미터 탭 --- */
+  const p = $('#param-table-d22');
+  let h = '';
+
+  if (writeBlocked){
+    h += `<div class="callout" data-t="danger" style="margin-bottom:var(--s5)">${I.lock}
+      <div><b>prod 는 read-only 프로파일입니다</b>
+      ${d.method} 메서드는 이 환경에서 프로브를 실행할 수 없습니다. 커맨드 복사가 비활성화되었습니다.</div></div>`;
+  }
+
+  if (d.pathParams.length){
+    h += `<div class="sec">
+      <div class="sec-head"><h3 class="sec-title">경로 파라미터</h3>
+      <span class="sec-note">${d.pathParams.length}개 · 필수</span></div>
+      <div class="tbl-head" data-for="field"><span>파라미터 · 타입</span><span>값 · 설명</span></div>
+      <div class="field-grid">${d.pathParams.map(pp => fieldHTML(id, pp, true)).join('')}</div>
+    </div>`;
+  }
+
+  /* 픽스처에 쿼리가 없어도 섹션은 낸다 — 추가 버튼이 갈 곳이 필요하다 */
+  const xt = extraOf(id);
+  h += `<div class="sec">
+    <div class="sec-head"><h3 class="sec-title">쿼리 파라미터</h3>
+    <span class="sec-note">${d.params.length + xt.params.length}개 · 값을 바꾸면 아래 커맨드가 갱신됩니다</span></div>
+    ${(d.params.length || xt.params.length)
+      ? `<div class="tbl-head" data-for="field"><span>파라미터 · 타입</span><span>값 · 설명</span></div>` : ''}
+    ${d.params.length ? `<div class="field-grid">${d.params.map(pp => fieldHTML(id, pp, false)).join('')}</div>` : ''}
+    ${xt.params.map((row, i) => xrowHTML('param', i, row, '파라미터 이름', '값')).join('')}
+    <button type="button" class="add-btn hit" data-add="param">${I.plus}파라미터 추가</button>
+  </div>`;
+
+  if (d.reqBody || xt.body !== null){
+    const bodyVal = d.reqBody ? bodyText(id, d) : xt.body;
+    h += `<div class="sec">
+      <div class="sec-head"><h3 class="sec-title">요청 본문</h3>
+      <span class="sec-note mono">application/json</span>
+      ${d.reqBody ? '' : '<button type="button" class="add-btn hit" data-add="body-remove">본문 제거</button>'}</div>
+      <textarea class="inp mono" id="req-body-input-2c7" spellcheck="false" aria-label="요청 본문 JSON">${esc(bodyVal)}</textarea>
+      <div class="field-hint" style="margin-top:6px">본문은 커맨드에 <span class="mono">--body</span> 인자로 압축되어 붙습니다.</div>
+    </div>`;
+  } else {
+    h += `<div class="sec">
+      <div class="sec-head"><h3 class="sec-title">요청 본문</h3>
+      <span class="sec-note">없음 — ${d.method} 는 보통 본문을 싣지 않습니다</span></div>
+      <button type="button" class="add-btn hit" data-add="body">${I.plus}JSON 본문 추가</button>
+    </div>`;
+  }
+  p.innerHTML = h;
+
+  /* 이벤트 바인딩 */
+  const syncEnumPills = (name, v) =>
+    p.querySelectorAll(`.enum-pill[data-enum-for="${name}"]`)
+      .forEach(x => x.setAttribute('aria-pressed', String(x.dataset.v === v)));
+
+  p.querySelectorAll('[data-pname]').forEach(el => {
+    /* select 와 pill 은 같은 갱신 경로를 탄다 — 한 값에 두 답을 표시하지 않게 */
+    const push = () => { setValue(id, el.dataset.pname, el.value); syncEnumPills(el.dataset.pname, el.value); renderCommand(); };
+    el.addEventListener('input', push);
+    el.addEventListener('change', push);
+  });
+  p.querySelectorAll('.enum-pill').forEach(b => {
+    b.addEventListener('click', () => {
+      const name = b.dataset.enumFor;
+      setValue(id, name, b.dataset.v);
+      const sel = p.querySelector(`select[data-pname="${name}"]`);
+      if (sel) sel.value = b.dataset.v;
+      syncEnumPills(name, b.dataset.v);
+      renderCommand();
+    });
+  });
+  /* 본문도 state 에 저장한다 — 환경 전환으로 재렌더돼도 편집 내용이 살아남게 */
+  const rb = $('#req-body-input-2c7');
+  if (rb) rb.addEventListener('input', () => {
+    if (d.reqBody) setValue(id, '__body', rb.value);
+    else extraOf(id).body = rb.value;
+    renderCommand();
+  });
+
+  bindExtras(p, d, id, writeBlocked);
+
+  /* --- 헤더 탭 --- */
+  $('#header-table-e51').innerHTML = `
+    <div class="sec">
+      <div class="sec-head"><h3 class="sec-title">요청 헤더</h3>
+        <span class="sec-note">2개 · 프로파일에서 주입</span></div>
+      <div class="kv-row">
+        <span class="kv-k">Authorization</span>
+        <span class="kv-v"><span class="masked">${I.masked} Bearer ••••••••</span></span>
+        <span class="badge" data-t="muted">마스킹</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-k">Accept</span>
+        <span class="kv-v">application/json</span>
+        <span></span>
+      </div>
+      ${(d.reqBody || extraOf(id).body !== null) ? `<div class="kv-row">
+        <span class="kv-k">Content-Type</span>
+        <span class="kv-v">application/json</span>
+        <span class="badge" data-t="muted">자동</span>
+      </div>` : ''}
+      ${extraOf(id).headers.map((row, i) => xrowHTML('header', i, row, '헤더 이름', '값')).join('')}
+      <button type="button" class="add-btn hit" data-add="header">${I.plus}헤더 추가</button>
+    </div>
+    <div class="callout" data-t="info">${I.info}
+      <div><b>시크릿은 스냅샷에 저장되지 않습니다</b>
+      토큰 값은 캡처 시점에 <span class="mono">••••••••</span> 로 치환되어 <span class="mono">.api/</span> 아래 파일에 기록됩니다.</div></div>`;
+  bindExtras($('#header-table-e51'), d, id, writeBlocked);
+
+  /* --- 인증 탭 --- */
+  $('#auth-panel-wrap-b91').innerHTML = `
+    <div id="auth-card-1a8">
+      <div class="auth-top">
+        <div class="auth-avatar">${I.key}</div>
+        <div style="flex:1 1 auto;min-width:0">
+          <div class="auth-name">svc-dev</div>
+          <div class="auth-kind">OAuth2 · client_credentials</div>
+        </div>
+        <span class="badge" data-t="ok">활성</span>
+      </div>
+      <div class="auth-rows">
+        <div class="kv-row"><span class="kv-k">token_endpoint</span>
+          <span class="kv-v">${esc(ENVS.find(e=>e.id===state.env).base)}/v1/auth/token</span><span></span></div>
+        <div class="kv-row"><span class="kv-k">client_id</span><span class="kv-v">svc-dev</span><span></span></div>
+        <div class="kv-row"><span class="kv-k">client_secret</span>
+          <span class="kv-v"><span class="masked">${I.masked} ••••••••••••</span></span>
+          <span class="badge" data-t="muted">env 참조</span></div>
+        <div class="kv-row"><span class="kv-k">scope</span>
+          <span class="kv-v">orders:read orders:write products:read users:read</span><span></span></div>
+        <div class="kv-row"><span class="kv-k">만료까지</span>
+          <span class="kv-v" id="auth-expiry-3c8">42분 00초</span>
+          <span class="badge" data-t="ok">자동 갱신</span></div>
+      </div>
+    </div>
+    <div class="callout" data-t="warn" style="margin-top:var(--s5)">${I.warn}
+      <div><b>이 화면은 요청을 보내지 않습니다</b>
+      브라우저에서 직접 호출하면 CORS 우회와 토큰 노출이 발생하므로, 실행은 항상 Claude 쪽 프로브가 담당합니다.</div></div>`;
+
+  /* 탭 상태 (roving tabindex 포함) */
+  $$('#request-tabs-9e7 .tab').forEach(t => {
+    const on = t.dataset.tab === state.reqTab;
+    t.setAttribute('aria-selected', String(on));
+    t.tabIndex = on ? 0 : -1;
+  });
+  $$('#request-panel-6f3 .tabpanel').forEach(tp => tp.dataset.active = String(tp.dataset.panel === state.reqTab));
+
+  /* 커맨드 복사 버튼 */
+  const btn = $('#copy-cmd-btn-4e1');
+  btn.disabled = writeBlocked;
+  btn.title = writeBlocked ? 'prod read-only 프로파일에서는 쓰기 메서드를 실행할 수 없습니다' : '';
+}
+
+/* 사용자가 더한 행 — 이름·값을 직접 친다. 픽스처 행과 달리 지울 수 있다. */
+function xrowHTML(kind, i, row, phName, phVal){
+  return `
+    <div class="xrow" data-kind="${kind}" data-i="${i}">
+      <input class="inp mono" data-x="n" value="${esc(row.n)}" placeholder="${phName}" spellcheck="false" aria-label="${phName}">
+      <input class="inp mono" data-x="v" value="${esc(row.v)}" placeholder="${phVal}" spellcheck="false" aria-label="${phVal}">
+      <button type="button" class="x-del hit" data-x="del" aria-label="이 행 삭제">${I.xmark}</button>
+    </div>`;
+}
+
+function fieldHTML(epId, pp, isPath){
+  const v = valueOf(epId, pp.name, pp.value);
+  const idAttr = `f-${epId.replace(/\./g,'-')}-${pp.name}`;
+  let control;
+  if (pp.type === 'enum'){
+    control = `
+      <div class="sel-wrap">
+        <select class="inp" id="${idAttr}" data-pname="${pp.name}">
+          ${pp.enum.map(o=>`<option value="${o}" ${o===v?'selected':''}>${o}</option>`).join('')}
+        </select>
+        ${I.chevSm}
+      </div>
+      <div class="enum-row">
+        ${pp.enum.map(o=>`<button type="button" class="enum-pill hit" data-enum-for="${pp.name}" data-v="${o}" aria-pressed="${o===v}">${o}</button>`).join('')}
+      </div>`;
+  } else {
+    control = `<input class="inp" id="${idAttr}" data-pname="${pp.name}" value="${esc(v)}"
+      placeholder="${pp.value==='' ? '비어있음 — 첫 페이지' : ''}"
+      inputmode="${pp.type==='integer'?'numeric':'text'}" spellcheck="false">`;
+  }
+  return `
+    <div class="field">
+      <label class="field-label" for="${idAttr}">
+        <span class="fl-name">${esc(pp.name)}${isPath?'<span class="req" title="필수">*</span>':''}</span>
+        <span class="fl-type">${pp.type}${pp.type==='enum'?` · ${pp.enum.length}`:''}</span>
+      </label>
+      <div class="control">
+        ${control}
+        <span class="field-hint">${esc(pp.desc)}</span>
+      </div>
+    </div>`;
+}
+
+/* 추가 행의 입력·삭제·생성. 구조가 바뀌는 조작(추가/삭제)만 재렌더하고,
+   타이핑은 state 만 갱신해 커서가 튀지 않게 한다. */
+function bindExtras(root, d, id, writeBlocked){
+  const xt = extraOf(id);
+  const redraw = () => renderRequest(d, id, writeBlocked);
+
+  root.querySelectorAll('[data-add]').forEach(b => {
+    b.addEventListener('click', () => {
+      const k = b.dataset.add;
+      if (k === 'param')       xt.params.push({ n:'', v:'' });
+      else if (k === 'header') xt.headers.push({ n:'', v:'' });
+      else if (k === 'body')   xt.body = '{\n  \n}';
+      else if (k === 'body-remove') xt.body = null;
+      redraw(); renderCommand();
+      const sel = k === 'body' ? '#req-body-input-2c7'
+                : k === 'body-remove' ? '[data-add="body"]'
+                : `.xrow[data-kind="${k}"]:last-of-type [data-x="n"]`;
+      const el = (k === 'header' ? $('#header-table-e51') : root).querySelector(sel) || $(sel);
+      if (el) el.focus();
+    });
+  });
+
+  root.querySelectorAll('.xrow').forEach(rowEl => {
+    const kind = rowEl.dataset.kind, i = Number(rowEl.dataset.i);
+    const list = kind === 'param' ? xt.params : xt.headers;
+    rowEl.querySelectorAll('[data-x="n"],[data-x="v"]').forEach(inp => {
+      inp.addEventListener('input', () => { list[i][inp.dataset.x] = inp.value; renderCommand(); });
+    });
+    rowEl.querySelector('[data-x="del"]').addEventListener('click', () => {
+      list.splice(i, 1); redraw(); renderCommand();
+    });
+  });
+}
+
+/* ============================================================
+   COMMAND BUILDER
+   ============================================================ */
+/* 본문의 단일 진실 공급원은 DOM 이 아니라 state 다 */
+function bodyText(id, d){
+  return valueOf(id, '__body', JSON.stringify(d.reqBody, null, 2));
+}
+
+/* read-only 차단은 여기 한 곳에서만 판단한다 — 복사 경로가 몇 개든 전부 이 문을 지난다 */
+function buildCommand(){
+  const id = state.selected, d = EP[id];
+  const env = ENVS.find(e => e.id === state.env);
+  if (env.ro && d.method !== 'GET') return null;
+
+  const parts = [`/api-probe ${id}`];
+  if (state.env !== 'dev') parts.push(`--env ${state.env}`);
+  d.pathParams.forEach(pp => {
+    const v = valueOf(id, pp.name, pp.value);
+    if (v !== '') parts.push(`--path ${pp.name}=${v}`);
+  });
+  d.params.forEach(pp => {
+    const v = valueOf(id, pp.name, pp.value);
+    if (v !== '') parts.push(`--query ${pp.name}=${v}`);
+  });
+  const xt = extraOf(id);
+  xt.params.filter(x => x.n.trim()).forEach(x => parts.push(`--query ${x.n.trim()}=${x.v}`));
+  xt.headers.filter(x => x.n.trim()).forEach(x => parts.push(`--header '${x.n.trim()}: ${x.v}'`));
+
+  const rawBody = d.reqBody ? bodyText(id, d) : xt.body;
+  if (rawBody !== null && rawBody !== undefined){
+    let compact;
+    try { compact = JSON.stringify(JSON.parse(rawBody)); }
+    catch(e){ compact = null; }
+    parts.push(compact ? `--body '${compact}'` : `--body <JSON 구문 오류>`);
+  }
+  if (d.state === 'pending') parts.push('--record');
+  return parts.join(' ');
+}
+
+const CMD_BLOCKED_MSG = 'prod 프로파일에서는 쓰기 메서드를 복사할 수 없습니다';
+
+/* 복사 경로는 이 함수 하나뿐 */
+function copyCommand(btn){
+  const cmd = buildCommand();
+  if (cmd === null){ toast(CMD_BLOCKED_MSG); return; }
+  copyText(cmd, btn);
+}
+
+let cmdStatusTimer;
+function renderCommand(){
+  const cmd = buildCommand();
+  const cc = $('#cmd-code-7b3');
+  if (cmd === null){
+    cc.innerHTML = `<span class="cmd-blocked">${esc(CMD_BLOCKED_MSG)}</span>`;
+    cc.dataset.raw = '';
+  } else {
+    cc.innerHTML = esc(cmd)
+      .replace(/^(\/api-probe)(\s+)(\S+)/, '<span class="c-cmd">$1</span>$2<span class="c-val">$3</span>')
+      .replace(/(--[a-z]+)(\s)/g, '<span class="c-flag">$1</span>$2');
+    cc.dataset.raw = cmd;
+  }
+  /* 잘림 여부를 시각 신호로 노출 */
+  $('#cmd-code-wrap-9a2').dataset.clipped = String(cc.scrollHeight > cc.clientHeight + 1);
+  /* 전문을 매 타자마다 낭독하지 않는다 — 변경 사실만 디바운스로 알린다 */
+  clearTimeout(cmdStatusTimer);
+  cmdStatusTimer = setTimeout(() => { $('#cmd-status-3e8').textContent = '커맨드 갱신됨'; }, 300);
+}
+
+/* ============================================================
+   RESPONSE PANE
+   ============================================================ */
+function renderResponse(d, writeBlocked){
+  const tabsEl = $('#response-tabs-af4');
+  const wrap = $('#response-body-wrap-8d1');
+
+  if (d.state === 'pending'){
+    state.respTab = 'empty';
+    tabsEl.innerHTML = respTabHTML({ k:'empty', label:'상태' }, true);
+    wrap.innerHTML = `<div class="tabpanel flush" id="rp-empty" role="tabpanel" aria-labelledby="rtab-empty"
+      data-rpanel="empty" data-active="true">${emptyStateHTML(d, writeBlocked)}</div>`;
+    bindRespTabs();
+    return;
+  }
+
+  const tabs = [];
+  if (d.state === 'fail') tabs.push({ k:'fail', label:'실패 원인', dot:true });
+  tabs.push({ k:'body',    label:'본문' });
+  tabs.push({ k:'headers', label:'헤더' });
+  tabs.push({ k:'timing',  label:'타이밍' });
+  /* 구조 diff 탭 제거 — 같은 정보를 본문 트리가 인라인으로 이미 보여준다.
+     탭을 남기면 사용자가 두 곳을 번갈아 보게 되고, 어느 쪽이 정본인지 흐려진다. */
+
+  if (!tabs.some(t => t.k === state.respTab)) state.respTab = tabs[0].k;
+
+  tabsEl.innerHTML = tabs.map(t => respTabHTML(t, t.k === state.respTab)).join('');
+
+  const ok = d.resp.code < 400;
+  const strip = `
+    <div class="resp-strip">
+      <span class="stat-pill" data-t="${ok?'ok':'danger'}">
+        ${ok?I.pass:I.fail} ${d.resp.code} ${d.resp.text}
+      </span>
+      ${!ok ? `<span class="badge" data-t="muted">기대 ${d.resp.expected}</span>` : ''}
+      <span class="metric sep-before"><span class="mv">${d.resp.ms}ms</span><span class="mk">응답 시간</span></span>
+      <span class="metric"><span class="mv">${d.resp.size}</span><span class="mk">본문 크기</span></span>
+      <span class="metric"><span class="mv" style="font-size:var(--fs-sm)">application/json</span><span class="mk">content-type</span></span>
+      <span class="metric sep-before"><span class="mv" style="font-size:var(--fs-sm)">12분 전</span><span class="mk">캡처 시각</span></span>
+    </div>
+    ${d.pins.length ? `<div class="pin-strip">
+      <span class="pl" title="기본 검사는 필드 존재와 타입만 봅니다. 타입이 맞는데 값만 망가진 회귀는 여기서 잡습니다">추가 검사</span>
+      ${d.pins.map(x=>`<span class="pin-chip">${I.pin}<span class="pc-p">${esc(x.p)}</span><span class="pc-c">${esc(x.c)}</span></span>`).join('')}
+    </div>` : ''}`;
+
+  const panel = k => `<div class="tabpanel flush" id="rp-${k}" role="tabpanel" aria-labelledby="rtab-${k}" data-rpanel="${k}"></div>`;
+  wrap.innerHTML = strip +
+    (d.state === 'fail' ? panel('fail') : '') +
+    panel('body') + panel('headers') + panel('timing');
+
+  /* 실패 원인 */
+  if (d.state === 'fail'){
+    wrap.querySelector('[data-rpanel="fail"]').innerHTML = failHTML(d);
+  }
+
+  /* 본문 */
+  const bodyPanel = wrap.querySelector('[data-rpanel="body"]');
+  bodyPanel.innerHTML = `
+    <div class="json-toolbar">
+      <button class="btn btn-ghost btn-sm hit" id="json-expand-3d6">모두 펼치기</button>
+      <button class="btn btn-ghost btn-sm hit" id="json-collapse-9f2">모두 접기</button>
+      <button class="diff-switch" id="diff-switch-7c2" type="button" role="switch"
+              aria-checked="${state.diffOn}" aria-label="변경 표시">
+        <span class="sw-track" aria-hidden="true"><span class="sw-thumb"></span></span>
+        <span>변경 표시</span>
+        ${d.diff.length ? `<span class="tab-badge">${d.diff.length}</span>` : ''}
+      </button>
+      <span class="spacer"></span>
+      <span class="legend"><span class="sw"></span>정규화됨</span>
+      <span class="legend"><span class="sw pin"></span>추가 검사</span>
+      <button class="btn btn-ghost btn-sm hit" id="json-copy-6a8">${I.copy} 본문 복사</button>
+    </div>
+    ${d.state === 'unjudged' ? unjudgedHTML(d) : ''}
+    ${pinBreakHTML(d)}
+    <div id="json-viewer-5d1" data-diff="${state.diffOn ? 'on' : 'off'}"></div>
+    ${schemaTableHTML(d, state.selected)}`;
+  const viewer = bodyPanel.querySelector('#json-viewer-5d1');
+  viewer.appendChild(renderJSON(d.body, state.selected, d.pins || [], d.diff, state.diffOn));
+
+  bodyPanel.querySelector('#diff-switch-7c2').addEventListener('click', () => {
+    state.diffOn = !state.diffOn;
+    renderResponse(d, writeBlocked);
+  });
+
+  bodyPanel.querySelector('#json-expand-3d6').addEventListener('click', () => setAllNodes(viewer, true));
+  bodyPanel.querySelector('#json-collapse-9f2').addEventListener('click', () => setAllNodes(viewer, false));
+  bodyPanel.querySelector('#json-copy-6a8').addEventListener('click', e =>
+    copyText(JSON.stringify(plain(d.body), null, 2), e.currentTarget));
+
+  /* 헤더 */
+  const size = d.resp.size.replace('KB','');
+  wrap.querySelector('[data-rpanel="headers"]').innerHTML = `
+    <div id="resp-headers-6c2" style="padding-top:var(--s5);padding-bottom:var(--s5)">
+      <div class="sec-head"><h3 class="sec-title">응답 헤더</h3><span class="sec-note">${RESP_HEADERS_BASE.length+1}개</span></div>
+      <div class="tbl-head" data-for="kv"><span>헤더</span><span>값</span><span>비고</span></div>
+      ${[['content-length', String(Math.round(parseFloat(size)*1024))]].concat(RESP_HEADERS_BASE).map(([k,v]) => `
+        <div class="kv-row">
+          <span class="kv-k">${esc(k)}</span>
+          <span class="kv-v">${
+            v==='__SENTINEL_REQID__' ? `<span class="j-sentinel">${I.norm}&lt;REQID&gt;</span>` :
+            v==='__SENTINEL_DATE__'  ? `<span class="j-sentinel">${I.norm}&lt;TS&gt;</span>` : esc(v)}</span>
+          <span>${(v.startsWith('__SENTINEL')) ? '<span class="badge" data-t="muted">정규화</span>' : ''}</span>
+        </div>`).join('')}
+      <div class="callout" data-t="info" style="margin-top:var(--s5)">${I.info}
+        <div><b>비결정 헤더는 비교 대상에서 제외됩니다</b>
+        <span class="mono">date</span>, <span class="mono">x-request-id</span> 는 매 호출마다 달라지므로 sentinel 로 치환한 뒤 회귀 비교합니다.</div></div>
+    </div>`;
+
+  /* 타이밍 */
+  const timing = d.timing || TIMING_DEFAULT(d.resp.ms);
+  const total = timing.reduce((a,b)=>a+b[1],0);
+  wrap.querySelector('[data-rpanel="timing"]').innerHTML = `
+    <div id="timing-chart-70a">
+      <div class="sec-head">
+        <h3 class="sec-title">응답 시간 분해</h3>
+        <span class="sec-note">총 <b class="mono">${total}ms</b>${d.resp.ms>800?' · 임계치 800ms 초과':''}</span>
+      </div>
+      <div class="tbar" role="img" aria-label="${timing.map(t=>`${t[0]} ${t[1]}밀리초`).join(', ')}">
+        ${timing.map(t=>`<div class="tseg" style="width:${(t[1]/total*100).toFixed(2)}%;background:${t[2]}" title="${t[0]} ${t[1]}ms"></div>`).join('')}
+      </div>
+      <div class="tlegend">
+        ${timing.map(t=>`
+          <div class="tlrow">
+            <span class="tlsw" style="background:${t[2]}"></span>
+            <span class="tlname">${t[0]}</span>
+            <span class="tlval">${t[1]}ms</span>
+            <span class="tlpct">${(t[1]/total*100).toFixed(1)}%</span>
+          </div>`).join('')}
+      </div>
+      ${d.resp.ms>800 ? `<div class="callout" data-t="danger" style="margin-top:var(--s5)">${I.warn}
+        <div><b>느린 응답</b> 서버 처리 구간이 전체의 대부분을 차지합니다. 업스트림 장애와 함께 관찰되었습니다.</div></div>` : ''}
+    </div>`;
+
+  syncStripSeps(wrap.querySelector('.resp-strip'));
+  showRespPanel();
+  bindRespTabs();
+}
+
+/* 줄바꿈 감지 — 행의 첫 칸이 된 구분선은 떼어낸다 */
+let stripRO;
+function syncStripSeps(strip){
+  if (!strip) return;
+  /* 셀 높이가 제각각이고 align-items:center 라 offsetTop 은 행 판정에 못 쓴다 — 중심선으로 비교한다 */
+  const midY = el => { const r = el.getBoundingClientRect(); return r.top + r.height / 2; };
+  const apply = () => strip.querySelectorAll('.sep-before').forEach(el => {
+    const prev = el.previousElementSibling;
+    el.dataset.rowStart = String(!prev || Math.abs(midY(el) - midY(prev)) > 2);
+  });
+  apply();
+  stripRO?.disconnect();
+  stripRO = new ResizeObserver(apply);
+  stripRO.observe(strip);
+}
+
+/* 탭↔패널 연결(aria-controls / aria-labelledby)과 roving tabindex 를 한 곳에서 찍는다 */
+function respTabHTML(t, selected){
+  return `
+    <button class="tab" role="tab" id="rtab-${t.k}" data-rtab="${t.k}"
+      aria-controls="rp-${t.k}" aria-selected="${selected}" tabindex="${selected?0:-1}">
+      ${t.dot?'<span class="tab-dot" aria-hidden="true"></span>':''}
+      ${t.label}
+      ${t.badge ? `<span class="tab-badge">${t.badge}</span>` : ''}
+    </button>`;
+}
+function bindRespTabs(){
+  $$('#response-tabs-af4 .tab').forEach(t => {
+    t.addEventListener('click', () => activateRespTab(t));
+  });
+}
+function activateRespTab(t){
+  state.respTab = t.dataset.rtab;
+  $$('#response-tabs-af4 .tab').forEach(x => {
+    const on = x === t;
+    x.setAttribute('aria-selected', String(on));
+    x.tabIndex = on ? 0 : -1;
+  });
+  showRespPanel();
+}
+function showRespPanel(){
+  $$('#response-body-wrap-8d1 .tabpanel').forEach(tp => tp.dataset.active = String(tp.dataset.rpanel === state.respTab));
+}
+
+/* WAI-ARIA Tabs 패턴 — ArrowLeft/Right(및 Up/Down) 로 인접 탭 이동, Home/End 로 양끝 */
+function bindTablistKeys(listSel, activate){
+  $(listSel).addEventListener('keydown', e => {
+    const tabs = $$('.tab', e.currentTarget);
+    const i = tabs.indexOf(document.activeElement);
+    if (i === -1) return;
+    let n = -1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = (i + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') n = (i - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') n = 0;
+    else if (e.key === 'End') n = tabs.length - 1;
+    if (n < 0) return;
+    e.preventDefault();
+    tabs[n].focus();
+    activate(tabs[n]);
+  });
+}
+
+function failHTML(d){
+  return `
+  <div id="fail-report-e8c">
+    <div class="fail-hero">
+      <div class="fail-icon">${I.warn}</div>
+      <div>
+        <h3>계약 검증 실패 · 위반 ${d.violations.length}건</h3>
+        <p>2026-09-02 14:22 실행에서 <span class="mono">${esc(d.path)}</span> 이(가) 고정된 계약과 어긋났습니다.
+           이 스냅샷은 계약으로 승격되지 않았습니다.</p>
+      </div>
+    </div>
+    ${d.violations.map((v,i)=>`
+      <div class="viol">
+        <span class="viol-n">${i+1}</span>
+        <div>
+          <h4>${esc(v.title)}</h4>
+          <div class="diff-note">${v.note}</div>
+          ${v.exp ? `<div class="cmp">
+            <div class="cmp-box" data-t="exp"><span class="cl">기대</span><span class="cv">${esc(v.exp)}</span></div>
+            <span class="arrow" aria-hidden="true">→</span>
+            <div class="cmp-box" data-t="act"><span class="cl">실제</span><span class="cv">${esc(v.act)}</span></div>
+          </div>` : ''}
+          ${v.path ? `<div class="cmp" style="grid-template-columns:1fr">
+            <div class="cmp-box" data-t="act"><span class="cl">누락된 경로</span><span class="cv">${esc(v.path)}</span></div>
+          </div>` : ''}
+        </div>
+      </div>`).join('')}
+    ${unjudgedHTML(d)}
+    <div class="callout" data-t="info" style="margin-top:var(--s4)">${I.info}
+      <div><b>다음 단계</b>
+      원인을 고친 뒤 <span class="mono">/api-probe ${esc(state.selected)}</span> 로 다시 실행하세요.
+      의도된 변경이라면 diff 를 확인하고 <span class="mono">/api-contract</span> 로 계약을 고칩니다.</div></div>
+  </div>`;
+}
+
+/* /api-verify 의 판정 줄을 글자 그대로 옮긴다 — 어느 경로가 없었는지가 그 줄에만 있다 */
+function unjudgedHTML(d){
+  const lines = d.unjudged || [];
+  if (!lines.length) return '';
+  return `<div class="callout" data-t="unj" style="margin:var(--s4) 0">${I.unjudged}
+    <div><b>판정 불가 ${lines.length}건 — 한쪽 경로가 응답에 없어 비교하지 못했습니다</b>
+    PASS 로도 FAIL 로도 세지 않습니다. 사라진 경로가 계약에서 필수면 필드 삭제로 따로 실패합니다.
+    ${lines.map(line => `<div class="mono">${esc(line)}</div>`).join('')}</div></div>`;
+}
+
+/* 커맨드는 하단 커맨드 바 한 곳에만 둔다 — 두 곳에 두면 표시본과 복사본이 어긋난다 */
+function emptyStateHTML(d, writeBlocked){
+  return `
+  <div id="empty-state-3b6">
+    <div class="empty-inner">
+      <div class="empty-icon">${I.ghost}</div>
+      <h3>아직 한 번도 실행되지 않았습니다</h3>
+      <p>이 엔드포인트에는 캡처된 응답이 없어 비교할 계약도 없습니다.
+         아래 커맨드 바의 커맨드를 복사해 Claude 에 붙여넣으면 첫 스냅샷이 기록됩니다.
+         <span class="mono">--record</span> 가 붙으면 결과가 그대로 계약 초안이 됩니다.</p>
+      ${writeBlocked ? `<div class="callout" data-t="danger" style="text-align:left">${I.lock}
+        <div><b>prod 는 read-only 프로파일입니다</b>
+        ${d.method} 메서드는 이 환경에서 프로브를 실행할 수 없어 커맨드 복사가 잠겨 있습니다.</div></div>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   JSON VIEWER
+   ============================================================ */
+function plain(v){
+  if (v && typeof v === 'object'){
+    if (v.__s) return v.__s;
+    if (Array.isArray(v)) return v.map(plain);
+    const o = {}; for (const k in v) o[k] = plain(v[k]); return o;
+  }
+  return v;
+}
+const isSentinel = v => v && typeof v === 'object' && '__s' in v;
+const isBranch = v => v && typeof v === 'object' && !isSentinel(v);
+
+function scalarHTML(v){
+  if (isSentinel(v)) return `<span class="j-sentinel" title="${esc(v.hint)}">${I.norm}${esc(v.__s)}</span>`;
+  /* 긴 문자열은 열 폭에 맞춰 말줄임된다 — 전문을 title 로 남겨야 읽을 길이 생긴다.
+     실측: auth.token 의 $.scope 51자가 1280px 에서 잘렸다 (평가자 지적) */
+  if (typeof v === 'string')  return `<span class="j-str" title="${esc(v)}">"${esc(v)}"</span>`;
+  if (typeof v === 'number')  return `<span class="j-num">${v}</span>`;
+  if (typeof v === 'boolean') return `<span class="j-bool">${v}</span>`;
+  if (v === null)             return `<span class="j-null">null</span>`;
+  return esc(String(v));
+}
+
+/* 스키마 타입은 실제 값에서 유도한다 — 블랙박스 킷의 계약은 응답이 SSOT 다 */
+function schemaType(v){
+  if (isSentinel(v))          return 'string';
+  if (Array.isArray(v))       return 'array';
+  if (v === null)             return 'null';
+  if (typeof v === 'object')  return 'object';
+  if (typeof v === 'number')  return Number.isInteger(v) ? 'integer' : 'number';
+  return typeof v;
+}
+
+const GUT_SYM   = { add:'+', del:'−', chg:'~' };
+const GUT_LABEL = { add:'추가된 필드', del:'제거된 필드', chg:'변경된 필드' };
+
+function gutHTML(kind){
+  return kind
+    ? `<span class="j-gut" data-k="${kind}" title="${GUT_LABEL[kind]}">${GUT_SYM[kind]}</span>`
+    : '<span class="j-gut" aria-hidden="true"></span>';
+}
+
+/* 행에는 타입 하나만 둔다. 설명·필수·변경 열까지 넣었더니 1280px 에서 값이 통째로 잘렸다
+   (실측: `"orderId":"or…`) — 그 열들은 아래 데이터 구조 표에만 있다. */
+function typeHTML(ctx, path, value, forced){
+  const sc = ctx.schema[path];
+  const t = forced || (sc && sc.t) || schemaType(value);
+  /* 필수 필드는 타입 옆 빨간 별 하나로 표시한다 — 경로 파라미터의 `.req` 와 같은 규약이다.
+     별은 장식이 아니므로 aria-hidden 하지 않고 title 로 읽히게 둔다. */
+  const star = (sc && sc.req === true) ? '<span class="j-star" title="필수">*</span>' : '';
+  return `<span class="j-type">${esc(t)}${star}</span>`;
+}
+
+/* 변경 요약 — 픽스처 note 의 <code> 두 개를 뽑아 "string → number" 로 줄인다 */
+function chgSummary(entry){
+  const m = (entry && entry.note || '').match(/<code>([^<]+)<\/code>/g);
+  if (m && m.length >= 2) return m.slice(0,2).map(x => x.replace(/<\/?code>/g,'')).join(' → ');
+  return '변경됨';
+}
+
+/* 추가·제거는 기호 하나로 줄인다. 낱말은 좁은 폭에서 값을 밀어내고, 좌측 거터와 같은 말을
+   두 번 하는 셈이다. 변경(chg)만 `string → number` 처럼 내용이 있어 낱말을 유지한다.
+   기호만 남기면 스크린리더가 "플러스" 로 읽으므로 title 로 뜻을 남긴다. */
+function noteHTML(ctx, path, kind){
+  if (!kind) return '';
+  if (kind === 'add') return `<span class="j-note j-note--add" title="${GUT_LABEL.add}">+</span>`;
+  if (kind === 'del') return `<span class="j-note j-note--del" title="${GUT_LABEL.del}">−</span>`;
+  return `<span class="j-note">${esc(chgSummary(ctx.dmap.chg[path]))}</span>`;
+}
+
+/* diff 픽스처를 경로 조회용으로 뒤집는다. rm 은 응답에 노드가 없으므로
+   부모 경로에 매달아 두었다가 유령 행으로 되살린다. */
+/* pin 된 필드가 구조 변경에 걸린 경우에만 본문 위에 경고를 세운다.
+   (구조 diff 탭이 사라지면서 이 경고가 갈 곳이 없어졌다) */
+function pinBreakHTML(d){
+  if (!state.diffOn) return '';
+  const broken = (d.diff || []).filter(x => x.k === 'chg');
+  if (!broken.length) return '';
+  const paths = broken.map(x => `<span class="mono">${esc(x.path)}</span>`).join(', ');
+  /* 타입 변경은 pin 이 아니라 기본 검사에서 이미 실패한다 — 원인을 정확히 적는다 */
+  const alsoPinned = broken.filter(x => pinOf(d, x.path));
+  const extra = alsoPinned.length
+    ? ` 이 필드에는 <span class="em">추가 검사</span>(${alsoPinned.map(x=>esc(pinOf(d,x.path).c)).join(', ')})도 걸려 있어 함께 다시 봐야 합니다.`
+    : '';
+  return `<div class="callout" data-t="warn" style="margin:var(--s4) 0">${I.warn}
+    <div><b>계약 갱신이 필요합니다</b>
+    ${paths} 의 타입이 바뀌었습니다 — 기본 검사(존재·타입)에서 실패합니다.${extra}
+    <span class="mono">/api-contract accept ${esc(state.selected)}</span> 로 새 구조를 받아들이거나, 서버 쪽을 되돌리세요.</div></div>`;
+}
+
+/* 응답에서 스칼라 경로를 순서대로 훑어 스키마 행을 만든다.
+   타입은 값에서 유도하고, 필수 여부·설명은 SCHEMA 픽스처가 출처다.
+   응답에 없지만 계약이 아는 필드(removed)는 뒤에 붙인다. */
+function schemaRows(d, epId){
+  const defs = SCHEMA[epId] || {};
+  const rows = [], seen = new Set();
+  const walk = (val, path) => {
+    if (isBranch(val)){
+      const arr = Array.isArray(val);
+      const entries = arr ? val.map((v,i)=>[i,v]) : Object.entries(val);
+      entries.forEach(([k,v]) => walk(v, arr ? `${path}[]` : `${path}.${k}`));
+      return;
+    }
+    if (seen.has(path)) return;
+    seen.add(path);
+    const sc = defs[path];
+    rows.push({ path, t:(sc && sc.t) || schemaType(val), req: sc ? sc.req : null, d: sc ? sc.d : '' });
+  };
+  if (d.body) walk(d.body, '$');
+  Object.keys(defs).forEach(p => {
+    if (seen.has(p) || !defs[p].removed) return;
+    seen.add(p);
+    rows.push({ path:p, t:defs[p].t || 'unknown', req:defs[p].req, d:defs[p].d, removed:true });
+  });
+  return rows;
+}
+
+function schemaTableHTML(d, epId){
+  const rows = schemaRows(d, epId);
+  if (!rows.length) return '';
+  const dm = diffIndex(d.diff);
+  const kindOf = p => dm.add[p] ? 'add' : dm.chg[p] ? 'chg' : (rows.find(r=>r.path===p)||{}).removed ? 'del' : '';
+  const documented = rows.filter(r => r.d).length;
+  return `
+    <div class="sec" id="schema-table-4b1">
+      <div class="sec-head">
+        <h3 class="sec-title">데이터 구조</h3>
+        <span class="sec-note">필드 ${rows.length}개 · 설명 ${documented}개</span>
+      </div>
+      <div class="tbl-head" data-for="schema"><span>필드</span><span>타입</span><span>필수</span><span>설명</span></div>
+      ${rows.map(r => {
+        const k = state.diffOn ? kindOf(r.path) : '';
+        const pin = pinOf(d, r.path);
+        return `<div class="sch-row"${k?` data-k="${k}"`:''}>
+          <span class="sch-path">${k?`<span class="sch-mark">${GUT_SYM[k]}</span>`:''}${esc(r.path)}${pin?`<span class="j-pin" title="추가 검사 — ${esc(pin.c)}">${I.pin}</span><span class="sch-cond">${esc(pin.c)}</span>`:''}</span>
+          <span class="sch-type">${esc(r.t)}</span>
+          <span class="sch-req">${r.req === null ? '<span class="sch-dash">—</span>' : `<span class="j-req" data-r="${r.req?'y':'n'}">${r.req?'필수':'옵션'}</span>`}</span>
+          <span class="sch-desc">${r.d ? esc(r.d) : '<span class="sch-dash">설명 없음</span>'}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function diffIndex(diff){
+  const idx = { add:{}, chg:{}, ghosts:{} };
+  (diff || []).forEach(x => {
+    if (x.k === 'add') idx.add[x.path] = x;
+    else if (x.k === 'chg') idx.chg[x.path] = x;
+    else if (x.k === 'rm'){
+      const i = x.path.lastIndexOf('.');
+      const parent = x.path.slice(0, i), key = x.path.slice(i + 1);
+      (idx.ghosts[parent] = idx.ghosts[parent] || []).push({ key, path:x.path });
+    }
+  });
+  return idx;
+}
+
+function renderJSON(value, epId, pins, diff, diffOn){
+  const ctx = {
+    pins,
+    schema: SCHEMA[epId] || {},
+    dmap: diffIndex(diff),
+    diffOn
+  };
+  const frag = document.createDocumentFragment();
+  frag.appendChild(buildNode(null, value, 0, '$', ctx, true));
+  return frag;
+}
+
+const J_TOG_W = 26;   /* .j-tog 24px + margin 2px — 스칼라/닫는 행 정렬 오프셋 */
+
+function buildNode(key, value, depth, path, ctx, isLast){
+  const pad = depth * 18;
+  const keyHTML = key === null ? '' : `<span class="j-key">"${esc(key)}"</span><span class="j-punc">: </span>`;
+  const pinned = ctx.pins.some(x => x.p === path);
+  const pinCond = pinned ? ctx.pins.find(x => x.p === path).c : '';
+  const pinHTML = pinned ? `<span class="j-pin" title="추가 검사 — ${esc(path)} ${esc(pinCond)}">${I.pin}</span>` : '';
+  /* diff 가 꺼져 있으면 종류 자체를 계산하지 않는다 — 마크도 유령 행도 생기지 않는다 */
+  const kind = !ctx.diffOn ? '' : (ctx.dmap.add[path] ? 'add' : ctx.dmap.chg[path] ? 'chg' : '');
+  const kindCls = kind ? ' j-row--' + kind : '';
+
+  if (!isBranch(value)){
+    const row = document.createElement('div');
+    row.className = 'j-row' + (pinned ? ' pinned' : '') + kindCls;
+    row.dataset.path = path;
+    row.innerHTML = gutHTML(kind)
+      + `<span class="j-code"><span class="j-ind" style="width:${pad+J_TOG_W}px"></span>${keyHTML}${scalarHTML(value)}${isLast?'':'<span class="j-punc">,</span>'}</span>`
+      + `<span class="j-meta">${typeHTML(ctx, path, value)}${noteHTML(ctx, path, kind)}${pinHTML}</span>`;
+    return row;
+  }
+
+  const arr = Array.isArray(value);
+  const open = arr ? '[' : '{';
+  const close = arr ? ']' : '}';
+  const entries = arr ? value.map((v,i)=>[i,v]) : Object.entries(value);
+  const preview = arr ? `${entries.length}개 항목` : `${entries.length}개 키`;
+
+  const node = document.createElement('div');
+  node.className = 'j-node';
+
+  const head = document.createElement('div');
+  head.className = 'j-row clickable' + (pinned ? ' pinned' : '') + kindCls;
+  head.dataset.path = path;
+  head.innerHTML =
+    gutHTML(kind) +
+    `<span class="j-code">` +
+      `<span class="j-ind" style="width:${pad}px"></span>` +
+      `<button class="j-tog" aria-expanded="true" aria-label="${key===null?'루트':esc(String(key))} 접기/펼치기">${I.chevSm}</button>` +
+      keyHTML +
+      `<span class="j-punc">${open}</span>` +
+      `<span class="j-preview" hidden>… ${preview} </span>` +
+      `<span class="j-punc j-inline-close" hidden>${close}${isLast?'':','}</span>` +
+    `</span>` +
+    `<span class="j-meta">${typeHTML(ctx, path, value)}${noteHTML(ctx, path, kind)}${pinHTML}</span>`;
+
+  const children = document.createElement('div');
+  children.className = 'j-children';
+  const ghosts = ctx.diffOn ? (ctx.dmap.ghosts[path] || []) : [];
+  entries.forEach(([k,v],i) => {
+    const childPath = arr ? `${path}[]` : `${path}.${k}`;
+    const last = i === entries.length-1 && !ghosts.length;
+    children.appendChild(buildNode(arr ? null : k, v, depth+1, childPath, ctx, last));
+  });
+  /* 유령 행 — 직전 스냅샷에는 있었으나 이번 응답에서 사라진 필드.
+     계약이 아는 필드이므로 스키마 표기를 그대로 달아 준다. */
+  ghosts.forEach((g, gi) => {
+    const row = document.createElement('div');
+    row.className = 'j-row j-row--del j-ghost';
+    row.dataset.path = g.path;
+    row.innerHTML = gutHTML('del')
+      + `<span class="j-code">`
+      +   `<span class="j-ind" style="width:${(depth+1)*18+J_TOG_W}px"></span>`
+      +   `<span class="j-key">"${esc(g.key)}"</span><span class="j-punc">: </span>`
+      +   `<span class="j-null">없음</span>${gi === ghosts.length-1 ? '' : '<span class="j-punc">,</span>'}`
+      + `</span>`
+      + `<span class="j-meta">${typeHTML(ctx, g.path, null)}${noteHTML(ctx, g.path, 'del')}</span>`;
+    children.appendChild(row);
+  });
+
+  const closer = document.createElement('div');
+  closer.className = 'j-row j-closer';
+  closer.innerHTML = gutHTML('') +
+    `<span class="j-code"><span class="j-ind" style="width:${pad+J_TOG_W}px"></span><span class="j-punc">${close}${isLast?'':','}</span></span>`;
+
+  node.append(head, children, closer);
+
+  const tog = head.querySelector('.j-tog');
+  const toggle = () => {
+    const nowOpen = tog.getAttribute('aria-expanded') !== 'true';
+    tog.setAttribute('aria-expanded', String(nowOpen));
+    children.hidden = !nowOpen;
+    closer.hidden = !nowOpen;
+    head.querySelector('.j-preview').hidden = nowOpen;
+    head.querySelector('.j-inline-close').hidden = nowOpen;
+  };
+  /* 행 클릭은 마우스 편의일 뿐이고, 접근성 컨트롤은 24x24 .j-tog 버튼이다 */
+  head.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+  tog.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+  return node;
+}
+
+function setAllNodes(root, open){
+  root.querySelectorAll('.j-node').forEach(n => {
+    const tog = n.querySelector(':scope > .j-row > .j-tog');
+    if (!tog) return;
+    const isOpen = tog.getAttribute('aria-expanded') === 'true';
+    if (isOpen !== open) tog.click();
+  });
+}
+
+/* ============================================================
+   CLIPBOARD + TOAST
+   ============================================================ */
+let toastTimer;
+function toast(msg){
+  const t = $('#toast-44a');
+  t.innerHTML = `${I.check}<span>${esc(msg)}</span>`;
+  t.dataset.show = 'true';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.dataset.show = 'false', 2200);
+}
+function copyText(text, btn){
+  const done = () => {
+    toast('클립보드에 복사했습니다');
+    if (btn){
+      const label = btn.querySelector('span') || btn;
+      const orig = label.innerHTML;
+      btn.classList.add('done');
+      label.innerHTML = '복사됨';
+      setTimeout(() => { btn.classList.remove('done'); label.innerHTML = orig; }, 1600);
+    }
+  };
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.setAttribute('readonly','');
+  ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); }
+  catch(e){ toast('복사 실패 — 직접 선택해 주세요'); }
+  document.body.removeChild(ta);
+}
+
+/* ============================================================
+   RESIZER
+   ============================================================ */
+(function initResizer(){
+  const rz = $('#pane-resizer-b73'), panes = $('#panes-b02');
+  const stacked = window.matchMedia('(max-width:880px)');
+  const isV = () => stacked.matches;
+  const cur = () => isV() ? state.splitV : state.split;
+
+  /* 880px 이하에서는 세로 분할이므로 --split-v 를 쓴다 — 축과 상태가 어긋나지 않게 */
+  const apply = pct => {
+    if (isV()){
+      state.splitV = Math.min(75, Math.max(25, pct));
+      document.documentElement.style.setProperty('--split-v', state.splitV + '%');
+    } else {
+      state.split = Math.min(72, Math.max(28, pct));
+      document.documentElement.style.setProperty('--split', state.split + '%');
+    }
+    rz.setAttribute('aria-valuenow', Math.round(cur()));
+  };
+  const syncAxis = () => {
+    const v = isV();
+    rz.setAttribute('aria-orientation', v ? 'horizontal' : 'vertical');
+    rz.setAttribute('aria-label', v
+      ? '요청/응답 패널 높이 조절 (위아래 방향키, 더블클릭으로 초기화)'
+      : '요청/응답 패널 너비 조절 (좌우 방향키, 더블클릭으로 초기화)');
+    rz.setAttribute('aria-valuemin', v ? 25 : 28);
+    rz.setAttribute('aria-valuemax', v ? 75 : 72);
+    rz.setAttribute('aria-valuenow', Math.round(cur()));
+    document.body.dataset.dragAxis = v ? 'v' : 'h';
+  };
+
+  let dragging = false;
+  rz.addEventListener('pointerdown', e => {
+    dragging = true; document.body.dataset.dragging = 'true';
+    rz.setPointerCapture(e.pointerId);
+  });
+  rz.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const r = panes.getBoundingClientRect();
+    apply(isV() ? (e.clientY - r.top) / r.height * 100
+                : (e.clientX - r.left) / r.width * 100);
+  });
+  const stop = e => {
+    if (!dragging) return;
+    dragging = false; document.body.dataset.dragging = 'false';
+    try { rz.releasePointerCapture(e.pointerId); } catch(_){}
+  };
+  rz.addEventListener('pointerup', stop);
+  rz.addEventListener('pointercancel', stop);
+  rz.addEventListener('dblclick', () => apply(isV() ? 45 : 46));
+  rz.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp'){ apply(cur() - 2); e.preventDefault(); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown'){ apply(cur() + 2); e.preventDefault(); }
+    if (e.key === 'Home'){ apply(isV() ? 45 : 46); e.preventDefault(); }
+  });
+  stacked.addEventListener('change', syncAxis);
+  syncAxis();
+})();
+
+/* ============================================================
+   THEME
+   ============================================================ */
+(function initTheme(){
+  const btn = $('#theme-toggle-2d9');
+  const sun = '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2M12 19.4v2M4.4 4.4l1.4 1.4M18.2 18.2l1.4 1.4M2.6 12h2M19.4 12h2M4.4 19.6l1.4-1.4M18.2 5.8l1.4-1.4"/>';
+  const moon = '<path d="M20 14.2A8.2 8.2 0 1 1 9.8 4a6.8 6.8 0 0 0 10.2 10.2z"/>';
+  const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const paint = () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    $('#theme-icon-7f3').innerHTML = dark ? moon : sun;
+    btn.setAttribute('aria-label', dark ? '라이트 모드로 전환' : '다크 모드로 전환');
+  };
+  document.documentElement.dataset.theme = sysDark.matches ? 'dark' : 'light';
+  paint();
+  btn.addEventListener('click', () => {
+    document.documentElement.dataset.theme =
+      document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    paint();
+    toast(document.documentElement.dataset.theme === 'dark' ? '다크 모드' : '라이트 모드');
+  });
+})();
+
+/* ============================================================
+   TOKEN COUNTDOWN
+   ============================================================ */
+(function initToken(){
+  let left = 42 * 60;
+  const total = 60 * 60;
+  /* 매초 낭독은 소음이다 — 임계 시점에만 알린다 */
+  const MARKS = [600, 300, 60, 0];
+  let announced = new Set();
+  const tick = () => {
+    left = Math.max(0, left - 1);
+    const m = String(Math.floor(left/60)).padStart(2,'0');
+    const s = String(left%60).padStart(2,'0');
+    const text = `${Math.floor(left/60)}분 ${s}초 남음`;
+    $('#tm-time-6b2').textContent = `${m}:${s}`;
+    $('#tm-fill-4c9').style.width = (left/total*100).toFixed(1) + '%';
+    $('#token-meter-b18').classList.toggle('tm-low', left < 600);
+    const tr = $('#tm-track-2f8');
+    tr.setAttribute('aria-valuenow', left);
+    tr.setAttribute('aria-valuetext', left === 0 ? '토큰 만료됨' : text);
+    const mark = MARKS.find(x => left === x);
+    if (mark !== undefined && !announced.has(mark)){
+      announced.add(mark);
+      $('#token-status-7d1').textContent = left === 0 ? '토큰이 만료되었습니다' : `토큰 만료까지 ${text}`;
+    }
+    const ae = $('#auth-expiry-3c8');
+    if (ae) ae.textContent = `${Math.floor(left/60)}분 ${s}초`;
+  };
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+$('#env-btn-1f5').addEventListener('click', () => {
+  $('#env-menu-6d3').dataset.open === 'true' ? closeEnvMenu() : openEnvMenu();
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('#env-picker-7c4')) closeEnvMenu();
+});
+
+
+$$('#verify-summary-5e0 .chip').forEach(c => {
+  c.querySelector('b').textContent = EP_LIST.filter(x => x.d.state === c.dataset.kind).length;
+  c.addEventListener('click', () => {
+    const kind = c.dataset.kind;
+    const on = c.getAttribute('aria-pressed') === 'true';
+    $$('#verify-summary-5e0 .chip').forEach(x => x.setAttribute('aria-pressed','false'));
+    if (!on){ c.setAttribute('aria-pressed','true'); state.statusFilter = kind; }
+    else state.statusFilter = null;
+    renderTree();
+  });
+});
+
+$('#collapse-all-btn-8c4').addEventListener('click', () => {
+  /* 라벨은 renderTree 가 상태에서 다시 파생시킨다 — 여기서 손대면 라벨과 동작이 어긋난다 */
+  const anyOpen = GROUPS.some(g => state.openGroups[g.id]);
+  GROUPS.forEach(g => state.openGroups[g.id] = !anyOpen);
+  renderTree();
+});
+
+/* ---- 사이드바 드로어 (880px 이하) ---- */
+function setDrawer(open){
+  state.drawer = open;
+  const main = $('#main-8e4');
+  if (open) main.dataset.drawer = 'open'; else delete main.dataset.drawer;
+  $('#sidebar-toggle-6e4').setAttribute('aria-expanded', String(open));
+  $('#sidebar-toggle-6e4').setAttribute('aria-label', open ? '엔드포인트 목록 닫기' : '엔드포인트 목록 열기');
+  if (open) $('#palette-launcher-5a8').focus({ preventScroll:true });
+}
+$('#sidebar-toggle-6e4').addEventListener('click', () => setDrawer(!state.drawer));
+$('#sidebar-scrim-4f7').addEventListener('click', () => { setDrawer(false); $('#sidebar-toggle-6e4').focus(); });
+
+function activateReqTab(t){
+  state.reqTab = t.dataset.tab;
+  $$('#request-tabs-9e7 .tab').forEach(x => {
+    const on = x === t;
+    x.setAttribute('aria-selected', String(on));
+    x.tabIndex = on ? 0 : -1;
+  });
+  $$('#request-panel-6f3 .tabpanel').forEach(tp => tp.dataset.active = String(tp.dataset.panel === state.reqTab));
+}
+$$('#request-tabs-9e7 .tab').forEach(t => t.addEventListener('click', () => activateReqTab(t)));
+bindTablistKeys('#request-tabs-9e7', activateReqTab);
+bindTablistKeys('#response-tabs-af4', activateRespTab);
+
+$('#copy-cmd-btn-4e1').addEventListener('click', e => copyCommand(e.currentTarget));
+
+/* ============================================================
+   COMMAND PALETTE
+   ============================================================ */
+function fuzzy(q, text){
+  q = q.toLowerCase().replace(/\s+/g,'');
+  const t = text.toLowerCase();
+  if (!q) return { ok:true, score:0, hits:[] };
+  let ti = 0, score = 0, last = -2;
+  const hits = [];
+  for (let i = 0; i < q.length; i++){
+    const idx = t.indexOf(q[i], ti);
+    if (idx < 0) return { ok:false, score:0, hits:[] };
+    hits.push(idx);
+    score += (idx === last + 1) ? 4 : 1;
+    if (idx === 0) score += 3;
+    last = idx; ti = idx + 1;
+  }
+  return { ok:true, score, hits };
+}
+function hl(text, hits){
+  if (!hits || !hits.length) return esc(text);
+  const set = {}; hits.forEach(i => set[i] = 1);
+  let out = '';
+  for (let i = 0; i < text.length; i++) out += set[i] ? `<mark>${esc(text[i])}</mark>` : esc(text[i]);
+  return out;
+}
+
+const SCOPES = [
+  { id:'fail',   label:'실패한 엔드포인트만' },
+  { id:'recent', label:'최근 실행' },
+  { id:'pin',    label:'추가 검사가 걸린 엔드포인트' },
+  { id:'help',   label:'단축키 도움말' }
+];
+const SCOPE_NAMES = { fail:'실패', recent:'최근 실행', pin:'추가 검사', help:'단축키' };
+
+const ACTIONS = [
+  { id:'a-copy',  label:'프로브 커맨드 복사',   run:() => $('#copy-cmd-btn-4e1').click() },
+  { id:'a-theme', label:'테마 전환 라이트/다크', run:() => $('#theme-toggle-2d9').click() },
+  { id:'a-diff',  label:'변경 표시 토글',       run:() => { const b = $('#diff-switch-7c2'); if (b) b.click(); } },
+  { id:'a-dev',   label:'환경 전환 dev',        run:() => setEnv('dev') },
+  { id:'a-stg',   label:'환경 전환 stg',        run:() => setEnv('stg') },
+  { id:'a-prod',  label:'환경 전환 prod',       run:() => setEnv('prod') },
+  { id:'a-fold',  label:'그룹 모두 접기',       run:() => $('#collapse-all-btn-8c4').click() },
+  { id:'a-reset', label:'필터 초기화',          run:() => resetFilters() }
+];
+
+function palPool(scope){
+  if (scope === 'fail')   return EP_LIST.filter(x => x.d.state === 'fail');
+  if (scope === 'recent') return RECENT_IDS.map(id => EP_LIST.find(x => x.id === id)).filter(Boolean);
+  if (scope === 'pin')    return EP_LIST.filter(x => (x.d.pins || []).length);
+  return EP_LIST.slice();
+}
+
+function palRows(){
+  const q = $('#palette-input-k08').value.trim();
+  const scope = state.palScope;
+  const rows = [];
+
+  if (scope === 'help'){
+    const keys = HELP_KEYS.filter(k => !q || fuzzy(q, k[1]).ok || fuzzy(q, k[0]).ok);
+    rows.push({ type:'sec', label:`단축키 ${keys.length}` });
+    keys.forEach(k => rows.push({ type:'help', k:k[0], label:k[1] }));
+    return rows;
+  }
+
+  const pool = palPool(scope);
+
+  if (q){
+    const scored = [];
+    pool.forEach(x => {
+      const whole = fuzzy(q, x.d.method + ' ' + x.d.path);
+      const ident = fuzzy(q, x.id);
+      if (!whole.ok && !ident.ok) return;
+      const onPath = fuzzy(q, x.d.path);
+      scored.push({ x, score:(whole.ok ? whole.score : 0) + (ident.ok ? ident.score : 0), hits:onPath.ok ? onPath.hits : null });
+    });
+    scored.sort((a,b) => b.score - a.score);
+    const acts = ACTIONS.filter(a => fuzzy(q, a.label).ok);
+    if (scored.length){
+      rows.push({ type:'sec', label:`엔드포인트 ${scored.length}` });
+      scored.forEach(sc => rows.push({ type:'ep', x:sc.x, hits:sc.hits }));
+    }
+    if (acts.length){
+      rows.push({ type:'sec', label:`액션 ${acts.length}` });
+      acts.forEach(a => rows.push({ type:'act', a }));
+    }
+    return rows;
+  }
+
+  if (scope){
+    rows.push({ type:'sec', label:`${SCOPE_NAMES[scope]} ${pool.length}` });
+    pool.forEach(x => rows.push({ type:'ep', x, hits:null }));
+    return rows;
+  }
+
+  const fails = EP_LIST.filter(x => x.d.state === 'fail');
+  if (fails.length){
+    rows.push({ type:'sec', label:`실패 ${fails.length}` });
+    fails.forEach(x => rows.push({ type:'ep', x, hits:null }));
+  }
+  rows.push({ type:'sec', label:'스코프' });
+  SCOPES.forEach(sc => rows.push({ type:'scope', sc }));
+  rows.push({ type:'sec', label:'액션' });
+  ACTIONS.forEach(a => rows.push({ type:'act', a }));
+  rows.push({ type:'sec', label:`전체 엔드포인트 ${EP_LIST.length}` });
+  EP_LIST.forEach(x => rows.push({ type:'ep', x, hits:null }));
+  return rows;
+}
+
+function palItemHTML(r, i, active){
+  const on = active ? ' data-active="1"' : '';
+  const id = `pal-opt-${i}`;
+  if (r.type === 'ep'){
+    return `<li role="presentation"><div class="pal__item" role="option" id="${id}" tabindex="-1" aria-selected="${active}" data-pal-i="${i}"${on}>
+      <span class="meth" data-m="${r.x.d.method}">${r.x.d.method}</span>
+      <span class="pal__label">${hl(r.x.d.path, r.hits)}</span>
+      <span class="pal__grpname">${esc(r.x.grp)}</span>
+      <span class="pal__right"><span class="pal__enter">↵</span></span>
+    </div></li>`;
+  }
+  if (r.type === 'act'){
+    return `<li role="presentation"><div class="pal__item" role="option" id="${id}" tabindex="-1" aria-selected="${active}" data-pal-i="${i}"${on}>
+      <span class="badge" data-t="muted">액션</span>
+      <span class="pal__label" style="font-family:var(--font-ui)">${esc(r.a.label)}</span>
+      <span class="pal__right"><span class="pal__enter">↵</span></span>
+    </div></li>`;
+  }
+  return `<li role="presentation"><div class="pal__item" role="option" id="${id}" tabindex="-1" aria-selected="${active}" data-pal-i="${i}"${on}>
+    <span class="badge" data-t="muted">스코프</span>
+    <span class="pal__label" style="font-family:var(--font-ui)">${esc(r.sc.label)}</span>
+    <span class="pal__right"><span class="pal__enter">↵</span></span>
+  </div></li>`;
+}
+
+function renderPal(){
+  const list = $('#palette-list-k09');
+  const input = $('#palette-input-k08');
+  const rows = palRows();
+  state.palRows = rows;
+
+  const pick = rows.filter(r => r.type === 'ep' || r.type === 'act' || r.type === 'scope');
+  const helps = rows.filter(r => r.type === 'help');
+  const isHelp = state.palScope === 'help';
+  list.setAttribute('role', isHelp ? 'list' : 'listbox');
+
+  if (!pick.length && !helps.length){
+    list.innerHTML = `<li class="pal__none">${input.value ? `<b>${esc(input.value)}</b>` : ''}일치하는 엔드포인트나 액션이 없습니다.</li>`;
+    $('#palette-count-k0b').textContent = '0개';
+    input.removeAttribute('aria-activedescendant');
+    return;
+  }
+  if (state.palIndex >= pick.length) state.palIndex = 0;
+  if (state.palIndex < 0) state.palIndex = Math.max(0, pick.length - 1);
+
+  let html = '', pi = -1, open = false;
+  const closeGrp = () => { if (open){ html += '</ul></li>'; open = false; } };
+  rows.forEach(r => {
+    if (r.type === 'sec'){
+      closeGrp();
+      if (isHelp){ html += `<li class="pal__sec">${esc(r.label)}</li>`; return; }
+      html += `<li role="group" aria-label="${esc(r.label)}"><div class="pal__sec">${esc(r.label)}</div><ul class="pal__grp" role="presentation">`;
+      open = true;
+      return;
+    }
+    if (r.type === 'help'){
+      html += `<li class="pal__item" style="cursor:default">
+        <span class="kbd">${esc(r.k)}</span>
+        <span class="pal__label" style="font-family:var(--font-ui)">${esc(r.label)}</span></li>`;
+      return;
+    }
+    pi += 1;
+    html += palItemHTML(r, pi, pi === state.palIndex);
+  });
+  closeGrp();
+  list.innerHTML = html;
+  $('#palette-count-k0b').textContent = `${pick.length}개`;
+
+  const act = list.querySelector('.pal__item[data-active="1"]');
+  if (act){
+    input.setAttribute('aria-activedescendant', act.id);
+    act.scrollIntoView({ block:'nearest' });
+  }
+}
+
+function palPickable(){
+  return state.palRows.filter(r => r.type === 'ep' || r.type === 'act' || r.type === 'scope');
+}
+
+function palRun(r){
+  if (!r) return;
+  if (r.type === 'ep'){ closePalette(); select(r.x.id); return; }
+  if (r.type === 'scope'){ setPalScope(r.sc.id); return; }
+  closePalette();
+  r.a.run();
+}
+
+function setPalScope(id){
+  state.palScope = id;
+  state.palIndex = 0;
+  const wrap = $('#palette-scope-k0a');
+  const input = $('#palette-input-k08');
+  if (id){
+    wrap.hidden = false;
+    $('#palette-scope-name-k0c').textContent = SCOPE_NAMES[id];
+  } else {
+    wrap.hidden = true;
+  }
+  input.value = '';
+  input.placeholder = id === 'help' ? '단축키 검색…' : '엔드포인트, 그룹, 액션 검색…';
+  renderPal();
+  input.focus();
+}
+
+let palReturnFocus = null;
+function openPalette(scope){
+  palReturnFocus = document.activeElement;
+  state.palOpen = true;
+  $('#command-palette-k07').hidden = false;
+  setPalScope(scope || '');
+}
+function closePalette(){
+  state.palOpen = false;
+  $('#command-palette-k07').hidden = true;
+  state.palScope = ''; state.palIndex = 0;
+  $('#palette-input-k08').value = '';
+  if (palReturnFocus && document.contains(palReturnFocus)) palReturnFocus.focus();
+}
+
+/* 팔레트가 열려 있는 동안의 키 처리 — 문서 핸들러가 여기로 위임한다 */
+function palKeydown(e){
+  if (e.key === 'Escape'){ e.preventDefault(); closePalette(); return; }
+  if (e.key === 'Backspace' && state.palScope && !$('#palette-input-k08').value){
+    e.preventDefault(); setPalScope(''); return;
+  }
+  if (state.palScope === 'help') return;
+  const pick = palPickable();
+  if (!pick.length) return;
+  if (e.key === 'ArrowDown'){ e.preventDefault(); state.palIndex = (state.palIndex + 1) % pick.length; renderPal(); return; }
+  if (e.key === 'ArrowUp'){ e.preventDefault(); state.palIndex = (state.palIndex - 1 + pick.length) % pick.length; renderPal(); return; }
+  if (e.key === 'Enter'){ e.preventDefault(); palRun(pick[state.palIndex]); return; }
+}
+
+$('#palette-input-k08').addEventListener('input', () => { state.palIndex = 0; renderPal(); });
+$('#palette-scope-clear-k0d').addEventListener('click', () => setPalScope(''));
+document.addEventListener('click', e => {
+  const opener = e.target.closest('[data-open-palette]');
+  if (opener){ openPalette(opener.getAttribute('data-open-palette')); return; }
+  if (e.target.closest('[data-close-palette]')){ closePalette(); return; }
+  const item = e.target.closest('.pal__item[data-pal-i]');
+  if (item){
+    state.palIndex = Number(item.dataset.palI);
+    palRun(palPickable()[state.palIndex]);
+  }
+});
+
+/* 키보드 */
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+
+  /* 팔레트 — 열기/닫기는 다른 어떤 핸들러보다 먼저 본다 */
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')){
+    e.preventDefault(); state.palOpen ? closePalette() : openPalette(''); return;
+  }
+  if (e.key === '/' && !typing){ e.preventDefault(); openPalette(''); return; }
+  if (state.palOpen){ palKeydown(e); return; }
+  if (e.key === 'Escape'){
+    if ($('#env-menu-6d3').dataset.open === 'true'){ closeEnvMenu(); $('#env-btn-1f5').focus(); return; }
+    if (state.drawer){ setDrawer(false); $('#sidebar-toggle-6e4').focus(); return; }
+    if (state.statusFilter) resetFilters();
+  }
+  if ((e.key === 'ArrowDown' || e.key === 'ArrowUp')){
+    const inTree = document.activeElement.closest('#endpoint-tree-a91');
+    if (!inTree) return;
+    const items = $$('#endpoint-tree-a91 .ep-btn');
+    if (!items.length) return;
+    e.preventDefault();
+    let idx = items.indexOf(document.activeElement);
+    if (idx === -1) idx = items.findIndex(i => i.getAttribute('aria-current') === 'true');
+    idx = e.key === 'ArrowDown' ? Math.min(items.length-1, idx+1) : Math.max(0, idx-1);
+    items[idx].focus();
+  }
+  /* Enter 는 처리하지 않는다 — .ep-btn 은 네이티브 button 이라 이미 click 이 발생하며,
+     여기서 또 select() 를 부르면 한 번의 Enter 로 두 번 실행된다. */
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+renderEnvMenu();
+setEnv('dev');
+renderTree();
+renderWorkspace();
+</script>
+
+</body>
+</html>
