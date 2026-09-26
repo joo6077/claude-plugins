@@ -32,17 +32,17 @@
 
 <!-- AUTO:skills -->
 | 스킬 | 설명 |
-|------|------|
+| --- | --- |
 | `tone-campaign` | 이미 작성된 코드 다수를 한 파일씩 순차 정리하는 운영 루프를 관리한다. |
 | `tone-guide` | 코드의 톤·유지보수성 규칙을 구현 전에 강제 로드하고, 완료 선언 전에 규칙 전수 대조까지 수행한다. |
-| `tone-scaffold` | 파일 헤더, 문서 주석, 시맨틱 typedef 를 프로젝트 파라미터로 채워 생성하고, |
+| `tone-scaffold` | 파일 헤더, 문서 주석, 시맨틱 typedef 를 프로젝트 파라미터로 채워 생성하고, 생성물을 자기 감사한다. |
 <!-- /AUTO:skills -->
 
 ## 참조 문서
 
 <!-- AUTO:references -->
 | 파일 | 설명 |
-|------|------|
+| --- | --- |
 | `adapter-contract.md` | 어댑터 계약 |
 | `adapter-dart-flutter.md` | dart-flutter 어댑터 |
 | `core-antipatterns.md` | 안티패턴 판정 카탈로그 A~J |
@@ -58,7 +58,7 @@
 
 <!-- AUTO:evals -->
 | 파일 | 설명 |
-|------|------|
+| --- | --- |
 | `evals.json` | 파일 |
 <!-- /AUTO:evals -->
 
