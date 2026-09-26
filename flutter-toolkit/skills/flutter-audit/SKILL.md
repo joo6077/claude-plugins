@@ -31,7 +31,7 @@ Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감�
 
 > **정본(SSOT):** `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
 > 아래 사본은 정본을 **문구 변형 없이** 복제한 것이다. 이 문서에서 임계값이나 마커 의미를 다시
-> 정의하지 않는다. 정본이 바뀌면 이 절도 같은 문구로 맞춘다.
+> 정의하지 않는다. 원문이 바뀌면 이 절도 같은 문구로 맞춘다.
 
 사본 출처: `harness/docs/guides/qa-evaluation-guide.md` v5.1 (2026-09-24) — §Canonical Unverified-Evidence Protocol 의 번호 목록(원문 번호 그대로라 3 이 둘이다)과 §증거 분류 triage 의 `UNVERIFIED_ENV` 남용 방지 4 요건을 글자 그대로 옮겼다. 사본의 「계약」 은 이 스킬의 감사 체크리스트를, 「조건」 은 체크리스트 항목 하나를 뜻한다.
 
@@ -151,7 +151,7 @@ PASS 를 확정하기 **전에** 아래 4 검사를 통과해야 한다. 하나�
 ## Evidence Validity
 - 검사 대상 증거: N 건
 - 무효 판정: K 건 [항목 — 실패한 검사 번호 — 사유]
-- 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)
+- 무효 K 건은 invalid_evidence 에 합산 (현재 누계: M)
 ```
 
 ## 0. 프로젝트 감지
@@ -318,7 +318,7 @@ Flutter 위젯 모범 사례를 지키지 않으면 오버플로, 인터랙션 �
 - [ ] **slowest target device** 기준인가, 개발자 최고 사양 기기 기준인가
 
 **판정 규칙** — simulator/emulator 또는 debug mode 결과만 있으면 앱 코드 성능 병목으로
-**확정하지 말고 `[미검증]`** 으로 표기하고 미검증 카운터에 합산한다. "iOS simulator 에서
+**확정하지 말고** §Unverified-Evidence Protocol 의 4 요건을 채우면 `[미검증:ENV]` 로 표기해 `env_gaps` 에, 못 채우면 `[미검증:INVALID]` 로 표기해 `invalid_evidence` 에 합산한다. "iOS simulator 에서
 jank 가 보이니 앱 버그" 는 공식 문서 기준으로 **대표성이 없는 추론**이므로 쓰지 마라.
 
 실기기 확보가 불가능하면 simulator 결과를 "환경 의심" 등급으로만 쓰고, profile trace export 와
@@ -455,7 +455,7 @@ Performance Environment          <-- 성능 이슈가 감사 대상에 포함될
   profile mode: yes|no | device: <모델명|simulator|emulator>
   swap/memory: <상태|미확인> | trace: <경로|미확보>
   renderer: Impeller|Skia | refresh rate: <Hz> | slowest target: <기기|미지정>
-  [환경 배제 실패 시 해당 성능 지적은 [미검증]]
+  [환경 배제 실패 시 해당 성능 지적은 [미검증:ENV] (4 요건 충족) | [미검증:INVALID]]
 
 Evidence Validity
   검사 대상 증거: N | 무효: K
@@ -466,7 +466,8 @@ Unverifiable
   [항목 ID — [미검증:ENV]|[미검증:INVALID] — 사유 — 시도한 fallback 단계]
 
 ----------------------------------------------------
-Total: N errors, N warnings | 미검증 N 건
+Total: N errors, N warnings | env_gaps N · invalid_evidence N
+결론: 통과 | 통과 아님 (invalid_evidence 2 건 이상) | 검증 부족 ((검사한 항목 수 − env_gaps) / 검사한 항목 수 < 0.60)
 ```
 
 감사 결과만 보고한다. 코드를 직접 수정하지 않는다.
@@ -481,5 +482,5 @@ Total: N errors, N warnings | 미검증 N 건
 - **MUST** 위반 보고 시 파일:라인, 규칙, 심각도, 수정 제안을 모두 포함한다 -- 위치 없는 위반 보고는 수정 작업을 지연시킨다
 - **MUST** PASS 확정 전에 Evidence Validity Gate 4 검사를 통과시킨다 -- 0 매치 grep, 0 개 테스트, 빈 캡처를 "위반 없음" 으로 읽으면 감사가 통과 도장 기계가 된다
 - **MUST** 리포트에 `Evidence Validity` + `Unverifiable` 블록을 포함하고 `env_gaps` · `invalid_evidence` 를 따로 센다 -- 집계하지 않으면 `invalid_evidence` 임계(2 건) 판정과 `env_gaps` 검증 커버리지 판정이 성립하지 않는다
-- **MUST** 성능 지적을 하기 전에 Environment Exclusion Checklist 8 항을 기록한다 -- profile mode 가 아니거나 simulator/emulator 결과만 있으면 그 지적은 `[미검증]` 이다. 환경 배제 없이 앱 코드 최적화를 요구하면 존재하지 않는 병목을 고치게 만든다
+- **MUST** 성능 지적을 하기 전에 Environment Exclusion Checklist 8 항을 기록한다 -- profile mode 가 아니거나 simulator/emulator 결과만 있으면 그 지적은 4 요건을 채우면 `[미검증:ENV]`, 못 채우면 `[미검증:INVALID]` 이다. 환경 배제 없이 앱 코드 최적화를 요구하면 존재하지 않는 병목을 고치게 만든다
 - **MUST NOT** Primitive Substitution Gate 를 layout primitive 로 확대 적용하지 않는다 -- 면제 목록은 `references/primitive-substitution-gate.md` 가 정한다. 확대 적용된 게이트는 전건 경보가 되어 사용자가 리포트 전체를 무시하게 만든다
