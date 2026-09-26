@@ -2,7 +2,7 @@
 
 - 계약: `.harness/sprint-contract-after-0924-scripts.md` (봉인 `sha256:e6e9d4a14f27da96`, 봉인 커밋 `fd1bc49`)
 - 가지: `chore/ak-c1-harness-scripts`, 시작 판 `f81568d`. main 은 합치지 않았다 (계약 전제)
-- QA 판정은 아직이다. 다음 단계에서 qa-evaluator 가 한다
+- QA 판정: APPROVE (Iteration 1, 조건 30 개 모두 재실행) — 리포트 `.harness/sprint-feedback-after-0924-scripts.md`, 커밋 `7e42c44`. 교차 진단은 판정을 뒤집을 결함 0 건, 짚은 것은 아래 `## 다음 사이클 메모`
 
 ## 한 일
 
@@ -106,3 +106,15 @@ tone-kit 0.2.0 규칙을 불러와(코어 넷 · 한국어 축, 어댑터 없음
 - 계약 도우미를 뗀 폴더: `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/c1a-impl/K` (markdownlint 0.23.2 는 `scratchpad/c1a/mdl/node_modules` 를 가리킨다)
 - 로컬 CI: `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh` (봉인 시점 지문 `a415eaff98a46b86`), 결과는 `TMPDIR=scratchpad/c1a-impl/ci1` 아래 `ci-local/summary.txt`
 - 계약 피드백: `/Users/jackson/.harness/feedback/contract/1a3bcba6-2026-09-26T122741-bda55d45-6864.yaml` (`verify-feedback.sh` PASS)
+
+## 다음 사이클 메모
+
+QA 승인 뒤 교차 진단(2026-09-26)이 짚은 것이다. 판정을 뒤집을 결함은 0 건이고, 여섯은 모두 스크래치 사본으로 재현됐다. 위 「넘긴 것」 도 다음 사이클 몫이다.
+
+- 감사 기록 도구 소제목이 같은 날 같은 사이클이면 여전히 겹친다 — `scripts/append-audit-log.py:139` 는 `{날짜} — {사이클}` 만 붙이는데, `.claude/skills/kaizen-orchestrator/SKILL.md:359` 는 사이클을 열 때 빈 항목 하나, Step 11 에 또 하나를 같은 사이클 이름으로 붙인다. 하루에 끝나는 사이클이면 같은 제목 경고(MD024)가 다시 난다(사본 재현 `:25` · `:30` · `:34` · `:38`). 항목 종류(시작 · 끝)나 시각을 소제목에 넣을지 정한다. 사이클 머리(둘째 단계 제목) 겹침은 원래 있던 문제다
+- 새 실행기가 빈 문자열에도 맞는 패턴을 늘 통과시킨다 — `scripts/run-kaizen-assertions.py:81` 의 `len(re.findall(...))` 이 빈 일치도 센다. 패턴 `""` · `(?:gone)?` 은 대상 글이 `alpha` 한 줄이어도 `PASS … (7건)` 이 나온다. 「패턴이 사라진 것」 을 잡는 도구인데 이런 패턴은 영영 FAIL 이 안 난다. 지금 든 14 개는 해당 없음. 빈 일치를 빼고 세거나, 빈 문자열에 맞는 패턴을 입력 오류(종료 코드 2)로 막는다
+- V8 따옴표 검사가 중괄호 없는 `$CLAUDE_PLUGIN_ROOT` 를 못 본다 — `scripts/validate-plugin.py:632` · `:634` 가 `${CLAUDE_PLUGIN_ROOT}` 글자만 찾는다. `"$CLAUDE_PLUGIN_ROOT/scripts/x.sh"` · `"bash $CLAUDE_PLUGIN_ROOT/scripts/x.sh"` 는 따옴표 검사도, 권한 644 사본의 실행 비트 검사도 `OK` 로 지나간다. 가이드가 중괄호 꼴만 다룬다고 적어 거짓 주장은 아니다. 실행 비트 쪽 빈틈은 원래 있던 것
+- 검증 가이드 FAIL 예시 2 의 출처가 틀렸다 — `harness/docs/guides/plugin-validation-guide.md:417-421` 머리가 `# design-kit/hooks/hooks.json` 인데 둘째 줄 `bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh` 는 reflect-kit 명령이다(`origin/main` 의 design-kit hooks.json 명령은 `env-check.sh` 하나). 실제 출력은 명령마다 `(<명령>)` 이 붙은 한 줄씩 두 줄인데 예시는 한 줄이다. 위 「넘긴 것」 의 가이드 판 번호 · 수동 수정 표와 함께 main 을 합친 뒤 고친다
+- V8 설명 한 곳이 옛 글이다 — `.claude/skills/react-kaizen/SKILL.md:97` 이 `V8 hook-exec` 를 실행 비트(0755)로만 적어 따옴표 검사가 빠졌다. 가이드 수동 수정 표 · `docs/harness/plugin-validation.html` 과 같이 고치고, 그 전에 V8 설명이 적힌 자리를 전부 찾는다
+- 다시 만든 킷 README 표 설명이 문장 중간에서 끊긴다 — `planning-kit/README.md:21` · `:25` (`…수렴(convergent)하여 |` · `…적용하여 |`), `rust-kit/README.md:16` (`… 정의 → |`). sync-docs 가 SKILL.md 설명 첫 줄만 옮긴다(다른 킷 README 도 같다). 위 「판단이 갈린 곳」 넷째 줄의 다음 묶음 후보와 같은 일이다
+- 넘김 — 가이드의 「공식 hooks 문서도 따옴표를 권한다」 문장 근거는 `.harness/.meta/evidence/phase12.md:113` 이다. 원문을 직접 받아 대조하지는 못했다(WebFetch 훅이 막음). 다음 리서치 때 원문과 맞춘다
