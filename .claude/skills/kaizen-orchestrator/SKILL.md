@@ -22,7 +22,7 @@ user-invocable: true
 
 - `references/phase-dependencies.md` — Phase 간 의존성 맵 + 업데이트 순서 규칙
 - `references/search-sources.md` — Phase 1 전용 리서치 소스 (스킬/에이전트 설계 패턴)
-- `references/phase-research-templates.md` — **Phase 1~16 각 의무 리서치 소스 테이블** (Phase 17 표는 아직 없다 — 표가 생길 때까지 Phase 17 은 `.claude/skills/howto-research/SKILL.md` Step 1 표의 1차 출처에서 3 건 이상을 조회한다). 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit / Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정 2026-07-27)
+- `references/phase-research-templates.md` — **Phase 1~17 각 의무 리서치 소스 테이블**. 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit / Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정 2026-07-27)
 
 ## 연동 스크립트
 
