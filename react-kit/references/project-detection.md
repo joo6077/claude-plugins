@@ -24,7 +24,7 @@ Run the kit's detector from the project root instead of re-reading each file by 
 bash "$REACT_KIT/scripts/project-detect.sh"   # REACT_KIT = ${CLAUDE_PLUGIN_ROOT} when installed, react-kit/ in the plugin repo
 ```
 
-`react-kit/evals/scripts/project-detect-test.sh` checks that the script output keeps these 11 keys. If the script is unavailable, read the files in the order above and build the same object.
+`react-kit/evals/scripts/project-detect-test.sh` checks only the `tanstackRouter` value (three known inputs, jq and python3 paths). No test checks that the output keeps the other keys of the object below. If the script is unavailable, read the files in the order above and build the same object.
 
 A detection result is a JSON object shaped like:
 

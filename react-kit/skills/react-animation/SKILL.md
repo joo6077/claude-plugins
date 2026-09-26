@@ -70,7 +70,7 @@ T2/T3 경계가 애매하면 `animation-architect-react` 에이전트에 자문�
 | Tier | 도구 | 적용 시나리오 | 난이도 |
 |------|------|--------------|--------|
 | **T1** | Tailwind `animate-*` + CSS `@keyframes` + scroll-driven | 상태 변화, hover, 단순 loop, 스크롤 연동 | 낮음 |
-| **T2** | View Transitions API | 뷰/라우트 전환, shared element, FLIP | 중 |
+| **T2** | View Transitions API (`withViewTransition` 래퍼) · React 19.3 `<ViewTransition>` (Transition 으로 표시된 업데이트만 — Gotcha 15) | 뷰/라우트 전환, shared element, FLIP | 중 |
 | **T3** | Pointer Events + FSM + requestAnimationFrame | 드래그앤드롭, 제스처, SVG 연결선 | 높음 |
 
 ## 2. Tier 1 — Tailwind + CSS 구현
@@ -716,6 +716,7 @@ export function Connector({
 
 - **Tier 1**: Tailwind `motion-reduce:animate-none`, `motion-reduce:transition-none` variant 적용
 - **Tier 2**: `withViewTransition` 래퍼에서 `window.matchMedia('(prefers-reduced-motion: reduce)')` 가드 적용
+  - `<ViewTransition>` 경로(Gotcha 15)는 이 래퍼를 거치지 않아 위 가드가 걸리지 않는다. §3.4 의 `prefers-reduced-motion` CSS 규칙을 함께 두고, 움직임 줄이기 설정을 켠 브라우저에서 전환이 멈추는지 전 · 후 두 시점 캡처로 확인한다(Gotcha 13). 그 CSS 규칙이 `<ViewTransition>` 전환에도 먹는다는 바깥 근거는 아직 없다 — 확인하지 못하면 `[미검증]` 으로 보고한다
 - **Tier 3**: CSS transform 애니메이션 대신 즉시 이동
 
 ### 5.2 드래그앤드롭 키보드 대안
