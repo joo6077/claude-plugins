@@ -1,0 +1,88 @@
+# pd 묶음 기록 — PRD 없음 · 폐기 결정 규칙
+
+- 계약: `.harness/sprint-contract-after-0926-prd-none-rules.md` (조건 21 · 기능 조건 13 · 봉인 `sha256:eb11e128b3bbbc6f` · 측정 줄 `sha256:29dc81f0f9c7f6c4`)
+- 가지: `chore/ak2-pd`, 시작점 `6378948`
+- 사용자 합의: 위임으로 받음 — 세션 `bda55d45-296c-491f-89ba-b52042d58e72`, 2026-09-26T10:09:00.557Z 와 결정 답 2026-09-26T10:30:16.222Z
+- QA 판정은 아직 없다. 다음 단계의 qa-evaluator 가 한다
+
+## 항목별 결과
+
+| 항목 | 결과 | 커밋 |
+| --- | --- | --- |
+| PD-1 결정 원문 한 곳 · 기능 단위 조건 | 고침. design-mockup Step 6 · sprint-contract 포맷 규칙 · `/sprint` Step 0.5 문단이 모두 「그 기능의 PRD 가 없으면 원문은 계약 `범위 경계` 한 곳, 줄 끝에 `PRD 없음`」 으로 맞았다. 승인 기록 폐기 칸은 결정 파일 원문대로 계약 경로만 적는다 | `be6db33` (design-kit) · `4c644c5` (harness) |
+| PD-2 새 워크트리에서 빈 출력이 두 뜻 | 고침. `/sprint` Step 0.5 가 지금 폴더와 본 작업 폴더(`git worktree list --porcelain` 첫 줄)를 함께 보고, 없거나 못 읽는 폴더는 `못 읽음: <경로>` 로 말한다. 두 폴더가 같으면 `sort -u` 로 한 벌만 낸다 | `4c644c5` |
+| PD-3 흔한 말이라 설명 글까지 걸림 | 고침. 검색을 줄 끝 모양 `PRD 없음[[:space:]]*[\|]?[[:space:]]*$` 으로 좁혔다. 이 레포 `.design` · `.harness` 에서 옛 검색 37 줄 → 새 검색 0 줄 | `4c644c5` |
+| PD-4 PRD 가 나중에 생기면 옮기기 | 고침. plan-prd Step 0 에 넷째 항목을 더했다 — 같은 검색으로 이 기능의 줄을 찾아 Step 3 에서 비범위 표로 옮기고, 원래 줄 끝을 `→ .planning/prd-<slug>.md` 로 바꾼다 | `bd379b3` (planning-kit) |
+
+봉인 커밋은 `a71eefb` (계약 한 파일). 바깥 근거 대기 항목은 없다 — 네 항목 모두 저장소 안 근거로 판단했다.
+
+## 교차 진단 반영 (봉인 전)
+
+- 검색 모양이 표 칸 빈칸 변형(`PRD 없음|` · `PRD 없음  |`)을 놓쳤다 → 빈칸 수를 가리지 않는 모양으로 넓히고 시험 입력에 두 변형을 넣었다. 처음 모양으로 되돌린 사본은 SC-01 에서 결정 줄 2 개(기대 4 개)만 낸다
+- 승인 기록 폐기 칸에 「하지 않는 것」 이름까지 남기던 초안은 결정 파일의 「경로만」 보다 넓었다 → 결정 원문대로 경로만 적고, 폐기 항목이 되살아나지 않게 「다음 시안 전에 그 경로에서 줄 끝이 `PRD 없음` 인 줄을 읽어 Step 2 의 폐기 항목으로 쓴다」 를 같은 문장에 넣었다
+- `ci-local.sh` 가 추적 안 된 도구다 → 허용 경로 밖이라 커밋하지 않고 지문 `59fe55125c0dbc77` 과 한계를 계약에 적었다
+- 절 경계 검사에 나쁜 예가 없었다 → 세 파일 끝에 줄을 더한 사본에서 SK-01 · SK-04 가 절 밖 2 줄, SK-02 가 더한 줄 3 을 낸다
+- plan-prd Step 3 에 같은 절차를 또 적지 않았다 → 규칙 원문이 두 곳이 되지 않게 한 의도다
+
+## 이 계약의 판단
+
+- 작업 계약이 아직 없을 때(design-kit 만 쓰는 프로젝트)는 정하지 않았다. 결정 파일이 이 경우를 다루지 않고, `design-kit/references/visual-change-protocol.md` 도 제품 요구 수준의 폐기 결정은 승인 기록에서 새로 정하지 않는다고 한다. 새 규칙을 지어 넣지 않았다
+- design-mockup Step 2 는 계약 `범위 경계` 를 직접 열지 않는다. 원래부터 있던 빈틈이고, Step 2 가 harness 계약 경로를 알게 하는 것은 PD-1 밖이다. 대신 Step 6 문장이 승인 기록 폐기 칸의 경로를 따라 읽게 해서 폐기 항목을 놓치지 않게 했다
+- `/sprint` 명령의 반복 변수는 계약 개선안의 `r` · `d` 대신 `root` · `dir` 로 썼다 (tone-kit N-08). 조건은 변수 이름을 재지 않는다
+
+## 킷별 버전 판단
+
+| 킷 | 지금 | 제안 | 이유 |
+| --- | --- | --- | --- |
+| design-kit | 0.6.0 | patch | 기존 스킬 한 문단의 규칙 문장만 바뀌었다. 새 스킬 · 새 절 없음 |
+| harness | 0.15.2 | patch | sprint-contract 한 줄 · `/sprint` Step 0.5 절 안만 바뀌었다. 재검증 출력에 `못 읽음:` 줄이 새로 생기지만 같은 절차의 보고 줄이다 |
+| planning-kit | 0.7.0 | patch | plan-prd Step 0 에 읽을 것 한 줄을 더했다. 새 스킬 · 새 산출물 없음 |
+
+## 문서 사이트 드리프트
+
+- `python3 scripts/detect-docs-drift.py --since 6378948` 출력: `no docs drift since 6378948` — 이 도구는 스킬 파일을 문서 페이지에 잇지 않아 아래 한 곳을 못 잡는다
+- `docs/design-kit/design-mockup.html:635` 가 옛 글이다 (「`.planning/prd-*.md` 가 0 개면 그 결정을 폐기 칸에 … 네 칸」). 원본 design-mockup Step 6 이 바뀌어 이제 틀린 안내다. 문서 사이트 묶음 DC-15 로 넘긴다 — 이 묶음은 페이지를 다시 만들지 않는다
+- `docs/` 안에 `PRD 없음` 이 든 다른 페이지는 없다 (`grep -rln 'PRD 없음' docs/` → 그 한 파일)
+
+## 검사 결과
+
+- 조건 21 개 자기 측정: AR-02 는 이 파일 커밋 뒤, DG-05 는 그 뒤 로컬 CI 로 다시 잰다. 나머지 19 개는 기대값과 같다 (`bd379b3` 기준)
+- `python3 scripts/validate-plugin.py` design-kit · harness · planning-kit 각각 종료 코드 0
+- `python3 scripts/sync-docs.py --check-only` 종료 코드 0 (모든 README 동기화 상태), `python3 scripts/sync-evals.py --check-only` 0 added · 0 orphans · 0 missing
+- 로컬 CI (`bd379b3`): `rc=0` 25 줄, 나머지 한 줄은 `feedback-agg-test SKIP (yq 없음)`
+
+## 측정 도구
+
+- 측정 도우미: 계약 `## 회귀 게이트 — 측정 도우미` 블록. 떼어 낸 판은 스크래치 `pd/measure.sh`
+- 사본 만들기 · 전부 재기: 스크래치 `pd/build.sh` · `pd/runall.sh` · `pd/mock.py`, 계약 고침 `pd/revise.py`, 봉인 `pd/seal.sh`, 저장 검사 `pd/gate.sh` · `pd/cov.sh`
+- 스크래치 경로: `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/pd/`
+- 로컬 CI: `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh` (지문 `59fe55125c0dbc77`), 요약은 스크래치 `pd/ci1/ci-local/summary.txt`
+
+## tone-guide 5 단계 대조
+
+규칙은 레포 `tone-kit/references/` 의 core-comment · core-naming · core-structure · core-antipatterns · locale-korean 을 읽었다. 오버레이 `.claude/tone-project.md` 기준 어댑터 없음 · 주석 언어 ko 라 스택 고유 검사는 없다. 대상은 네 스킬 파일의 더한 줄 11 줄과 이 파일이다.
+
+| 규칙 | 건수 | 판정 |
+| --- | --- | --- |
+| C-01 · C-15 (주석은 이유 · 짧게) | 0 | 통과 — bash 줄 끝 주석 셋은 한 줄 파편형이고, 새 `MAIN` 줄 주석은 왜 보는지를 적는다 |
+| C-04 · F (템플릿 마커 · 구분선) | 0 | 통과 |
+| C-07 (해설 3 줄 초과) | 0 | 통과 |
+| C-08 · S-12 (같은 자리 같은 모양) | 0 | 통과 — 새 bash 줄도 옆 줄처럼 명령 뒤 `#` 주석 한 칸 |
+| C-10 · C-13 (툴 참조 · 자화자찬) | 0 | 통과 |
+| N-08 (한 글자 이름) | 0 | 통과 — `r` · `d` 를 `root` · `dir` 로 바꿨다 |
+| N-09 · S-09 · S-10 (새 파일 · 폴더) | 0 | 통과 — 스킬 쪽 새 파일 없음 |
+| S-01 ~ S-07 (추출 · 래퍼) | 0 | 해당 없음 — 새 함수 없음 |
+| A · B · C · D · E · G (지울 주석 · 이름) | 0 | 통과 |
+| H (보존할 주석) | 0 | 통과 — 지운 옛 grep 줄 주석의 뜻은 새 줄 주석이 그대로 잇는다 |
+| I | — | 해당 없음 — 어댑터 없음 |
+| J (중복 구현) | 1 | 의도 — 같은 검색 모양이 `/sprint` 와 plan-prd 에 있다. 쓰는 쪽과 읽는 쪽이 글자 그대로 같아야 한다는 조건(SK-06)이라 한 곳으로 모으지 않는다. 강도 SHOULD |
+| K-02 (번역투 여섯 가지, §8 G-1) | 0 | 통과 — 더한 줄 11 줄과 이 파일에 grep 0 건 |
+| K-04 (한다체) | 0 | 통과 — `합니다` · `습니다` 0 건 |
+| K-05 (외래어) | 0 | 통과 — 워크트리는 같은 파일 Step 0 이 이미 쓰는 말 |
+| K-11 (새로 지은 이름) | 0 | 통과 — 「본 작업 폴더」 는 처음 나오는 자리에 `git worktree list` 첫 줄이라고 풀었다 |
+| K-10 (§8 · §9 실행) | 0 | 통과 — G-1 을 더한 줄과 이 파일에 돌렸다. G-2 · G-3 은 `///` 문서 주석용이라 마크다운에 해당 없음 |
+
+## 남은 것
+
+- `docs/design-kit/design-mockup.html:635` 다시 만들기 — DC-15 묶음 몫 (위 드리프트 절)
+- 승인 기록 폐기 칸을 「경로만」 으로 둔 것은 교차 진단이 「사용자에게 짚어 확인받으라」 고 권한 자리다. 이 묶음은 결정 파일 원문을 따랐다. 사용자가 PRD 가 있을 때처럼 「하지 않는 것」 이름도 남기길 원하면 design-mockup Step 6 한 문장만 고치면 된다 — 부모가 확인할 일
