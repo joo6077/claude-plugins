@@ -120,3 +120,10 @@ meta-audit: 불러오고 판정하지 않은 규칙은 어댑터 전용 규칙(I
 5. reflect — `reflect-kit/hooks/log-reflection.sh:250` 주석이 아직 「`claude -p --model haiku`로 재시도」 다. 실제 호출(`:269`)은 `--safe-mode` 를 쓴다. 다음 reflect-kaizen 에서 주석을 맞춘다
 6. QA 개선 제안(ER-02) — bambu 완료 검사가 SKILL.md 안에 박힌 스크립트라 따로 도는 실행 목록이 없다. 이번에는 계약 측정 도우미가 awk 로 떼어 돌렸을 뿐이다.
    evals 시험 파일을 돌리는 스크립트로 올려 CI 목록에 넣을지 다음 bambu-kaizen 에서 정한다
+
+## QA 뒤 로컬 CI
+
+깨끗한 작업 폴더의 `95ef903` 에서 `ci-local.sh` 를 다시 돌렸다(`TMPDIR` 은 이 세션 임시 폴더 `c3c-final/ci/`, 도구 sha256 앞자리 `a415eaff98a46b86` 로 봉인 전 값과 같다).
+23 단계 중 `rc=0` 22, `feedback-agg-test` 는 `yq` 가 없어 건너뜀. 실패 0. reflect 시험 셋은 32 · 18 · 16 경우 모두 불일치 0 이다.
+CI 파일에만 있는 줄은 설치 단계 넷(`pip install pyyaml` · zsh 설치 · `npm ci` · playwright 설치)과 `yq` 여부로 갈리는 여러 줄 블록 하나뿐이다.
+CI 가 남긴 추적 안 된 `__pycache__` 두 폴더는 지웠다. 그 뒤 커밋은 이 절을 더한 notes 하나이고, CI 단계는 `.harness/.meta/` 를 읽지 않는다
