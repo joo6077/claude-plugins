@@ -12,6 +12,14 @@ set -eo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HARNESS_SCRIPTS="${SCRIPT_DIR}/../../../scripts"
 
+# 모든 파일을 실행마다 새 임시 폴더 하나에 둔다. 고정 /tmp 경로를 쓰면 동시에 돈 시험끼리 서로의 초안을 지운다.
+# HOME 도 그 안으로 돌린다 — 저장본이 부른 사람의 ~/.harness/feedback 에 쌓이지 않게
+WORK="$(mktemp -d "${TMPDIR:-/tmp}/save-test.XXXXXX")"
+WORK="$(cd "${WORK}" && pwd -P)"
+trap 'rm -rf "${WORK}"' EXIT
+export HOME="${WORK}/home"
+mkdir -p "${HOME}"
+
 echo "=== Feedback System Test ==="
 
 # 실패해야 하는 명령을 돌리고 (rc, 합쳐진 출력) 을 돌려준다.
@@ -42,7 +50,7 @@ assert_rejected() { # assert_rejected <라벨> <기대문자열>
 }
 
 # 1. 테스트용 draft 생성
-DRAFT="/tmp/test-feedback-draft.yaml"
+DRAFT="${WORK}/test-feedback-draft.yaml"
 cat > "${DRAFT}" <<'YAML'
 schema_version: 1
 timestamp: "2026-03-30T10:00:00+09:00"
@@ -71,7 +79,7 @@ user_rating: null
 user_comment: null
 YAML
 # save-feedback.sh 가 저장 뒤 초안을 지우므로 아래 경우에 쓸 원본을 남긴다
-DRAFT_SRC="/tmp/test-feedback-draft-src.yaml"
+DRAFT_SRC="${WORK}/test-feedback-draft-src.yaml"
 cp "${DRAFT}" "${DRAFT_SRC}"
 
 # 2. save 실행
@@ -103,14 +111,14 @@ echo ""
 echo "--- Negative Tests ---"
 
 # 5. 잘못된 YAML (파싱 불가) — 스키마 검증에서 막혀야 한다
-BAD_DRAFT="/tmp/test-bad-yaml.yaml"
+BAD_DRAFT="${WORK}/test-bad-yaml.yaml"
 echo "invalid: [yaml: {{broken" > "${BAD_DRAFT}"
 run_expecting_failure bash "${HARNESS_SCRIPTS}/save-feedback.sh" contract "${BAD_DRAFT}"
 rm -f "${BAD_DRAFT}"
 assert_rejected "invalid YAML rejected" "스키마 검증 실패"
 
 # 6. 필수 필드 누락 — 어느 필드가 없는지까지 보고돼야 한다
-INCOMPLETE_DRAFT="/tmp/test-incomplete.yaml"
+INCOMPLETE_DRAFT="${WORK}/test-incomplete.yaml"
 cat > "${INCOMPLETE_DRAFT}" <<'YAML'
 schema_version: 1
 skill: sprint-contract
@@ -120,12 +128,12 @@ rm -f "${INCOMPLETE_DRAFT}"
 assert_rejected "incomplete YAML rejected" "누락 필드"
 
 # 7. verify on non-existent file — 파일 부재 사유로 실패해야 한다
-run_expecting_failure bash "${HARNESS_SCRIPTS}/verify-feedback.sh" "/tmp/nonexistent-file.yaml"
+run_expecting_failure bash "${HARNESS_SCRIPTS}/verify-feedback.sh" "${WORK}/nonexistent-file.yaml"
 assert_rejected "non-existent file rejected" "파일이 존재하지 않음"
 
 # 8. project_hash · project_name 이 없는 초안 — 스크립트가 CONTRACT_ROOT 로 다시 계산해 채우므로 저장된다
-NOID_DRAFT="/tmp/test-noid-draft.yaml"
-NOID_ERR="/tmp/test-noid-draft.err"
+NOID_DRAFT="${WORK}/test-noid-draft.yaml"
+NOID_ERR="${WORK}/test-noid-draft.err"
 grep -vE '^project_(hash|name):' "${DRAFT_SRC}" > "${NOID_DRAFT}"
 set +e
 NOID_SAVED=$(bash "${HARNESS_SCRIPTS}/save-feedback.sh" contract "${NOID_DRAFT}" 2>"${NOID_ERR}")
@@ -147,8 +155,8 @@ echo "PASS: identity 없는 초안 저장 (재계산 project_hash · project_nam
 
 # 9. 워크트리에서 저장해도 project_name 은 본 레포 폴더 이름이다 — reflect-kit project_root 와 같은 규칙.
 #    --show-toplevel 로 구하면 워크트리 이름(wt-x)이 적혀 같은 레포 피드백이 워크트리마다 갈린다
-WT_BASE="$(mktemp -d)"
-WT_BASE="$(cd "${WT_BASE}" && pwd -P)"
+WT_BASE="${WORK}/wt"
+mkdir -p "${WT_BASE}"
 WT_MAIN="${WT_BASE}/projmain"
 if ! (
   export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
@@ -161,7 +169,7 @@ if ! (
   rm -rf "${WT_BASE}" "${DRAFT_SRC}"
   exit 1
 fi
-WT_DRAFT="/tmp/test-wt-draft.yaml"
+WT_DRAFT="${WORK}/test-wt-draft.yaml"
 cp "${DRAFT_SRC}" "${WT_DRAFT}"
 set +e
 WT_SAVED=$(cd "${WT_MAIN}/.claude/worktrees/wt-x" &&
@@ -179,12 +187,73 @@ fi
 echo "PASS: 워크트리 저장본 project_name (projmain)"
 
 # 10. 초안 누락 보고에 재계산 필드를 섞지 않는다 — timestamp 만 빠졌으면 timestamp 만 적는다
-NOTS_DRAFT="/tmp/test-nots-draft.yaml"
+NOTS_DRAFT="${WORK}/test-nots-draft.yaml"
 grep -vE '^(project_hash|project_name|timestamp):' "${DRAFT_SRC}" > "${NOTS_DRAFT}"
-rm -f "${DRAFT_SRC}"
 run_expecting_failure bash "${HARNESS_SCRIPTS}/save-feedback.sh" contract "${NOTS_DRAFT}"
 rm -f "${NOTS_DRAFT}"
 assert_rejected "draft missing timestamp only" "누락 필드: ['timestamp']"
+
+# 11~14. 계약 폴더와 식별 칸 — 셸 위치(ELSE)에도 .harness/ 를 둬서 계약 경로가 셸 위치를 이기는지 본다
+PROJ="${WORK}/proj"
+ELSE="${WORK}/elsewhere"
+mkdir -p "${PROJ}/.harness" "${ELSE}/.harness" "${WORK}/root2/.harness"
+: > "${PROJ}/.harness/sprint-contract-demo.md"
+ID_DRAFT="${WORK}/test-id-draft.yaml"
+{ cat "${DRAFT_SRC}"; printf '%s\n' 'sprint_slug: draftslug' 'contract_path: /somewhere/.harness/sprint-contract-demo.md' \
+    'session_id: sess-draft' 'contract_root: /somewhere' 'contract_path_inferred: false'; } > "${ID_DRAFT}"
+top_value() { sed -n "s/^$1:[[:space:]]*//p" "$2" | tr -d "'\""; }   # top_value <칸> <저장본> — 칸이 두 번 들면 두 줄이 나온다
+save_from_elsewhere() {  # save_from_elsewhere <초안> <환경 할당…> — 셸 위치 ELSE 에서 저장하고 저장본 경로를 SAVED 에
+  local draft=$1; shift
+  set +e
+  SAVED=$(cd "${ELSE}" && env -u CLAUDE_CODE_SESSION_ID "$@" bash "${HARNESS_SCRIPTS}/save-feedback.sh" contract "${draft}" 2>"${WORK}/save.err")
+  SAVE_RC=$?
+  set -e
+}
+
+cp "${ID_DRAFT}" "${WORK}/d11.yaml"
+save_from_elsewhere "${WORK}/d11.yaml" CLAUDE_CODE_SESSION_ID=sess-env HARNESS_CONTRACT="${PROJ}/.harness/sprint-contract-demo.md"
+if [[ "${SAVE_RC}" -ne 0 || "$(top_value contract_root "${SAVED}")" != "${PROJ}" ]]; then
+  echo "FAIL: HARNESS_CONTRACT 를 줬는데 contract_root 가 '$(top_value contract_root "${SAVED}")' 다 — 기대 ${PROJ} (rc=${SAVE_RC})"
+  exit 1
+fi
+echo "PASS: HARNESS_CONTRACT 가 있으면 contract_root 는 셸 위치가 아니라 그 계약의 .harness/ 위 폴더다"
+
+for key in sprint_slug contract_path session_id contract_root contract_path_inferred; do
+  if [[ "$(grep -c "^${key}:" "${SAVED}")" != 1 || "$(grep -c "^draft_${key}:" "${SAVED}")" != 1 ]]; then
+    echo "FAIL: 저장본 맨 위 칸 ${key} $(grep -c "^${key}:" "${SAVED}") 번 · draft_${key} $(grep -c "^draft_${key}:" "${SAVED}") 번 — 각각 1 번이어야 한다"
+    exit 1
+  fi
+done
+if [[ "$(top_value sprint_slug "${SAVED}")" != draftslug || "$(top_value contract_path "${SAVED}")" != "${PROJ}/.harness/sprint-contract-demo.md" ||
+  "$(top_value session_id "${SAVED}")" != sess-env || "$(top_value draft_session_id "${SAVED}")" != sess-draft ]]; then
+  echo "FAIL: 식별 칸 값의 우선순위가 바뀌었다 — sprint_slug=$(top_value sprint_slug "${SAVED}") contract_path=$(top_value contract_path "${SAVED}") session_id=$(top_value session_id "${SAVED}")"
+  exit 1
+fi
+echo "PASS: 초안 식별 칸 다섯은 draft_ 로 한 번씩, 최종 칸도 한 번씩 (환경 세션이 초안 세션을 이긴다)"
+
+cp "${ID_DRAFT}" "${WORK}/d12.yaml"
+save_from_elsewhere "${WORK}/d12.yaml" HARNESS_CONTRACT="${PROJ}/.harness/sprint-contract-demo.md"
+if [[ "${SAVE_RC}" -ne 0 || "$(top_value session_id "${SAVED}")" != sess-draft || "$(grep -c '^session_id:' "${SAVED}")" != 1 ]]; then
+  echo "FAIL: 환경 세션이 없으면 초안 세션 sess-draft 를 한 번 써야 한다 — 실제 '$(top_value session_id "${SAVED}")' (rc=${SAVE_RC})"
+  exit 1
+fi
+echo "PASS: 환경 세션이 없으면 draft_session_id 와 같은 값이 session_id 에 한 번 들어간다"
+
+cp "${ID_DRAFT}" "${WORK}/d13.yaml"
+save_from_elsewhere "${WORK}/d13.yaml" HARNESS_CONTRACT="${PROJ}/.harness/sprint-contract-gone.md"
+if [[ "${SAVE_RC}" -ne 0 || "$(top_value contract_root "${SAVED}")" != "${ELSE}" ]] || ! grep -q 'HARNESS_CONTRACT' "${WORK}/save.err"; then
+  echo "FAIL: 없는 HARNESS_CONTRACT — 셸 위치 ${ELSE} 로 잡고 경고해야 한다 (contract_root='$(top_value contract_root "${SAVED}")' rc=${SAVE_RC})"
+  exit 1
+fi
+echo "PASS: HARNESS_CONTRACT 파일이 없으면 경고하고 셸 위치에서 contract_root 를 찾는다"
+
+cp "${ID_DRAFT}" "${WORK}/d14.yaml"
+save_from_elsewhere "${WORK}/d14.yaml" HARNESS_CONTRACT_ROOT="${WORK}/root2" HARNESS_CONTRACT="${PROJ}/.harness/sprint-contract-demo.md"
+if [[ "${SAVE_RC}" -ne 0 || "$(top_value contract_root "${SAVED}")" != "${WORK}/root2" ]]; then
+  echo "FAIL: HARNESS_CONTRACT_ROOT 가 HARNESS_CONTRACT 를 이겨야 한다 (contract_root='$(top_value contract_root "${SAVED}")')"
+  exit 1
+fi
+echo "PASS: HARNESS_CONTRACT_ROOT 를 주면 그것이 contract_root 다"
 
 echo ""
 echo "=== ALL TESTS PASSED ==="

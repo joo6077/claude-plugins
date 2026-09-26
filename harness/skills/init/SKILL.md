@@ -58,7 +58,7 @@ bash "${PLUGIN_DIR}/scripts/init.sh" "." "<stack>"
 - 모노레포에서 init 시 루트가 아닌 서브패키지에서 실행하면 `.harness/`가 서브패키지에 생성된다. 반드시 모노레포 루트에서 실행하라
 - 생성된 `project.yaml`을 git에 커밋하지 않으면 다른 팀원이 sprint-contract를 실행할 때 기본 설정으로 fallback한다. init 후 즉시 커밋하라
 - `init.sh`에서 파일 내용을 치환할 때 `sed -i`를 직접 사용하지 마라 — macOS는 `sed -i ''`, Linux는 `sed -i`로 문법이 다르다. `sed ... > tmpfile && mv tmpfile target` 패턴으로 크로스 플랫폼 호환성을 확보해라
-- `.gitignore`에 `.harness/`를 추가하지 마라 — sprint-contract와 project.yaml은 팀 공유 대상이다. `.harness/feedback-draft.yaml`만 개별 무시하라
+- `.gitignore`에 `.harness/`를 추가하지 마라 — sprint-contract와 project.yaml은 팀 공유 대상이다. `.harness/feedback-draft*.yaml` 초안 파일만 개별 무시하라 (슬러그 초안 `feedback-draft-<slug>.yaml` 포함)
 
 ## 실행 후 안내
 
