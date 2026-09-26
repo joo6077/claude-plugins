@@ -96,6 +96,39 @@ react-kit 의 `docs/react-kit/scaffolding.html` · `integration.html` 도 `harne
 - ER-01 `dir=2/0 nonutf8=2/0`
 - AP-03 · AP-04 종료 코드 0 · RE-01 추가 파일 0 · DG-01 0 · DG-02 `md_new=0 sh_new=0 json_bad=0` (notes 커밋 전 측정)
 
+## 교차 진단 뒤 고친 것 (2026-09-26 12:55)
+
+교차 진단이 판정을 바꿀 결함 하나와 작은 문제 셋을 찾았다. 넷 다 고쳤고, 같은 모양인 flutter-run `:22` 도 함께 고쳤다.
+
+| 커밋 | 킷 | 내용 |
+| --- | --- | --- |
+| `4dedb85` | flutter-toolkit | flutter-preflight Gotcha(`:18`)가 Step 2b 4 번의 타겟별 확인을 따른다 — `app-preflight` 묶음 타겟만 있으면 모든 단계가 기본 명령(판정을 바꿀 결함) · flutter-run Gotcha(`:22`)의 `make app-run` 도 타겟이 있을 때만 · widget-inspector 칸 값 문장(`:134`)과 리포트 틀(`:198`)이 표 없는 두 경우를 담는다 |
+| `7799a5a` | infra-kit | infra-test 「빼면 안 되는 것」 표의 `CORE_TOOLS` 줄을 지금 동작에 맞췄다 · checkout rule 오류 문구 「YAML 파싱 실패」 를 「YAML 읽기 실패」 로 |
+
+- flutter-preflight 는 AR-01 기대 집합 밖이다. 개정 파일 `.harness/sprint-amendments-after-0924-kits-a.md` 에 그 한 경로를 더하는 개정(AM-01, 조건을 느슨하게 하는 쪽)과 새로 고친 곳을 재는 측정(AM-02, 조건을 좁히는 쪽)을 적었다.
+- infra-test 표 줄: 교차 진단은 사전 검사를 뺀 사본의 종료 코드 1 이 규칙 2 때문이라고 했다. 다시 돌려 보니 grep 과 python3 가 모두 없으면 규칙 2 가 `[미검증]` 이라 종료 코드가 2 다.
+  줄 검사 갈래는 python3 나 PyYAML 이 없을 때만 돌고 그때 규칙 2 도 늘 `[미검증]` 이라, 옛 줄의 「exit 1 로 끝난다」 는 어느 조합에서도 나오지 않는다. 표 줄에 2 를 적었다 (재현 값은 AM-02).
+- `CORE_TOOLS="grep"` 은 그대로 둔다. python3 · PyYAML 이 있으면 grep 없이도 돌지만, 사전 검사를 도구 조합으로 가르면 스크립트 동작이 바뀐다. 오보를 내는 갈래를 남기느니 멈추는 쪽을 골랐다고 표 줄에 적었다.
+
+추가로 넘긴 것:
+
+| 항목 | 사유 |
+| --- | --- |
+| widget-inspector 「관례 표 없는 호출」 평가 사례 | `flutter-toolkit/evals/evals.json` 이 AR-01 기대 집합 밖이고, 사례를 더하면 `CLAUDE.md` 의 평가 사례 수 문장까지 바뀐다 — 다음 사이클 몫 |
+| build_runner 2.16 이후 동작 | 교차 진단이 올라온 변경 기록 2.15.0 항목(지운 옵션을 넘겨도 경고만 내고 무시한다)을 들어 닫았다. 이 맥 pub 설치본은 2.13.1 까지라 직접 확인하지 못했다. 결론(플래그를 빼지 않는다)은 그대로다 |
+
+다시 만들 문서 페이지는 늘지 않았다 — flutter-preflight · widget-inspector 는 문서 사이트 페이지가 없고, `docs/infra-kit/infra-test.html` 은 이미 위 목록에 있다.
+
+tone-guide 5 단계 대조 (이번에 더한 여섯 줄, 1 단계는 이번 수정 전에 다시 불러 코어 넷 · `locale-korean.md` · 오버레이를 읽었다):
+
+| 규칙 | 건수 | 판정 |
+| --- | --- | --- |
+| K-02 번역투 여섯 가지 (G-1) · G-2 `합니다` 체 | 0 · 0 | 통과 |
+| K-05 · 사용자 쉬운 말 목록 | 1 → 0 | 고침 — 앞 대조는 「파싱」 을 정착 외래어로 통과시켰으나 사용자 쉬운 말 목록(`~/.claude/rules/plain-korean.md`)이 이 낱말을 막는다. 새로 더한 checkout rule 문구만 「읽기」 로 바꿨고, 규칙 2 의 옛 문구는 이번 범위가 아니라 두었다 |
+| K-11 새 이름 | 0 | 통과 — 「묶음 타겟」 은 project-detection Step 2b 가 이미 쓰는 말 |
+| C-07 해설 3 줄 초과 · C-15 문체 | 0 · 0 | 통과 — 표 칸 · Gotcha 한 줄씩 |
+| S-12 같은 역할 같은 패턴 | 0 | 통과 — flutter-preflight · flutter-run 두 Gotcha 가 flutter-ai-rules `:115` 와 같은 꼴로 Step 2b 4 번을 가리킨다 |
+
 ## 그 밖에 적어 둘 것
 
 - 편집기가 바뀐 파일에서 띄우는 경고는 모두 이번에 손대지 않은 줄의 옛 경고다(`widget-inspector.md` MD060 · MD032, `project-detection.md` MD060 · MD032,
