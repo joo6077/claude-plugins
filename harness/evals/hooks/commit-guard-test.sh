@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # commit-guard.sh 를 임시 저장소에서 사고 형태와 정상 형태로 돌려 exit 코드와 출력을 대조한다.
 # 번호는 계약 조건 SC-01 ①~⑤ · SC-02 ⑥~⑭ · SC-03 ⑮⑯ · ER-01 · ER-02 (insights-0924-hooks-skill-collector) 와
-# ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) · ㉖~㉚ (kaizen-0924-f1-harness-followups 이름 바꾸기) 를 따른다.
+# ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) · ㉖~㉚ (kaizen-0924-f1-harness-followups 이름 바꾸기) ·
+# ㉛~㊴ (after-0924-harness-orch -a · 같은 명령 git add 이름 바꾸기와 -i 막힘 설명) 을 따른다.
 # COMMIT_GUARD_HOOK 으로 훅 경로를 바꿀 수 있다 — 판정 줄을 지운 사본으로 음성 대조를 돌릴 때 쓴다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -182,6 +183,43 @@ run pre 'git commit -o -m x -- d1 d2 d3' "$r"; expect ㉙ 2 '' '개가 실린 �
 # 옮긴 새 경로가 지정 경로 밖이면 옛 경로 60 개가 삭제로 실린다
 r=$work/c30; mk_repo "$r"; git -C "$r" mv d1 d2
 run pre 'git commit -o -m x -- d1' "$r"; expect ㉚ 2 '' '삭제 60 개'
+
+# ── 이름 바꾸기: -a 와 같은 명령의 git add 도 git 이 이름 바꾸기로 잇는 옛 경로는 삭제로 세지 않는다 ──
+r=$work/c31; mk_repo "$r"; mv "$r/d1" "$r/d2"; git -C "$r" add d2
+run pre 'git commit -a -m x' "$r"; expect ㉛ 0 empty
+
+r=$work/c32; mk_repo "$r"; mv "$r/d1" "$r/d2"
+run pre 'git add -A && git commit -m x' "$r"; expect ㉜ 0 empty
+
+r=$work/c33; mk_repo "$r"; mv "$r/d1" "$r/d2"; git -C "$r" add d2
+run pre 'git add -u && git commit -m x' "$r"; expect ㉝ 0 empty
+
+r=$work/c34; mk_repo "$r"; mv "$r/d1" "$r/d2"
+run pre 'git add . && git commit -m x' "$r"; expect ㉞ 0 empty
+
+# 새 경로를 올리지 않은 -a 는 옛 경로 60 개를 삭제로 싣는다
+r=$work/c35; mk_repo "$r"; mv "$r/d1" "$r/d2"
+run pre 'git commit -am x' "$r"; expect ㉟ 2 '' '삭제 60 개'
+
+# 이동 60 개에 진짜 삭제 60 개가 섞이면 진짜 삭제만 센다
+r=$work/c36; mk_repo "$r"; mkdir -p "$r/d3"
+for ((k = 1; k <= 60; k++)); do printf 'other %d\n' "$k" >"$r/d3/$(printf 'g%03d' "$k")"; done
+git -C "$r" add d3 && git -C "$r" commit -qm d3
+mv "$r/d1" "$r/d2"; rm -rf "$r/d3"
+run pre 'git add -A && git commit -m x' "$r"; expect ㊱ 2 '' '삭제 60 개'
+
+r=$work/c37; mk_repo "$r"; rm_worktree "$r" 60
+run pre 'git commit -a -m x' "$r"; expect ㊲ 2 '' '작업 폴더 삭제 포함'
+
+# -i 막힘 설명: ㉒ 처럼 작업 폴더 삭제가 더해졌으면 적고, 목록 삭제만이면 적지 않는다
+r=$work/c38; mk_repo "$r"; rm_staged "$r" 10
+for ((k = 11; k <= 55; k++)); do rm -f "$r/d1/$(printf 'f%03d' "$k")"; done
+run pre 'git commit -i d1 -m x' "$r"; expect ㊳ 2 '' '작업 폴더 삭제 포함'
+
+r=$work/c39; mk_repo "$r"; rm_staged "$r" 51
+run pre 'git commit -i d1 -m x' "$r"; expect ㊴ 2 '' '삭제 51 개'
+ok=1; grep -qF '작업 폴더 삭제 포함' "$work/err" && ok=0
+report ㊴-설명 "$ok" "stderr 에 '작업 폴더 삭제 포함' 없음" "$(grep -cF '작업 폴더 삭제 포함' "$work/err") 줄"
 
 # ── SC-03 커밋 직후 알림 ──
 r=$work/c15; mk_repo "$r"; rm_staged "$r" 60; git -C "$r" commit -qm del

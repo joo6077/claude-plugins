@@ -190,7 +190,7 @@ $(top_dirs "$names")
 }
 
 check_commit_pre() {  # check_commit_pre <저장소 폴더> <GIT_INDEX_FILE 값> <commit 인자…>
-  local d=$1 idx=$2 gd f staged extra names del_count reverted shown more t src
+  local d=$1 idx=$2 gd f staged extra worktree_deleted names del_count reverted shown more t src
   shift 2
   parse_commit_args "$@"
   [ "$c_dry" = 1 ] && return 0
@@ -218,19 +218,28 @@ check_commit_pre() {  # check_commit_pre <저장소 폴더> <GIT_INDEX_FILE 값>
   fi
 
   staged=$(g diff --cached -M --diff-filter=D --name-only)
-  # -i 는 지정한 경로의 작업 폴더 삭제를 목록에 더해 싣는다. 목록 사본에 얹어 세야
-  # 옮긴 파일(새 경로만 git add)의 옛 경로가 삭제가 아니라 이름 바꾸기로 잡힌다
-  if [ "$c_incl" = 1 ] && [ "${#c_pathv[@]}" -gt 0 ]; then
+  extra=""
+  # -a 와 같은 명령의 git add 는 작업 폴더 상태를, -i 는 지정한 경로의 작업 폴더 상태를 목록에 더해 싣는다.
+  # 목록 사본에 얹어 세야 옮긴 폴더의 옛 경로가 삭제가 아니라 이름 바꾸기로 잡힌다
+  if [ "$c_all" = 1 ] || [ "$add_all" = 1 ] || { [ "$c_incl" = 1 ] && [ "${#c_pathv[@]}" -gt 0 ]; }; then
+    worktree_deleted=$(g ls-files --full-name --deleted)
     t=$(mktemp -d "${TMPDIR:-/tmp}/commit-guard.XXXXXX") || return 0
     src=${g_index:-$(g rev-parse --git-path index)}
     case $src in /*) ;; *) src=$d/$src ;; esac
-    cp "$src" "$t/index" 2>/dev/null &&
-      staged=$(overlay_deletes "$t/index" "$(g ls-files --full-name -- "${c_pathv[@]}")")
+    if cp "$src" "$t/index" 2>/dev/null; then
+      if [ "$c_all" = 1 ] || [ "$add_all" = 1 ]; then
+        # add -A · add . 는 새 파일도 올린다 — 새 경로가 사본에 없으면 이름 바꾸기로 잡히지 않는다
+        staged=$(overlay_deletes "$t/index" "$(printf '%s\n' "$worktree_deleted"
+          [ "$add_new" = 1 ] && g ls-files --full-name --others --exclude-standard)")
+      else
+        staged=$(overlay_deletes "$t/index" "$(g ls-files --full-name -- "${c_pathv[@]}")")
+      fi
+    fi
     rm -rf "$t"
+    # 목록에서 이미 지운 삭제만으로 막을 때는 막힘 설명에 작업 폴더 삭제를 적지 않는다
+    extra=$(comm -12 <(printf '%s\n' "$staged" | sort) <(printf '%s\n' "$worktree_deleted" | sort) | grep .)
   fi
-  extra=""
-  if [ "$c_all" = 1 ] || [ "$add_all" = 1 ]; then extra=$(g ls-files --deleted); fi
-  names=$(printf '%s\n%s\n' "$staged" "$extra" | grep -v '^$' | sort -u)
+  names=$(printf '%s\n' "$staged" | grep -v '^$' | sort -u)
   del_count=$(printf '%s\n' "$names" | grep -c .)
   [ "$del_count" -gt "$limit" ] && block_deleted "$del_count" "$names" "$extra"
 
@@ -284,9 +293,11 @@ handle_git() {  # handle_git <off> <GIT_INDEX_FILE 값> <git 인자…>
     add)
       for a in "$@"; do
         case $a in
-          -A | --all | . | -u | --update | :/ | --no-ignore-removal) add_all=1 ;;
+          -u | --update) add_all=1 ;;
+          -A | --all | . | :/ | --no-ignore-removal) add_all=1 add_new=1 ;;
           --*) ;;
-          -*[Au]*) add_all=1 ;;
+          -*A*) add_all=1 add_new=1 ;;
+          -*u*) add_all=1 ;;
         esac
       done
       ;;
@@ -355,7 +366,7 @@ handle_segment() {
   esac
 }
 
-dir=$cwd lost=0 add_all=0 x_off=0 x_index="" read_trees="|"
+dir=$cwd lost=0 add_all=0 add_new=0 x_off=0 x_index="" read_trees="|"
 while IFS= read -r seg; do
   IFS=$'\037' read -r -a words <<<"$seg"
   handle_segment "${words[@]}"
