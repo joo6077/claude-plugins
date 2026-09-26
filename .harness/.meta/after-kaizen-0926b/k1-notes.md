@@ -96,7 +96,7 @@
 | C-10 · C-13 툴 참조 · 자화자찬 | 0 | 통과 |
 | H 보존 | 리뷰 | 통과 — 지운 줄은 옛 다섯 조항 · 옛 build_runner 문장 · g6 `8. audit` 둘 · forwardRef 예시뿐, 모두 새 문장으로 바뀌었다 |
 | S-12 같은 자리 같은 모양 (관측 컨벤션) | 2 | 주의 — react-animation · plan-sync-github 의 `# Gotchas` 를 `## Gotchas` 로 낮췄다. react-kit 은 21 스킬 중 7 개가 이미 `## Gotchas` 라 섞여 있었고, planning-kit 은 12 개 모두 `# Gotchas` 라 plan-sync-github 만 달라졌다. 아래 「남은 것」 첫 줄 |
-| 쉬운 말 목록 | 리뷰 | 더한 줄에 목록 낱말이 여덟 번 나오지만 모두 기존 줄의 나머지(「스키마」 · 표 칸 「코드 스캐폴딩」) 이거나 v5.1 사본 글자다. flutter-audit 머리 인용 두 줄의 「정본」 은 원래 있던 낱말을 이어 썼다 |
+| 쉬운 말 목록 | 리뷰 | 더한 줄에 목록 낱말이 여덟 번 나오지만 모두 기존 줄의 나머지(「스키마」 · 표 칸 「코드 스캐폴딩」) 이거나 v5.1 사본 글자다. flutter-audit 머리 인용에서 새로 쓴 문장의 「정본」 은 QA 1 차 지적 뒤 「원문」 으로 바꿨다(`7c51d87`). 첫 줄 「정본(SSOT)」 은 시작 판부터 있던 줄이다 |
 
 ## 조건 자기 측정 (끝점 기준, 계약 측정 도우미)
 
@@ -128,6 +128,21 @@
 | SC-00 · RE-01 · DG-01 · DG-03 | 0 · 0 줄 · 0 · 0 | 맞음 |
 | DG-02 | `md_new=0 json_bad=0` | 맞음 |
 | DG-05 | 끝점 `6f421dd`, 작업 폴더 깨끗, `rc=0` 25 줄 · 나머지 한 줄 `feedback-agg-test SKIP (yq 없음)` (요약: 같은 폴더 `ci-final/ci-local/summary.txt`) | 맞음 |
+
+## QA 1 차 REJECT 뒤 고친 것
+
+QA 가 끝점 `e4f63d8` 에서 찾은 여섯 건과 처리. 커밋은 `729c110`(react-kit) · `899d2ab`(docs/react) · `7c51d87`(flutter-toolkit).
+
+| # | 지적 | 처리 |
+| --- | --- | --- |
+| 1 | `project-detection.md` 가 「시험이 11 키를 지킨다」 고 적었는데 시험은 `tanstackRouter` 하나만 잰다 | 고침 — 시험은 `tanstackRouter` 값만 재고 나머지 키를 재는 시험은 없다고 적었다. `final-integration.md` 트리 주석도 같은 뜻으로 |
+| 2 | `final-integration.md` Quickstart 번호가 1 · 2 · 4 · 5 · 6 | 고침 — 1~5 로 이었다 |
+| 3 | react-animation 본문(1 절 티어 표 · 5.1 절)에 `<ViewTransition>` 길이 없다 | 고침 — 티어 표 T2 칸에 두 길을 적고, 5.1 절에 「이 길은 래퍼 가드를 거치지 않는다 · §3.4 CSS 규칙을 두고 두 시점 캡처로 확인 · 못 하면 `[미검증]`」 을 더했다. CSS 규칙이 `<ViewTransition>` 에도 먹는지는 EX-9 에 없어 바깥 근거 없음으로 적었다 |
+| 4 | flutter-audit 보고 틀에 결론 줄이 없고 끝 줄 · 환경 배제 판정 · Rules 가 옛 한 카운터 표기 | 고침 — 끝 줄을 `env_gaps N · invalid_evidence N` 로, 결론 줄(통과 · 통과 아님 · 검증 부족)을 더했다. 환경 배제 판정 · 보고 틀 · Rules 줄은 4 요건에 따라 `:ENV` · `:INVALID` 로, Evidence Validity 무효 합산처는 `invalid_evidence` 로 |
+| 5 | react-animation · plan-sync-github 의 `# Gotchas` → `## Gotchas` 와 새 H1 은 최소 변경 위반 | 그대로 둠 — 되돌리면 SK-11 · SK-13 측정(`secx '## Gotchas'`)이 절을 못 찾는다. 측정 머리를 `# Gotchas` 로 바꾸는 개정은 되돌린 판이 옛 측정에서 FAIL 하고 새 측정에서 PASS 하므로 느슨해지는 쪽이라 위임으로 동의할 수 없다. 되돌릴지는 사용자가 정한다 — 아래 「남은 것」 첫 줄 |
+| 6 | 새로 쓴 문장의 「정본」 | 고침 — 「원문」 |
+
+다시 잰 값(끝점 `7c51d87`, 계약 측정 도우미 `m`): SK-02 `env_gaps=6 invalid=7 rep_env=1 rep_inv=1 rule_old=0 rule_inv=1 l3_4req=1` · SK-11 `gotcha=1 wrapper=6/8 agent=1` · SK-12 `call=1 keys_same=1 nkeys=11 script_changed=0` · AR-01 `changed=25 extra=0 multi_top=0` · AR-02 `rc=0 pages=10 miss=0` · DG-02 `md_new=0 json_bad=0`. 나머지 조건 값은 위 표와 같다. 출력 원문: `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/k1fix/`.
 
 ## 남은 것
 
