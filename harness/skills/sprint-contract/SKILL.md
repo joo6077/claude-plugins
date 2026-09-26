@@ -45,7 +45,7 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - 다수 대상 (파일/모듈/키워드) 조건 작성 시 **aggregation mode** 를 태그에 함께 명시하라. `[exact, enumerated]` 은 각 대상을 개별 이름으로 명시해야 PASS, `[structural, collective]` 은 포괄 경로/패턴 하나로도 PASS. 모드 미명시 시 기본값은 `collective`. (KZ-04 REJECT 패턴 방지)
 - 특정 파일·타입에 조건이 적용되지 않는 경우 **예외 조항을 조건 내부에 인라인으로 명시하라**. `예외: (a) integration.html — Final 통합 페이지로 제외` 형태. 구두 합의나 별도 메모는 QA 시점에 반영되지 않는다
 - 조건에 한국어 + 영어가 혼용되는 키워드 (예: "Layout shift" vs "레이아웃 shift") 가 있으면 **병기하거나 한쪽으로 통일 선언** 하라. 표현 변형은 키워드 매칭·의미 해석을 엇갈리게 만든다
-- 경계값 조건 (`>= N`, `<= N`, `== N`) 작성 시 **측정 대상 + 측정 방법(명령어/도구)**을 인라인으로 명시하라. "1500줄 이상이다" 만으로는 wc -l / grep -c / 에디터 줄 수 중 무엇인지 불명확하여 근소한 차이에서 판정이 엇갈린다
+- 경계값 조건 (`>= N`, `<= N`, `== N`) 작성 시 **측정 대상 + 측정 방법(명령어/도구)**을 인라인으로 명시하라. "1500줄 이상이다" 만으로는 wc -l / grep -c / 에디터 줄 수 중 무엇인지 불명확하여 근소한 차이에서 판정이 엇갈린다. 두 파일의 차이 줄 수는 `diff a b | grep -cE '^[<>]'` 로 센다 — `wc -l` 은 `1c1` · `---` 머리 줄까지 세어 두 배 가까이 나온다
 - 포맷 일관성을 요구하는 조건은 **적용 수준(file-level / section-level / field-level)**을 명시하라. "일관된 포맷" 단독 사용 금지. 핵심 필드(컬럼명 등)까지 열거하면 가장 정확하다
 - **범위어 (주요 / 모든 / 대부분 / 핵심) 가 등장하는 조건은 반드시 인라인 enumerate 하라.** "주요 interactive element" ✗ → "버튼·카드·입력 (badge/decoration 제외)" ✓. contract-design-guide §스코프 범위 인라인 명시 참조 (SK-02 재발 방지)
 - **검증 수단이 없는 조건은 작성하지 마라.** 조건마다 "어떤 명령/도구/관찰로 PASS/FAIL 판정하는지" 를 인라인으로 적어라 (예: "측정: `wc -l`", "측정: MCP Figma read-back"). 외부 도구 의존 시 3 단계 fallback 을 명시 — 기본 / fallback / `[미검증]` 수용 임계 (1 건까지)
@@ -61,7 +61,7 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - **승인 기록·합의 로그처럼 사람이 남겨야 생기는 증거에 의존하는 조건은 그 기록물의 경로를 조건에 적어라.** 경로를 적을 수 없으면 그 조건을 만들지 마라 — 평가 시점에 읽을 대상이 없으면 판정 불가다 (UI-06 재발 방지)
 - **계약·직렬화·공유 모델을 바꾸는 스프린트에서 producer 조건만 쓰면 절반짜리 계약이다.** consumer 면(클라이언트·호출자·생성 코드) 파일을 grep 으로 찾아 **별도 조건**으로 `[exact, enumerated]` 열거하라. 이 원칙은 qa-evaluator 쪽에 대응 규칙이 없어서 **계약에 안 넣으면 아무도 안 잡는다** (insights Friction #4 — "당연히 그러면 클라까지 바꿔야지"). Process Step 2.5 참조
 - **계약을 고정 파일명에 바로 쓰지 마라 — 슬러그 경로를 선점한 뒤에 써라.** 같은 프로젝트에서 세션을 병렬로 돌리면 나중 세션이 앞 세션의 계약을 통째로 덮어쓰고, 앞 세션의 qa-evaluator 가 남의 계약을 평가한다 (2026-07-27 카이젠에서 실제 발생). Process Step 0.5 의 선점 절차를 통과하기 전에는 계약 본문을 어떤 파일에도 쓰지 않는다
-- **파일을 글로빙으로 열거하지 마라 — `find` 를 써라. 계약 파일만이 아니라 이 스킬이 실행하는 모든 셸 스니펫에 적용된다.** 사용자 셸이 zsh 면 기본 `nomatch` 라 **매치가 0 건인 glob 이 명령을 통째로 죽인다.** 두 형태가 모두 죽는다 — (a) 루프: `for f in "$D"/sprint-contract-*.md` 는 파일이 없을 때 루프에 진입조차 못 하며 `[ -f "$f" ] || continue` 가드는 무력하다, (b) **명령 인자**: `grep -n '^description:' <plugin>/agents/*.md 2>/dev/null` 은 `agents/` 가 없거나 비어 있는 킷(reflect-kit · bambu-kit · onboarding-kit)에서 출력이 0 건이 된다. **글로빙 확장은 명령 실행 전에 일어나므로 `2>/dev/null` 로는 못 막는다.** 실측: zsh `no matches found` + 명령 미실행, bash 는 정상 통과 — **bash 에서만 테스트하면 안 잡힌다.** 선례: `harness/skills/harness-kaizen/scripts/trigger-check.sh`, Step 1.5
+- **파일을 글로빙으로 열거하지 마라 — `find` 를 써라. 계약 파일만이 아니라 이 스킬이 실행하는 모든 셸 스니펫에 적용된다.** 사용자 셸이 zsh 면 기본 `nomatch` 라 **매치가 0 건인 glob 이 명령을 통째로 죽인다.** 두 형태가 모두 죽는다 — (a) 루프: `for f in "$D"/sprint-contract-*.md` 는 파일이 없을 때 루프에 진입조차 못 하며 `[ -f "$f" ] || continue` 가드는 무력하다, (b) **명령 인자**: `grep -n '^description:' <plugin>/agents/*.md 2>/dev/null` 은 `agents/` 가 없거나 비어 있는 킷(reflect-kit · bambu-kit · onboarding-kit)에서 출력이 0 건이 된다. **글로빙 확장은 명령 실행 전에 일어나므로 `2>/dev/null` 로는 못 막는다.** 실측: zsh `no matches found` + 명령 미실행, bash 는 정상 통과 — **bash 에서만 테스트하면 안 잡힌다.** 선례: `harness/skills/harness-kaizen/scripts/trigger-check.sh`, Step 1.5. 나머지 zsh 함정(목록을 따옴표 없이 넘기기 · 배열 첨자 · `$변수` 바로 뒤 `[` · `path` 변수 이름)은 `harness/references/contract-schema.md` §셸 이식성 규약에 있다
 - **frontmatter 식별자 필드는 따옴표 없이 쓰고, 읽을 때는 따옴표를 벗겨라.** writer 가 `owner_session: "abc"` 로 쓰는데 reader 가 안 벗기면 `$CLAUDE_CODE_SESSION_ID` 와 **절대 일치하지 않아** 소유 세션 판정(계약 선택 ladder 2 단계)이 영구 불성립한다. `slug` · `status` · `owner_session` 은 따옴표 없이 쓰고, 공백·콜론이 들어가는 `feature` 만 따옴표를 유지한다. reader 는 레거시 호환을 위해 양쪽 다 벗긴다 (Step 0.5 (c) `read_fm`)
 - **frontmatter 를 `sed -n '/^---$/,/^---$/p'` 로 잘라내지 마라 — 범위가 닫는 `---` 뒤에 재점화되어 본문까지 읽는다.** 계약 본문에 `---` 로 감싼 frontmatter 예시가 실리고 진짜 frontmatter 에 그 키가 없으면(레거시 계약, 또는 `CLAUDE_CODE_SESSION_ID` 가 비어 `owner_session` 을 생략한 계약) **본문 값이 frontmatter 값으로 읽힌다.** 본문 예시의 `owner_session` 이 현재 세션 ID 와 같으면 Step 0.5 (c) 가 "내 세션의 재작성" 으로 분기해 **남의 active 계약을 history 로 옮긴다.** reader 측 `fm_get`(`harness/agents/qa-evaluator.md` Step 1-b)은 닫는 `---` 에서 멈추므로 **writer 만 오판하는 비대칭 사고**가 된다. `read_fm` 은 `fm_get` 과 동일한 awk 구현을 쓴다 — 이 레포처럼 frontmatter 규약 자체를 다루는 메타 계약에서 실제로 터진다
 - **슬러그를 정규식 통과만으로 자동 채택하지 마라.** 한국어 feature 명은 조사·기호가 전부 `-` 로 치환되어 `3.16.0 마이그레이션 if 분기 정리` → `3-16-0-if` 같은 ASCII 파편이 남는데, 이게 **정규식은 통과해서** "사용자에게 물어라" 가드가 발동하지 않는다. 그렇게 만든 새 슬러그는 기존 `sprint-feedback-<slug>.md` 짝을 고아로 만들어 접미형 정식화의 목적 자체를 무너뜨린다. Step 0.5 (a) 의 `LOST`/`WORDS` 게이트를 거치고, **기존 슬러그 재사용을 `find` 로 먼저 탐색**하라
@@ -848,11 +848,13 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
      fi
      ```
    - `sprint_slug` · `contract_path` · `session_id` — `save-feedback.sh` 가 채운다.
-     draft 에 손으로 적지 마라
+     draft 에 손으로 적지 마라. 단 계약 경로는 2 번처럼 `HARNESS_CONTRACT` 로 넘겨야 채워진다
    - `diagnosis.checklist`: Step 7의 결과
    - `diagnosis.cross_diagnosis_by: qa-evaluator`
    - `diagnosis.cross_diagnosis_notes`: Step 8의 결과
-2. `bash harness/scripts/save-feedback.sh contract .harness/feedback-draft.yaml` 실행
+2. `HARNESS_CONTRACT="$CF" bash harness/scripts/save-feedback.sh contract .harness/feedback-draft.yaml` 실행.
+   `HARNESS_CONTRACT` 를 빼면 스크립트가 계약 경로를 추측하거나 필드를 뺀다 — 실측(2026-09-26): 슬러그 계약인데
+   `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다
 3. 출력된 저장 경로를 기록한다
 
 ### 10. 피드백 검증
