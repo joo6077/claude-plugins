@@ -123,10 +123,16 @@ FAIL).
 
 ## 남은 것
 
-- **AR-06 개정 AM-01 동의 대기 (RELAXING_PENDING)** — 원 조건의 「`rc=0` 22 줄」 은 옛 판 CI 스크립트로 잰 값이다. 봉인된
-  `ci-local.sh` 는 기준 판 · 구현 판 모두 `rc=0` 25 · SKIP 1 · 종료 0 이다. 22 → 25 로 고치는 개정은 계산상 `relaxing` 이라
-  `.harness/sprint-amendments-after-0926-contract-schema.md` 에 동의 칸을 비워 두었다. 사용자 동의가 있어야 AR-06 이 통과한다
+- AR-06 개정 AM-01 — 동의 받음(선택지 응답 2026-09-26T16:22:39.485Z, 커밋 `c29d286`). QA 2 회차 32/32 APPROVE,
+  리포트 · 계약 `status: done` 은 `0491d68` 에 커밋. 더 할 일 없음
 - 위 「명시적 미완」 열하나 — 소비면 셋과 판 번호 자리 여덟. 이 묶음 범위(세 파일) 밖이라 계약이 막았다
 - 원래 있던 편집기 경고 8 · 9 건 — 배정 대기
 - 문서 사이트 `docs/harness/contract-schema.html` 재생성 · `feedback-schema.html` 신규 여부 — 부모 몫
 - harness `plugin.json` 판 올림(minor 권장) · marketplace · README — 부모 몫
+- 독립 검토에서 나온 작은 흠 둘 (판정은 안 바뀜, 배정 대기):
+  - `harness/references/contract-schema.md:686` `dirty_except_status` 의 awk 줄이 frontmatter 의 status 줄만이 아니라
+    본문의 `status:` 로 시작하는 줄까지 모두 뺀다. 본문에 `status: sneaky` 를 더해도 세지 않는다(2 가 나와야 할 자리에 1)
+  - 위 「판 번호 자리 여덟」 은 `.md` 원본만 적었다. 문서 사이트 쪽 여섯 자리가 빠졌다 —
+    `docs/harness/contract-design-guide.html:219` · `:253` · `:1537`, `docs/harness/qa-evaluation-guide.html:206` · `:231` · `:1988`.
+    원본 `.md` 가 안 바뀌어 `detect-docs-drift.py` 도 못 잡는다. 판 번호를 고칠 때 같이 봐야 한다
+    (찾는 명령: `git grep -n "v5\.[4567]\b" -- ':!.harness' ':!harness/references/contract-schema.md'`)
