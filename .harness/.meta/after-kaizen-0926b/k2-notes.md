@@ -4,7 +4,7 @@
   `conditions_digest: sha256:ae16a8a46b2e9244` · `measurement_digest: sha256:b861d90d33e48c2b`)
 - 가지: `chore/ak2-k2`, 시작 커밋 `6378948`
 - 위임: 2026-09-26T10:09:00.557Z · 결정 답 2026-09-26T10:30:16.222Z (세션 `bda55d45-296c-491f-89ba-b52042d58e72`)
-- QA 판정은 아직 없다. 다음 단계의 qa-evaluator 몫이다
+- QA 1 회차 APPROVE(`.harness/sprint-feedback-after-0926-kits-design-infra-backend-rust.md`, 커밋 `cdc3fdc`). 독립 검토는 막을 결함 0 건, 막지 않는 어긋남 넷은 「남은 것」 에 옮겼다
 
 ## 항목별 결과
 
@@ -89,7 +89,10 @@ design-audit · design-system · design-reviewer · infra-audit · backend-audit
 - backend-kit(`docs/backend/` 41 곳) · rust-kit(`docs/rust/` 4 곳)도 설치본에 `docs/` 가 없어 경로를 못 여는 같은 뿌리를 가진다. 이 계약은 infra-kit 만 고쳤다 — 같은 한 줄을 두 킷 경로 표에 넣을지 부모가 정한다
 - `.claude/skills/docs-site/SKILL.md:104` 에 「line-height 1.2~1.6배」 가 남았다. 레포 전용 스킬이라 네 킷 묶음 밖이다
 - KD-3 의 §8.9 인용은 gd 묶음의 새 절에 기대므로 두 가지를 합칠 때 절 번호가 바뀌었는지 확인한다. gd 도 `design-reviewer.md`(사본 3 항 번호 합침 `:70` · 규칙 12 `:116`)와 `design-audit/SKILL.md`(Gotcha 14 `:49`)를 고쳤다 — 이 계약이 고친 줄과 겹치지 않지만, 판정 문장에서 사본 조항 번호를 부르지 않게 적었다
-- 이 계약의 근거 파일(`leftovers.md` · `decisions.md` · `ex/EX-7.md` · `EX-8.md` · `EX-13.md`)은 통합 폴더 `after-0926b` 에만 있고 git 에 없다. 형제 묶음이 다 끝나기 전에는 그 폴더를 지우지 않는다
+- 이 계약의 근거 파일(`leftovers.md` · `decisions.md` · `ex/EX-7.md` · `EX-8.md` · `EX-13.md`)은 이 가지에는 없고 통합 가지 `chore/after-kaizen-0926b`(폴더 `after-0926b`)에서 추적된다(`ex/` 는 커밋 `77cfbd4`). 연구 기록이 적은 경로는 두 가지를 합친 뒤에 열린다. 형제 묶음이 다 끝나기 전에는 그 폴더를 지우지 않는다
+- 독립 검토 1 — backend-kit 원칙 문서가 새 「최소 지원선」 문구와 반대로 읽힌다. `docs/backend/fundamentals/api-design.md:80` 이 「OpenAPI 3.2.1 스펙을 단일 소스로 유지한다」 고 적고, 그 문서를 원칙으로 삼는 `backend-kit/skills/backend-system/references/system-principles.md:21` 에는 조건 없는 「OpenAPI 3.1 JSON Schema 호환」 이 남았다. `docs/backend/research-log.md:14` 는 세 자리만 고쳤다고 적는다. 재현: `grep -rn "OpenAPI 3\.1\|3\.2\.1 스펙" backend-kit docs/backend/fundamentals`
+- 독립 검토 2 — `design-kit/skills/design-mockup/SKILL.md:56` 새 Step 0 이 「같은 역할의 서로 다른 기존 화면」 으로 관례 표를 만들게 하는데, 대상 화면은 그 뒤 Step 1(`:66-68`)에서 정한다. 옮기기 전에는 대상을 먼저 정했다. Step 0 에 대상 확정을 앞당길지 부모가 정한다
+- 독립 검토 3 — `infra-kit/skills/infra-guide/SKILL.md:27`(`docs/infra/operations/observability.md`) · `:31`(`docs/infra/platform/cicd.md`)이 `docs/infra` 경로를 직접 적는데 raw 주소 안내가 없어 설치본에서 못 연다. 재현: `grep -c raw.githubusercontent.com/joo6077 infra-kit/skills/infra-guide/SKILL.md` → 0. 위 첫 줄(backend · rust 경로 표)과 같은 뿌리라 함께 정한다
 - KD-4 design:P2 는 사용자 결정 몫으로 넘긴다
 - 계약 피드백 저장 때 `save-feedback.sh` 가 `project_hash` 를 `cf1be038` → `1a3bcba6` 으로 다시 계산했다(워크트리 대신 저장소 뿌리를 해시한 것으로 보인다). 저장 · 검증은 PASS
 
