@@ -37,6 +37,9 @@ schema_version: 1
 #     #   untestable_conditions: bool
 #     #   category_coverage_gap: bool
 #     #   complexity_underestimate: bool
+#     #   measure_premise_unrun: bool
+#     #   known_answer_missing: bool
+#     #   모든 항목의 true 는 「문제가 있다」 는 뜻이다. 나머지 항목과 문항 전체는 harness/skills/sprint-contract/SKILL.md Step 7 에 있다
 #     # qa-evaluator 필수 필드:
 #     #   l3_unreached: bool
 #     #   bias_detected: bool
