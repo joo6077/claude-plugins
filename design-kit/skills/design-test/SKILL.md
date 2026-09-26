@@ -273,8 +273,9 @@ test.describe('Scoped visual change — 대상만 변하고 주변은 불변', (
 manifest 가 없으면 이 단계를 건너뛰되 **"해당 없음" 이 아니라 "manifest 부재"** 로 보고한다
 (체커가 `NO_MANIFEST` + exit 3 을 내는 이유와 같다 — 대상 0 건과 통과는 다르다).
 
-manifest 가 있으면 `decision_id` 마다 `required_surfaces[]` 를 순회하며 surface 당 테스트 1 개를
-생성한다. 스키마와 커버리지 규칙 4 조는 `../../references/visual-change-protocol.md` §6 이 정본이며
+manifest 가 있으면 `status: approved` 인 `decision_id` 마다 `required_surfaces[]` 를 순회하며 surface 당 테스트 1 개를
+생성한다. `status: superseded`(대체됨) 결정은 테스트를 만들지 않는다 — 그 화면 자리는 `superseded_by` 가 가리키는
+`approved` 결정이 받는다. 스키마와 커버리지 규칙 4 조는 `../../references/visual-change-protocol.md` §6 이 정본이며
 여기서 재정의하지 않는다. 생성 규칙은 셋이다:
 
 1. surface 의 `route_or_entry` · `state` · `viewport_or_container` 를 테스트 셋업에 그대로 옮긴다.

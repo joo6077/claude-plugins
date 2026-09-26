@@ -11,8 +11,8 @@
 >
 > **형제 규약과 같은 숫자:** §0 의 「같은 역할 기존 화면 2 개 이상」 과 §3 의 「스스로 고치기 최대 3 회」 는
 > flutter-toolkit `references/visual-evidence-protocol.md` Step 0 · Step 2 와 같은 값이다.
-> **세 규약(이 문서 · flutter-toolkit visual-evidence-protocol · react-kit render-evidence-protocol)이 같이 쓰는 규칙의 정본은 harness `skill-design-guide.md` 한 절에 두고, 세 규약에는 스택마다 다른 채널 · 도구 · 명령만 남긴다.**
-> 그 절은 아직 없다 — 생기기 전까지는 한쪽 값을 바꾸면 다른 쪽도 같이 바꾼다.
+> **세 규약(이 문서 · flutter-toolkit visual-evidence-protocol · react-kit render-evidence-protocol)이 같이 쓰는 두 숫자의 정본은 harness `skill-design-guide.md` §8.9 다.**
+> 킷은 따로 설치되어 그 파일을 읽지 못하므로 숫자는 이 문서에도 남긴다 — 값을 바꿀 때는 §8.9 를 먼저 고치고 세 규약을 같이 바꾼다.
 
 ---
 
@@ -386,8 +386,13 @@ decisions:
 
 - `decision_id` 는 `DEC-{YYYYMMDD}-{NNN}` 이며 `source` 는 §4 승인 기록 파일이다. 승인 기록 없는
   결정은 manifest 에 올리지 않는다 — 그것은 결정이 아니라 제안이다.
-- `status` 에 쓸 수 있는 값은 `approved` 하나다. 다른 값이나 빠진 값은 형식 오류(종료 코드 2)다 —
-  승인 기록이 있는 결정만 올라오므로 초안 · 제안 상태를 적을 자리가 없다.
+- `status` 에 쓸 수 있는 값은 `approved`(승인된 결정)와 `superseded`(대체됨 — 뒤 결정이 바꾼 옛 결정) 둘이다.
+  다른 값이나 빠진 값은 형식 오류(종료 코드 2)다 — 승인 기록이 있는 결정만 올라오므로 초안 · 제안 상태를 적을 자리가 없다.
+- 결정이 바뀌면 옛 결정을 지우지 말고 `status: superseded` 로 두고, `superseded_by` 에 그 결정을 바꾼 **같은 목록의
+  `approved` 결정 번호**를 적는다. `superseded_by` 가 없거나 · 목록에 없거나 · 자기 번호이거나 · 가리킨 결정도
+  `superseded` 면(사슬) 형식 오류(종료 코드 2)다. `superseded` 결정은 화면 자리 검사(`required_surfaces` ·
+  `excluded_surfaces`)를 건너뛰고 형식 검사(`decision_id` · `source` · `superseded_by`)만 받는다 — 화면 자리는
+  대체한 `approved` 결정이 받는다. 사슬을 막아 두면 검사가 한 번에 끝난다 (사용자 결정 2026-09-26).
 - **`excluded_surfaces` 는 선택이 아니다.** 적용하지 않는 표면은 이유와 함께 명시한다. 침묵은
   "검토했다" 가 아니라 **커버리지 공백**이다. 그래서 키는 늘 적고, 제외할 표면이 없으면
   `excluded_surfaces: []` 로 적는다. 키가 없으면 커버리지 위반(종료 코드 1)이다.
@@ -428,11 +433,13 @@ if not isinstance(doc, dict) or not isinstance(doc.get("decisions") or [], list)
 decisions = doc.get("decisions") or []
 if not decisions:
     print("NO_DECISION 대상 0 건 — 검사 미수행"); sys.exit(3)
+# superseded_by 가 같은 목록의 approved 결정을 가리키는지 보려고 번호별 상태를 먼저 모은다
+status_by_id = {str(d.get("decision_id")): d.get("status") for d in decisions if isinstance(d, dict)}
 
 # user-visible assertion 으로 인정하는 3 종: visible / count / height
 PATTERNS = {"visible": r"\bvisible\b", "count": r"(>=|<=|>|<|==)\s*\d+|\bcount\b",
             "height": r"\bheight\b"}
-viol = surfaces = schema = 0
+viol = surfaces = schema = superseded = 0
 for d in decisions:
     if not isinstance(d, dict):
         print(f"SCHEMA_ERROR {d!r}: 결정이 매핑이 아니다"); schema += 1; continue
@@ -440,8 +447,15 @@ for d in decisions:
     # 아래 두 검사가 없으면 표면을 하나도 적지 않은 결정이 surface 0 개 · 위반 0 으로 통과한다 (2026-09-25 재현)
     if not re.fullmatch(r"DEC-\d{8}-\d{3}", str(d.get("decision_id", ""))) or not d.get("source"):
         print(f"SCHEMA_ERROR {did}: decision_id 형식(DEC-YYYYMMDD-NNN) 또는 source 가 없다"); schema += 1
+    if d.get("status") == "superseded":
+        # 대체된 결정은 추적용으로만 남는다 — 화면 자리 검사는 superseded_by 가 가리킨 approved 결정이 받는다
+        by = d.get("superseded_by")
+        if not isinstance(by, str) or by == str(did) or status_by_id.get(by) != "approved":
+            print(f"SCHEMA_ERROR {did}: superseded_by 는 같은 목록의 다른 approved 결정 번호여야 한다 (지금 {by!r})"); schema += 1
+        superseded += 1
+        continue
     if d.get("status") != "approved":
-        print(f"SCHEMA_ERROR {did}: status 는 approved 여야 한다 (지금 {d.get('status')!r})"); schema += 1
+        print(f"SCHEMA_ERROR {did}: status 는 approved 나 superseded 여야 한다 (지금 {d.get('status')!r})"); schema += 1
     # 키가 빠진 결정은 제외 표면을 검토했는지 알 수 없다 — 제외할 것이 없으면 [] 로 적게 한다
     if "excluded_surfaces" not in d:
         print(f"FAIL {did}: excluded_surfaces 키가 없다 — 제외할 표면이 없으면 [] 로 적는다"); viol += 1
@@ -466,7 +480,7 @@ for d in decisions:
             print(f"FAIL {did}/{sid}: golden 도 user-visible assertion 도 없음"); viol += 1
         elif not hit:
             print(f"FAIL {did}/{sid}: golden 만 존재 — visible/count/height assertion 부재"); viol += 1
-print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol} schema_errors={schema}")
+print(f"decisions={len(decisions)} superseded={superseded} surfaces={surfaces} violations={viol} schema_errors={schema}")
 if schema:
     sys.exit(2)
 if viol:
