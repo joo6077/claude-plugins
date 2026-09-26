@@ -43,7 +43,7 @@ user-invocable: true
 ## Step 1: 대상 식별
 
 사용자 요청에서 플러그인명과 페이지명을 파악한다. 원본 → 페이지 매핑 표는 여기 한 곳에만 둔다 — 오케스트레이터 Step F2 는 이 표를 가리키고,
-`scripts/detect-docs-drift.py` 는 같은 매핑으로 낡은 페이지를 찾는다. 표를 고치면 스크립트의 매핑도 같은 커밋에서 고친다:
+`scripts/detect-docs-drift.py` 는 같은 매핑으로 다시 만들 페이지를 고른다. 표를 고치면 스크립트의 매핑도 같은 커밋에서 고친다:
 
 | 플러그인 | 소스 경로 | 출력 경로 |
 | -------- | --------- | --------- |
@@ -63,7 +63,7 @@ user-invocable: true
 | howto-kit | `docs/howto/` | `docs/howto-kit/` |
 | process (공유) | (내부 문서) | `docs/process/` |
 
-`docs/howto/drafts/` 는 초안 폴더라 매핑 밖이다 — 페이지를 만들지 않고 낡음 감지도 건너뛴다.
+`docs/howto/drafts/` 는 초안 폴더라 매핑 밖이다 — 페이지를 만들지 않고 `scripts/detect-docs-drift.py` 도 건너뛴다.
 
 신규 킷이면 `references/css-tokens.md`의 플러그인 매핑에 새 accent를 추가한 뒤 진행한다.
 

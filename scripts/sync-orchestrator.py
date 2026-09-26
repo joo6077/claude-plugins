@@ -34,7 +34,7 @@ EXCLUDED_PLUGINS = {"harness"}
 # Phase 5 부터 시작
 FIRST_PLUGIN_PHASE = 5
 
-# 범위 줄에 적는 킷 폴더. 카이젠이 고치는 곳이 스킬 본문만이 아니다 —
+# 카이젠이 고치는 곳이 스킬 본문만이 아니다 —
 # 2026-09-24 사이클에 reflect-kit 의 hooks/ · docs/ 수정이 범위 줄 밖이었다
 KIT_SCOPE_DIRS = ("references/", "skills/*/references/", "agents/", "hooks/", "docs/", "evals/")
 

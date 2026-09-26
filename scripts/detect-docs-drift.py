@@ -30,7 +30,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
 # 소스 경로 prefix → 출력 HTML 디렉토리 매핑. 사람이 읽는 표는 `.claude/skills/docs-site/SKILL.md` Step 1 에 있다 —
-# 한쪽만 고치면 표를 보고 만든 페이지와 이 스크립트의 낡음 감지가 갈라진다
+# 한쪽만 고치면 표를 보고 만든 페이지와 이 스크립트가 고르는 재생성 대상이 갈라진다
 SOURCE_TO_HTML: list[tuple[str, str]] = [
     ("harness/docs/guides/", "docs/harness/"),
     ("harness/references/", "docs/harness/"),
@@ -89,15 +89,15 @@ SOURCE_OVERRIDES: dict[str, list[str]] = {
     "docs/onboarding-kit/examples/fcm-ios-setup-guide.md": [
         "docs/onboarding-kit/fcm-ios-example.html",
     ],
+    "api-kit/skills/api-ui/SKILL.md": ["docs/api-kit/static-evidence-viewer-contract.html"],
     # 원본 이름이 대문자다. 규칙으로 두면 대소문자를 가리지 않는 맥 파일 시스템에서 `DESIGN.html` 이
     # 있는 것으로 나와 등록 안 된 페이지로 잘못 잡힌다
     "reflect-kit/docs/DESIGN.md": ["docs/reflect-kit/design.html"],
     "reflect-kit/docs/SCHEMA.md": ["docs/reflect-kit/schema.html"],
     "reflect-kit/docs/RESEARCH.md": ["docs/reflect-kit/research.html"],
-    "api-kit/skills/api-ui/SKILL.md": ["docs/api-kit/static-evidence-viewer-contract.html"],
 }
 
-# 페이지를 만들지 않는 원본. 초안 폴더의 SKILL.md 가 스킬 본문 이름 규칙에 걸려 없는 `drafts.html` 을 새 페이지로 냈다
+# 초안 폴더의 SKILL.md 가 스킬 본문 이름 규칙에 걸려 없는 `drafts.html` 을 새 페이지로 냈다
 SOURCE_EXCLUDES: tuple[str, ...] = ("docs/howto/drafts/",)
 
 
