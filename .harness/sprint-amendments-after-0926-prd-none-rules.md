@@ -68,3 +68,64 @@ Step 2 가 그 칸을 읽어(`:59`) 시안에서 막았다(`:66`). 폐기 칸을
 을 벗어나므로 부모에게 넘긴다. notes 「이 계약의 판단」 에 정정을 적었다.
 
 **amend_direction**: `unchanged` — 산문 사유 한 구절의 정정이다. 조건 · 측정 · 허용 경로가 그대로라 통과하는 구현 집합이 바뀌지 않는다.
+
+## A-03 — 둘째 검색은 목록 항목 · 표 행만 본다
+
+**앵커**: A-01 이 더한 둘째 검색 ``grep -rnE 'PRD 없음(`[.]?|[.])[[:space:]]*[|]?[[:space:]]*$'`` (`/sprint` Step 0.5 bash 블록 · plan-prd Step 0 넷째 항목)과
+A-01 측정 · 계약 `범위 경계` 「이미 있는 `PRD 없음` 줄 옮기기」 행의 「줄 끝 모양 검색 0 줄」.
+
+**무엇이 달라졌나**: 두 번째 독립 검토가 막는 결함을 찾았다. 둘째 검색이 이 레포의 규칙 요약 줄
+`.harness/sprint-contract-after-0924-discard-decisions.md:115`(끝이 `` · `PRD 없음` `` 인 문단)을 폐기 결정으로 잡는다. `/sprint` 는 두 폴더를
+보므로 같은 줄이 두 번 나온다. A-01 의 음성 입력은 모두 `PRD 없음` 뒤에 글이 이어지는 모양이라 이 모양을 못 쟀다. 구현은 둘째 검색 앞에 줄 머리 조건
+`^[[:space:]]*([-*+][[:space:]]|[0-9]+[.)][[:space:]]|[|]).*` 을 붙였다 — 결정 기록은 네 칸 목록 항목이나 표 행이고, 기호로 끝나는 요약은 문단이다.
+첫째 검색 줄은 그대로라 SK-04 · SK-05 · SK-06 의 글자 비교와 A-01 기대값은 그대로 성립한다.
+
+계약 `범위 경계` 「이미 있는 `PRD 없음` 줄 옮기기」 행의 「줄 끝 모양 검색 0 줄」 은 첫째 검색만 잰 값이었다. A-01 뒤 두 검색을 합치면 1 줄(두 폴더 2 줄)이었고,
+이 개정 뒤로는 다시 0 줄이다 — 아래 `tree` 값이 그것을 잰다. 봉인 뒤라 계약 글은 고치지 않고 여기 적는다.
+
+이 개정은 조건 줄을 고치지 않고 **측정 둘을 더한다**: 아래 블록을 계약 측정 도우미 뒤에 불러 `a03` 이 다음 값을 내야 한다.
+
+- 기대: `sprint: bash=form6/rule0/err0 zsh=form6/rule0/err0 prd=form6/rule0/dup0/err0 tree: prd=0 sprint=0`
+- 알려진 답: 시험 파일 1 ~ 6 줄은 폐기 결정 여섯 모양(6 줄은 번호 목록 · 기호 뒤 마침표)이라 6, 7 ~ 10 줄은 규칙 설명 · QA 인용 · 안내 문장 · 레포에서 걸린
+  요약 문단 모양이라 0. `tree` 는 가지 끝(TIP) 트리의 `.harness` · `.design` 에서 두 스킬의 검색이 잡는 줄 수다
+- 음성 대조: `A03_OLD=1 a03`(줄 머리 조건을 뗀 A-01 모양) → `rule1` 셋 · `tree: prd=1 sprint=1`
+- 실측: 아래 「실측」 줄
+
+**amend_direction_oracle**: `narrowing measured_removed=0 measured_added=2` — 입력은 A-01 뒤 측정 집합(원 21 조건 ID 와 A-01 두 측정)과, 거기에
+`A-03:forms 10` · `A-03:TIP 트리` 두 측정을 더한 것. 빠지는 측정이 없다. 스크립트는 스크래치 `pdfix/dir.sh` 의 같은 함수.
+
+**consent**: `unanchored` — 에이전트 판단으로 더했다. 좁히는 쪽이라 동의 없이도 판정 근거가 된다.
+
+**한계**: 문단 안에 코드 표시 기호째 적은 결정은 둘째 검색이 못 찾는다. 쓰는 쪽 세 문서가 모두 「네 칸」 으로 적게 하므로 결정 기록은 목록 항목이나 표 행이다.
+기호 없이 적은 문단 끝 `PRD 없음` 은 첫째 검색이 그대로 찾는다.
+
+```bash
+# === A-03 측정 시작 ===
+# 쓰는 법: 계약 측정 도우미를 source 한 뒤 이 블록을 source 하고 `a03`. A03_OLD=1 이면 둘째 검색의 줄 머리 조건을 떼고 잰다(음성 대조 · A-01 때 모양)
+a03() {
+  lines_sh
+  sec '## Step 0:' '## Step 1:' "$E/$PRD" | grep -F '4. **`PRD 없음` 기록**' \
+    | grep -oE "grep -rnE '[^']*' [.]harness [.]design 2>/dev/null" > "$T/prd.sh"
+  grep -F 'PRD 없음' "$T/lines.sh" | sed "s#\"\$root/#\"$E/#g" > "$T/tree.sh"
+  [ "${A03_OLD:-0}" = 1 ] && for f in lines prd tree; do
+    sed "s#'^\[\[:space:\]\]\*(\[-\*+\]\[\[:space:\]\]|\[0-9\]+\[.)\]\[\[:space:\]\]|\[|\])\.\*PRD#'PRD#" "$T/$f.sh" > "$T/x.sh"; mv "$T/x.sh" "$T/$f.sh"
+  done
+  F=$T/forms3; mkdir -p "$F/.harness"
+  git -C "$F" init -q && git -C "$F" -c user.name=t -c user.email=t@t commit -q --allow-empty -m init
+  printf '%s\n' '- 시간대 · 이유 · 범위 · 흔적 `PRD 없음`' '| 시간대 | 이유 | 범위 | 흔적 | `PRD 없음` |' \
+    '- 시간대 · 이유 · 범위 · 흔적 — PRD 없음.' '| 시간대 | 이유 | 범위 | 흔적 | PRD 없음 |' '- 시간대 — PRD 없음' \
+    '1. 언어 · 이유 · 범위 · 흔적 · `PRD 없음`.' \
+    '그 기능의 PRD 가 없으면 줄 끝에 `PRD 없음` 을 붙인다.' '- 근거: `PRD 없음` 1 줄 확인' \
+    '다음 시안 전에는 줄 끝이 `PRD 없음` 인 줄을 읽는다.' \
+    'design:P5 · 처리(…) — 폐기 칸이 그 표 경로를 가리키고, PRD 가 없으면 네 칸 · `PRD 없음`' > "$F/.harness/forms.md"
+  r=""; for sh in bash zsh; do
+    (cd "$F" && "$sh" "$T/lines.sh" >"$T/o" 2>"$T/e")
+    r="$r $sh=form$(grep -c 'forms.md:[1-6]:' "$T/o" || true)/rule$(grep -cE 'forms.md:([7-9]|10):' "$T/o" || true)/err$(grep -c . "$T/e" || true)"
+  done
+  (cd "$F" && bash "$T/prd.sh" >"$T/o" 2>"$T/e")
+  p="form$(grep -c 'forms.md:[1-6]:' "$T/o" || true)/rule$(grep -cE 'forms.md:([7-9]|10):' "$T/o" || true)/dup$(sort "$T/o" | uniq -d | grep -c . || true)/err$(grep -c . "$T/e" || true)"
+  (cd "$E" && bash "$T/prd.sh" >"$T/o1" 2>/dev/null; bash "$T/tree.sh" >"$T/o2" 2>/dev/null)
+  echo "sprint:$r prd=$p tree: prd=$(grep -c . "$T/o1" || true) sprint=$(grep -c . "$T/o2" || true)"
+}
+# === A-03 측정 끝 ===
+```
