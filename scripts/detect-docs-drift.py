@@ -298,8 +298,10 @@ def check_table() -> int:
     if not table:
         print(f"ERROR: {DOCS_SITE_SKILL.relative_to(REPO_ROOT)} Step 1 표를 못 읽었다 — 맞댈 것이 없다")
         return 2
-    missing = [f"표에 없는 짝 (스크립트에만): {s} → {o}" for s, o in sorted(script) if not covered((s, o), table)]
-    missing += [f"스크립트에 없는 짝 (표에만): {s} → {o}" for s, o in sorted(table) if not covered((s, o), script)]
+    missing = [f"표에 없는 짝 (스크립트에만): {source} → {output}"
+               for source, output in sorted(script) if not covered((source, output), table)]
+    missing += [f"스크립트에 없는 짝 (표에만): {source} → {output}"
+                for source, output in sorted(table) if not covered((source, output), script)]
     for line in missing:
         print(line)
     print(f"매핑 맞대기: 스크립트 {len(script)} 짝 · 표 {len(table)} 짝 · 어긋남 {len(missing)}")
