@@ -191,7 +191,7 @@ user-invocable: true
 
 2. **변경 적용:**
    - 각 개선 포인트에 해당하는 파일을 수정
-   - 변경마다 커밋: `kaizen: {변경 설명}`
+   - 변경마다 커밋: 머리는 바꾼 종류대로(`docs(harness):` · `fix(harness):` · `chore(harness):` · 봉인은 `contract:`) 쓰고, 본문 끝에 서명 줄 `Kaizen-Phase: <phase 이름>` 을 붙인다 (아래 추적 규칙 표)
 
 3. **버전 업데이트:**
    - `harness/.claude-plugin/plugin.json`의 version 필드 업데이트
@@ -230,7 +230,7 @@ user-invocable: true
 
 | 항목 | 규칙 | 예시 |
 |------|------|------|
-| 커밋 메시지 | `kaizen:` prefix | `kaizen: sprint-contract few-shot 판단 로직 추가` |
+| 커밋 메시지 | 바꾼 종류 머리 + 서명 줄 `Kaizen-Phase:` — 카이젠 커밋을 가리는 것은 머리가 아니라 서명 줄이다 | `docs(harness): 계약 스키마 v5.5 … (카이젠 2026-09-24 Phase 2)` 에 서명 줄 `Kaizen-Phase: kaizen-0924-p02-contract` |
 | 브랜치명 | 버전 + 날짜 | `kaizen/0.4.0-2026-04-07` |
 | PR 제목 | bump 유형 명시 | `[minor] sprint-contract 복잡도 판단 개선` |
 

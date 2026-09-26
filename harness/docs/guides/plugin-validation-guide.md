@@ -1,6 +1,6 @@
 ---
 title: Claude Code 플러그인 검증 가이드
-version: 1.4.1
+version: 1.4.2
 last_updated: 2026-09-26
 scope: "marketplace.json 에 등록된 킷 전부"
 ---
@@ -415,11 +415,15 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 **FAIL 예시 2** — 따옴표 밖 변수:
 
 ```text
-# design-kit/hooks/hooks.json
-{ "command": "${CLAUDE_PLUGIN_ROOT}/scripts/env-check.sh" }
+# reflect-kit/hooks/hooks.json
 { "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh" }
-# → FAIL design-kit/hooks/hooks.json: ${CLAUDE_PLUGIN_ROOT} 가 큰따옴표 밖 — 설치 경로에 빈칸이 있으면 실행이 깨진다
+{ "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-tool-failure.sh" }
+# → V8 hook-exec         2개 hook 명령 따옴표 없음 — FAIL
+# →   FAIL reflect-kit/hooks/hooks.json: ${CLAUDE_PLUGIN_ROOT} 가 큰따옴표 밖 — 설치 경로에 빈칸이 있으면 실행이 깨진다 (bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh)
+# →   FAIL reflect-kit/hooks/hooks.json: ${CLAUDE_PLUGIN_ROOT} 가 큰따옴표 밖 — 설치 경로에 빈칸이 있으면 실행이 깨진다 (bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-tool-failure.sh)
 ```
+
+따옴표 밖 명령마다 `FAIL` 줄이 하나씩 나오고, 줄 끝 괄호에 그 명령이 붙는다.
 
 **수정**: 실행 비트는 `chmod +x <script>` 후 커밋하면 git mode 가 `100755` 로 추적된다. 따옴표는 경로를 `\"…\"` 로 감싸고 인자는 따옴표 밖에 둔다 — `"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/commit-guard.sh\" pre"`. 릴리스(release.sh)로 새 버전을 배포해야 기존 설치본의 cache 가 갱신된다.
 
@@ -517,21 +521,9 @@ FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
 
 ### 출력 포맷
 
-형식 예시다. 수치와 버전 번호는 예로 든 값이다.
+`python3 scripts/validate-plugin.py react-kit` 로 킷 하나를 돌린 형식 예시다. 수치와 버전 번호는 예로 든 값이다.
 
 ```text
-=== harness ===
-  V1 frontmatter       9 skills + 1 agent — OK
-  V2 templates         2 parsed, 1 skipped (ts/js) — OK
-  V3 refs              12 links — OK
-  V4 triggers          36 keywords — OK
-  V5 placeholders      0 found — OK
-  V6 code-fence        0 bare — OK
-  V7 plugin-json       v0.3.5 matches marketplace — OK
-  V8 hook-exec         3 hook 스크립트 실행 가능 — OK
-  V9 arg-substitution  9 skills — OK
-  V10 table-integrity   18 md files — OK
-
 === react-kit ===
   V1 frontmatter       21 skills + 3 agents — OK
   V2 templates         5 parsed, 4 skipped (ts/js) — OK
@@ -547,7 +539,7 @@ FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
   V9 arg-substitution  21 skills — OK
   V10 table-integrity   32 md files — OK
 
-Total: 2 plugins, 1 OK, 1 ERROR
+Total: 1 plugins, 1 ERROR
 Exit: 2
 ```
 
@@ -587,7 +579,7 @@ V 줄은 늘 판정 글자(`— OK` · `— WARN` · `— FAIL` · `— SKIP`)�
 | V3 | 참조 파일 생성 또는 링크 경로 수정 |
 | V4 | description 에서 중복 키워드 제거 또는 구체화 |
 | V7 | plugin.json 또는 marketplace.json 버전 태그 일치 |
-| V8 | `chmod +x <script>` 후 커밋해 git 이 `100755` 로 추적하게 한다 |
+| V8 | 실행 비트는 `chmod +x <script>` 후 커밋해 git 이 `100755` 로 추적하게 한다. 따옴표는 `${CLAUDE_PLUGIN_ROOT}` 가 든 경로를 `\"…\"` 로 감싸고 인자는 따옴표 밖에 둔다 (§3 V8 수정) |
 | V9 | 자리마다 다르다 — awk 필드는 `$(N)`, bash 위치 인자는 `${N}`, 문법상 `$` + 숫자여야 하는 곳은 역슬래시 이스케이프 (§3 V9) |
 | V10 | 표 중간에 끼어든 절이나 문단을 표 뒤로 옮겨 헤더와 행을 다시 잇는다 |
 
@@ -693,6 +685,7 @@ python3 scripts/validate-plugin.py <kit-name>
 | 2026-09-24 | 1.3.1 | 사실 정정 — `--check` 체크 이름 10 개 전부, 출력 예시에 V9 · V10 줄과 실제 요약줄 형식(`Total: N plugins, …`), 수동 수정 표에 V8 · V9 · V10, 킷별 예외 표의 `templates/` 항목 수를 실제 값으로(harness 4 · flutter-toolkit 2 · design-kit 8 · rust-kit 5 · tone-kit 6). 금방 낡는 킷 수 · 카이젠 스킬 수 표기와 부분 킷 목록은 뺐다 |
 | 2026-09-25 | 1.4.0 | V10 범위에 스킬 폴더 안 `skills/*/references/**/*.md` 를 더했다 — 14 킷 41 개가 검사 밖이었다 (끊긴 표 0 개 확인). V6 는 같은 범위의 언어 힌트 없는 펜스 8 개 때문에 넓히지 않았다 |
 | 2026-09-26 | 1.4.1 | V10 코드 블록 판정을 CommonMark 0.31.2 §4.5 에 맞췄다 — 여닫는 줄의 문자 · 길이를 맞추고, 백틱 여는 줄 뒤에 백틱이 있으면 줄 안 코드로, 닫는 줄이 없으면 문서 끝까지로 본다. 표 행은 `\|` 로 시작하면서 `\|` 가 둘 이상인 줄만 본다. `~~~` 블록 안 PR 본문 틀의 표 24 행이 검사 밖으로 나갔다 (끊긴 표 0 개 그대로). 규격과 다르게 단순화한 곳(여닫는 줄 들여쓰기 칸 수 · 목록 · 인용 · HTML 블록 경계 · 공백 판정)을 적었다. 변경 이력 순서를 날짜 순으로 바로잡았다 |
+| 2026-09-26 | 1.4.2 | 사실 정정 — V8 따옴표 FAIL 예시 2 를 한 킷(reflect-kit) 명령 둘과 실제 출력(명령마다 `FAIL` 한 줄 · 줄 끝에 명령)으로 바꿨다. 수동 수정 표 V8 행에 따옴표 고치는 법을 더했다. 출력 예시는 명령줄로 만들 수 없던 `Total: 2 plugins` 대신 킷 하나를 돌린 모양으로 줄였다 |
 
 다음 갱신 예정:
 
