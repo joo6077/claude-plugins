@@ -15,7 +15,7 @@ user-invocable: true
 - anti-pattern 5개가 자동 체크된다: StatefulWidget, bare catch(e), 상대 import, GestureDetector/InkWell, Palette 직접 참조 — 하나라도 걸리면 preflight FAIL
 - FVM 미설치 환경에서 preflight 실행하면 모든 단계가 실패한다 — 먼저 FVM 존재를 확인해라
 - test 단계에서 콘솔 에러 패턴 4개를 체크한다: "EXCEPTION CAUGHT BY", "RenderFlex overflowed", "setState() called after dispose", "Null check operator" — 테스트 통과해도 이 패턴 있으면 FAIL
-- Makefile 기반 프로젝트에서는 `make app-run` / `make app-test` 명령을 사용한다 — `fvm flutter run` 직접 호출 시 dart-define, observatory-port 설정이 누락된다. `Makefile` 존재 확인 후 `make` 커맨드를 우선 사용하라
+- Makefile 기반 프로젝트에서는 단계마다 그 타겟(`app-fix` · `app-codegen` · `app-analyze` · `app-test`)이 Makefile 에 있을 때만 `make` 로 돌린다 — `references/project-detection.md` Step 2b 4 번의 타겟별 확인으로 한 타겟씩 보고, 타겟이 없는 단계는 기본 명령을 쓴다. `Makefile` 이 있다는 것만 보고 `make app-test` 를 부르면 `app-preflight` 묶음 타겟만 있는 Makefile 에서 없는 타겟을 불러 멈춘다. 타겟이 있으면 `make` 를 먼저 쓰는 까닭은 dart-define · observatory-port 설정이 그 타겟에 모여 있어서다
 
 # Preflight (Pre-commit Quality Gate)
 

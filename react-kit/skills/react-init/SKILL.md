@@ -253,8 +253,12 @@ pnpm add -D eslint typescript-eslint eslint-plugin-react eslint-plugin-react-hoo
 ### 단계 13 — harness 초기화
 
 ```text
-/harness init 호출 → .harness/project.yaml 자동 생성
+/harness init 호출 → .harness/ 와 기본 .harness/project.yaml 생성
+react-kit 의 templates/harness-project.yaml.template 을 .harness/project.yaml 로 덮어 쓴다
 ```
+
+순서는 init 이 먼저다 — init 은 `.harness/` 가 이미 있으면 멈추므로, 틀을 먼저 복사해 두면 init 이 돌지 않는다.
+틀을 덮어 쓰는 이유는 `runtime_inspection.vm_port: 5173` 이다. harness 기본 틀은 `vm_port: null` 이라 위 `vite.config.ts` 의 포트 고정과 이어지지 않는다.
 
 ### 단계 14 — git 초기 커밋
 
