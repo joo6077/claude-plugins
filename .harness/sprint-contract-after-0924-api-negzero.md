@@ -4,7 +4,7 @@ slug: after-0924-api-negzero
 created: "2026-09-26 11:56"
 complexity: "중간"
 conditions: 18
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:42659fdebb3e228a
 locked_at: "2026-09-26 12:11"
