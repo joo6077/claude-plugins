@@ -203,6 +203,8 @@ stderr · `curl_cmd` · 리포트 3 곳에 평문으로 남는다.
 | `--secret` 이 가리는 곳 | stderr 와 리포트 (스킬 셋 · README) | 2026-09-05 절 실측 — 리포트 가운데 `report.json` 만 가린다. 스킬 Gotcha 네 곳이 그 실측을 안 따라갔다 |
 | I-JSON 게이트 목록 | `-0` 없음 | RFC 8785 정정 7920 (기술 정정, 2024-05-15 확인) — `-0` 은 `0` 으로 적히므로 파서가 오류를 내야 한다 |
 
+> **[2026-09-26 보탬]** 이때 `-0` 을 I-JSON 게이트 목록에 넣었지만 RFC 7493 에는 없는 규칙이었다. 게이트 다음의 -0 검사로 옮겼다 — 맨 아래 「[2026-09-26] — I-JSON 게이트와 -0 검사를 가름」 절.
+
 `--curl <파일>` 과 `--error-format long` stderr 도 등록한 시크릿을 `***` 로 가렸다. 시크릿으로 등록하지 않은 값은 그대로다. 이 `--curl` 결과를 `hurl-execution.md` §6 표와 `auth-secret-lifecycle.md` 세 자리(§6 문장 · 수치 표 · Gotcha 머리)에 더했다.
 
 ### 이번에 정한 것 (2026-09-24)
@@ -224,3 +226,12 @@ stderr · `curl_cmd` · 리포트 3 곳에 평문으로 남는다.
 - Pact pending 은 공급자 브랜치별로 풀린다 — baseline `state` 에 브랜치 축을 둘지
 - Hurl 8.1.0(미출시) 의 보안 수정 두 건과 `--no-jsonpath-coercion`
 - 2026-09-05 절 후보 넷(역추론 도구 버전 · exact 배열 순서 · `--secrets-file` 권한 · 리포트 폴더 scrubber)은 그대로 남았다
+
+## [2026-09-26] — I-JSON 게이트와 -0 검사를 가름
+
+근거 파일: `.harness/.meta/evidence/rfc7493-ijson-2026-09-26.md` (Codex 가 rfc-editor.org 에서 RFC 7493 · RFC 8259 · RFC 8785 · 정정 7920 원문을 받아 인용했다).
+
+- RFC 7493 §2.1 은 surrogate 와 noncharacter 를 MUST NOT 으로 막는다. noncharacter 를 api-verify · api-probe 목록에도 넣었다 — 전에는 api-contract 표에만 있었다.
+- `-0` 은 RFC 7493 에 없다(전문 검색 0 건). RFC 8259 문법상 올바른 JSON 숫자다. 막는 근거는 RFC 8785 정정 7920 의 SHOULD 다 — JCS 가 `0` 으로 적어 부호가 사라진다.
+- 그래서 `-0` 을 I-JSON 게이트 목록에서 빼고 게이트 다음의 -0 검사로 따로 적었다. 분류(봉인 불가 · 비교 불가)는 그대로다.
+- binary64 밖 숫자는 RFC 7493 §2.2 가 SHOULD NOT 으로 둔다. 이 킷은 실패로 막는다 — 표준보다 엄격한 쪽이다. NaN/Infinity 는 JSON 문법이 막는다.
