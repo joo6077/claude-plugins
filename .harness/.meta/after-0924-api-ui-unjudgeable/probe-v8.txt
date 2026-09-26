@@ -1,0 +1,60 @@
+INFO v8 1280-light fail-with-unjudged=1 fail-rows=1
+INFO v8 1280-dark fail-with-unjudged=1 fail-rows=1
+INFO v8 glyph-colors PASS:rgb(4, 120, 87)/rgb(52, 211, 153) FAIL:rgb(185, 28, 28)/rgb(252, 165, 165) 미실행:rgb(107, 114, 128)/rgb(163, 166, 173) 판정 불가:rgb(29, 78, 216)/rgb(147, 197, 253)
+OK v8 1280-light rows-one-label — ep=14 rows=14 ambiguous=0
+OK v8 1280-light chip[PASS] — chips=1 visible=true num=10 rows=10
+OK v8 1280-light chip[FAIL] — chips=1 visible=true num=1 rows=1
+OK v8 1280-light chip[미실행] — chips=1 visible=true num=2 rows=2
+OK v8 1280-light chip[판정 불가] — chips=1 visible=true num=1 rows=1
+OK v8 1280-light sum — sum=14 ep=14 판정 불가=1
+OK v8 1280-light row-glyph-contrast[판정 불가] — ratio=6.24
+OK v8 1280-light chip-glyph-contrast[판정 불가] — ratio=6.7
+OK v8 1280-light row-glyph-distinct — unj=rgb(29, 78, 216) vs PASS:rgb(4, 120, 87) FAIL:rgb(185, 28, 28) 미실행:rgb(107, 114, 128)
+OK v8 1280-light chip-glyph-distinct — chip shapes compared=3
+OK v8 1280-light sec7-expr — {"ep":14,"shown":14,"targets":57,"under24":0,"under44":40,"chips":{"PASS":10,"FAIL":1,"미실행":2,"판정 불가":1},"rows":{"PASS":10,"FAIL":1,"미실행":2,"판정 불가":1}}
+OK v8 1280-light filter — filtered=1 allUnj=true pressed=true back=14
+OK v8 1280-light unjudged-reason — endpoints=1 line=true failTab0=true
+OK v8 1280-light text-contrast — [{"tag":"span","cls":"","got":6.11,"need":4.5},{"tag":"span","cls":"badge","got":5.49,"need":4.5},{"tag":"b","cls":"","got":10.67,"need":4.5},{"tag":"div","cls":"mono","got":10.67,"need":4.5},{"tag":"span","cls":"sch-desc","got":5,"need":4.5}]
+OK v8 1280-light console-errors — errors=0 
+OK v8 1280-dark rows-one-label — ep=14 rows=14 ambiguous=0
+OK v8 1280-dark chip[PASS] — chips=1 visible=true num=10 rows=10
+OK v8 1280-dark chip[FAIL] — chips=1 visible=true num=1 rows=1
+OK v8 1280-dark chip[미실행] — chips=1 visible=true num=2 rows=2
+OK v8 1280-dark chip[판정 불가] — chips=1 visible=true num=1 rows=1
+OK v8 1280-dark sum — sum=14 ep=14 판정 불가=1
+OK v8 1280-dark row-glyph-contrast[판정 불가] — ratio=10.22
+OK v8 1280-dark chip-glyph-contrast[판정 불가] — ratio=9.35
+OK v8 1280-dark row-glyph-distinct — unj=rgb(147, 197, 253) vs PASS:rgb(52, 211, 153) FAIL:rgb(252, 165, 165) 미실행:rgb(163, 166, 173)
+OK v8 1280-dark chip-glyph-distinct — chip shapes compared=3
+OK v8 1280-dark sec7-expr — {"ep":14,"shown":14,"targets":57,"under24":0,"under44":40,"chips":{"PASS":10,"FAIL":1,"미실행":2,"판정 불가":1},"rows":{"PASS":10,"FAIL":1,"미실행":2,"판정 불가":1}}
+OK v8 1280-dark filter — filtered=1 allUnj=true pressed=true back=14
+OK v8 1280-dark unjudged-reason — endpoints=1 line=true failTab0=true
+OK v8 1280-dark text-contrast — [{"tag":"span","cls":"","got":11.24,"need":4.5},{"tag":"span","cls":"badge","got":8.15,"need":4.5},{"tag":"b","cls":"","got":12.17,"need":4.5},{"tag":"div","cls":"mono","got":12.17,"need":4.5},{"tag":"span","cls":"sch-desc","got":11.05,"need":4.5}]
+OK v8 1280-dark console-errors — errors=0 
+OK v8 375-light rows-one-label — ep=14 rows=14 ambiguous=0
+OK v8 375-light chip[PASS] — chips=1 visible=true num=10 rows=10
+OK v8 375-light chip[FAIL] — chips=1 visible=true num=1 rows=1
+OK v8 375-light chip[미실행] — chips=1 visible=true num=2 rows=2
+OK v8 375-light chip[판정 불가] — chips=1 visible=true num=1 rows=1
+OK v8 375-light sum — sum=14 ep=14 판정 불가=1
+OK v8 375-light row-glyph-contrast[판정 불가] — ratio=6.24
+OK v8 375-light chip-glyph-contrast[판정 불가] — ratio=6.7
+OK v8 375-light row-glyph-distinct — unj=rgb(29, 78, 216) vs PASS:rgb(4, 120, 87) FAIL:rgb(185, 28, 28) 미실행:rgb(107, 114, 128)
+OK v8 375-light chip-glyph-distinct — chip shapes compared=3
+OK v8 375-light drawer-rows-visible — visible=14 ep=14
+OK v8 375-light text-contrast — []
+OK v8 375-light console-errors — errors=0 
+OK v8 375-dark rows-one-label — ep=14 rows=14 ambiguous=0
+OK v8 375-dark chip[PASS] — chips=1 visible=true num=10 rows=10
+OK v8 375-dark chip[FAIL] — chips=1 visible=true num=1 rows=1
+OK v8 375-dark chip[미실행] — chips=1 visible=true num=2 rows=2
+OK v8 375-dark chip[판정 불가] — chips=1 visible=true num=1 rows=1
+OK v8 375-dark sum — sum=14 ep=14 판정 불가=1
+OK v8 375-dark row-glyph-contrast[판정 불가] — ratio=10.22
+OK v8 375-dark chip-glyph-contrast[판정 불가] — ratio=9.35
+OK v8 375-dark row-glyph-distinct — unj=rgb(147, 197, 253) vs PASS:rgb(52, 211, 153) FAIL:rgb(252, 165, 165) 미실행:rgb(163, 166, 173)
+OK v8 375-dark chip-glyph-distinct — chip shapes compared=3
+OK v8 375-dark drawer-rows-visible — visible=14 ep=14
+OK v8 375-dark text-contrast — []
+OK v8 375-dark console-errors — errors=0 
+VERDICT v8 PASS ng=0 checks=56
