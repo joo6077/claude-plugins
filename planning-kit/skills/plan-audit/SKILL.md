@@ -22,7 +22,7 @@ user-invocable: true
 7. **원칙 위반 기록 시 출처 인용 필수** — FAIL 판정 시 `principle_violated` 필드에 docs/planning/*.md 섹션 + 1차 출처 URL 둘 다 명시. 예: "INVEST §Small (출처: [Agile Alliance](https://agilealliance.org/glossary/invest/))".
 8. **Enumerate-before-Act** — Step 2 에서 reviewer 호출 전, Step 1 에서 **존재하는 모든 .planning/ 파일을 인벤토리로 나열**하고 사용자에게 보여준다. 비인벤토리 상태에서 reviewer 를 spawn 하면 누락 파일이 FAIL 로 잡히지 않는다.
 9. **[미검증] 표기 의무** — reviewer 가 자체 검증 불가능한 항목(예: Mermaid 렌더 결과, 외부 URL 유효성, GitHub sync 실제 결과)은 FAIL 이 아니라 `[미검증]` 으로 표기하고 사용자에게 수동 확인 요청. 관측 못 한 것을 FAIL 처리하면 평가 의미 상실. **마커 의미·임계값·집계 형식의 SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이며 `planning-reviewer` 가 이를 복제 보유한다 — 본 스킬에서 임계 숫자를 재정의하지 마라.**
-10. **산출물이 있어도 공허하면 PASS 금지** — 파일이 존재하는데 해당 섹션이 비어 있거나 템플릿 헤더만 남은 경우(항목 0개), 존재 자체를 충족으로 읽지 마라. canonical 조항 2 의 3 분기(FAIL / 도구 부재 / 증거 무효)를 적용한다. 빈 결과를 "문제 없음" 으로 읽는 것이 skill-design-guide §3.7 조항 4 가 지적한 실제 사고 형태다.
+10. **산출물이 있어도 공허하면 PASS 금지** — 파일이 존재하는데 해당 섹션이 비어 있거나 템플릿 헤더만 남은 경우(항목 0개), 존재 자체를 충족으로 읽지 마라. `planning-reviewer` 사본의 4 분기(FAIL / `[미검증:ENV]` / 4 요건 미충족 / 증거 무효)를 적용한다. 빈 결과를 "문제 없음" 으로 읽는 것이 skill-design-guide §3.7 조항 4 가 지적한 실제 사고 형태다.
 
 # Process
 
@@ -92,7 +92,7 @@ Auditor: planning-reviewer agent
 - PASS: X / 12
 - FAIL: Y / 12
 - N/A: Z / 12
-- [미검증]: W 건
+- [미검증]: W 건 (`invalid_evidence` a · `env_gaps` b · `verified_coverage` c)
   - <카테고리 ID> — 사유: ... / 시도한 fallback: ...
 - Verdict: **READY_FOR_SPRINT_CONTRACT** | **NEEDS_REVISION** | **NEEDS_VERIFICATION** | **BLOCKED**
 
@@ -126,11 +126,12 @@ reviewer 가 FAIL 축과 `[미검증]` 축을 각각 판정해서 돌려준다. 
 - **NEEDS_REVISION**: 1-3 FAIL, 모두 수정 가능 범위. → 보완 후 재감사. (CONDITIONAL — 기획 기반 자체는 유효하지만 일부 산출물 품질 부족)
 - **BLOCKED**: 4+ FAIL 또는 discovery / prd 자체 누락. → plan-discover 부터 재시작
 
-**`[미검증]` 축** — 임계값을 여기서 다시 정의하지 않는다. SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 조항 3 (임계 2) 이고, `planning-reviewer` 가 그것을 복제 보유한다:
+**`[미검증]` 축** — 임계값을 여기서 다시 정의하지 않는다. SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 의 「임계값 2 는」 조항이고, `planning-reviewer` 가 그것을 복제 보유한다. 위에서 성립하는 첫 항에서 멈춘다:
 
-- 0 건 → FAIL 축 결과 그대로
-- 1 건 → FAIL 축 결과 유지 + 리포트 최상단 경고 명시 (FAIL 0 이면 READY 가능)
-- 2 건 이상 → **NEEDS_VERIFICATION** (READY 아님). FAIL 0 이어도 sprint-contract 진행 차단
+- `invalid_evidence` 2 건 이상 → **NEEDS_VERIFICATION** (READY 아님). FAIL 0 이어도 sprint-contract 진행 차단
+- FAIL 0 이고 `verified_coverage = (판정한 카테고리 수 − env_gaps) / 판정한 카테고리 수` < 0.60 → **BLOCKED** (`insufficient_verified_coverage`). FAIL 축의 BLOCKED 와 달리 원인이 환경이다 → 재검증 명령을 돌린 뒤 재감사. FAIL 이 1 개 이상이면 이 항을 건너뛰고 FAIL 축 결과를 쓴다(원문 판정 우선순위는 FAIL 을 먼저 본다)
+- `invalid_evidence` 1 건 → FAIL 축 결과 유지 + 리포트 최상단 경고 명시 (FAIL 0 이면 READY 가능)
+- 그 외 → FAIL 축 결과 그대로. `env_gaps`(4 요건을 다 채운 `[미검증:ENV]`)는 셈에 넣지 않고 수만 적는다
 
 [미검증] 항목은 FAIL 로 counting 하지 않되(두 축 별개), 조항 5 에 따라 `미검증 N 건` 을 반드시 집계하고 건별로 `[카테고리 ID, 사유, 시도한 fallback 단계]` 를 기록한다. Next Actions 에 "검증 후 재평가" 를 반드시 포함.
 

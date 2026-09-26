@@ -44,16 +44,44 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
 ## 미검증 증거 프로토콜 (정본 복제 — 재정의 금지)
 
 > 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
-> 아래 5 조항은 정본을 문구 변형 없이 복제한 것이다. 이 문서에서 임계값이나 마커 의미를 다시
+> 아래 사본은 정본을 문구 변형 없이 복제한 것이다. 이 문서에서 임계값이나 마커 의미를 다시
 > 정의하지 않는다.
-> **재동기화 2026-09-25 (Phase 9):** 정본이 2026-08-13 에 미검증 카운터를 둘로 나눴는데 이 사본은
-> 옛 3 분기 · 단일 임계로 남아 있었다. 조항 2·3 을 현행 정본으로 바꾸고 남용 방지 4 요건을 함께 옮겼다.
-> 정본 조항 1 의 N/A 표와 계약 DG 조건을 다루는 정본의 새 조항 2 는 옮기지 않았다 — backend · infra reviewer 사본과
-> 같다. 킷 reviewer 에 맞는지는 정본 쪽이 정한다.
+> 사본 출처: `harness/docs/guides/qa-evaluation-guide.md` v5.1 (2026-09-24) — §Canonical Unverified-Evidence Protocol 의 번호 목록(원문 번호 그대로라 3 이 둘이다)과 §증거 분류 triage 의 `UNVERIFIED_ENV` 남용 방지 4 요건을 글자 그대로 옮겼다. 사본의 「계약」 은 이 에이전트의 감사 기준을, 「조건」 은 기준 rule 하나를 뜻한다.
+
+<!-- markdownlint-disable MD029 -- 원문 번호를 그대로 옮겨 3 이 둘이다 -->
 
 1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
    `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
-2. **`[미검증]` 은 검증 도구·환경 부재 전용이며, 그 안에서 다시 두 분류로 갈린다.** 대상이
+
+   ⚠️ **`N/A (사유)` 는 이 금지의 예외이며 동의어가 아니다 — 재는 대상 자체가 다르다.**
+   두 마커를 섞으면 "측정 못 했다" 와 "잴 것이 없다" 가 같은 칸에 들어가 판정이 무너진다.
+
+   | 마커 | 뜻 | 언제 |
+   | ---- | -- | ---- |
+   | `[미검증]` | **조건은 이 대상에 적용되는데** 검증 도구·환경이 없어 **재지 못했다** | Studio 미설치, 기기 없음, MCP 불가 |
+   | `N/A (사유)` | **조건이 이 대상에 애초에 적용되지 않는다** — 잴 것이 존재하지 않는다 | 스택 불일치 안티패턴(§안티패턴 스택 정합성), `commands.analyze` 가 없는 markdown 전용 킷, 빈 카테고리 자리표시 `XX-00` |
+
+   구별 기준 한 줄: **도구를 구해오면 잴 수 있으면 `[미검증]`, 도구를 구해와도 잴 것이 없으면 `N/A (사유)`.**
+   `N/A` 를 사유 없이 쓰면 그때는 금지 대상이다 — 반드시 괄호 안에 사유를 적는다.
+
+2. **`commands.analyze` / `commands.test` 가 성립하지 않는 프로젝트의 `DG-01`·`DG-02` 처리.**
+   markdown·문서 전용 킷처럼 정적 분석기가 없는 스택에서는 `DG-01`·`DG-02` 를 억지로 PASS 로
+   적지 마라 — **매치 0 건을 PASS 로 적는 것은 공허한 0 이다**(§Evidence Validity Gate).
+
+   - `project.yaml` 의 `commands.analyze` 가 `null`/빈 문자열이면 `DG-01` 은
+     `N/A (commands.analyze 미설정 — 이 스택에 정적 분석기 없음)` 으로 기록한다
+   - IDE 가 해당 확장자에 진단을 내지 않으면 `DG-02` 는
+     `N/A (IDE diagnostics 미적용 확장자: .md/.html)` 으로 기록한다
+   - 대신 그 킷에 **실제로 성립하는 오라클**을 쓴다: `python3 scripts/validate-plugin.py <kit>` ·
+     `commands.lint` · 문서 링크 검사. 어느 것도 없으면 계약 결함으로 Sprint Feedback 에 남긴다
+   - **명령은 있는데 이번 변경 파일을 재지 않으면** `DG-01` · `DG-03` 도 N/A 다 (2026-09-19 신규) — 예: `commands` 가
+     `scripts/release.sh` 만 재는데 스프린트가 그 파일을 건드리지 않았다. 측정: 명령 대상 경로와
+     `git diff --name-only <기준>...<브랜치>` 의 교집합 0 개
+   - `DG-04` 는 산출물에 구동할 앱 · 서버가 없으면 N/A 다 (설정 파일 · 문서 · 스크립트 조각). 측정: 변경 파일에 실행 진입점 0 개
+   - `RE-01` · `RE-02` 는 산출물에 재사용 단위 코드(컴포넌트 · 함수 · 모듈)가 없으면 N/A 다. 측정: 변경 파일이 설정 · 문서 · 데이터뿐
+   - 평가자는 사유를 **다시 잰다.** 사유가 거짓이면 FAIL(N/A 남용), 사실이면 N/A 로 따로 센다. 계약 작성 절차는
+     `harness/skills/sprint-contract/SKILL.md` Step 4 다
+3. **`[미검증]` 은 검증 도구·환경 부재 전용이며, 그 안에서 다시 두 분류로 갈린다.** 대상이
    없거나 미구현이거나 **의도적으로 실행하지 않았으면** 그것은 미검증이 아니라 **FAIL** 이다.
    나머지는 `UNVERIFIED_ENV`(구현자 통제 밖 도구·환경 부재 · 남용 방지 4 요건 충족) 와
    `UNVERIFIED_INVALID_EVIDENCE`(4 요건 미충족 주장 + 공허한 증거) 로 나눈다
@@ -75,17 +103,19 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
    리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
    를 남긴다.
 
+<!-- markdownlint-enable MD029 -->
+
 ### `UNVERIFIED_ENV` 남용 방지 4 요건 (하나라도 없으면 `INVALID` 로 강등 · 정본 복제)
 
-1. **1 차 도구 시도 기록** — 기준이 지정한 검증 도구를 실제로 호출했고 그 결과(에러 메시지·
+1. **1 차 도구 시도 기록** — 계약이 지정한 기본 검증 도구를 실제로 호출했고 그 결과(에러 메시지·
    타임아웃·미설치 출력)를 근거란에 인용했다
-2. **fallback 시도 기록** — 대체 정적 검증(마이그레이션 DDL 정적 확인 · 설정 파일 grep)을
-   수행했다. 기준에 fallback 이 없으면 "fallback 미기술" 을 **기준 결함**으로 기록하는 것까지가
-   이 요건이다
+2. **fallback 시도 기록** — 계약의 단계 2(대체 정적 검증)를 수행했다. 계약에 fallback 이 없으면
+   "fallback 미기술" 을 **계약 결함**으로 기록하는 것까지가 이 요건이다
 3. **실패 로그** — 1·2 의 실패를 서술이 아니라 **출력**으로 남겼다. "확인 불가했다" 는 로그가 아니다
-4. **통제 불가 사유 + 재검증 명령** — 왜 구현자가 통제할 수 없는 환경 요인인지 한 문장으로 적고,
-   환경이 갖춰졌을 때 이 rule 을 통과시킬 **실행 가능한 명령**을 함께 적었다
-   (예: `docker compose up -d db && cargo test --workspace`)
+4. **통제 불가 사유 + 재검증 명령** — 왜 이것이 **구현자가 통제할 수 없는** 환경 요인인지 한 문장으로
+   적고, 환경이 갖춰졌을 때 이 조건을 통과시킬 **실행 가능한 명령**을 함께 적었다
+
+rust-kit 재검증 명령 예: `docker compose up -d db && cargo test --workspace`
 
 ## Canonical User-Reported Failure Protocol
 
@@ -161,14 +191,14 @@ Rust 코드를 원칙 기준으로 평가하는 읽기 전용 에이전트.
 
 ## 최종 판정 (agent-design-guide §12 L3 Coverage Honesty)
 
-판정은 네 가지다:
+판정은 네 가지다 (조건이 서로 겹치지 않는다):
 
-카운터는 두 개이며 **합산하지 않는다** (정본 조항 3): `UNVERIFIED_INVALID_EVIDENCE`(임계 판정용)와 `env_gaps`(= `UNVERIFIED_ENV`, 커버리지 게이트용).
+카운터는 두 개이며 **합산하지 않는다** (위 사본의 「임계값 2 는」 조항): `UNVERIFIED_INVALID_EVIDENCE`(임계 판정용)와 `env_gaps`(= `UNVERIFIED_ENV`, 커버리지 게이트용).
 
-- **APPROVE** — 전 row PASS + `UNVERIFIED_INVALID_EVIDENCE` 0 건.
-- **CONDITIONAL APPROVE** — 전 row PASS 이지만 `UNVERIFIED_INVALID_EVIDENCE` 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선 후 재검증 권고.
+- **APPROVE** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 0 건 + `verified_coverage` 0.60 이상. `env_gaps` 수를 리포트에 적는다.
+- **CONDITIONAL APPROVE** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 1 건 + `verified_coverage` 0.60 이상. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선 후 재검증 권고.
 - **REJECT** — 1 건 이상 FAIL 또는 `UNVERIFIED_INVALID_EVIDENCE` 2 건 이상. FAIL 마다 구체적 개선 액션(파일:라인 + 권장 변경 + 출처 URL)을 함께 제시한다.
-- **BLOCKED** — `(총 rule 수 − env_gaps) / 총 rule 수 < 0.60`. 판정 자체를 내지 않고 환경 부재 목록과 재검증 명령을 보고한다.
+- **BLOCKED** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 2 건 미만이면서 `verified_coverage = (총 rule 수 − env_gaps) / 총 rule 수 < 0.60` (`insufficient_verified_coverage`). 판정 자체를 내지 않고 환경 부재 목록과 재검증 명령을 보고한다.
 
 **FAIL 수:** {N}개 · **미검증 수:** `UNVERIFIED_INVALID_EVIDENCE` = {M}개 (무효 증거 합산 포함) / `env_gaps` = {E}개
 

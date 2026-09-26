@@ -29,7 +29,7 @@ user-invocable: true
 8. **코드 미확인 항목 구분** — 런타임 렌더링, 실제 인터랙션처럼 정적 분석으로 판정 불가한 항목은 PASS/FAIL이 아닌 `[미검증]`으로 표기하고 수동 확인 방법을 안내한다.
 9. **휴리스틱-카테고리 혼동 금지** — Nielsen 10 휴리스틱은 평가 관점 프레임이다. 실제 판정은 반드시 audit-criteria.md의 10개 카테고리 기준(Typography, Color, Spacing, Accessibility, Interaction, Motion, Visual Hierarchy, Layout & Grid, Ethical Design, Authenticity)으로 매핑하여 수행한다.
 10. **Rule-by-Rule Audit — 완료 선언 전 10 카테고리 전수 대조** — APPROVE/REJECT 판정 전에 audit-criteria.md 의 10 카테고리 × 핵심 체크포인트를 모두 순회하며 각 항목에 `PASS / FAIL / [미검증]` 을 명시한 표가 리포트에 포함되어야 한다. 일부 카테고리를 "해당 없음" 으로 뭉뚱그리지 말고 이유를 기재하라. 카테고리를 건너뛴 감사는 감사가 아니다 (skill-design-guide §3.6 Rule-by-Rule Audit 대응).
-11. **Binary Decidability Pre-Check — 감사 시작 전 이진 판정 가능성 확인** — 감사 범위를 정한 뒤 각 예상 FAIL 항목이 "코드/스타일/토큰만으로 PASS/FAIL 이 이진 판정 가능한가" 를 먼저 체크한다. 런타임 렌더링 · 실제 인터랙션 · MCP Figma 대조가 필요한 항목은 즉시 `[미검증]` 으로 분류하고 PASS 로 통과시키지 마라. **미검증 임계값은 2 다** — 0 건은 통상 판정, 1 건은 PASS 허용 + 경고 명시, **2 건 이상은 개별 FAIL 이 없어도 REJECT**. 이 임계는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 조항 3 이 정본이며 여기서 다시 정의하지 않는다. design-reviewer 규칙 8 과 동일 값이어야 한다 (agent-design-guide §3.5 Binary Decidability 대응 · skill 측 반영).
+11. **Binary Decidability Pre-Check — 감사 시작 전 이진 판정 가능성 확인** — 감사 범위를 정한 뒤 각 예상 FAIL 항목이 "코드/스타일/토큰만으로 PASS/FAIL 이 이진 판정 가능한가" 를 먼저 체크한다. 런타임 렌더링 · 실제 인터랙션 · MCP Figma 대조가 필요한 항목은 즉시 `[미검증]` 으로 분류하고 PASS 로 통과시키지 마라. **미검증은 두 카운터로 센다** — `invalid_evidence`(`[미검증:INVALID]` · 접미 없는 `[미검증]`)는 0 건 통상 판정, 1 건 PASS 허용 + 경고 명시, **2 건 이상은 개별 FAIL 이 없어도 REJECT** 다. 4 요건을 다 채운 `[미검증:ENV]` 는 `env_gaps` 로 따로 세어 REJECT 셈에 넣지 않고, `verified_coverage` 가 0.60 미만이면 BLOCKED 다. 이 규칙은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 의 「임계값 2 는」 조항이 정본이며 여기서 다시 정의하지 않는다. design-reviewer 규칙 8 사본과 같은 값이어야 한다 (agent-design-guide §3.5 Binary Decidability 대응 · skill 측 반영).
 
 12. **Evidence Validity Gate — "증거가 있다" 와 "증거가 입증한다" 는 다르다** — Gotcha 11 이 *증거를 얻을 수 있는가*를 다룬다면 이 항목은 **증거는 얻었는데 그것이 아무것도 입증하지 못하는 경우**를 다룬다. PASS 를 확정하기 전 4 검사를 통과시켜라. 하나라도 실패하면 PASS 가 아니라 `[미검증]` 이다.
 
@@ -107,25 +107,26 @@ Agent 도구 호출:
 ## Evidence Validity
 - 검사 대상 증거: {{n}} 건
 - 무효 판정: {{k}} 건 [항목 ID — 실패한 검사 번호 — 사유]
-- 미검증 누계: {{m}} 건 (도구 부재 {{a}} / 증거 무효 {{b}})
+- 미검증 누계: `invalid_evidence` {{a}} 건 / `env_gaps` {{b}} 건 / `verified_coverage` {{c}}
 ```
 
 ## Step 5: 최종 판정
 
-- 모든 카테고리 PASS + 미검증 0 → **APPROVE**
+- FAIL 0 + `invalid_evidence` 0 + `verified_coverage` 0.60 이상 → **APPROVE** (`env_gaps` 수를 적는다)
 - **Decision Propagation Coverage FAIL 1 개 이상 → REJECT** (10 카테고리 판정과 별개의 전제 조건 —
   Gotcha 14. manifest 부재는 FAIL 이 아니라 `NO_MANIFEST` 보고다)
 - 결정 전파 검사 종료 코드 2(`SCHEMA_ERROR`)는 입력 모양이 틀려 판정하지 못한 것이라 **REJECT** 다 — `FAIL` 줄 없이 `violations=0` 이 찍혀도 통과로 읽지 않는다. 종료 코드 3(`NO_SURFACE` · `NO_DECISION`)은 `NO_MANIFEST` 와 같이 대상 0 건으로 보고한다
 - Critical FAIL 1개 이상 → **REJECT** (즉시)
 - Major/Minor FAIL만 있음 → **REJECT** + 우선순위별 개선 목록
-- FAIL 0 이지만 **미검증 2 건 이상** → **REJECT** (Gotcha 11 임계값)
-- FAIL 0, 미검증 1 건 → **APPROVE** + 미검증 항목과 수동 확인 방법 명시
+- FAIL 0 이지만 **`invalid_evidence` 2 건 이상** → **REJECT** (Gotcha 11 임계값)
+- FAIL 0, `invalid_evidence` 2 건 미만, `verified_coverage = (판정한 체크 항목 수 − env_gaps) / 판정한 체크 항목 수` < 0.60 → **BLOCKED** (`insufficient_verified_coverage` — 재검증 명령을 돌린 뒤 재감사)
+- FAIL 0, `invalid_evidence` 1 건, `verified_coverage` 0.60 이상 → **APPROVE** + 미검증 항목과 수동 확인 방법 명시
 
 REJECT 리포트 구조:
 1. Critical FAIL 목록 (즉시 수정 필요)
 2. Major FAIL 목록 (다음 스프린트 전 수정)
 3. Minor FAIL 목록 (개선 권장)
-4. [미검증] 항목 (수동 확인 필요 — 도구 부재 / 증거 무효 구분)
+4. [미검증] 항목 (수동 확인 필요 — `[미검증:ENV]` / `[미검증:INVALID]` 구분)
 
 변경분 감사(git diff 기준)인 경우 리포트를 `EVIDENCE` 블록으로 닫는다 (Gotcha 13):
 

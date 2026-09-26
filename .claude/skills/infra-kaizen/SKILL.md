@@ -32,7 +32,7 @@ user-invocable: true
    | SSOT | 위치 | infra-kit 에서 하는 일 |
    |------|------|------------------------|
    | Enforcement 등급 E1/E2/E3 + 승급 규칙(2 회 재발 → E2, 3 회 → E3) | `harness/docs/guides/skill-design-guide.md` §3.7 | 등급을 **판정**만 한다. 동의어(강/중/약 등) 신설 금지 |
-   | Canonical Unverified-Evidence Protocol 5 조항 | `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol | `infra-reviewer.md` §9 에 **문구 변형 없이** 복제. 임계값 재정의 금지 |
+   | Canonical Unverified-Evidence Protocol 조항 + 남용 방지 4 요건 | `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol · §증거 분류 triage | `infra-reviewer.md` §9 에 **글자 그대로** 복제하고 원문 판을 출처 한 줄로 적는다. 같은지는 CI 의 `scripts/check-reviewer-protocol-copies.py` 가 잰다. 임계값 재정의 금지 |
 
    ⚠ Counterpart Conditions 의 evaluator 측 대응 절은 **의도된 부재**(parity item 12)다. 만들지 마라.
 9. **README.md + evals/evals.json 생성 회귀 방지 (AR-03 · AR-04 대응)** — 카이젠 세션 종료 시 `ls infra-kit/README.md infra-kit/evals/evals.json` 확인. 둘 다 존재해야 하며 README 의 스킬 테이블은 4 스킬(guide · audit · init · test) 전수 + 에이전트 테이블 + 리서치 문서 카테고리 요약을 포함해야 한다. evals.json 은 4 스킬 커버 + entry 수 >= 5 + placeholder 0 건.

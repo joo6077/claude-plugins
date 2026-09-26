@@ -63,29 +63,64 @@ Architecture 카테고리는 단순 CRUD 앱에 Hexagonal/DDD를 강요하는 �
 | 3 | Database | 경합 가드 적합성 (invariant 분류) | PASS/FAIL | `src/service/order.py:88` | invariant=A(같은 row 상태 전이) / primitive=조건부 UPDATE + 영향 행 0 → conflict | [PostgreSQL Transaction Isolation](https://www.postgresql.org/docs/current/transaction-iso.html) |
 | 4 | Event-Driven | Outbox relay 존재 | `[미검증:ENV]` | n/a | 막는 것: broker 접속 명령과 그 거부 출력 · 시도한 우회: outbox 테이블 DDL 정적 확인 · 통제 불가 사유: 감사자에게 운영 broker 접속 권한이 없다 · 재검증 명령: 권한을 받은 뒤 같은 접속 명령 | [microservices.io Outbox](https://microservices.io/patterns/data/transactional-outbox.html) |
 
-**최종 판정:** APPROVE / CONDITIONAL APPROVE / REJECT
+**최종 판정:** APPROVE / CONDITIONAL APPROVE / REJECT / BLOCKED
 **FAIL 수:** N 건
-**미검증 수:** `UNVERIFIED_INVALID_EVIDENCE` = M 건 / `env_gaps`(`UNVERIFIED_ENV`) = E 건 (판정 규칙은 §Canonical Unverified-Evidence Protocol 조항 3 — 두 카운터를 합산하지 않는다)
+**미검증 수:** `UNVERIFIED_INVALID_EVIDENCE` = M 건 / `env_gaps`(`UNVERIFIED_ENV`) = E 건 (판정 규칙은 아래 사본의 「임계값 2 는」 조항 — 두 카운터를 합산하지 않는다)
+
+판정 순서 (위에서 성립하는 첫 항에서 멈춘다):
+
+- FAIL ≥ 1 → **REJECT**
+- `UNVERIFIED_INVALID_EVIDENCE` ≥ 2 → **REJECT**
+- `verified_coverage = (총 rule 수 − env_gaps) / 총 rule 수` < 0.60 → **BLOCKED** (`insufficient_verified_coverage` — 원인이 환경이라 REJECT 로 적지 않는다)
+- `UNVERIFIED_INVALID_EVIDENCE` 1 건 → **CONDITIONAL APPROVE**
+- 그 외 → **APPROVE** (`env_gaps` 수를 본문에 적는다)
 
 ## Canonical Unverified-Evidence Protocol
 
 > **정본(SSOT):** `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
-> 아래 5 조항은 정본을 문구 변형 없이 복제한 것이며, 이 문서에서 임계값이나 마커 의미를 다시 정의하지 않는다.
-> **재동기화 2026-08-13 (Phase 7):** 정본이 v5.0 에서 미검증 카운터를 둘로 분리했는데 이 문서의
-> 사본은 v4.0 의 3 분기 · 단일 임계 서술로 남아 있었다 — "문구 변형 없이 복제" 주장이 사실과
-> 달랐다. 조항 2·3 을 현행 정본으로 교체하고 남용 방지 4 요건을 함께 복제한다.
+> 아래 사본은 정본을 문구 변형 없이 복제한 것이며, 이 문서에서 임계값이나 마커 의미를 다시 정의하지 않는다.
+> 사본 출처: `harness/docs/guides/qa-evaluation-guide.md` v5.1 (2026-09-24) — §Canonical Unverified-Evidence Protocol 의 번호 목록(원문 번호 그대로라 3 이 둘이다)과 §증거 분류 triage 의 `UNVERIFIED_ENV` 남용 방지 4 요건을 글자 그대로 옮겼다. 사본의 「계약」 은 이 에이전트의 감사 기준을, 「조건」 은 기준 rule 하나를 뜻한다.
 >
-> **인용 표기 규약:** 정본에서 옮겨온 두 블록(조항 1~5 · 남용 방지 4 요건)은 각 줄을 인용 표식
+> **인용 표기 규약:** 정본에서 옮겨온 두 블록(번호 목록 · 남용 방지 4 요건)은 각 줄을 인용 표식
 > `>` 로 시작한다. 이유는 두 가지다 — ① 여기서 편집할 대상이 아니라 정본의 사본임을 표시하고,
 > ② 이 파일의 **최상위 번호 목록을 §핵심 규칙 하나로 유지**해 규칙 번호(1~11)와 인용 번호가
-> 섞이지 않게 한다. 재동기화할 때도 표식을 유지한다.
-> 인용 표식을 떼면 조항 1~5 는 정본과 **문자 단위로 일치**한다(diff 0). 4 요건은 문장 구조를
-> 유지한 채 어휘만 이 킷 도메인으로 치환한 복제다(`계약` → `기준`/`rule`) — 요건 수·순서·판정
-> 효과는 바꾸지 않는다.
+> 섞이지 않게 한다. 재동기화할 때도 표식을 유지한다. 인용 표식을 떼면 두 블록 모두 정본과
+> **문자 단위로 일치**한다.
+
+<!-- markdownlint-disable MD029 -- 원문 번호를 그대로 옮겨 3 이 둘이다 -->
 
 > 1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
 >    `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
-> 2. **`[미검증]` 은 검증 도구·환경 부재 전용이며, 그 안에서 다시 두 분류로 갈린다.** 대상이
+>
+>    ⚠️ **`N/A (사유)` 는 이 금지의 예외이며 동의어가 아니다 — 재는 대상 자체가 다르다.**
+>    두 마커를 섞으면 "측정 못 했다" 와 "잴 것이 없다" 가 같은 칸에 들어가 판정이 무너진다.
+>
+>    | 마커 | 뜻 | 언제 |
+>    | ---- | -- | ---- |
+>    | `[미검증]` | **조건은 이 대상에 적용되는데** 검증 도구·환경이 없어 **재지 못했다** | Studio 미설치, 기기 없음, MCP 불가 |
+>    | `N/A (사유)` | **조건이 이 대상에 애초에 적용되지 않는다** — 잴 것이 존재하지 않는다 | 스택 불일치 안티패턴(§안티패턴 스택 정합성), `commands.analyze` 가 없는 markdown 전용 킷, 빈 카테고리 자리표시 `XX-00` |
+>
+>    구별 기준 한 줄: **도구를 구해오면 잴 수 있으면 `[미검증]`, 도구를 구해와도 잴 것이 없으면 `N/A (사유)`.**
+>    `N/A` 를 사유 없이 쓰면 그때는 금지 대상이다 — 반드시 괄호 안에 사유를 적는다.
+>
+> 2. **`commands.analyze` / `commands.test` 가 성립하지 않는 프로젝트의 `DG-01`·`DG-02` 처리.**
+>    markdown·문서 전용 킷처럼 정적 분석기가 없는 스택에서는 `DG-01`·`DG-02` 를 억지로 PASS 로
+>    적지 마라 — **매치 0 건을 PASS 로 적는 것은 공허한 0 이다**(§Evidence Validity Gate).
+>
+>    - `project.yaml` 의 `commands.analyze` 가 `null`/빈 문자열이면 `DG-01` 은
+>      `N/A (commands.analyze 미설정 — 이 스택에 정적 분석기 없음)` 으로 기록한다
+>    - IDE 가 해당 확장자에 진단을 내지 않으면 `DG-02` 는
+>      `N/A (IDE diagnostics 미적용 확장자: .md/.html)` 으로 기록한다
+>    - 대신 그 킷에 **실제로 성립하는 오라클**을 쓴다: `python3 scripts/validate-plugin.py <kit>` ·
+>      `commands.lint` · 문서 링크 검사. 어느 것도 없으면 계약 결함으로 Sprint Feedback 에 남긴다
+>    - **명령은 있는데 이번 변경 파일을 재지 않으면** `DG-01` · `DG-03` 도 N/A 다 (2026-09-19 신규) — 예: `commands` 가
+>      `scripts/release.sh` 만 재는데 스프린트가 그 파일을 건드리지 않았다. 측정: 명령 대상 경로와
+>      `git diff --name-only <기준>...<브랜치>` 의 교집합 0 개
+>    - `DG-04` 는 산출물에 구동할 앱 · 서버가 없으면 N/A 다 (설정 파일 · 문서 · 스크립트 조각). 측정: 변경 파일에 실행 진입점 0 개
+>    - `RE-01` · `RE-02` 는 산출물에 재사용 단위 코드(컴포넌트 · 함수 · 모듈)가 없으면 N/A 다. 측정: 변경 파일이 설정 · 문서 · 데이터뿐
+>    - 평가자는 사유를 **다시 잰다.** 사유가 거짓이면 FAIL(N/A 남용), 사실이면 N/A 로 따로 센다. 계약 작성 절차는
+>      `harness/skills/sprint-contract/SKILL.md` Step 4 다
+> 3. **`[미검증]` 은 검증 도구·환경 부재 전용이며, 그 안에서 다시 두 분류로 갈린다.** 대상이
 >    없거나 미구현이거나 **의도적으로 실행하지 않았으면** 그것은 미검증이 아니라 **FAIL** 이다.
 >    나머지는 `UNVERIFIED_ENV`(구현자 통제 밖 도구·환경 부재 · 남용 방지 4 요건 충족) 와
 >    `UNVERIFIED_INVALID_EVIDENCE`(4 요건 미충족 주장 + 공허한 증거) 로 나눈다
@@ -107,26 +142,26 @@ Architecture 카테고리는 단순 CRUD 앱에 Hexagonal/DDD를 강요하는 �
 >    리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
 >    를 남긴다.
 
+<!-- markdownlint-enable MD029 -->
+
 ### `UNVERIFIED_ENV` 남용 방지 4 요건 (하나라도 없으면 `INVALID` 로 강등 · 정본 복제)
 
-> 1. **1 차 도구 시도 기록** — 기준이 지정한 검증 도구를 실제로 호출했고 그 결과(에러 메시지·
+> 1. **1 차 도구 시도 기록** — 계약이 지정한 기본 검증 도구를 실제로 호출했고 그 결과(에러 메시지·
 >    타임아웃·미설치 출력)를 근거란에 인용했다
-> 2. **fallback 시도 기록** — 대체 정적 검증(마이그레이션 DDL 정적 확인 · 설정 파일 grep)을
->    수행했다. 기준에 fallback 이 없으면 "fallback 미기술" 을 **기준 결함**으로 기록하는 것까지가
->    이 요건이다
+> 2. **fallback 시도 기록** — 계약의 단계 2(대체 정적 검증)를 수행했다. 계약에 fallback 이 없으면
+>    "fallback 미기술" 을 **계약 결함**으로 기록하는 것까지가 이 요건이다
 > 3. **실패 로그** — 1·2 의 실패를 서술이 아니라 **출력**으로 남겼다. "확인 불가했다" 는 로그가 아니다
-> 4. **통제 불가 사유 + 재검증 명령** — 왜 구현자가 통제할 수 없는 환경 요인인지 한 문장으로 적고,
->    환경이 갖춰졌을 때 이 rule 을 통과시킬 **실행 가능한 명령**을 함께 적었다
->    (예: `docker compose -f docker-compose.test.yml up -d && pytest tests/integration -q`)
+> 4. **통제 불가 사유 + 재검증 명령** — 왜 이것이 **구현자가 통제할 수 없는** 환경 요인인지 한 문장으로
+>    적고, 환경이 갖춰졌을 때 이 조건을 통과시킬 **실행 가능한 명령**을 함께 적었다
 
-**backend-kit 적용 메모 (정본 재정의 아님 — 조항 2 의 4 분기를 이 도메인에 매핑한 것)** —
+**backend-kit 적용 메모 (정본 재정의 아님 — 사본의 「`[미검증]` 은 검증 도구·환경 부재 전용이며」 조항의 4 분기를 이 도메인에 매핑한 것)** —
 런타임 외부 시스템 접근 불가(production DB pool 응답 · 실제 Kafka broker 연결 · OAuth provider
 토큰 발급 flow)는 4 요건을 모두 채웠을 때만 `[미검증:ENV]` 다. 정적 리뷰로 판정이 가능하면
 `[정적]` 보조 태그와 함께 PASS/FAIL 을 내고(조항 1), 정적 리뷰로도 불충분하고 4 요건을 채웠을 때만
 `[미검증:ENV]`, 4 요건을 못 채운 주장은 `[미검증:INVALID]` 다. 대상 미구현·의도적 미실행은
-**FAIL** 이다. 이 킷이 쓰는 CONDITIONAL APPROVE 는 조항 3 이 허용하는
+**FAIL** 이다. 이 킷이 쓰는 CONDITIONAL APPROVE 는 사본의 「임계값 2 는」 조항이 허용하는
 "`UNVERIFIED_INVALID_EVIDENCE` 1 건 + FAIL 0 건" 경우로 한정하며, `env_gaps` 는 여기에 합산하지
-않고 커버리지 게이트에만 쓴다.
+않고 커버리지 게이트에만 쓴다. 재검증 명령 예: `docker compose -f docker-compose.test.yml up -d && pytest tests/integration -q`
 
 ## 10. Canonical User-Reported Failure Protocol
 
