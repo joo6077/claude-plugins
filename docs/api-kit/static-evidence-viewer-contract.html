@@ -267,7 +267,7 @@
 <h1>정적 증거 뷰어 계약</h1>
 <p class="subtitle">
   검증 결과를 사람이 읽는 단일 HTML 리포트가 지켜야 할 제약. 외부 의존 0건, <code>file://</code> 직접 열람,
-  신뢰할 수 없는 응답 본문의 안전한 인라인, 비밀 마스킹을 다룬다. 확정 시안은 <span class="mono">.mockups/api-ui-v7.html</span> 이다.
+  신뢰할 수 없는 응답 본문의 안전한 인라인, 비밀 마스킹을 다룬다. 확정 시안은 <span class="mono">.mockups/api-ui-v8.html</span> 이다.
   <span class="mono">v0.1.1 · 최종 갱신 2026-09-24</span>
 </p>
 
@@ -283,7 +283,7 @@
   <ul class="delta">
     <li>
       <span class="delta-where">수치 기준 · 누르는 자리</span>
-      <span>0.1.0 은 확정 시안 실측값 하나로 최소 크기를 적었다. 0.1.1 은 판정 기준과 권장값을 나눴다 — <strong>요소 상자 24×24 CSS px 미만이 0 개</strong>여야 하고, <strong>44×44 는 권장값</strong>이다. 근거는 WCAG 2.2 의 2.5.8 (AA) 과 2.5.5 (AAA), 그리고 확정 시안 1280×720 실측(2026-09-25)이다. <a href="#target-size">아래 04 절</a></span>
+      <span>0.1.0 은 확정 시안 실측값 하나로 최소 크기를 적었다. 0.1.1 은 판정 기준과 권장값을 나눴다 — <strong>요소 상자 24×24 CSS px 미만이 0 개</strong>여야 하고, <strong>44×44 는 권장값</strong>이다. 근거는 WCAG 2.2 의 2.5.8 (AA) 과 2.5.5 (AAA), 그리고 확정 시안 1280×720 실측(2026-09-26)이다. <a href="#target-size">아래 04 절</a></span>
     </li>
     <li>
       <span class="delta-where">Gotchas · 다섯째</span>
@@ -349,7 +349,7 @@
         <p class="desc" style="margin-bottom:10px"><strong>UI:</strong> 정적 뷰어 — 의존성 0 단일 <code>ui.html</code>, 브라우저 발사 없음 (§11.1)</p>
         <p class="desc" style="margin-bottom:10px"><strong>폼:</strong> 편집 가능, <code>실행</code> 은 커맨드를 클립보드 복사 (§11.2)</p>
         <p class="desc" style="margin-bottom:10px"><strong>고급 기능:</strong> 생성 시점 precompute 로 런타임 의존성 0 유지 (§11.7)</p>
-        <p class="desc" style="margin-bottom:0"><strong>확정 시안:</strong> <span class="mono">.mockups/api-ui-v7.html</span></p>
+        <p class="desc" style="margin-bottom:0"><strong>확정 시안:</strong> <span class="mono">.mockups/api-ui-v8.html</span></p>
       </div>
       <div class="sources">
         <span class="source-badge">설계문서 §11.1 · §11.2 · §11.7 · §12 확정 결정표</span>
@@ -539,7 +539,7 @@
         <tr>
           <td class="sys">외부 참조 개수</td>
           <td><code>&lt;script src</code> <span class="num-cell">0</span> / <code>&lt;link rel=stylesheet</code> <span class="num-cell">0</span> / <code>fetch(</code> <span class="num-cell">0</span> / <code>XMLHttpRequest</code> <span class="num-cell">0</span></td>
-          <td><span class="source-badge">확정 시안 .mockups/api-ui-v7.html 실측</span></td>
+          <td><span class="source-badge">확정 시안 .mockups/api-ui-v8.html 실측</span></td>
         </tr>
         <tr>
           <td class="sys">텍스트 대비</td>
@@ -556,14 +556,14 @@
           <td>요소 상자 <span class="num-cell">24×24</span> CSS px 미만 <span class="num-cell">0</span> 개.<br><span class="num-cell">44×44</span> 는 권장값</td>
           <td>
             <a class="card-source" href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener">&rarr; WCAG 2.2 — 2.5.8 (AA) · 2.5.5 (AAA)</a><br>
-            <span class="source-badge">확정 시안 1280×720 실측(2026-09-25)</span>
-            <span class="cell-note">보이는 누르는 요소 56 개 중<br>24 미만 0 · 44 미만 39</span>
+            <span class="source-badge">확정 시안 1280×720 실측(2026-09-26)</span>
+            <span class="cell-note">보이는 누르는 요소 57 개 중<br>24 미만 0 · 44 미만 40</span>
           </td>
         </tr>
         <tr>
           <td class="sys">테마</td>
           <td>라이트·다크 양립 (둘 다 대비 기준 충족)</td>
-          <td><span class="source-badge">확정 시안 .mockups/api-ui-v7.html 실측</span></td>
+          <td><span class="source-badge">확정 시안 .mockups/api-ui-v8.html 실측</span></td>
         </tr>
         <tr>
           <td class="sys">Data URL 길이 한계</td>
@@ -605,7 +605,7 @@
           </div>
         </div>
         <div class="rule-box" style="margin-top:0">
-          <strong>44 에 못 미친 수는 결함 수가 아니다.</strong> 권장값에 못 미친 요소가 확정 시안에 39 개 있지만 판정 기준은 24×24 하한이고, 거기에 못 미친 요소는 0 개다. 44 는 여유가 있을 때 맞추는 값이다.
+          <strong>44 에 못 미친 수는 결함 수가 아니다.</strong> 권장값에 못 미친 요소가 확정 시안에 40 개 있지만 판정 기준은 24×24 하한이고, 거기에 못 미친 요소는 0 개다. 44 는 여유가 있을 때 맞추는 값이다.
         </div>
       </div>
       <div class="sources">
@@ -615,29 +615,29 @@
 
     <div class="card">
       <div class="card-body">
-        <h3>확정 시안 실측 — 보이는 누르는 요소 56 개</h3>
-        <p class="desc" style="margin-bottom:14px">1280×720 창에서 잰 값이다(2026-09-25). 막대는 56 개 가운데 차지하는 몫이다.</p>
+        <h3>확정 시안 실측 — 보이는 누르는 요소 57 개</h3>
+        <p class="desc" style="margin-bottom:14px">1280×720 창에서 잰 값이다(2026-09-26). 막대는 57 개 가운데 차지하는 몫이다.</p>
         <div class="dist">
           <div class="dist-row">
             <span class="dist-label">24 미만</span>
             <span class="dist-track"><span class="dist-fill f-mute" style="width:2%"></span></span>
-            <span class="dist-val">0 / 56</span>
+            <span class="dist-val">0 / 57</span>
           </div>
           <div class="dist-row">
             <span class="dist-label">24 이상 44 미만</span>
             <span class="dist-track"><span class="dist-fill f-yellow" style="width:70%"></span></span>
-            <span class="dist-val">39 / 56</span>
+            <span class="dist-val">40 / 57</span>
           </div>
           <div class="dist-row">
             <span class="dist-label">44 이상</span>
             <span class="dist-track"><span class="dist-fill f-green" style="width:30%"></span></span>
-            <span class="dist-val">17 / 56</span>
+            <span class="dist-val">17 / 57</span>
           </div>
         </div>
-        <p class="caption">원본은 "56 개 중 24 미만 0 · 44 미만 39" 두 값을 적는다. 셋째 줄 17 은 56 에서 39 를 뺀 값이다.</p>
+        <p class="caption">원본은 "57 개 중 24 미만 0 · 44 미만 40" 두 값을 적는다. 셋째 줄 17 은 57 에서 40 을 뺀 값이다.</p>
       </div>
       <div class="sources">
-        <span class="source-badge">확정 시안 .mockups/api-ui-v7.html 1280×720 실측(2026-09-25)</span>
+        <span class="source-badge">확정 시안 .mockups/api-ui-v8.html 1280×720 실측(2026-09-26)</span>
       </div>
     </div>
   </div>
