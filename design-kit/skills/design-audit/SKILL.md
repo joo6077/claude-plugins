@@ -68,7 +68,7 @@ user-invocable: true
 
 | 카테고리 | 핵심 체크포인트 | 심각도 기준 |
 |----------|-----------------|-------------|
-| **Typography** | 타이포 스케일 일관성, 행간 1.2~1.6배, 본문 최소 14px(모바일)/16px(웹) | Major |
+| **Typography** | 타이포 스케일 일관성, 행간(문자 체계별 범위 — `references/audit-criteria.md` 행간 비율 행), 본문 최소 14px(모바일)/16px(웹) | Major |
 | **Color** | 텍스트 대비 WCAG 2.2 AA 4.5:1, 시맨틱 토큰 사용, 다크모드 대비 유지, OKLCH/P3 wide gamut 사용 시 sRGB fallback 확인. **APCA Lc 참조(informational):** 본문 Lc 75~90, 비본문 Lc 60 이상, Lc 15 미만은 비가시. APCA는 폰트 크기+굵기별 차등 대비를 요구하므로 가는 폰트에 더 높은 대비 필요. 판정 기준은 WCAG 2.2 AA이며 APCA는 WCAG 3.0 WD 참고용 | Critical(대비) / Major(토큰) |
 | **Spacing** | 스페이싱 스케일 일관성, 터치 타겟 WCAG 2.2 SC 2.5.8 AA ≥24×24 CSS px (AAA SC 2.5.5 = 44×44), 그룹 간/내 여백 위계 | Critical(터치) / Major(스케일) |
 | **Accessibility** | 색상만으로 상태 전달 금지, 포커스 인디케이터, 폼 라벨, 대체 텍스트, WCAG 2.2 SC 2.4.11 Focus Not Obscured (AA), SC 2.5.7 Dragging Movements (AA), SC 3.3.8 Accessible Authentication Min (AA) | Critical |
@@ -112,7 +112,7 @@ Agent 도구 호출:
 
 ## Step 5: 최종 판정
 
-- FAIL 0 + `invalid_evidence` 0 + `verified_coverage` 0.60 이상 → **APPROVE** (`env_gaps` 수를 적는다)
+- FAIL 0 + `invalid_evidence` 0 + `verified_coverage` 0.60 이상 + L3 10/10 → **APPROVE** (`env_gaps` 수를 적는다)
 - **Decision Propagation Coverage FAIL 1 개 이상 → REJECT** (10 카테고리 판정과 별개의 전제 조건 —
   Gotcha 14. manifest 부재는 FAIL 이 아니라 `NO_MANIFEST` 보고다)
 - 결정 전파 검사 종료 코드 2(`SCHEMA_ERROR`)는 입력 모양이 틀려 판정하지 못한 것이라 **REJECT** 다 — `FAIL` 줄 없이 `violations=0` 이 찍혀도 통과로 읽지 않는다. 종료 코드 3(`NO_SURFACE` · `NO_DECISION`)은 `NO_MANIFEST` 와 같이 대상 0 건으로 보고한다
@@ -120,7 +120,8 @@ Agent 도구 호출:
 - Major/Minor FAIL만 있음 → **REJECT** + 우선순위별 개선 목록
 - FAIL 0 이지만 **`invalid_evidence` 2 건 이상** → **REJECT** (Gotcha 11 임계값)
 - FAIL 0, `invalid_evidence` 2 건 미만, `verified_coverage = (판정한 체크 항목 수 − env_gaps) / 판정한 체크 항목 수` < 0.60 → **BLOCKED** (`insufficient_verified_coverage` — 재검증 명령을 돌린 뒤 재감사)
-- FAIL 0, `invalid_evidence` 1 건, `verified_coverage` 0.60 이상 → **APPROVE** + 미검증 항목과 수동 확인 방법 명시
+- FAIL 0 이어도 L3 커버리지 < 10/10(10 카테고리 중 건너뛴 카테고리가 있음) → **REJECT** + 남은 카테고리 명시 (건너뛴 카테고리는 FAIL 이다 — 리뷰어 규칙 11)
+- FAIL 0, `invalid_evidence` 1 건, `verified_coverage` 0.60 이상, L3 10/10 → **APPROVE** + 미검증 항목과 수동 확인 방법 명시
 
 REJECT 리포트 구조:
 1. Critical FAIL 목록 (즉시 수정 필요)

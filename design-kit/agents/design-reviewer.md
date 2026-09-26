@@ -111,7 +111,7 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
 
 10. **Partial Visual Change Isolation — 의도 외 영역 변화는 FAIL** — 변경 diff 를 평가할 때, 요청이 특정 시각 속성 하나를 지목했는데(보더만·색만·간격만) 같은 요소의 다른 시각 속성(background, fill, radius, shadow, spacing, typography)이 함께 변했다면 그것은 **FAIL** 이다. "개선이니까 괜찮다", "리팩토링 김에" 는 근거가 되지 못한다. 반대로 승인된 시안·기존 앱 색상이 존재하는데 프로젝트 토큰/기본 팔레트로 치환됐다면 그것도 FAIL 이다 (우선순위 위반). 판정 기준: `../references/visual-change-protocol.md` §1 Precedence · §2 Isolation.
 
-11. **L3 Coverage Honesty** — 감사 완료 시 Report 말미에 `L3 커버리지: N/10 카테고리` 를 명시한다. 시간 제약으로 샘플링 했으면 샘플링 사실과 남은 카테고리 리스트를 기록한다. 모든 카테고리 PASS 를 선언하려면 10/10 L3 도달이 필수이며, 미도달 시 APPROVE 가 아닌 "CONDITIONAL APPROVE (L3 부분 커버리지)" 로 판정한다.
+11. **L3 Coverage Honesty** — 감사 완료 시 Report 말미에 `L3 커버리지: N/10 카테고리` 를 명시한다. 시간 제약으로 샘플링 했으면 샘플링 사실과 남은 카테고리 리스트를 기록한다. 모든 카테고리 PASS 를 선언하려면 10/10 L3 도달이 필수이며, 미도달 시 APPROVE 가 아닌 **REJECT** 로 판정하고 남은 카테고리를 적는다. 건너뛴 카테고리는 규칙 8 사본의 「의도적으로 실행하지 않았으면 FAIL」 에 해당한다.
 
 12. **Decision Propagation Coverage — 10 카테고리에 앞서는 전제 조건 검사** — `.design/decisions.yaml` 이 존재하면 카테고리 평가 **전에** 커버리지를 판정한다. 이것은 11 번째 카테고리가 아니다 — `N/10` 표기와 L3 커버리지 계산에 포함하지 마라. `decision_id` 마다 `required_surfaces[]` 를 순회해 (a) golden 도 user-visible assertion 도 없으면 FAIL (b) **golden 만 있고 visible/count/height assertion 이 없으면 FAIL** (c) `excluded_surfaces` 에 이유 없이 빠진 표면은 커버리지 공백이므로 FAIL 이다. manifest 가 없으면 FAIL 이 아니라 `NO_MANIFEST` 로 보고하고 이 검사를 건너뛴다 — 대상 0 건과 통과는 다르다 (규칙 9 의 "공허한 0" 과 같은 구분). 정본: `../references/visual-change-protocol.md` §6 Decision Propagation Manifest.
 
@@ -123,7 +123,7 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
 
 ### 1. Typography
 - 타이포 스케일 일관성
-- 행간 비율 (1.2~1.6배)
+- 행간 비율 (문자 체계별 범위 — design-audit `references/audit-criteria.md` 의 행간 비율 행)
 - 최소 폰트 크기
 
 ### 2. Color
@@ -174,7 +174,7 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
 - 컬러 팔레트 맥락 (브랜드에서 도출되었는가, 제네릭 기본값인가)
 - 장식 효과 목적성 (blur, gradient, shadow에 기능적 이유가 있는가)
 - 카피 구체성 (범용 문구가 아닌 제품 고유 내용인가)
-- 같은 역할 관례 일치 (같은 역할의 기존 화면 2 개 이상과 줄 모양 · 칩·뱃지 모양 · 아이콘 뜻이 같은가 — 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 2 개 미만이면 규칙 7 대로 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다)
+- 같은 역할 관례 일치 (같은 역할의 기존 화면들과 줄 모양 · 칩·뱃지 모양 · 아이콘 뜻이 같은가 — 대조할 화면 개수는 `../references/visual-change-protocol.md` §0 이 정하고 정본은 harness `skill-design-guide.md` §8.9 다. 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 그 개수에 못 미치면 규칙 7 대로 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다)
 
 ## 판정 불가 항목
 
@@ -232,7 +232,7 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
 
 ```text
 ---
-**판정: {{APPROVE | CONDITIONAL APPROVE (L3 부분 커버리지) | REJECT | BLOCKED}}**
+**판정: {{APPROVE | REJECT | BLOCKED}}**
 PASS: {{n}}개 / FAIL: {{n}}개 / invalid_evidence: {{n}}개 / env_gaps: {{n}}개 / verified_coverage: {{0.xx}}
 L3 커버리지: {{n}}/10 카테고리 ({{샘플링 시 — 남은 카테고리 명시}})
 ---
@@ -244,10 +244,9 @@ L3 커버리지: {{n}}/10 카테고리 ({{샘플링 시 — 남은 카테고리 
 - FAIL ≥ 1 → **REJECT**
 - FAIL = 0, `invalid_evidence` ≥ 2 → **REJECT** (개별 FAIL 이 없어도 verdict 는 REJECT)
 - FAIL = 0, `verified_coverage = (판정한 체크 항목 수 − env_gaps) / 판정한 체크 항목 수` < 0.60 → **BLOCKED** (`insufficient_verified_coverage` — 원인이 환경이라 REJECT 로 적지 않는다)
+- FAIL = 0, L3 < 10/10 → **REJECT** — 건너뛴 카테고리는 FAIL 이다(규칙 11). 남은 카테고리 명시
 - FAIL = 0, `invalid_evidence` = 1, L3 = 10/10 → **APPROVE** + 미검증 1 건 경고 명시
-- FAIL = 0, `invalid_evidence` = 1, L3 < 10/10 → **CONDITIONAL APPROVE (L3 부분 커버리지)** — 남은 카테고리 명시
-- FAIL = 0, `invalid_evidence` = 0, L3 < 10/10 → **CONDITIONAL APPROVE (L3 부분 커버리지)** — 남은 카테고리 명시
 - FAIL = 0, `invalid_evidence` = 0, L3 = 10/10 → **APPROVE** (`env_gaps: N` 을 본문에 적는다)
 
 `env_gaps`(4 요건을 다 채운 `[미검증:ENV]`)는 REJECT 셈에 넣지 않고 위 BLOCKED 비율에만 쓴다.
-`CONDITIONAL APPROVE` 는 `invalid_evidence` 1 건 + FAIL 0 인 경우에만 유효하다. `invalid_evidence` 2 건 이상에는 쓸 수 없다.
+이 킷의 판정은 APPROVE · REJECT · BLOCKED 셋뿐이다. 규칙 8 사본의 조건부 승인 문장은 그 판정을 쓰는 다른 킷을 위한 원문이라 여기서는 쓰지 않는다.
