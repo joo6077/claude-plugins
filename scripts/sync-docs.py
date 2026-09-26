@@ -10,6 +10,9 @@ Usage:
     python scripts/sync-docs.py harness      # 특정 플러그인만
     python scripts/sync-docs.py --check-only # 변경 필요 여부만 확인
     python scripts/sync-docs.py --dry-run    # 변경 예정 내용 출력, 파일 미수정
+
+exit 0 동기화됨(쓰기 모드는 갱신 완료) · 1 --check-only 에서 변경 필요 ·
+2 짝 없는 AUTO 표지가 있다 (그 표지 사이는 갱신하지 못한다).
 """
 from __future__ import annotations
 
@@ -33,11 +36,14 @@ if sys.platform == "win32":
     )
 
 ROOT = REPO_ROOT
+unpaired_marker_files: list[str] = []
 
 MARKER_RE = re.compile(
-    r"(<!-- AUTO:(\w+) -->)\n(.*?)(<!-- /AUTO:\2 -->)",
+    r"(<!-- AUTO:([\w-]+) -->)\n(.*?)(<!-- /AUTO:\2 -->)",
     re.DOTALL,
 )
+# 줄 전체가 표지인 것만 센다 — 본문 줄 안 코드로 표지를 언급한 글은 표지가 아니다
+MARKER_LINE_RE = re.compile(r"^<!-- /?AUTO:\S+ -->$", re.MULTILINE)
 
 
 # ── Task 1: 핵심 유틸리티 함수 ───────────────────────────────────────
@@ -75,6 +81,15 @@ def replace_markers(text: str, replacements: dict[str, str]) -> str:
             return f"{open_tag}\n{replacements[key]}{close_tag}"
         return m.group(0)
     return MARKER_RE.sub(_sub, text)
+
+
+def unpaired_marker_lines(text: str) -> list[int]:
+    """MARKER_RE 가 짝으로 읽지 못한 표지 줄 번호. 이 표지 사이는 아무도 갱신하지 않는다."""
+    paired = set()
+    for block in MARKER_RE.finditer(text):
+        paired.update((block.start(1), block.start(4)))
+    return [text.count("\n", 0, line.start()) + 1
+            for line in MARKER_LINE_RE.finditer(text) if line.start() not in paired]
 
 
 def has_marker(text: str, key: str) -> bool:
@@ -129,8 +144,8 @@ def collect_hooks(plugin_dir: Path) -> list[dict]:
         for entry in entries:
             matcher = entry.get("matcher", "")
             for hook in entry.get("hooks", []):
-                cmd = hook.get("command", "")
-                # 스크립트 이름만 추출
+                # 따옴표를 빼지 않으면 훅 표 이름에 `.sh"` 가 샌다
+                cmd = hook.get("command", "").replace('"', "")
                 cmd_name = cmd.split("/")[-1] if "/" in cmd else cmd
                 results.append({
                     "event": event,
@@ -314,6 +329,16 @@ def render_release_commands() -> str:
     return "\n".join(lines) + "\n"
 
 
+def render_kit_skill_line(kit_path: Path) -> str:
+    """루트 README 킷 절의 스킬 수 · 이름 한 줄. 에이전트가 없는 킷은 에이전트 칸을 뺀다."""
+    skills = sorted(skill["name"] for skill in collect_skills(kit_path))
+    agents = sorted(agent["name"] for agent in collect_agents(kit_path))
+    parts = [f"**스킬 {len(skills)}종** — " + ", ".join(f"`{name}`" for name in skills)]
+    if agents:
+        parts.append(f"**에이전트 {len(agents)}종** — " + ", ".join(f"`{name}`" for name in agents))
+    return " · ".join(parts) + "\n"
+
+
 def render_summary_list() -> str:
     """CLAUDE.md용 플러그인 요약 리스트."""
     desc_map = {
@@ -350,6 +375,13 @@ def process_readme(
         return False
 
     original = readme_path.read_text(encoding="utf-8")
+
+    unpaired = unpaired_marker_lines(original)
+    if unpaired:
+        rel = readme_path.relative_to(ROOT)
+        unpaired_marker_files.append(str(rel))
+        print(f"  [오류] {rel}: 짝 없는 AUTO 표지 (줄 {', '.join(map(str, unpaired))}) — 그 사이는 갱신하지 못한다",
+              file=sys.stderr)
 
     # 마커 존재 확인 — 없는 마커는 경고만 하고 스킵
     for key in replacements:
@@ -434,16 +466,23 @@ def sync_plugin(plugin_name: str, *, dry_run: bool, check_only: bool) -> bool:
 # ── Task 4: 루트 README + CLAUDE.md ─────────────────────────────────
 
 def sync_root(*, dry_run: bool, check_only: bool) -> bool:
-    """루트 README.md의 AUTO 마커들을 갱신한다 (plugins / update-cmd / uninstall-cmd / release-cmd)."""
+    """루트 README.md의 AUTO 마커들을 갱신한다 (plugins / update-cmd / uninstall-cmd / release-cmd / skills-<킷>)."""
     print("\n[root README]")
+    readme = ROOT / "README.md"
     replacements = {
         "plugins": render_plugins_table(),
         "update-cmd": render_update_commands(),
         "uninstall-cmd": render_uninstall_commands(),
         "release-cmd": render_release_commands(),
     }
+    # 킷 절 스킬 블록은 표지를 둔 킷만 채운다 — 없는 킷마다 「마커 없음」 경고를 내지 않게
+    readme_text = read_text(readme)
+    for kit_path in list_kits():
+        key = f"skills-{kit_path.name}"
+        if has_marker(readme_text, key):
+            replacements[key] = render_kit_skill_line(kit_path)
     return process_readme(
-        ROOT / "README.md", replacements, dry_run=dry_run, check_only=check_only
+        readme, replacements, dry_run=dry_run, check_only=check_only
     )
 
 
@@ -490,6 +529,10 @@ def main() -> None:
 
     changed = sync_claude_md(dry_run=args.dry_run, check_only=args.check_only)
     any_changed = any_changed or changed
+
+    if unpaired_marker_files:
+        print(f"\n짝 없는 AUTO 표지가 있어 갱신하지 못한 파일: {', '.join(unpaired_marker_files)}")
+        sys.exit(2)
 
     if args.check_only:
         if any_changed:

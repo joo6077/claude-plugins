@@ -388,30 +388,40 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 
 ---
 
-### V8 Hook 스크립트 실행 비트
+### V8 Hook 스크립트 실행 비트 · 따옴표
 
 ```python
 # V8 — see harness/docs/guides/plugin-validation-guide.md §3.8
 ```
 
-**무엇을 검사하나**: `hooks/hooks.json` 이 **인터프리터 없이 직접 실행**하는 `.sh` 스크립트(`"command": "${CLAUDE_PLUGIN_ROOT}/scripts/x.sh"`)가 실행 비트(mode 0755)를 가지는지 검증한다. git 은 파일 모드를 추적하므로, 스크립트가 `100644`(비실행)로 커밋되면 marketplace clone·plugin cache 등 **모든 설치본**에서 해당 hook 이 `Permission denied` 로 실패한다.
+**무엇을 검사하나**: 두 가지를 본다. (1) `hooks/hooks.json` 명령 안의 `${CLAUDE_PLUGIN_ROOT}` 가 모두 큰따옴표 안에 있는지 — JSON 에는 `"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/x.sh\""` 처럼 이스케이프한 따옴표로 적는다. (2) **인터프리터 없이 직접 실행**하는 `.sh` 스크립트가 실행 비트(mode 0755)를 가지는지. git 은 파일 모드를 추적하므로, 스크립트가 `100644`(비실행)로 커밋되면 marketplace clone·plugin cache 등 **모든 설치본**에서 해당 hook 이 `Permission denied` 로 실패한다.
 
 **왜 중요한가**: 2026-06 reflect 로그 30일 집계에서 hook `permission-denied` 계열이 **24개 프로젝트 957건(전체 friction 의 38%)** 으로 단일 최대 마찰원이었다. 근본원인은 `harness/scripts/{env-check,run-guard,sdk-guard}.sh` 와 `design-kit/scripts/env-check.sh` 4종이 `100644` 로 커밋되어 있던 것. SessionStart·PreToolUse hook 은 매 세션·매 Bash 호출마다 발화하므로, 비실행 스크립트 하나가 전 프로젝트에 누적 실패를 만든다.
+따옴표도 같은 급의 실패다. 설치 경로에 빈칸이 있으면 따옴표 밖 변수는 셸이 둘로 쪼개 hook 이 아예 돌지 않는다 — 킷 넷의 명령 10 개를 빈칸 든 경로에서 돌려 10 개 모두 실패하는 것을 확인했다(2026-09-26). [Hooks reference](https://code.claude.com/docs/en/hooks) 도 이 변수를 큰따옴표로 감싸라고 한다.
 
-**직접 실행 vs 인터프리터 경유**: `${CLAUDE_PLUGIN_ROOT}/x.sh` 가 명령의 첫 토큰이면 직접 실행 → exec 비트 필수. `bash ${CLAUDE_PLUGIN_ROOT}/x.sh` 처럼 인터프리터(`bash`/`sh`/`source`)가 앞서면 읽기 권한만 있으면 되므로 V8 대상이 아니다 (예: reflect-kit 의 log-prompt.sh 는 `bash` 경유라 PASS).
+**직접 실행 vs 인터프리터 경유**: `"${CLAUDE_PLUGIN_ROOT}/x.sh"` 가 명령의 첫 토큰이면 직접 실행 → exec 비트 필수. 경로를 여는 따옴표는 토큰으로 치지 않으므로 `"${CLAUDE_PLUGIN_ROOT}"/x.sh` 꼴도 직접 실행이다. `bash "${CLAUDE_PLUGIN_ROOT}/x.sh"` 처럼 인터프리터(`bash`/`sh`/`source`)가 앞서면 읽기 권한만 있으면 되므로 실행 비트 대상이 아니다 (예: reflect-kit 의 log-prompt.sh 는 `bash` 경유라 PASS). 따옴표 검사는 두 경우 모두에 걸린다.
 
-**예외**: `hooks/hooks.json` 이 없는 킷은 SKIP 상당(OK, "no hooks.json"). 직접 실행 `.sh` 참조가 0건이면 OK.
+**예외**: `hooks/hooks.json` 이 없는 킷은 SKIP 상당(OK, "no hooks.json"). 직접 실행 `.sh` 참조가 0건이면 실행 비트는 볼 것이 없다("직접 실행 hook 스크립트 없음 — OK").
 
-**FAIL 예시** — `100644` 로 커밋된 직접 실행 스크립트:
+**FAIL 예시 1** — `100644` 로 커밋된 직접 실행 스크립트:
 
 ```text
 # harness/hooks/hooks.json
-{ "command": "${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh" }
+{ "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh\"" }
 # 그런데 git ls-files -s 결과 100644 (비실행)
 # → FAIL: 직접 실행 hook 스크립트가 비실행 (mode 0o644 — chmod +x 필요)
 ```
 
-**수정**: `chmod +x <script>` 후 커밋하면 git mode 가 `100755` 로 추적된다. 릴리스(release.sh)로 새 버전을 배포해야 기존 설치본의 cache 가 갱신된다.
+**FAIL 예시 2** — 따옴표 밖 변수:
+
+```text
+# design-kit/hooks/hooks.json
+{ "command": "${CLAUDE_PLUGIN_ROOT}/scripts/env-check.sh" }
+{ "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh" }
+# → FAIL design-kit/hooks/hooks.json: ${CLAUDE_PLUGIN_ROOT} 가 큰따옴표 밖 — 설치 경로에 빈칸이 있으면 실행이 깨진다
+```
+
+**수정**: 실행 비트는 `chmod +x <script>` 후 커밋하면 git mode 가 `100755` 로 추적된다. 따옴표는 경로를 `\"…\"` 로 감싸고 인자는 따옴표 밖에 둔다 — `"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/commit-guard.sh\" pre"`. 릴리스(release.sh)로 새 버전을 배포해야 기존 설치본의 cache 가 갱신된다.
 
 ---
 

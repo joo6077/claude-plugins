@@ -5,6 +5,7 @@
 
 기본: frontmatter 의 generated·report_file, 필수 열, 모든 행의 배정 값.
 --final: 배정이 `Phase N` 인 행마다 대상 계약 칸(계약 슬러그)과 QA 칸(APPROVE·REJECT)까지 본다.
+         슬러그 안의 Phase 번호(`-p06-` · `phase12`)가 배정의 N 과 같아야 하고, 번호를 못 읽는 슬러그도 통과시키지 않는다.
 
 exit 0 통과 · 1 위반 · 2 파일이나 표를 못 읽음.
 """
@@ -17,8 +18,9 @@ from pathlib import Path
 
 REQUIRED_COLUMNS = ("항목", "배정", "대상 계약", "QA")
 DISPOSITION = re.compile(r"이번 스프린트|Phase\s*\d+|기각|해당 없음")
-PHASE = re.compile(r"Phase\s*\d+")
+PHASE = re.compile(r"Phase\s*(\d+)")
 SLUG = re.compile(r"[a-z0-9][a-z0-9-]*")
+SLUG_PHASE = re.compile(r"(?:^|-)p(?:hase)?0*(\d+)[a-z]?(?=-|$)")
 VERDICTS = ("APPROVE", "REJECT")
 SEPARATOR = re.compile(r"^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$")
 FENCE = re.compile(r"^\s*(```|~~~)")
@@ -128,13 +130,18 @@ def main() -> int:
             if args.final and kind == "Phase":
                 contract, qa = cells[col["대상 계약"]], cells[col["QA"]]
                 bad = []
+                slug_phase = SLUG_PHASE.search(contract)
                 if not SLUG.fullmatch(contract):
                     bad.append(f"대상 계약 '{contract}'")
+                elif not slug_phase:
+                    bad.append(f"대상 계약 '{contract}' 에서 Phase 번호를 못 읽음")
+                elif int(slug_phase.group(1)) != int(PHASE.fullmatch(disp).group(1)):
+                    bad.append(f"대상 계약 '{contract}' 는 Phase {int(slug_phase.group(1))} 슬러그")
                 if qa not in VERDICTS:
                     bad.append(f"QA '{qa}'")
                 if bad:
                     final_missing += 1
-                    problems.append(f"{no}행 {item} ({disp}): {' · '.join(bad)} — 슬러그와 APPROVE·REJECT 가 필요하다")
+                    problems.append(f"{no}행 {item} ({disp}): {' · '.join(bad)} — 배정과 같은 Phase 번호의 슬러그와 APPROVE·REJECT 가 필요하다")
 
     for p in problems:
         print(p)

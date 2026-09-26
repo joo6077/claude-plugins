@@ -627,38 +627,53 @@ def check_v7_plugin_json(ctx: CheckContext) -> CheckResult:
 
 
 # ---------------------------------------------------------------------------
-# V8 Hook 스크립트 실행 비트 — hooks.json 이 직접 실행하는 .sh 는 mode 0755 여야 한다
+# V8 Hook 스크립트 실행 비트 · 따옴표 — hooks.json 이 직접 실행하는 .sh 는 mode 0755,
+#    명령 안 ${CLAUDE_PLUGIN_ROOT} 는 큰따옴표 안이어야 한다
 # V8 — see harness/docs/guides/plugin-validation-guide.md §3.8
 # ---------------------------------------------------------------------------
 
-# ${CLAUDE_PLUGIN_ROOT}/<relative>.sh 추출용. 인터프리터(bash/sh/source) 접두 여부도 함께 판정.
-HOOK_SCRIPT_PATTERN = re.compile(r'\$\{CLAUDE_PLUGIN_ROOT\}/(\S+?\.sh)')
+PLUGIN_ROOT_VAR = "${CLAUDE_PLUGIN_ROOT}"
+# ${CLAUDE_PLUGIN_ROOT}/<relative>.sh 추출용. `"${…}/x.sh"` · `"${…}"/x.sh` 꼴도 읽는다.
+HOOK_SCRIPT_PATTERN = re.compile(r'\$\{CLAUDE_PLUGIN_ROOT\}"?/([^\s"]+?\.sh)')
 
 
-def _is_direct_exec(command: str, script_ref: str) -> bool:
-    """command 가 스크립트를 인터프리터 없이 직접 실행하는지 판정.
+def _is_direct_exec(command_before_path: str) -> bool:
+    """스크립트 경로 앞 글자로 인터프리터 없이 직접 실행하는지 판정.
 
-    `${CLAUDE_PLUGIN_ROOT}/x.sh` 가 명령의 첫 토큰(또는 ;/&&/| 직후 첫 토큰)이면
-    직접 실행 → exec 비트 필수. `bash ${...}/x.sh` 처럼 인터프리터가 앞서면 불필요.
+    경로가 명령의 첫 토큰(또는 ;/&&/| 직후 첫 토큰)이면 직접 실행 → exec 비트 필수.
+    `bash "${...}/x.sh"` 처럼 인터프리터가 앞서면 불필요. 경로를 여는 큰따옴표는 토큰으로 치지 않는다.
     """
-    marker = "${CLAUDE_PLUGIN_ROOT}/" + script_ref
-    idx = command.find(marker)
-    if idx < 0:
-        return False
-    prefix = command[:idx]
+    prefix = command_before_path
     # 직전 토큰 경계 추출 (마지막 셸 구분자 이후)
     for sep in (";", "&&", "||", "|", "\n"):
         prefix = prefix.rsplit(sep, 1)[-1]
-    return prefix.strip() == ""
+    return prefix.replace('"', "").strip() == ""
+
+
+def _plugin_root_outside_double_quotes(command: str) -> bool:
+    """하나라도 큰따옴표 밖이면 True. 셸에서 역슬래시로 막은 따옴표는 따옴표로 세지 않는다."""
+    in_double = False
+    pos = 0
+    while pos < len(command):
+        if command[pos] == "\\":
+            pos += 2
+            continue
+        if command[pos] == '"':
+            in_double = not in_double
+        elif not in_double and command.startswith(PLUGIN_ROOT_VAR, pos):
+            return True
+        pos += 1
+    return False
 
 
 def check_v8_hook_exec(ctx: CheckContext) -> CheckResult:
-    """hooks.json 이 직접 실행하는 .sh 스크립트의 실행 비트(0755)를 검증한다.
+    """hooks.json 명령의 따옴표와, 직접 실행하는 .sh 스크립트의 실행 비트(0755)를 검증한다.
 
-    근거: hooks.json 의 `${CLAUDE_PLUGIN_ROOT}/scripts/x.sh` 직접 실행 명령은
+    근거: hooks.json 의 `"${CLAUDE_PLUGIN_ROOT}/scripts/x.sh"` 직접 실행 명령은
     스크립트가 git mode 100644(비실행)로 커밋되면 모든 설치본에서 SessionStart·
     PreToolUse hook 이 'Permission denied' 로 실패한다. 2026-06 reflect 집계상
     24개 프로젝트 957건(전체 friction 38%)의 단일 근본원인이었다.
+    따옴표 밖 ${CLAUDE_PLUGIN_ROOT} 는 설치 경로에 빈칸이 있으면 셸이 둘로 쪼개 hook 이 아예 안 돈다.
     """
     result = CheckResult("V8", "hook-exec")
     hooks_json = ctx.kit_path / "hooks" / "hooks.json"
@@ -686,12 +701,20 @@ def check_v8_hook_exec(ctx: CheckContext) -> CheckResult:
                 if cmd:
                     commands.append(cmd)
 
+    rel_hooks_json = hooks_json.relative_to(REPO_ROOT)
     checked = 0
+    quote_failures: list[str] = []
     failures: list[str] = []
     for cmd in commands:
-        for script_ref in HOOK_SCRIPT_PATTERN.findall(cmd):
-            if not _is_direct_exec(cmd, script_ref):
+        if _plugin_root_outside_double_quotes(cmd):
+            quote_failures.append(
+                f"FAIL {rel_hooks_json}: {PLUGIN_ROOT_VAR} 가 큰따옴표 밖 — "
+                f"설치 경로에 빈칸이 있으면 실행이 깨진다 ({cmd})"
+            )
+        for match in HOOK_SCRIPT_PATTERN.finditer(cmd):
+            if not _is_direct_exec(cmd[:match.start()]):
                 continue  # 인터프리터 경유 — exec 비트 불필요
+            script_ref = match.group(1)
             checked += 1
             script_path = ctx.kit_path / script_ref
             rel = script_path.relative_to(REPO_ROOT)
@@ -704,10 +727,15 @@ def check_v8_hook_exec(ctx: CheckContext) -> CheckResult:
                     f"FAIL {rel}: 직접 실행 hook 스크립트가 비실행 (mode {oct(mode & 0o777)} — chmod +x 필요)"
                 )
 
-    if failures:
+    if quote_failures or failures:
+        problems = []
+        if quote_failures:
+            problems.append(f"{len(quote_failures)}개 hook 명령 따옴표 없음")
+        if failures:
+            problems.append(f"{len(failures)}개 hook 스크립트 실행 비트 누락")
         result.status = "FAIL"
-        result.summary = f"{len(failures)}개 hook 스크립트 실행 비트 누락"
-        result.details = failures
+        result.summary = " · ".join(problems)
+        result.details = quote_failures + failures
         return result
 
     result.status = "OK"
