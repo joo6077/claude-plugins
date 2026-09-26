@@ -49,3 +49,10 @@
 - `~/.claude/hooks/enforce-codex-stdin.sh` 에 같은 heredoc 제거 awk 가 인라인으로 남아 있다(범위 밖). 공용 함수로 바꿀 후보.
 - `~/.claude/skills/handoff/SKILL.md` 5 단계 커밋 예시의 공동 작성자 줄이 옛 모델 이름이다(범위 밖).
 - 한 명령에서 `GIT_INDEX_FILE=` 을 `git add` 에만 붙이고 `git commit` 은 공용 인덱스로 하는 드문 형태는 개인 인덱스 목록을 보여준다(마지막 값을 쓰는 규칙의 한계).
+
+## QA 와 교차 진단 (2026-09-26)
+
+- QA 1 회차 `APPROVE` 22/22 (리포트 `.harness/sprint-feedback-user-setup-p6-p10.md`, 평가 피드백 `~/.harness/feedback/evaluator/1a3bcba6-2026-09-26T115851-bda55d45-50717.yaml`).
+- 평가자가 짚은 것: fit-pal `MEMORY.md` 가 275 가 아니라 276 줄. 부모 확인 — 이 스프린트 변경은 정확히 삭제 6 · 추가 1 이고, 276 번째 줄은 다른 fit-pal 세션이 11:58 에 끝에 붙인 목차 줄이다(같은 시각 `project_group_drawer_direction.md` 생성). 계약 밖 쓰기라 판정 유지. 다음 계약은 공용 기억 폴더에도 AR-06 같은 전제를 둔다.
+- 공허한 통과 점검: 고치기 전 훅도 조용했던 SC05a · b 와 SC02d 를 변이 사본(`b-mut/`)으로 쟀다. 값 못 풂 · 파일 없음 분기를 지우면 SC05a · b 가 `empty=0`, heredoc 제거를 원문 대입으로 바꾸면 SC02d 가 `empty=0` 이 된다 — 측정이 새 로직을 잡는다.
+- 평가 피드백의 `cross_diagnosis_by` 를 `pending-parent` 에서 `sprint-contract` 로 바꾸고 위 두 결론을 적었다(`verify-feedback.sh` PASS).
