@@ -144,8 +144,15 @@ QA 가 끝점 `e4f63d8` 에서 찾은 여섯 건과 처리. 커밋은 `729c110`(
 
 다시 잰 값(끝점 `7c51d87`, 계약 측정 도우미 `m`): SK-02 `env_gaps=6 invalid=7 rep_env=1 rep_inv=1 rule_old=0 rule_inv=1 l3_4req=1` · SK-11 `gotcha=1 wrapper=6/8 agent=1` · SK-12 `call=1 keys_same=1 nkeys=11 script_changed=0` · AR-01 `changed=25 extra=0 multi_top=0` · AR-02 `rc=0 pages=10 miss=0` · DG-02 `md_new=0 json_bad=0`. 나머지 조건 값은 위 표와 같다. 출력 원문: `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/k1fix/`.
 
+## QA 2 차
+
+끝점 `1ea990c` 에서 2 차 평가 APPROVE(29 조건). 리포트 `.harness/sprint-feedback-after-0926-kits-flutter-react-planning.md`(Iteration 2), 계약 `status: done`, 커밋 `4a0d694`. 평가자 피드백 `/Users/jackson/.harness/feedback/evaluator/1a3bcba6-2026-09-26T221000-bda55d45-98251.yaml`.
+
+1 차 독립 검토의 여섯 건 중 판정을 바꿀 만했던 1 번과 2 · 3 · 4 · 6 번은 위 표대로 고쳤고, 끝점에서 다시 확인했다(`project-detection.md:27` 은 `tanstackRouter` 만 잰다고 적음 · Quickstart 번호 1~5 · 티어 표 `:73` T2 칸에 `<ViewTransition>` · 보고 틀 `:469-470` 두 카운터와 결론 줄). 고치지 않은 것은 5 번 하나이고 아래 첫 줄이다.
+
 ## 남은 것
 
+- **SK-11 · SK-13 머리 모양(1 차 독립 검토 5 번 · QA 2 차가 사용자 확인 항목으로 두 번째 기록).** react-animation · plan-sync-github 의 `# Gotchas` 를 `## Gotchas` 로 낮추고 H1 을 새로 넣은 것은 요청 밖의 구조 변경이다. planning-kit 은 12 스킬 중 plan-sync-github 만 머리 모양이 다르다. 되돌리려면 측정을 `# Gotchas` 로 바꾸는 개정이 필요하고, 그 개정은 조건이 느슨해지는 쪽이라 사용자 동의가 있어야 한다. 마크다운 경고 수는 변경 전후 같다
 - **SK-11 · SK-13 측정이 시작 판에서 죽어 있었다.** 두 조건의 측정은 `secx '## Gotchas'` 인데 react-animation · plan-sync-github 의 머리는 `# Gotchas` 였다. 그래서 시작 판 `gotcha=0` · `0` 은 「줄이 없다」 가 아니라 「절을 못 찾았다」 였다(양성 대조가 없던 조건). 조건 문장이 「`## Gotchas` 절에」 라고 적었으므로, 측정을 바꾸는 개정(통과 집합이 넓어지는 쪽이라 위임으로 동의할 수 없다) 대신 두 파일의 머리를 `## Gotchas` 로 낮추고 MD041 이 새로 걸리지 않게 H1 제목 줄(`# React Animation` · `# Plan Sync GitHub`)을 앞에 뒀다. QA 가 이 처리를 받아들일지, planning-kit 12 스킬의 머리 모양과 달라진 것을 되돌리고 개정으로 갈지 판단해야 한다
 - flutter-audit 사본은 CI 가 지키지 않는다 — 위 「넘긴 것」 KF-2 줄
 - `docs/flutter/research-log.md:19` 의 2.16 문장 — 위 「넘긴 것」 KF-4 줄
