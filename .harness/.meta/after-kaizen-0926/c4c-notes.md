@@ -117,3 +117,9 @@ rust-kit/references/project-detection.md → docs/rust-kit/project-detection.htm
   - `ci/ci-local/summary.txt` — 로컬 CI 요약
   - `mdlint/node_modules/.bin/markdownlint-cli2` — DG-02 가 쓰는 markdownlint-cli2 0.23.2
 - 계약 피드백: `/Users/jackson/.harness/feedback/contract/1a3bcba6-2026-09-26T123014-bda55d45-31568.yaml` (`verify-feedback.sh` PASS)
+
+## notes 커밋 뒤 재측정
+
+notes 커밋 `b6f95c9` 을 끝 판으로 두고 17 조건을 다시 쟀다(`impl/measure-real2.out`). 값은 위 「조건별 자기 측정」 표와 한 글자도 다르지 않다.
+AR-01 은 `impl_files=14 exact=1 mixed_commits=0 seal_commit_files=1 seal_before_impl=1 seal_broken=0 this=SEAL_OK scope_block=1` 그대로다 —
+`.harness/` 안의 notes 커밋은 구현 경로 집합과 섞인 커밋 수에 들어가지 않는다.
