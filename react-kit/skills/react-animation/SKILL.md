@@ -12,6 +12,8 @@ argument-hint: "<target_path|scenario> [--tier=1|2|3]"
 user-invocable: true
 ---
 
+# React Animation
+
 ## Gotchas
 
 1. **라이브러리 0개 원칙 — 절대 예외 없음**: Motion(framer-motion) / dnd-kit / react-spring / react-transition-group / @formkit/auto-animate / react-dnd / gsap / lottie-react / react-beautiful-dnd / animate.css 는 **설치 및 import 금지**. 이들의 import 구문이 코드베이스에 존재하면 `/react-audit` 이 빌드 실패를 발행한다. 사용자가 요청하더라도 대안 구현을 제시하고 라이브러리 사용을 거부한다.
