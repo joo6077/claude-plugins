@@ -49,7 +49,7 @@ bash harness/evals/kaizen/feedback-system/aggregation-test.sh
 # /evaluator-kaizen — qa-evaluator만 개선
 
 # flutter-toolkit evals
-# evals.json (flutter-toolkit/evals/evals.json) 참조 — 23개 테스트 케이스
+# evals.json (flutter-toolkit/evals/evals.json) 참조 — 24개 테스트 케이스
 
 # 플러그인 검증 (등록된 검사 전부 자동 실행)
 python3 scripts/validate-plugin.py                          # 전체 킷
@@ -370,7 +370,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 - 스킬 설계는 `harness/docs/guides/skill-design-guide.md`의 아키타입 카탈로그를 따른다
 - Gotchas 섹션이 스킬에서 가장 중요한 부분 — Claude가 반복하는 실수를 방지한다
 - harness evals는 `evals/test-fixtures/fixture-a~e` 디렉토리에 계약 시나리오별 테스트가 있다
-- flutter-toolkit evals는 `evals/evals.json`에 20개 스킬별 assertion이 정의되어 있다
+- flutter-toolkit evals는 `evals/evals.json`에 24개 테스트 케이스별 assertion이 정의되어 있다
 
 ## Harness 트리거 규칙
 
