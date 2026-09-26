@@ -149,6 +149,7 @@ section {
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow-wrap: anywhere;
 }
 
 .card:hover {
@@ -390,7 +391,7 @@ footer a {
 @media (max-width: 720px) {
   .container { padding: 24px 18px 64px; }
   .hero { padding: 48px 0 36px; }
-  .grid-2 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
   .card { padding: 22px; }
   th, td { padding: 12px 14px; font-size: 13px; }
 }
