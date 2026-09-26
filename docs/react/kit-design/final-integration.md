@@ -234,7 +234,7 @@ react-kit/
 │
 ├── evals/                                   # 스킬 테스트 픽스처
 │   ├── evals.json                           # 각 스킬별 assertion
-│   ├── scripts/project-detect-test.sh       # project-detect.sh 출력 키 · 알려진 답 시험
+│   ├── scripts/project-detect-test.sh       # project-detect.sh 의 tanstackRouter 값만 재는 알려진 답 시험
 │   └── test-fixtures/
 │       ├── empty-project/                   # /react-init 대상
 │       ├── clean-arch-project/              # /react-api, /react-feature 대상
@@ -413,13 +413,13 @@ neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 cd my-app
 /react-feature user-profile
 
-# 4. API 연동
+# 3. API 연동
 /react-api User
 
-# 5. 고성능 이미지 처리 (WASM)
+# 4. 고성능 이미지 처리 (WASM)
 /react-wasm "이미지 리사이즈"
 
-# 6. 커밋 전 검증
+# 5. 커밋 전 검증
 /react-preflight
 ```
 
