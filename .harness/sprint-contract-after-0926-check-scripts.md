@@ -4,7 +4,7 @@ slug: after-0926-check-scripts
 created: "2026-09-26 20:13"
 complexity: "복잡"
 conditions: 32
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:ed9ff4a91d3ab1cd
 measurement_digest: sha256:7321baf2bcf86697
