@@ -4,7 +4,7 @@
 - 가지: `chore/ak-c1b-harness-docs`, 기준 `f81568d`
 - 계약 피드백: `/Users/jackson/.harness/feedback/contract/1a3bcba6-2026-09-26T121840-bda55d45-21477.yaml` (verify-feedback PASS)
 - 측정 도우미: `.harness/.meta/after-0924/harness-orch-tools/` 17 개 (커밋 `2c85936`)
-- QA 판정은 내리지 않았다. 계약 status 는 active 그대로다.
+- QA: 1 회차 27/27 APPROVE → 교차 진단 뒤 고침(`bb4b2b1`) → 2 회차 APPROVE. 리포트 `.harness/sprint-feedback-after-0924-harness-orch.md`, 계약 status done (커밋 `188a25b`)
 
 ## 한 일
 
@@ -21,6 +21,7 @@
 | `9c24bbc` | Phase 17 howto-kit 리서치 틀 절 추가, 오케스트레이터 「표가 아직 없다」 문장 삭제 | SK-04 |
 | `1c17532` | 톤 대조 반영 (아래 `## 톤 대조`) | — |
 | `bb4b2b1` | 교차 진단 뒤 고침 — 훅의 파일 ↔ 폴더 바뀜 · 경로를 좁힌 `git add` 구멍, 시험 ㊵~㊿ (아래 `## 교차 진단 뒤 고침`) | SC-01 · SC-02 |
+| `188a25b` | QA 2 회차 APPROVE 리포트 · 계약 status done | — |
 
 판단이 갈린 곳과 근거:
 
@@ -164,3 +165,37 @@ QA 는 27/27 로 APPROVE 했지만 교차 진단이 훅에서 판정을 바꾸�
 | K-02 번역투 (SHOULD) | 0 | 통과 — 더한 줄 grep 0, 양성 대조 `값을 처리한다` 1 |
 | K-11 새로 지은 이름 (관측 컨벤션) | 0 | 통과 — 「목록 사본」 은 이 파일이 이미 쓰던 말 |
 | H 보존 | — | 지운 주석은 「얹지 못하면 빈 값(통과)이다」 한 구절뿐 — 동작이 바뀌어 거짓이 된 문장이라 대체 셈 주석으로 바꿨다 |
+
+## QA 2 회차 뒤 확인 (상한 `188a25b`)
+
+독립 검토가 판정을 바꾼다고 적은 결함 둘(파일 ↔ 폴더 바뀜 · 경로를 좁힌 `git add -A`)은 고치기 전 훅 `fec3713` 을 잰 것이다.
+재현 스크립트는 13:00~13:05 에 만들어졌고 고침 커밋 `bb4b2b1` 은 13:19 다.
+같은 스크립트 여섯(`scratchpad/c1b-review/probe1.sh` ~ `probe6.sh`)을 지금 훅으로 다시 돌렸다.
+
+| 경우 | 지금 훅 | `fec3713` 훅 | git 이 싣는 삭제 |
+| --- | --- | --- | --- |
+| P4b 파일 → 폴더 + 작업 폴더 삭제, `add -A` | 종료 2 (삭제 60) | 종료 0 | 60 |
+| P5 목록 삭제 60 + `a.txt` → 폴더, `add -A` | 종료 2 (삭제 61) | 종료 0 | 61 |
+| P6 같은 상태, `add .` | 종료 2 (삭제 61) | 종료 0 | 61 |
+| P8 `add -A d1`, 추적 안 된 사본 `backup/` | 종료 2 (삭제 60) | 종료 0 | 60 |
+| P9 폴더 → 같은 이름 파일, `add -A` | 종료 2 (삭제 60) | 종료 0 | 60 |
+| `add -A -- d1`, 사본 있음 | 종료 2 (삭제 60) | — | 60 |
+| 경로 없는 `add -A`, 사본 있음 | 종료 0 | — | 0 (git 도 이름 바꾸기) |
+
+probe1 · probe4 · probe5 의 나머지 여덟 경우(P1 ~ P4 · P9a · P9u · P10 · P11)도 지금 훅에서 모두 종료 2 다. 판정을 바꾸는 결함은 남아 있지 않다.
+
+로컬 CI(`ci-local.sh`, 상한 `188a25b`): 스물두 단계 모두 종료 0, `feedback-agg-test` 는 yq 가 없어 SKIP.
+`ci.yml` 의 `run` 줄 27 개 가운데 스크립트 밖 다섯은 설치 넷(`pip install pyyaml` · zsh · `npm ci` · playwright 브라우저)과 yq 가 있을 때만 도는 덩어리 하나다. 이 덩어리는 스크립트의 SKIP 줄이 대신한다.
+CI 가 만든 `__pycache__` 두 폴더(flutter-scenario-report 시험)는 지웠다.
+
+2 회차 평가자 피드백 `/Users/jackson/.harness/feedback/evaluator/1a3bcba6-2026-09-26T133724-bda55d45-59933.yaml` 의 교차 진단 칸은 `pending-parent` 다. 부모 세션이 채운다.
+
+## 다음 사이클 메모
+
+| ID | 항목 | 사유 · 받을 곳 |
+| --- | --- | --- |
+| N7 | 범위 줄에 킷의 `scripts/` · `templates/` 가 없다 (독립 검토 셋째 지적, 판정 영향 없음) | 계약 SC-05 가 폴더 다섯으로 정해 이번 범위 밖. 다음 사이클 오케스트레이터 범위 줄 고침 — `scripts/sync-orchestrator.py` `KIT_SCOPE_DIRS` · `.claude/skills/kaizen-orchestrator/SKILL.md` 범위 줄 · `.claude/skills/kaizen-orchestrator/references/phase-dependencies.md` |
+| N8 | 커밋 안전 훅이 `f81568d` 때부터 놓치는 두 모양 (경로 지정 `git add <경로>` 의 삭제 · 하위 폴더 `commit -a`) | 되돌림 검사와 얽혀 설계가 따로 필요하다(위 `## 넘김` N8). 다음 harness 훅 계약 |
+| N1 ~ N6 | 매핑 짝 · Phase 데이터 풀 배정 · howto 리서치 기록 | 위 `## 넘김` 그대로. docs-site 매핑 규칙 결정 · `scripts/spawn-kaizen-phase.sh` |
+| QA-1 | QA 개선 제안 `[SC-01] 범위-미명시` — 열거한 G1 ~ G9 가 「진짜 삭제는 그대로 막는다」 는 목표 문장의 실제 모양을 다 담지 못했다. 1 회차가 27/27 로 통과한 뒤 교차 진단이 결함 둘을 찾은 이유다 | contract-kaizen. 목표 성격 하위 문장을 따로 된 조건으로 떼거나, 무작위로 만든 입력 몇 개를 최소 요건으로 둔다 |
+| 기존 경고 | docs-site `SKILL.md` Step 2 ~ 7 의 markdownlint 9 건 · `phase-research-templates.md` 12 건 | 위 `## 넘김` 마지막 줄. 이번 구간에서 생긴 것이 아니라 사용자 확인 뒤 고친다 |
