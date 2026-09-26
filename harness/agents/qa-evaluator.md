@@ -439,8 +439,8 @@ echo "FINGERPRINT path=$CONTRACT sha256=$CONTRACT_SHA status=${CONTRACT_STATUS:-
 변조됐는지 — 를 잡는다. 실측 위반: `AR-04: 계약 write-once 위반 — 생성자가 자신이 만든 산출물을
 사후에 허용하려 계약 조건 문구를 직접 편집(5→7 경로, 사이드카/사용자 승인 앵커 없음)`.
 
-**함수 정의는 여기서 재정의하지 않는다.** `sha256_16` · `contract_digest` · `verify_seal` 세
-함수의 SSOT 는 `harness/references/contract-schema.md` §계약 봉인 이다. 그 절의 코드 블록을
+**함수 정의는 여기서 재정의하지 않는다.** `sha256_16` · `contract_digest` · `verify_seal` ·
+`measurement_digest` · `verify_measurement` 다섯 함수의 SSOT 는 `harness/references/contract-schema.md` §계약 봉인 이다. 그 절의 코드 블록을
 **그대로 붙여넣어** 정의하고 호출만 한다 — 다른 구현을 적으면 작성 측 게이트와 평가 측 게이트가
 서로 다른 집합을 해싱하게 된다. 스키마 파일은 Step 8 과 **같은 순서의 경로 해석 ladder** 로 찾는다:
 
@@ -451,7 +451,8 @@ SCHEMA="${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md"
 [ -f "$SCHEMA" ] || SCHEMA=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
   -path '*/harness/references/contract-schema.md' 2>/dev/null | head -1)
 [ -n "$SCHEMA" ] && [ -f "$SCHEMA" ] && echo "SCHEMA: $SCHEMA" || echo "SCHEMA MISSING"
-# 이후: 위 파일 §계약 봉인 의 함수 3 개를 그대로 정의하고 `verify_seal "$CONTRACT"` 를 실행한다.
+# 이후: 위 파일 §계약 봉인 의 코드 블록을 그대로 정의하고 `verify_seal "$CONTRACT"` 와
+#       `verify_measurement "$CONTRACT"` 를 실행한다 (fm_get 은 §값 따옴표 규약 블록).
 # 스키마를 못 찾으면 seal_status: unavailable 로 기록하고 평가를 계속한다 (BLOCKED 아님).
 ```
 
@@ -463,6 +464,14 @@ SCHEMA="${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md"
 | `SEAL_ABSENT` | **없음 — 경고이지 실패가 아니다** | `seal_status: SEAL_ABSENT` (레거시 계약. 실측 109 개 전부가 이 상태이므로 BLOCKED 로 만들면 전 배포본이 죽는다) |
 | `SEAL_BROKEN` + 사이드카에 `consent: anchored` 로 그 변경을 기술한 amendment 가 있음 | 없음 — 경고 + 사용자 확인 목록 | `contract_seal_broken: reconciled` |
 | `SEAL_BROKEN` + 그 외 | **verdict = REJECT** | `contract_seal_broken: unreconciled` + `recorded` / `actual` 두 값 인용 |
+| `MEASURE_OK` | 없음 | `measure_status: MEASURE_OK` |
+| `MEASURE_ABSENT` | **없음 — 경고이지 실패가 아니다** | `measure_status: MEASURE_ABSENT` (v5.6 전 계약은 전부 이 상태다. 실측 104 개) |
+| `MEASURE_BROKEN` + 사이드카에 `consent: anchored` 로 그 측정 변경을 기술한 amendment 가 있음 | 없음 — 경고 + 사용자 확인 목록 | `measure_status: MEASURE_BROKEN(reconciled)` |
+| `MEASURE_BROKEN` + 그 외 | **verdict = REJECT** | `measure_status: MEASURE_BROKEN(unreconciled)` + `recorded` / `actual` 두 값 인용 |
+
+`MEASURE_BROKEN` 은 조건 문구는 그대로인데 그 아래 들여쓴 측정 · 음성 대조 · 픽스처 줄이 봉인 뒤에 바뀌었다는
+뜻이다. 통과 기준을 바꾼 것이라 `SEAL_BROKEN` 과 같은 급으로 다룬다. 실측(2026-09-26): 봉인 커밋이 있는 계약
+74 개 중 4 개가 이렇게 바뀌었고 넷 다 `SEAL_OK` 였다 — 그중 하나는 범위를 3 경로에서 5 경로로 넓혔다.
 
 - **조용히 다시 봉인하지 마라.** 그것은 위반을 지우는 행위다. 평가자는 계약 본문을 수정하지 않는다
   (Step 5.5 의 frontmatter `status` 전환만 예외이며, 봉인은 조건 줄만 해싱하므로 깨지지 않는다)
@@ -493,8 +502,8 @@ else
   git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]' \
     | grep -vE '^[+-][+-]' | grep -vE '^[+-]- \[[ x]\] [A-Z]{2,}-[0-9]{2}' \
     | grep -vE '^[+-]status: (active|done)$'
-  # conditions_digest 자체가 바뀌었으면 재봉인이다
-  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]conditions_digest:'
+  # 두 지문 가운데 하나라도 바뀌었으면 재봉인이다 (measurement_digest 는 v5.6)
+  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-](conditions|measurement)_digest:'
   # 그 교체가 계약에 기록돼 있는가 (1-e-2 의 화해 경로와 같은 급)
   grep -cE '^supersedes_digest:|^supersedes_commit:' "$CONTRACT"
 fi
@@ -509,8 +518,8 @@ fi
 | 차이가 frontmatter `status` 전환뿐 | **없음 — 경고도 아니다** | 평가자 자신이 Step 5.5 에서 하는 일이다. 걸러내기에서 빼므로 아예 안 나온다. 1-e-2 에 적힌 것과 **같은 예외**다 |
 | 산문 차이 있음 + 개정 파일에 그 기록 있음 | 없음 | `prose_edit: recorded` |
 | 산문 차이 있음 + 개정 기록 없음 | 없음 — 경고 + 사용자 확인 목록 | `prose_edit: unrecorded` + 바뀐 줄 인용. 조건이 그 산문을 가리키면 통과 집합이 달라졌는지 **직접** 확인한다 |
-| `conditions_digest` 가 바뀜 + 계약에 `supersedes_digest` · `supersedes_commit` 로 그 교체가 기록돼 있음 | 없음 — 경고 | `reseal: reconciled` + 두 값 인용. **1-e-2 의 `SEAL_BROKEN` 화해 경로와 같은 급이다** |
-| `conditions_digest` 가 바뀜 + 그 외 | **verdict = REJECT** | `reseal_detected: true` + 두 값 인용. 조용한 재봉인은 위반을 지우는 행위다 |
+| `conditions_digest` 또는 `measurement_digest` 가 바뀜 + 계약에 `supersedes_digest` · `supersedes_commit` 로 그 교체가 기록돼 있음 | 없음 — 경고 | `reseal: reconciled` + 두 값 인용. **1-e-2 의 `SEAL_BROKEN` 화해 경로와 같은 급이다** |
+| `conditions_digest` 또는 `measurement_digest` 가 바뀜 + 그 외 | **verdict = REJECT** | `reseal_detected: true` + 두 값 인용. 조용한 재봉인은 위반을 지우는 행위다 |
 
 - **산문 차이를 자동으로 REJECT 로 만들지 마라.** 서술 섹션 보강은 의도된 설계다. 조건이 그
   산문을 **가리킬 때만** 통과 집합이 달라진다
@@ -812,7 +821,7 @@ verdict 산출 직전, 평가자 본인이 자신의 판정을 카테고리 리�
 6. **미검증/FAIL 오분류 self-check** — `[미검증]` 으로 적은 건이 실제로는 **대상 부재·미구현·의도적 미실행**(= FAIL) 이 아닌지 건별로 재확인한다. 그리고 `[미검증:ENV]` 로 적은 건마다 **남용 방지 4 요건**(1 차 도구 시도 · fallback 시도 · 실패 로그 · 통제 불가 사유 + 재검증 명령)이 근거란에 전부 있는지 확인한다 — 하나라도 없으면 `[미검증:INVALID]` 로 강등하고 카운터에 합산한다. 같은 조건이 직전 iteration 에도 `ENV` 였으면 `INVALID` 로 이관한다 (엄격도 규칙 11)
 7. **병렬 스프린트 블록 self-check** — 산출물에 (a) `Contract Fingerprint`(경로·sha256·status·`seal_status`) (b) `amendments: N` + `direction × consent` 2 축 내역 (c) `unreflected_corrections: N` 과 `correction_log_status` 3 블록이 모두 들어갔는지 확인한다. PASS 근거로 쓸 수 없는 조합(`relaxing · unanchored` · `unknown` 전부)을 PASS 근거로 인용한 조건이 있으면 그 조건을 원 조건 문자 그대로 재판정한다
 8. **판별력 self-check** — 규칙 12 의 9 항에 해당하는 조건에 PASS 를 줬다면 (a) 결합 확인을 했는지 (b) 계약의 `음성 대조:` 절을 봤는지 (c) 실행 변형을 했다면 원상 복구를 확인했는지 확인한다. 셋 중 (a) 가 없으면 그 PASS 는 무효다 (엄격도 규칙 12)
-9. **봉인·`REOPENED` self-check** — (a) `verify_seal` 결과를 산출물에 남겼는지 (b) `SEAL_BROKEN` 을 조용히 재봉인하지 않았는지 (c) 사용자 실패 보고가 있었다면 해당 항목 상태어가 `REOPENED` 이고 6 축 대조 결과가 값으로 기록됐는지 확인한다 (엄격도 규칙 13)
+9. **봉인·`REOPENED` self-check** — (a) `verify_seal` · `verify_measurement` 결과를 산출물에 남겼는지 (b) `SEAL_BROKEN` 을 조용히 재봉인하지 않았는지 (c) 사용자 실패 보고가 있었다면 해당 항목 상태어가 `REOPENED` 이고 6 축 대조 결과가 값으로 기록됐는지 확인한다 (엄격도 규칙 13)
 10. **검사 산출물 · 삭제 self-check** — (a) 산출물이 검사인 조건마다 `Check Artifacts` 블록의 다섯 항목이 결과나 `해당 없음 (사유)` 로 채워졌는지 (b) `Deletions` 블록이 있고 선언 밖 삭제가 「사용자 확인 필요」 에 올랐는지 (c) 0 이 기대값인 측정의 매치 줄을 낱말 필터로 빼지 않고 줄마다 갈랐는지 확인한다. (a) 가 빈 조건의 PASS 는 `[미검증:INVALID]` 로 재분류한다 (엄격도 규칙 10)
 
 self-check 실패 시 verdict 부여를 멈추고 누락된 검증을 보강한다. **자기 평가는 외부 평가의 대체가 아니다** — 카이젠 사이클의 Final 단계에서는 별도 evaluator 의 독립 평가가 여전히 필수.
@@ -839,6 +848,7 @@ Iteration: {N}
 - legacy_contract_used: {true | false}   # true 면 아래 경고를 본문에도 노출
 - seal_status: {SEAL_OK | SEAL_ABSENT | SEAL_BROKEN | unavailable}   # Step 1-e-2
 - contract_seal_broken: {reconciled | unreconciled | n/a}   # SEAL_BROKEN 일 때 recorded/actual 병기
+- measure_status: {MEASURE_OK | MEASURE_ABSENT | MEASURE_BROKEN(reconciled) | MEASURE_BROKEN(unreconciled) | unavailable}   # Step 1-e-2
 - 재확인(Step 5): {일치 | 불일치 → BLOCKED}
 - status_transition: {active -> done | skipped(...) | failed(...)}   # Step 5.5
 
