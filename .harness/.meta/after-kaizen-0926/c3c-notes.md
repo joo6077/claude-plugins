@@ -2,7 +2,7 @@
 
 - 계약: `.harness/sprint-contract-after-0924-kits-b.md` (봉인 `sha256:c583ca357d027c78`, 27 조건)
 - 작업 폴더: `.claude/worktrees/ak-c3c`, 가지 `chore/ak-c3c-kits`, 시작점 `88ddfe5`
-- QA 판정은 이 문서가 내리지 않는다. 다음 단계의 qa-evaluator 몫이다.
+- QA 판정: APPROVE 27/27 (Iteration 1). 계약 `status` 를 `done` 으로 바꿔 리포트와 함께 `931d26c` 에 실었다. 교차 진단 BLOCKING 0 — 아래 「QA 판정과 교차 진단」.
 
 ## 한 일
 
@@ -14,6 +14,7 @@
 | `b367184` | tone | 표 칸 정규식 규칙 · 번역투 grep 열이 §8 갈래를 가리킴 · 「8종」 셈 기준 |
 | `22d5901` | api | 설계 기록 §9.2 날짜 붙은 정정 |
 | `3306a32` | reflect | tone-guide 5 단계 대조에서 나온 이름 · 주석 손질 (동작 그대로) |
+| `931d26c` | harness | QA 리포트 `.harness/sprint-feedback-after-0924-kits-b.md` 와 계약 `status: done` |
 
 ## 결정과 근거
 
@@ -86,3 +87,36 @@ meta-audit: 불러오고 판정하지 않은 규칙은 어댑터 전용 규칙(I
 - 계약 측정 도우미: 계약 `## 회귀 게이트` 블록을 떼어 bash 에서 `m <조건 ID>` (이번에 뗀 사본은 세션 임시 폴더의 `kitsb-measure.sh`)
 - CI 로컬 실행: `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh` (본 체크아웃의 추적 안 된 파일, 읽기만. sha256 `a415eaff98a46b86636e591e650950be12499307ff5720936076b85731119713` 이 봉인 전 값과 같음을 확인하고 돌렸다)
 - 쓰지 않은 도구: `coverage.py` · `fence2.py` — 이 묶음은 문서 페이지를 다시 만들지 않았다
+
+## QA 판정과 교차 진단
+
+- qa-evaluator: APPROVE 27/27. 봉인 `SEAL_OK`, 27 조건 모두 평가자가 계약의 측정 도우미 `m <조건 ID>` 를 직접 돌려 얻은 값이다. 리포트는 `931d26c` 에 실었다
+- 교차 진단(부모가 띄운 독립 검토): BLOCKING 0. 끝 판 `e830bc6` 에서 측정 11 개(SC-01~06 · ER-01 · ER-02 · AR-01 · SK-04 · SK-05 · SK-07)를 다시 돌려 구현자 값과 같았다.
+  SC-05 는 로그인 안 된 설정 사본에서 실제 claude 2.1.268 로 `--safe-mode` 표식 0 · 시작 판 4 였다. CI 와 같은 리눅스(Debian bookworm, `mawk 1.3.4`)에서 reflect 시험 셋이 32 · 18 · 16 경우 모두 불일치 0 이었다.
+  이 맥 실제 로그의 새 엔트리 셈은 옛 판보다 claude-plugins +3 · fit-pal +93 이고, 늘어난 줄은 모두 코드 블록 없이 적힌 진짜 옛 엔트리였다(두 번 센 것 0). 다른 C 가지들과 같은 파일을 고친 곳은 없다
+- `status: done` 변경 뒤에도 조건 줄 요약값은 `c583ca357d027c78` 그대로다(조건 27 줄)
+- 글로벌 피드백 `/Users/jackson/.harness/feedback/evaluator/1a3bcba6-2026-09-26T144028-bda55d45-22810.yaml` 의 `cross_diagnosis_by` 를 `sprint-contract` 로 바꾸고 결과를 `cross_diagnosis_notes` 에 적었다(`verify-feedback.sh` PASS).
+  QA 리포트 안 「Cross-Diagnosis Handoff」 의 `pending-parent` 는 평가자가 쓴 그대로 두었다
+
+## 다음 사이클 메모
+
+독립 검토가 적은 것 가운데 판정을 바꾸지 않는 다섯 가지와 QA 개선 제안 하나. 줄 번호는 끝 판 `e830bc6` 기준이다.
+
+1. bambu — 종류 줄만 빠진 목록에서 `[미검증]` 줄이 「enum 값 검사 미실행」 을 빠뜨린다. `bambu-kit/skills/bambu-print-profile/SKILL.md:1608` 은 종류 줄이 없을 때 「종류 줄이 없어 키 스코프 불일치 FAIL 은 믿지 마라」 만 적는다.
+   그런데 키마다 종류 판정(`:1701` `elif t not in TYPES…`)이 enum 값 판정보다 먼저 와서, 종류 줄이 없으면 모든 키가 거기서 FAIL 로 끝나 enum 값 검사에 닿지 않는다. 설명 문단 `:2041` 도 같은 전제로 적혀 있다.
+   재현: 설치본 목록 `bambu-02.08.02.61.tsv` 에서 `process` · `filament` · `machine` 줄을 뺀 사본으로 `process-seam-slope-type-invalid.json` 을 돌리면 `종류 0 · enum 56`, 키 9 개 모두 「키 스코프 불일치」 FAIL,
+   `seam_slope_type='hole'` 을 잡는 「받지 않는 값」 줄 0, 「enum 값 검사 미실행」 줄도 0 이다. 결과가 FAIL 로 남으므로 거짓 통과는 아니다.
+   위 「넘김」 의 「종류 줄만 빠진 목록의 거짓 키 스코프 불일치」 와 같은 자리다 — 판정 동작을 고칠 때 `[미검증]` 문구에 「enum 값 검사 미실행」 을 함께 넣는다
+2. api — 설계 기록 §9.2 에서 바로잡은 「Hurl 로 표현 불가」 가 두 곳에 남았다. `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:261` 「경로 간 불변식은 Hurl 로 표현할 수 없다.」 는 다음 api 카이젠이 읽는 조사 지침이다.
+   `docs/api-kit/multi-sample-pagination-variance.html:425` · `:428` 에 「Hurl 로 표현되지 않는다」 · 「Hurl 문법으로 쓸 수 없다」 가 있고 `:470` 이 출처로 §9.2 를 가리킨다.
+   HTML 쪽은 페이지 원본 md 에 이 문장이 없고 §9.2 에서 옮겨 온 내용이라 `detect-docs-drift.py` 가 못 찾았다 — 위 「문서 페이지 드리프트」 의 다시 만들 페이지 둘에도 빠져 있다.
+   둘 다 origin/main 에 원래 있던 문장이고 이번 봉인 범위 밖이다. 다른 C 가지(c3b-docs-site · c3-kits · api0 · c4c · c4d · c1b)에서도 같은 grep 이 걸려 고치는 곳이 아직 없다.
+   다음 api 카이젠에서 조사 지침을 고치고, 문서 사이트 쪽에서 이 페이지를 다시 만든다
+3. tone — `tone-kit/references/adapter-dart-flutter.md:26` 가 가리키는 줄이 실제 정규식 줄과 다르다. 「§4 완료 게이트 G-04 줄」 이라고 적었지만 §4 에서 `G-04` 이름이 붙은 줄(`:259`)은 정규식 없는 표 행이고,
+   실제 정규식은 이름 없는 코드 블록 넷째 줄(`:245`)이다. `docs/tone/dart-flutter-idioms.md:633` 은 「넷째 줄」 이라고 맞게 적었다. 다음 tone-kaizen 에서 `:26` 을 같은 말로 맞춘다
+4. reflect — `reflect-kit/skills/reflect-digest/SKILL.md:255` · `:315` 의 「엔트리 0 이고 Stop 실패 시도가 1 이상일 때」 는 코드와 조건이 다르다.
+   코드는 전체 실패 수 `n` 이 아니라 마지막 기록 · 마지막 정상 종료 뒤의 실패 수 `a` 로 판정한다. 시험 `collect-status-test.sh` 의 「엔트리 0 · 실패 뒤 정상 종료 — 경고 없음」 경우가 증거다(`Stop 실패 시도 1회 … 엔트리 0` 인데 경고 줄이 없다).
+   main 에 원래 있던 구절을 이번에 문장을 다시 쓰며 그대로 옮겼다. 다음 reflect-kaizen 에서 「마지막 기록 · 정상 종료 뒤의 실패 시도」 로 고친다
+5. reflect — `reflect-kit/hooks/log-reflection.sh:250` 주석이 아직 「`claude -p --model haiku`로 재시도」 다. 실제 호출(`:269`)은 `--safe-mode` 를 쓴다. 다음 reflect-kaizen 에서 주석을 맞춘다
+6. QA 개선 제안(ER-02) — bambu 완료 검사가 SKILL.md 안에 박힌 스크립트라 따로 도는 실행 목록이 없다. 이번에는 계약 측정 도우미가 awk 로 떼어 돌렸을 뿐이다.
+   evals 시험 파일을 돌리는 스크립트로 올려 CI 목록에 넣을지 다음 bambu-kaizen 에서 정한다
