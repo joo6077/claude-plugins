@@ -21,9 +21,9 @@ api-kit 은 **블랙박스**다 — 돌아가는 서버를 밖에서 때려 계�
 
 <!-- AUTO:skills -->
 | 스킬 | 설명 |
-|------|------|
-| `api-contract` | 봉인된 응답 스냅샷에서 계약을 추출한다. 스키마(존재·타입·nullable·enum)와 경로별 assertion 을 뽑아 |
-| `api-init` | 블랙박스 API 검증의 기반이 되는 `.api/` 를 초기화한다. OpenAPI 스펙 · 사람이 쓴 md · |
+| --- | --- |
+| `api-contract` | 봉인된 응답 스냅샷에서 계약을 추출한다. |
+| `api-init` | 블랙박스 API 검증의 기반이 되는 `.api/` 를 초기화한다. |
 | `api-probe` | 인벤토리의 엔드포인트를 실제로 호출해서 응답을 눈으로 확인하고 스냅샷으로 봉인한다. |
 | `api-ui` | `.api/` 산출물 전체를 읽어 의존성 0 단일 파일 계약 뷰어 `.api/ui.html` 을 생성하고 연다. |
 | `api-verify` | 계약 전체(또는 필터)를 다시 실행해 baseline 과 대조하고 PASS/FAIL 리포트 + canonical diff 를 낸다. |
@@ -33,7 +33,7 @@ api-kit 은 **블랙박스**다 — 돌아가는 서버를 밖에서 때려 계�
 
 <!-- AUTO:agents -->
 | 에이전트 | 설명 |
-|----------|------|
+| --- | --- |
 | `api-reviewer` | 추출된 API 계약이 적절한지 원칙 기준으로 독립 평가한다. |
 <!-- /AUTO:agents -->
 
@@ -130,7 +130,7 @@ exact           정규화 후 본문 전체 diff
 
 <!-- AUTO:references -->
 | 파일 | 설명 |
-|------|------|
+| --- | --- |
 | `api-layout.md` | `.api/` 산출물 레이아웃 |
 | `project-detection.md` | API 프로젝트 감지 |
 <!-- /AUTO:references -->
@@ -139,7 +139,7 @@ exact           정규화 후 본문 전체 diff
 
 <!-- AUTO:evals -->
 | 파일 | 설명 |
-|------|------|
+| --- | --- |
 | `api-ui.spec.js` | 파일 |
 | `evals.json` | 파일 |
 | `fixtures` | 디렉토리 |
