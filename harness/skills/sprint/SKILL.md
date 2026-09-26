@@ -61,6 +61,8 @@ sprint-contract Step 6.7 의 가지 만들기는 이 워크트리 안에서 한�
 git log --oneline "$(git merge-base HEAD origin/main)..HEAD"   # 실제로 들어간 커밋
 git status --short                                              # 미커밋 잔여
 git diff --stat "$(git merge-base HEAD origin/main)..HEAD"      # 변경 파일 실체
+find .planning -maxdepth 1 -type f -name 'prd-*.md' 2>/dev/null   # 폐기한 결정 원문이 든 PRD
+grep -rn 'PRD 없음' .design .harness 2>/dev/null                  # PRD 가 없을 때 적어 둔 폐기 결정
 ```
 
 대조 결과를 아래 형식으로 **응답에 복사해 채운다** (E2 아티팩트 — skill-design-guide §3.7):
@@ -69,8 +71,11 @@ git diff --stat "$(git merge-base HEAD origin/main)..HEAD"      # 변경 파일 
 핸드오프 재검증
 - 문서 주장 잔여: <항목 나열>
 - git 실측: <이미 완료된 항목> / <실제 잔여 항목>
+- 폐기한 결정: <PRD 비범위 표 항목 · `PRD 없음` 줄 — 둘 다 없으면 없음>
 - 불일치: N 건 → 문서 먼저 갱신 후 착수
 ```
+
+폐기한 결정의 원문은 기능 PRD 의 비범위 표 하나다 — planning-kit plan-prd Gotcha 14 의 `## Non-goals (폐기한 결정 포함)` · Shape Up `## No-gos`. PRD 가 없는 프로젝트는 승인 기록 · 계약 `범위 경계` 에 네 칸으로 적고 `PRD 없음` 을 붙이므로 위 grep 으로 모은다. 여기 든 항목은 사용자가 되살리라고 하지 않는 한 계약 · 구현에 다시 넣지 않는다 — 필요해 보이면 Step 1 전에 묻는다.
 
 불일치가 1 건이라도 있으면 **핸드오프 문서를 먼저 고친 뒤** Step 1 로 간다. 문서의 잔여 목록과 git 실측이 어긋난 채 진행하는 것은 스테일 상태를 한 사이클 더 전파하는 것이다.
 
