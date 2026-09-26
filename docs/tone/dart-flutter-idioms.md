@@ -630,7 +630,7 @@ Down          →  Start        →  Update / MoveUpdate  →  End / Up   →  C
 | `doc_return_label` | `/// - 반환값: 설명`, void 는 `- 반환값: 없음` (`N/A` 신규 도입 금지). **한국어 축 — 표기 상수의 소유자는 `korean-technical-writing.md` 다** |
 | `helper_prefix_forbidden` | `_build*` (위젯 반환 private 헬퍼 접두사). 판정·처리 방침은 `antipattern-catalog.md` I 카테고리, 추출 임계는 `extraction-thresholds.md` |
 | `separator_pattern` | 고정 gap → `Row`/`Column` 의 `spacing:`. 리스트 separator → `ListView.separated` 의 `separatorBuilder`. `.expand().skip()` 체이닝과 수동 `SizedBox` 나열 금지 |
-| `fallback_identifier_pattern` | `\b(effective\|resolved)[A-Z]` — 금지 접두사. 처리는 삭제가 아니라 도메인·역할명으로 개명 |
+| `fallback_identifier_pattern` | `effective` · `resolved` 뒤에 대문자가 이어지는 식별자 — 금지 접두사. 정규식은 아래 `audit_greps` 코드 블록 넷째 줄이 정본이다(표 칸에 옮기면 대안 기호가 깨진다). 처리는 삭제가 아니라 도메인·역할명으로 개명 |
 | `naming_suffix` | 위젯 클래스 `{widget_prefix}...Widget` · Props `...WidgetProps` · raw 상태 `...State` · 파생 뷰 `...ViewState` · 콜백 typedef `...Changed` / `...Tap`. 클래스 UpperCamelCase, 파일 snake_case |
 | `event_vocabulary` | 제스처·폼 콜백 이름은 Flutter 공식 어휘를 그대로 쓴다(원칙 13). 단계 축 `Down → Start → Update/MoveUpdate → End/Up → Cancel`, 폼·선택은 `onChanged` · `onSubmitted` · `onEditingComplete` · `onSelected` · `onPressed` · `onHover` · `onFocusChange`. 공식 대응이 없는 도메인 이벤트만 프로젝트가 이름 짓는다. 어휘 축 코어 규칙은 `core-naming.md` N-12 소유 |
 | `state_lib` | Riverpod(`@riverpod` Notifier + `select`) + flutter_hooks(`HookConsumerWidget`, `useState`/`useEffect`) + freezed state 클래스 |

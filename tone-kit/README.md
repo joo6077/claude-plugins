@@ -85,5 +85,5 @@
 
 ## 참고
 
-- 리서치 문서 8종: `docs/tone/`
+- 리서치 문서 8종: `docs/tone/` (overview · research-log · templates 제외)
 - 카이젠: `/tone-research` · `/tone-kaizen` (레포 개발용)
