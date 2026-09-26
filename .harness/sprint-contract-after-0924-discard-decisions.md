@@ -4,7 +4,7 @@ slug: after-0924-discard-decisions
 created: "2026-09-26 13:18"
 complexity: "복잡"
 conditions: 20
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:881358107856d327
 locked_at: "2026-09-26 13:31"
