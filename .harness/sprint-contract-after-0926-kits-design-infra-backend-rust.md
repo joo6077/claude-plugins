@@ -4,7 +4,7 @@ slug: after-0926-kits-design-infra-backend-rust
 created: "2026-09-26 21:20"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:ae16a8a46b2e9244
 measurement_digest: sha256:b861d90d33e48c2b
