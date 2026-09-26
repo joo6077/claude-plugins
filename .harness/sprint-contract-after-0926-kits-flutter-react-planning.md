@@ -4,7 +4,7 @@ slug: after-0926-kits-flutter-react-planning
 created: "2026-09-26 20:51"
 complexity: "복잡"
 conditions: 29
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:534198c0775e068c
 measurement_digest: sha256:e957eecfbfa776f5
