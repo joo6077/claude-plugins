@@ -1,7 +1,7 @@
 # dca 묶음 기록 — 문서 사이트 고침 · 320px 기준 폭
 
 계약: `.harness/sprint-contract-after-0926-docs-fixes.md` (봉인 커밋 `8e5699f`, `conditions_digest: sha256:a1f762a2866454db`, `measurement_digest: sha256:57f76c23521e7bc2`).
-가지 `chore/ak2-dca`, 시작 판 `6378948`. 개정 대기 한 건: `.harness/sprint-amendments-after-0926-docs-fixes.md` A-01 (아래 「남은 것」).
+가지 `chore/ak2-dca`, 시작 판 `6378948`. 개정 한 건: `.harness/sprint-amendments-after-0926-docs-fixes.md` A-01 — 사용자가 옵션 1 에 동의했다(2026-09-26T16:20:41.030Z). 아래 「남은 것」.
 
 ## 커밋
 
@@ -182,8 +182,8 @@
 
 ## 남은 것
 
-- 개정 A-01(동의 대기): `docs/tone-kit/dart-flutter-idioms.html` 이 320 폭에서 `.detail li` 목록 줄이 상자 밖으로 나간다. 고치려면 그 쪽 CSS 두 줄을 바꿔야 하는데
-  AR-02 가 그 쪽의 바뀐 줄을 DC-7 한 줄로 묶어 두었다. 두 개정 모두 조건을 느슨하게 하는 쪽이라 위임으로 처리하지 않았다 — 부모가 사용자에게 물은 뒤 옵션 1 이면 개정 파일의 두 줄 판을 넣어 커밋한다.
-  그 전까지 ER-01 · ER-02 는 이 한 쪽 때문에 176/177 이다.
+- 개정 A-01(동의함 · 옵션 1, 2026-09-26T16:20:41.030Z 답 「CSS 두 줄 더 허용 (추천)」): `docs/tone-kit/dart-flutter-idioms.html` 의 `.detail li` 두 줄을
+  flex 에서 block · 왼쪽 여백 표시로 바꿔 커밋했다(`22e28fc`). 다시 잰 값: AR-02 `changed=3/3 old_left=0`(DC-7 줄은 괄호만 지운 것과 같음, 봉인 도우미의 `exact` 는 1/1 을 전제해 0),
+  ER-01 `doc_ok=177 clip_ok=177 esc_ok=177 wide_worse=0`, ER-02 같은 값 · 375 `doc_ok=177`, AR-08 `extra=0 missing=0 png=0 docs_not_modify=0 seal_broken=0`, AR-11 `cap_need=132 cap_have=132 cap_badname=0`.
 - 검사기 단추 id: `scripts/check-docs-a11y.js:133` 이 `#theme-btn` 만 찾아 틀(`themeToggle`)로 만든 쪽의 단추 크기를 못 잰다. 검사 도구를 고치는 일이라 vs 묶음에 넘긴다.
 - KD-2(디자인 감사 기준의 행간 1.2~1.6)와 VS-18(오케스트레이터의 「standalone」)은 각각 design-kit 묶음 · vs 묶음 몫이다. 이 묶음이 `SKILL.md` 쪽 두 표기를 고쳤으니 두 곳만 남았다.
