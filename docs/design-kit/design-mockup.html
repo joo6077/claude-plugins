@@ -624,17 +624,15 @@ pre code{white-space:pre;background:transparent;padding:0;color:inherit;overflow
 - 승인 주체: {사용자 직접 확정 | 자율 모드 (판단 근거 명시)}
 - 대상 산출물: .design/mockups/{파일명}.html
 - 선택된 안: {전략 레이블 + 시안 ID}
-- 확정된 시각 값: {색상·타이포·간격 — 이후 토큰과 충돌 시 이 값이 우선}
+- 확정된 시각 값: {승인 시점에 고정된 색상·타이포·간격 — 이후 토큰과 충돌 시 이 값이 우선}
 - 확정 구성: {화면에 남는 요소와 배치}
-- 폐기한 대안·이유: {버린 안·요소와 이유 — 없으면 `없음`}
+- 폐기한 대안·이유: {이번 결정에서 버린 안·요소와 이유 — 없으면 `없음`}
 - 미확정/후속: {합의되지 않아 남긴 항목}
 - 원문 근거: {사용자 발화 인용}</code></pre>
   <h3 class="subhead">생성 직후 검증</h3>
-  <pre><code>ls .design/approvals/
-grep -c '확정된 시각 값' .design/approvals/{파일명}.md
-# 기대값: 1
-grep -cE '^- (확정 구성|폐기한 대안·이유):' .design/approvals/{파일명}.md
-# 기대값: 2</code></pre>
+  <pre><code>ls .design/approvals/                      # 파일 존재
+grep -c '확정된 시각 값' .design/approvals/{파일명}.md   # → 1
+grep -cE '^- (확정 구성|폐기한 대안·이유):' .design/approvals/{파일명}.md   # → 2</code></pre>
   <div class="note"><strong>승인 후 다시 수정했다면:</strong> 승인 기록도 함께 갱신한다. 스테일 승인 기록은 기록이 없는 것보다 나쁘다.</div>
 </section>
 

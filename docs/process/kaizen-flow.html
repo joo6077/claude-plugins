@@ -61,11 +61,8 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 .phase-badge.p2{background:rgba(251,146,60,0.12);color:var(--orange)}
 .phase-badge.p3{background:rgba(248,113,113,0.12);color:var(--red)}
 .phase-badge.p4{background:rgba(74,222,128,0.12);color:var(--green)}
-.phase-badge.p5{background:rgba(34,211,238,0.12);color:var(--cyan)}
-.phase-badge.p6{background:rgba(244,114,182,0.12);color:var(--pink)}
-.phase-badge.p7{background:rgba(129,140,248,0.12);color:var(--indigo)}
-.phase-badge.p8{background:rgba(192,132,252,0.12);color:var(--violet)}
-.phase-badge.p9{background:rgba(94,234,212,0.12);color:var(--teal)}
+.phase-badge.pre{background:rgba(163,230,53,0.12);color:var(--lime)}
+.phase-badge.kit{background:rgba(94,234,212,0.12);color:var(--teal)}
 .phase-badge.final{background:rgba(134,239,172,0.12);color:var(--accent2)}
 .phase-badge.qa{background:rgba(251,146,60,0.12);color:var(--orange)}
 
@@ -103,6 +100,13 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 .branch-box.approve{border-color:var(--green);color:var(--green)}
 .branch-box.reject{border-color:var(--red);color:var(--red)}
 
+/* Kit phases — 동시에 도는 묶음 */
+.kit-group{border:2px dashed var(--border);border-radius:16px;padding:clamp(12px,2vw,20px)}
+.kit-group-title{font-size:13px;font-weight:700;color:var(--teal);margin-bottom:4px}
+.kit-group-desc{font-size:12px;color:var(--text2);margin-bottom:14px}
+.kit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.kit-grid>*{min-width:0}
+
 /* Timeline */
 .timeline{display:flex;align-items:stretch;gap:0;margin-top:24px;border-radius:10px;overflow:hidden;height:40px}
 .timeline-seg{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--bg);letter-spacing:0.5px;white-space:nowrap;padding:0 6px}
@@ -133,14 +137,14 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
   padding:16px;max-height:400px;overflow-y:auto;font-family:var(--mono);font-size:12px;
   line-height:1.7;color:var(--text2);
 }
-.sim-log .time{color:var(--text3);margin-right:8px}
+.sim-log .stage{color:var(--text3);margin-right:8px}
 .sim-log .phase{font-weight:700}
 .sim-log .p1{color:var(--yellow)}
 .sim-log .p2{color:var(--orange)}
 .sim-log .p3{color:var(--red)}
 .sim-log .p4{color:var(--green)}
-.sim-log .p5{color:var(--cyan)}
-.sim-log .p6{color:var(--pink)}
+.sim-log .pre{color:var(--lime)}
+.sim-log .kit{color:var(--teal)}
 .sim-log .final{color:var(--accent2)}
 .sim-log .approve{color:var(--green)}
 .sim-log .reject{color:var(--red)}
@@ -170,7 +174,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 <!-- HERO -->
 <div class="section">
   <h1>카이젠 오케스트레이션 플로우</h1>
-  <p class="subtitle">매주 월요일 09:00 KST에 자동 실행되는 9-Phase 카이젠 사이클. 설계 가이드 → Contract → Evaluator → Harness → Flutter-toolkit → Design-kit → Backend-kit → Infra-kit → Rust-kit 순서로 Phase별 Sprint Contract + QA Evaluator를 실행한다.</p>
+  <p class="subtitle">매주 월요일 09:00 KST에 자동 실행되는 17 Phase 카이젠 사이클. 설계 가이드 → Contract → Evaluator → Harness → Flutter-toolkit → Design-kit → Backend-kit → Infra-kit → Rust-kit → React-kit → Planning-kit → Reflect-kit → Bambu-kit → Onboarding-kit → Tone-kit → Api-kit → Howto-kit 순서로 Phase별 Sprint Contract + QA Evaluator를 실행하고, 마지막 Final 이 전체 정합성을 검증한다.</p>
 </div>
 
 <!-- TRIGGER SCHEDULE -->
@@ -182,7 +186,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
     <table class="trigger-table">
       <thead><tr><th>시점</th><th>스킬</th><th>트리거</th><th>범위</th></tr></thead>
       <tbody>
-        <tr><td><span style="color:var(--accent);font-weight:600">월 09:00 KST</span></td><td>kaizen-orchestrator</td><td>Remote schedule (Claude Code)</td><td>Full Phase 1→2→3→4→5→6→7→8→9→Final</td></tr>
+        <tr><td><span style="color:var(--accent);font-weight:600">월 09:00 KST</span></td><td>kaizen-orchestrator</td><td>Remote schedule (Claude Code)</td><td>Full Phase 1→2→…→17→Final</td></tr>
         <tr><td>수동</td><td>/kaizen [phase]</td><td>사용자 호출</td><td>특정 Phase 또는 전체</td></tr>
         <tr><td>수동</td><td>/harness-kaizen</td><td>사용자 호출</td><td>Harness만 (독립, Phase 순서 무시)</td></tr>
         <tr><td>수동</td><td>/flutter-kaizen</td><td>사용자 호출</td><td>Flutter만 (독립, Phase 순서 무시)</td></tr>
@@ -190,6 +194,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
         <tr><td>수동</td><td>/backend-kaizen</td><td>사용자 호출</td><td>Backend-kit만 (독립, Phase 순서 무시)</td></tr>
         <tr><td>수동</td><td>/infra-kaizen</td><td>사용자 호출</td><td>Infra-kit만 (독립, Phase 순서 무시)</td></tr>
         <tr><td>수동</td><td>/rust-kaizen</td><td>사용자 호출</td><td>Rust-kit만 (독립, Phase 순서 무시)</td></tr>
+        <tr><td>수동</td><td>그 밖의 개별 카이젠<br>/contract-kaizen · /evaluator-kaizen<br>/react-kaizen · /planning-kaizen<br>/reflect-kaizen · /bambu-kaizen<br>/onboarding-kaizen · /tone-kaizen<br>/api-kaizen · /howto-kaizen</td><td>사용자 호출</td><td>그 킷만 (독립, Phase 순서 무시)</td></tr>
         <tr><td>수동</td><td>/design-research</td><td>사용자 호출</td><td>docs/design/ 리서치 갱신</td></tr>
         <tr><td>구현 전</td><td>/sprint-contract</td><td>/develop 자동</td><td>기능 계약 생성</td></tr>
         <tr><td>구현 후</td><td>qa-evaluator</td><td>/develop Step 5</td><td>계약 기반 검증</td></tr>
@@ -203,19 +208,22 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 <div class="section">
   <div class="section-label">공통 실행 패턴</div>
   <h2>각 Phase의 동일한 실행 프로세스</h2>
-  <p class="desc">9개 Phase는 모두 동일한 프로세스를 따른다. Phase별 자체 리서치를 수행하며, QA REJECT 시 해당 Phase만 재시도한다.</p>
+  <p class="desc">17 개 Phase는 모두 같은 프로세스를 따른다. 각 Phase는 새 서브에이전트로 실행하고, 자체 리서치를 하며, QA REJECT 시 해당 Phase만 재시도한다.</p>
   <div class="card">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:20px">
       <div>
         <div style="font-weight:700;margin-bottom:12px;color:var(--accent2)">Phase 프로세스</div>
         <div class="step-list">
-          <div class="step"><div class="step-num">1</div>Triage — 피드백 읽기 → 개선 필요 여부 판단</div>
-          <div class="step"><div class="step-num">2</div>Self-Research — Phase별 search-sources.md 기반 리서치</div>
-          <div class="step"><div class="step-num">3</div>GAP Analysis — 리서치 + 피드백 vs 현재 상태 비교</div>
-          <div class="step"><div class="step-num">4</div>Sprint Contract DRAFT — 완료 조건 정의</div>
-          <div class="step"><div class="step-num">5</div>Improvement DRAFT — 변경 제안 (미적용)</div>
-          <div class="step"><div class="step-num">6</div>QA Evaluator — DRAFT 검증</div>
-          <div class="step"><div class="step-num">7</div>APPROVE → pre-tag → 적용 + 커밋 → Regression</div>
+          <div class="step"><div class="step-num">1</div>Triage — 피드백 읽기 → 개선 필요? → 불필요 시 SKIP + 로그. 피드백이 0건이면 SKIP하지 않고 리서치 전용 모드로 진행</div>
+          <div class="step"><div class="step-num">2</div>자체 리서치 — 해당 스킬의 search-sources.md 기반, 3-5개 도메인만</div>
+          <div class="step"><div class="step-num">3</div>GAP 분석 — 리서치 + 피드백 + 현재 스킬/가이드 대조</div>
+          <div class="step"><div class="step-num">4</div>예방적 분석 — 리서치 anti-pattern을 현재 프롬프트에 대조</div>
+          <div class="step"><div class="step-num">5</div>Sprint Contract (DRAFT) — 현재 버전 sprint-contract 사용</div>
+          <div class="step"><div class="step-num">6</div>개선안 DRAFT 작성 (파일 미적용)</div>
+          <div class="step"><div class="step-num">7</div>QA Evaluator — 현재 버전으로 DRAFT 평가</div>
+          <div class="step"><div class="step-num">8</div>APPROVE → kaizen-phase-N-pre 태그 생성 → 파일 적용 + 커밋 → Regression Smoke Test</div>
+          <div class="step"><div class="step-num">9</div>Regression 실패 → git revert (kaizen-phase-N-pre 태그) → BLOCKED</div>
+          <div class="step"><div class="step-num">10</div>다음 Phase → 새 서브에이전트 (fresh load)</div>
         </div>
       </div>
       <div>
@@ -231,6 +239,11 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="step"><div class="step-num">📊</div>.harness/.meta/kaizen-failure-count.yaml</div>
           <div class="step"><div class="step-num">⚠</div>2+ 연속 실패 → 해당 Phase 일시 중지</div>
         </div>
+        <div style="margin-top:16px;font-weight:700;margin-bottom:12px;color:var(--teal)">동시 실행</div>
+        <div class="step-list">
+          <div class="step"><div class="step-num">3</div>동시에 도는 킷 Phase 는 3 개까지 — 5 개 · 4 개로 돌린 두 사이클에서 서브에이전트가 과부하 오류(529)로 죽었고 2 ~ 3 개는 무사고였다</div>
+          <div class="step"><div class="step-num">✎</div>여러 Phase 가 한 가지에 커밋하면 커밋마다 서명 줄 Kaizen-Phase: &lt;슬러그&gt; 를 넣는다</div>
+        </div>
       </div>
     </div>
   </div>
@@ -239,8 +252,8 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 <!-- MAIN FLOW DIAGRAM -->
 <div class="section">
   <div class="section-label">실행 흐름</div>
-  <h2>9-Phase 실행 순서</h2>
-  <p class="desc">Phase 순서는 절대 변경 불가. 상위 Phase 변경 시 하위 Phase에서 전수 정합성 감사 필수. 모든 Phase는 단일 브랜치에서 실행.</p>
+  <h2>17 Phase 실행 순서</h2>
+  <p class="desc">Phase 순서는 바꾸지 않는다. 상위 Phase가 바뀌면 하위 Phase가 전수 정합성 감사를 한다. 모든 Phase는 한 브랜치에서 실행하고, Phase 1~4 는 차례로, 킷 Phase 는 동시에 3 개까지 돈다.</p>
 
   <div class="flow" id="flowDiagram">
 
@@ -251,16 +264,51 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
       <div class="phase-desc">Claude Code remote schedule이 kaizen-orchestrator를 실행한다. 각 Phase는 독립 서브에이전트로 실행.</div>
     </div>
 
-    <div class="flow-connector" id="conn-0"></div>
+    <div class="flow-connector" id="conn-cron"></div>
+
+    <!-- STEP 0 -->
+    <div class="phase-card" id="phase-step0" data-phase="pre">
+      <div class="phase-badge pre">STEP 0 · PRE-FLIGHT</div>
+      <div class="phase-title">피드백 데이터 풀 수집</div>
+      <div class="phase-desc">모든 Phase 서브에이전트가 공유할 통합 데이터 풀을 먼저 만든다 — 글로벌 피드백 · 외부 프로젝트 · followup 이슈 · 개인 메모리 · /insights 30 일 분석.</div>
+      <div class="file-list">
+        <span class="file-tag">scripts/collect-kaizen-data.py</span>
+        <span class="file-tag">.harness/.meta/kaizen-data-pool.md</span>
+      </div>
+    </div>
+
+    <div class="flow-connector" id="conn-step0"></div>
+
+    <!-- STEP 0.5 -->
+    <div class="phase-card" id="phase-step05" data-phase="pre">
+      <div class="phase-badge pre">STEP 0.5 · SELF-AUDIT</div>
+      <div class="phase-title">Orchestrator Self-Audit</div>
+      <div class="phase-desc">이전 사이클 meta-feedback 반영 + sync-orchestrator drift 확인. drift 가 있으면 동기화한 뒤에만 Phase 1 로 들어간다.</div>
+      <div class="file-list">
+        <span class="file-tag">.harness/.meta/orchestrator-audit-log.md</span>
+        <span class="file-tag">python3 scripts/sync-orchestrator.py --check-only</span>
+      </div>
+    </div>
+
+    <div class="flow-connector" id="conn-step05"></div>
+
+    <!-- STEP 0.6 -->
+    <div class="phase-card" id="phase-step06" data-phase="pre">
+      <div class="phase-badge pre">STEP 0.6 · TRIAGE</div>
+      <div class="phase-title">Phase Relevance Triage</div>
+      <div class="phase-desc">§0 중복도 + 신호 농도로 선별 범위를 제안한다. 설계 가이드 Phase(1~3)는 신호와 무관하게 늘 후보이고, 전체를 돌릴지는 사용자가 고른다.</div>
+    </div>
+
+    <div class="flow-connector" id="conn-step06"></div>
 
     <!-- PHASE 1 -->
     <div class="phase-card" id="phase-1" data-phase="p1">
       <div class="phase-badge p1">PHASE 1 · 설계 가이드</div>
       <div class="phase-title">설계 가이드 카이젠</div>
-      <div class="phase-desc">skill-design-guide.md, agent-design-guide.md를 리서치 기반으로 갱신. Phase 2~6의 기준이 되므로 가장 먼저 실행.</div>
+      <div class="phase-desc">skill-design-guide.md, agent-design-guide.md를 리서치 기반으로 갱신. 모든 스킬/에이전트 설계의 기준이 되므로 가장 먼저 실행. 리서치 소스는 references/search-sources.md.</div>
       <div class="file-list">
-        <span class="file-tag">docs/guides/skill-design-guide.md</span>
-        <span class="file-tag">docs/guides/agent-design-guide.md</span>
+        <span class="file-tag">harness/docs/guides/skill-design-guide.md</span>
+        <span class="file-tag">harness/docs/guides/agent-design-guide.md</span>
       </div>
       <div class="step-list">
         <div class="step"><div class="step-num">1</div>리서치 — AI 트렌드, 스킬 아키타입, Gotchas 패턴</div>
@@ -280,9 +328,9 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
     <div class="phase-card" id="phase-2" data-phase="p2">
       <div class="phase-badge p2">PHASE 2 · CONTRACT</div>
       <div class="phase-title">Contract 카이젠</div>
-      <div class="phase-desc">Sprint Contract 작성 원칙 개선. contract-design-guide.md와 sprint-contract 스킬을 갱신한다.</div>
+      <div class="phase-desc">Sprint Contract 작성 원칙 개선. contract-design-guide.md와 sprint-contract 스킬을 갱신한다. /contract-kaizen 서브에이전트로 실행.</div>
       <div class="file-list">
-        <span class="file-tag">docs/guides/contract-design-guide.md</span>
+        <span class="file-tag">harness/docs/guides/contract-design-guide.md</span>
         <span class="file-tag">harness/skills/sprint-contract/SKILL.md</span>
       </div>
       <div class="step-list">
@@ -303,9 +351,9 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
     <div class="phase-card" id="phase-3" data-phase="p3">
       <div class="phase-badge p3">PHASE 3 · EVALUATOR</div>
       <div class="phase-title">Evaluator 카이젠</div>
-      <div class="phase-desc">QA 평가 방법론 개선. qa-evaluation-guide.md와 qa-evaluator 에이전트를 갱신한다.</div>
+      <div class="phase-desc">QA 평가 방법론 개선. qa-evaluation-guide.md와 qa-evaluator 에이전트를 갱신한다. /evaluator-kaizen 서브에이전트로 실행.</div>
       <div class="file-list">
-        <span class="file-tag">docs/guides/qa-evaluation-guide.md</span>
+        <span class="file-tag">harness/docs/guides/qa-evaluation-guide.md</span>
         <span class="file-tag">harness/agents/qa-evaluator.md</span>
       </div>
       <div class="step-list">
@@ -326,7 +374,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
     <div class="phase-card" id="phase-4" data-phase="p4">
       <div class="phase-badge p4">PHASE 4 · HARNESS</div>
       <div class="phase-title">Harness 카이젠</div>
-      <div class="phase-desc">Harness 인프라 개선. sprint-contract와 qa-evaluator는 Phase 2-3에서 처리하므로 제외한다.</div>
+      <div class="phase-desc">Harness 인프라 개선. sprint-contract와 qa-evaluator는 Phase 2-3에서 처리하므로 제외한다. /harness-kaizen 서브에이전트로 실행.</div>
       <div class="file-list">
         <span class="file-tag">harness/skills/*/SKILL.md</span>
         <span class="file-tag">.harness/project.yaml</span>
@@ -340,139 +388,178 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
       <div class="dep-note">sprint-contract, qa-evaluator 제외 (Phase 2-3에서 처리 완료)</div>
       <div class="qa-loop">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 118 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 0l2 2.5L8 5" fill="currentColor"/></svg>
-        APPROVE → Phase 5 진행 &nbsp;|&nbsp; REJECT → 수정 후 재실행 (최대 3회)
+        APPROVE → 킷 Phase 진행 &nbsp;|&nbsp; REJECT → 수정 후 재실행 (최대 3회)
       </div>
     </div>
 
     <div class="flow-connector" id="conn-4"></div>
 
-    <!-- PHASE 5 -->
-    <div class="phase-card" id="phase-5" data-phase="p5">
-      <div class="phase-badge p5">PHASE 5 · FLUTTER-TOOLKIT</div>
-      <div class="phase-title">Flutter 스킬 카이젠</div>
-      <div class="phase-desc">Flutter 스킬 15종+, references, evals 갱신. 내부 순서: project-detection → 기존 스킬 → 신규 스킬 → evals.</div>
-      <div class="file-list">
-        <span class="file-tag">flutter-toolkit/references/project-detection.md</span>
-        <span class="file-tag">flutter-toolkit/skills/*/SKILL.md</span>
-        <span class="file-tag">flutter-toolkit/evals/evals.json</span>
-      </div>
-      <div class="step-list">
-        <div class="step"><div class="step-num">1</div>리서치 — Flutter 생태계 변화 반영</div>
-        <div class="step"><div class="step-num">2</div>정합성 감사 — Phase 1 변경 → flutter 스킬 전수 감사</div>
-        <div class="step"><div class="step-num">3</div>GAP 분석 — 누락 스킬 식별</div>
-        <div class="step"><div class="step-num">4</div>Sprint Contract → DRAFT → QA Evaluator</div>
-      </div>
-      <div class="qa-loop">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 118 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 0l2 2.5L8 5" fill="currentColor"/></svg>
-        APPROVE → Phase 6 진행 &nbsp;|&nbsp; REJECT → 수정 후 재실행 (최대 3회)
+    <!-- KIT PHASES -->
+    <div class="kit-group">
+      <div class="kit-group-title">킷 Phase 13 개 — 동시에 3 개까지</div>
+      <div class="kit-group-desc">각 카드는 공통 실행 패턴을 따르는 서브에이전트다. Phase 1 에서 설계 가이드가 바뀌었으면 그 킷의 전 스킬을 전수 감사한다. 피드백이 0 건이어도 건너뛰지 않고 리서치 전용 모드로 돈다.</div>
+      <div class="kit-grid">
+
+        <div class="phase-card" id="phase-5" data-phase="kit">
+          <div class="phase-badge kit">PHASE 5 · FLUTTER-TOOLKIT</div>
+          <div class="phase-title">Flutter-toolkit 카이젠</div>
+          <div class="phase-desc">Flutter 스킬 개선. /flutter-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">flutter-toolkit/skills/*/SKILL.md</span>
+            <span class="file-tag">flutter-toolkit/references/</span>
+            <span class="file-tag">docs/flutter/</span>
+          </div>
+        </div>
+
+        <div class="phase-card" id="phase-6" data-phase="kit">
+          <div class="phase-badge kit">PHASE 6 · DESIGN-KIT</div>
+          <div class="phase-title">Design-kit 카이젠</div>
+          <div class="phase-desc">UI/UX 디자인 스킬 개선. /design-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">design-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">design-kit/references/</span>
+            <span class="file-tag">design-kit/docs/design/</span>
+          </div>
+        </div>
+
+        <div class="phase-card" id="phase-7" data-phase="kit">
+          <div class="phase-badge kit">PHASE 7 · BACKEND-KIT</div>
+          <div class="phase-title">Backend-kit 카이젠</div>
+          <div class="phase-desc">백엔드 스킬 개선 (docs/backend/ 리서치 기준). /backend-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">backend-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">backend-kit/references/</span>
+            <span class="file-tag">docs/backend/</span>
+          </div>
+        </div>
+
+        <div class="phase-card" id="phase-8" data-phase="kit">
+          <div class="phase-badge kit">PHASE 8 · INFRA-KIT</div>
+          <div class="phase-title">Infra-kit 카이젠</div>
+          <div class="phase-desc">인프라/DevOps 스킬 개선 (docs/infra/ 리서치 기준). /infra-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">infra-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">infra-kit/references/</span>
+            <span class="file-tag">docs/infra/</span>
+          </div>
+        </div>
+
+        <div class="phase-card" id="phase-9" data-phase="kit">
+          <div class="phase-badge kit">PHASE 9 · RUST-KIT</div>
+          <div class="phase-title">Rust-kit 카이젠</div>
+          <div class="phase-desc">Rust 백엔드 스킬 개선 (docs/rust/ 리서치 기준). /rust-kaizen 서브에이전트로 실행. /rust-kaizen 스킬 자체는 이 레포 개발용이며 rust-kit 플러그인에 포함되지 않는다.</div>
+          <div class="file-list">
+            <span class="file-tag">rust-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">rust-kit/references/</span>
+            <span class="file-tag">docs/rust/</span>
+          </div>
+        </div>
+
+        <div class="phase-card" id="phase-10" data-phase="kit">
+          <div class="phase-badge kit">PHASE 10 · REACT-KIT</div>
+          <div class="phase-title">React-kit 카이젠</div>
+          <div class="phase-desc">React + Vite + Tauri + WASM 스킬 개선 (docs/react/ 리서치 기준). /react-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">react-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">react-kit/references/</span>
+            <span class="file-tag">docs/react/</span>
+          </div>
+          <div class="dep-note">라이브러리 0개 원칙 — 금지 라이브러리는 완화하지 않고 추가만 한다</div>
+        </div>
+
+        <div class="phase-card" id="phase-11" data-phase="kit">
+          <div class="phase-badge kit">PHASE 11 · PLANNING-KIT</div>
+          <div class="phase-title">Planning-kit 카이젠</div>
+          <div class="phase-desc">제품 기획 스킬 개선 (docs/planning/ 리서치 기준). /planning-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">planning-kit/skills/*/SKILL.md</span>
+          </div>
+          <div class="dep-note">필수 리서치 소스 최소 3 건 — 리서치 문서가 부족하면 /planning-research 먼저</div>
+        </div>
+
+        <div class="phase-card" id="phase-12" data-phase="kit">
+          <div class="phase-badge kit">PHASE 12 · REFLECT-KIT</div>
+          <div class="phase-title">Reflect-kit 카이젠</div>
+          <div class="phase-desc">개인 Claude Code 피드백 → 학습 → 재주입 파이프라인 개선 (Reflexion 방법론). /reflect-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">reflect-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">reflect-kit/references/</span>
+          </div>
+        </div>
+
+        <div class="phase-card" id="phase-13" data-phase="kit">
+          <div class="phase-badge kit">PHASE 13 · BAMBU-KIT</div>
+          <div class="phase-title">Bambu-kit 카이젠</div>
+          <div class="phase-desc">Bambu Studio 프로파일 생성 스킬 개선 (references 7종 + 실측 기준). /bambu-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">bambu-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">bambu-kit/skills/*/references/</span>
+          </div>
+          <div class="dep-note">references 대량 갱신은 /bambu-research 소관</div>
+        </div>
+
+        <div class="phase-card" id="phase-14" data-phase="kit">
+          <div class="phase-badge kit">PHASE 14 · ONBOARDING-KIT</div>
+          <div class="phase-title">Onboarding-kit 카이젠</div>
+          <div class="phase-desc">외부 서비스 셋업 가이드 스킬 개선. /onboarding-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">onboarding-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">onboarding-kit/skills/*/references/</span>
+          </div>
+          <div class="dep-note">Phase 1 결과에만 기대는 독립 스택</div>
+        </div>
+
+        <div class="phase-card" id="phase-15" data-phase="kit">
+          <div class="phase-badge kit">PHASE 15 · TONE-KIT</div>
+          <div class="phase-title">Tone-kit 카이젠</div>
+          <div class="phase-desc">코딩 톤·유지보수성 스킬 개선 (docs/tone/ 리서치 기준). /tone-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">tone-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">tone-kit/references/</span>
+            <span class="file-tag">docs/tone/</span>
+          </div>
+          <div class="dep-note">규칙 강도(MUST / SHOULD / 관측 컨벤션)를 공개 출처 없이 올리지 않는다</div>
+        </div>
+
+        <div class="phase-card" id="phase-16" data-phase="kit">
+          <div class="phase-badge kit">PHASE 16 · API-KIT</div>
+          <div class="phase-title">Api-kit 카이젠</div>
+          <div class="phase-desc">블랙박스 API 계약 검증 스킬 개선 (docs/api/ 리서치 기준). /api-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">api-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">api-kit/references/</span>
+            <span class="file-tag">docs/api/</span>
+          </div>
+          <div class="dep-note">문서 기재와 실측이 다르면 실측을 채택한다</div>
+        </div>
+
+        <div class="phase-card" id="phase-17" data-phase="kit">
+          <div class="phase-badge kit">PHASE 17 · HOWTO-KIT</div>
+          <div class="phase-title">Howto-kit 카이젠</div>
+          <div class="phase-desc">사람이 손으로 하는 절차 안내 스킬 개선 (docs/howto/ 리서치 기준, 검사 G1~G6 · 출처 등급). /howto-kaizen 서브에이전트로 실행.</div>
+          <div class="file-list">
+            <span class="file-tag">howto-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">howto-kit/references/</span>
+            <span class="file-tag">docs/howto/</span>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <div class="flow-connector" id="conn-5"></div>
-
-    <!-- PHASE 6 -->
-    <div class="phase-card" id="phase-6" data-phase="p6">
-      <div class="phase-badge p6">PHASE 6 · DESIGN-KIT</div>
-      <div class="phase-title">Design-kit 카이젠</div>
-      <div class="phase-desc">UI/UX 디자인 스킬 품질 개선. docs/design/ 리서치 문서 기준으로 Gotchas/references 갱신.</div>
-      <div class="file-list">
-        <span class="file-tag">design-kit/skills/*/SKILL.md</span>
-        <span class="file-tag">design-kit/references/</span>
-      </div>
-      <div class="step-list">
-        <div class="step"><div class="step-num">1</div>리서치 — Apple HIG, Material Design, WCAG 등</div>
-        <div class="step"><div class="step-num">2</div>정합성 감사 — Phase 1 변경 → design 스킬 전수 감사</div>
-        <div class="step"><div class="step-num">3</div>Sprint Contract → DRAFT → QA Evaluator</div>
-      </div>
-      <div class="qa-loop">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 118 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 0l2 2.5L8 5" fill="currentColor"/></svg>
-        APPROVE → Phase 7 진행 &nbsp;|&nbsp; REJECT → 수정 후 재실행 (최대 3회)
-      </div>
-    </div>
-
-    <div class="flow-connector" id="conn-6"></div>
-
-    <!-- PHASE 7 -->
-    <div class="phase-card" id="phase-7" data-phase="p7">
-      <div class="phase-badge p7">PHASE 7 · BACKEND-KIT</div>
-      <div class="phase-title">Backend-kit 카이젠</div>
-      <div class="phase-desc">백엔드 스킬 품질 개선. docs/backend/ 리서치 문서 기준으로 프레임워크/아키텍처/보안 원칙을 갱신한다. 리서치 문서 부족 시 /backend-research 선행.</div>
-      <div class="file-list">
-        <span class="file-tag">backend-kit/skills/*/SKILL.md</span>
-        <span class="file-tag">backend-kit/references/</span>
-        <span class="file-tag">docs/backend/</span>
-      </div>
-      <div class="step-list">
-        <div class="step"><div class="step-num">1</div>리서치 — Clean Architecture, Hexagonal, 12-factor, OWASP 등</div>
-        <div class="step"><div class="step-num">2</div>정합성 감사 — Phase 1 변경 → backend 스킬 전수 감사</div>
-        <div class="step"><div class="step-num">3</div>Sprint Contract → DRAFT → QA Evaluator</div>
-      </div>
-      <div class="dep-note">피드백 0건이어도 SKIP하지 않음 — 리서치 전용 모드 진행</div>
-      <div class="qa-loop">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 118 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 0l2 2.5L8 5" fill="currentColor"/></svg>
-        APPROVE → Phase 8 진행 &nbsp;|&nbsp; REJECT → 수정 후 재실행 (최대 3회)
-      </div>
-    </div>
-
-    <div class="flow-connector" id="conn-7"></div>
-
-    <!-- PHASE 8 -->
-    <div class="phase-card" id="phase-8" data-phase="p8">
-      <div class="phase-badge p8">PHASE 8 · INFRA-KIT</div>
-      <div class="phase-title">Infra-kit 카이젠</div>
-      <div class="phase-desc">인프라/DevOps 스킬 품질 개선. docs/infra/ 리서치 문서 기준으로 IaC, CI/CD, 관측성, 컨테이너 원칙을 갱신한다. 리서치 문서 부족 시 /infra-research 선행.</div>
-      <div class="file-list">
-        <span class="file-tag">infra-kit/skills/*/SKILL.md</span>
-        <span class="file-tag">infra-kit/references/</span>
-        <span class="file-tag">docs/infra/</span>
-      </div>
-      <div class="step-list">
-        <div class="step"><div class="step-num">1</div>리서치 — Terraform, K8s, GitHub Actions, OpenTelemetry 등</div>
-        <div class="step"><div class="step-num">2</div>정합성 감사 — Phase 1 변경 → infra 스킬 전수 감사</div>
-        <div class="step"><div class="step-num">3</div>Sprint Contract → DRAFT → QA Evaluator</div>
-      </div>
-      <div class="dep-note">피드백 0건이어도 SKIP하지 않음 — 리서치 전용 모드 진행</div>
-      <div class="qa-loop">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 118 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 0l2 2.5L8 5" fill="currentColor"/></svg>
-        APPROVE → Phase 9 진행 &nbsp;|&nbsp; REJECT → 수정 후 재실행 (최대 3회)
-      </div>
-    </div>
-
-    <div class="flow-connector" id="conn-8"></div>
-
-    <!-- PHASE 9 -->
-    <div class="phase-card" id="phase-9" data-phase="p9">
-      <div class="phase-badge p9">PHASE 9 · RUST-KIT</div>
-      <div class="phase-title">Rust-kit 카이젠</div>
-      <div class="phase-desc">Rust 백엔드 스킬 품질 개선. docs/rust/ 리서치 문서 기준으로 Axum, SQLx, tonic 등 생태계 원칙을 갱신한다. /rust-kaizen 스킬 자체는 이 레포 개발용이며 rust-kit 플러그인에 포함되지 않는다.</div>
-      <div class="file-list">
-        <span class="file-tag">rust-kit/skills/*/SKILL.md</span>
-        <span class="file-tag">rust-kit/references/</span>
-        <span class="file-tag">docs/rust/</span>
-      </div>
-      <div class="step-list">
-        <div class="step"><div class="step-num">1</div>리서치 — Axum, SQLx, tonic, tokio, thiserror 등</div>
-        <div class="step"><div class="step-num">2</div>정합성 감사 — Phase 1 변경 → rust 스킬 전수 감사</div>
-        <div class="step"><div class="step-num">3</div>Sprint Contract → DRAFT → QA Evaluator</div>
-      </div>
-      <div class="dep-note">피드백 0건이어도 SKIP하지 않음 — 리서치 전용 모드 진행</div>
-      <div class="qa-loop">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 118 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 0l2 2.5L8 5" fill="currentColor"/></svg>
-        APPROVE → Final 진행 &nbsp;|&nbsp; REJECT → 수정 후 재실행 (최대 3회)
-      </div>
-    </div>
-
-    <div class="flow-connector" id="conn-9"></div>
+    <div class="flow-connector" id="conn-kits"></div>
 
     <!-- FINAL -->
     <div class="phase-card" id="phase-final" data-phase="final">
       <div class="phase-badge final">FINAL · 전체 정합성 검증</div>
-      <div class="phase-title">교차 Phase 정합성 검증</div>
-      <div class="phase-desc">Phase 1 원칙 → Phase 2-3 반영 → Phase 4-9 반영. 버전 불일치, 누락 반영 최종 확인. 새 기능 추가 금지.</div>
+      <div class="phase-title">교차 Phase 정합성 검증과 마무리</div>
+      <div class="phase-desc">Phase 1 원칙 → Phase 2~3 반영 → Phase 4~17 반영. 버전 불일치, 누락 반영 최종 확인. 새 기능 추가 금지. 최소 1개 Phase가 실행되었을 때만 돈다.</div>
       <div class="step-list">
-        <div class="step"><div class="step-num">1</div>Final Sprint Contract 생성 (9개 Phase 정합성)</div>
-        <div class="step"><div class="step-num">2</div>QA Evaluator — 최종 검증</div>
-        <div class="step"><div class="step-num">3</div>APPROVE → 버전 bump + PR 생성</div>
+        <div class="step"><div class="step-num">1</div>F1 전체 정합성 검증 — Final Sprint Contract (Phase 1~17 크로스 정합성) → QA Evaluator</div>
+        <div class="step"><div class="step-num">2</div>F2 docs-site 재생성 — 바뀐 소스에 대응하는 docs/*.html 을 다시 만든다 (건너뛰기 금지)</div>
+        <div class="step"><div class="step-num">3</div>F3 글로벌 피드백 정리 — 6개월 초과 삭제 · 500개 제한 · .harness/.meta/cleanup-log.yaml 기록</div>
+        <div class="step"><div class="step-num">4</div>F3.5 메모리 승격 후보 산출 — 후보 파일만 낸다. 승격은 /reflect-promote 가 한다</div>
+        <div class="step"><div class="step-num">5</div>F4 PR 생성 — 버전 bump · changelog · research-log · evals/evals.json 점검 · Post-Kaizen Checklist 전부 통과 뒤</div>
       </div>
       <div class="branch">
         <div class="branch-box approve">✅ APPROVE</div>
@@ -491,20 +578,32 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 <!-- TIMELINE -->
 <div class="section">
   <div class="section-label">타임라인</div>
-  <h2>예상 실행 시간 (약 150분)</h2>
+  <h2>실행 차례와 동시 구간</h2>
+  <p class="desc">칸 너비는 시간이 아니라 차례만 나타낸다. 원본 스킬에는 Phase 별 소요 시간이 없다. 2026-08-13 사이클 감사 기록에는 한 개씩 차례로 돌리면 13 시간쯤으로 추정된 사이클을 킷 Phase 3 개씩 동시에 돌려 4~5 시간에 마쳤다고 적혀 있다.</p>
   <div class="card">
     <div class="timeline">
-      <div class="timeline-seg" style="flex:15;background:rgba(251,191,36,0.7)">P1 15m</div>
-      <div class="timeline-seg" style="flex:15;background:rgba(251,146,60,0.7)">P2 15m</div>
-      <div class="timeline-seg" style="flex:15;background:rgba(248,113,113,0.7)">P3 15m</div>
-      <div class="timeline-seg" style="flex:25;background:rgba(74,222,128,0.6)">P4 25m</div>
-      <div class="timeline-seg" style="flex:30;background:rgba(34,211,238,0.6)">P5 30m</div>
-      <div class="timeline-seg" style="flex:20;background:rgba(244,114,182,0.6)">P6 20m</div>
-      <div class="timeline-seg" style="flex:15;background:rgba(134,239,172,0.6)">Final 15m</div>
-      <div class="timeline-seg" style="flex:15;background:rgba(74,222,128,0.6)">PR 15m</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(163,230,53,0.7)">준비</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(251,191,36,0.7)">P1</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(251,146,60,0.7)">P2</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(248,113,113,0.7)">P3</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(74,222,128,0.6)">P4</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P5</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P6</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P7</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P8</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P9</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P10</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P11</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P12</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P13</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P14</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P15</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P16</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(94,234,212,0.6)">P17</div>
+      <div class="timeline-seg" style="flex:1;background:rgba(134,239,172,0.6)">Final</div>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text3)">
-      <span>T+0m</span><span>T+15m</span><span>T+30m</span><span>T+45m</span><span>T+70m</span><span>T+100m</span><span>T+120m</span><span>T+135m</span><span>T+150m</span>
+      <span>준비 — Step 0 · 0.5 · 0.6</span><span>P1~P4 — 차례로</span><span>P5~P17 — 동시 3 개까지</span><span>Final — F1 ~ F4</span>
     </div>
   </div>
 </div>
@@ -541,7 +640,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 <div class="section">
   <div class="section-label">시뮬레이션</div>
   <h2>카이젠 실행 시뮬레이터</h2>
-  <p class="desc">시작 버튼을 눌러 9-Phase 카이젠 사이클을 시뮬레이션한다. 각 Phase의 실행 로그를 실시간으로 확인.</p>
+  <p class="desc">시작 버튼을 눌러 17 Phase 카이젠 사이클을 시뮬레이션한다. 각 Phase의 실행 로그를 실시간으로 확인. 로그의 APPROVE · REJECT 는 흐름을 보여 주는 예시다.</p>
   <div class="sim-controls">
     <button class="sim-btn" id="simStart" onclick="startSimulation()">▶ 시뮬레이션 시작</button>
     <button class="sim-btn" id="simReset" onclick="resetSimulation()">리셋</button>
@@ -560,17 +659,25 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
   <h2>개별 Phase 실행</h2>
   <div class="card">
     <div style="font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text2)">
-      <div><span style="color:var(--accent)">/kaizen-orchestrator</span> <span style="color:var(--text3)"># 전체 Phase 1→2→3→4→5→6→7→8→9→Final</span></div>
+      <div><span style="color:var(--accent)">/kaizen-orchestrator</span> <span style="color:var(--text3)"># 전체 Phase 1→2→…→17→Final</span></div>
       <div><span style="color:var(--yellow)">/kaizen-orchestrator phase1</span> <span style="color:var(--text3)"># 설계 가이드만</span></div>
-      <div><span style="color:var(--orange)">/kaizen-orchestrator phase2</span> <span style="color:var(--text3)"># contract-kaizen만</span></div>
-      <div><span style="color:var(--red)">/kaizen-orchestrator phase3</span> <span style="color:var(--text3)"># evaluator-kaizen만</span></div>
-      <div><span style="color:var(--green)">/kaizen-orchestrator phase4</span> <span style="color:var(--text3)"># harness-kaizen만</span></div>
-      <div><span style="color:var(--cyan)">/kaizen-orchestrator phase5</span> <span style="color:var(--text3)"># flutter-kaizen만</span></div>
-      <div><span style="color:var(--pink)">/kaizen-orchestrator phase6</span> <span style="color:var(--text3)"># design-kaizen만</span></div>
-      <div><span style="color:var(--indigo)">/kaizen-orchestrator phase7</span> <span style="color:var(--text3)"># backend-kaizen만</span></div>
-      <div><span style="color:var(--violet)">/kaizen-orchestrator phase8</span> <span style="color:var(--text3)"># infra-kaizen만</span></div>
-      <div><span style="color:var(--teal)">/kaizen-orchestrator phase9</span> <span style="color:var(--text3)"># rust-kaizen만</span></div>
-      <div><span style="color:var(--accent2)">/kaizen-orchestrator final</span> <span style="color:var(--text3)"># 정합성 검증만</span></div>
+      <div><span style="color:var(--orange)">/kaizen-orchestrator phase2</span> <span style="color:var(--text3)"># contract-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--red)">/kaizen-orchestrator phase3</span> <span style="color:var(--text3)"># evaluator-kaizen만 (Phase 2 완료 전제)</span></div>
+      <div><span style="color:var(--green)">/kaizen-orchestrator phase4</span> <span style="color:var(--text3)"># harness-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase5</span> <span style="color:var(--text3)"># flutter-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase6</span> <span style="color:var(--text3)"># design-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase7</span> <span style="color:var(--text3)"># backend-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase8</span> <span style="color:var(--text3)"># infra-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase9</span> <span style="color:var(--text3)"># rust-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase10</span> <span style="color:var(--text3)"># react-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase11</span> <span style="color:var(--text3)"># planning-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase12</span> <span style="color:var(--text3)"># reflect-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase13</span> <span style="color:var(--text3)"># bambu-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase14</span> <span style="color:var(--text3)"># onboarding-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase15</span> <span style="color:var(--text3)"># tone-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase16</span> <span style="color:var(--text3)"># api-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--teal)">/kaizen-orchestrator phase17</span> <span style="color:var(--text3)"># howto-kaizen만 (Phase 1 완료 전제)</span></div>
+      <div><span style="color:var(--accent2)">/kaizen-orchestrator final</span> <span style="color:var(--text3)"># Final QA만 (Phase 1~17 완료 전제)</span></div>
     </div>
   </div>
 </div>
@@ -582,15 +689,86 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 let simRunning = false;
 let simTimeout = null;
 
-function log(msg) {
+const PRE_STEPS = [
+  { id: 'phase-step0', conn: 'conn-step0', stage: 'Step 0', text: '피드백 데이터 풀 수집 — collect-kaizen-data.py' },
+  { id: 'phase-step05', conn: 'conn-step05', stage: 'Step 0.5', text: 'Orchestrator Self-Audit — sync-orchestrator drift 확인' },
+  { id: 'phase-step06', conn: 'conn-step06', stage: 'Step 0.6', text: 'Phase Relevance Triage — 선별 범위 제안' },
+];
+const SERIAL_PHASES = [
+  { n: 1, name: '설계 가이드', note: '자체 리서치 — references/search-sources.md 기반' },
+  { n: 2, name: 'Contract', note: '/contract-kaizen — Phase 1 변경 반영 확인' },
+  { n: 3, name: 'Evaluator', note: '/evaluator-kaizen — Phase 2 contract-schema 동기화' },
+  { n: 4, name: 'Harness', note: '/harness-kaizen — sprint-contract · qa-evaluator 제외' },
+];
+const KIT_PHASES = [
+  { n: 5, name: 'Flutter-toolkit' }, { n: 6, name: 'Design-kit' }, { n: 7, name: 'Backend-kit' },
+  { n: 8, name: 'Infra-kit' }, { n: 9, name: 'Rust-kit' }, { n: 10, name: 'React-kit' },
+  { n: 11, name: 'Planning-kit' }, { n: 12, name: 'Reflect-kit' }, { n: 13, name: 'Bambu-kit' },
+  { n: 14, name: 'Onboarding-kit' }, { n: 15, name: 'Tone-kit' }, { n: 16, name: 'Api-kit' },
+  { n: 17, name: 'Howto-kit' },
+];
+const MAX_PARALLEL_KITS = 3;
+const FINAL_STEPS = [
+  ['F1', '전체 정합성 검증 — Phase 1~17 크로스 정합성 → QA Evaluator'],
+  ['F2', 'docs-site 재생성 — 바뀐 소스의 docs/*.html'],
+  ['F3', '글로벌 피드백 정리 — cleanup-log.yaml 기록'],
+  ['F3.5', '메모리 승격 후보 산출 — 승격은 /reflect-promote'],
+  ['F4', 'Post-Kaizen Checklist 통과 → 버전 bump → PR 생성'],
+];
+
+function log(stage, msg) {
   const el = document.getElementById('simLog');
   const line = document.createElement('div');
-  line.innerHTML = msg;
+  line.innerHTML = `<span class="stage">${stage}</span> ${msg}`;
   el.appendChild(line);
   el.scrollTop = el.scrollHeight;
 }
 
 function delay(ms) { return new Promise(r => simTimeout = setTimeout(r, ms)); }
+
+function clearFlow() {
+  document.querySelectorAll('.phase-card').forEach(card => { card.classList.remove('active','completed','rejected'); });
+  document.querySelectorAll('.flow-connector').forEach(conn => { conn.classList.remove('active'); });
+}
+
+async function runSerialPhase(phase, rejectFirst) {
+  const id = 'phase-' + phase.n;
+  const stage = 'P' + phase.n;
+  activate(id);
+  log(stage, `<span class="phase p${phase.n}">PHASE ${phase.n}</span> ${phase.name} — Triage`);
+  await delay(350);
+  log(stage, phase.note);
+  await delay(300);
+  log(stage, 'GAP 분석 · 예방적 분석 → Sprint Contract (DRAFT) → 개선안 DRAFT → QA Evaluator');
+  await delay(350);
+  if (rejectFirst) {
+    log(stage, 'QA: <span class="reject">❌ REJECT</span> — DRAFT 가 조건 하나를 못 채움');
+    document.getElementById(id).classList.add('rejected');
+    await delay(500);
+    log(stage, `<span class="phase p${phase.n}">재시도 1/3</span> DRAFT 수정 → QA Evaluator 재실행`);
+    await delay(400);
+    document.getElementById(id).classList.remove('rejected');
+  }
+  log(stage, 'QA: <span class="approve">✅ APPROVE</span>');
+  await delay(250);
+  log(stage, `kaizen-phase-${phase.n}-pre 태그 → 파일 적용 + 커밋 → Regression Smoke Test 통과`);
+  complete(id); activateConn('conn-' + phase.n);
+  await delay(300);
+}
+
+async function runKitBatch(batch) {
+  for (const kit of batch) {
+    activate('phase-' + kit.n);
+    log('P' + kit.n, `<span class="phase kit">PHASE ${kit.n}</span> ${kit.name} — 시작 (동시 ${batch.length} 개)`);
+    await delay(200);
+  }
+  await delay(500);
+  for (const kit of batch) {
+    log('P' + kit.n, `${kit.name} QA: <span class="approve">✅ APPROVE</span> → 커밋 → Regression 통과`);
+    complete('phase-' + kit.n);
+    await delay(250);
+  }
+}
 
 async function startSimulation() {
   if (simRunning) return;
@@ -599,198 +777,39 @@ async function startSimulation() {
   btn.classList.add('running');
   btn.textContent = '⏳ 실행 중...';
 
-  const logEl = document.getElementById('simLog');
-  logEl.innerHTML = '';
+  document.getElementById('simLog').innerHTML = '';
   const rejectP4 = document.getElementById('simReject').checked;
+  clearFlow();
 
-  // Reset flow
-  document.querySelectorAll('.phase-card').forEach(c => { c.classList.remove('active','completed','rejected'); });
-  document.querySelectorAll('.flow-connector').forEach(c => { c.classList.remove('active'); });
-
-  // Cron trigger
   activate('phase-cron');
-  log('<span class="time">T+0m</span> <span class="phase">⏰ 카이젠 오케스트레이터 시작</span> — 월요일 09:00 KST');
-  await delay(600);
-  complete('phase-cron'); activateConn('conn-0');
+  log('시작', '<span class="phase">⏰ 카이젠 오케스트레이터 시작</span> — 월요일 09:00 KST');
+  await delay(500);
+  complete('phase-cron'); activateConn('conn-cron');
 
-  // Phase 1
-  activate('phase-1');
-  log('<span class="time">T+1m</span> <span class="phase p1">PHASE 1</span> 설계 가이드 — 리서치 시작');
-  await delay(400);
-  log('<span class="time">T+4m</span> 리서치 완료: skill-design-guide 관련 2건 발견');
-  await delay(300);
-  log('<span class="time">T+6m</span> GAP 분석 — 1건 개선점 식별');
-  await delay(300);
-  log('<span class="time">T+8m</span> Sprint Contract 생성 (조건 3개)');
-  await delay(300);
-  log('<span class="time">T+10m</span> DRAFT 작성 → QA Evaluator 실행...');
-  await delay(400);
-  log('<span class="time">T+13m</span> pre-tag: kaizen-phase1-pre → 커밋');
-  await delay(300);
-  log('<span class="time">T+15m</span> QA: <span class="approve">✅ APPROVE</span> (3/3 조건 통과)');
-  complete('phase-1'); activateConn('conn-1');
-  await delay(400);
-
-  // Phase 2
-  activate('phase-2');
-  log('<span class="time">T+15m</span> <span class="phase p2">PHASE 2</span> Contract — 리서치 시작');
-  await delay(400);
-  log('<span class="time">T+18m</span> 리서치 완료: contract 방법론 1건');
-  await delay(300);
-  log('<span class="time">T+20m</span> 정합성 감사 — Phase 1 변경 반영 확인');
-  await delay(300);
-  log('<span class="time">T+24m</span> Sprint Contract → DRAFT → QA...');
-  await delay(400);
-  log('<span class="time">T+28m</span> QA: <span class="approve">✅ APPROVE</span> (4/4 조건 통과)');
-  complete('phase-2'); activateConn('conn-2');
-  await delay(400);
-
-  // Phase 3
-  activate('phase-3');
-  log('<span class="time">T+30m</span> <span class="phase p3">PHASE 3</span> Evaluator — 리서치 시작');
-  await delay(400);
-  log('<span class="time">T+33m</span> 리서치 완료: 평가 편향 분류 확장 1건');
-  await delay(300);
-  log('<span class="time">T+35m</span> 정합성 감사 — Phase 2 contract-schema 동기화');
-  await delay(300);
-  log('<span class="time">T+39m</span> Sprint Contract → DRAFT → QA...');
-  await delay(400);
-  log('<span class="time">T+43m</span> QA: <span class="approve">✅ APPROVE</span> (3/3 조건 통과)');
-  complete('phase-3'); activateConn('conn-3');
-  await delay(400);
-
-  // Phase 4
-  activate('phase-4');
-  log('<span class="time">T+45m</span> <span class="phase p4">PHASE 4</span> Harness — 리서치 시작');
-  await delay(400);
-  log('<span class="time">T+48m</span> 리서치 완료: harness 패턴 0건 (변경 불필요)');
-  await delay(300);
-  log('<span class="time">T+50m</span> 정합성 감사 — Phase 1 변경 → harness 스킬 전수 감사');
-  await delay(300);
-  log('<span class="time">T+54m</span> 정합성 테이블: init ← 적용, harness-kaizen ← 확인(변경불필요)');
-  await delay(300);
-  log('<span class="time">T+56m</span> Sprint Contract 생성 (조건 5개)');
-  await delay(300);
-  log('<span class="time">T+58m</span> DRAFT → QA Evaluator 실행...');
-  await delay(400);
-
-  if (rejectP4) {
-    log('<span class="time">T+62m</span> QA: <span class="reject">❌ REJECT</span> (4/5 조건 — init description 미반영)');
-    document.getElementById('phase-4').classList.add('rejected');
-    await delay(600);
-    log('<span class="time">T+63m</span> <span class="phase p4">PHASE 4 재시도 1/3</span>');
+  for (const step of PRE_STEPS) {
+    activate(step.id);
+    log('준비', `<span class="phase pre">${step.stage}</span> ${step.text}`);
     await delay(400);
-    log('<span class="time">T+65m</span> DRAFT 수정 — init description 갱신');
-    await delay(300);
-    log('<span class="time">T+67m</span> QA Evaluator 재실행...');
-    await delay(400);
-    log('<span class="time">T+70m</span> QA: <span class="approve">✅ APPROVE</span> (5/5 조건 통과)');
-    document.getElementById('phase-4').classList.remove('rejected');
-  } else {
-    log('<span class="time">T+62m</span> QA: <span class="approve">✅ APPROVE</span> (5/5 조건 통과)');
+    complete(step.id); activateConn(step.conn);
   }
-  complete('phase-4'); activateConn('conn-4');
-  await delay(400);
 
-  // Phase 5
-  activate('phase-5');
-  const t5 = rejectP4 ? 72 : 64;
-  log(`<span class="time">T+${t5}m</span> <span class="phase p5">PHASE 5</span> Flutter-toolkit — 리서치 시작`);
-  await delay(400);
-  log(`<span class="time">T+${t5+3}m</span> 리서치 완료: Flutter 생태계 변화 1건`);
-  await delay(300);
-  log(`<span class="time">T+${t5+5}m</span> 정합성 감사 — Phase 1 변경 → flutter 스킬 전수 감사`);
-  await delay(300);
-  log(`<span class="time">T+${t5+7}m</span> GAP 분석 — 누락 스킬 0건`);
-  await delay(300);
-  log(`<span class="time">T+${t5+10}m</span> Sprint Contract 생성 (조건 4개)`);
-  await delay(300);
-  log(`<span class="time">T+${t5+14}m</span> DRAFT — project-detection.md + flutter-widget Gotchas`);
-  await delay(300);
-  log(`<span class="time">T+${t5+18}m</span> QA Evaluator 실행...`);
-  await delay(400);
-  log(`<span class="time">T+${t5+22}m</span> QA: <span class="approve">✅ APPROVE</span> (4/4 조건 통과)`);
-  complete('phase-5'); activateConn('conn-5');
-  await delay(400);
+  for (const phase of SERIAL_PHASES) {
+    await runSerialPhase(phase, rejectP4 && phase.n === 4);
+  }
 
-  // Phase 6
-  const t6 = t5 + 24;
-  activate('phase-6');
-  log(`<span class="time">T+${t6}m</span> <span class="phase p6">PHASE 6</span> Design-kit — 리서치 시작`);
-  await delay(400);
-  log(`<span class="time">T+${t6+3}m</span> 리서치 완료: Apple HIG 업데이트 1건`);
-  await delay(300);
-  log(`<span class="time">T+${t6+6}m</span> 정합성 감사 — Phase 1 변경 → design 스킬 전수 감사`);
-  await delay(300);
-  log(`<span class="time">T+${t6+10}m</span> Sprint Contract → DRAFT → QA...`);
-  await delay(400);
-  log(`<span class="time">T+${t6+15}m</span> QA: <span class="approve">✅ APPROVE</span> (3/3 조건 통과)`);
-  complete('phase-6'); activateConn('conn-6');
-  await delay(400);
+  for (let i = 0; i < KIT_PHASES.length; i += MAX_PARALLEL_KITS) {
+    await runKitBatch(KIT_PHASES.slice(i, i + MAX_PARALLEL_KITS));
+  }
+  activateConn('conn-kits');
 
-  // Phase 7
-  const t7 = t6 + 17;
-  activate('phase-7');
-  log(`<span class="time">T+${t7}m</span> <span class="phase p7">PHASE 7</span> Backend-kit — 리서치 시작`);
-  await delay(400);
-  log(`<span class="time">T+${t7+3}m</span> 리서치 완료: 12-factor, OWASP Top 10 업데이트`);
-  await delay(300);
-  log(`<span class="time">T+${t7+6}m</span> 정합성 감사 — Phase 1 변경 → backend 스킬 전수 감사`);
-  await delay(300);
-  log(`<span class="time">T+${t7+10}m</span> Sprint Contract → DRAFT → QA...`);
-  await delay(400);
-  log(`<span class="time">T+${t7+15}m</span> QA: <span class="approve">✅ APPROVE</span> (3/3 조건 통과)`);
-  complete('phase-7'); activateConn('conn-7');
-  await delay(400);
-
-  // Phase 8
-  const t8 = t7 + 17;
-  activate('phase-8');
-  log(`<span class="time">T+${t8}m</span> <span class="phase p8">PHASE 8</span> Infra-kit — 리서치 시작`);
-  await delay(400);
-  log(`<span class="time">T+${t8+3}m</span> 리서치 완료: Terraform 1.10, OpenTelemetry 업데이트`);
-  await delay(300);
-  log(`<span class="time">T+${t8+6}m</span> 정합성 감사 — Phase 1 변경 → infra 스킬 전수 감사`);
-  await delay(300);
-  log(`<span class="time">T+${t8+10}m</span> Sprint Contract → DRAFT → QA...`);
-  await delay(400);
-  log(`<span class="time">T+${t8+15}m</span> QA: <span class="approve">✅ APPROVE</span> (3/3 조건 통과)`);
-  complete('phase-8'); activateConn('conn-8');
-  await delay(400);
-
-  // Phase 9
-  const t9 = t8 + 17;
-  activate('phase-9');
-  log(`<span class="time">T+${t9}m</span> <span class="phase p9">PHASE 9</span> Rust-kit — 리서치 시작`);
-  await delay(400);
-  log(`<span class="time">T+${t9+3}m</span> 리서치 완료: Axum 0.8, SQLx 0.8 업데이트`);
-  await delay(300);
-  log(`<span class="time">T+${t9+6}m</span> 정합성 감사 — Phase 1 변경 → rust 스킬 전수 감사`);
-  await delay(300);
-  log(`<span class="time">T+${t9+10}m</span> Sprint Contract → DRAFT → QA...`);
-  await delay(400);
-  log(`<span class="time">T+${t9+15}m</span> QA: <span class="approve">✅ APPROVE</span> (3/3 조건 통과)`);
-  complete('phase-9'); activateConn('conn-9');
-  await delay(400);
-
-  // Final
-  const tf = t9 + 17;
   activate('phase-final');
-  log(`<span class="time">T+${tf}m</span> <span class="phase final">FINAL</span> 교차 Phase 정합성 검증`);
-  await delay(400);
-  log(`<span class="time">T+${tf+3}m</span> Final Sprint Contract — Phase 1↔2↔3↔4↔5↔6↔7↔8↔9 정합성 확인`);
+  log('Final', '<span class="phase final">FINAL</span> 교차 Phase 정합성 검증과 마무리');
+  for (const [stage, text] of FINAL_STEPS) {
+    await delay(300);
+    log(stage, text);
+  }
   await delay(300);
-  log(`<span class="time">T+${tf+6}m</span> QA Evaluator 최종 검증...`);
-  await delay(400);
-  log(`<span class="time">T+${tf+10}m</span> QA: <span class="approve">✅ APPROVE</span>`);
-  await delay(300);
-  log(`<span class="time">T+${tf+12}m</span> harness, flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit 버전 bump`);
-  await delay(300);
-  log(`<span class="time">T+${tf+14}m</span> changelog, research-log 갱신`);
-  await delay(200);
-  log(`<span class="time">T+${tf+16}m</span> git push & PR 생성: [kaizen] 2026-03-31`);
-  await delay(200);
-  log(`<span class="time">T+${tf+18}m</span> <span class="phase" style="color:var(--green)">✅ 카이젠 사이클 완료</span>`);
+  log('끝', '<span class="phase" style="color:var(--green)">✅ 카이젠 사이클 완료</span>');
   complete('phase-final');
 
   simRunning = false;
@@ -804,8 +823,7 @@ function resetSimulation() {
   document.getElementById('simStart').classList.remove('running');
   document.getElementById('simStart').textContent = '▶ 시뮬레이션 시작';
   document.getElementById('simLog').innerHTML = '<div style="color:var(--text3)">시뮬레이션 대기 중...</div>';
-  document.querySelectorAll('.phase-card').forEach(c => { c.classList.remove('active','completed','rejected'); });
-  document.querySelectorAll('.flow-connector').forEach(c => { c.classList.remove('active'); });
+  clearFlow();
 }
 
 function activate(id) {
