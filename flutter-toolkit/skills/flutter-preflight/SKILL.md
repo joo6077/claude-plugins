@@ -150,7 +150,7 @@ Fix the issues above before committing.
 
 단계가 빨가면 고치기 전에 원인을 셋으로 가른다 — 이번 변경 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패.
 같은 명령을 깨끗한 임시 워크트리에서 다시 돌려 가른다. `<기준 가지>` 는 합칠 대상 가지, `<실패한 검사 명령>` 은 빨간 단계의 명령이다.
-임시 워크트리에는 추적하지 않는 파일(`.dart_tool/` · 받은 패키지)이 없으니 준비 명령을 먼저 돌린다 — 안 돌리면 준비가 안 된 탓의 실패를 기준 커밋 탓으로 읽는다. 생성물(`*.g.dart` · `*.freezed.dart`)을 git 에 올리지 않는 프로젝트에서 analyze · test 가 빨가면 준비 명령 뒤에 `$DART run build_runner build --delete-conflicting-outputs` 도 붙인다.
+임시 워크트리에는 추적하지 않는 파일(`.dart_tool/` · 받은 패키지)이 없으니 준비 명령을 먼저 돌린다 — 안 돌리면 준비가 안 된 탓의 실패를 기준 커밋 탓으로 읽는다. 생성물(`*.g.dart` · `*.freezed.dart`)을 git 에 올리지 않는 프로젝트에서 analyze · test 가 빨가면 준비 명령 뒤에 2 단계 codegen 명령도 붙인다.
 
 ```bash
 FORK_BASE=$(git merge-base HEAD origin/<기준 가지>)
