@@ -9,8 +9,9 @@ harness/evals/kaizen/<카이젠>/assertions.json 을 모두 찾아 패턴마다 
 
     PASS <카이젠>/<키>#<n> <대상 파일> (<맞은 수>건)
     FAIL <카이젠>/<키>#<n> <대상 파일> (0건)          패턴이 사라졌다
-    FAIL <카이젠>/<키>: <짝 어긋남>                    픽스처와 키 한쪽만 있다
-    UNREADABLE <무엇>: <원인>                         JSON · type · 대상 파일 · 정규식을 못 읽음
+    FAIL <카이젠>/<키>: <짝 어긋남 · 빈 목록>          픽스처와 키 한쪽만 있거나 잴 패턴이 0 개
+    UNREADABLE <무엇>: <원인>                         JSON · type · 대상 파일 · 정규식을 못 읽음,
+                                                      file · pattern 이 글자가 아님, 빈 글에도 맞는 패턴
 
 exit 0 전부 통과 · 1 FAIL 있음 · 2 못 읽은 입력 있음 (나머지는 끝까지 재고 알린다).
 """
@@ -60,6 +61,10 @@ def main() -> int:
                 lines.append(f"UNREADABLE {kaizen}/{key}: 값이 목록이 아니다")
                 unreadable += 1
                 continue
+            if not assertions:
+                lines.append(f"FAIL {kaizen}/{key}: 회귀 패턴 목록이 비었다 — 아무것도 재지 않는다")
+                failed += 1
+                continue
             for index, assertion in enumerate(assertions, 1):
                 label = f"{kaizen}/{key}#{index}"
                 if not isinstance(assertion, dict) or not {"type", "file", "pattern"} <= assertion.keys():
@@ -70,6 +75,10 @@ def main() -> int:
                     lines.append(f"UNREADABLE {label}: 모르는 type '{assertion['type']}' — 아는 것 {', '.join(KNOWN_TYPES)}")
                     unreadable += 1
                     continue
+                if not isinstance(assertion["file"], str) or not isinstance(assertion["pattern"], str):
+                    lines.append(f"UNREADABLE {label}: file · pattern 은 글자여야 한다")
+                    unreadable += 1
+                    continue
                 target = REPO_ROOT / assertion["file"]
                 try:
                     text = target.read_text(encoding="utf-8")
@@ -78,11 +87,17 @@ def main() -> int:
                     unreadable += 1
                     continue
                 try:
-                    hits = len(re.findall(assertion["pattern"], text))
+                    pattern = re.compile(assertion["pattern"])
                 except re.error as exc:
                     lines.append(f"UNREADABLE {label}: 정규식을 못 읽음 — {exc}")
                     unreadable += 1
                     continue
+                # 빈 글에 맞는 패턴은 대상 파일이 무엇이든 맞은 수가 1 이상이라 회귀를 못 잡는다
+                if pattern.search("") is not None:
+                    lines.append(f"UNREADABLE {label}: 빈 글에도 맞는 패턴이라 늘 통과한다 — {assertion['pattern']!r}")
+                    unreadable += 1
+                    continue
+                hits = len(pattern.findall(text))
                 if hits:
                     lines.append(f"PASS {label} {assertion['file']} ({hits}건)")
                     passed += 1
