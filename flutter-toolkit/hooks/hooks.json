@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format-edited-dart.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/format-edited-dart.sh\"",
             "timeout": 10
           }
         ]
