@@ -2,7 +2,7 @@
 
 - 계약: `.harness/sprint-contract-after-0924-rust-app-name.md` (17 조건, 봉인 `sha256:85bde798533363bf`, `locked_at` 2026-09-26 12:29)
 - 가지: `chore/ak-c4c` (시작 커밋 `f81568d`)
-- QA 판정은 아직이다. 다음 단계의 qa-evaluator 가 한다. 계약 `status` 는 `active` 그대로 두었다.
+- QA 판정: APPROVE 17/17 (Iteration 1). 계약 `status` 를 `done` 으로 바꿔 리포트와 함께 `dcd003f` 에 실었다. 교차 진단 BLOCKING 0 — 아래 「QA 판정과 교차 진단」.
 
 ## 한 일
 
@@ -11,6 +11,7 @@
 | `6696bd8` | 계약 봉인. 계약 파일 하나만 실었다 (`git show --name-only` 1 개) |
 | `1b3e53d` | rust-kit 14 파일에 대응표 16 행을 `apply-map.py` 로 한 번 적용. 66 줄 바뀜, 표준 오류 `rule1=1 … rule14=6 rule15=2 rule16=10` |
 | 이 notes 커밋 | `.harness/.meta/after-kaizen-0926/c4c-notes.md` 하나 |
+| `dcd003f` | QA 리포트 `.harness/sprint-feedback-after-0924-rust-app-name.md` 와 계약 `status: done` |
 
 봉인 전 교차 진단(qa-evaluator)의 세 지적을 계약에 넣은 뒤 봉인했다.
 
@@ -123,3 +124,37 @@ rust-kit/references/project-detection.md → docs/rust-kit/project-detection.htm
 notes 커밋 `b6f95c9` 을 끝 판으로 두고 17 조건을 다시 쟀다(`impl/measure-real2.out`). 값은 위 「조건별 자기 측정」 표와 한 글자도 다르지 않다.
 AR-01 은 `impl_files=14 exact=1 mixed_commits=0 seal_commit_files=1 seal_before_impl=1 seal_broken=0 this=SEAL_OK scope_block=1` 그대로다 —
 `.harness/` 안의 notes 커밋은 구현 경로 집합과 섞인 커밋 수에 들어가지 않는다.
+
+## QA 판정과 교차 진단
+
+- qa-evaluator: APPROVE 17/17. 봉인 `SEAL_OK`, 17 조건 모두 평가자가 `m.sh` 를 GNU bash 로 직접 돌려 기대 출력과 같았다. 리포트는 `dcd003f` 에 실었다
+- 교차 진단(부모가 띄운 독립 검토): BLOCKING 0. 봉인된 계약(`6696bd8` 판)에서 측정 파일 셋을 새로 떼어 끝 판 `01c6de1` 에 15 측정을 다시 돌려 기대 출력과 같았다.
+  복제본에 위반을 되살리니(rust-auth 한 줄에 `fit-pal` · 표 칸 하나 추가) SK-01 `end_lines=1` · SK-02 `diff=2` · ER-01 `pipes_eq=13` · DG-02 `new=3` 으로 네 조건이 모두 잡았다 — 0 을 기대하는 칸이 공허한 통과가 아니다.
+  origin/main `88ddfe5` 와 `git merge-tree` 충돌 없음, 합친 판과 main 판 모두 저장소 검사 일곱이 0
+- `status: done` 변경 뒤에도 조건 줄 요약값은 `85bde798533363bf` 그대로다
+- 글로벌 피드백 `/Users/jackson/.harness/feedback/evaluator/1a3bcba6-2026-09-26T124456-bda55d45-99383.yaml` 의 `cross_diagnosis_by` 를 `sprint-contract` 로 바꾸고 결과를 `cross_diagnosis_notes` 에 적었다(`verify-feedback.sh` PASS).
+  QA 리포트 안 「Cross-Diagnosis Handoff」 의 `pending-parent` 는 평가자가 쓴 그대로 두었다
+
+## 다음 사이클 메모
+
+독립 검토가 적은 것 가운데 판정을 바꾸지 않는 네 가지. 줄 번호는 끝 판 `01c6de1` 기준이다.
+
+1. 옛 실측 기록 문장이 실제로 없던 크레이트 이름을 적는다 — `rust-kit/references/project-detection.md:147-148` · `rust-kit/skills/rust-preflight/SKILL.md:21` · `rust-kit/skills/rust-run/SKILL.md:26`.
+   예: 「2026-07 실측 `cargo-test-wrong-target` — 바이너리 크레이트 `myapp-api` 에 `cargo test -p myapp-api --lib healthcheck`」.
+   대응표 일괄 치환이라는 계약의 선택에서 나온 결과라 이번에는 두었다. 다음 rust-kaizen 에서 이름 없이 사건만 적는 꼴(「실사용 프로젝트의 바이너리 크레이트」)로 바꿀지 본다
+2. 계약 `:120` 의 추적 근거가 틀렸다 — 「원래 이름은 `.harness/.meta/evidence/phase9.md` (7 건) 같은 기록에 남아 있어」 라고 적었지만 그 7 건은 fit-pal 파일 링크뿐이고
+   `fitpal-api` · `fitpal-migration` · `cargo-test-wrong-target` 사건은 없다. 원래 이름이 실제로 남은 곳은 계약의 「Pre-Edit 감사」 표(`:64`),
+   git 기록(`1b3e53d` 의 지운 줄 — `fitpal-api` 5 · `fitpal-migration` 4), `.harness/.meta/kaizen-data-pool.md:2372` 다.
+   봉인 요약값이 덮지 않는 설명 글이지만 끝난 계약이라 고치지 않았다
+3. 이름이 다시 들어올 길 — `.claude/skills/kaizen-orchestrator/SKILL.md:307` 과 `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:130` 이
+   Phase 9 조사 입력으로 「fit-pal server」 를 적는다. rust-kit 에 이 이름이 다시 들어오는 것을 막는 저장소 검사는 없다.
+   이번 계약 범위(rust-kit) 밖이다. 다음 사이클 Phase 9 전에 rust-kaizen 절차에 「킷 안 앱 이름 0 건」 검사를 둘지, 저장소 검사에 넣을지 정한다
+4. rust-init `:235` 의 `name = "myapp-api"` 는 같은 파일이 폴더 틀에 쓰는 `{project}` 자리 표시(`:91` · `:126` · `:159`)와 방식이 다르다.
+   판단 문제이고 결함은 아니다 — 다음 rust-kaizen 에서 맞출지 본다
+
+## QA 뒤 로컬 CI
+
+`dcd003f` 위에 이 notes 수정을 올린 상태에서 `ci-local.sh` 를 다시 돌렸다(`TMPDIR` 은 이 세션 임시 폴더 `c4c/ci2/`).
+23 단계 중 `rc=0` 22, `feedback-agg-test` 는 `yq` 가 없어 건너뜀. 실패 0.
+CI 파일에만 있는 줄은 설치 단계 넷(`pip install pyyaml` · zsh 설치 · `npm ci` · playwright 설치)과 `yq` 여부로 갈리는 여러 줄 블록 하나뿐이다.
+CI 가 남긴 `__pycache__` 두 폴더는 지웠다
