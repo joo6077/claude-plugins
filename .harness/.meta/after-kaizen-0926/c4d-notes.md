@@ -3,7 +3,7 @@
 - 계약: `.harness/sprint-contract-after-0924-discard-decisions.md` (20 조건 · 기능 조건 12, 봉인 `sha256:881358107856d327`, `locked_at` 2026-09-26 13:31)
 - 가지: `chore/ak-c4d` (시작 커밋 `f81568d`)
 - 사용자 결정: 원문 자리는 기능 PRD 비범위 표 하나다 (user `2026-09-26T02:47:55.337Z` 「plan-prd 표로 확정」, 세션 기록 `bda55d45-296c-491f-89ba-b52042d58e72.jsonl` 1187 번째 줄)
-- QA 판정: 아직 없음. 다음 단계에서 qa-evaluator 가 한다
+- QA 판정: APPROVE (Iteration 1, 20 조건 — 리포트 `.harness/sprint-feedback-after-0924-discard-decisions.md`). 독립 검토는 BLOCKING 0 이고, 판정을 바꾸지 않는 다섯 건은 아래 「다음 사이클 메모」 로 옮겼다
 
 ## 한 일
 
@@ -36,7 +36,7 @@
 
 - F1H-41 앞절반 — `/sprint` Step 3 원인 가르기 판정 표(CI 에서만 보이는 두 경우 `phase8-notes.md:94` · 첫 줄 문턱 `phase9-notes.md:94`). 폐기 결정과 다른 일이고, 표를 바꾸면 글자 그대로 옮긴 사본 둘(`docs/infra/platform/cicd.md:76` · `rust-kit/skills/rust-preflight/SKILL.md:112`)도 함께 바뀌어야 해 이 묶음 범위 밖이다. 다음 사이클 Phase 4 로 넘긴다. F1H-41 뒷절반(재검증 블록의 폐기 결정 자리)은 이 묶음이 했다
 - PRD 가 나중에 생겼을 때 `PRD 없음` 줄을 PRD 비범위 표로 옮기는 절차 — plan-prd Step 0 이 읽을 대상을 늘리는 일이라 planning-kit 몫이다. 다음 사이클로 넘긴다
-- `docs/design-kit/design-mockup.html` — 원본 Step 2 감지 블록이 바뀌어 이 페이지가 옛 글이 됐다(페이지 481 번째 줄 `.design/approvals/*.md` 다음에 `.planning/prd-*.md` 줄이 없다). Step 6 폐기 칸 자리표시자는 이 페이지에 글자 그대로 실려 있지 않다. 페이지 재생성은 부모가 모아서 한다
+- `docs/design-kit/design-mockup.html` — 원본이 바뀌어 이 페이지가 옛 글이 된 자리는 셋이다. 481 번째 줄 감지 블록(`.design/approvals/*.md` 다음에 `.planning/prd-*.md` 줄이 없다), 484 ~ 489 번째 줄 카드 「찾은 입력의 적용」(PRD 비범위 표 규칙이 없다), 629 번째 줄 Step 6 폐기 칸(옛 자리표시자를 조금 줄인 판 `{버린 안·요소와 이유 — 없으면 \`없음\`}` 이고, PRD 가리키기와 `PRD 없음` 줄이 없다). 처음 적은 notes 는 481 번째 줄만 적고 「Step 6 폐기 칸 자리표시자는 글자 그대로 실려 있지 않다」 고 썼다 — 글자 그대로는 아니어도 옛 판이 실려 있다(독립 검토가 찾았다). 페이지 재생성은 부모가 모아서 하고, 세 자리 모두 원본과 대조한다
 - 핸드오프 스킬(`~/.claude/skills/handoff`) · 다른 킷 — 범위 밖
 
 ## 킷별 버전 판단
@@ -58,6 +58,7 @@
 - `python3 scripts/sync-evals.py --check-only` → 0 (added 0 · orphans 0 · missing 0)
 - `python3 scripts/check-insights-tracking.py` 기본 · `--final` → 둘 다 0, 배정 요약 그대로
 - 로컬 CI(`ci-local.sh`, 끝 판 `470579f`, `TMPDIR` 은 이 세션 스크래치 `c4d/ci1`): `rc=0` 22 줄, `feedback-agg-test SKIP (yq 없음)` 한 줄. CI 파일에만 있는 줄은 설치 단계(`pip install pyyaml` · zsh 설치 · `npm ci` · playwright 설치)뿐이다. 실행 뒤 작업 폴더 변경 0 줄
+- 로컬 CI 재실행(QA 뒤, 판 `8217e37` 에 이 notes 수정만 커밋 전 — CI 단계는 `.harness/.meta/` 를 읽지 않는다. `TMPDIR` 은 스크래치 `c4d/ci2`, 시작 전 다른 `save-test.sh` 실행 0 개): `rc=0` 22 줄, `feedback-agg-test SKIP (yq 없음)` 한 줄, 종료 코드 0. CI 파일에만 있는 줄은 위와 같은 설치 단계뿐이다. 실행 뒤 추적 안 된 `__pycache__` 두 폴더(`scenario-report-ut` 단계가 14:14 에 만든 것)가 생겨 지웠다
 
 ## 조건별 자기 측정 (끝 판 `470579f`, 가지 끝 계약에서 새로 떼어 낸 도우미)
 
@@ -105,3 +106,18 @@
 - 개선안 사본 적용: `mock.py`(알려진 답 · 양성 대조), 표 다섯 행만: `apply-rows.py`
 - 톤 대조: `tone5.sh`, 봉인: `seal.sh`, Step 6.5 저장 검사: `gate65.sh`
 - 로컬 CI: `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh`
+
+## 다음 사이클 메모
+
+독립 검토(2026-09-26, BLOCKING 0)가 조건 밖에서 찾은 다섯 건(R1 ~ R5)과 QA 가 계약 밖 참고로 남긴 한 건(R6). 판정을 바꾸지 않아 이 묶음에서는 고치지 않았다. 재현에 쓴 파일은 세션 스크래치 `c4d-rev/` 에 있다.
+
+| # | 항목 | 자리 | 받을 곳 · 할 일 |
+| --- | --- | --- | --- |
+| R1 | 새 워크트리에서는 폐기 기록을 못 보고 빈 출력이 나온다 | `harness/skills/sprint/SKILL.md:64-65` (같은 파일 `:42-51` 이 Step 0.5 전에 새 워크트리를 만들라고 권한다) | harness 다음 사이클. 본 작업 폴더에서 추적 안 된 `.planning` · `.harness` 파일은 새 워크트리에 따라오지 않고, `2>/dev/null` 이 오류를 버려서 「기록 없음」 과 「못 봄」 이 같은 빈 출력이다. ER-01 은 이 빈 출력을 좋은 값으로 잰다. 재현 — 추적 안 된 `.planning/prd-alarm.md` 와 `PRD 없음` 이 든 `.harness/sprint-contract-x.md` 를 둔 빈 레포에서 본 폴더는 2 줄, `git worktree add` 뒤 새 폴더는 0 줄(오류 출력도 0 줄). 이 레포 본 작업 폴더의 추적 안 된 계약은 19 개다. 두 줄이 본 작업 폴더(`git worktree list` 첫 줄)도 함께 보거나, 못 읽은 자리를 말하게 고친다 |
+| R2 | `PRD 없음` 이 흔한 말이라 규칙을 설명하는 문서까지 걸린다 | `harness/skills/sprint/SKILL.md:65` | R1 과 같이. 이 가지에서 `grep -rn 'PRD 없음' .design .harness` → 31 줄이고, 모두 이 묶음의 계약 · notes · QA 리포트다. 실제 폐기 결정은 0 줄이다. SC-01 시험 폴더에는 표시 줄 하나짜리 파일만 있어 이 경우를 재지 않는다. 사용자 프로젝트에서도 QA 리포트가 계약 줄을 옮겨 적으면 같은 결정이 두 번 잡힌다. 찾는 모양을 좁히고, 시험 폴더에 규칙 설명 문장이 든 파일을 더한다 |
+| R3 | PRD 가 없을 때의 대체 규칙이 결정 원문을 두 곳에 적게 한다. 사용자에게 묻지 않고 정한 규칙이다 | `design-kit/skills/design-mockup/SKILL.md:166` · `harness/skills/sprint-contract/SKILL.md:630` · `harness/skills/sprint/SKILL.md:78` | 사용자 한 줄 확인 뒤 다음 사이클. 셋 다 PRD 가 없으면 승인 기록과 계약 `범위 경계` 에 각각 네 칸(이유 포함)으로 적게 한다. design-mockup 이 규격으로 부르는 `design-kit/references/visual-change-protocol.md:221-222` 는 「결정 원문이 두 곳에 있으면 한쪽만 고쳐진다」 라서 맞지 않는다. 사용자가 고른 것은 「plan-prd 표로 확정」 뿐이다(세션 기록 `bda55d45….jsonl` 1187 번째 줄). `/Users/jackson/Hub` 아래 `.planning/prd-*.md` 는 1 건(`iyaki-zip-dev`)뿐이라 실제로는 대체 규칙이 주로 쓰인다. 빈틈도 있다 — PRD 를 가리키는 조건은 기능 단위(「그 기능 PRD」)이고 대체 조건은 프로젝트 단위(`prd-*.md` 0 개)라, 다른 기능의 PRD 만 있는 프로젝트는 어느 쪽에도 해당하지 않는다. 물을 것: PRD 가 없을 때 원문 자리를 한 곳으로 정하고 다른 쪽은 경로만 적게 할지, 대체 조건을 기능 단위로 맞출지 |
+| R4 | notes 가 옛 글이 된 문서 페이지 자리를 한 곳만 적었다 | `docs/design-kit/design-mockup.html:481` · `:484-489` · `:629` | 이 notes 의 「넘긴 것과 사유」 해당 줄을 세 자리로 고쳤다. 페이지 재생성은 부모가 모아서 한다 |
+| R5 | 계약 서술 절 이름이 쉬운 말 목록에 든 낱말을 쓴다 | `.harness/sprint-contract-after-0924-discard-decisions.md:146-147` (`오라클 해소:` 2 줄) | 봉인된 계약이라 고치지 않았다. sprint-contract 가 요구하는 이름은 `커버리지 해소:` 하나다(`harness/skills/sprint-contract/SKILL.md:685`). 다음 계약부터 그 이름을 쓴다 |
+| R6 | 피드백 저장 시험이 고정 `/tmp` 경로를 써서 동시에 돌면 서로 파일을 지운다 | `harness/evals/kaizen/feedback-system/save-test.sh:45` 등 (`/tmp/test-*.yaml` 여러 개) | harness 다음 사이클. QA 1 차 `ci-local.sh` 의 `feedback-save-test rc=2` 원인이다 — 다른 워크트리(`ak-c3b`)가 같은 시험을 같은 때 돌렸다. 격리 재실행은 `rc=0`. 시험 안 경로를 `mktemp -d` 아래로 옮긴다 |
+
+QA 피드백 YAML(`~/.harness/feedback/evaluator/1a3bcba6-2026-09-26T135838-bda55d45-17131.yaml`)의 `cross_diagnosis_by: pending-parent` 는 부모가 교차 진단을 마치면 채운다. QA 가 넘긴 두 질문에 독립 검토가 답했다 — (1) SK-03 · F20 행 판단은 뒤집지 않았고 그 대신 R3 를 짚었다, (2) DG-05 는 가지 끝을 풀어 둔 깨끗한 사본에서 `rc=0` 22 줄 · SKIP 한 줄로 다시 나왔고 처음의 `rc=2` 는 다시 나오지 않았다.
