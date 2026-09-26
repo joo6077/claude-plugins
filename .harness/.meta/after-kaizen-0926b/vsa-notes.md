@@ -49,7 +49,7 @@
 
 ## 남은 것
 
-- **개정 A-01 동의** — SC-09 측정 도우미 `drift.sh` 23 번째 줄의 `sed -E 's/^\s+run: //'` 가 맥 BSD sed 에서 공백을 못 떼어 구현과 무관하게 `rc=127` 이 난다. `[[:space:]]` 로 한 글자만 바꾸는 개정인데, 원 측정이 어떤 구현도 통과 못 하므로 방향이 느슨해지는 쪽이라 위임으로 동의 처리하지 않았다. 부모가 사용자에게 묻는다
+- ~~개정 A-01 동의~~ 처리됨 (2026-09-26T16:22:39Z 사용자 선택, 커밋 eb4b4f2) — SC-09 측정 도우미 `drift.sh` 23 번째 줄의 `sed -E 's/^\s+run: //'` 가 맥 BSD sed 에서 공백을 못 떼어 구현과 무관하게 `rc=127` 이 난다. `[[:space:]]` 로 한 글자만 바꾸는 개정인데, 원 측정이 어떤 구현도 통과 못 하므로 방향이 느슨해지는 쪽이라 위임으로 동의 처리하지 않았다. 부모가 사용자에게 묻는다
 - 문서 페이지 다시 만들기 — `docs/harness/plugin-validation.html` (V2 없음 줄 글자 · 가이드 1.5.0). 계약 Counterpart 표의 미완 쪽이다. 부모 · 문서 묶음 몫
 - 드리프트 도구가 `reflect-kit/skills/reflect-digest/SKILL.md → docs/reflect-kit/reflect-digest.html [NEW]` 를 낸다 — `reflect-kit/skills/` 접두 짝이 스킬마다 페이지를 기대하는데 그 페이지는 원래 없다. 이번 묶음이 만든 결함이 아니고 페이지를 만들지 · 짝을 좁힐지는 문서 묶음이 정한다
 - 끝난 옛 계약(P11 · P13 · P14 · P16 · P17 DG-05 등)의 `— SKIP (no templates/)` 측정 꼴은 고치지 않았다 — 끝난 계약이라 다시 재지 않는다 (UD-8)
@@ -57,6 +57,8 @@
 - `scripts/sync-orchestrator.py` 는 `:125-148` 함수 말고 맨 위 import 한 줄(`from plugin_utils import KIT_RESEARCH_DOCS`)도 더했다 — 짝을 한 곳에서 읽으려면 필요했다. VS-11 몫인 `:39` 는 건드리지 않았다
 - 킷 판 올림과 릴리스는 부모 몫 (아래 판단)
 - 커밋 메시지 몇 개에 「게이트」 낱말이 들어갔다 (쉬운 말 목록 위반) — 이미 커밋돼 고치지 않았다
+- 독립 검토(막지 않음, 재현됨) — `scripts/check-api-kit-docs.py:35` 의 외부 스타일 링크 판정이 대소문자를 가리고 주소 앞 빈칸을 넘기지 않는다. `href="HTTPS://…"` · `href=" https://…"` 를 옛 판 `<link\s` 는 잡았는데 새 판은 놓친다. 대문자 `<LINK` 는 둘 다 못 잡는다. 지금 12 쪽엔 이런 꼴이 없어 실제 피해 0
+- 독립 검토(막지 않음) — `scripts/spawn-kaizen-phase.sh:71` 이 최댓값 17 을 손으로 적었다. 짝 `finalize-phase.sh:50-65` 는 마켓플레이스에서 뽑는다. 킷이 늘면 둘이 갈라진다. 지금은 둘 다 17
 
 ## tone-guide 결과
 
