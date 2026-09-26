@@ -606,30 +606,13 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 
 **실행 방식:** `Skill` 도구로 `docs-site` 스킬을 호출한다. 변경된 소스를 기반으로 HTML 페이지를 재생성한다. subagent 로 위임해도 좋다.
 
-**소스 → 출력 매핑 (docs-site 스킬 Step 1 참조):**
-
-| 플러그인 | 소스 경로 | 출력 경로 |
-| -------- | --------- | --------- |
-| harness | `harness/docs/guides/`, `harness/references/` | `docs/harness/` |
-| flutter-toolkit | `flutter-toolkit/references/` | `docs/flutter-toolkit/` |
-| design-kit | `design-kit/docs/design/` | `docs/design-kit/` |
-| backend-kit | `docs/backend/` | `docs/backend-kit/` |
-| infra-kit | `docs/infra/` | `docs/infra-kit/` |
-| rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
-| react-kit | `react-kit/references/`, `docs/react/` | `docs/react-kit/` |
-| planning-kit | `docs/planning/` | `docs/planning-kit/` |
-| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/` | `docs/reflect-kit/` |
-| bambu-kit | `bambu-kit/skills/bambu-print-profile/SKILL.md`, `bambu-kit/skills/bambu-print-profile/references/` | `docs/bambu-kit/` |
-| onboarding-kit | `onboarding-kit/skills/setup-guide/SKILL.md`, `onboarding-kit/skills/setup-guide/references/`, `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `docs/onboarding-kit/` |
-| tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
-| api-kit | `docs/api/` | `docs/api-kit/` |
-| howto-kit | `docs/howto/` | `docs/howto-kit/` |
-| process (공유) | (내부 문서) | `docs/process/` |
+**소스 → 출력 매핑:** 표는 `.claude/skills/docs-site/SKILL.md` Step 1 한 곳에만 있다. 여기에 사본을 두지 않는다 —
+사본은 원본과 따로 낡는다. 바뀐 원본이 어느 페이지로 가는지는 `python3 scripts/detect-docs-drift.py --since {병합_base}` 가 같은 매핑으로 낸다.
 
 **절차:**
 
 1. `git diff {병합_base}..HEAD --name-only` 로 본 카이젠 사이클에서 변경된 소스 `.md` / `.yaml` 파일 목록 확보
-2. 매핑 테이블에 따라 대응하는 `docs/<plugin>/<name>.html` 파일 식별
+2. docs-site Step 1 표(또는 위 `detect-docs-drift.py` 출력)로 대응하는 `docs/<plugin>/<name>.html` 파일 식별
 3. 각 HTML 페이지를 docs-site 스킬 원칙 (standalone, 최소 400 라인, design-kit audit-criteria 준수, card-source URL 인용, accent 컬러) 로 재생성
 4. `docs/index.html` `categories` 배열에 신규/갱신 페이지 등록
 5. `python3 scripts/validate-plugin.py` 로 7 OK 재확인

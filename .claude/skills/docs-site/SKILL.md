@@ -42,25 +42,28 @@ user-invocable: true
 
 ## Step 1: 대상 식별
 
-사용자 요청에서 플러그인명과 페이지명을 파악한다. 표는 `.claude/skills/kaizen-orchestrator/SKILL.md` Step F2 표와 같다 — 한쪽을 고치면 다른 쪽도 고친다:
+사용자 요청에서 플러그인명과 페이지명을 파악한다. 원본 → 페이지 매핑 표는 여기 한 곳에만 둔다 — 오케스트레이터 Step F2 는 이 표를 가리키고,
+`scripts/detect-docs-drift.py` 는 같은 매핑으로 낡은 페이지를 찾는다. 표를 고치면 스크립트의 매핑도 같은 커밋에서 고친다:
 
 | 플러그인 | 소스 경로 | 출력 경로 |
 | -------- | --------- | --------- |
 | harness | `harness/docs/guides/`, `harness/references/` | `docs/harness/` |
-| flutter-toolkit | `flutter-toolkit/references/` | `docs/flutter-toolkit/` |
-| design-kit | `design-kit/docs/design/` | `docs/design-kit/` |
+| flutter-toolkit | `flutter-toolkit/references/`, `docs/flutter/` | `docs/flutter-toolkit/` |
+| design-kit | `design-kit/docs/design/`, `design-kit/references/visual-change-protocol.md`, `design-kit/skills/design-test/SKILL.md` | `docs/design-kit/` |
 | backend-kit | `docs/backend/` | `docs/backend-kit/` |
 | infra-kit | `docs/infra/` | `docs/infra-kit/` |
 | rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
 | react-kit | `react-kit/references/`, `docs/react/` | `docs/react-kit/` |
 | planning-kit | `docs/planning/` | `docs/planning-kit/` |
-| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/` | `docs/reflect-kit/` |
+| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/`, `reflect-kit/docs/DESIGN.md`, `reflect-kit/docs/SCHEMA.md`, `reflect-kit/docs/RESEARCH.md` | `docs/reflect-kit/` |
 | bambu-kit | `bambu-kit/skills/bambu-print-profile/SKILL.md`, `bambu-kit/skills/bambu-print-profile/references/` | `docs/bambu-kit/` |
 | onboarding-kit | `onboarding-kit/skills/setup-guide/SKILL.md`, `onboarding-kit/skills/setup-guide/references/`, `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `docs/onboarding-kit/` |
 | tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
-| api-kit | `docs/api/` | `docs/api-kit/` |
+| api-kit | `docs/api/`, `api-kit/skills/api-ui/SKILL.md` | `docs/api-kit/` |
 | howto-kit | `docs/howto/` | `docs/howto-kit/` |
 | process (공유) | (내부 문서) | `docs/process/` |
+
+`docs/howto/drafts/` 는 초안 폴더라 매핑 밖이다 — 페이지를 만들지 않고 낡음 감지도 건너뛴다.
 
 신규 킷이면 `references/css-tokens.md`의 플러그인 매핑에 새 accent를 추가한 뒤 진행한다.
 
