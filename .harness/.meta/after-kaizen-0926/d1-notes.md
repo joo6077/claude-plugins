@@ -73,7 +73,7 @@ qa-evaluator 교차 진단이 계약의 측정 도우미를 떼어 시작 판에
 - 이번에 맞춘 쪽: bambu-print-profile · visual-change-protocol · dart-flutter-idioms · flutter-ai-rules · flutter-toolkit project-detection · plugin-validation
 - 이미 맞는 쪽: snapshot-sealing-canonicalization
 - 대응 페이지 없음(`NEW`) 여섯: research-log · reflect-digest · rust-kit project-detection · adapter-contract · adapter-dart-flutter · locale-korean
-- 이 도구는 kaizen-flow · design-mockup · infra-test · multi-sample-pagination-variance 를 내지 않았다 — 원본 변경이 `main` 에 먼저 들어가 기준 `main` 과 차이가 없기 때문이고, 계약은 `f81568d..39ddc12` 로 잰다
+- 이 도구는 kaizen-flow · design-mockup · infra-test · multi-sample-pagination-variance 를 내지 않았다. 앞 셋은 원본(`.claude/skills/kaizen-orchestrator/SKILL.md` · `design-kit/skills/design-mockup/SKILL.md` · `infra-kit/skills/infra-test/SKILL.md`)이 `main` 과 다르지만 도구의 원본 → 페이지 짝 표(`SOURCE_TO_HTML` · `SOURCE_OVERRIDES`)에 없다. 마지막은 원본 md 가 바뀌지 않았고, 고친 근거인 설계 기록 `docs/superpowers/specs/2026-09-02-api-kit-design.md` 도 짝 표 밖이다. 짝 표를 채우는 일은 `scripts/` 라 이 묶음 범위 밖이어서 넘긴다
 
 ## tone-guide 결과
 
