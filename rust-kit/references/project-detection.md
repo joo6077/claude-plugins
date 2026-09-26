@@ -144,8 +144,8 @@ cargo metadata --no-deps --format-version 1 \
 - **타깃 필터는 매니페스트의 `test` 플래그를 무시하고 해당 타깃을 강제**하므로, 존재하지 않는 타깃을
   지정하면 "테스트 0 개 실행" 또는 에러로 끝난다. **테스트 0 개는 통과가 아니다** (`qa-evaluation-guide.md`
   §Evidence Validity Gate 검사 2).
-- 출처: 2026-07 실측 `cargo-test-wrong-target` — 바이너리 크레이트 `fitpal-api` 에
-  `cargo test -p fitpal-api --lib healthcheck` 를 실행해 실패.
+- 출처: 2026-07 실측 `cargo-test-wrong-target` — 바이너리 크레이트 `myapp-api` 에
+  `cargo test -p myapp-api --lib healthcheck` 를 실행해 실패.
 
 ## Step 4. 의존성 감지
 

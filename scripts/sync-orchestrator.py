@@ -34,6 +34,10 @@ EXCLUDED_PLUGINS = {"harness"}
 # Phase 5 부터 시작
 FIRST_PLUGIN_PHASE = 5
 
+# 카이젠이 고치는 곳이 스킬 본문만이 아니다 —
+# 2026-09-24 사이클에 reflect-kit 의 hooks/ · docs/ 수정이 범위 줄 밖이었다
+KIT_SCOPE_DIRS = ("references/", "skills/*/references/", "agents/", "hooks/", "docs/", "evals/")
+
 
 def load_marketplace() -> list[dict]:
     data = json.loads(MARKETPLACE_JSON.read_text(encoding="utf-8"))
@@ -71,8 +75,8 @@ def generate_phase_sections(plugins: list[dict]) -> str:
 
         lines.append(f"### Step {step_num}: Phase {phase_num} — {name} 카이젠")
         lines.append("")
-        refs = infer_references_dir(name)
-        lines.append(f"**범위:** `{name}/skills/*/SKILL.md`" + (f", `{refs}`" if refs else ""))
+        scope = [f"{name}/skills/*/SKILL.md", *infer_scope_dirs(name)]
+        lines.append("**범위:** " + ", ".join(f"`{path}`" for path in scope))
         if research_docs_dir:
             lines.append(f", `{research_docs_dir}` 리서치 문서")
         lines.append("")
@@ -92,18 +96,18 @@ def generate_phase_sections(plugins: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def infer_references_dir(plugin_name: str) -> str | None:
-    """킷의 참조 폴더 — 킷 바로 아래 references/, 없으면 skills/*/references/, 둘 다 없으면 None.
+def infer_scope_dirs(plugin_name: str) -> list[str]:
+    """KIT_SCOPE_DIRS 가운데 디스크에 있는 킷 폴더.
 
-    있는지 보지 않고 `<킷>/references/` 를 적으면 없는 폴더를 범위로 가르친다
+    있는지 보지 않고 적으면 없는 폴더를 범위로 가르친다
     (2026-09-25: planning-kit · bambu-kit · onboarding-kit 세 줄이 그랬다).
     """
     kit = REPO_ROOT / plugin_name
-    if (kit / "references").is_dir():
-        return f"{plugin_name}/references/"
-    if any(p.is_dir() for p in kit.glob("skills/*/references")):
-        return f"{plugin_name}/skills/*/references/"
-    return None
+    return [
+        f"{plugin_name}/{rel}"
+        for rel in KIT_SCOPE_DIRS
+        if any(p.is_dir() for p in kit.glob(rel.rstrip("/")))
+    ]
 
 
 def infer_kaizen_skill(plugin_name: str) -> str:
@@ -136,6 +140,7 @@ def infer_research_docs_dir(plugin_name: str) -> str | None:
         "react-kit": "docs/react/",
         "flutter-toolkit": "docs/flutter/",
         "design-kit": "design-kit/docs/design/",
+        "planning-kit": "docs/planning/",
         "tone-kit": "docs/tone/",
         "api-kit": "docs/api/",
         "howto-kit": "docs/howto/",
@@ -220,7 +225,7 @@ def main() -> int:
 
     if args.check_only:
         print(
-            f"sync-orchestrator: DRIFT 감지 — `python3 scripts/sync-orchestrator.py` 실행 필요",
+            "sync-orchestrator: DRIFT 감지 — `python3 scripts/sync-orchestrator.py` 실행 필요",
             file=sys.stderr,
         )
         return 1

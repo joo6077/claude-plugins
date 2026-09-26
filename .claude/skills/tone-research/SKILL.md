@@ -1,7 +1,7 @@
 ---
 name: tone-research
 description: >
-  tone-kit 의 리서치 문서(docs/tone/ 8종)를 외부 1차 출처 폴링으로 갱신한다.
+  tone-kit 의 리서치 문서(docs/tone/ 8종, overview · research-log · templates 제외)를 외부 1차 출처 폴링으로 갱신한다.
   이 레포 개발용 스킬이며 tone-kit 플러그인에 포함되지 않는다.
   design-research, rust-research 와 동일한 패턴.
   "/tone-research", "톤 리서치", "tone-kit 문서 갱신" 같은 요청 시 트리거.
@@ -82,6 +82,6 @@ chore(tone-research-<category>): [갱신 요지]
 
 # References
 
-- ../../../docs/tone/ — 리서치 문서 8종
+- ../../../docs/tone/ — 리서치 문서 8종 (overview · research-log · templates 제외)
 - ../../../tone-kit/references/sources.md — 출처 목록과 검증 상태
 - ../../../tone-kit/references/adapter-contract.md — 어댑터 슬롯 계약

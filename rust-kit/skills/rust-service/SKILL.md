@@ -13,9 +13,9 @@ user-invocable: true
 
 - **`#[async_trait]` 매크로 heap allocation** — 매크로는 내부적으로 `Box::pin`을 발생시킨다. 성능 크리티컬 경로라면 Rust 1.75+ RPITIT(`async fn`이 trait에서 직접 동작)로 native async trait을 고려할 수 있다. 단, `dyn Trait` object safety가 필요한 경우(예: `Arc<dyn Port>` 라우터 상태)에는 지금도 `#[async_trait]`가 실질적인 선택이다.
 - **서비스 의존 폭발 방지** — 서비스가 여러 repository에 의존하면 제네릭 파라미터가 폭발적으로 복잡해진다(`UserServiceImpl<R1: UserRepo, R2: OrderRepo, ...>`). 의존이 3개 이상이면 구체 타입(`Arc<dyn Trait>`) 필드로 시작하고 필요 시 제네릭으로 추출하라.
-- **Consumer-Owned Port** — 서비스 A가 다른 모듈 B의 기능을 필요로 하면 A 내부에 outbound port trait을 정의한다. B의 `port.rs`를 직접 import하지 마라. B는 그 trait을 구현하는 adapter를 제공하고, Composition Root(apps/api/main.rs)가 `Arc<dyn ATrait>`를 주입한다. 출처: fit-pal `server/CLAUDE.md` §아키텍처.
+- **Consumer-Owned Port** — 서비스 A가 다른 모듈 B의 기능을 필요로 하면 A 내부에 outbound port trait을 정의한다. B의 `port.rs`를 직접 import하지 마라. B는 그 trait을 구현하는 adapter를 제공하고, Composition Root(apps/api/main.rs)가 `Arc<dyn ATrait>`를 주입한다. 출처: 실사용 프로젝트의 서버 규칙 §아키텍처.
 - **포트에서 인프라 타입 제거** — 포트 trait 시그니처에 `DatabaseTransaction`, `DatabaseConnection`, SeaORM `Model`, `sqlx::Error`, `reqwest::Response` 등 인프라 구체 타입을 노출 금지. DTO/도메인 이벤트만 주고받는다. adapter 교체 가능성이 깨진다.
-- **Domain event + outbox 패턴** — cross-module write 후처리(알림 발송, 감사 로그, 인덱스 동기화)는 직접 호출 대신 **domain event** 발행 + **outbox 테이블** 기록으로 처리한다. 트랜잭션 경계 안에서 write + outbox insert를 원자적으로 실행하고 별도 워커가 outbox를 폴링하여 외부 시스템에 전달한다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 4번.
+- **Domain event + outbox 패턴** — cross-module write 후처리(알림 발송, 감사 로그, 인덱스 동기화)는 직접 호출 대신 **domain event** 발행 + **outbox 테이블** 기록으로 처리한다. 트랜잭션 경계 안에서 write + outbox insert를 원자적으로 실행하고 별도 워커가 outbox를 폴링하여 외부 시스템에 전달한다. 출처: 실사용 프로젝트의 서버 규칙 §아키텍처 4번.
 - **트랜잭션 경계는 서비스 메서드 단위** — Repository 메서드 안에서 트랜잭션을 시작하지 마라. 서비스 메서드가 여러 repository를 호출할 때 각각이 독립 트랜잭션이면 부분 실패 시 데이터 정합성이 깨진다. `&mut Transaction`을 서비스에서 생성하고 repository에 전달해라.
 - **서비스 메서드에 `&self` 불변 참조만 사용** — `&mut self`를 사용하면 `Arc<Service>`로 공유할 때 `Mutex` 래핑이 필요해져 동시성이 병목된다. 상태 변경이 필요하면 내부 필드를 `Arc<RwLock<T>>`로 감싸거나, 상태를 DB/캐시에 위임해라.
 - **async 메서드에서 blocking I/O 호출 금지** — `std::fs::read`, `std::thread::sleep`, CPU 집약 연산을 async 메서드에서 직접 호출하면 tokio runtime이 블록된다. `tokio::task::spawn_blocking`으로 격리하거나 `tokio::fs`를 사용해라.

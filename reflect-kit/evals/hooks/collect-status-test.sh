@@ -104,6 +104,24 @@ printf '%s [log-reflection] ok:no-issues session=K3\n%s [log-reflection] fail:co
 # 엔트리 0 이어도 실패 뒤에 정상 종료가 있으면 수집기는 돌고 있다
 printf '%s [log-reflection] fail:codex-exit-1 session=K5\n%s [log-reflection] fallback:claude-exit-1 session=K5\n%s [log-reflection] ok:no-issues session=K6\n' "$D2" "$D2" "$D1" > "$W/logs/b7/.errors.log"
 
+# 코드 블록 없이 적힌 옛 엔트리 — 0.8.0 훅이 빈 줄까지 지워 primary_category 줄 둘이 붙은 절 · yaml 블록 하나짜리 절
+mkdir -p "$W/logs/b8"
+# shellcheck disable=SC2016  # 역따옴표는 reflections 머리의 마크다운 글자다
+printf '\n## %s\n\n- session: `L1`\n\nprimary_category: misunderstanding\nmistake_tag: legacy-a\nprimary_category: wrong_approach\nmistake_tag: legacy-b\n\n---\n\n## %s\n\n- session: `L2`\n\n```yaml\nprimary_category: tool_failure\n```\n\n---\n' "$D2" "$D1" > "$W/logs/b8/reflections-2026-09.md"
+
+# 멈춤 문턱 — 기록 3 일 전 뒤에 실패 시도 N 번. 3 번 이상이고 첫 실패가 1 일 넘게 지나야 경고한다
+H1=$(at 3600 '+%Y-%m-%dT%H:%M:%S%z')
+stall_dir() {  # stall_dir <폴더> <실패 시각> <실패 수>
+  mkdir -p "$1"; : > "$1/.errors.log"
+  cp "$W/logs/b5/reflections-2026-09.md" "$1/reflections-2026-09.md"
+  local i; for i in $(seq 1 "$3"); do
+    printf '%s [log-reflection] fail:codex-exit-1 session=M%s\n%s [log-reflection] fallback:claude-exit-1 session=M%s\n' "$2" "$i" "$2" "$i" >> "$1/.errors.log"
+  done
+}
+stall_dir "$W/logs/b9" "$D2" 3
+stall_dir "$W/logs/b10" "$D2" 2
+stall_dir "$W/logs/b11" "$H1" 3
+
 n=0; bad=0
 check() {  # check <이름> <답> <값>
   n=$((n + 1))
@@ -122,12 +140,15 @@ check "멈춤 — 엔트리 0 · 실패 1 이상" "수집 상태: Stop 실패 �
 rc=0" "$(cs 7 "$W/logs/b2")"
 check "빈 폴더 — 경고 없음" "수집 상태: Stop 실패 시도 0회 (codex 실패 0 · 대체 경로 실패 0 · 대체 경로 성공 0 · 분석 전 중단 0; 고유 세션 0) / 기록된 세션 0 / 엔트리 0 / 마지막 기록 없음
 rc=0" "$(cs 7 "$W/logs/b3")"
-check "도중 멈춤 — 마지막 기록 뒤 실패" "수집 상태: Stop 실패 시도 1회 (codex 실패 0 · 대체 경로 실패 0 · 대체 경로 성공 0 · 분석 전 중단 1; 고유 세션 1) / 기록된 세션 1 / 엔트리 1 / 마지막 기록 $D2
-⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 1회
+check "기록 뒤 실패 한 번 — 경고 없음" "수집 상태: Stop 실패 시도 1회 (codex 실패 0 · 대체 경로 실패 0 · 대체 경로 성공 0 · 분석 전 중단 1; 고유 세션 1) / 기록된 세션 1 / 엔트리 1 / 마지막 기록 $D2
 rc=0" "$(cs 7 "$W/logs/b4")"
 check "정상 종료 뒤 — 경고 없음" "수집 상태: Stop 실패 시도 1회 (codex 실패 1 · 대체 경로 실패 1 · 대체 경로 성공 0 · 분석 전 중단 0; 고유 세션 1) / 기록된 세션 1 / 엔트리 1 / 마지막 기록 $D3
 rc=0" "$(cs 7 "$W/logs/b5")"
-check "정상 종료 뒤 다시 실패 — 멈춤" 1 "$(cs 7 "$W/logs/b6" | grep -c '^⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 1회$')"
+check "정상 종료 뒤 다시 실패 한 번 — 경고 없음" 0 "$(cs 7 "$W/logs/b6" | grep -c '^⚠ 수집 멈춤')"
+check "코드 블록 없는 옛 엔트리 — 줄마다 셈" "기록된 세션 2 / 엔트리 3" "$(cs 7 "$W/logs/b8" | head -1 | sed -n 's/.*\(기록된 세션 [0-9]* \/ 엔트리 [0-9]*\).*/\1/p')"
+check "멈춤 — 실패 3 번 · 첫 실패 2 일 전" 1 "$(cs 7 "$W/logs/b9" | grep -c '^⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 3회$')"
+check "실패 2 번 — 경고 없음" 0 "$(cs 7 "$W/logs/b10" | grep -c '^⚠ 수집 멈춤')"
+check "첫 실패 1 시간 전 — 경고 없음" 0 "$(cs 7 "$W/logs/b11" | grep -c '^⚠ 수집 멈춤')"
 check "엔트리 0 · 실패 뒤 정상 종료 — 경고 없음" "수집 상태: Stop 실패 시도 1회 (codex 실패 1 · 대체 경로 실패 1 · 대체 경로 성공 0 · 분석 전 중단 0; 고유 세션 1) / 기록된 세션 0 / 엔트리 0 / 마지막 기록 없음
 rc=0" "$(cs 7 "$W/logs/b7")"
 check "일수 잘못 — 멈춤" "collect_status: 일수는 숫자 또는 all

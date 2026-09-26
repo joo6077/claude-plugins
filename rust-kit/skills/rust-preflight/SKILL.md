@@ -12,13 +12,13 @@ user-invocable: true
 
 # Gotchas
 
-1. **순서 변경 금지** — fmt → clippy → test → audit 순서는 고정이다. clippy 전에 fmt를 해야 포맷 워닝이 없다. fit-pal `server-preflight` Makefile 타겟 검증 순서와 동일.
+1. **순서 변경 금지** — fmt → clippy → test → audit 순서는 고정이다. clippy 전에 fmt를 해야 포맷 워닝이 없다. 실사용 프로젝트의 `server-preflight` Makefile 타겟 검증 순서와 동일.
 2. **fmt 실패 시 자동 적용** — `cargo fmt --all -- --check` 실패 시 `cargo fmt --all`를 적용한 후 재검사한다. 자동 수정 후 unstaged changes가 생기므로 `git add` 안내를 출력한다.
 3. **audit은 non-blocking** — 외부 크레이트 취약점은 즉시 수정 불가할 수 있으므로 WARN으로만 표시한다. 단 `deny.toml`의 `licenses.allow` 위반이나 `sources.unknown-registry = "deny"` 위반은 즉시 FAIL.
 4. **clippy 또는 test 실패 시 즉시 중단** — 이후 단계를 실행하지 않는다.
-5. **Makefile 환경에서는 `make server-preflight` 사용** — `APP_ENV`, `DATABASE_URL`, `RUST_LOG` 등 환경변수가 Makefile에 정의된 경우 직접 `cargo` 호출 시 누락된다. migration이 포함된 프로젝트(fit-pal 패턴: `DATABASE_URL=postgres://fitpal:fitpal@localhost:5432/fitpal`)는 preflight 전에 DB가 올라와 있어야 한다. fit-pal `server-preflight` 타겟 = `server-fmt` → `server-lint` → `server-test` 체인.
-6. **DB 의존 테스트가 있으면 `infra-up`을 선행** — `sqlx::test` 또는 `serial_test` 통합 테스트는 실제 Postgres를 요구한다. fit-pal 패턴은 `make infra-up` (docker compose up -d) → `make server-migrate` → `make server-preflight` 순서. preflight 단독 실행은 DB가 이미 기동된 상태를 가정한다.
-7. **마이그레이션 미적용 상태에서 test 를 돌리지 마라 (DG-03 회귀 방지)** — 공유 로컬 DB 를 쓰는 통합 테스트는 스키마가 뒤처지면 `column "..." of relation "..." does not exist` 로 실패한다. 이건 코드 결함이 아니라 **환경 미준비**이므로 test 실패로 보고하기 전에 Step 2.5 의 마이그레이션 확인을 먼저 통과시킨다. 2026-06 실측: `cargo test --workspace` 통합 테스트 2 건이 `is_admin` 컬럼 부재로 REJECT → `cargo run -p fitpal-migration` 후 통과.
+5. **Makefile 환경에서는 `make server-preflight` 사용** — `APP_ENV`, `DATABASE_URL`, `RUST_LOG` 등 환경변수가 Makefile에 정의된 경우 직접 `cargo` 호출 시 누락된다. migration이 포함된 프로젝트(예: `DATABASE_URL=postgres://myapp:myapp@localhost:5432/myapp`)는 preflight 전에 DB가 올라와 있어야 한다. 실사용 프로젝트의 `server-preflight` 타겟 = `server-fmt` → `server-lint` → `server-test` 체인.
+6. **DB 의존 테스트가 있으면 `infra-up`을 선행** — `sqlx::test` 또는 `serial_test` 통합 테스트는 실제 Postgres를 요구한다. 실사용 프로젝트 패턴은 `make infra-up` (docker compose up -d) → `make server-migrate` → `make server-preflight` 순서. preflight 단독 실행은 DB가 이미 기동된 상태를 가정한다.
+7. **마이그레이션 미적용 상태에서 test 를 돌리지 마라 (DG-03 회귀 방지)** — 공유 로컬 DB 를 쓰는 통합 테스트는 스키마가 뒤처지면 `column "..." of relation "..." does not exist` 로 실패한다. 이건 코드 결함이 아니라 **환경 미준비**이므로 test 실패로 보고하기 전에 Step 2.5 의 마이그레이션 확인을 먼저 통과시킨다. 2026-06 실측: `cargo test --workspace` 통합 테스트 2 건이 `is_admin` 컬럼 부재로 REJECT → `cargo run -p myapp-migration` 후 통과.
 8. **각 단계의 종료 코드를 기록한다 (E2)** — rust-run Gotcha 10 의 파이프라인 규약(`set -o pipefail` + 파이프라인 직후 `rc=$?`)을 그대로 쓰고, Step 5 리포트 표의 `Exit` 칸을 반드시 채운다. 종료 코드 없는 PASS 는 자기보고이지 증거가 아니다 (`skill-design-guide.md` §3.7).
 9. **타깃 필터를 임의로 좁히지 마라** — preflight 의 test 단계는 워크스페이스 전체가 기본이다. 특정 패키지/타깃으로 좁힐 때는 `references/project-detection.md` Step 3a 의 `PKG_TARGETS` 를 확인한다 (바이너리 전용 패키지 `--lib` 금지 — rust-run Gotcha 9).
 10. **빨간 clippy · test 를 내 변경 탓으로 단정하지 말고 원인을 셋으로 가른다 (enforcement 등급 E2)** — 내 변경 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패. 여럿이 같이 쓰는 작업 폴더에서는 남이 고치다 만 파일까지 같이 컴파일돼 내 검사가 실패한다. 가르는 절차는 Step 3.5 이고, 그 결과를 Step 5 리포트의 FAIL 행 Details 첫머리에 적는다. **원인을 갈라도 Status 는 FAIL 그대로다** — 남의 탓이라고 PASS 로 바꾸지 않는다. 남의 변경을 치우려고 `git stash` 를 쓰지 마라 — stash 는 작업 폴더를 `HEAD` 로 되돌려 남이 하던 변경까지 옮긴다 ([git stash](https://git-scm.com/docs/git-stash)). 실측(2026-09-18): 다른 세션들이 깬 공용 개발 가지의 자동 검사 실패 다섯 건을 고치는 데 몇 시간을 썼다.
@@ -64,7 +64,7 @@ rust-run clippy를 실행한다.
 | 스택 | 확인 명령 | 미적용 시 적용 명령 |
 | ---- | --------- | ------------------- |
 | SQLx (sqlx-cli 설치) | `sqlx migrate info` — `migrations/` 와 DB 이력을 대조해 pending 목록 표시 | `sqlx migrate run` (pending 스크립트만 실행) |
-| SeaORM / 전용 migration 크레이트 | 마이그레이션 크레이트를 `PKG_TARGETS` 에서 확인 | `cargo run -p <migration-crate>` (fit-pal: `cargo run -p fitpal-migration`) |
+| SeaORM / 전용 migration 크레이트 | 마이그레이션 크레이트를 `PKG_TARGETS` 에서 확인 | `cargo run -p <migration-crate>` (예: `cargo run -p myapp-migration`) |
 | Makefile 보유 | — | `make server-migrate` (환경변수 주입 포함) |
 
 - `DATABASE_URL` 은 `--database-url` 플래그 또는 환경변수/`.env` 로 주어져야 한다

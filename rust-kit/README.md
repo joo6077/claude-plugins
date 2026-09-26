@@ -6,36 +6,36 @@ Rust 전용 백엔드 개발 워크플로우 플러그인.
 
 Axum + Tokio + SQLx 기반 Rust 백엔드 프로젝트의 스캐폴딩, API 생성, 모델 관리, 빌드/테스트/감사를 자동화한다. flutter-toolkit과 동일한 개발 워크플로우 패턴.
 
-<!-- AUTO:skills -->
 ## 스킬
 
-| 스킬 | 용도 |
-|------|------|
-| `/rust-init` | 프로젝트 스캐폴딩 (workspace + toolchain + 구조) |
-| `/rust-feature` | feature 모듈 스캐폴딩 |
-| `/rust-api` | Axum 라우터/핸들러 + utoipa OpenAPI |
-| `/rust-model` | SQLx 모델 + 마이그레이션 |
-| `/rust-service` | 비즈니스 로직 서비스 레이어 |
-| `/rust-auth` | JWT/OAuth 인증 레이어 |
-| `/rust-middleware` | Axum 미들웨어 (CORS, logging, rate-limit) |
-| `/rust-grpc` | tonic gRPC 서비스 |
-| `/rust-test` | 테스트 코드 생성 (unit + integration) |
-| `/rust-docker` | Dockerfile + docker-compose |
-| `/rust-error` | 에러 처리 패턴 가이드 (thiserror/anyhow) |
-| `/rust-l10n` | 백엔드 i18n (rust-i18n/fluent) |
-| `/rust-run` | 빌드 프리미티브 개별 실행 (build, clippy, fmt, test, audit, check) |
-| `/rust-build` | cargo build + clippy (rust-run wrapper) |
-| `/rust-preflight` | pre-commit gate (fmt → clippy → test → audit) |
-| `/rust-audit` | 코드 품질 감사 (quick/deep 모드) |
 <!-- AUTO:skills -->
+| 스킬 | 설명 |
+|------|------|
+| `rust-api` | Axum 라우터/핸들러를 생성하고 OpenAPI 스펙을 등록한다. |
+| `rust-audit` | Rust 코드를 원칙 기준으로 체계적으로 감사한다. |
+| `rust-auth` | JWT/OAuth 인증 레이어를 생성한다. AuthProvider trait(포트) 정의 → |
+| `rust-build` | cargo build + clippy를 순서대로 실행한다. |
+| `rust-docker` | Rust 프로젝트용 Dockerfile과 docker-compose.yml을 생성한다. |
+| `rust-error` | Rust 프로젝트의 에러 처리 패턴을 안내한다. 3계층 에러 구조(InfraError → DomainError → ApiError)를 기반으로 |
+| `rust-feature` | feature 모듈을 프로젝트 아키텍처에 맞는 구조로 스캐폴딩한다. |
+| `rust-grpc` | tonic gRPC 서비스를 생성한다. proto 파일 → build.rs → gRPC 서비스 trait(포트) 정의 → |
+| `rust-init` | Rust 백엔드 프로젝트를 스캐폴딩한다. Cargo workspace 구조, rust-toolchain.toml, |
+| `rust-l10n` | Rust 백엔드 프로젝트에 i18n을 설정하거나 번역 키를 추가/수정한다. |
+| `rust-middleware` | Axum 미들웨어를 생성하고 라우터에 등록한다. CORS, request logging, rate limiting, |
+| `rust-model` | SQLx 모델 구조체와 마이그레이션 SQL을 생성한다. |
+| `rust-preflight` | Pre-commit quality gate. fmt → clippy → test → audit 순서로 실행하고 |
+| `rust-run` | Rust 빌드 프리미티브 실행 (build, clippy, fmt, test, audit, check). |
+| `rust-service` | 비즈니스 로직 서비스 레이어를 생성한다. |
+| `rust-test` | 대상 파일/모듈을 분석하여 Rust 테스트 코드를 자동 생성한다. |
+<!-- /AUTO:skills -->
 
-<!-- AUTO:agents -->
 ## 에이전트
 
-| 에이전트 | 용도 |
-|---------|------|
-| `rust-reviewer` | rust-audit에서 호출. 읽기 전용 독립 평가 |
 <!-- AUTO:agents -->
+| 에이전트 | 설명 |
+|----------|------|
+| `rust-reviewer` | Rust 코드를 원칙 기준으로 독립 평가한다. |
+<!-- /AUTO:agents -->
 
 ## 리서치 문서
 

@@ -190,7 +190,7 @@ Object _mapFailure(Object error, [StackTrace? st]) {
 
 ## Post-Creation: Widget Inspector
 
-생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 추출 후보가 있으면 리포팅하고, 없으면 조용히 넘어간다.
+생성 완료 후 `widget-inspector` 에이전트를 quick 모드로 실행하여 변경 파일 주변의 재사용 가능한 위젯 패턴을 스캔한다. 이 스킬은 보일러플레이트만 만들어 관례 표를 만들지 않으므로, 호출 프롬프트에 「관례 표 없는 호출」 이라고 밝힌다 — 에이전트가 관례 대조를 `[미검증]` 없이 건너뛴다. 추출 후보가 있으면 리포팅하고, 없으면 조용히 넘어간다.
 
 ## Related Skills
 

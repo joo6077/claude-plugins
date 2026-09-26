@@ -13,7 +13,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **외부 리소스 금지** — 페이지는 반드시 standalone HTML이어야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 모든 스타일은 `<style>` 내 인라인.
+1. **외부 리소스 금지** — 페이지는 반드시 standalone HTML이어야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 스타일은 공통 파일 `docs/assets/site.css` 링크 한 줄(`<style>` 앞)과 `<style>` 안 인라인뿐이다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다 — 움직임 줄이기(`prefers-reduced-motion`)와 본문 행간 1.7 이다.
 2. **index.html 등록 필수** — 페이지를 생성했는데 `docs/index.html`의 `categories` 배열에 등록하지 않으면 네비게이션에 표시되지 않는다. 아이콘도 `getIcon()` 함수에 추가해야 한다.
 3. **플러그인 accent 컬러 준수** — `references/css-tokens.md`의 플러그인별 accent 매핑을 따라라. Harness에 Design Kit 컬러를 쓰면 안 된다.
 4. **iframe 경로는 index.html 기준 상대경로** — `docs/index.html`에서 iframe으로 로드하므로 `file` 값은 `design-kit/typography-scale.html` 형태여야 한다.
@@ -42,25 +42,28 @@ user-invocable: true
 
 ## Step 1: 대상 식별
 
-사용자 요청에서 플러그인명과 페이지명을 파악한다. 표는 `.claude/skills/kaizen-orchestrator/SKILL.md` Step F2 표와 같다 — 한쪽을 고치면 다른 쪽도 고친다:
+사용자 요청에서 플러그인명과 페이지명을 파악한다. 원본 → 페이지 매핑 표는 여기 한 곳에만 둔다 — 오케스트레이터 Step F2 는 이 표를 가리키고,
+`scripts/detect-docs-drift.py` 는 같은 매핑으로 다시 만들 페이지를 고른다. 표를 고치면 스크립트의 매핑도 같은 커밋에서 고친다:
 
 | 플러그인 | 소스 경로 | 출력 경로 |
 | -------- | --------- | --------- |
 | harness | `harness/docs/guides/`, `harness/references/` | `docs/harness/` |
-| flutter-toolkit | `flutter-toolkit/references/` | `docs/flutter-toolkit/` |
-| design-kit | `design-kit/docs/design/` | `docs/design-kit/` |
+| flutter-toolkit | `flutter-toolkit/references/`, `docs/flutter/` | `docs/flutter-toolkit/` |
+| design-kit | `design-kit/docs/design/`, `design-kit/references/visual-change-protocol.md`, `design-kit/skills/design-test/SKILL.md` | `docs/design-kit/` |
 | backend-kit | `docs/backend/` | `docs/backend-kit/` |
 | infra-kit | `docs/infra/` | `docs/infra-kit/` |
 | rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
 | react-kit | `react-kit/references/`, `docs/react/` | `docs/react-kit/` |
 | planning-kit | `docs/planning/` | `docs/planning-kit/` |
-| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/` | `docs/reflect-kit/` |
+| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/`, `reflect-kit/docs/DESIGN.md`, `reflect-kit/docs/SCHEMA.md`, `reflect-kit/docs/RESEARCH.md` | `docs/reflect-kit/` |
 | bambu-kit | `bambu-kit/skills/bambu-print-profile/SKILL.md`, `bambu-kit/skills/bambu-print-profile/references/` | `docs/bambu-kit/` |
 | onboarding-kit | `onboarding-kit/skills/setup-guide/SKILL.md`, `onboarding-kit/skills/setup-guide/references/`, `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `docs/onboarding-kit/` |
 | tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
-| api-kit | `docs/api/` | `docs/api-kit/` |
+| api-kit | `docs/api/`, `api-kit/skills/api-ui/SKILL.md` | `docs/api-kit/` |
 | howto-kit | `docs/howto/` | `docs/howto-kit/` |
 | process (공유) | (내부 문서) | `docs/process/` |
+
+`docs/howto/drafts/` 는 초안 폴더라 매핑 밖이다 — 페이지를 만들지 않고 `scripts/detect-docs-drift.py` 도 건너뛴다.
 
 신규 킷이면 `references/css-tokens.md`의 플러그인 매핑에 새 accent를 추가한 뒤 진행한다.
 

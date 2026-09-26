@@ -1,0 +1,16 @@
+version: 1
+id: products.list
+env: dev
+mode: partial
+request: { method: GET, path: /v1/products, query: { limit: "20" } }
+response: { status: 200, statusPolicy: exact }
+schema:
+  additionalProperties: open
+  paths:
+    "$.data[].sku":   { type: string,  required: true,  description: 상품 SKU }
+    "$.data[].name":  { type: string,  required: true,  description: 상품 표시명 }
+    "$.data[].price": { type: integer, required: true,  description: 판매가 (원) }
+    "$.meta.total":   { type: integer, required: false, description: "전체 건수. 옵션이라 빠져도 계약 실패가 아니다" }
+    "$.meta.hasMore": { type: boolean, required: true,  description: 다음 페이지 존재 여부 }
+pin:
+  - { path: "$.meta.total", assert: ">= len($.data)" }

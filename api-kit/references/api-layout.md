@@ -49,7 +49,7 @@ api-kit 의 모든 스킬이 읽고 쓰는 디렉토리 구조 정본. 설계 �
 | `snapshots/<env>/*.json` | `/api-probe` | `/api-verify` · `/api-ui` | 시크릿 값만 마스킹한 raw + 정규화 JCS + manifest |
 | `masks/*.yaml` | `/api-contract` | `/api-probe` · `/api-verify` | 비결정 필드 경로 registry (타임스탬프 · UUID · 커서 · request id) |
 | `ui.html` | `/api-ui` | 사람 | 정적 뷰어. 기본 gitignore (커밋 여부는 미결) |
-| `reports/` | `/api-verify` | `/api-ui` | PASS/FAIL · 위반 목록 · canonical diff |
+| `reports/` | `/api-verify` | `/api-ui` | PASS/FAIL/판정 불가 · 위반 목록 · 경로 간 불변식 판정 줄 · canonical diff |
 
 ### 시크릿이 값으로 들어가도 되는 파일
 

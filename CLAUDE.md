@@ -291,7 +291,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/tone-scaffold` | 파일 헤더·컴포넌트 골격·문서 주석·typedef·상태 컨테이너 생성 + 생성물 자기 감사 |
 | `/tone-campaign` | 다수 파일을 한 파일씩 순차 정리 (의존순 배치 + 원장 + 파일당 승인 게이트) |
 
-규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션) 표기. 3축 레이어(스택 / 언어 / 프로젝트). 어댑터는 위반 실측이 있는 `dart-flutter` 하나만 채운다. 리서치 문서는 `docs/tone/` 8종.
+규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션) 표기. 3축 레이어(스택 / 언어 / 프로젝트). 어댑터는 위반 실측이 있는 `dart-flutter` 하나만 채운다. 리서치 문서는 `docs/tone/` 8종(overview · research-log · templates 제외).
 
 **howto-kit — 절차 안내 (3종 + 1 에이전트)**
 

@@ -111,10 +111,10 @@ hurl --test \
 계약 생성과 **동일한 파이프라인**을 쓴다. 다르면 diff 가 의미를 잃는다.
 
 ```text
-redaction  →  masks/*.yaml 적용  →  I-JSON 게이트  →  JCS 직렬화
+redaction  →  masks/*.yaml 적용  →  I-JSON 게이트  →  -0 검사  →  JCS 직렬화
 ```
 
-- I-JSON 게이트 실패(중복 키·NaN/Infinity·binary64 로 표현 못 하는 숫자·lone surrogate·`-0`)는 계약 실패가 아니라 **비교 불가**로 분류한다.
+- I-JSON 게이트 실패(중복 키·NaN/Infinity·binary64 로 표현 못 하는 숫자·lone surrogate·noncharacter)와 -0 검사 실패(`-0`)는 계약 실패가 아니라 **비교 불가**로 분류한다. `-0` 은 I-JSON 규칙이 아니라 JCS 가 `0` 으로 적기 때문에 따로 본다(RFC 8785 정정 7920).
 - 배열은 정렬하지 않는다.
 - 적용된 마스크 목록을 리포트에 함께 출력한다.
 

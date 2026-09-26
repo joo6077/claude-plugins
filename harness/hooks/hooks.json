@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/env-check.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/env-check.sh\"",
             "timeout": 10,
             "statusMessage": "환경 진단 중..."
           }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/sdk-guard.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/sdk-guard.sh\"",
             "timeout": 5
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/run-guard.sh\"",
             "timeout": 5
           }
         ]
@@ -38,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/commit-guard.sh pre",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/commit-guard.sh\" pre",
             "timeout": 10
           }
         ]
@@ -50,7 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/commit-guard.sh post",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/commit-guard.sh\" post",
             "timeout": 10
           }
         ]

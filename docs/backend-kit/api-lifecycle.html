@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>API 수명주기 — Backend Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 :root {
   --bg: #0d0d14;
@@ -149,6 +150,7 @@ section {
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow-wrap: anywhere;
 }
 
 .card:hover {
@@ -390,7 +392,7 @@ footer a {
 @media (max-width: 720px) {
   .container { padding: 24px 18px 64px; }
   .hero { padding: 48px 0 36px; }
-  .grid-2 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
   .card { padding: 22px; }
   th, td { padding: 12px 14px; font-size: 13px; }
 }

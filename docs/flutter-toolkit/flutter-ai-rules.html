@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Flutter 공식 AI Rules — Flutter Toolkit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   :root{
     --bg:#0d0d14;
@@ -30,7 +31,7 @@
     --mono:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Pretendard",system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Pretendard",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
   body{min-height:100vh;font-size:16px;background:
     radial-gradient(ellipse at top left,var(--accent-glow),transparent 50%),
     radial-gradient(ellipse at bottom right,var(--accent-glow),transparent 50%),
@@ -537,7 +538,7 @@
         <ul>
           <li><code>dart-define-from-file=.dart_defines.json</code>, <code>--observatory-port=8181</code> 등 실행 옵션을 Makefile 타겟에 모은다.</li>
           <li>직접 <code>fvm flutter run</code> 을 부르면 환경이 빠져 다른 플레이버가 기동될 위험이 있다.</li>
-          <li>flutter-preflight / flutter-run 스킬은 <code>HAS_MAKEFILE = true</code> 를 감지하면 <code>make &lt;target&gt;</code> 을 우선한다.</li>
+          <li>flutter-preflight / flutter-run 스킬은 <code>project-detection.md</code> Step 2b 4 번의 타겟별 확인으로 그 단계의 타겟이 있을 때만 <code>make &lt;target&gt;</code> 을 우선한다. 묶음 타겟만 있으면 기본 명령을 쓴다.</li>
         </ul>
         <a class="card-source" href="project-detection.html">flutter-toolkit · 프로젝트 감지 문서</a>
       </article>

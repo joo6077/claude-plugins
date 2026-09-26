@@ -52,9 +52,8 @@ neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 # 1. 새 프로젝트 초기화
 /react-init my-app
 
-# 2. harness 세팅
+# 2. 프로젝트 폴더로 이동 — harness 세팅(.harness/project.yaml)은 react-init 13 단계가 이미 했다
 cd my-app
-/harness init
 
 # 3. 첫 feature 생성
 /react-feature user-profile

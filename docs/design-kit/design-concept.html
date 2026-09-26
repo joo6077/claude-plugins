@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>디자인 컨셉 — Design Concept</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -274,8 +275,7 @@ html{scroll-behavior:auto}
 <div class="compare-label">BAD · REJECT</div>
 <h3>hex 확정값 기재</h3>
 <p>토큰 설계와 대비 계산을 건너뛴다.</p>
-<pre><code>| Accent | #E8965A |
-— REJECT (SK-06)</code></pre>
+<pre><code>| Accent | #E8965A |   — hex 확정값 기재 → REJECT (SK-06)</code></pre>
 </article>
 <article class="compare-panel good">
 <div class="compare-label">GOOD · DIRECTION</div>
@@ -333,6 +333,10 @@ WCAG 2.2 AA 통과 가능한 중간 명도 |</code></pre>
 <article class="step"><div class="step-tag">HISTORY</div><h3>.design/approvals/*-concept.md</h3><p>폐기 대안을 로드하고 요청 없이는 되살리지 않는다.</p></article>
 <article class="step"><div class="step-tag">CONSTRAINT</div><h3>**/theme/** · **/tokens/**</h3><p>기존 토큰 체계를 방향 제약으로 활용한다.</p></article>
 </div>
+<pre><code># 감지 대상
+.design/concept.md          → 기존 컨셉 로드 (수정/확장 모드)
+.design/approvals/*-concept.md → 폐기한 컨셉 안 로드
+**/theme/** **/tokens/**    → 이미 토큰 체계가 있으면 컨셉 방향 제약으로 활용</code></pre>
 </section>
 <section>
 <div class="section-label">Process · 01</div>
@@ -389,10 +393,49 @@ WCAG 2.2 AA 통과 가능한 중간 명도 |</code></pre>
 <article class="step"><h3>Do / Don't</h3><p>강조할 것과 피할 것을 명시한다.</p></article>
 <article class="step"><h3>레퍼런스</h3><p>사이트·앱 URL과 참고 요소를 기록한다.</p></article>
 </div>
-<pre><code># 0건 / 5건 / 0건 확인
-grep -nE '#[0-9a-fA-F]{3,8}\b' .design/concept.md
-grep -cE '^\|\s*(Primary|Secondary|Accent|Neutral|Semantic)\s*\|' .design/concept.md
-grep -cE 'oklch\(' .design/concept.md</code></pre>
+<pre><code># 디자인 컨셉
+
+&gt; 생성일: {{date}}
+&gt; 프로젝트: {{project-name}}
+
+## 컨셉 선언
+{{한 문장으로 이 디자인이 무엇을 표현하는지 — "왜 이 방향인가"를 담는다}}
+
+## 무드 키워드
+{{키워드 목록 + 각 키워드의 의미}}
+
+## 키워드 → 시각 언어 매핑
+| 키워드 | Color | Type | Layout | Image/Shape | Motion |
+|--------|-------|------|--------|-------------|--------|
+| {{keyword}} | ... | ... | ... | ... | ... |
+
+## 컬러 방향
+&lt;!-- ⚠ hex 값 직접 기재 금지 — 서술형 방향만 허용. hex 확정은 design-system 단계에서 수행. --&gt;
+{{Primary/Secondary/Accent/Neutral/Semantic 역할별 톤 계열과 채도 방향. WCAG AA 대비 가능성 메모}}
+
+## 타이포그래피 방향
+{{서체 분류, display/body 페어링, 위계 구성 방향, 스케일 방향}}
+
+## 레이아웃 방향
+{{hero 구조, 그리드 밀도, 콘텐츠 흐름, 이미지 비중}}
+
+## UI 패턴
+{{레이아웃 패턴, 네비게이션, 정보 밀도, 컴포넌트 톤}}
+
+## Do / Don't
+- Do: {{이 컨셉에서 의도적으로 강조할 것}}
+- Don't: {{이 컨셉에서 피해야 할 것}}
+
+## 레퍼런스
+{{참고 사이트/앱 목록 + 각각에서 참고할 요소}}</code></pre>
+<pre><code># 1) concept.md 본문에 hex 리터럴(#rgb, #rrggbb, #rrggbbaa) 0건
+grep -nE '#[0-9a-fA-F]{3,8}\b' .design/concept.md   # → 0 match
+
+# 2) 컬러 방향 표에 5개 역할 행 모두 존재 (Primary/Secondary/Accent/Neutral/Semantic)
+grep -cE '^\|\s*(Primary|Secondary|Accent|Neutral|Semantic)\s*\|' .design/concept.md   # → 5
+
+# 3) oklch() 리터럴도 concept 단계에서는 사용 금지 (서술형만 허용)
+grep -cE 'oklch\(' .design/concept.md   # → 0</code></pre>
 </section>
 <section>
 <div class="section-label">Process · 05</div>
@@ -413,10 +456,14 @@ grep -cE 'oklch\(' .design/concept.md</code></pre>
 </table>
 </div>
 <div class="callout">Tone &amp; Manner는 선택이며 7개 필수 섹션을 대신하지 않는다.</div>
-<pre><code># 기대값 0 / 7 / 1
-grep -c '{{' .design/moodboard.html
-grep -cE 'data-i18n="section\.(keywords|palette|typography|references|texture|layout|dodont)"' .design/moodboard.html
-grep -c 'data-i18n="disclaimer.color"' .design/moodboard.html</code></pre>
+<pre><code># 1) 미치환 placeholder 없어야 함
+grep -c '{{' .design/moodboard.html   # → 0
+
+# 2) 7개 섹션 모두 존재해야 함 (7개 매치)
+grep -cE 'data-i18n="section\.(keywords|palette|typography|references|texture|layout|dodont)"' .design/moodboard.html  # → 7
+
+# 3) color disclaimer 배너 존재 (Gotcha #3)
+grep -c 'data-i18n="disclaimer.color"' .design/moodboard.html   # → 1</code></pre>
 </section>
 <section>
 <div class="section-label">Process · 06</div>
@@ -442,9 +489,18 @@ grep -c 'data-i18n="disclaimer.color"' .design/moodboard.html</code></pre>
 <dt>원문 근거</dt><dd>사용자 발화 인용</dd>
 </dl>
 </div>
-<pre><code>ls .design/approvals/
-grep -cE '#[0-9a-fA-F]{3,8}\b' .design/approvals/{YYYYMMDD}-concept.md # → 0
-grep -c '^- 폐기한 대안·이유:' .design/approvals/{YYYYMMDD}-concept.md # → 1</code></pre>
+<pre><code># 승인 기록 — 디자인 컨셉
+
+- 승인일: {YYYY-MM-DD}
+- 승인 주체: {사용자 직접 확정 | 자율 모드 (판단 근거 명시)}
+- 대상 산출물: .design/concept.md · .design/moodboard.html
+- 확정된 방향: {무드 키워드 · 역할별 컬러 톤 계열 · 타이포 방향 · 레이아웃 방향 — 서술형}
+- 미확정/후속: {design-system 단계로 넘긴 항목 — 예 hex 확정, 대비 수치 계산}
+- 폐기한 대안·이유: {이번에 버린 컨셉 안과 이유 — 없으면 `없음`}
+- 원문 근거: {사용자 발화 인용}</code></pre>
+<pre><code>ls .design/approvals/                                        # 파일 존재
+grep -cE '#[0-9a-fA-F]{3,8}\b' .design/approvals/{YYYYMMDD}-concept.md   # → 0
+grep -c '^- 폐기한 대안·이유:' .design/approvals/{YYYYMMDD}-concept.md     # → 1</code></pre>
 </section>
 <section>
 <div class="section-label">Process · 08</div>

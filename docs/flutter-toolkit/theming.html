@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>테마 — Flutter Toolkit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 :root{
   --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--surface3:#282845;
@@ -18,7 +19,7 @@
 html{scroll-behavior:smooth}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  background:var(--bg);color:var(--text);line-height:1.6;
+  background:var(--bg);color:var(--text);
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
   background-image:
     radial-gradient(ellipse 1200px 800px at 50% -200px,var(--accent-glow),transparent 60%),
@@ -59,7 +60,7 @@ h2{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-.8px;line-heig
 .section-desc{font-size:16px;color:var(--text2);line-height:1.7}
 
 /* Cards */
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:22px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
   padding:30px;transition:var(--transition);position:relative;overflow:hidden}
 .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
@@ -107,14 +108,14 @@ tr:hover td{background:rgba(34,211,238,0.03)}
 .compare-col.good li::before{content:"✓";position:absolute;left:0;top:13px;color:var(--success);font-weight:700}
 
 /* Checklist */
-.checklist{display:grid;gap:14px}
+.checklist{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .check-item{display:flex;gap:18px;padding:22px 26px;background:var(--surface);
   border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
 .check-item:hover{border-color:var(--border2);background:var(--surface2);transform:translateX(3px)}
 .check-box{flex-shrink:0;width:26px;height:26px;border-radius:8px;background:var(--accent-dim);
   border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;
   color:var(--accent);font-weight:700;font-size:14px}
-.check-item p{color:var(--text2);font-size:14.5px;line-height:1.65}
+.check-item p{color:var(--text2);font-size:14.5px;line-height:1.65;overflow-wrap:anywhere}
 .check-item strong{color:var(--text);font-weight:600}
 
 code{font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;font-size:.88em;

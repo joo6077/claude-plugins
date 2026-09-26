@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스냅샷 봉인과 정규화</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -284,7 +285,7 @@
 <p class="subtitle">
   응답을 baseline 으로 봉인할 때 무엇을 원본 증거로 남기고 무엇을 비교 기준선으로 파생시킬지 가르는 규칙.
   비교 기준선은 RFC 8785 JCS canonical JSON 이며, 사람이 읽는 화면 표시용 포매팅은 기준선이 아니다.
-  <span class="mono">v0.1.1 · 최종 갱신 2026-09-24</span>
+  <span class="mono">v0.1.2 · 최종 갱신 2026-09-26</span>
 </p>
 
 <div class="warn-banner">
@@ -304,11 +305,16 @@
 <!-- ═══════════════ 0. 이번 판에서 바뀐 것 ═══════════════ -->
 <div class="section">
   <div class="info-card">
-    <h3>이번 판(v0.1.1)에서 바뀐 것 <span class="tag tag-warn">2026-09-24</span></h3>
+    <h3>이번 판(v0.1.2)에서 바뀐 것 <span class="tag tag-warn">2026-09-26</span></h3>
     <ul class="checklist">
       <li>
         <span class="check c-warn">+</span>
-        <span><strong>I-JSON 게이트가 거르는 목록에 <code>-0</code> 을 넣었다.</strong>
+        <span><strong><code>-0</code> 을 I-JSON 게이트 밖 JCS 앞 <code>-0</code> 검사로 옮겼다.</strong>
+          RFC 7493 에는 없는 규칙이다 — 근거는 RFC 8785 정정 7920 이다. noncharacter 는 RFC 7493 §2.1 이 막으므로 게이트에 둔다(v0.1.2). &rarr; 원칙 3</span>
+      </li>
+      <li>
+        <span class="check c-warn">+</span>
+        <span><strong>(v0.1.1) 정규화 전에 거르는 목록에 <code>-0</code> 을 넣었다.</strong>
           <code>-0</code> 은 올바른 JSON 숫자지만 JCS 가 <code>0</code> 으로 적어 부호가 사라진다.
           그래서 파서는 <code>-0</code> 을 만나면 오류를 내고 멈춰야 한다(SHOULD, RFC 8785 정정 7920 · 2024-05-15 확인). &rarr; 원칙 3</span>
       </li>
@@ -342,8 +348,8 @@
     </div>
     <div class="flow-step rank-2">
       <span class="rank">02 · 기준선</span>
-      <span class="what">I-JSON 게이트 → JCS</span>
-      <span class="out">먼저 I-JSON 으로 검문하고(중복 키 · <code>-0</code> 등), 통과한 것만 JCS 로 정규화한다. 걸린 것은 정규화 대상이 아니다.</span>
+      <span class="what">I-JSON 게이트 → <code>-0</code> 검사 → JCS</span>
+      <span class="out">먼저 I-JSON 으로 검문하고(중복 키 · noncharacter 등) JCS 앞 <code>-0</code> 검사를 거친 뒤, 통과한 것만 JCS 로 정규화한다. 걸린 것은 정규화 대상이 아니다.</span>
     </div>
     <div class="flow-step rank-3">
       <span class="rank">03 · 식별</span>
@@ -365,8 +371,11 @@
          ↓
        [ I-JSON 게이트 ]
            중복 키 · Unicode 로 표현 불가한 문자열 · binary64 밖 숫자
-           NaN/Infinity · lone surrogate · -0
+           NaN/Infinity · lone surrogate · noncharacter
            → 걸리면 실패 또는 fallback. 정규화하지 않는다
+         ↓ 통과
+       [ JCS 앞 -0 검사 ]
+           -0 → 실패 또는 fallback (I-JSON 규칙 아님 · RFC 8785 정정 7920)
          ↓ 통과
        [ RFC 8785 JCS ]
            토큰 사이 공백 0 · property 재귀 정렬
@@ -427,7 +436,7 @@
     <div class="req">
       <span class="req-key">number</span>
       <span class="req-what">ECMAScript primitive serialization</span>
-      <p class="req-note">숫자와 문자열의 직렬화 방식이 고정된다. 이 규칙대로면 <code>-0</code> 도 <code>0</code> 으로 적힌다 — 부호를 지키려면 게이트에서 먼저 멈춰야 한다.</p>
+      <p class="req-note">숫자와 문자열의 직렬화 방식이 고정된다. 이 규칙대로면 <code>-0</code> 도 <code>0</code> 으로 적힌다 — 부호를 지키려면 JCS 앞 <code>-0</code> 검사에서 먼저 멈춰야 한다.</p>
     </div>
     <div class="req">
       <span class="req-key">order</span>
@@ -507,8 +516,16 @@
       <div class="gate-eg"><code>NaN</code> <code>Infinity</code></div>
       <div class="gate-why">JSON 숫자로 적을 수 없는 값이다. 받아들이는 파서가 있어도 정규화하지 않고 실패 또는 fallback 으로 보낸다.</div>
     </div>
+  </div>
+
+  <p class="desc">
+    <strong>JCS 앞 <code>-0</code> 검사</strong> — 게이트를 통과한 뒤 JCS 로 넘기기 직전에 따로 본다.
+    <code>-0</code> 은 I-JSON 규칙이 아니다(RFC 7493 에 없고 RFC 8259 문법상 올바른 JSON 숫자다). 걸리면 게이트와 같이 실패 또는 fallback 이다.
+  </p>
+
+  <div class="gate">
     <div class="gate-row g-new">
-      <div class="gate-key"><code>-0</code><br><span class="tag tag-warn">v0.1.1 추가</span></div>
+      <div class="gate-key"><code>-0</code><br><span class="tag tag-warn">JCS 앞 검사</span></div>
       <div class="gate-eg"><code>{"t":-0}</code></div>
       <div class="gate-why">올바른 JSON 숫자지만 JCS 가 <code>0</code> 으로 적어 부호가 사라진다.
         그래서 파서는 <code>-0</code> 을 만나면 오류를 내고 멈춰야 한다(SHOULD, RFC 8785 정정 7920 · 2024-05-15 확인).
@@ -520,7 +537,7 @@
     <div class="pane pane-bad">
       <div class="pane-head">
         <span class="tag tag-bad">BAD</span>
-        <span class="pane-what">게이트 없이 <code>-0</code> 을 JCS 로 넘긴다</span>
+        <span class="pane-what"><code>-0</code> 검사 없이 JCS 로 넘긴다</span>
       </div>
       <pre><code>입력:  {"t":-0}
 
@@ -535,11 +552,11 @@ JCS
     <div class="pane pane-good">
       <div class="pane-head">
         <span class="tag tag-ok">GOOD</span>
-        <span class="pane-what">게이트에서 <code>-0</code> 을 만나면 멈춘다</span>
+        <span class="pane-what">JCS 앞 <code>-0</code> 검사에서 멈춘다</span>
       </div>
       <pre><code>입력:  {"t":-0}
 
-[ I-JSON 게이트 ]
+[ JCS 앞 -0 검사 ]
    ↓
 오류 — -0 을 만남. 정규화하지 않는다
 → 실패 또는 fallback 으로 보낸다
@@ -549,7 +566,7 @@ JCS
   </div>
   <p class="pair-caption">
     <code>-0</code> 은 "파서가 조용히 값을 바꾼 뒤의 결과를 봉인" 하는 가장 작은 예다.
-    JCS 결과만 보면 바뀐 흔적이 남지 않으므로, 멈출 수 있는 곳은 JCS 앞의 게이트뿐이다.
+    JCS 결과만 보면 바뀐 흔적이 남지 않으므로, 멈출 수 있는 곳은 JCS 앞의 검사뿐이다.
   </p>
   <div class="sources">
     <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>
@@ -617,9 +634,9 @@ JCS
         <p class="desc">
           JCS 로 넘기기 전에 I-JSON 으로 먼저 검문한다.
           중복 키, Unicode 로 표현 불가한 문자열, IEEE 754 binary64 로 표현 불가한 숫자, NaN/Infinity,
-          lone surrogate, <code>-0</code> 은 정규화 대상이 아니라 <strong>실패 또는 fallback 대상</strong>이다.
-          <code>-0</code> 은 올바른 JSON 숫자지만 JCS 가 <code>0</code> 으로 적어 부호가 사라진다 —
-          그래서 파서는 <code>-0</code> 을 만나면 오류를 내고 멈춰야 한다(SHOULD, RFC 8785 정정 7920 · 2024-05-15 확인).
+          lone surrogate · noncharacter 는 정규화 대상이 아니라 <strong>실패 또는 fallback 대상</strong>이다.
+          <code>-0</code> 은 I-JSON 규칙이 아니다(RFC 7493 에 없고 올바른 JSON 숫자다). 그래도 JCS 가 <code>0</code> 으로 적어 부호가 사라지므로
+          게이트 다음의 JCS 앞 <code>-0</code> 검사에서 오류를 내고 멈춘다(SHOULD, RFC 8785 정정 7920 · 2024-05-15 확인).
           게이트를 건너뛰면 파서가 조용히 값을 바꾼 뒤의 결과를 봉인하게 된다.
         </p>
       </div>
@@ -970,7 +987,7 @@ Set-Cookie: a=1; Path=/; Expires=Mon, 01 Sep 2026 ..., b=2; Path=/
     <div class="compare-good">
       <div class="compare-label">GOOD — 파싱 게이트에서 검문</div>
       <p class="desc">
-        I-JSON 게이트를 JCS 앞에 두고 파싱 시점에 중복 키 · NaN/Infinity · lone surrogate · <code>-0</code> 을 잡는다.
+        I-JSON 게이트를 JCS 앞에 두고 파싱 시점에 중복 키 · NaN/Infinity · lone surrogate · noncharacter 를 잡고, 이어서 JCS 앞 <code>-0</code> 검사로 <code>-0</code> 을 잡는다.
         걸리면 정규화하지 않고 실패 또는 fallback 으로 보낸다.
       </p>
     </div>
@@ -1030,8 +1047,8 @@ Set-Cookie: a=1; Path=/; Expires=Mon, 01 Sep 2026 ..., b=2; Path=/
     </li>
     <li>
       <span class="check">&#10003;</span>
-      <span>I-JSON 게이트가 JCS <em>앞</em> 에 있는가. 중복 키 · NaN/Infinity · binary64 밖 숫자 · lone surrogate · <code>-0</code> 이
-        파싱 시점에 걸리는가.</span>
+      <span>I-JSON 게이트가 JCS <em>앞</em> 에 있는가. 중복 키 · NaN/Infinity · binary64 밖 숫자 · lone surrogate · noncharacter 가
+        파싱 시점에 걸리고, 그 뒤 JCS 앞 <code>-0</code> 검사가 <code>-0</code> 을 잡는가.</span>
     </li>
     <li>
       <span class="check">&#10003;</span>

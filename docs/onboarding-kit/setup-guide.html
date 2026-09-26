@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Setup Guide — 최신 외부 서비스 설정 가이드</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -228,6 +229,81 @@ G2_MARKER ...
 G3_STACKMIX ...
 G4_DEPRECATION ...
 GATE_PASS</code></pre>
+    <h3>함수 원문</h3>
+    <p class="desc">원본 <code>onboarding-kit/skills/setup-guide/SKILL.md</code> 의 함수를 그대로 옮겼다. 게이트를 고칠 때는 원본을 먼저 고친다.</p>
+    <pre><code># Guide Conformance Gate — LLM 호출 없는 순수 판정. zsh · bash 동일 출력 (2026-08-13 양쪽 실행 확인).
+# 사용: guide_gate &lt;가이드.md&gt; &lt;스택&gt;     예) guide_gate docs/setup/firebase/fcm-ios.md flutter
+#       스택은 필수다 — 비우면 G3 가 FAIL 한다 (판정 불가를 PASS 로 흘리지 않는다)
+guide_gate() {
+  g=${1}; stack=${2:-}
+  [ -f "$g" ] || { echo "GATE_BLOCKED no_such_file=$g"; return 0; }
+  fence=$(printf '\140\140\140')   # 백틱 3 개 — 문서 렌더링 보호를 위해 8 진수로 생성
+  fail=0
+
+  # G1 출처 원장 완전성 — Step 수와 출처 줄 수가 같아야 한다 (열거값은 타이핑하지 말고 계산)
+  steps=$(grep -c '^## Step ' "$g" || true)
+  ledger=$(grep -c '^\*\*출처:\*\*' "$g" || true)
+  #    전체 수만 맞추면 한 Step 에 출처 둘 · 다른 Step 에 0 인 배치가 통과한다 — Step 마다 정확히 하나인지 따로 센다
+  misplaced=$(awk '
+    function flush(){ if (st &amp;&amp; n != 1) m++ }
+    /^## /           { flush(); st=0; n=0 }
+    /^## Step /      { st=1 }
+    /^\*\*출처:\*\*/ { n++ }
+    END              { flush(); print m+0 }
+  ' "$g")
+  if [ "$steps" -eq 0 ] || [ "$steps" -ne "$ledger" ]; then
+    echo "G1_LEDGER FAIL steps=$steps ledger=$ledger"; fail=1
+  elif [ "$misplaced" -ne 0 ]; then
+    echo "G1_LEDGER FAIL steps=$steps ledger=$ledger misplaced=$misplaced"; fail=1
+  else
+    echo "G1_LEDGER PASS steps=$steps ledger=$ledger"
+  fi
+
+  # G2 미검증 마커 — 접미 없는 레거시 0 건 · INVALID 는 정본 임계 미만 (ENV 는 별도 카운터).
+  #    아래 상수는 정본(qa-evaluation-guide §카운팅 및 자동 REJECT 임계)을 그대로 **구현**한 것이지
+  #    킷이 새로 정한 값이 아니다. 정본이 바뀌면 이 상수도 같이 바꾼다 — 여기서 먼저 바꾸지 마라.
+  bare=$(grep -oF '[미검증]' "$g" | grep -c . || true)
+  inval=$(grep -oF '[미검증:INVALID]' "$g" | grep -c . || true)
+  envg=$(grep -oF '[미검증:ENV]' "$g" | grep -c . || true)
+  if [ "$bare" -ne 0 ] || [ "$inval" -ge 2 ]; then
+    echo "G2_MARKER FAIL bare=$bare invalid=$inval env=$envg"; fail=1
+  else
+    echo "G2_MARKER PASS bare=$bare invalid=$inval env=$envg"
+  fi
+
+  # G3 스택 혼용 — Flutter 가이드에 네이티브 Swift 코드블록이 있으면 실패.
+  #    산문으로 "Flutter 는 AppDelegate 를 건드리지 않는다" 고 쓰는 것은 통과한다 — 코드 지시만 잡는다.
+  #    스택이 비어 있으면 PASS 가 아니라 FAIL 이다. 2026-09-08 까지는 빈 스택을 PASS 로 흘렸고,
+  #    Drift 루프의 $STACK 이 어디에도 정의되지 않아 이 검사가 3 개월간 no-op 이었다.
+  sw=$(grep -c "^${fence}swift" "$g" || true)
+  if [ -z "$stack" ]; then
+    echo "G3_STACKMIX FAIL stack=unset swift_fence=$sw"; fail=1
+  elif [ "$stack" = "flutter" ] &amp;&amp; [ "$sw" -ne 0 ]; then
+    echo "G3_STACKMIX FAIL swift_fence=$sw"; fail=1
+  else
+    echo "G3_STACKMIX PASS stack=$stack swift_fence=$sw"
+  fi
+
+  # G4 deprecation 주장 결합 — Deprecated 박스를 쓴 Step 은 그 Step 의 출처 줄이
+  #    "출처가 실제로 deprecated 라고 말했다" 는 근거를 담아야 한다 (출처보다 강한 주장 금지).
+  #    근거 토큰은 영문(deprecated/sunset/removed)과 한국어(지원 종료/폐지/중단/서비스 종료/단종)를
+  #    모두 인정한다 — 영문 토큰에만 묶여 있던 동안 한국어 1 차 출처는 근거가 있어도 FAIL 이었다.
+  g4=$(awk '
+    function flush(){ if (st != "" &amp;&amp; dep &amp;&amp; src !~ /[Dd]eprecat|[Ss]unset|[Rr]emoved|지원 ?종료|폐지|중단|서비스 종료|단종/) print ln }
+    /^## /           { flush(); st=""; src=""; dep=0 }
+    /^## Step /      { st=$(0); ln=FNR }
+    /^\*\*출처:\*\*/ { src=$(0) }
+    /❌ Deprecated/  { dep=1 }
+    END              { flush() }
+  ' "$g" | grep -c . || true)
+  if [ "$g4" -ne 0 ]; then
+    echo "G4_DEPRECATION FAIL unsourced_boxes=$g4"; fail=1
+  else
+    echo "G4_DEPRECATION PASS unsourced_boxes=0"
+  fi
+
+  [ "$fail" -eq 0 ] &amp;&amp; echo GATE_PASS || echo GATE_FAIL
+}</code></pre>
     <ul class="checklist">
       <li><span class="check">!</span><div>게이트 출력 5줄을 보고에 그대로 붙인다. “통과함”이라는 문장은 증거가 아니다.</div></li>
       <li><span class="check">!</span><div>G3는 스택 인자가 비어 있으면 FAIL이다. 판정 불가를 PASS로 흘리지 않는다.</div></li>
@@ -342,10 +418,10 @@ GATE_PASS</code></pre>
         <li>특정 서비스 인자는 집중하고, 빈 인자는 탐지 목록을 제시한 뒤 선택받는다.</li>
         <li>같은 가이드가 이미 있으면 Regeneration Drift 검사를 실행한다.</li>
       </ol>
-      <pre><code>STACK=flutter   # Phase 1에서 확정. 비우면 G3 FAIL.
+      <pre><code>STACK=flutter   # Phase 1 에서 확정한 스택을 그대로 쓴다. 비워 두면 G3 가 FAIL 한다.
+                # 2026-09-08 까지는 이 변수가 어디에도 정의되지 않아 G3 가 항상 PASS 하는 no-op 이었다.
 find docs/setup -type f -name '*.md' 2&gt;/dev/null | while IFS= read -r f; do
-  printf '%s\n' "--- $f"
-  guide_gate "$f" "$STACK"
+  printf '%s\n' "--- $f"; guide_gate "$f" "$STACK"
 done</code></pre>
       <p><code>GATE_FAIL</code>이 나오면 그것이 첫 산출물이다. 새로 쓸지 기존 것을 고칠지 확인한다. zsh <code>nomatch</code>를 피하려 글로브 대신 <code>find</code>를 쓴다.</p>
     </div>

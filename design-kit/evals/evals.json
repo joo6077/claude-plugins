@@ -448,7 +448,7 @@
           "type": "output"
         },
         {
-          "text": "미검증 2건 이상이면 FAIL 0이어도 REJECT로 판정한다",
+          "text": "invalid_evidence([미검증:INVALID]) 2건 이상이면 FAIL 0이어도 REJECT, [미검증:ENV] 는 env_gaps 로 따로 세고 verified_coverage 0.60 미만이면 BLOCKED 로 판정한다",
           "type": "behavior"
         }
       ]

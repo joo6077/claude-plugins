@@ -264,6 +264,28 @@ api-kit 은 **실제 응답을 SSOT 로 삼는** 블랙박스 계약 검증을 �
   prod 기본 GET/HEAD/OPTIONS · 기준선 RFC 8785 JCS · 계약 실패와 환경 실패는 exit code 로 분리.
   근거는 설계문서 §12 의 사용자 확정이다.
 
+## Phase 17 — howto-kit
+
+howto-kit 은 사람이 손으로 하는 절차를 화면 → 메뉴 → 항목 → 값 → 확인까지 끊지 않고 안내한다. 출처는 `.claude/skills/howto-research/SKILL.md`
+Step 1 표의 1차 출처이고, 아래 URL 은 모두 `docs/howto/` 문서나 `howto-kit/references/provenance-notes.md` 에 이미 적힌 것이다.
+**새 출처를 찾기보다 적힌 출처가 지금도 같은 말을 하는지 다시 보는 것**이 이 Phase 리서치의 목적이다.
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [Google developer documentation style guide — Procedures](https://developers.google.com/style/procedures) | 공식 | 스텝 하나에 동작 하나 · 동작 먼저 결과 나중 (`docs/howto/procedure-standards.md` §1). 매 스텝 확인 규정이 없다는 기록이 그대로인지 | [Microsoft Writing Style Guide](https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions) |
+| 2 | [Microsoft Writing Style Guide — Writing step-by-step instructions](https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions) | 공식 | 번호 목록 · 명령형 동사 규정, UI 지목 어휘 (`docs/howto/ui-anchoring.md`) | WebFetch |
+| 3 | [Apple Style Guide](https://support.apple.com/guide/applestyleguide/welcome/web) | 공식 | 방향어 용법. 동등 조항은 확인 실패로 남아 있다 — 확정되면 `provenance-notes.md` 에서 옮긴다 | [PDF 판](https://help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf) |
+| 4 | DITA 1.3 언어 참조 `cmd` · `stepresult` · `taskbody` (docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/) | 사양 | Step Contract 뼈대. 한 문장 명령 · 결과를 매 스텝에 쓰지 않는다는 원문 | WebFetch |
+| 5 | 벤더 변경 기록 피드 — [AWS What's New](https://aws.amazon.com/about-aws/whats-new/recent/feed/) · [Google Cloud release notes](https://docs.cloud.google.com/feeds/gcp-release-notes.xml) · [Apple Developer News](https://developer.apple.com/news/rss/news.rss) · [GitHub Changelog](https://github.blog/changelog/feed/) | 공식 | `docs/howto/changelog-feeds.md` 의 피드 주소가 살아 있는지, RSS · Atom 형식이 바뀌었는지 | 확인 실패 기록(`howto-kit/references/provenance-notes.md`) |
+| 6 | 콘솔 딥링크가 박힌 벤더 문서 — [Azure Monitor Logs overview](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview) 등 `docs/howto/deep-links.md` 표의 출처 열 | 공식 | 문서 본문에 박힌 콘솔 URL 이 그대로인지. 바뀌면 `howto-kit/references/navigation-anchors.md` 도 같이 고친다 | WebFetch |
+| 7 | `docs/howto/` 리서치 문서 여섯 편의 `last_updated` + `howto-kit/references/provenance-notes.md` | 내부 | 지난 조회일과 확인 실패 항목을 먼저 읽고 바뀐 것만 다시 본다 | 파일 Read |
+
+주의할 점 세 가지:
+
+- **ISO/IEC/IEEE 26514 · 26515 를 근거로 인용하지 마라.** 세부 조항은 확인 실패다. `iso.org` 는 이 환경에서 짧은 빈 쪽만 돌려준다 — 접근이 막힌 것이지 문서가 없는 것이 아니다.
+- **매 스텝 `verify` 필수와 G5(마지막 동작까지 적었는지) · G6(스텝 하나의 크기) 검사는 표준 인용이 아니라 도메인 실패 기록에 근거한 강화다.** 스타일 가이드에 같은 규정이 없다는 이유로 되돌리지 마라.
+- **howto-kit 은 킷별 리서치 기록 파일이 없다.** 조회 결과는 각 `docs/howto/*.md` 의 `last_updated` 와 `provenance-notes.md` 에 남긴다 — 사용 규칙 1 번의 킷별 `research-log.md` 를 howto 에는 새로 만들지 않는다.
+
 ## 사용 규칙
 
 1. **리서치 로그 저장** — 각 Phase 종료 시 `docs/<kit>/research-log.md` (또는 `docs/kaizen/research-log.md`) 에 조회한 소스를 "2026-MM-DD" 엔트리로 기록.

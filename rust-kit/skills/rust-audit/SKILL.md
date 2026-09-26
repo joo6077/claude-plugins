@@ -17,14 +17,14 @@ user-invocable: true
 2. **추측성 FAIL 금지** — 실제 코드를 확인한 후 판정한다. "아마 문제가 있을 것"으로 FAIL하지 않는다.
 3. **보안 카테고리 생략 금지** — 항상 Security 카테고리를 포함한다 (`unsafe_code = "forbid"` 준수, 시크릿 하드코딩, 민감정보 로깅 필수 체크).
 4. **deep 모드에서만 에이전트 호출** — quick 모드는 직접 검사한다.
-5. **clippy는 `--workspace --all-targets --all-features -- -D warnings` 필수** — workspace 전체 + 바이너리/테스트/예제 + 모든 feature 포함. `-D warnings` 없으면 워닝이 에러로 집계되지 않아 CI 불일치 발생. 프로젝트에 `[workspace.lints.clippy]` pedantic deny가 설정되어 있으면 해당 규칙이 lint 자동 반영되므로 별도 `-W clippy::pedantic` 플래그는 불필요. fit-pal 패턴: `cargo clippy --workspace --all-targets -- -D warnings`.
+5. **clippy는 `--workspace --all-targets --all-features -- -D warnings` 필수** — workspace 전체 + 바이너리/테스트/예제 + 모든 feature 포함. `-D warnings` 없으면 워닝이 에러로 집계되지 않아 CI 불일치 발생. 프로젝트에 `[workspace.lints.clippy]` pedantic deny가 설정되어 있으면 해당 규칙이 lint 자동 반영되므로 별도 `-W clippy::pedantic` 플래그는 불필요. 실사용 프로젝트 패턴: `cargo clippy --workspace --all-targets -- -D warnings`.
 6. **workspace lints 상속 확인** — member crate가 `[lints] workspace = true`를 누락하면 pedantic deny가 적용되지 않는다. 감사 시 각 member `Cargo.toml`에 이 선언이 있는지 먼저 확인한다.
 7. **Axum 0.8 path 문법 감사** — `.route("/...:\w+",)` 정규식으로 grep해서 `:id` colon 문법 잔재가 있으면 즉시 FAIL. Axum 0.8에서 컴파일 에러가 나기 때문에 사실상 빌드 확인만으로도 잡히지만, 리팩토링 중간 상태를 감사하는 경우 명시적으로 체크한다.
 8. **SQLx vs SeaORM 구분** — DB adapter 감사 시 프로젝트가 SQLx를 쓰는지 SeaORM을 쓰는지 먼저 감지. 감사 기준은 해당 ORM에 맞게 적용 (예: SeaORM 프로젝트에 "sqlx::query! 필수" FAIL 기준 적용 금지).
 9. **2026 clippy pedantic 필수 lint** — `needless_pass_by_value`, `redundant_clone`, `cloned_instead_of_copied`, `inefficient_to_string`, `large_futures`가 pedantic deny 기본 세트에 포함되어야 한다. 누락 시 INFO로 보고한다.
 10. **cargo-deny v2 형식 확인** — `deny.toml`이 v2 형식(`multiple-versions = "warn"`, `unknown-registry = "deny"`)인지 확인한다. v1 형식(deprecated `vulnerability`/`notice` 필드)이면 마이그레이션을 권고한다.
 11. **Edition 2024 준수 확인** — 신규 프로젝트에서 `edition = "2024"` + `resolver = "3"`이 아니면 INFO로 보고한다. `gen` 변수명, `:id` path 문법 등 edition 2024 비호환 패턴도 감사한다.
-12. **Binary Decidability Pre-Check (agent-design-guide §3.5 대응)** — 각 카테고리를 평가하기 전에 "이 기준은 코드에서 객관적으로 PASS/FAIL 판정 가능한가?"를 먼저 자문하라. "더 나을 것 같다"처럼 주관 해석 여지가 남는 기준은 카테고리 평가 시작 시점에 근거 제약(파일:라인 + 출처 URL) 을 추가하여 이진 판정으로 재정식화한 뒤 평가한다. 예: "API Design 이 깔끔한지" → "핸들러 state 가 `Arc<dyn Port>` 인지 (파일:라인 + fit-pal §아키텍처 3번)".
+12. **Binary Decidability Pre-Check (agent-design-guide §3.5 대응)** — 각 카테고리를 평가하기 전에 "이 기준은 코드에서 객관적으로 PASS/FAIL 판정 가능한가?"를 먼저 자문하라. "더 나을 것 같다"처럼 주관 해석 여지가 남는 기준은 카테고리 평가 시작 시점에 근거 제약(파일:라인 + 출처 URL) 을 추가하여 이진 판정으로 재정식화한 뒤 평가한다. 예: "API Design 이 깔끔한지" → "핸들러 state 가 `Arc<dyn Port>` 인지 (파일:라인 + 실사용 프로젝트의 서버 규칙 §아키텍처 3번)".
 13. **Rule-by-Rule Audit 프로토콜 (skill-design-guide §3.6 대응)** — `references/audit-criteria.md` 7 카테고리 × N 체크항목을 한 번에 묶어 "대체로 PASS/FAIL" 로 리포트하지 말고, 각 체크항목 단위로 개별 판정과 근거를 생성하라. 묶음 판정은 PASS 세부가 가려지고 FAIL 누락 추적이 불가능해진다. 리포트 표(Step 4) 각 row 는 한 체크항목에 대응한다.
 14. **미검증 항목 마커 프로토콜 (evaluator v3 대응)** — 런타임 환경/외부 시스템 접근 불가(예: production DB pool 설정·실제 Redis 연결·OAuth provider 응답)로 L3 검증이 불가능한 항목은 **조용히 PASS 처리하지 말고** `[미검증]` 태그를 붙이고 근거에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워라 (예: `[미검증:ENV]` — 막는 것: 운영 DB 접속 명령과 그 거부 출력 · 시도한 우회: pool 설정 파일 정적 리뷰 · 통제 불가 사유: 감사자에게 운영 DB 접속 권한이 없다 · 재검증 명령: 권한을 받은 뒤 같은 접속 명령. 네 칸 중 하나라도 비면 `[미검증:INVALID]` 다). 마커는 두 분류로 갈린다 — `UNVERIFIED_ENV`(구현자 통제 밖 · 남용 방지 4 요건 충족)와 `UNVERIFIED_INVALID_EVIDENCE`(4 요건 미충족 · 공허한 증거). 임계값 2 는 후자에만 적용되고 전자는 `env_gaps` 로 따로 센다 (Step 5 참조). 대상 미구현·의도적 미실행은 미검증이 아니라 FAIL 이다. 마커 의미·임계값·4 요건의 SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이며, 복제본은 `rust-kit/agents/rust-reviewer.md` §미검증 증거 프로토콜 이다 — 여기서 재정의하지 않는다.
 15. **Evidence Validity Gate — 0 매치 / 0 테스트를 PASS 로 쓰지 마라 (qa-evaluation-guide §Evidence Validity Gate)** — 증거의 *존재*와 *유효성*은 다른 축이다. row 를 PASS 로 확정하기 전에 4 검사를 통과시킨다: (1) **비공백** — 출력이 실제 내용을 담는가 (2) **활성화** — 그 측정이 검사 대상을 한 번이라도 통과했는가 (3) **반증 가능성** — 조건이 위반됐다면 다른 결과가 나왔을 측정인가 (4) **출처** — 감사자가 직접 수집했는가. 하나라도 실패하면 PASS 가 아니라 `[미검증]` 이다.
@@ -97,10 +97,10 @@ prompt: |
 | 1 | Ownership & Borrowing | 불필요 `.clone()` 부재 | PASS/FAIL | `src/service/user.rs:42` Copy 타입에 clone 호출 0 건 | [Rust Book Ownership](https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html) |
 | 2 | Ownership & Borrowing | `needless_pass_by_value` 위반 0 건 | PASS/FAIL | clippy 출력 해당 lint 0 건 | [Clippy needless_pass_by_value](https://rust-lang.github.io/rust-clippy/master/#needless_pass_by_value) |
 | 3 | Error Handling | `?` 연산자 + `From` 구현 패턴 | PASS/FAIL | `src/domain/error.rs:1-40` thiserror 2 derive 사용 | [thiserror docs](https://docs.rs/thiserror/latest/thiserror/) |
-| 4 | Error Handling | 프로덕션 경로 `.unwrap()/.expect()` 부재 | PASS/FAIL | `grep -rn "\.unwrap()\|\.expect(" src/ --include='*.rs' \| grep -v "#\[cfg(test)\]"` 결과 0 건 **+ 대상 `.rs` 파일 수 N 명시 + 패턴 positive control 1 건** (Gotcha 15) | fit-pal `server/CLAUDE.md` §에러 처리 |
+| 4 | Error Handling | 프로덕션 경로 `.unwrap()/.expect()` 부재 | PASS/FAIL | `grep -rn "\.unwrap()\|\.expect(" src/ --include='*.rs' \| grep -v "#\[cfg(test)\]"` 결과 0 건 **+ 대상 `.rs` 파일 수 N 명시 + 패턴 positive control 1 건** (Gotcha 15) | 실사용 프로젝트의 서버 규칙 §에러 처리 |
 | 5 | Async | `#[tokio::test(flavor = "multi_thread")]` 명시 (필요 시) | PASS/FAIL | `tests/integration/*.rs` Axum TestServer 케이스 확인 | [Tokio test attribute](https://docs.rs/tokio/latest/tokio/attr.test.html) |
 | 6 | Async | blocking I/O 부재 (`std::fs::read` 등) | PASS/FAIL | async 함수 내 `std::thread::sleep`/`std::fs` 호출 0 건 | [Tokio spawn_blocking](https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html) |
-| 7 | Async | trait 시그니처에 `Send + Sync` 일관 | PASS/FAIL | `src/domain/ports/*.rs` trait `Send + Sync` 선언 존재 | fit-pal `server/CLAUDE.md` §아키텍처 |
+| 7 | Async | trait 시그니처에 `Send + Sync` 일관 | PASS/FAIL | `src/domain/ports/*.rs` trait `Send + Sync` 선언 존재 | 실사용 프로젝트의 서버 규칙 §아키텍처 |
 | 8 | Security | `unsafe` 블록 부재 또는 `// SAFETY:` 주석 필수 | PASS/FAIL | `grep -rn "unsafe {" src/` 결과 모두 주석 + `unsafe_code = "forbid"` 워크스페이스 lint | [Rust Reference Unsafe](https://doc.rust-lang.org/reference/unsafe-keyword.html) |
 | 9 | Security | 시크릿 하드코딩 부재 | PASS/FAIL | `.env.example` + repo 내 `secret`/`token`/`password` 리터럴 0 건 | OWASP Top 10 A02 |
 | 10 | Security | SQL injection 방어 (SQLx `query!`/`query_as!` 매크로 + bind 파라미터) | PASS/FAIL | `src/infra/db/*.rs` raw `format!("SELECT ...")` 0 건 | [SQLx query macro](https://docs.rs/sqlx/latest/sqlx/macro.query.html) |
@@ -110,7 +110,7 @@ prompt: |
 | 14 | Testing | **통합** — 실제 DB 엔진 대상 테스트 존재 (`#[sqlx::test]` 또는 testcontainers). mock 만 있으면 FAIL | PASS/FAIL | 실 DB 테스트 파일:라인 + 실행된 테스트 수. mock 은 실 DB SQL 정합성을 검증하지 못한다 (API-01) | [sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html) · [SeaORM mock 한계](https://www.sea-ql.org/SeaORM/docs/write-test/mock/) |
 | 15 | Testing | 테스트가 **실제로 실행됐는지** — `running N tests` 의 N > 0 + 종료 코드 확보 | PASS/FAIL | 실행 명령 + 실행 수 + exit code. N=0 은 PASS 가 아니라 측정 실패 (Gotcha 15) | [cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html) |
 | 16 | Security | 의존성 취약점 — `cargo audit` 또는 `cargo deny check advisories` 실행 결과 | PASS/FAIL | 실행 출력 + advisory 건수 (RustSec advisory DB 소비 도구) | [RustSec](https://rustsec.org/) |
-| 17 | API Design | 핸들러 state 는 `Arc<dyn Port>` trait object (SK-03) | PASS/FAIL | `grep -n "State<PgPool>\|State<sqlx::" src/api/handlers/` 결과 0 건 + 대상 핸들러 파일 수 명시 | fit-pal `server/CLAUDE.md` §아키텍처 3번 |
+| 17 | API Design | 핸들러 state 는 `Arc<dyn Port>` trait object (SK-03) | PASS/FAIL | `grep -n "State<PgPool>\|State<sqlx::" src/api/handlers/` 결과 0 건 + 대상 핸들러 파일 수 명시 | 실사용 프로젝트의 서버 규칙 §아키텍처 3번 |
 | 18 | Testing | 동시성 가드 음성 대조 — 조건부 `UPDATE`/낙관적 락에 positive + **stale expected value** negative 테스트가 실 DB 에서 둘 다 존재 | PASS/FAIL | 두 테스트 파일:라인 + 테스트가 가드 구현 심볼을 직접 호출하는지(결합) 확인. 독립 재작성 SQL 은 결합 0 → FAIL | `rust-kit/references/concurrency-guard-protocol.md` · 2026-08-12 실측 `ER-02` |
 
 위 표는 대표 rule 예시이며, 실제 리포트는 `references/audit-criteria.md` 의 모든 기준 rule 을 빠짐없이 열거해야 한다 (Rule-by-Rule Audit · Gotcha 13).
@@ -118,14 +118,14 @@ prompt: |
 ## 5. 최종 판정
 
 임계값과 마커 의미는 `harness/docs/guides/qa-evaluation-guide.md`
-§Canonical Unverified-Evidence Protocol 이 정본이다 — 여기서 다시 정의하지 않는다. 판정 분류는 네 가지다:
+§Canonical Unverified-Evidence Protocol 이 정본이다 — 여기서 다시 정의하지 않는다. 판정 분류는 네 가지다 (조건이 서로 겹치지 않는다):
 
 카운터는 두 개이며 **합산하지 않는다** (정본 조항 3): `UNVERIFIED_INVALID_EVIDENCE`(임계 판정용)와 `env_gaps`(= `UNVERIFIED_ENV`, 커버리지 게이트용).
 
-- **APPROVE** — 전 row PASS + `UNVERIFIED_INVALID_EVIDENCE` 0 건.
-- **CONDITIONAL APPROVE** — 전 row PASS 이지만 `UNVERIFIED_INVALID_EVIDENCE` 1 건 존재. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production DB 접근권한 · MCP server 설정) 후 재검증 권고. 2 건 이상은 REJECT.
+- **APPROVE** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 0 건 + `verified_coverage` 0.60 이상. `env_gaps` 수를 리포트에 적는다.
+- **CONDITIONAL APPROVE** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 1 건 + `verified_coverage` 0.60 이상. 리포트에 "미검증 1 건: [체크항목] — [이유]" 를 명시하고 환경 개선(예: production DB 접근권한 · MCP server 설정) 후 재검증 권고. 2 건 이상은 REJECT.
 - **REJECT** — 1 건 이상 FAIL 또는 `UNVERIFIED_INVALID_EVIDENCE` 2 건 이상. FAIL 마다 구체적 개선 액션(파일:라인 + 권장 변경 + 출처)을 함께 제시한다.
-- **BLOCKED** — `(총 rule 수 − env_gaps) / 총 rule 수 < 0.60`. 판정 자체를 내지 않고 환경 부재 목록과 재검증 명령을 보고한다.
+- **BLOCKED** — FAIL 0 + `UNVERIFIED_INVALID_EVIDENCE` 2 건 미만이면서 `verified_coverage = (총 rule 수 − env_gaps) / 총 rule 수 < 0.60` (`insufficient_verified_coverage`). 판정 자체를 내지 않고 환경 부재 목록과 재검증 명령을 보고한다.
 
 `env_gaps` 로 세려면 남용 방지 4 요건을 모두 채워야 한다 (`rust-reviewer.md` §`UNVERIFIED_ENV` 남용 방지 4 요건). 못 채운 주장은 `UNVERIFIED_INVALID_EVIDENCE` 로 강등된다.
 

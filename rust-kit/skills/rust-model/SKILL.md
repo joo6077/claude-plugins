@@ -10,11 +10,11 @@ user-invocable: true
 
 ## Gotchas
 
-- **SQLx와 SeaORM 중 프로젝트가 이미 사용하는 ORM을 먼저 감지** — 둘을 한 프로젝트에 섞지 마라. `HAS_SEAORM`이면 SeaORM 경로, `HAS_SQLX` only면 SQLx 경로를 따른다. 둘 다 있는 "hybrid"는 fit-pal 같은 대형 프로젝트에서도 안티패턴이다.
+- **SQLx와 SeaORM 중 프로젝트가 이미 사용하는 ORM을 먼저 감지** — 둘을 한 프로젝트에 섞지 마라. `HAS_SEAORM`이면 SeaORM 경로, `HAS_SQLX` only면 SQLx 경로를 따른다. 둘 다 있는 "hybrid"는 대형 실사용 프로젝트에서도 안티패턴이다.
 - **SQLx 매크로 컴파일 타임 검증** — `sqlx::query!`/`query_as!` 매크로는 컴파일 타임에 DB에 연결해 쿼리를 검증한다. `DATABASE_URL` 환경변수 또는 `.env` 파일이 없으면 컴파일 자체가 실패한다. 오프라인 CI를 위해서는 `cargo sqlx prepare`로 `.sqlx/` 디렉토리를 미리 생성해야 한다. (`sqlx-data.json`은 구버전 패턴이다 — 현재 0.8은 `.sqlx/` 디렉토리를 사용한다.)
 - **SQLx 0.8 오프라인 모드** — `SQLX_OFFLINE=true`는 `.sqlx/` 디렉토리가 존재하고 최신 상태일 때만 동작한다. 쿼리를 수정한 후에는 반드시 `cargo sqlx prepare`를 다시 실행해야 한다. runtime feature는 `runtime-tokio` + `tls-rustls` 조합을 권장 (`runtime-tokio-rustls`는 alias).
 - **SeaORM ActiveModel/Entity 분리** — SeaORM은 `Entity`(쿼리 진입점) + `Model`(read DTO) + `ActiveModel`(insert/update용 opt field wrapper)을 분리한다. 포트 trait에는 이 타입들을 노출하지 말고 순수 도메인 모델로 DTO를 주고받아라.
-- **SeaORM `ConnectionTrait` 제네릭** — 트랜잭션과 일반 커넥션을 동시에 지원하려면 내부 메서드 시그니처를 `<C: ConnectionTrait>(conn: &C, ...)` 형태로 받는다. 이렇게 해야 `&DatabaseConnection`과 `&DatabaseTransaction` 모두 전달 가능하다. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
+- **SeaORM `ConnectionTrait` 제네릭** — 트랜잭션과 일반 커넥션을 동시에 지원하려면 내부 메서드 시그니처를 `<C: ConnectionTrait>(conn: &C, ...)` 형태로 받는다. 이렇게 해야 `&DatabaseConnection`과 `&DatabaseTransaction` 모두 전달 가능하다. 출처: 실사용 프로젝트의 서버 규칙 §테스트 가능성.
 - **SeaORM `LoaderTrait` batch loading** — `find_with_related` JOIN 결과의 중복 row 전송을 피하려면 `LoaderTrait`로 관련 엔티티를 배치 쿼리로 불러온다. one-to-many/many-to-many에서 상위 row duplication이 큰 경우 SQLx 수동 JOIN보다 유지보수성이 좋다.
 - **SeaORM nested partial model** — `DerivePartialModel` + nested select로 alias boilerplate 없이 복합 조회 결과를 중첩 struct로 매핑한다. SQLx `query_as!`는 flat row 중심이므로 3계층+ 조회(order + items + cakes)에서는 SeaORM이 모델링 편의성이 높다.
 - **SQLx `sql-check` 분리 크레이트** — SQLx에서 분리된 compile-time SQL validation 전용 레이어. `tokio-postgres` 등 custom driver를 쓰면서 SQL 문자열 검증만 필요한 경우에 적합하다 (2026-01 공개).
@@ -45,7 +45,7 @@ user-invocable: true
 
 | 감지 | 경로 |
 |------|------|
-| `HAS_SEAORM` = true | **SeaORM 경로** (§5S: ActiveModel/Entity + sea-orm-migration) — fit-pal 실무 패턴은 1.1 계열 |
+| `HAS_SEAORM` = true | **SeaORM 경로** (§5S: ActiveModel/Entity + sea-orm-migration) — 실사용 프로젝트 패턴은 1.1 계열 |
 | `HAS_SQLX` = true, `HAS_SEAORM` = false | **SQLx 경로** (§5X: query_as! + sqlx migrate) — 아래 예시는 0.8 계열 기준 |
 | 둘 다 false | 사용자에게 선택 요청 후 의존성 추가 안내 |
 | 둘 다 true | 사용자에게 단일화 권고 (hybrid는 관리 부담이 크다) |
@@ -246,7 +246,7 @@ pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}
 ```
 
-Repository adapter는 **`ConnectionTrait` 제네릭**으로 내부 메서드를 작성한다. 이렇게 해야 일반 커넥션과 트랜잭션을 모두 지원한다 (fit-pal 실무 패턴):
+Repository adapter는 **`ConnectionTrait` 제네릭**으로 내부 메서드를 작성한다. 이렇게 해야 일반 커넥션과 트랜잭션을 모두 지원한다 (실사용 프로젝트 패턴):
 
 ```rust
 // infra/adapters/user_repository_sea.rs
@@ -465,9 +465,9 @@ DATABASE_URL=postgres://... sea-orm-cli migrate up -d migration
 DATABASE_URL=postgres://... sea-orm-cli migrate down -d migration
 ```
 
-**방식 2: 런타임 마이그레이션 (실무 표준 — fit-pal 패턴)**
+**방식 2: 런타임 마이그레이션 (실무 표준 — 실사용 프로젝트 패턴)**
 ```rust
-// apps/api/src/main.rs 또는 별도 fitpal-migration 바이너리
+// apps/api/src/main.rs 또는 별도 myapp-migration 바이너리
 use sea_orm_migration::MigratorTrait;
 use migration::Migrator;
 use sea_orm::Database;

@@ -265,7 +265,7 @@ shared 컴포넌트 경로: src/presentation/components/
 
 **모드**: <quick|deep>
 **변경 파일**: <N> 개
-**판정**: **<APPROVE|REJECT>** (<N> 실패, <N> 경고)
+**판정**: **<APPROVE|REJECT|BLOCKED>** (<N> 실패, <N> 경고, invalid_evidence <N>, env_gaps <N>)
 
 ### ❌ 실패 (<N>)
 1. `<file>:<line>` — <설명> (<카테고리>)
@@ -276,7 +276,7 @@ shared 컴포넌트 경로: src/presentation/components/
 ...
 
 ### 🔍 미검증 (<N>)
-1. `<규칙 ID>` (<카테고리>) — <사유> / 시도한 fallback: <단계>
+1. `<규칙 ID>` (<카테고리>) — `[미검증:ENV]` 또는 `[미검증:INVALID]` — <사유> / 시도한 fallback: <단계>
 ...
 
 ### ✅ 통과 카테고리
@@ -306,7 +306,7 @@ react-reviewer 가 돌려준 `unverified` 항목을 그대로 옮기고, quick �
 - **MUST** Library Policy 금지 목록 확장 시 `react-kit/references/common-gotchas.md` G2 동기화 필수. 삭제는 빌드 게이트 훼손으로 금지 (Phase 10 LP-01)
 - **MUST** grep 0 매치를 PASS 근거로 쓰기 전에 **스코프 대상 파일 수를 먼저 센다**. `Glob` 결과가 0 파일이면 그 규칙은 PASS 가 아니라 `[미검증]` 이다 — 대상이 없어서 안 걸린 것과 위반이 없어서 안 걸린 것은 다른 상태다 (qa-evaluation-guide §Evidence Validity Gate 검사 2)
 - **MUST** 판정하지 못한 규칙을 `🔍 미검증` 에 집계한다. 마커는 `[미검증]` 하나만 쓰고 동의어를 만들지 않는다
-- **MUST** `[미검증]` **2 건 이상이면 실패 0 건이어도 판정을 REJECT** 로 낸다. 임계값·마커 정의는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 정본을 따르며 이 스킬에서 재정의하지 않는다
+- **MUST** 판정은 아래 순서로 보아 처음 성립하는 항에서 정한다 — 실패 1 건 이상 → REJECT · `invalid_evidence`(`[미검증:INVALID]` · 접미 없는 `[미검증]`) **2 건 이상이면 실패 0 건이어도 REJECT** · `verified_coverage = (규칙 수 − env_gaps) / 규칙 수` 가 0.60 미만이면 BLOCKED · 그 외 APPROVE (`invalid_evidence` 1 건이면 경고). 4 요건을 다 채운 `[미검증:ENV]` 는 `env_gaps` 로 따로 센다. 임계값·마커 정의는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 정본을 따르며 이 스킬에서 재정의하지 않는다
 - **MUST NOT** `[미검증]` 을 카테고리로 승격한다 — 6 카테고리 구성은 고정이고 미검증은 리포트 축이다
 
 ## References

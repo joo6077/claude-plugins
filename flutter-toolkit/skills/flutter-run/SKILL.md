@@ -19,7 +19,7 @@ user-invocable: true
 - `dart fix --apply` 후 반드시 `analyze` 실행 — fix가 새 워닝을 만들 수 있다
 - 편집 훅(`scripts/format-edited-dart.sh`)이 Edit·Write 로 고친 .dart 파일을 그때마다 포맷한다(끄기: `FLUTTER_TOOLKIT_FORMAT_ON_EDIT=off`). fix 의 포맷은 훅이 못 본 파일을 뒷정리하는 몫이다 — `lib/` 통째 포맷으로 되돌리지 마라
 - **codegen 후 변경 보고 시 `.g.dart` / `.freezed.dart` 를 수기 변경과 섞지 마라** — 산출물 수십 개가 `git diff --stat` 에 섞이면 "변환 헬퍼만 변경" 같은 스코프 조건이 위반으로 판정된다 (글로벌 REJECT `AR-01` 실제 사례). codegen 서브커맨드 섹션의 exclude pathspec 명령을 사용해 두 목록을 나눠 보고하라
-- Makefile 기반 monorepo 에서는 `fvm flutter run` 직접 호출 대신 `make app-run` 사용 — dart-define, observatory-port, launch.json 설정이 Makefile에 집중 관리된다. 직접 호출하면 dart-define 환경변수 누락으로 앱이 다른 환경으로 기동됨
+- Makefile 기반 monorepo 에서는 `app-run` 타겟이 있으면 `fvm flutter run` 직접 호출 대신 `make app-run` 사용 — dart-define, observatory-port, launch.json 설정이 Makefile에 집중 관리된다. 직접 호출하면 dart-define 환경변수 누락으로 앱이 다른 환경으로 기동됨. 타겟 확인은 `references/project-detection.md` Step 2b 4 번 명령의 `<타겟>` 자리에 `app-run` 을 넣어 한다 — 없으면 `make app-run` 이 없는 타겟을 불러 멈추므로 기본 명령을 쓴다
 
 Flutter 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정한다.
 
@@ -40,7 +40,7 @@ Flutter 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정�
 
 **필터 없이 전체를 돌리고 전후 삭제 수를 센다 (2026-09-25 추가).** feature 인자가 와도 `--build-filter` 를 붙이지 않는다 — 인자는 보고에 적기만 하고 범위를 좁히지 않는다.
 `app-codegen-filter` 같은 프로젝트 전용 필터 명령은 사용자가 그 이름을 직접 부를 때만 쓴다 — 그때는 첫 codegen 줄만 그 명령으로
-바꾸고 두 번째 줄은 필터 없는 전체 그대로 둔다. `HAS_MAKEFILE = true` 면 두 줄을 `$MAKE app-codegen` 으로 바꾼다.
+바꾸고 두 번째 줄은 필터 없는 전체 그대로 둔다. `references/project-detection.md` Step 2b 4 번의 타겟별 확인으로 `app-codegen` 이 있으면 두 줄을 `$MAKE app-codegen` 으로 바꾼다.
 
 ```bash
 # 코드 생성 전후로 git 이 삭제로 보는 추적 파일을 센다. 0 건에 종료 코드 1 을 내는 grep -c 대신 awk 로 센다
