@@ -13,17 +13,17 @@ user-invocable: true
 # Gotchas
 
 1. **`cargo clippy`에 `-- -D warnings` 필수** — 없으면 워닝이 에러로 잡히지 않아 CI와 불일치한다. 권장 전체 커맨드: `cargo clippy --workspace --all-targets --all-features -- -D warnings`. `workspace.lints.clippy.pedantic = "deny"`가 설정되어 있으면 `-D warnings` 없이도 pedantic 위반은 에러가 되지만, `-- -D warnings`는 모든 일반 warning도 함께 실패시키므로 항상 붙인다.
-2. **`cargo fmt --all -- --check`** — preflight/CI에서는 `--check`로 포맷 불일치를 에러로 노출한다. 로컬 편집 시에는 `cargo fmt --all` (check 제외)로 자동 적용한다. fit-pal Makefile 패턴.
+2. **`cargo fmt --all -- --check`** — preflight/CI에서는 `--check`로 포맷 불일치를 에러로 노출한다. 로컬 편집 시에는 `cargo fmt --all` (check 제외)로 자동 적용한다. 실사용 프로젝트 Makefile 패턴.
 3. **workspace에서 `--workspace` 필수** — 없으면 루트 크레이트만 실행되어 하위 크레이트 문제를 놓친다. `--all-targets`도 함께 붙여 binary/test/example 전부 검사.
 4. **`cargo nextest`가 없을 때 에러 금지** — 설치 여부 확인 후 없으면 `cargo test`로 폴백한다.
 5. **`cargo audit` 미설치 시 skip** — 설치 안내만 출력하고 중단하지 않는다. `cargo deny check`도 동일 정책.
 6. **`cargo deny check` v2 형식** — advisories/licenses/bans/sources 4개 섹션을 `deny.toml`에서 관리. advisories v2는 `vulnerability`/`notice` 필드가 제거되어 항상 에러로 동작. `cargo deny check all`로 전체 검사, `cargo deny check advisories` 등으로 개별 실행 가능.
-7. **Makefile 기반 monorepo에서는 `cargo` 직접 호출 금지** — `make server-run`, `make server-test`, `make server-lint`, `make server-fmt`, `make server-fmt-fix`, `make server-migrate`, `make server-preflight` 같은 Makefile 타겟을 사용한다. Makefile이 `APP_ENV`, `RUST_LOG`, `DATABASE_URL` 등 필수 환경변수를 주입하므로 직접 `cargo run`하면 환경변수 누락으로 실행 실패한다. 정식 예시 (fit-pal Makefile APPROVE iter 2, 33/33 검증):
-   - `APP_ENV=dev RUST_LOG=debug cargo run -p fitpal-api`
+7. **Makefile 기반 monorepo에서는 `cargo` 직접 호출 금지** — `make server-run`, `make server-test`, `make server-lint`, `make server-fmt`, `make server-fmt-fix`, `make server-migrate`, `make server-preflight` 같은 Makefile 타겟을 사용한다. Makefile이 `APP_ENV`, `RUST_LOG`, `DATABASE_URL` 등 필수 환경변수를 주입하므로 직접 `cargo run`하면 환경변수 누락으로 실행 실패한다. 정식 예시 (실사용 프로젝트 Makefile APPROVE iter 2, 33/33 검증):
+   - `APP_ENV=dev RUST_LOG=debug cargo run -p myapp-api`
    - `APP_ENV=dev cargo test --workspace`
-   - `DATABASE_URL=postgres://fitpal:fitpal@localhost:5432/fitpal cargo run -p fitpal-migration`
-8. **`.PHONY` 타겟 누락 금지** — Makefile 기반 프로젝트에서 새 타겟 추가 시 반드시 `.PHONY:` 선언에도 추가한다. 누락 시 동일 이름 파일/디렉토리와 충돌. fit-pal REJECT 히스토리에서 `server-fmt-fix`, `server-preflight`가 누락되어 REJECT → 재수정 사례 존재.
-9. **타깃 필터는 `PKG_TARGETS` 확인 후에만 붙인다** — 바이너리 전용 패키지에 `--lib` 을 붙이면 실행할 테스트가 0 개이거나 에러다. `references/project-detection.md` Step 3a 로 각 패키지의 타깃 kind 를 먼저 열거하고, `lib` 이 없으면 `--bins`(또는 `--bin <name>` · `--tests` · `--all-targets`) 를 쓴다. 좁힐 이유가 없으면 **필터를 아예 붙이지 않는 것이 기본값**이다 — `cargo test` 는 필터가 없을 때 lib/bin 단위 테스트 + 통합 테스트 + doctest 를 모두 돈다 ([cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html)). 출처: 2026-07 실측 `cargo-test-wrong-target` (`cargo test -p fitpal-api --lib healthcheck` 가 bin-only 크레이트에서 실패).
+   - `DATABASE_URL=postgres://myapp:myapp@localhost:5432/myapp cargo run -p myapp-migration`
+8. **`.PHONY` 타겟 누락 금지** — Makefile 기반 프로젝트에서 새 타겟 추가 시 반드시 `.PHONY:` 선언에도 추가한다. 누락 시 동일 이름 파일/디렉토리와 충돌. 실사용 프로젝트 REJECT 히스토리에서 `server-fmt-fix`, `server-preflight`가 누락되어 REJECT → 재수정 사례 존재.
+9. **타깃 필터는 `PKG_TARGETS` 확인 후에만 붙인다** — 바이너리 전용 패키지에 `--lib` 을 붙이면 실행할 테스트가 0 개이거나 에러다. `references/project-detection.md` Step 3a 로 각 패키지의 타깃 kind 를 먼저 열거하고, `lib` 이 없으면 `--bins`(또는 `--bin <name>` · `--tests` · `--all-targets`) 를 쓴다. 좁힐 이유가 없으면 **필터를 아예 붙이지 않는 것이 기본값**이다 — `cargo test` 는 필터가 없을 때 lib/bin 단위 테스트 + 통합 테스트 + doctest 를 모두 돈다 ([cargo-test 타깃 선택](https://doc.rust-lang.org/cargo/commands/cargo-test.html)). 출처: 2026-07 실측 `cargo-test-wrong-target` (`cargo test -p myapp-api --lib healthcheck` 가 bin-only 크레이트에서 실패).
 10. **파이프라인 종료 코드 캡처 규약 (E2 — 3 회 재발 승급)** — `unreliable-exit-status-capture` · `unreliable-piped-exit-code-capture` · `broken-pipeline-exit-capture` 가 2026-07 한 달에 3 회 재발했다. 문장 다짐이 아니라 **명령 형태를 고정**한다:
     - 파이프를 쓰는 순간 **`set -o pipefail` 을 같은 명령 안에서 켠다.** bash 기본값은 "파이프라인의 종료 상태 = 마지막 명령의 종료 상태" 이므로 `cargo test ... | tee log` 는 cargo 가 실패해도 0 을 돌려준다. `pipefail` 이 켜지면 "0 이 아닌 상태로 끝난 가장 오른쪽 명령의 값" 이 파이프라인 상태가 된다 ([Bash Reference Manual — Pipelines](https://www.gnu.org/software/bash/manual/html_node/Pipelines.html)).
     - **정식 형태 (쉘 무관, 이것을 기본으로 쓴다):** `set -o pipefail; cargo clippy ... 2>&1 | tee /tmp/clippy.log; rc=$?` — `rc` 를 리포트에 그대로 적는다. `pipefail` + 파이프라인 **직후** 의 `$?` 조합은 bash·zsh 양쪽에서 동작한다.

@@ -10,9 +10,9 @@ user-invocable: true
 
 ## Gotchas
 
-- **도메인 레이어에 `anyhow::Error` 금지** — 라이브러리/도메인 코드에는 **`thiserror` 기반 구체 enum만** 사용한다. `anyhow::Error`는 app 최상위(`apps/api/src/main.rs`, CLI 스크립트)에서만 허용. 도메인 에러에 anyhow를 섞으면 호출자가 `match`로 case를 분기할 수 없어 에러 처리가 전부 "generic 500"으로 퇴화한다. 출처: fit-pal `server/CLAUDE.md` §코딩 컨벤션.
-- **`.unwrap()`/`.expect()` 는 `?` 치환이 아니라 타입 설계로 제거한다 (AP-05 회귀 방지 · E1→E3)** — 프로덕션 코드에서는 금지이며 **main 초기화와 테스트 코드**만 예외다 (fit-pal CLAUDE.md 금지 사항). 다만 발견 시 반사적으로 `?` 로 바꾸라고 제안하지 마라 — 2026-08-12 실측 REJECT `AP-05` (`personal_records.rs:139,142` 의 `into_entry()`) 는 `Option` 이 **논리상 불가능한데 타입에만 남아 있어서** 생긴 것이고, 같은 날 improvement 도 "구조상 non-optional 로 재설계하거나 `HashMap` 누적 방식으로 바꿔 `expect()` 제거" 를 권고했다. 제거 수단과 금지 목록은 **§4** 를 따르고, 강제는 workspace clippy deny lint(E3 게이트 — `rust-init` §4a)가 한다.
-- **`unsafe` 금지** — workspace-wide `unsafe_code = "forbid"` 원칙. 외부 FFI가 반드시 필요한 경우 외에는 `unsafe` 블록을 만들지 마라. FFI가 필요하면 별도 shared crate로 격리한다. 출처: fit-pal `workspace.lints.rust` 및 `CLAUDE.md` §금지 사항.
+- **도메인 레이어에 `anyhow::Error` 금지** — 라이브러리/도메인 코드에는 **`thiserror` 기반 구체 enum만** 사용한다. `anyhow::Error`는 app 최상위(`apps/api/src/main.rs`, CLI 스크립트)에서만 허용. 도메인 에러에 anyhow를 섞으면 호출자가 `match`로 case를 분기할 수 없어 에러 처리가 전부 "generic 500"으로 퇴화한다. 출처: 실사용 프로젝트의 서버 규칙 §코딩 컨벤션.
+- **`.unwrap()`/`.expect()` 는 `?` 치환이 아니라 타입 설계로 제거한다 (AP-05 회귀 방지 · E1→E3)** — 프로덕션 코드에서는 금지이며 **main 초기화와 테스트 코드**만 예외다 (실사용 프로젝트의 서버 규칙 금지 사항). 다만 발견 시 반사적으로 `?` 로 바꾸라고 제안하지 마라 — 2026-08-12 실측 REJECT `AP-05` (`personal_records.rs:139,142` 의 `into_entry()`) 는 `Option` 이 **논리상 불가능한데 타입에만 남아 있어서** 생긴 것이고, 같은 날 improvement 도 "구조상 non-optional 로 재설계하거나 `HashMap` 누적 방식으로 바꿔 `expect()` 제거" 를 권고했다. 제거 수단과 금지 목록은 **§4** 를 따르고, 강제는 workspace clippy deny lint(E3 게이트 — `rust-init` §4a)가 한다.
+- **`unsafe` 금지** — workspace-wide `unsafe_code = "forbid"` 원칙. 외부 FFI가 반드시 필요한 경우 외에는 `unsafe` 블록을 만들지 마라. FFI가 필요하면 별도 shared crate로 격리한다. 출처: 실사용 프로젝트의 `workspace.lints.rust` 및 서버 규칙 §금지 사항.
 - **`println!` 대신 `tracing::info!`/`tracing::warn!`/`tracing::error!`** — 구조화 로깅 없이는 OTel 트레이싱/필드 추출이 불가능하다. 라이브러리 코드에서는 `println!`/`eprintln!`/`dbg!`를 사용하지 마라.
 - **`From<SrcError> for DstError` 누락 시 컴파일 에러** — `?` 연산자 체이닝 시 변환 경로를 먼저 확인하라. `#[from]` 또는 `impl From`을 추가한다.
 - **에러 variant에 HTTP status code 매핑 필수** — API 레이어에서 `IntoResponse`를 구현할 때 모든 에러 variant에 적절한 status code를 매핑해라. `NotFound → 404`, `Unauthorized → 401`, `Conflict → 409`. 매핑 누락 시 모든 에러가 `500 Internal Server Error`로 퇴화한다.

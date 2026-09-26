@@ -19,12 +19,12 @@ user-invocable: true
 2c. **rustdoc doctest 결합** — Edition 2024는 doctest들을 하나의 바이너리로 합쳐 compile overhead를 줄인다. `Location`/`type_name` 같은 code-location 민감 테스트는 `standalone_crate` 태그가 필요할 수 있다.
 3. **타겟 아키텍처 고정 금지** — `.cargo/config.toml`에 `[target.x86_64-unknown-linux-gnu]` 같은 타겟을 고정하면 크로스 플랫폼이 깨진다.
 4. **과도한 의존성 금지** — 사용자가 선택한 의존성만 추가한다. "나중에 필요할 수도 있으니" 추가하지 않는다.
-5. **Consumer-Owned Port 원칙** — 헥사고날을 채택할 때 포트는 "소비자"가 소유한다. 모듈 A가 모듈 B의 기능이 필요하면 A 내부에 outbound port(trait)를 정의하고, B는 그 trait을 구현하는 adapter를 apps/ Composition Root에서 주입한다. 모듈이 다른 모듈의 `port.rs`를 직접 import하면 그 시점에서 헥사고날이 깨진다. 출처: fit-pal `server/CLAUDE.md` 아키텍처 섹션.
-6. **Composition Root 단일화** — 모듈 조립(DI 와이어링)은 `apps/api/src/main.rs`, `apps/worker/src/main.rs` 한 곳에서만 한다. 모듈끼리 직접 인스턴스를 생성하지 말고 `Arc<dyn Port>` trait object로 주입한다. 출처: fit-pal `server/CLAUDE.md` §아키텍처.
+5. **Consumer-Owned Port 원칙** — 헥사고날을 채택할 때 포트는 "소비자"가 소유한다. 모듈 A가 모듈 B의 기능이 필요하면 A 내부에 outbound port(trait)를 정의하고, B는 그 trait을 구현하는 adapter를 apps/ Composition Root에서 주입한다. 모듈이 다른 모듈의 `port.rs`를 직접 import하면 그 시점에서 헥사고날이 깨진다. 출처: 실사용 프로젝트의 서버 규칙 아키텍처 섹션.
+6. **Composition Root 단일화** — 모듈 조립(DI 와이어링)은 `apps/api/src/main.rs`, `apps/worker/src/main.rs` 한 곳에서만 한다. 모듈끼리 직접 인스턴스를 생성하지 말고 `Arc<dyn Port>` trait object로 주입한다. 출처: 실사용 프로젝트의 서버 규칙 §아키텍처.
 7. **workspace lints는 SSOT** — 여러 crate에 같은 clippy 설정을 복붙하지 말고 workspace 루트 `[workspace.lints]`에 한 번만 정의하고 member crate에서는 `[lints] workspace = true` 한 줄로 상속받는다 (RFC 3389, Rust 1.74+).
-8. **Domain event + outbox 패턴** — cross-module write 후처리(알림 발송, 감사 로그, 인덱스 동기화)는 직접 호출 대신 **domain event** 발행 + **outbox 테이블** 기록으로 처리한다. 트랜잭션 경계 안에서 write + outbox insert를 원자적으로 실행하고 별도 워커가 outbox를 폴링하여 외부 시스템에 전달한다. 초기 프로젝트 스캐폴딩 시 `modules/*/port.rs`에 `DomainEventPublisher` trait + `apps/worker/` outbox relay 스켈레톤을 함께 만들어 두면 이후 feature 추가가 깔끔해진다. 출처: fit-pal `server/CLAUDE.md` §아키텍처 4번.
+8. **Domain event + outbox 패턴** — cross-module write 후처리(알림 발송, 감사 로그, 인덱스 동기화)는 직접 호출 대신 **domain event** 발행 + **outbox 테이블** 기록으로 처리한다. 트랜잭션 경계 안에서 write + outbox insert를 원자적으로 실행하고 별도 워커가 outbox를 폴링하여 외부 시스템에 전달한다. 초기 프로젝트 스캐폴딩 시 `modules/*/port.rs`에 `DomainEventPublisher` trait + `apps/worker/` outbox relay 스켈레톤을 함께 만들어 두면 이후 feature 추가가 깔끔해진다. 출처: 실사용 프로젝트의 서버 규칙 §아키텍처 4번.
 9. **Enumerate-before-Act (skill-design-guide §5.5)** — 프로젝트 스캐폴딩 전에 사용자에게 (a) 아키텍처 선택지 3 개(workspace_service / modular / flat), (b) 의존성 체크리스트(ORM / OpenAPI / 인증 / i18n / 관측성), (c) 디렉토리 레이아웃 diff 를 먼저 **모두 열거**하고 합의한 뒤에만 파일을 생성한다. 일부만 보여주고 중간에 선택을 바꾸면 migration 비용이 크다.
-10. **Sibling Consistency (skill-design-guide §8.8) — rust-init · rust-feature · rust-service · rust-api** — 4 스킬 모두 "Composition Root 단일화" + "Consumer-Owned Port" + "Domain event + outbox" + "포트에서 인프라 타입 제거" 4 원칙을 동일 문구·동일 출처(fit-pal `server/CLAUDE.md`) 로 유지한다. 한 스킬에서만 수정되면 드리프트가 발생하므로 카이젠 시 Grep 대조 필수. 프로젝트 스캐폴딩 단계에서 이 4 원칙이 기본 가드레일로 `modules/*/port.rs` 스켈레톤에 포함되도록 한다.
+10. **Sibling Consistency (skill-design-guide §8.8) — rust-init · rust-feature · rust-service · rust-api** — 4 스킬 모두 "Composition Root 단일화" + "Consumer-Owned Port" + "Domain event + outbox" + "포트에서 인프라 타입 제거" 4 원칙을 동일 문구·동일 출처(실사용 프로젝트의 서버 규칙) 로 유지한다. 한 스킬에서만 수정되면 드리프트가 발생하므로 카이젠 시 Grep 대조 필수. 프로젝트 스캐폴딩 단계에서 이 4 원칙이 기본 가드레일로 `modules/*/port.rs` 스켈레톤에 포함되도록 한다.
 
 # Process
 
@@ -118,7 +118,7 @@ user-invocable: true
     └── telemetry/
 ```
 
-**참고** — 이 레이아웃은 fit-pal `/Users/jackson/Hub/10_Dev/fit-pal/server` 실무 프로젝트 구조(apps/api + apps/worker + modules/* + shared/*)를 기반으로 한다. 기존 `crates/api + crates/domain + crates/infra` 레이아웃도 유효하나, 모듈 경계가 뚜렷한 중대규모 프로젝트에서는 `modules/*` 레이아웃이 의존 방향을 더 명확히 강제한다 (apps → modules ← shared).
+**참고** — 이 레이아웃은 실사용 프로젝트의 서버 구조(apps/api + apps/worker + modules/* + shared/*)를 기반으로 한다. 기존 `crates/api + crates/domain + crates/infra` 레이아웃도 유효하나, 모듈 경계가 뚜렷한 중대규모 프로젝트에서는 `modules/*` 레이아웃이 의존 방향을 더 명확히 강제한다 (apps → modules ← shared).
 
 ### modular 구조
 
@@ -209,7 +209,7 @@ module_name_repetitions = "allow"
 must_use_candidate = "allow"
 missing_errors_doc = "allow"
 missing_panics_doc = "allow"
-# 추가 deny (2026 fit-pal 실무 세트)
+# 추가 deny (2026 실사용 프로젝트 세트)
 needless_pass_by_value = "deny"
 redundant_clone = "deny"
 cloned_instead_of_copied = "deny"
@@ -232,7 +232,7 @@ Member crate `Cargo.toml`은 이 `[workspace.lints]`를 한 줄로 상속한다:
 
 ```toml
 [package]
-name = "fitpal-api"
+name = "myapp-api"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -254,7 +254,7 @@ components = ["rustfmt", "clippy"]
 profile = "default"
 ```
 
-`channel`은 `"stable"` 또는 `"1.88.0"` 같은 명시 버전 중 선택. 팀 환경 정합성이 중요하면 명시 버전을 권장한다 (fit-pal 실무 기준).
+`channel`은 `"stable"` 또는 `"1.88.0"` 같은 명시 버전 중 선택. 팀 환경 정합성이 중요하면 명시 버전을 권장한다 (실사용 프로젝트 기준).
 
 ## 4c. `deny.toml` 템플릿 (cargo-deny v2 형식)
 
