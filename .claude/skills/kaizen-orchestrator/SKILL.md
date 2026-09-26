@@ -22,7 +22,7 @@ user-invocable: true
 
 - `references/phase-dependencies.md` — Phase 간 의존성 맵 + 업데이트 순서 규칙
 - `references/search-sources.md` — Phase 1 전용 리서치 소스 (스킬/에이전트 설계 패턴)
-- `references/phase-research-templates.md` — **Phase 1~16 각 의무 리서치 소스 테이블** (Phase 17 표는 아직 없다 — 표가 생길 때까지 Phase 17 은 `.claude/skills/howto-research/SKILL.md` Step 1 표의 1차 출처에서 3 건 이상을 조회한다). 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit / Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정 2026-07-27)
+- `references/phase-research-templates.md` — **Phase 1~17 각 의무 리서치 소스 테이블**. 각 Phase 서브에이전트는 이 템플릿에 명시된 최소 3 건 이상을 조회해야 한다. (Phase 11 planning-kit 추가 2026-04-14, Phase 12 reflect-kit / Phase 13 bambu-kit 섹션 신설 + Phase 14 onboarding 번호 정정 2026-07-27)
 
 ## 연동 스크립트
 
@@ -53,7 +53,7 @@ user-invocable: true
 - 정리 정책(6개월 초과 삭제, 500개 제한)은 모든 Phase 완료 후 Final 단계에서 실행한다. 분석 중 데이터 손실을 방지한다.
 - **Step F2 (docs-site 재생성) 과 Step F3 (글로벌 피드백 정리) 는 건너뛰기 금지.** 이 두 단계는 "조건부 실행" 이 아니라 **필수 실행** 이다. docs-site 가 빠지면 공개 HTML 문서가 카이젠 이전 상태에 멈추고, 피드백 정리가 빠지면 다음 사이클 data pool 품질이 저하된다.
 - **Step F4 의 Post-Kaizen Checklist 는 PR 생성 전 blocking gate** 다. 하나라도 미통과면 PR 생성을 중단하고 해당 Step 으로 돌아간다. 체크리스트를 "대부분 OK" 로 넘기지 마라.
-- **per-kit research-log 는 파일이 없어도 신규 생성하라.** 이전 조문 "존재 시 갱신" 은 영구 누락을 유발했다. `docs/{backend,infra,rust,react,flutter}/research-log.md` 가 없으면 반드시 만든다.
+- **per-kit research-log 는 파일이 없어도 신규 생성하라.** 이전 조문 "존재 시 갱신" 은 영구 누락을 유발했다. `docs/{backend,infra,rust,react,flutter,planning,design,tone,api}/research-log.md` 가 없으면 반드시 만든다. 이 아홉 개는 F4 3 번 · Post-Kaizen Checklist · `scripts/validate-post-kaizen.py` 와 같은 목록이다 (howto-kit 은 `howto-research` 가 기록 파일을 쓰지 않아 없다).
 - **`AUTO:plugin_phases` 마커 영역(Process 절의 Phase 5~N)을 직접 편집하지 마라.** 이 영역은 `scripts/sync-orchestrator.py` 가 `marketplace.json` 을 기반으로 자동 생성한다. 킷 추가/수정/삭제 시 marketplace.json 을 고친 뒤 `python3 scripts/sync-orchestrator.py` 를 실행하면 이 섹션이 동기화된다. 직접 편집 시 다음 실행에서 덮어써진다. **마커를 산문에서 설명할 때 HTML 주석 형태를 그대로 적지 마라** — 실측 2026-08-13: 이 불릿이 마커를 리터럴로 품고 있었고 `sync-orchestrator.py` 가 `str.find()` 로 그 첫 등장을 잡아 자동 생성 블록 92 행을 **이 불릿 안으로** 주입했다. 진짜 Process 위치는 갱신되지 않아 Phase 12·13 의 `### Step` 절이 통째로 빠졌는데도 `--check-only` 는 exit 0 을 보고했다. 지금은 스크립트가 행 앵커 + 마커 유일성 검사로 막는다 (1 쌍이 아니면 exit 2).
 
 - **Step 0.5 Orchestrator Self-Audit 는 건너뛰기 금지.** 이전 사이클의 수동 개입 이력 (`.harness/.meta/orchestrator-audit-log.md`) 과 `sync-orchestrator.py --check-only` drift 를 먼저 확인해야 Phase 1 로 진입한다.
@@ -194,7 +194,7 @@ Final: 전체 정합성 검증
 
 - 동시에 도는 킷 Phase 는 3 개까지 둔다 — 5 개 · 4 개로 돌린 두 사이클에서 서브에이전트가 과부하 오류(529)로 죽었고 2 ~ 3 개는 무사고였다 (`.harness/.meta/orchestrator-audit-log.md` 의 두 사이클 방법론 관찰)
 - 여러 Phase 가 한 가지에 커밋하면 커밋마다 서명 줄 `Kaizen-Phase: <슬러그>` 한 줄을 넣고 범위 조건은 그 줄로 내 커밋을 가린다 — 규약 원문은 `harness/references/contract-schema.md` §여러 주체가 한 가지에 커밋할 때
-- Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 `**범위:**` 줄과 `references/phase-dependencies.md` 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 `scripts/sync-orchestrator.py` 가 `skills/` · `references/` 만 보고 만들어 `hooks/` · `docs/` · `agents/` 가 빠진다 (2026-09-24 사이클: reflect-kit 의 `hooks/_lib-project-id.sh` · `docs/SCHEMA.md` 수정이 Phase 12 AUTO 줄 밖이었다)
+- Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 `**범위:**` 줄과 `references/phase-dependencies.md` 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 `scripts/sync-orchestrator.py` 가 킷에 실제로 있는 `references/` · `skills/*/references/` · `agents/` · `hooks/` · `docs/` · `evals/` 를 모두 적어 만든다. 폴더를 새로 만들면 스크립트를 다시 돌린다 (2026-09-24 사이클: 스킬 본문과 참조 폴더만 적던 때 reflect-kit 의 `hooks/_lib-project-id.sh` · `docs/SCHEMA.md` 수정이 Phase 12 AUTO 줄 밖이었다)
 
 ### Regression 실패 카운터
 
@@ -310,6 +310,9 @@ exit_codes: [0, 2]
 | 12 Reflect | §0 + §1 Reflexion 패턴 피드백 |
 | 13 Bambu | §0 + §2 실측 dogfood 결과, bambu-kit references SSOT |
 | 14 Onboarding | §0 + §5 validate-plugin 현재 상태 |
+| 15 Tone | §0 + §1 tone-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
+| 16 Api | §0 + §1 api-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
+| 17 Howto | §0 + §1 howto-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
 
 **각 Phase 서브에이전트 프롬프트에 데이터 풀 경로 전달 필수:**
 
@@ -414,7 +417,7 @@ exit_codes: [0, 2]
 
 ### Step 5: Phase 5 — flutter-toolkit 카이젠
 
-**범위:** `flutter-toolkit/skills/*/SKILL.md`, `flutter-toolkit/references/`
+**범위:** `flutter-toolkit/skills/*/SKILL.md`, `flutter-toolkit/references/`, `flutter-toolkit/skills/*/references/`, `flutter-toolkit/agents/`, `flutter-toolkit/hooks/`, `flutter-toolkit/evals/`
 , `docs/flutter/` 리서치 문서
 
 공통 실행 패턴에 따라 `/flutter-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 flutter-toolkit 전 스킬을 전수 감사한다. flutter-toolkit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -423,7 +426,7 @@ exit_codes: [0, 2]
 
 ### Step 6: Phase 6 — design-kit 카이젠
 
-**범위:** `design-kit/skills/*/SKILL.md`, `design-kit/references/`
+**범위:** `design-kit/skills/*/SKILL.md`, `design-kit/references/`, `design-kit/skills/*/references/`, `design-kit/agents/`, `design-kit/hooks/`, `design-kit/docs/`, `design-kit/evals/`
 , `design-kit/docs/design/` 리서치 문서
 
 공통 실행 패턴에 따라 `/design-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 design-kit 전 스킬을 전수 감사한다. design-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -432,7 +435,7 @@ exit_codes: [0, 2]
 
 ### Step 7: Phase 7 — backend-kit 카이젠
 
-**범위:** `backend-kit/skills/*/SKILL.md`, `backend-kit/references/`
+**범위:** `backend-kit/skills/*/SKILL.md`, `backend-kit/references/`, `backend-kit/skills/*/references/`, `backend-kit/agents/`, `backend-kit/evals/`
 , `docs/backend/` 리서치 문서
 
 공통 실행 패턴에 따라 `/backend-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 backend-kit 전 스킬을 전수 감사한다. backend-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -441,7 +444,7 @@ exit_codes: [0, 2]
 
 ### Step 8: Phase 8 — infra-kit 카이젠
 
-**범위:** `infra-kit/skills/*/SKILL.md`, `infra-kit/references/`
+**범위:** `infra-kit/skills/*/SKILL.md`, `infra-kit/references/`, `infra-kit/skills/*/references/`, `infra-kit/agents/`, `infra-kit/evals/`
 , `docs/infra/` 리서치 문서
 
 공통 실행 패턴에 따라 `/infra-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 infra-kit 전 스킬을 전수 감사한다. infra-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -450,7 +453,7 @@ exit_codes: [0, 2]
 
 ### Step 9: Phase 9 — rust-kit 카이젠
 
-**범위:** `rust-kit/skills/*/SKILL.md`, `rust-kit/references/`
+**범위:** `rust-kit/skills/*/SKILL.md`, `rust-kit/references/`, `rust-kit/skills/*/references/`, `rust-kit/agents/`, `rust-kit/evals/`
 , `docs/rust/` 리서치 문서
 
 공통 실행 패턴에 따라 `/rust-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 rust-kit 전 스킬을 전수 감사한다. rust-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -459,7 +462,7 @@ exit_codes: [0, 2]
 
 ### Step 10: Phase 10 — react-kit 카이젠
 
-**범위:** `react-kit/skills/*/SKILL.md`, `react-kit/references/`
+**범위:** `react-kit/skills/*/SKILL.md`, `react-kit/references/`, `react-kit/agents/`, `react-kit/evals/`
 , `docs/react/` 리서치 문서
 
 공통 실행 패턴에 따라 `/react-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 react-kit 전 스킬을 전수 감사한다. react-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -468,7 +471,8 @@ exit_codes: [0, 2]
 
 ### Step 11: Phase 11 — planning-kit 카이젠
 
-**범위:** `planning-kit/skills/*/SKILL.md`
+**범위:** `planning-kit/skills/*/SKILL.md`, `planning-kit/agents/`
+, `docs/planning/` 리서치 문서
 
 공통 실행 패턴에 따라 `/planning-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 planning-kit 전 스킬을 전수 감사한다. planning-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -476,7 +480,7 @@ exit_codes: [0, 2]
 
 ### Step 12: Phase 12 — reflect-kit 카이젠
 
-**범위:** `reflect-kit/skills/*/SKILL.md`, `reflect-kit/references/`
+**범위:** `reflect-kit/skills/*/SKILL.md`, `reflect-kit/references/`, `reflect-kit/skills/*/references/`, `reflect-kit/hooks/`, `reflect-kit/docs/`, `reflect-kit/evals/`
 
 공통 실행 패턴에 따라 `/reflect-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 reflect-kit 전 스킬을 전수 감사한다. reflect-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -484,7 +488,7 @@ exit_codes: [0, 2]
 
 ### Step 13: Phase 13 — bambu-kit 카이젠
 
-**범위:** `bambu-kit/skills/*/SKILL.md`, `bambu-kit/skills/*/references/`
+**범위:** `bambu-kit/skills/*/SKILL.md`, `bambu-kit/skills/*/references/`, `bambu-kit/evals/`
 
 공통 실행 패턴에 따라 `/bambu-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 bambu-kit 전 스킬을 전수 감사한다. bambu-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
@@ -500,7 +504,7 @@ exit_codes: [0, 2]
 
 ### Step 15: Phase 15 — tone-kit 카이젠
 
-**범위:** `tone-kit/skills/*/SKILL.md`, `tone-kit/references/`
+**범위:** `tone-kit/skills/*/SKILL.md`, `tone-kit/references/`, `tone-kit/evals/`
 , `docs/tone/` 리서치 문서
 
 공통 실행 패턴에 따라 `/tone-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 tone-kit 전 스킬을 전수 감사한다. tone-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -509,7 +513,7 @@ exit_codes: [0, 2]
 
 ### Step 16: Phase 16 — api-kit 카이젠
 
-**범위:** `api-kit/skills/*/SKILL.md`, `api-kit/references/`
+**범위:** `api-kit/skills/*/SKILL.md`, `api-kit/references/`, `api-kit/skills/*/references/`, `api-kit/agents/`
 , `docs/api/` 리서치 문서
 
 공통 실행 패턴에 따라 `/api-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 api-kit 전 스킬을 전수 감사한다. api-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -518,7 +522,7 @@ exit_codes: [0, 2]
 
 ### Step 17: Phase 17 — howto-kit 카이젠
 
-**범위:** `howto-kit/skills/*/SKILL.md`, `howto-kit/references/`
+**범위:** `howto-kit/skills/*/SKILL.md`, `howto-kit/references/`, `howto-kit/agents/`, `howto-kit/evals/`
 , `docs/howto/` 리서치 문서
 
 공통 실행 패턴에 따라 `/howto-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 howto-kit 전 스킬을 전수 감사한다. howto-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
@@ -606,30 +610,13 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 
 **실행 방식:** `Skill` 도구로 `docs-site` 스킬을 호출한다. 변경된 소스를 기반으로 HTML 페이지를 재생성한다. subagent 로 위임해도 좋다.
 
-**소스 → 출력 매핑 (docs-site 스킬 Step 1 참조):**
-
-| 플러그인 | 소스 경로 | 출력 경로 |
-| -------- | --------- | --------- |
-| harness | `harness/docs/guides/`, `harness/references/` | `docs/harness/` |
-| flutter-toolkit | `flutter-toolkit/references/` | `docs/flutter-toolkit/` |
-| design-kit | `design-kit/docs/design/` | `docs/design-kit/` |
-| backend-kit | `docs/backend/` | `docs/backend-kit/` |
-| infra-kit | `docs/infra/` | `docs/infra-kit/` |
-| rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
-| react-kit | `react-kit/references/`, `docs/react/` | `docs/react-kit/` |
-| planning-kit | `docs/planning/` | `docs/planning-kit/` |
-| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/` | `docs/reflect-kit/` |
-| bambu-kit | `bambu-kit/skills/bambu-print-profile/SKILL.md`, `bambu-kit/skills/bambu-print-profile/references/` | `docs/bambu-kit/` |
-| onboarding-kit | `onboarding-kit/skills/setup-guide/SKILL.md`, `onboarding-kit/skills/setup-guide/references/`, `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `docs/onboarding-kit/` |
-| tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
-| api-kit | `docs/api/` | `docs/api-kit/` |
-| howto-kit | `docs/howto/` | `docs/howto-kit/` |
-| process (공유) | (내부 문서) | `docs/process/` |
+**소스 → 출력 매핑:** 표는 `.claude/skills/docs-site/SKILL.md` Step 1 한 곳에만 있다. 여기에 사본을 두지 않는다 —
+사본은 원본과 따로 낡는다. 바뀐 원본이 어느 페이지로 가는지는 `python3 scripts/detect-docs-drift.py --since {병합_base}` 가 같은 매핑으로 낸다.
 
 **절차:**
 
 1. `git diff {병합_base}..HEAD --name-only` 로 본 카이젠 사이클에서 변경된 소스 `.md` / `.yaml` 파일 목록 확보
-2. 매핑 테이블에 따라 대응하는 `docs/<plugin>/<name>.html` 파일 식별
+2. docs-site Step 1 표(또는 위 `detect-docs-drift.py` 출력)로 대응하는 `docs/<plugin>/<name>.html` 파일 식별
 3. 각 HTML 페이지를 docs-site 스킬 원칙 (standalone, 최소 400 라인, design-kit audit-criteria 준수, card-source URL 인용, accent 컬러) 로 재생성
 4. `docs/index.html` `categories` 배열에 신규/갱신 페이지 등록
 5. `python3 scripts/validate-plugin.py` 로 7 OK 재확인
@@ -748,6 +735,9 @@ candidates:
    - `docs/react/research-log.md` (react 관련, Phase 10) — **파일이 없으면 신규 생성**
    - `docs/planning/research-log.md` (planning 관련, Phase 11) — **파일이 없으면 신규 생성**
    - `docs/flutter/research-log.md` (flutter 관련, Phase 5) — **파일이 없으면 신규 생성**
+   - `docs/design/research-log.md` (design 관련, Phase 6) — **파일이 없으면 신규 생성**
+   - `docs/tone/research-log.md` (tone 관련, Phase 15) — **파일이 없으면 신규 생성**
+   - `docs/api/research-log.md` (api 관련, Phase 16) — **파일이 없으면 신규 생성**
    - 각 per-kit research-log 는 frontmatter (title, version, last_updated), "## [YYYY-MM-DD] - Phase N kaizen" 엔트리, 리서치 소스 URL 최소 5 건 포함.
 
 4. **evals 갱신 체크:**
@@ -774,7 +764,7 @@ candidates:
    - [ ] `python3 scripts/validate-plugin.py` 가 모든 플러그인 (planning-kit 포함) OK, Exit 0 을 반환한다
    - [ ] `docs/kaizen/changelog.md` 에 이번 사이클 엔트리가 추가되었다 (Phase 1~4 변경 반영)
    - [ ] `docs/kaizen/flutter-changelog.md` 에 Phase 5 엔트리가 추가되었다 (해당 Phase 변경 있을 시)
-   - [ ] `docs/kaizen/research-log.md` + `docs/kaizen/flutter-research-log.md` + per-kit research-log 6개 파일 (backend/infra/rust/react/flutter/planning) 이 모두 존재하고 이번 사이클 엔트리를 포함한다
+   - [ ] `docs/kaizen/research-log.md` + `docs/kaizen/flutter-research-log.md` + per-kit research-log 9개 파일 (backend/infra/rust/react/flutter/planning/design/tone/api) 이 모두 존재하고 이번 사이클 엔트리를 포함한다
    - [ ] Step F2 docs-site 재생성이 실행되었다 — 변경된 소스에 대응하는 `docs/<plugin>/*.html` 이 최신 상태다
    - [ ] Step F3 글로벌 피드백 정리가 실행되었다 — `.harness/.meta/cleanup-log.yaml` 에 이번 사이클 엔트리가 있다
    - [ ] Step F3.5 메모리 승격 후보 산출이 실행되었다 — `.harness/.meta/memory-promotion-candidates-{YYYY-MM-DD}.md` 가 존재하고 (후보 0 건이면 `candidates: []`), 카이젠이 승격 ledger 를 직접 수정하지 않았다

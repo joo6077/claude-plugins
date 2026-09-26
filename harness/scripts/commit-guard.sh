@@ -159,15 +159,25 @@ parse_commit_args() {
 }
 
 # overlay_deletes <목록 파일> <이름 목록> — 목록 파일에 그 이름들의 작업 폴더 상태를 얹고, git 처럼 이름 바꾸기(-M)를
-# 가려 남는 삭제 이름을 낸다. 파일 수로 세면 git mv 로 옮긴 폴더가 통째로 삭제로 보인다. 얹지 못하면 빈 값(통과)이다.
+# 가려 남는 삭제 이름을 낸다. 파일 수로 세면 git mv 로 옮긴 폴더가 통째로 삭제로 보인다.
 # 희소 체크아웃으로 꺼내지 않은 파일(ls-files -t 의 S)은 작업 폴더에 없어도 git 이 싣지 않으므로 얹지 않는다
 overlay_deletes() {
-  local idx=$1 top
+  local idx=$1 top names name
   top=$(g rev-parse --show-toplevel) || return 0
-  comm -23 <(printf '%s\n' "$2" | grep . | sort -u) \
-    <(g ls-files -t --full-name -- "${c_pathv[@]}" | sed -n 's/^S //p' | sort) \
-    | GIT_INDEX_FILE=$idx git -C "$top" update-index --add --remove --stdin 2>/dev/null || return 0
-  GIT_INDEX_FILE=$idx git -C "$top" -c core.quotePath=false diff --cached -M --diff-filter=D --name-only HEAD 2>/dev/null
+  names=$(comm -23 <(printf '%s\n' "$2" | grep . | sort -u) \
+    <(g ls-files -t --full-name -- "${c_pathv[@]}" | sed -n 's/^S //p' | sort))
+  # 파일 자리가 폴더로(또는 그 반대로) 바뀐 이름은 --replace 가 없으면 update-index 가 통째로 실패한다 — git add 처럼 바꿔 넣는다
+  if printf '%s\n' "$names" | grep . | GIT_INDEX_FILE=$idx git -C "$top" update-index --add --remove --replace --stdin 2>/dev/null; then
+    GIT_INDEX_FILE=$idx git -C "$top" -c core.quotePath=false diff --cached -M --diff-filter=D --name-only HEAD 2>/dev/null
+    return 0
+  fi
+  # 그래도 못 얹으면(읽을 수 없는 새 파일 등) 이름 바꾸기를 가리지 않고 작업 폴더에 없는 이름을 삭제로 더한다 — 빈 값을 내면 목록의 삭제까지 빠진다
+  {
+    GIT_INDEX_FILE=$idx git -C "$top" -c core.quotePath=false diff --cached -M --diff-filter=D --name-only HEAD 2>/dev/null
+    printf '%s\n' "$names" | while IFS= read -r name; do
+      [ -z "$name" ] || [ -e "$top/$name" ] || [ -L "$top/$name" ] || printf '%s\n' "$name"
+    done
+  } | sort -u
 }
 
 # 경로 지정 커밋은 공용 목록이 아니라 HEAD 위에 그 경로의 작업 폴더 상태를 얹는다. 목록으로 세면
@@ -190,7 +200,7 @@ $(top_dirs "$names")
 }
 
 check_commit_pre() {  # check_commit_pre <저장소 폴더> <GIT_INDEX_FILE 값> <commit 인자…>
-  local d=$1 idx=$2 gd f staged extra names del_count reverted shown more t src
+  local d=$1 idx=$2 gd f staged extra worktree_deleted names del_count reverted shown more t src
   shift 2
   parse_commit_args "$@"
   [ "$c_dry" = 1 ] && return 0
@@ -218,19 +228,27 @@ check_commit_pre() {  # check_commit_pre <저장소 폴더> <GIT_INDEX_FILE 값>
   fi
 
   staged=$(g diff --cached -M --diff-filter=D --name-only)
-  # -i 는 지정한 경로의 작업 폴더 삭제를 목록에 더해 싣는다. 목록 사본에 얹어 세야
-  # 옮긴 파일(새 경로만 git add)의 옛 경로가 삭제가 아니라 이름 바꾸기로 잡힌다
-  if [ "$c_incl" = 1 ] && [ "${#c_pathv[@]}" -gt 0 ]; then
+  extra=""
+  # -a 와 같은 명령의 git add 는 작업 폴더 상태를, -i 는 지정한 경로의 작업 폴더 상태를 목록에 더해 싣는다.
+  # 목록 사본에 얹어 세야 옮긴 폴더의 옛 경로가 삭제가 아니라 이름 바꾸기로 잡힌다
+  if [ "$c_all" = 1 ] || [ "$add_all" = 1 ] || { [ "$c_incl" = 1 ] && [ "${#c_pathv[@]}" -gt 0 ]; }; then
+    worktree_deleted=$(g ls-files --full-name --deleted)
     t=$(mktemp -d "${TMPDIR:-/tmp}/commit-guard.XXXXXX") || return 0
     src=${g_index:-$(g rev-parse --git-path index)}
     case $src in /*) ;; *) src=$d/$src ;; esac
-    cp "$src" "$t/index" 2>/dev/null &&
-      staged=$(overlay_deletes "$t/index" "$(g ls-files --full-name -- "${c_pathv[@]}")")
+    if cp "$src" "$t/index" 2>/dev/null; then
+      if [ "$c_all" = 1 ] || [ "$add_all" = 1 ]; then
+        # add -A · add . 는 새 파일도 올린다 — 새 경로가 사본에 없으면 이름 바꾸기로 잡히지 않는다
+        staged=$(overlay_deletes "$t/index" "$(printf '%s\n%s\n' "$worktree_deleted" "$add_untracked")")
+      else
+        staged=$(overlay_deletes "$t/index" "$(g ls-files --full-name -- "${c_pathv[@]}")")
+      fi
+    fi
     rm -rf "$t"
+    # 목록에서 이미 지운 삭제만으로 막을 때는 막힘 설명에 작업 폴더 삭제를 적지 않는다
+    extra=$(comm -12 <(printf '%s\n' "$staged" | sort) <(printf '%s\n' "$worktree_deleted" | sort) | grep .)
   fi
-  extra=""
-  if [ "$c_all" = 1 ] || [ "$add_all" = 1 ]; then extra=$(g ls-files --deleted); fi
-  names=$(printf '%s\n%s\n' "$staged" "$extra" | grep -v '^$' | sort -u)
+  names=$(printf '%s\n' "$staged" | grep -v '^$' | sort -u)
   del_count=$(printf '%s\n' "$names" | grep -c .)
   [ "$del_count" -gt "$limit" ] && block_deleted "$del_count" "$names" "$extra"
 
@@ -264,7 +282,8 @@ check_commit_post() {  # check_commit_post <저장소 폴더>
 }
 
 handle_git() {  # handle_git <off> <GIT_INDEX_FILE 값> <git 인자…>
-  local off=$1 idx=$2 gdir=$dir glost=$lost sub a
+  local off=$1 idx=$2 gdir=$dir glost=$lost sub a take=0 after_dd=0 flag_all=0 flag_update=0 no_new=0 spec_file=0
+  local -a specs=()
   shift 2
   while [ $# -gt 0 ]; do
     case $1 in
@@ -283,12 +302,37 @@ handle_git() {  # handle_git <off> <GIT_INDEX_FILE 값> <git 인자…>
   case $sub in
     add)
       for a in "$@"; do
+        if [ "$take" = 1 ]; then take=0; continue; fi
+        if [ "$after_dd" = 1 ]; then specs+=("$a"); continue; fi
         case $a in
-          -A | --all | . | -u | --update | :/ | --no-ignore-removal) add_all=1 ;;
+          --) after_dd=1 ;;
+          --update) flag_update=1 ;;
+          --all | --no-ignore-removal) flag_all=1 ;;
+          --dry-run | --interactive | --patch | --edit | --intent-to-add) no_new=1 ;;
+          --pathspec-from-file) spec_file=1; take=1 ;;
+          --pathspec-from-file=*) spec_file=1 ;;
           --*) ;;
-          -*[Au]*) add_all=1 ;;
+          -*)
+            case $a in *A*) flag_all=1 ;; *u*) flag_update=1 ;; esac
+            case $a in *[nipeN]*) no_new=1 ;; esac
+            ;;
+          [0-9]*'>'* | [0-9]*'<'* | '>'* | '<'*)
+            case $a in *[!0-9\<\>]*) ;; *) take=1 ;; esac
+            ;;
+          *) specs+=("$a") ;;
         esac
       done
+      { [ "$flag_all" = 1 ] || [ "$flag_update" = 1 ]; } && add_all=1
+      for a in "${specs[@]}"; do case $a in . | :/) add_all=1 ;; esac; done
+      # 새 파일은 -A, 또는 -u 없이 경로를 준 add 만 올리고 그 경로 안의 것뿐이다. 경로 밖 추적 안 된 사본까지 얹으면
+      # git 이 싣지 않는 새 파일이 진짜 삭제와 이름 바꾸기로 짝지어져 삭제가 빠진다
+      if [ "$no_new" = 0 ] && [ "$spec_file" = 0 ] && [ "$glost" = 0 ] &&
+        { [ "$flag_all" = 1 ] || { [ "$flag_update" = 0 ] && [ "${#specs[@]}" -gt 0 ]; }; }; then
+        [ "${#specs[@]}" -gt 0 ] || specs=(:/)
+        g_dir=$gdir g_index=$idx
+        add_untracked="$add_untracked
+$(g ls-files --full-name --others --exclude-standard -- "${specs[@]}")"
+      fi
       ;;
     read-tree) read_trees="$read_trees$idx|" ;;
     commit)
@@ -355,7 +399,7 @@ handle_segment() {
   esac
 }
 
-dir=$cwd lost=0 add_all=0 x_off=0 x_index="" read_trees="|"
+dir=$cwd lost=0 add_all=0 add_untracked="" x_off=0 x_index="" read_trees="|"
 while IFS= read -r seg; do
   IFS=$'\037' read -r -a words <<<"$seg"
   handle_segment "${words[@]}"

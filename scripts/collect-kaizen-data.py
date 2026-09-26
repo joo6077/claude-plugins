@@ -1709,6 +1709,11 @@ def render_data_pool(
         "| 10 React | react-kit/skills/* | §0 + §3 followup-2026-04-11, §5 |",
         "| 11 Planning | planning-kit/skills/* | §0 + §1 planning 관련 feedback |",
         "| 12 Reflect | reflect-kit/skills/* | §0 + §1 Reflexion 패턴 피드백 |",
+        "| 13 Bambu | bambu-kit/skills/* | §0 + §2 실측 dogfood 결과, bambu-kit references SSOT |",
+        "| 14 Onboarding | onboarding-kit/skills/* | §0 + §5 validate-plugin 현재 상태 |",
+        "| 15 Tone | tone-kit/skills/* | §0 + §1 tone-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
+        "| 16 Api | api-kit/skills/* | §0 + §1 api-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
+        "| 17 Howto | howto-kit/skills/* | §0 + §1 howto-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
         "",
     ]
 
