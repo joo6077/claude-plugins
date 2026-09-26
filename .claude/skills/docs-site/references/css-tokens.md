@@ -70,3 +70,4 @@ WCAG AA(4.5:1)를 넘어야 한다. `--bg` 위만 보면 통과인데 카드 안
 4. `h1` gradient: `linear-gradient(135deg, var(--text), var(--accent))`
 5. `.section-label` 색상: `var(--accent)`
 6. `.card:hover` 보더: `rgba({accent-r},{accent-g},{accent-b},0.25)`
+7. 움직임 줄이기와 본문 행간 1.7 은 공통 파일 `docs/assets/site.css` 가 맡는다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다.

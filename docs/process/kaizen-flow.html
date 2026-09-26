@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>카이젠 오케스트레이션 플로우</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -243,6 +244,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
         <div class="step-list">
           <div class="step"><div class="step-num">3</div>동시에 도는 킷 Phase 는 3 개까지 — 5 개 · 4 개로 돌린 두 사이클에서 서브에이전트가 과부하 오류(529)로 죽었고 2 ~ 3 개는 무사고였다</div>
           <div class="step"><div class="step-num">✎</div>여러 Phase 가 한 가지에 커밋하면 커밋마다 서명 줄 Kaizen-Phase: &lt;슬러그&gt; 를 넣는다</div>
+          <div class="step"><div class="step-num">§</div>Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 「범위:」 줄과 references/phase-dependencies.md 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 scripts/sync-orchestrator.py 가 킷에 실제로 있는 references/ · skills/*/references/ · agents/ · hooks/ · docs/ · evals/ 를 모두 적어 만든다. 폴더를 새로 만들면 스크립트를 다시 돌린다 (2026-09-24 사이클: 스킬 본문과 참조 폴더만 적던 때 reflect-kit 의 hooks/_lib-project-id.sh · docs/SCHEMA.md 수정이 Phase 12 AUTO 줄 밖이었다)</div>
         </div>
       </div>
     </div>
@@ -407,6 +409,10 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">flutter-toolkit/skills/*/SKILL.md</span>
             <span class="file-tag">flutter-toolkit/references/</span>
+            <span class="file-tag">flutter-toolkit/skills/*/references/</span>
+            <span class="file-tag">flutter-toolkit/agents/</span>
+            <span class="file-tag">flutter-toolkit/hooks/</span>
+            <span class="file-tag">flutter-toolkit/evals/</span>
             <span class="file-tag">docs/flutter/</span>
           </div>
         </div>
@@ -418,6 +424,11 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">design-kit/skills/*/SKILL.md</span>
             <span class="file-tag">design-kit/references/</span>
+            <span class="file-tag">design-kit/skills/*/references/</span>
+            <span class="file-tag">design-kit/agents/</span>
+            <span class="file-tag">design-kit/hooks/</span>
+            <span class="file-tag">design-kit/docs/</span>
+            <span class="file-tag">design-kit/evals/</span>
             <span class="file-tag">design-kit/docs/design/</span>
           </div>
         </div>
@@ -429,6 +440,9 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">backend-kit/skills/*/SKILL.md</span>
             <span class="file-tag">backend-kit/references/</span>
+            <span class="file-tag">backend-kit/skills/*/references/</span>
+            <span class="file-tag">backend-kit/agents/</span>
+            <span class="file-tag">backend-kit/evals/</span>
             <span class="file-tag">docs/backend/</span>
           </div>
         </div>
@@ -440,6 +454,9 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">infra-kit/skills/*/SKILL.md</span>
             <span class="file-tag">infra-kit/references/</span>
+            <span class="file-tag">infra-kit/skills/*/references/</span>
+            <span class="file-tag">infra-kit/agents/</span>
+            <span class="file-tag">infra-kit/evals/</span>
             <span class="file-tag">docs/infra/</span>
           </div>
         </div>
@@ -451,6 +468,9 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">rust-kit/skills/*/SKILL.md</span>
             <span class="file-tag">rust-kit/references/</span>
+            <span class="file-tag">rust-kit/skills/*/references/</span>
+            <span class="file-tag">rust-kit/agents/</span>
+            <span class="file-tag">rust-kit/evals/</span>
             <span class="file-tag">docs/rust/</span>
           </div>
         </div>
@@ -462,6 +482,8 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">react-kit/skills/*/SKILL.md</span>
             <span class="file-tag">react-kit/references/</span>
+            <span class="file-tag">react-kit/agents/</span>
+            <span class="file-tag">react-kit/evals/</span>
             <span class="file-tag">docs/react/</span>
           </div>
           <div class="dep-note">라이브러리 0개 원칙 — 금지 라이브러리는 완화하지 않고 추가만 한다</div>
@@ -473,6 +495,8 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="phase-desc">제품 기획 스킬 개선 (docs/planning/ 리서치 기준). /planning-kaizen 서브에이전트로 실행.</div>
           <div class="file-list">
             <span class="file-tag">planning-kit/skills/*/SKILL.md</span>
+            <span class="file-tag">planning-kit/agents/</span>
+            <span class="file-tag">docs/planning/</span>
           </div>
           <div class="dep-note">필수 리서치 소스 최소 3 건 — 리서치 문서가 부족하면 /planning-research 먼저</div>
         </div>
@@ -484,6 +508,10 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">reflect-kit/skills/*/SKILL.md</span>
             <span class="file-tag">reflect-kit/references/</span>
+            <span class="file-tag">reflect-kit/skills/*/references/</span>
+            <span class="file-tag">reflect-kit/hooks/</span>
+            <span class="file-tag">reflect-kit/docs/</span>
+            <span class="file-tag">reflect-kit/evals/</span>
           </div>
         </div>
 
@@ -494,6 +522,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">bambu-kit/skills/*/SKILL.md</span>
             <span class="file-tag">bambu-kit/skills/*/references/</span>
+            <span class="file-tag">bambu-kit/evals/</span>
           </div>
           <div class="dep-note">references 대량 갱신은 /bambu-research 소관</div>
         </div>
@@ -516,6 +545,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">tone-kit/skills/*/SKILL.md</span>
             <span class="file-tag">tone-kit/references/</span>
+            <span class="file-tag">tone-kit/evals/</span>
             <span class="file-tag">docs/tone/</span>
           </div>
           <div class="dep-note">규칙 강도(MUST / SHOULD / 관측 컨벤션)를 공개 출처 없이 올리지 않는다</div>
@@ -528,6 +558,8 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">api-kit/skills/*/SKILL.md</span>
             <span class="file-tag">api-kit/references/</span>
+            <span class="file-tag">api-kit/skills/*/references/</span>
+            <span class="file-tag">api-kit/agents/</span>
             <span class="file-tag">docs/api/</span>
           </div>
           <div class="dep-note">문서 기재와 실측이 다르면 실측을 채택한다</div>
@@ -540,6 +572,8 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
           <div class="file-list">
             <span class="file-tag">howto-kit/skills/*/SKILL.md</span>
             <span class="file-tag">howto-kit/references/</span>
+            <span class="file-tag">howto-kit/agents/</span>
+            <span class="file-tag">howto-kit/evals/</span>
             <span class="file-tag">docs/howto/</span>
           </div>
         </div>
