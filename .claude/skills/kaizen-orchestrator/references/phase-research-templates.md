@@ -75,7 +75,7 @@ last_updated: 2026-09-05
 | 3 | Context7 `flutter_hooks` | 공식 | 최신 hooks 패턴 | WebFetch pub.dev/packages/flutter_hooks |
 | 4 | Context7 `go_router` 또는 `auto_route` | 공식 | 라우터 최신 패턴 | WebFetch pub.dev |
 | 5 | Context7 `freezed` (3.x) | 공식 | sealed/switch 마이그레이션 | WebFetch |
-| 6 | Hub `fit-pal/` + `apps/` sprint-feedback | ground truth | 실무 피드백 | 내부 파일 Read |
+| 6 | Hub 외부 프로젝트(Flutter 앱) sprint-feedback | ground truth | 실무 피드백 | 내부 파일 Read |
 
 ## Phase 6 — design-kit
 
@@ -127,7 +127,7 @@ last_updated: 2026-09-05
 | 4 | Context7 `tonic` (0.13+) | 공식 | gRPC 최신 | WebFetch hyperium/tonic |
 | 5 | [Rust Edition 2024 Guide](https://doc.rust-lang.org/edition-guide/) | 공식 | edition 전환 | WebFetch |
 | 6 | [Clippy lints index](https://rust-lang.github.io/rust-clippy/master/) | 공식 | 2026 새 lints | WebFetch |
-| 7 | fit-pal server ground truth | 내부 | 실무 패턴 | 파일 Read |
+| 7 | Hub 외부 프로젝트(Rust 서버) ground truth | 내부 | 실무 패턴 | 파일 Read |
 
 ## Phase 10 — react-kit
 
@@ -258,8 +258,9 @@ api-kit 은 **실제 응답을 SSOT 로 삼는** 블랙박스 계약 검증을 �
 - **`pin` 의 의미를 되돌리지 마라.** 2026-09-04 리서치에서 '값 고정' → '경로별 명시 assertion'
   으로 재정의됐다. 외부 도구(버전 pin · snapshot pin)의 용례를 근거로 되돌리려면 설계문서 §9.2
   와 `/api-ui` 아이콘 어휘를 함께 고쳐야 한다.
-- **경로 간 불변식은 Hurl 로 표현할 수 없다.** `$.meta.total >= len($.data)` 류는 계약 YAML 에
-  기록하고 `/api-verify` 후처리에서 검사한다. Hurl assert 문법이 늘었다는 주장은 실측으로 확인한다.
+- **경로 간 불변식은 `.hurl` 에도 적을 수 있지만 판정 불가를 표현할 곳이 없다.** `$.meta.total >= len($.data)`
+  류에서 한쪽 경로가 없으면 Hurl 이 종료 코드 `3` 으로 끝나 실패와 판정 불가가 갈리지 않는다
+  (정본 `api-kit/skills/api-verify/SKILL.md`). 그래서 계약 YAML 에 기록하고 `/api-verify` 후처리에서 검사한다.
 - **확정 결정 5 건을 리서치로 뒤집지 마라** — `exact` 는 본문만 · enum 승격 3 샘플 이상 ·
   prod 기본 GET/HEAD/OPTIONS · 기준선 RFC 8785 JCS · 계약 실패와 환경 실패는 exit code 로 분리.
   근거는 설계문서 §12 의 사용자 확정이다.

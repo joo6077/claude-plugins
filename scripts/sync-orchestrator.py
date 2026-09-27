@@ -37,8 +37,17 @@ EXCLUDED_PLUGINS = {"harness"}
 FIRST_PLUGIN_PHASE = 5
 
 # 카이젠이 고치는 곳이 스킬 본문만이 아니다 —
-# 2026-09-24 사이클에 reflect-kit 의 hooks/ · docs/ 수정이 범위 줄 밖이었다
-KIT_SCOPE_DIRS = ("references/", "skills/*/references/", "agents/", "hooks/", "docs/", "evals/")
+# 2026-09-24 사이클에 reflect-kit 의 hooks/ · docs/ 수정이, 킷 scripts/ · templates/ 수정도 범위 줄 밖이었다
+KIT_SCOPE_DIRS = (
+    "references/",
+    "skills/*/references/",
+    "agents/",
+    "hooks/",
+    "docs/",
+    "evals/",
+    "scripts/",
+    "templates/",
+)
 
 
 def load_marketplace() -> list[dict]:

@@ -27,6 +27,7 @@ user-invocable: true
    | design-guide · design-system | **가이드형 스킬 Process Step 순서 고정 (탐색→진단→처방) · Enumerate-before-Act** |
    | design-mockup · design-reference | **HTML 산출물 의도 설계 명시 (AR-01 예외 선언)** |
    | design-system · design-component | **DTCG v1 · OKLCH · 다크모드 토큰 매핑** 공통 원칙 정합성 |
+   | 시각 변경 규약 셋 (`design-kit/references/visual-change-protocol.md` · `flutter-toolkit/references/visual-evidence-protocol.md` · `react-kit/references/render-evidence-protocol.md`) | **편집 전 확정 · 비교 반복 순서 · 캡처 점검 목록** 절이 세 규약에 같은 이름으로 있는지 대조한다. 2026-09-27 기준 편집 전 확정은 design 에만, 비교 반복 순서는 design · react 에, 캡처 점검 목록은 셋 모두에 있다 |
 
 7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (생성 대상) · `.harness/sprint-contract-<slug>.md` (오케스트레이터 병렬 실행 시 Phase 별 계약 경로 — 경로 규약은 `harness/references/contract-schema.md` §계약 파일) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/sprint-feedback-<slug>.md` · `.harness/sprint-amendments-<slug>.md` (병렬 실행 때 슬러그 계약의 QA 산출물 · 개정 파일 — qa-evaluator 는 슬러그 계약이면 `sprint-feedback-<slug>.md` 에 쓴다) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지).
 
