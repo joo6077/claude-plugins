@@ -29,7 +29,7 @@ last_updated: 2026-09-25
 - SANER 2025 논문의 OpenReview 항목은 프리프린트다. venue 로 표기하면 부정확하다.
 - `github.com/flutter/flutter/wiki/Style-guide-for-Flutter-repo` 는 위키 이전 이력이 있어 `sources.md` 에 `주의` 로 표기했다.
 
-#### 검증 실행
+### 검증 실행
 
 grep 게이트 10종을 bash·zsh 양쪽에서 실행해 동일 결과를 확인했다. 준수 상태에서 0건이 정상인 익명 레코드 반환 패턴은 합성 양성 케이스 2건 / 음성 0건으로 생존을 증명했다.
 

@@ -383,7 +383,7 @@ mindmap
       "NUF Test"
 ```
 
-#### 예제 2: HMW에서 컨셉 후보로 수렴
+### 예제 2: HMW에서 컨셉 후보로 수렴
 
 ```mermaid
 mindmap
@@ -400,7 +400,7 @@ mindmap
         "guided checklist"
 ```
 
-##### 예제 3: shape 포함 예제
+### 예제 3: shape 포함 예제
 
 ```mermaid
 mindmap

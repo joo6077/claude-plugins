@@ -93,7 +93,7 @@ impl<D: DatabasePort> UserService<D> {
 
 장점: 컴파일 타임 최적화, vtable 없음, 단형화(monomorphization)로 인라인 가능. 단점: 타입 파라미터가 늘어날수록 제네릭 폭발이 발생한다.
 
-##### 트레잇 객체 기반 (동적 디스패치)
+#### 트레잇 객체 기반 (동적 디스패치)
 
 ```rust
 pub struct UserService {
