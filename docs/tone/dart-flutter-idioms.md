@@ -1,7 +1,7 @@
 ---
 title: Dart / Flutter 어댑터 관용구
-version: 0.1.0
-last_updated: 2026-09-02
+version: 0.2.0
+last_updated: 2026-09-27
 ---
 
 # Dart / Flutter 어댑터 관용구
@@ -615,7 +615,7 @@ Down          →  Start        →  Update / MoveUpdate  →  End / Up   →  C
 
 **강도:** SHOULD — 공식 문서가 "소비자 코드도 이 이름을 쓰라"고 명시하지는 않는다. 근거는 어휘가 SDK 에 실재한다는 사실이지 지침 문장이 아니므로 `MUST` 로 올리지 않는다.
 
-> **출처:** Flutter SDK 소스 실측 — `packages/flutter/lib/src/widgets/gesture_detector.dart` 콜백 58개 (3.38.4) · [Effective Dart — design](https://dart.dev/effective-dart/design) · 프로젝트 실측 (`handlePressStart` 7건 · `handlePressEnd` 8건)
+> **출처:** Flutter SDK 소스 실측 — `packages/flutter/lib/src/widgets/gesture_detector.dart` 콜백 58개 (3.38.4 · 3.47.5) · [Effective Dart — design](https://dart.dev/effective-dart/design) · 프로젝트 실측 (`handlePressStart` 7건 · `handlePressEnd` 8건)
 
 ---
 
@@ -683,7 +683,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 | bare `catch (e)` vs `on Exception` | 27건 vs 3건 | 프로젝트 실측 (2026-06-26) |
 | `useEffect` 동기화 지연 | 1프레임 (post-frame, 수용됨) | 프로젝트 실측 (2026-06-22) |
 | 공유 typedef 파일 허용 개수 | 0개 | 프로젝트 실측 (2026-06-25) |
-| Flutter 제스처 콜백 어휘 규모 | 58개 (`gesture_detector.dart`, 3.38.4) | Flutter SDK 소스 실측 |
+| Flutter 제스처 콜백 어휘 규모 | 58개 (`gesture_detector.dart`, 3.38.4 · 3.47.5) | Flutter SDK 소스 실측 |
 | doc 라벨 표기 상수 | `- [param]:` / `- 반환값:` | `korean-technical-writing.md` (한국어 축 SSOT) |
 | `audit_greps` 실행 검증 | 10종 전부, bash·zsh 양쪽 + 양성 케이스 확인 | 본 문서 |
 
