@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""check-reviewer-protocol-copies.py — 킷 reviewer 일곱이 든 미검증 규칙 사본이 원문과 글자까지 같은지 잰다.
+"""check-reviewer-protocol-copies.py — 킷 reviewer 일곱과 flutter-audit 이 든 미검증 규칙 사본이 원문과 글자까지 같은지 잰다.
 
 원문은 `harness/docs/guides/qa-evaluation-guide.md` 의 두 덩어리다.
 
   조항    §Canonical Unverified-Evidence Protocol 의 번호 목록 (「마커는」 조항부터 절 끝 인용문 앞까지)
   4 요건  §증거 분류 triage 의 `UNVERIFIED_ENV` 남용 방지 4 요건
 
-킷은 따로 설치되어 원문을 읽지 못하므로 reviewer 가 사본을 든다. 원문이 바뀌었는데 사본이
+킷은 따로 설치되어 원문을 읽지 못하므로 reviewer 가 사본을 든다. reviewer 가 없는 flutter-toolkit 은
+flutter-audit 스킬이 든다. 원문이 바뀌었는데 사본이
 따라가지 않은 일이 세 번 있었다 — 원문 머리말의 「현재 drift (2026-07-27 실측)」,
 backend-reviewer 의 2026-08-13 재동기화, 2026-09-24 Phase 8 기록. 사람 다짐으로는 막히지 않아 CI 에 둔다.
 
@@ -19,13 +20,13 @@ backend-reviewer 의 2026-08-13 재동기화, 2026-09-24 Phase 8 기록. 사람 
 Usage:
     python3 scripts/check-reviewer-protocol-copies.py
 
-exit 0 = 일곱 모두 같다, 1 = 다른 사본이나 목록 밖 reviewer 가 있다,
+exit 0 = 여덟 모두 같다, 1 = 다른 사본이나 목록 밖 reviewer 가 있다,
 2 = 원문이나 사본을 읽지 못했다 (1 과 함께 나면 2). 값의 정의는 `harness/evals/gate-exit-codes.md`.
 """
 import re
 import sys
 
-from plugin_utils import REPO_ROOT
+from plugin_utils import REPO_ROOT, contains_block, normalized
 
 GUIDE = "harness/docs/guides/qa-evaluation-guide.md"
 CLAUSE_SECTION = "## Canonical Unverified-Evidence Protocol (각 kit reviewer 복제용 정본)"
@@ -40,6 +41,7 @@ REVIEWERS = [
     "planning-kit/agents/planning-reviewer.md",
     "react-kit/agents/react-reviewer.md",
     "rust-kit/agents/rust-reviewer.md",
+    "flutter-toolkit/skills/flutter-audit/SKILL.md",
 ]
 
 # 원문은 모든 `*-kit/agents/*-reviewer.md` 에 사본을 요구하지만 아직 들지 않은 파일. 이유는 출력에 그대로 나간다
@@ -47,11 +49,6 @@ EXCLUDED = {
     "howto-kit/agents/howto-reviewer.md":
         "사본을 아직 들지 않는다 — 2026-09-26 사용자 결정이 reviewer 일곱이었다. 다음 사이클 Phase 17 에서 넣는다",
 }
-
-
-def normalized(lines: list[str]) -> list[str]:
-    stripped = (re.sub(r"^[\s>]*", "", line).rstrip() for line in lines)
-    return [line for line in stripped if line]
 
 
 def canonical_blocks(guide_lines: list[str]) -> tuple[list[str], list[str]]:
@@ -79,11 +76,6 @@ def canonical_blocks(guide_lines: list[str]) -> tuple[list[str], list[str]]:
                 break
             requirements.append(line)
     return clauses, requirements
-
-
-def contains_block(lines: list[str], block: list[str]) -> bool:
-    width = len(block)
-    return any(lines[start:start + width] == block for start in range(len(lines) - width + 1))
 
 
 def main() -> int:
