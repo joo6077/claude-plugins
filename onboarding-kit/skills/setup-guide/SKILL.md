@@ -122,19 +122,19 @@ guide_gate() {
   # G5 막는 요구 세 칸 — `| 요구 | 출처 | 막히는 것 | 우회 |` 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다.
   #    표가 없으면 PASS rows=0 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9).
   blk=$(awk '
-    function trim(s){ gsub(/^[ \t]+|[ \t]+$/, "", s); return s }
+    function trim(text){ gsub(/^[ \t]+|[ \t]+$/, "", text); return text }
     /^\|/ {
       row=$(0); sub(/^\|/, "", row); sub(/\|[ \t]*$/, "", row)
-      k=split(row, cell, "|")
-      for (i=1; i<=k; i++) cell[i]=trim(cell[i])
-      if (k==4 && cell[1]=="요구" && cell[2]=="출처" && cell[3]=="막히는 것" && cell[4]=="우회") { tb=1; next }
-      if (!tb || row ~ /^[ \t:|-]+$/) next
+      ncell=split(row, cell, "|")
+      for (i=1; i<=ncell; i++) cell[i]=trim(cell[i])
+      if (ncell==4 && cell[1]=="요구" && cell[2]=="출처" && cell[3]=="막히는 것" && cell[4]=="우회") { in_table=1; next }
+      if (!in_table || row ~ /^[ \t:|-]+$/) next
       rows++
-      if (k!=4 || cell[1]=="" || cell[2]=="" || cell[3]=="" || cell[4]=="") empty++
+      if (ncell!=4 || cell[1]=="" || cell[2]=="" || cell[3]=="" || cell[4]=="") empty++
       if (cell[2] !~ /http/) nourl++
       next
     }
-    { tb=0 }
+    { in_table=0 }
     END { print rows+0, empty+0, nourl+0 }
   ' "$g")
   blk_rows=${blk%% *}; blk_rest=${blk#* }; blk_empty=${blk_rest%% *}; blk_nourl=${blk_rest#* }
