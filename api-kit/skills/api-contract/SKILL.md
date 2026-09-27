@@ -69,6 +69,8 @@ IEEE 754 binary64 표현 불가 숫자     → 실패
 안전 정수 범위 밖 (±9007199254740991) → 경고 + 문자열 보존 검토
 ```
 
+binary64 표현 불가 숫자는 [RFC 7493 §2.2](https://www.rfc-editor.org/rfc/rfc7493.txt) 에서 SHOULD NOT(권고)일 뿐 금지가 아니다. 킷은 이것을 실패로 막는다 — 표준보다 엄격한 킷 정책이다.
+
 그다음 -0 검사: `-0` (음의 영) → 실패. RFC 7493(I-JSON)에는 없는 규칙이다 — `-0` 은 올바른 JSON 숫자지만 JCS 가 `0` 으로 적어 부호가 사라지므로 JCS 앞에서 따로 멈춘다(RFC 8785 정정 7920, SHOULD).
 
 게이트 실패와 -0 검사 실패는 계약 실패가 아니라 **봉인 불가**다. 원인 경로를 그대로 보고하고 해당 필드를 마스크로 격리할지 사용자에게 묻는다.
@@ -224,13 +226,13 @@ HTTP 200
 [Asserts]
 header "Content-Type" matches "^application/json"
 jsonpath "$.data" isCollection
-jsonpath "$.data[0].id" isString
 jsonpath "$.meta.total" isInteger
 ```
 
 지킬 것:
 
 - query 는 `[Query]` 한 경로만. URL 문자열에 중복 생성 금지.
+- 배열 항목에 index assertion(`$.data[0].id`)을 쓰지 않는다. 빈 목록 응답에서 hurl 이 종료 코드 `4`(계약 실패)를 낸다. `$.data[*].id` 로 바꿔도 항목이 하나면 hurl 이 값을 벗겨 `isCollection` 이 떨어진다(hurl 8.0.1 실측 2026-09-27). 항목 필드는 schema drift(`/api-verify` §6)가 잰다.
 - 의존 흐름(로그인 → 조회 → 삭제)은 한 파일 안에. `[Captures]` 이름을 체인 안에서 재사용하지 않는다.
 - 최소 assert 는 expected status 하나. body 전체 capture 는 downstream 이 실제로 쓰거나 진단 목적일 때만 켠다.
 - cli-only 옵션을 `[Options]` 에 적지 않는다 — 무시되어 파일과 실제 실행이 어긋난다.

@@ -182,6 +182,7 @@ echo "exit=$?"
               → 하나라도 처리 실패하면 여기서 중단. 저장하지 않는다
 2. I-JSON 검문 중복 키 · lone surrogate · noncharacter · NaN/Infinity · binary64 표현 불가 숫자, 이어서 -0 검사
               → 정규화 대상이 아니라 실패/fallback 대상 (-0 은 JCS 가 0 으로 적어 부호가 사라진다)
+              binary64 표현 불가 숫자는 RFC 7493 §2.2 에서 SHOULD NOT(권고)이다 — 실패로 막는 것은 표준보다 엄격한 킷 정책
 3. raw 봉인    상태코드 · 원본 헤더 라인 · 바이트 digest · 시크릿만 마스킹한 본문
 4. normalized  타임스탬프·UUID·커서를 sentinel 로, 부동소수 정밀도 고정
               → RFC 8785 JCS canonical JSON 으로 직렬화 (비교 기준선)
