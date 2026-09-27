@@ -24,7 +24,11 @@ user-invocable: true
 9. **[미검증] 표기 의무** — reviewer 가 자체 검증 불가능한 항목(예: Mermaid 렌더 결과, 외부 URL 유효성, GitHub sync 실제 결과)은 FAIL 이 아니라 `[미검증]` 으로 표기하고 사용자에게 수동 확인 요청. 관측 못 한 것을 FAIL 처리하면 평가 의미 상실. **마커 의미·임계값·집계 형식의 SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이며 `planning-reviewer` 가 이를 복제 보유한다 — 본 스킬에서 임계 숫자를 재정의하지 마라.**
 10. **산출물이 있어도 공허하면 PASS 금지** — 파일이 존재하는데 해당 섹션이 비어 있거나 템플릿 헤더만 남은 경우(항목 0개), 존재 자체를 충족으로 읽지 마라. `planning-reviewer` 사본의 4 분기(FAIL / `[미검증:ENV]` / 4 요건 미충족 / 증거 무효)를 적용한다. 빈 결과를 "문제 없음" 으로 읽는 것이 skill-design-guide §3.7 조항 4 가 지적한 실제 사고 형태다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 자동 로드 (독립 단계)
 
@@ -57,6 +61,7 @@ user-invocable: true
 ## Step 2: planning-reviewer 에이전트 호출
 
 Agent 도구로 `planning-reviewer` 서브에이전트 spawn. 프롬프트에 다음 전달:
+
 - Step 1 인벤토리 (파일 경로 목록)
 - Step 0 에서 확인한 `docs/planning/` 원칙 문서 경로
 - 아래 **12 카테고리** 체크리스트 (0a Reference, 0b Ideation 은 선택 — 해당 산출물 없으면 N/A)
@@ -64,7 +69,7 @@ Agent 도구로 `planning-reviewer` 서브에이전트 spawn. 프롬프트에 �
 ## Step 3: 12 카테고리 평가 기준
 
 | # | 카테고리 | PASS 조건 | 참조 문서 | 1차 출처 |
-|---|---------|-----------|----------|----------|
+| --- | --------- | ----------- | ---------- | ---------- |
 | 0a | Reference | (선택) 레퍼런스 제품이 존재하면 Lightning Demo 5+ 제품 + Feature Matrix + Positioning Statement 존재. "X 같은 앱" 류 요청이 아니면 N/A | reference.md | [GV Sprint Lightning Demo](https://www.gv.com/sprint/), [Strategyzer VPC](https://www.strategyzer.com/library/the-value-proposition-canvas), [April Dunford](https://www.aprildunford.com/) |
 | 0b | Ideation | (선택) 발산(HMW/Crazy 8s 등) + 정리(Affinity/Mindmap) + 수렴(Dot/Impact-Effort) 흔적 존재. 단일 아이디어에서 바로 discovery 진입한 경우 N/A | ideation.md | [Stanford d.school](https://dschool.stanford.edu/resources), [GV Sprint](https://www.gv.com/sprint/), [Design Council Double Diamond](https://www.designcouncil.org.uk/our-resources/the-double-diamond/) |
 | 1 | Discovery | Problem/User/JTBD/Assumption/Metric 모두 존재 + switching moments 인터뷰 증거 | discovery.md §JTBD / §Continuous Discovery | [Klement](https://www.alanklement.com/), [Torres](https://www.producttalk.org/glossary-discovery-continuous-discovery/) |
@@ -141,12 +146,17 @@ reviewer 가 FAIL 축과 `[미검증]` 축을 각각 판정해서 돌려준다. 
 
 Verdict 가 READY 가 아니면 **sprint-contract 진행 차단**하고 보완 항목 명시. 사용자가 "이번에는 READY 로 간주하고 진행" 요청해도 차단 — Gotcha 4 우회 금지.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `planning-reviewer` 에이전트 — 12 카테고리 독립 평가 (0a Reference, 0b Ideation, 1~10)
 - `docs/planning/` 전체 원칙 문서 (discovery, prd-patterns, stories, prioritization, flows, data-modeling, risks, cognitive-biases, github-integration, reference, ideation)
 
 주요 1차 출처 (12 카테고리 대응):
+
 - [Alan Klement — JTBD](https://www.alanklement.com/)
 - [Teresa Torres — Continuous Discovery](https://www.producttalk.org/glossary-discovery-continuous-discovery/)
 - [Amazon Working Backwards](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes)

@@ -30,7 +30,11 @@ user-invocable: true
 14. **Strategy Canvas 예쁜 곡선 ≠ 실행 가능성** — "차별화를 위한 차별화(differentiation for differentiation's sake)"는 오히려 가치 파괴다. `Create`보다 `Eliminate/Reduce`를 먼저 검토하고, 곡선 차이 각각에 **왜 그 투자 수준인지** 설명 가능해야 한다. 실행 가능성이 없는 곡선은 감상용 차트일 뿐. 출처: `docs/planning/reference.md` — Blue Ocean Strategy Canvas, [Blue Ocean — Strategy Canvas](https://www.blueoceanstrategy.com/tools/strategy-canvas/).
 15. **Heuristic Evaluation 평가자 편차 관리** — NN/g 10 heuristics 는 강력하지만 도메인 특화 UX 문제는 휴리스틱만으론 안 잡히고 평가자 간 편차가 크다. 한 명이 아니라 2-3명이 독립 평가하고 **근거 캡처(스크린샷+인용)** 를 반드시 남겨라, `aesthetic critique` 와 `heuristic violation` 을 구분하라. 출처: `docs/planning/reference.md` — Heuristic Evaluation, [NN/g — Jakob's Ten Usability Heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 리서치 문서 로드
 
@@ -49,7 +53,7 @@ user-invocable: true
 IDEO "Learn from Analogous Settings" 기법. 다음 4 카테고리로 최소 5개. 출처: [IDEO Design Kit — Analogous Inspiration](https://www.designkit.org/methods/analogous-inspiration.html).
 
 | 카테고리 | 개수 | 예 (ComfyUI 케이스) |
-|---------|------|--------------------|
+| --------- | ------ | -------------------- |
 | 직접 경쟁 | 2-3 | ComfyUI · Automatic1111 · Fooocus |
 | 인접 도메인 | 1-2 | n8n · Zapier · Rete.js · Figma (노드) |
 | 다른 업계 같은 원리 | 1 | Unreal Blueprint · Houdini · Grasshopper |
@@ -77,16 +81,16 @@ IDEO "Learn from Analogous Settings" 기법. 다음 4 카테고리로 최소 5�
 Top 2-3 제품에 대해 Jakob Nielsen 10 heuristics 관점으로 구조 분해:
 
 | 차원 | Product A | Product B |
-|------|-----------|-----------|
-| Visibility of system status |  |  |
-| User control & freedom |  |  |
-| Consistency & standards |  |  |
-| Error prevention |  |  |
-| Recognition vs recall |  |  |
-| Flexibility & efficiency |  |  |
-| Aesthetic & minimalist |  |  |
-| Error recovery |  |  |
-| Help & documentation |  |  |
+| --- | --- | --- |
+| Visibility of system status | | |
+| User control & freedom | | |
+| Consistency & standards | | |
+| Error prevention | | |
+| Recognition vs recall | | |
+| Flexibility & efficiency | | |
+| Aesthetic & minimalist | | |
+| Error recovery | | |
+| Help & documentation | | |
 
 출처: [NN/g — 10 Usability Heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/).
 
@@ -111,11 +115,13 @@ Ours 컬럼: **MUST** (따라할 것) / **LIKE** (Nice to have) / **NO** (의도
 ## Step 6: Value Proposition Canvas (Osterwalder)
 
 ### 왼쪽 — Customer (먼저)
+
 - **Jobs**: functional / emotional / social (JTBD 형식)
 - **Pains**: 현재 레퍼런스로 해결되지 않는 고통
 - **Gains**: 기대하는 긍정적 결과
 
 ### 오른쪽 — Product (나중)
+
 - **Products & Services**: 우리 제품의 핵심 기능
 - **Pain Relievers**: 고통을 어떻게 덜어주는가
 - **Gain Creators**: 기대 결과를 어떻게 만드는가
@@ -142,6 +148,7 @@ quadrantChart
 ```
 
 ### Four Actions
+
 - **Eliminate**: 업계 당연하지만 제거할 것 (예: 서버 세팅)
 - **Reduce**: 줄일 것 (예: 노드 종류 수 → 핵심 20개만)
 - **Raise**: 더 키울 것 (예: 브라우저 즉시 실행)
@@ -190,13 +197,18 @@ we <primary differentiation>.
 - MVP 스코프 결정 → `/plan-prioritize`
 - 기술 feasibility 의심 → 해당 kit 의 `-guide`/`-audit` (planning-kit 은 스택 결정 안 함)
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/reference.md` — SSOT (Lightning Demo · Teardown · VPC · Blue Ocean · Positioning · Feature Matrix)
 - `docs/planning/discovery.md` — JTBD 재정의
 - `docs/planning/cognitive-biases.md` — Survivorship / Confirmation
 
 주요 1차 출처 (리서치 md 검증된 URL):
+
 - [GV Sprint — Lightning Demos](https://www.gv.com/sprint/)
 - [The Sprint Book](https://www.thesprintbook.com/)
 - [IDEO Design Kit — Analogous Inspiration](https://www.designkit.org/methods/analogous-inspiration.html)

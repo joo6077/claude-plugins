@@ -20,7 +20,11 @@ user-invocable: true
 6. **전수 감사로 확장 금지** — 사용자가 가볍게 물으면 가볍게 답한다. 10개 카테고리 점검이 필요하면 `/plan-audit` 로 안내.
 7. **원칙 인용 시 출처 URL 필수** — "INVEST" 한 단어만 던지지 말고 [Agile Alliance — INVEST](https://agilealliance.org/glossary/invest/) 처럼 1차 출처 링크 포함. 출처 없는 원칙 언급은 학습 데이터 재생산으로 간주.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 > **가이드형 3-Step 원칙**: 이 스킬은 "가벼운 리뷰" 전용이므로 핵심은 (1) 맥락 판별 → (2) 원칙 로드 → (3) 적용+응답 3-Step. Step 0(자동 로드)과 Step 4(확장 안내)는 보조로 배치한다. 전수 감사 프로세스로 팽창시키지 마라 — `/plan-audit` 영역.
 
@@ -39,7 +43,7 @@ user-invocable: true
 사용자 질문에서 영역 식별:
 
 | 영역 | 키워드 | 주요 1차 출처 |
-|------|--------|--------------|
+| ------ | -------- | -------------- |
 | discovery | 문제, 가정, JTBD, user, 인터뷰, 가치 | [Klement](https://www.alanklement.com/), [Torres](https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/), [Cagan](https://www.svpg.com/four-big-risks/) |
 | prd | PRD, 기획서, spec, Shape Up, PR/FAQ, appetite | [Amazon](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes), [Shape Up](https://basecamp.com/shapeup/1.5-chapter-06), [Linear](https://linear.app/docs/issue-templates) |
 | stories | 스토리, user story, INVEST, AC, Gherkin | [Agile Alliance INVEST](https://agilealliance.org/glossary/invest/), [Cucumber Gherkin](https://cucumber.io/docs/gherkin/reference), [Patton](https://jpattonassociates.com/story-mapping/) |
@@ -79,7 +83,11 @@ user-invocable: true
 
 사용자가 "전체 점검" 원하면 `/plan-audit` 로 유도. 가볍게 계속 묻는다면 계속 가이드 모드 유지.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/` 전체 — discovery, prd-patterns, stories, prioritization, flows, data-modeling, risks, cognitive-biases, github-integration
 
