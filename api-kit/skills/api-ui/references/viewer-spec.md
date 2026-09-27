@@ -84,6 +84,9 @@ id 는 충돌 방지용 3~4자 접미사를 붙인다(`#topbar-3f2`, `#endpoint-
 - 엔드포인트 행: 메서드 배지(`data-m="GET"`) · **경로 전문**(말줄임 금지, wrap 허용) · 상태 아이콘. 행 버튼에는 `data-ep="<엔드포인트 id>"` 를 단다 — `SKILL.md` §7 브라우저 확인이 이 속성으로 화면에 보이는 항목을 센다.
 - 첫 화면에서 그룹은 모두 펼친다(확정 시안 `openGroups` 초기값이 전부 `true`). 접힌 채 시작하면 `SKILL.md` §7 의 `shown` 이 `ep` 보다 작게 나와 항목이 빠진 것과 구별되지 않는다.
 - 상태 아이콘 4종: `pass` · `fail` · `pending(미실행)` · `unjudged(판정 불가)`. 모양과 색이 넷 다 다르다. 아이콘만으로 구분하지 말고 `aria-label`/텍스트를 함께 준다.
+- 보류와 flaky 는 상태 값을 새로 만들지 않는다. `/api-verify` §7 · §8 이 둘 다 실패 기록을 남기라고 하므로 `state` 는 `'fail'` 이고, 요약 칩에서도 FAIL 로 센다. 초록 표시 뒤로 실패가 숨지 않게 하려는 것이다.
+  - 보류(baseline 이 `pending` 인 계약의 실패 — 게이트를 깨지 않는다): `state:'fail'` 에 `failMark:'보류'`. 행과 `실패 원인` 탭 제목 옆에 글자 표지 `보류` 를 달고 `aria-label="실패 · 보류 — 게이트를 깨지 않음"` 을 준다.
+  - flaky(재실행에서 결과가 뒤집힌 실패 — `flaky-confirmed`): `state:'fail'` 에 `failMark:'flaky'`. 같은 자리에 글자 표지 `flaky` 를 달고 `aria-label="실패 · flaky — 재실행에서 뒤집힘"` 을 준다.
 - 헤더에 `엔드포인트 N` 카운트와 `모두 접기` 버튼.
 - 필터(요약 칩 · 팔레트 스코프)로 결과가 0이면 빈 상태 + `필터 초기화` 버튼을 낸다.
 
@@ -143,7 +146,7 @@ id 는 충돌 방지용 3~4자 접미사를 붙인다(`#topbar-3f2`, `#endpoint-
 채워지는지 안내 + 커맨드 복사 유도)를 보여준다.
 
 판정 불가 줄(`unjudged`)은 응답 pane 의 맨 앞 탭에 둔다. FAIL 이면 `실패 원인` 탭 안에 위반 카드와 함께 판정 불가 알림 상자로 두고,
-판정 불가 단독이면 `본문` 탭 맨 위 알림 상자(`.callout[data-t="unj"]`)에 둔다. 줄은 `/api-verify` 판정 줄을 글자 그대로 옮긴다 —
+판정 불가 단독이면 `본문` 탭 맨 위 알림 상자(`.callout[data-t="unj"]`)에 둔다. 줄은 `/api-verify` 판정 줄에서 `<엔드포인트 id>:` 앞머리와 뒤 빈칸을 뗀 나머지를 글자 그대로 옮긴다 —
 `$.meta.total=(없음) · len($.data)=3 → 판정 불가`. 어느 경로가 없었는지가 그 줄에만 있으므로 요약하지 않는다.
 
 상단 스트립: 상태 코드 pill(4xx/5xx 는 danger) · 소요 ms · 응답 크기 · 기대값(실패 시 `expected`).
@@ -237,7 +240,8 @@ const EP = {
     body:{ /* 마스킹·정규화된 응답 본문. sentinel 은 S(token, hint) 형태 */ },
     timing:[['DNS 조회',12,'var(--info)'], /* ... */],
     violations:[{ title:'상태 코드 불일치', exp:'200 OK', act:'503 Service Unavailable', note:'...' }],
-    unjudged:['$.meta.total=(없음) · len($.data)=3 → 판정 불가'],   // /api-verify 판정 줄 중 `→ 판정 불가` 인 것만, 글자 그대로
+    failMark:null,           // state 가 'fail' 일 때만 '보류' | 'flaky'. null 이면 일반 실패 (§3.2)
+    unjudged:['$.meta.total=(없음) · len($.data)=3 → 판정 불가'],   // /api-verify 판정 줄 중 `→ 판정 불가` 인 것만, 앞머리를 떼고 글자 그대로
     diff:[
       { k:'add', path:'$.data[].items[].discountRate', note:'새 필드 · 타입 number' },
       { k:'rm',  path:'$.data[].items[].legacyCode',   note:'이전 스냅샷에 있던 string 필드가 사라졌습니다' },

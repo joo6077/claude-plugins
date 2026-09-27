@@ -229,6 +229,8 @@ https://cloud.google.com/terms
 | **ISO/IEC/IEEE 26514 · 26515 의 절차 작성 세부 조항** | **확인 실패** | ISO 를 근거로 인용하지 않는다. 유료 전문의 내용을 2 차 요약으로 추정해 쓰지 않는다 |
 | 스타일 가이드의 **매 스텝 verification 규정** | **확인 실패** | `verify` 필수는 **표준 인용이 아니라 도메인 실패 데이터에 근거한 강화**로 표기한다 |
 
+**DITA 2.0 확인 결과 (조회 2026-09-26)**: OASIS DITA 위원회 페이지(<https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=dita>)는 DITA 1.3 을 2015-12-17 승인된 OASIS Standard 로 적지만, DITA 2.0 의 Committee Specification · OASIS Standard 승인 여부와 날짜는 적지 않는다. 킷은 DITA 1.3 을 인용하고 DITA 2.0 을 승인된 표준으로 인용하지 않는다. 위 두 건과 달리 킷이 기대는 근거가 아니라서 `[미확인]` 건수에 넣지 않는다.
+
 시도했으나 확인하지 못한 URL:
 
 ```text

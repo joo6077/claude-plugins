@@ -164,9 +164,10 @@
         "G2_MARKER PASS bare=0 invalid=0 env=0",
         "G3_STACKMIX PASS stack=flutter swift_fence=0",
         "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
         "GATE_PASS"
       ],
-      "note": "정상 Flutter 가이드 — 네 검사 모두 PASS"
+      "note": "정상 Flutter 가이드 — 다섯 검사 모두 PASS"
     },
     {
       "id": "stack-unset",
@@ -177,6 +178,7 @@
         "G2_MARKER PASS bare=0 invalid=0 env=0",
         "G3_STACKMIX FAIL stack=unset swift_fence=0",
         "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
         "GATE_FAIL"
       ],
       "note": "스택 인자를 안 주면 G3 가 FAIL — 판정 불가를 PASS 로 흘리지 않는다"
@@ -190,6 +192,7 @@
         "G2_MARKER PASS bare=0 invalid=0 env=0",
         "G3_STACKMIX FAIL stack=unset swift_fence=0",
         "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
         "GATE_FAIL"
       ],
       "note": "빈 문자열 스택도 인자 없음과 같게 FAIL"
@@ -203,6 +206,7 @@
         "G2_MARKER PASS bare=0 invalid=0 env=0",
         "G3_STACKMIX PASS stack=flutter swift_fence=0",
         "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
         "GATE_PASS"
       ],
       "note": "Deprecated 박스의 출처 줄에 한국어 근거(지원 종료)가 있으면 G4 PASS"
@@ -216,6 +220,7 @@
         "G2_MARKER PASS bare=0 invalid=0 env=0",
         "G3_STACKMIX PASS stack=flutter swift_fence=0",
         "G4_DEPRECATION FAIL unsourced_boxes=1",
+        "G5_BLOCKING PASS rows=0",
         "GATE_FAIL"
       ],
       "note": "근거 토큰이 없으면 G4 FAIL"
@@ -229,6 +234,7 @@
         "G2_MARKER FAIL bare=1 invalid=2 env=1",
         "G3_STACKMIX FAIL swift_fence=1",
         "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
         "GATE_FAIL"
       ],
       "note": "G1 · G2 · G3 양성 대조 — 손으로 센 답과 같아야 한다"
@@ -242,9 +248,66 @@
         "G2_MARKER PASS bare=0 invalid=0 env=0",
         "G3_STACKMIX PASS stack=flutter swift_fence=0",
         "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
         "GATE_FAIL"
       ],
       "note": "출처 줄 수는 맞지만 Step 하나에 둘 · 다른 Step 에 0 — Step 마다 하나인지 따로 세는 판정이 살아 있어야 FAIL"
+    },
+    {
+      "id": "ledger-double-source",
+      "fixture": "fixtures/gate-fail-ledger-double-source.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER FAIL steps=2 ledger=3",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
+        "GATE_FAIL"
+      ],
+      "note": "한 Step 에 출처 둘 · 출처 없는 Step 없음 — 출처 줄이 Step 수보다 많아 G1 FAIL"
+    },
+    {
+      "id": "blocking-ok",
+      "fixture": "fixtures/gate-blocking-ok.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=2",
+        "GATE_PASS"
+      ],
+      "note": "막는 요구 표의 두 행이 네 칸 다 차고 출처 칸에 주소가 있으면 G5 PASS"
+    },
+    {
+      "id": "blocking-empty",
+      "fixture": "fixtures/gate-fail-blocking-empty.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "우회 칸이 빈 행이 있으면 G5 FAIL"
+    },
+    {
+      "id": "blocking-nourl",
+      "fixture": "fixtures/gate-fail-blocking-nourl.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=1 empty=0 nourl=1",
+        "GATE_FAIL"
+      ],
+      "note": "출처 칸에 http 주소가 없는 행이 있으면 G5 FAIL"
     }
   ]
 }

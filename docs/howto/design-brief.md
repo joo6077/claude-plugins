@@ -382,7 +382,7 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 | C2 | 스킬 3 개(`howto`, `howto-doc`, `howto-audit`) SKILL.md 존재, 각 frontmatter 에 `name`/`description`/`user-invocable` | `validate-plugin.py` V1 통과 |
 | C3 | 에이전트 `howto-reviewer.md` 존재, 도구가 읽기 전용으로 스코프됨 | frontmatter `tools` 에 Write/Edit 없음 |
 | C4 | Step Contract 스키마가 `references/step-contract.md` 에 정본으로 1 곳만 존재 | `grep -rn "step_id\|target_label" howto-kit/` 결과가 references 1 파일에 집중 |
-| C5 | G1~G6 게이트가 셸 함수로 구현되고 **zsh·bash 양쪽에서 실행**됨 | 두 셸에서 각각 실행한 출력 전문 첨부 |
+| C5 | G1~G6 게이트가 셸 함수로 구현되고 **zsh·bash·sh 세 셸에서 실행**됨 | 세 셸에서 각각 실행한 출력 전문 첨부 (`howto-kit/evals/run-evals.sh` 가 셋을 대조한다) |
 | C6 | G5(말단 액션)·G6(입도) 각각에 대해 **양성 케이스 1 건**(일부러 위반한 입력)이 FAIL 을 내는 것을 실행으로 증명 | 실패 출력 첨부 — 오탐 통과만으로는 게이트 생존 증명 안 됨 |
 | C7 | evals 에 **입도 assertion** 포함 — 종결 동사 검사, `verify` 필드 존재, 분기 존재 | `evals.json` 케이스 수 ≥ 6, 그중 입도 케이스 ≥ 2 |
 | C8 | `.claude-plugin/marketplace.json` 에 등록 | 파일 diff |

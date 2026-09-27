@@ -119,16 +119,41 @@ guide_gate() {
     echo "G4_DEPRECATION PASS unsourced_boxes=0"
   fi
 
+  # G5 막는 요구 세 칸 — `| 요구 | 출처 | 막히는 것 | 우회 |` 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다.
+  #    표가 없으면 PASS rows=0 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9).
+  blk=$(awk '
+    function trim(text){ gsub(/^[ \t]+|[ \t]+$/, "", text); return text }
+    /^\|/ {
+      row=$(0); sub(/^\|/, "", row); sub(/\|[ \t]*$/, "", row)
+      ncell=split(row, cell, "|")
+      for (i=1; i<=ncell; i++) cell[i]=trim(cell[i])
+      if (ncell==4 && cell[1]=="요구" && cell[2]=="출처" && cell[3]=="막히는 것" && cell[4]=="우회") { in_table=1; next }
+      if (!in_table || row ~ /^[ \t:|-]+$/) next
+      rows++
+      if (ncell!=4 || cell[1]=="" || cell[2]=="" || cell[3]=="" || cell[4]=="") empty++
+      if (cell[2] !~ /http/) nourl++
+      next
+    }
+    { in_table=0 }
+    END { print rows+0, empty+0, nourl+0 }
+  ' "$g")
+  blk_rows=${blk%% *}; blk_rest=${blk#* }; blk_empty=${blk_rest%% *}; blk_nourl=${blk_rest#* }
+  if [ "$blk_empty" -ne 0 ] || [ "$blk_nourl" -ne 0 ]; then
+    echo "G5_BLOCKING FAIL rows=$blk_rows empty=$blk_empty nourl=$blk_nourl"; fail=1
+  else
+    echo "G5_BLOCKING PASS rows=$blk_rows"
+  fi
+
   [ "$fail" -eq 0 ] && echo GATE_PASS || echo GATE_FAIL
 }
 ```
 
-- **게이트 출력을 그대로 보고에 붙여라.** "게이트 통과함" 이라는 문장은 증거가 아니다 — `GATE_PASS` 를 포함한 5 줄 출력이 증거다.
+- **게이트 출력을 그대로 보고에 붙여라.** "게이트 통과함" 이라는 문장은 증거가 아니다 — `GATE_PASS` 를 포함한 6 줄 출력이 증거다.
 - **G3 는 스택 인자가 없으면 `FAIL` 이다.** 스택을 모르면 혼용을 판정할 수 없고, 판정할 수 없는 것을 PASS 로 흘리는 것이 no-op 게이트의 정체다. 스택은 Phase 1 에서 확정한 값을 넘긴다.
 - `GATE_FAIL` 이면 완료 보고를 하지 마라. 고치고 다시 돌린다.
 - **게이트를 우회하거나 조건을 느슨하게 고치지 마라.** 우회된 게이트는 없는 게이트보다 나쁘다. 게이트가 정당한 케이스를 막는다고 판단되면 그 사실을 사용자에게 보고하고 판단을 받는다.
 - **게이트 함수를 고쳤으면 `sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh` 가 `EVALS_PASS` 로 끝나야 한다.** 이 스크립트는 SKILL.md 에서 함수를 그대로 뽑아 `evals/evals.json` 의 `gate_cases` 입력마다 zsh · bash 두 셸의 출력을 기대 출력 전체와 대조한다. 판정이 바뀌는 수정이면 기대 출력도 같은 커밋에서 고친다.
-- 게이트가 잡는 것은 **기계로 판정 가능한 4 가지**뿐이다. 사실 정확성·스코프·경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다 (단일 게이트는 보장이 아니다).
+- 게이트가 잡는 것은 **기계로 판정 가능한 5 가지**뿐이다. 사실 정확성·스코프·경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다 (단일 게이트는 보장이 아니다).
 
 ## Gotchas (반복 실수 방지)
 
@@ -139,6 +164,11 @@ guide_gate() {
 탐지 방법은 `references/project-detection.md` 참조.
 
 스택 확정 실패 시 → 사용자에게 명시적으로 묻기 ("Flutter iOS 기준? 네이티브 Swift 기준?")
+
+iOS Firebase SDK 설치 방식도 스택마다 갈린다.
+
+- 네이티브 Apple 가이드는 Swift Package Manager 로 안내한다 — 공식 문서가 새 프로젝트에 SPM 을 쓰라 하고, CocoaPods 는 폐기 예정이며 Firebase 12 가 CocoaPods 로 나오는 마지막 major 라고 적었다. 폐기 날짜는 원문에 없다 (<https://firebase.google.com/docs/ios/setup>, 조회 2026-09-26)
+- Flutter 가이드는 FlutterFire 절차를 따르고, 위 문서를 근거로 그 절차의 CocoaPods 단계를 SPM 으로 바꾸지 않는다 — 위 문서는 Apple 네이티브 범위라 FlutterFire 가 무엇으로 설치하는지 말하지 않는다
 
 ### Gotcha 2: 콘솔 UI 라벨은 학습 데이터 추측 금지 — 그리고 **로그인 뒤 화면은 애초에 검증 불가다**
 
@@ -274,11 +304,11 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 
 ### Phase 4: 검증 + 완료 안내
 
-1. **Guide Conformance Gate 실행 (E3 · 먼저 한다)** — `guide_gate <생성한 가이드> <스택>` 을 돌리고 **출력 5 줄을 보고에 그대로 붙인다.** `GATE_FAIL` 이면 완료 보고를 하지 말고 고친 뒤 다시 돌린다. 이 게이트가 G1(출처 원장 완전성) · G2(마커 분류/임계) · G3(스택 혼용) · G4(deprecation 근거 결합) 을 기계적으로 판정한다.
+1. **Guide Conformance Gate 실행 (E3 · 먼저 한다)** — `guide_gate <생성한 가이드> <스택>` 을 돌리고 **출력 6 줄을 보고에 그대로 붙인다.** `GATE_FAIL` 이면 완료 보고를 하지 말고 고친 뒤 다시 돌린다. 이 게이트가 G1(출처 원장 완전성) · G2(마커 분류/임계) · G3(스택 혼용) · G4(deprecation 근거 결합) · G5(막는 요구 세 칸) 를 기계적으로 판정한다.
 2. **레포 근거 대조** — 가이드에 등장하는 프로젝트 내부 경로·env 키가 전부 Glob/Grep 실측 근거를 갖는지 확인 (Gotcha 8). 근거 없는 항목은 제거하거나 "새로 생성" 으로 고친다.
 3. 생성된 가이드의 모든 외부 URL이 공식 도메인인지 + **그 시점 canonical host** 인지 확인 (`references/search-strategy.md`)
 4. 11개 섹션 누락 확인
-5. **막는 요구 세 칸 확인** — 사전 요구사항의 막는 요구마다 출처 · 막히는 것 · 우회가 있는지 본다 (Gotcha 9). 출처가 요구하지 않는 요구는 지운다
+5. **막는 요구 세 칸 확인** — 칸이 비었거나 출처 칸에 주소가 없는 행은 게이트 G5 가 잡는다. 사람은 그 출처가 그 요구를 실제로 말하는지 본다 (Gotcha 9). 출처가 요구하지 않는 요구는 지운다
 6. **마커 집계 보고** — 게이트 G2 가 낸 `bare` / `invalid` / `env` 세 숫자를 그대로 쓴다. `invalid` 에 대한 건수별 판정은 정본(`harness/docs/guides/qa-evaluation-guide.md` §카운팅 및 자동 REJECT 임계)을 그대로 적용하고 **여기서 숫자를 재정의하지 않는다.** `env` 는 임계에 합산하지 않고 검증 커버리지로 따로 보고한다.
 7. 사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내. **콘솔 라벨은 공개 문서 기준이며 로그인 뒤 화면과 다를 수 있다**는 점을 함께 알린다 (Gotcha 2).
 
