@@ -1,9 +1,21 @@
 ---
-version: 1.4.0
-last_updated: 2026-09-25
+version: 1.4.1
+last_updated: 2026-09-26
 ---
 
 # Infra Kit Research Log
+
+## [2026-09-26] - 카이젠 뒤 남은 것 (k2)
+
+FIXED. 2026-09-24 사이클이 기록한 판 번호를 원문과 다시 맞췄다. 근거는 Codex 원문 대조 `.harness/.meta/after-kaizen-0926b/ex/EX-8.md`(2026-09-26 조회) 하나다.
+
+| 대상 | 원문 | 결과 |
+| --- | --- | --- |
+| Kubernetes | [kubernetes.io/releases](https://kubernetes.io/releases/) — 「Latest Release: 1.37.0 (released: 2026-08-26)」, 유지하는 판은 1.37 · 1.36 · 1.35 | **정정** — 2026-09-24 사이클 표 6 행의 「v1.37.1 최신 안정판」 은 원문에 없다. 최신 안정판은 1.37.0 이다. 그 행이 바꾼 `kubeconform` 예시(대상 클러스터 버전 변수)는 판 번호와 무관해 그대로 둔다 |
+| Flux | [fluxcd/flux2 releases](https://github.com/fluxcd/flux2/releases) — v2.9.5, 2026-08-31 게시 | 맞음 |
+| Argo CD | [argoproj/argo-cd releases](https://github.com/argoproj/argo-cd/releases) — v3.5.3, 2026-09-14 게시(v3.6.0-rc1 은 사전 릴리스) | 맞음 |
+
+2026-09-24 항목의 이력 줄은 그대로 두고 여기서 정정한다. Flux v2.9 · Argo CD 3.5 에서 빠진 API 를 원칙으로 올리는 일은 EX-8 이 판 번호와 날짜만 대조해 근거가 없다 — 다음 사이클 후보에 그대로 남는다.
 
 ## [2026-09-24] - Phase 8 kaizen
 

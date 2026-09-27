@@ -7,7 +7,7 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 | 기준 | PASS 조건 | 출처 |
 |------|-----------|------|
 | 스케일 일관성 | 정의된 타이포 스케일 외 임의 크기 미사용 | Material Design 3 Typography |
-| 행간 비율 | line-height가 font-size의 1.2~1.6배 | WCAG 1.4.12 |
+| 행간 비율 | 본문 line-height 가 문자 체계별 권장 범위 안이다 — 라틴 1.4~1.6, 한글 1.6~1.8. 제목 · 작은 글자 범위는 원칙 문서 표를 따른다 | `docs/design/foundations/typography.md` §줄 높이 · §한글 줄 높이 권장값 |
 | 최소 크기 | 본문 텍스트 14px(모바일) / 16px(웹) 이상 | Apple HIG Typography |
 
 ## Color
@@ -116,4 +116,4 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 | 장식 목적성 | blur, gradient, shadow 등 장식 효과에 기능적 목적 존재 | BSWEN AI UI Anti-Patterns |
 | 카피 구체성 | 헤드라인/CTA가 이 제품에만 해당하는 구체적 내용 (범용 문구 아님) | Crea8ive Solution Anti-AI Trends 2026 |
 | 이미지 고유성 | 이미지/일러스트가 프로젝트 고유 스타일임 (제네릭 스톡 느낌 아님) | authentic-design.md |
-| 같은 역할 관례 일치 | 같은 역할의 기존 화면 2 개 이상과 줄 모양(카드/평평한 줄) · 칩·뱃지 모양 · 아이콘 뜻이 같다. 대조 화면은 `../../../references/visual-change-protocol.md` §0 관례 표가 있으면 그 화면, 없으면 감사자가 직접 찾은 2 개다. 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 2 개 미만이면 FAIL 로 적지 않고 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다 | [WCAG 2.2 SC 3.2.4](https://www.w3.org/TR/WCAG22/) |
+| 같은 역할 관례 일치 | 같은 역할의 기존 화면들과 줄 모양(카드/평평한 줄) · 칩·뱃지 모양 · 아이콘 뜻이 같다. 대조할 화면 개수는 `../../../references/visual-change-protocol.md` §0 이 정한다(기준 원본 harness `skill-design-guide.md` §8.9). 대조 화면은 §0 관례 표가 있으면 그 화면, 없으면 감사자가 직접 찾은 화면이다. 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 그 개수에 못 미치면 FAIL 로 적지 않고 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다 | [WCAG 2.2 SC 3.2.4](https://www.w3.org/TR/WCAG22/) |

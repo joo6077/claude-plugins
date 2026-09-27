@@ -74,7 +74,7 @@ Agent 도구를 사용하여 backend-reviewer 서브에이전트를 생성한다
 | 2 | Architecture | Port/Adapter 경계 | PASS/FAIL | `src/infra/db.py:12` 가 domain 을 import / domain 은 infra 미참조 | [AWS Hexagonal](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html) |
 | 3 | Architecture | Modular Monolith First | PASS/FAIL/WARN | `docker-compose.yml:1-30` 서비스 수 vs 팀 규모 명시 | [ByteIota 2026](https://byteiota.com/modular-monolith-42-ditch-microservices-in-2026/) |
 | 4 | API Design | RFC 9457 problem+json | PASS/FAIL | `src/api/errors.py:8` Content-Type 확인 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html) |
-| 5 | API Design | OpenAPI 3.1 스펙 일치 | PASS/FAIL | `openapi.yaml:1` version + 실제 응답 정합 | [OpenAPI 3.1](https://swagger.io/specification/) |
+| 5 | API Design | OpenAPI 스펙 일치(3.1 이상 — 최소 지원선) | PASS/FAIL | `openapi.yaml:1` version + 실제 응답 정합 | [OpenAPI 3.1](https://swagger.io/specification/) |
 | 6 | API Design | Pagination (cursor/keyset) | PASS/FAIL | `src/api/users.py:20` 쿼리 파라미터 | [Slack Pagination](https://slack.engineering/evolving-api-pagination-at-slack/) |
 | 7 | API Design | 빈 상태 상태코드 일관성 | PASS/FAIL | `src/api/schedule.py:31` 빈 목록에 200 `[]` 반환 (404 아님) | [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html) |
 | 8 | API Design | Timestamp 직렬화 규칙 | PASS/FAIL | `src/api/schema.py:12` 순간 필드 전부 RFC 3339 `Z` 표기 | [RFC 3339 §4.3](https://www.rfc-editor.org/rfc/rfc3339) |

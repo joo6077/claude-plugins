@@ -3,6 +3,8 @@
 infra-guide 스킬이 카테고리별 원칙 문서 경로를 찾을 때 참조한다.
 각 항목은 `docs/infra/` 하위 리서치 문서로 연결된다.
 
+설치본 플러그인에는 `docs/infra/` 가 없다 — 아래 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로(`docs/infra/...`)를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 | 카테고리 | 키워드 | 문서 경로 |
 |----------|--------|-----------|
 | container | Docker, Dockerfile, Compose, 이미지, 컨테이너 | `docs/infra/platform/container.md` |

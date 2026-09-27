@@ -116,6 +116,8 @@ verdict 는 아래 순서로 확정하고 **위에서 성립하는 첫 항에서
 - verified_coverage: (rule 총수 - env_gaps) / rule 총수 = 0.xx (임계 0.60)
 ```
 
+`env_gaps` 칸과 Gotcha 11 의 네 칸은 같은 것을 다른 이름으로 부른다 — 1차 도구 시도 · 실패 로그 = 막는 것, fallback 시도 = 시도한 우회, 통제 불가 사유 · 재검증 명령은 이름 그대로다.
+
 같은 체크항목이 **2 회 연속 감사에서 `env_gaps`** 면 그것은 환경 문제가 아니라 감사 기준의 검증 경로 미기재다 — `invalid_evidence` 쪽으로 이관하고 `audit-criteria.md` 개선 제안으로 올린다.
 
 # References

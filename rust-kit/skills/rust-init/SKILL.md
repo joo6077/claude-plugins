@@ -167,6 +167,8 @@ user-invocable: true
 
 ## 4a. `Cargo.toml` 워크스페이스 루트 템플릿 (workspace_service)
 
+아래 버전 값도 스냅샷이다 — 착수 전 `references/project-detection.md` **Step 2c** 표로 최신판과 동작 변경을 확인한다.
+
 ```toml
 [workspace]
 resolver = "3"
@@ -232,7 +234,7 @@ Member crate `Cargo.toml`은 이 `[workspace.lints]`를 한 줄로 상속한다:
 
 ```toml
 [package]
-name = "myapp-api"
+name = "{project}-api"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -254,7 +256,7 @@ components = ["rustfmt", "clippy"]
 profile = "default"
 ```
 
-`channel`은 `"stable"` 또는 `"1.88.0"` 같은 명시 버전 중 선택. 팀 환경 정합성이 중요하면 명시 버전을 권장한다 (실사용 프로젝트 기준).
+`channel`은 `"stable"` 또는 `"1.88.0"` 같은 명시 버전 중 선택. 팀 환경 정합성이 중요하면 명시 버전을 권장한다 (실사용 프로젝트 기준). 조회 시점 최신 stable 은 `references/project-detection.md` Step 2c 표에 있다.
 
 ## 4c. `deny.toml` 템플릿 (cargo-deny v2 형식)
 

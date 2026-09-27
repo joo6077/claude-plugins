@@ -84,7 +84,7 @@ rust-kit 문서에 적힌 크레이트 버전은 **작성 시점 스냅샷**이�
 | `axum` | 0.8.9 | 0.8 (path 문법 `{id}` · `#[async_trait]` 제거) |
 | `sqlx` | 0.9.0 | 0.8 |
 | `sea-orm` | 2.0.3 | 1.1 |
-| `testcontainers` | 0.28.0 | 0.27 |
+| `testcontainers` | 0.28.0 | 전제 판 없음 — 킷 예시는 크레이트 이름만 쓴다 |
 | `tonic` | 0.14.6 | 0.14 (`tonic-health` · `tonic-reflection` 도 0.14 계열) |
 | `tower-http` | 0.7.1 | 0.6 — 0.7 은 compression · feature · redirect 동작이 바뀌었다 |
 | `utoipa` · `utoipa-scalar` | 6.0.0 · 0.4.0 | 5.4 · 0.3 — 6 은 YAML 오류 타입이 바뀌었다 |
@@ -144,8 +144,8 @@ cargo metadata --no-deps --format-version 1 \
 - **타깃 필터는 매니페스트의 `test` 플래그를 무시하고 해당 타깃을 강제**하므로, 존재하지 않는 타깃을
   지정하면 "테스트 0 개 실행" 또는 에러로 끝난다. **테스트 0 개는 통과가 아니다** (`qa-evaluation-guide.md`
   §Evidence Validity Gate 검사 2).
-- 출처: 2026-07 실측 `cargo-test-wrong-target` — 바이너리 크레이트 `myapp-api` 에
-  `cargo test -p myapp-api --lib healthcheck` 를 실행해 실패.
+- 출처: 2026-07 실측 `cargo-test-wrong-target` — lib 타깃이 없는 바이너리 크레이트에
+  `--lib healthcheck` 필터를 붙인 `cargo test -p` 를 실행해 실패.
 
 ## Step 4. 의존성 감지
 

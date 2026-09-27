@@ -26,7 +26,7 @@ user-invocable: true
 10. **Container Queries 활용 권장** — 반응형 시안에서 페이지 레벨 분기는 media queries, 컴포넌트 레벨 분기는 `container-type: inline-size` + `@container` queries를 사용하라. 크기 쿼리는 Chrome 105 · Firefox 110 · Safari 16 부터 지원한다 (style · scroll-state 쿼리는 지원 범위가 다르다). cqw/cqi 유닛으로 컨테이너 상대 크기 지정이 가능하다. 콘텐츠가 깨지는 지점에 breakpoint를 설정하고 디바이스 타겟 기반은 피하라. 출처: research-log §J.
 11. **Fluid Typography 적용** — 시안 내 텍스트에 `clamp(min, preferred, max)` 기반 fluid font-size를 적용하면 breakpoint 없이 모든 뷰포트에서 자연스러운 크기 전환을 보여줄 수 있다. 특히 히어로/디스플레이 텍스트에 효과적이다. 출처: research-log §E.
 12. **mockup.html은 HTML 형식이 정상 산출물이다** — 이 스킬의 출력물(`.design/mockups/*.html`)은 의도적으로 HTML 형식을 사용한다. `design-tokens.md`, `audit-report.md` 같은 `.md` 계약 패턴과 구조가 다른 것은 설계상 의도된 차이이며 오류가 아니다. QA 평가 또는 검증 도구가 "HTML 형식이 .md 패턴과 다르다"고 지적할 경우 False positive로 처리하고 이 Gotcha를 근거로 무시한다.
-13. **확정 = 승인 기록 파일 생성 (대화 로그로 끝내지 마라)** — 사용자가 시안을 확정하면 Step 6 에서 `.design/approvals/{YYYYMMDD}-{화면명}.md` 를 생성한다. 여기에 선택된 안, 산출물 경로, **확정된 시각 값(색상·타이포·간격)**, 원문 근거를 남긴다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(시안 승인 기록) 확인 불가" 로 REJECT 된다 — 2026-07-13 글로벌 REJECT `UI-06` 의 실제 사유다. **자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시**하라. 규격: `../../references/visual-change-protocol.md` §4.
+13. **확정 = 승인 기록 파일 생성 (대화 로그로 끝내지 마라)** — 사용자가 시안을 확정하면 Step 5 에서 `.design/approvals/{YYYYMMDD}-{화면명}.md` 를 생성한다. 여기에 선택된 안, 산출물 경로, **확정된 시각 값(색상·타이포·간격)**, 원문 근거를 남긴다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(시안 승인 기록) 확인 불가" 로 REJECT 된다 — 2026-07-13 글로벌 REJECT `UI-06` 의 실제 사유다. **자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시**하라. 규격: `../../references/visual-change-protocol.md` §4.
 14. **승인된 시안 값을 토큰으로 치환하지 마라 (Visual Source of Truth Precedence)** — 사용자가 브라우저로 확인하고 승인한 시안의 색상·간격은 프로젝트 팔레트 토큰보다 **우선한다**. 시안 수정 요청을 처리할 때 승인된 값을 "토큰 체계에 맞춰" 단일 tint 나 기존 accent 로 정규화하지 마라. 토큰화가 필요하면 값을 바꾸는 게 아니라 **그 값으로 토큰을 정의**하고 별도 제안하라. 프로젝트에 이미 색상 체계가 있으면 새 팔레트를 도입하기 전에 기존 값을 먼저 열거해 제시한다. 우선순위 표: `../../references/visual-change-protocol.md` §1.
 15. **부분 수정 요청은 그 속성만 — Change Manifest 필수** — "이 카드 보더만 진하게", "색은 지금이 맞는데 그라디언트만 이전으로" 같은 요청에서 지목되지 않은 시각 속성(background, fill, radius, shadow, spacing, typography)을 함께 바꾸지 마라. 편집 전에 `변경 / 보존` 두 목록을 응답에 남기고, 수정 후 보존 목록의 값이 그대로인지 확인한다. 의도 외 영역이 변했으면 성공이 아니라 실패이므로 되돌리고 다시 적용한다. 부분 롤백 요청은 지목된 축만 되돌린다. 상세: `../../references/visual-change-protocol.md` §2.
 16. **산출 전에 Variant Contract Matrix 를 합의하라 (개수 계약 + 구별성 게이트)** — 시안을 하나라도 만들기 전에 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 6 열을 채워 사용자와 합의한다. 개수는 **사용자가 말하면 정확히 그 수**, 미지정이면 3, 자체 판단으로 그 이상 늘리지 않으며 승인 시 최대 5 다. 개수 상한·primary axis 개수·부대 산출물(토큰 파일·디자인 시스템·서페이스 레인·카탈로그) 금지의 정본은 `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이며 여기서 재정의하지 않는다. "몇 개 목업" 요청에 수십 타일과 토큰 파일을 함께 만들면 사용자가 전부 지우게 된다 — 실제로 그랬다.
@@ -34,20 +34,7 @@ user-invocable: true
 
 # Process
 
-## Step 1: 화면 요구사항 파악
-
-사용자의 요청에서 파악한다:
-- 어떤 페이지/화면인지 (로그인, 대시보드, 설정 등)
-- 주요 기능과 정보 요소
-- 대상 사용자
-
-파일을 만들기 전에 `../../references/visual-change-protocol.md` §0 의 대상과 되말하기를 응답에 남긴다 — 대상 화면의
-파일 경로와 라우트(새 화면이면 `신규`), 그리고 요청을 요소 이름과 배치까지 넣어 되말한 한 문장. 두 갈래로 읽히면
-묻고 시작한다.
-
-불명확하면 사용자에게 확인한다.
-
-## Step 2: 자동 감지 및 로드
+## Step 0: 자동 감지 및 로드
 
 프로젝트에서 이전 단계 산출물을 탐색한다:
 
@@ -66,12 +53,26 @@ user-invocable: true
 - 승인 기록 존재 → 확정 구성을 지키고, 폐기한 대안·요소는 사용자가 되살리라고 하지 않는 한 시안에 다시 넣지 않는다
   (`../../references/visual-change-protocol.md` §4)
 - PRD 비범위 표 존재 → 그 표의 항목은 시안에 넣지 않는다. 코드에 흔적이 남아 있어도 요구로 읽지 않고, 되살려야 할 것 같으면 만들기 전에 사용자에게 묻는다 (planning-kit plan-prd Gotcha 14)
-- 앱 코드 존재 → §0 관례 표를 만든다. 같은 역할의 서로 다른 기존 화면 2 개 이상을 읽고, 재사용 부품은 grep 으로
-  확인한 실제 이름만 쓴다. 관례는 Step 3-a 매트릭스의 `constants` 에 넣는다
+- 앱 코드 존재 → §0 관례 표를 만든다. 같은 역할의 서로 다른 기존 화면을 §0 이 정한 개수만큼 읽고(기준 원본 harness `skill-design-guide.md` §8.9), 재사용 부품은 grep 으로
+  확인한 실제 이름만 쓴다. 관례는 Step 2-a 매트릭스의 `constants` 에 넣는다
 
-## Step 3: 개수 계약 · Variant Contract Matrix 합의 후 하이파이 HTML 시안 생성
+## Step 1: 화면 요구사항 파악
 
-### Step 3-a: 개수와 축을 먼저 고정한다 (파일을 만들기 전에)
+사용자의 요청에서 파악한다:
+
+- 어떤 페이지/화면인지 (로그인, 대시보드, 설정 등)
+- 주요 기능과 정보 요소
+- 대상 사용자
+
+파일을 만들기 전에 `../../references/visual-change-protocol.md` §0 의 대상과 되말하기를 응답에 남긴다 — 대상 화면의
+파일 경로와 라우트(새 화면이면 `신규`), 그리고 요청을 요소 이름과 배치까지 넣어 되말한 한 문장. 두 갈래로 읽히면
+묻고 시작한다.
+
+불명확하면 사용자에게 확인한다.
+
+## Step 2: 개수 계약 · Variant Contract Matrix 합의 후 하이파이 HTML 시안 생성
+
+### Step 2-a: 개수와 축을 먼저 고정한다 (파일을 만들기 전에)
 
 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 를 채워 사용자와 합의한다.
 정본 규칙(상한·축 개수·부대 산출물 금지)은 `harness/docs/guides/skill-design-guide.md` §5.6 이다.
@@ -90,7 +91,7 @@ user-invocable: true
 요청받지 않은 토큰 파일·디자인 시스템·서페이스 레인·컴포넌트 카탈로그는 **만들지 않는다.**
 필요해 보이면 별도 제안으로 올리고 승인 후에 만든다.
 
-### Step 3-b: 합의된 개수만큼 생성
+### Step 2-b: 합의된 개수만큼 생성
 
 references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포맷으로 시안을 생성한다:
 
@@ -111,7 +112,7 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
 
 반응형이 요구사항에 포함된 경우, 각 시안에 mobile/tablet/desktop breakpoint 섹션을 추가하고 컬럼 수·거터·max-width 규칙을 명시한다.
 
-## Step 4: 디자인 의도 설명
+## Step 3: 디자인 의도 설명
 
 각 시안에 대해 설명한다:
 - 시안이 반영한 전략적 우선순위 (전환, 탐색, 브랜드 등)
@@ -122,7 +123,7 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
 
 발표 순서는 "화면 나열"이 아니라 사용자 시나리오 흐름으로 구성한다. 각 시안을 독립적으로 설명하기보다, 어떤 문제를 어떻게 다르게 해결하는지 대비하여 설명하면 선택 기준 토론이 쉬워진다.
 
-## Step 5: 사용자 선택 및 수정
+## Step 4: 사용자 선택 및 수정
 
 - 사용자가 시안을 선택하거나 피드백을 준다
 - ID를 사용한 소통: "card-product-a3f2를 더 크게 해줘"
@@ -140,11 +141,11 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
   ```
 
   수정 후 보존 목록의 값이 그대로인지 확인한다. 변했으면 되돌리고 지목된 속성만 다시 적용한다.
-  고치는 순서 · 반영 확인 · 스스로 고치기 최대 3 회는 §3 비교 반복 순서를 따르고, 캡처마다 §3 캡처 점검 목록을 본다.
+  고치는 순서 · 반영 확인 · 스스로 고치기 횟수 상한은 §3 비교 반복 순서를 따르고(기준 원본 harness `skill-design-guide.md` §8.9), 캡처마다 §3 캡처 점검 목록을 본다.
 - 수정 후 HTML 파일 갱신
 - 확정 시 `.design/mockups/` 에 최종본 유지
 
-## Step 6: 승인 기록 생성 (확정 시 필수)
+## Step 5: 승인 기록 생성 (확정 시 필수)
 
 사용자가 시안을 확정하면 `.design/approvals/{YYYYMMDD}-{화면명}.md` 를 생성한다.
 대화 로그만으로는 이후 QA 에서 승인 근거를 확인할 수 없어 REJECT 된다 (Gotcha 13 · 글로벌 `UI-06`).
@@ -175,7 +176,7 @@ grep -cE '^- (확정 구성|폐기한 대안·이유):' .design/approvals/{파�
 
 승인 후 시안을 다시 수정하면 이 기록도 갱신한다. 스테일 승인 기록은 없는 것보다 나쁘다.
 
-## Step 7: Figma 전송 (선택)
+## Step 6: Figma 전송 (선택)
 
 사용자가 Figma 전송을 요청하면:
 - Figma MCP 설정 확인

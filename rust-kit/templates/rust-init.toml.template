@@ -10,6 +10,8 @@
 #   {{RESOLVER}}         — workspace resolver ("3" 기본, edition 2024)
 #   {{TOOLCHAIN}}        — rust-toolchain.toml channel ("1.88.0" 또는 "stable")
 #   {{WORKSPACE_DEPS}}   — [workspace.dependencies] 블록 (사용자 선택에 따라 생성)
+#
+# 버전 값은 작성 시점 스냅샷이다 — 착수 전 references/project-detection.md Step 2c 표로 최신판을 확인한다.
 # ============================================================
 
 [workspace]
