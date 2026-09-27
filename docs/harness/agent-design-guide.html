@@ -204,7 +204,7 @@ td .cell{display:block;max-width:34rem;white-space:normal}
     <div class="note-title">지난 페이지 판(2026-08-13) 이후 원본에서 바뀐 것</div>
     <ul>
       <li>배치 위치 표 맨 위에 <strong>managed settings</strong> 가 들어와 다섯 자리가 됐다 (§2)</li>
-      <li>공식 frontmatter 가 <strong>18 종</strong>이다 — <code>initialPrompt</code> 는 공식 표에서 다시 확인했고, <code>omitClaudeMd</code> · <code>experimental</code> 은 이름만 확인했다 (§2)</li>
+      <li>공식 frontmatter 가 <strong>18 종</strong>이다 — <code>initialPrompt</code> 는 공식 표에서 다시 확인했고, <code>omitClaudeMd</code> · <code>experimental</code> 의 뜻은 2026-09-26 원문 대조로 채웠다 (§2)</li>
       <li>내장 Explore 는 v2.1.198 부터 부모 세션의 모델을 상속한다 (§4)</li>
       <li><code>Agent(agent_type)</code> 한계 두 가지 — 괄호 안 제한은 메인 스레드에서만 걸리고, 도구를 줘도 안 쓰고 썼다고 적는다 (§4)</li>
       <li>플랫폼 하드 리밋은 두 가지뿐이다 — 세션 전체 스폰 수에는 상한이 없다 (§7)</li>
@@ -285,7 +285,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
         <tr><td><code>description</code></td><td>예</td><td><span class="cell">언제 위임할지 Claude 가 판단하는 기준</span></td></tr>
         <tr><td><code>tools</code></td><td>아니오</td><td><span class="cell">허용 도구 목록. 생략 시 전체 상속. 목록의 어느 항목도 실제 도구로 해석되지 않으면 에이전트가 <strong>launch 자체에 실패</strong>한다. 스킬을 컨텍스트에 미리 넣으려면 여기에 <code>Skill</code> 을 적지 말고 <code>skills</code> 필드를 써라</span></td></tr>
         <tr><td><code>disallowedTools</code></td><td>아니오</td><td><span class="cell">차단 도구 목록 (상속·지정 목록에서 제거)</span></td></tr>
-        <tr><td><code>model</code></td><td>아니오</td><td><span class="cell"><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, <code>fable</code>, 풀 model ID(예: <code>claude-opus-5</code>), <code>inherit</code> (기본값)</span></td></tr>
+        <tr><td><code>model</code></td><td>아니오</td><td><span class="cell"><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, <code>fable</code>, 풀 model ID(예: <code>claude-opus-5</code>), <code>inherit</code>. 생략하면 호출별 <code>model</code> 인자 → frontmatter → 환경 변수 <code>CLAUDE_CODE_SUBAGENT_MODEL</code> → 메인 대화 모델 순으로 정한다 — 생략이 곧 <code>inherit</code> 은 아니다 (2026-09-26 원문 대조)</span></td></tr>
         <tr><td><code>permissionMode</code></td><td>아니오</td><td><span class="cell"><code>default</code>, <code>acceptEdits</code>, <code>auto</code>, <code>dontAsk</code>, <code>bypassPermissions</code>, <code>plan</code>, <code>manual</code>(= <code>default</code> 의 별칭)</span></td></tr>
         <tr><td><code>maxTurns</code></td><td>아니오</td><td><span class="cell">최대 에이전트 턴 수</span></td></tr>
         <tr><td><code>skills</code></td><td>아니오</td><td><span class="cell">시작 시 주입할 스킬 목록 (전체 내용이 context 에 inject 됨, 스킬 invoke 가능성만 주어지는 게 아님)</span></td></tr>
@@ -296,9 +296,9 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
         <tr><td><code>effort</code></td><td>아니오</td><td><span class="cell"><code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code> (모델별 가용 레벨 상이). 세션 effort 를 override</span></td></tr>
         <tr><td><code>isolation</code></td><td>아니오</td><td><span class="cell"><code>worktree</code> 면 격리된 git worktree 에서 실행 (변경이 없으면 자동 정리)</span></td></tr>
         <tr><td><code>color</code></td><td>아니오</td><td><span class="cell">터미널 UI 에 표시되는 에이전트 색상 (<code>red</code>, <code>blue</code>, <code>green</code>, <code>yellow</code>, <code>purple</code>, <code>orange</code>, <code>pink</code>, <code>cyan</code>)</span></td></tr>
-        <tr><td><code>omitClaudeMd</code></td><td>아니오</td><td><span class="cell"><span class="badge y">뜻 미확인</span> 공식 표에서 이름만 확인했다. 쓰기 전에 공식 표를 직접 읽는다</span></td></tr>
+        <tr><td><code>omitClaudeMd</code></td><td>아니오</td><td><span class="cell"><code>true</code> 면 사용자 · 프로젝트 · 로컬 <code>CLAUDE.md</code> 를 넣지 않는다. managed policy 는 그대로 들어간다(managed settings 에서 정의한 에이전트는 그것도 뺀다). 메인 세션 에이전트(<code>--agent</code> · <code>agent</code> 설정)로 뜨면 무시된다. Claude Code v2.1.271 이상</span></td></tr>
         <tr><td><code>initialPrompt</code></td><td>아니오</td><td><span class="cell">이 에이전트가 메인 세션 에이전트로 뜰 때(<code>--agent</code> 또는 <code>agent</code> 설정) 첫 사용자 턴으로 들어간다. 파일 frontmatter 와 <code>--agents</code> JSON 양쪽에서 쓴다. <strong>플러그인 서브에이전트에서는 무시된다.</strong> 2026-08 판에서 뺐다가 2026-09-24 공식 표에서 다시 확인했다</span></td></tr>
-        <tr><td><code>experimental</code></td><td>아니오</td><td><span class="cell"><span class="badge y">뜻 미확인</span> 공식 표에서 이름만 확인했다. 쓰기 전에 공식 표를 직접 읽는다</span></td></tr>
+        <tr><td><code>experimental</code></td><td>아니오</td><td><span class="cell">실험 옵션을 담는 맵이다. 지금 원문이 적은 키는 <code>cacheTtl</code>(<code>5m</code> · <code>1h</code>) 하나이고 다른 키는 무시된다. 서브에이전트 파일에서만 읽는다. Claude Code v2.1.248 이상. 에이전트 전체가 실험 단계라는 표시가 아니다</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -736,7 +736,7 @@ tools: Agent(worker, researcher), Read, Bash
   <div class="grid-2">
     <div class="note warn">
       <div class="note-title">확인하지 못한 것</div>
-      <p>이전 판이 적은 오류 문구는 <code>Concurrent subagent limit reached</code> · <code>Subagent spawn limit reached</code> 인데, <strong>어느 문구가 어느 상한 것인지는 이번 조회에서 확인하지 못했다.</strong></p>
+      <p><code>Concurrent subagent limit reached</code> 는 이미 20 개가 동시에 도는 세션에서 하나를 더 띄울 때 나는 <strong>동시 실행 상한 오류</strong>다. 중첩 깊이 상한에 닿으면 보통 서브에이전트에는 <code>Agent</code> 도구가 아예 주어지지 않고, fork 는 도구가 남지만 부르면 오류가 난다 — 그 오류 글자는 원문에 없다. 이전 판이 적은 <code>Subagent spawn limit reached</code> 는 2026-09-26 원문 대조에서 찾지 못한 문구다.</p>
     </div>
     <div class="note">
       <div class="note-title">"기본 5 개" 는 하드 리밋이 아니다</div>

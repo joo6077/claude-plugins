@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>플러그인 검증 가이드 v1.4.1 — Harness</title>
+<title>플러그인 검증 가이드 v1.5.0 — Harness</title>
 <link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -118,7 +118,7 @@
     *,*::before,*::after{transition:none!important}
   }
 </style>
-<!-- kaizen-cycle: 2026-09-24 · source: harness/docs/guides/plugin-validation-guide.md (v1.4.1) -->
+<!-- kaizen-cycle: 2026-09-24 · source: harness/docs/guides/plugin-validation-guide.md (v1.5.0) -->
 </head>
 <body>
 <div class="page">
@@ -130,18 +130,24 @@
   새 킷을 더하거나 기존 킷을 고칠 때 이 문서를 기준 원본(여기 적힌 것이 맞다고 치는 문서)으로 삼는다.
 </p>
 <div class="meta">
-  <span class="ver">v1.4.1 · 2026-09-26</span>
+  <span class="ver">v1.5.0 · 2026-09-26</span>
   <span>범위 — marketplace.json 에 등록된 킷 전부</span>
   <span>검사 10 종</span>
   <span>자동 수정 — V5 · V6 만</span>
 </div>
 
 <div class="note">
-  <div class="note-title">1.3.1 판 이후 원본에 들어온 것 (1.4.0 · 1.4.1)</div>
+  <div class="note-title">1.3.1 판 이후 원본에 들어온 것 (1.4.0 · 1.4.1 · 1.4.2 · 1.5.0)</div>
   <ul>
+    <li><strong>V2 줄 글자 (1.5.0)</strong> — <code>templates/</code> 가 없으면 <code>no templates/ — OK</code> 로 출력한다. 판정이 OK 인데 줄 글자가 SKIP 이면 V 줄 글자로 판정을 세는 쪽이 헷갈려 글자를 판정에 맞췄다</li>
+    <li><strong>V3 · V6 코드 블록 판정 (1.5.0)</strong> — V10 과 같은 CommonMark 0.31.2 §4.5 규칙을 함께 쓴다. <code>~~~</code> 블록 · 백틱 4 개 블록 · 줄 안 코드 오판을 고쳤고, V6 <code>--fix</code> 는 짚은 여는 줄에 <code>text</code> 를 붙인다</li>
+    <li><strong>V6 범위 (1.5.0)</strong> — 스킬 폴더 안 <code>skills/*/references/**/*.md</code> 를 더했다. 1.4.0 에서 미뤘던 이유인 여는 줄 8 개는 새 판정에서 코드라 걸리는 것이 0 개다</li>
+    <li><strong>V8 중괄호 없는 변수 (1.5.0)</strong> — <code>$CLAUDE_PLUGIN_ROOT</code> 도 따옴표 · 실행 비트 검사를 받는다</li>
+    <li><strong>V10 저장소 원본 폴더 (1.5.0)</strong> — 킷의 <code>docs/&lt;원본&gt;</code> 폴더를 그 킷 결과로 읽는다</li>
+    <li><strong>사실 정정 (1.4.2)</strong> — V8 따옴표 FAIL 예시 2 와 출력 예시를 실제 출력 모양으로 바꿨다</li>
     <li><strong>V10 코드 블록 판정 (1.4.1)</strong> — CommonMark 0.31.2 §4.5 를 따른다. 백틱 4 개 블록 안의 백틱 3 개 블록 · <code>~~~</code> 블록 · 줄 안 코드로 시작하는 줄에서 끊긴 표를 잘못 잡거나 놓치던 것을 고쳤다. 표 행은 <code>|</code> 로 시작하면서 <code>|</code> 가 둘 이상인 줄만 본다</li>
     <li><strong>V10 범위</strong> — 스킬 폴더 안의 <code>skills/*/references/**/*.md</code> 를 더했다(2026-09-25). 킷 최상위 <code>references/*.md</code> 만 보면 스킬마다 둔 참조 문서가 빠진다. 실측 14 킷에 41 개(표가 있는 파일 40 개)가 검사 밖이었고, 끊긴 표는 0 개였다</li>
-    <li><strong>V6 는 넓히지 않았다</strong> — 같은 범위로 넓히면 그 안의 언어 힌트 없는 펜스 8 개가 바로 걸린다</li>
+    <li><strong>V6 를 1.4.0 에서 넓히지 않았던 이유</strong> — 같은 범위의 언어 힌트 없는 펜스 8 개 때문이었다. 1.5.0 에서 넓혔다(위)</li>
     <li><strong>V 줄 끝의 판정 글자</strong> — V 줄은 늘 <code>— OK</code> · <code>— WARN</code> · <code>— FAIL</code> · <code>— SKIP</code> 로 끝난다. 2026-09-25 전에는 V3 · V4 · V5 · V9 의 실패 줄이 판정 없이 끝나, V 줄 글자로 FAIL 을 세면 0 이 나왔다</li>
     <li><strong>그래도 통과 여부는 종료 코드로 먼저 판정한다</strong> — V 줄 글자는 그다음이다</li>
   </ul>
@@ -277,7 +283,7 @@ python3 scripts/validate-plugin.py --fix</pre>
     <div class="v-card">
       <div class="v-badge">V8</div>
       <div class="v-title">Hook 스크립트 실행 비트 · 따옴표</div>
-      <div class="v-desc"><code>hooks/hooks.json</code> 명령 안의 <code>${CLAUDE_PLUGIN_ROOT}</code> 가 모두 큰따옴표 안에 있는지, 인터프리터 없이 <strong>직접 실행</strong>하는 <code>.sh</code> 가 실행 비트(mode 0755)를 가지는지 본다. 따옴표 밖이면 설치 경로에 빈칸이 있을 때 훅이 돌지 않고, <code>100644</code> 로 커밋되면 모든 설치본에서 <code>Permission denied</code> 로 실패한다.</div>
+      <div class="v-desc"><code>hooks/hooks.json</code> 명령 안의 <code>${CLAUDE_PLUGIN_ROOT}</code> · <code>$CLAUDE_PLUGIN_ROOT</code> 가 모두 큰따옴표 안에 있는지, 인터프리터 없이 <strong>직접 실행</strong>하는 <code>.sh</code> 가 실행 비트(mode 0755)를 가지는지 본다. 따옴표 밖이면 설치 경로에 빈칸이 있을 때 훅이 돌지 않고, <code>100644</code> 로 커밋되면 모든 설치본에서 <code>Permission denied</code> 로 실패한다.</div>
       <div class="v-meta"><span class="tag">hook-exec</span></div>
     </div>
     <div class="v-card">
@@ -289,7 +295,7 @@ python3 scripts/validate-plugin.py --fix</pre>
     <div class="v-card">
       <div class="v-badge">V10</div>
       <div class="v-title">마크다운 표 무결성</div>
-      <div class="v-desc">코드 블록 밖 표 행 가운데 <strong>헤더 없이 끊긴 행</strong>이 0 개인지 본다. 들여쓴 표도 왼쪽 공백을 벗겨 판정한다. 범위는 V6 대상 + 킷 안 <code>docs/**/*.md</code> + <code>skills/*/references/**/*.md</code>. <code>--fix</code> 없음.</div>
+      <div class="v-desc">코드 블록 밖 표 행 가운데 <strong>헤더 없이 끊긴 행</strong>이 0 개인지 본다. 들여쓴 표도 왼쪽 공백을 벗겨 판정한다. 범위는 V6 대상 + 킷 안 <code>docs/**/*.md</code> + <code>skills/*/references/**/*.md</code> + 킷의 저장소 원본 폴더(1.5.0). <code>--fix</code> 없음.</div>
       <div class="v-meta"><span class="tag">table-integrity</span></div>
     </div>
   </div>
@@ -305,11 +311,11 @@ python3 scripts/validate-plugin.py --fix</pre>
     <thead><tr><th>검사</th><th>기준</th><th>검증 방법</th></tr></thead>
     <tbody>
       <tr><td><strong>V1</strong></td><td>스킬 <code>skills/*/SKILL.md</code> 는 <code>name</code> · <code>description</code> · <code>user-invocable</code> 셋,<br>에이전트 <code>agents/*.md</code> 는 <code>name</code> · <code>description</code> · <code>tools</code> · <code>model</code> 넷을 모두 가진다.<br>두 경우 모두 맨 위 <code>---</code> 블록이 YAML 로 정상으로 읽혀야 한다</td><td><code>yaml.safe_load()</code> 로 읽은 뒤 <code>dict.get()</code> 으로 필드를 확인한다.<br>값이 빈 문자열이어도 FAIL</td></tr>
-      <tr><td><strong>V2</strong></td><td><code>templates/</code> 가 있으면 그 안의 JSON · YAML · TOML 파일이 표준 파서로 읽혀야 한다.<br>트랜스파일이 필요한 <code>.ts</code> · <code>.js</code> 는 외부 도구(tsc · node) 없이 검증할 수 없어 SKIP</td><td>확장자별 파서로 읽는다(아래 표).<br><code>templates/</code> 가 없으면 <code>SKIP (no templates/)</code> 를 출력하고 PASS 로 친다</td></tr>
-      <tr><td><strong>V3</strong></td><td>SKILL.md 본문의 마크다운 링크 <code>[text](path)</code> 가 실제 파일로 이어진다</td><td>정규식으로 링크를 뽑아 SKILL.md 위치를 기준으로 <code>os.path.exists()</code> 로 확인한다</td></tr>
+      <tr><td><strong>V2</strong></td><td><code>templates/</code> 가 있으면 그 안의 JSON · YAML · TOML 파일이 표준 파서로 읽혀야 한다.<br>트랜스파일이 필요한 <code>.ts</code> · <code>.js</code> 는 외부 도구(tsc · node) 없이 검증할 수 없어 SKIP</td><td>확장자별 파서로 읽는다(아래 표).<br><code>templates/</code> 가 없으면 <code>no templates/ — OK</code> 로 출력한다 (1.5.0 — 1.4.1 까지는 <code>SKIP (no templates/)</code> 였다)</td></tr>
+      <tr><td><strong>V3</strong></td><td>SKILL.md 본문의 마크다운 링크 <code>[text](path)</code> 가 실제 파일로 이어진다</td><td>정규식으로 링크를 뽑아 SKILL.md 위치를 기준으로 <code>os.path.exists()</code> 로 확인한다.<br>코드 블록 안의 링크는 보지 않는다 — 블록 판정은 V10 과 같은 CommonMark 0.31.2 §4.5 규칙이다 (1.5.0). <code>~~~</code> 블록과 백틱 4 개 블록 안의 링크도 코드다. 백틱 3 개로 시작하는 줄마다 켜고 끄기만 뒤집던 1.4.1 까지의 판은 그 두 블록 안 링크를 없는 파일로 잡았다</td></tr>
       <tr><td><strong>V4</strong></td><td>description 에서 따옴표(<code>"..."</code> · <code>'...'</code>)로 감싼 키워드가 같은 킷 안이나 다른 킷과 글자 그대로 겹치면 WARNING.<br>겹침은 두 스킬이 같은 사용자 말에 함께 트리거될 수 있다는 뜻이다</td><td>3 자 이상 키워드를 뽑아 소문자로 맞춘 뒤 <code>collections.Counter</code> 로 센다. 2 회 이상이면 WARNING</td></tr>
       <tr><td><strong>V5</strong></td><td><code>SKILL.md</code> · <code>agents/*.md</code> · <code>README.md</code> · <code>references/*.md</code> 본문에 <code>TODO</code> · <code>TBD</code> · <code>FIXME</code> 가 0 건.<br>코드 블록 안 주석(<code>// TODO: ...</code> · <code># TODO: ...</code>)도 센다</td><td>단어 경계(<code>\b</code>) 정규식을 <code>re.IGNORECASE</code> 로 찾는다. 걸린 파일과 줄 번호를 모두 보고한다</td></tr>
-      <tr><td><strong>V6</strong></td><td>마크다운 코드 블록의 여는 펜스에 언어 힌트가 있다. 닫는 펜스(<code>```</code> 한 줄)는 보지 않는다</td><td>상태 머신으로 <code>```</code> 를 기준 삼아 <code>in_block</code> 을 뒤집어 가며 추적한다. 여는 펜스에서 <code>```</code> 뒤가 비면 FAIL</td></tr>
+      <tr><td><strong>V6</strong></td><td>마크다운 코드 블록의 여는 펜스에 언어 힌트가 있다. 닫는 펜스(<code>```</code> 한 줄)는 보지 않는다</td><td>여는 줄 판정은 V10 과 같은 CommonMark 0.31.2 §4.5 규칙이다 (1.5.0). 백틱으로 연 블록의 여는 줄 뒤 글이 비어 있으면 FAIL 이다.<br>블록 안의 백틱 줄(<code>~~~</code> 블록 · 백틱 4 개 블록 안)은 여는 줄이 아니고, 줄 안 코드(<code>```x```</code>)로 시작하는 줄도 블록을 열지 않는다.<br><code>--fix</code> 는 짚은 여는 줄에 <code>text</code> 를 붙인다 — 옛 판은 닫는 줄을 고쳤다.<br><strong>범위</strong> — 킷의 <code>skills/*/SKILL.md</code> · <code>agents/*.md</code> · <code>references/*.md</code> · <code>README.md</code> 에 <code>skills/*/references/**/*.md</code> 를 더했다 (1.5.0). 1.4.0 에서 미룬 이유였던 여는 줄 8 개는 킷 <code>pr-template.md</code> 의 <code>~~~markdown</code> 블록 <strong>안</strong> 줄이라 새 판정에서는 코드다 — 넓혀도 걸리는 것이 0 개다</td></tr>
       <tr><td><strong>V7</strong></td><td>킷 <code>.claude-plugin/plugin.json</code> 과 루트 <code>.claude-plugin/marketplace.json</code> 의 <code>name</code> · <code>version</code> 이 같다.<br>marketplace description 에 <code>[vX.Y.Z · YYYY-MM-DD]</code> 형식이 있고 그 버전 태그가 같다</td><td>① marketplace.json 의 그 킷 항목에서 description 을 꺼낸다 ② 정규식으로 버전 태그를 읽는다 ③ plugin.json 의 <code>version</code> 과 비교한다</td></tr>
     </tbody>
   </table>
@@ -336,14 +342,14 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'</pre>
       <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3</a>
     </div>
     <div class="card">
-      <h3>V6 — 여는 펜스만 판정한다</h3>
+      <h3>V6 — 1.4.1 까지의 옛 판정</h3>
       <pre style="margin-top:8px"><span style="color:var(--text3)"># V6 — see harness/docs/guides/plugin-validation-guide.md §3.6</span>
 <span style="color:var(--text3)"># ``` 뒤가 비어있으면(strip 후 빈 문자열) FAIL</span>
 if line.startswith("```") and not in_block:
     hint = line[3:].strip()
     if not hint:
         violations.append(...)</pre>
-      <p style="margin-top:12px">언어 힌트가 없는 펜스는 Claude 가 구문을 구분하고 언어를 가리는 데 쓸 단서를 잃는다. 닫는 펜스는 원래 힌트가 없으므로 판정하지 않는다.</p>
+      <p style="margin-top:12px">백틱 3 개로 시작하는 줄마다 켜고 끄기만 뒤집던 판이다. <code>~~~</code> 블록 · 백틱 4 개 블록 안 줄 · 줄 안 코드로 시작하는 줄에서 멀쩡한 블록을 잡거나 닫는 줄을 여는 줄로 짚었다. 1.5.0 은 V10 과 같은 CommonMark 판정으로 바꿨다. 언어 힌트가 없는 펜스는 Claude 가 구문을 구분하는 단서를 잃는다는 기준은 그대로다.</p>
       <a class="card-source" href="https://github.com/joo6077/claude-plugins/blob/main/harness/docs/guides/plugin-validation-guide.md">plugin-validation-guide.md §3 V6</a>
     </div>
   </div>
@@ -369,11 +375,11 @@ if line.startswith("```") and not in_block:
     <thead><tr><th>검사</th><th>예외</th></tr></thead>
     <tbody>
       <tr><td><strong>V1</strong></td><td>없다. 모든 스킬과 에이전트는 예외 없이 frontmatter 를 가져야 한다</td></tr>
-      <tr><td><strong>V2</strong></td><td><code>templates/</code> 없는 킷은 V2 전체 SKIP (어느 킷인지는 <a href="#catalog">§12 킷별 예외</a>)<br><code>.ts</code> · <code>.js</code> 는 언제나 SKIP — 읽기 실패로 치지 않는다<br><code>.template</code> 은 안쪽 확장자(<code>.json.template</code>)로 판별한다</td></tr>
+      <tr><td><strong>V2</strong></td><td><code>templates/</code> 없는 킷은 볼 파일이 없어 OK (어느 킷인지는 <a href="#catalog">§12 킷별 예외</a>)<br><code>.ts</code> · <code>.js</code> 는 언제나 SKIP — 읽기 실패로 치지 않는다<br><code>.template</code> 은 안쪽 확장자(<code>.json.template</code>)로 판별한다</td></tr>
       <tr><td><strong>V3</strong></td><td>절대 URL(<code>https://</code> · <code>http://</code>)과 앵커만 있는 링크(<code>#section</code> · <code>#heading</code>)는 뺀다<br><code>&lt;!-- novalidate --&gt;</code> 주석이 달린 링크는 SKIP — 일부러 잇지 않은 링크다<br>본문에 그대로 적힌 상대 경로 문자열(코드 인라인 경로)은 V3 범위 밖이다 — 독자가 눈으로 확인한다</td></tr>
       <tr><td><strong>V4</strong></td><td>2 자 이하 키워드는 너무 흔해 뽑지 않는다<br><code>--fix</code> · <code>--json</code> 같은 명령줄 플래그 모양은 뺀다<br>공통 동사(<code>구현해줘</code> · <code>만들어줘</code>)는 겹침이 설계 의도일 수 있다 — WARNING 으로 두고 ERROR 로 올리지 않는다<br>킷 사이 문맥 구분 — 아래 카드</td></tr>
       <tr><td><strong>V5</strong></td><td><code>validate-plugin.py</code> 본문은 검사 도구 자신이라 V5 대상에서 뺀다<br>코드 템플릿 예시 안의 미완성 표시는 빼지 않는다 — 설명용이라도 사용자 문서에 보이므로 FAIL</td></tr>
-      <tr><td><strong>V6</strong></td><td>닫는 펜스(<code>```</code> 한 줄)는 정상이라 보지 않는다<br><code>~~~</code> 물결 펜스는 지금 검사하지 않는다 — 모노레포 관례가 백틱이다</td></tr>
+      <tr><td><strong>V6</strong></td><td>닫는 펜스(<code>```</code> 한 줄)는 정상이라 보지 않는다<br><code>~~~</code> 물결로 여는 블록은 언어 힌트를 검사하지 않는다 — 모노레포 관례가 백틱이다. 그 블록 안 줄은 코드로 본다</td></tr>
       <tr><td><strong>V7</strong></td><td>marketplace.json 에 아직 등록하지 않은 새 킷은 V7 대상이 아니다 — marketplace 에 없으면 킷 자체가 검사 목록에서 빠진다</td></tr>
     </tbody>
   </table>
@@ -406,13 +412,14 @@ if line.startswith("```") and not in_block:
 <!-- ── 5. V8 ── -->
 <div class="section" id="v8">
   <div class="section-label">5 · V8 Hook 스크립트 실행 비트 · 따옴표</div>
-  <p class="desc">두 가지를 본다. (1) <code>hooks/hooks.json</code> 명령 안의 <code>${CLAUDE_PLUGIN_ROOT}</code> 가 모두 큰따옴표 안에 있는지 — JSON 에는 <code>"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/x.sh\""</code> 처럼 이스케이프한 따옴표로 적는다. (2) <strong>인터프리터 없이 직접 실행</strong>하는 <code>.sh</code> 스크립트가 실행 비트(mode 0755)를 가지는지. git 은 파일 모드를 추적하므로, 스크립트가 <code>100644</code>(비실행)로 커밋되면 marketplace clone · 플러그인 설치본 등 <strong>모든 설치본</strong>에서 그 훅이 <code>Permission denied</code> 로 실패한다.</p>
+  <p class="desc">두 가지를 본다. (1) <code>hooks/hooks.json</code> 명령 안의 <code>${CLAUDE_PLUGIN_ROOT}</code> 와 중괄호 없는 <code>$CLAUDE_PLUGIN_ROOT</code> 가 모두 큰따옴표 안에 있는지 — JSON 에는 <code>"command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/x.sh\""</code> 처럼 이스케이프한 따옴표로 적는다. (2) <strong>인터프리터 없이 직접 실행</strong>하는 <code>.sh</code> 스크립트가 실행 비트(mode 0755)를 가지는지. git 은 파일 모드를 추적하므로, 스크립트가 <code>100644</code>(비실행)로 커밋되면 marketplace clone · 플러그인 설치본 등 <strong>모든 설치본</strong>에서 그 훅이 <code>Permission denied</code> 로 실패한다.</p>
 
   <div class="grid-3">
     <div class="card">
       <h3>왜 중요한가</h3>
       <p>2026-06 reflect 로그 30 일 집계에서 훅 <code>permission-denied</code> 계열이 <strong>24 개 프로젝트 957 건(전체 마찰의 38%)</strong>으로 가장 큰 마찰 하나였다. 원인은 <code>harness/scripts/{env-check,run-guard,sdk-guard}.sh</code> 와 <code>design-kit/scripts/env-check.sh</code> 4 종이 <code>100644</code> 로 커밋된 것이었다. SessionStart · PreToolUse 훅은 매 세션 · 매 Bash 호출마다 돌아, 비실행 스크립트 하나가 전 프로젝트에 실패를 쌓는다.</p>
       <p style="margin-top:10px">따옴표도 같은 급의 실패다. 설치 경로에 빈칸이 있으면 따옴표 밖 변수는 셸이 둘로 쪼개 훅이 아예 돌지 않는다 — 킷 넷의 명령 10 개를 빈칸 든 경로에서 돌려 10 개 모두 실패하는 것을 확인했다(2026-09-26). Hooks reference 도 이 변수를 큰따옴표로 감싸라고 한다.</p>
+      <p style="margin-top:10px">중괄호 없는 <code>$CLAUDE_PLUGIN_ROOT</code> 도 셸이 같은 변수로 펼치므로 따옴표 검사와 실행 비트 검사를 똑같이 받는다 (1.5.0 — 1.4.1 까지는 중괄호 꼴만 봐서 그 꼴의 두 결함을 놓쳤다). 이름이 더 긴 <code>$CLAUDE_PLUGIN_ROOT_DIR</code> 같은 변수는 다른 변수라 보지 않는다.</p>
       <a class="card-source" href="https://code.claude.com/docs/en/hooks">code.claude.com · Hooks</a>
     </div>
     <div class="card">
@@ -516,9 +523,13 @@ if line.startswith("```") and not in_block:
       <div class="when">+ 1.4.0 · 2026-09-25</div>
       <p>스킬 폴더 안 <code>skills/*/references/**/*.md</code> — 14 킷 41 개(표가 있는 파일 40 개)가 검사 밖이었다. 끊긴 표 0 개</p>
     </div>
-    <div class="scope-step off">
-      <div class="when">V6 는 넓히지 않음</div>
-      <p>같은 범위로 넓히면 그 안의 언어 힌트 없는 펜스 8 개가 바로 걸린다</p>
+    <div class="scope-step">
+      <div class="when">+ 1.5.0 · 2026-09-26</div>
+      <p>킷 폴더 밖 저장소 원본 폴더도 그 킷 결과로 더한다. 짝은 <code>scripts/plugin_utils.py</code> 의 <code>KIT_RESEARCH_DOCS</code> 한 곳에 두고 <code>scripts/sync-orchestrator.py</code> 와 함께 읽는다 — backend-kit <code>docs/backend</code> · infra-kit <code>docs/infra</code> · rust-kit <code>docs/rust</code> · react-kit <code>docs/react</code> · flutter-toolkit <code>docs/flutter</code> · planning-kit <code>docs/planning</code> · tone-kit <code>docs/tone</code> · api-kit <code>docs/api</code> · howto-kit <code>docs/howto</code> (design-kit 의 <code>design-kit/docs/design</code> 은 원래 킷 안이다). 그 킷 카이젠이 고치는 문서인데 킷 폴더만 보면 거기서 끊긴 표를 못 잡았다. 짝이 없는 폴더(<code>docs/superpowers</code> 등)는 보지 않는다. 짝은 있는데 폴더가 없으면 <code>FAIL &lt;폴더&gt;: 킷 원본 폴더 없음</code> 으로 떨어진다 — 조용히 건너뛰면 원본 표가 통째로 검사 밖으로 빠진다</p>
+    </div>
+    <div class="scope-step">
+      <div class="when">V6 도 같은 범위 · 1.5.0</div>
+      <p>1.4.0 에서는 그 안의 언어 힌트 없는 펜스 8 개 때문에 V6 를 넓히지 않았다. 1.5.0 에서 V6 에도 <code>skills/*/references/**/*.md</code> 를 넣었다</p>
     </div>
   </div>
   <p class="desc" style="margin-top:16px">실제로 표가 끊겼던 자리는 <code>harness/references/contract-schema.md</code> 라 원래 V6 범위 안이었다. <code>docs/</code> 로 넓힌 이유는 「그 파일이 범위 밖이어서」 가 아니라 「같은 종류의 문서가 <code>docs/</code> 에도 있어서」 다 — 교차 진단이 이 서술 오류를 짚었다.</p>
@@ -572,21 +583,9 @@ if line.startswith("```") and not in_block:
 <!-- ── 9. 출력 형식 ── -->
 <div class="section" id="output">
   <div class="section-label">9 · 출력 형식</div>
-  <p class="desc">킷별로 묶어 출력하고, FAIL 항목은 줄 번호까지 보고하며, 마지막 줄에 전체 요약과 종료 코드가 온다. 아래는 <strong>형식 예시</strong>라 수치와 버전 번호는 예로 든 값이다.</p>
+  <p class="desc">킷별로 묶어 출력하고, FAIL 항목은 줄 번호까지 보고하며, 마지막 줄에 전체 요약과 종료 코드가 온다. 아래는 <code>python3 scripts/validate-plugin.py react-kit</code> 로 킷 하나를 돌린 <strong>형식 예시</strong>라 수치와 버전 번호는 예로 든 값이다.</p>
 
-  <pre>=== harness ===
-  V1 frontmatter       9 skills + 1 agent — OK
-  V2 templates         2 parsed, 1 skipped (ts/js) — OK
-  V3 refs              12 links — OK
-  V4 triggers          36 keywords — OK
-  V5 placeholders      0 found — OK
-  V6 code-fence        0 bare — OK
-  V7 plugin-json       v0.3.5 matches marketplace — OK
-  V8 hook-exec         3 hook 스크립트 실행 가능 — OK
-  V9 arg-substitution  9 skills — OK
-  V10 table-integrity   18 md files — OK
-
-=== react-kit ===
+  <pre>=== react-kit ===
   V1 frontmatter       21 skills + 3 agents — OK
   V2 templates         5 parsed, 4 skipped (ts/js) — OK
   V3 refs              89 links, 2 BROKEN <span style="color:var(--red)">— FAIL</span>
@@ -601,7 +600,7 @@ if line.startswith("```") and not in_block:
   V9 arg-substitution  21 skills — OK
   V10 table-integrity   32 md files — OK
 
-Total: 2 plugins, 1 OK, 1 ERROR
+Total: 1 plugins, 1 ERROR
 Exit: 2</pre>
 
   <div class="grid-3" style="margin-top:20px">
@@ -809,10 +808,13 @@ chmod +x harness/scripts/run-guard.sh
   <div class="compare">
     <div class="compare-bad">
       <div class="compare-label">✗ V8 FAIL 예시 2 — 따옴표 밖 변수</div>
-      <pre><span style="color:var(--text3)"># design-kit/hooks/hooks.json</span>
-{ "command": "${CLAUDE_PLUGIN_ROOT}/scripts/env-check.sh" }
+      <pre><span style="color:var(--text3)"># reflect-kit/hooks/hooks.json</span>
 { "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh" }
-<span style="color:var(--red)"># → FAIL design-kit/hooks/hooks.json: ${CLAUDE_PLUGIN_ROOT} 가 큰따옴표 밖 — 설치 경로에 빈칸이 있으면 실행이 깨진다</span></pre>
+{ "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-tool-failure.sh" }
+<span style="color:var(--red)"># → V8 hook-exec         2개 hook 명령 따옴표 없음 — FAIL</span>
+<span style="color:var(--red)"># →   FAIL reflect-kit/hooks/hooks.json: ${CLAUDE_PLUGIN_ROOT} 가 큰따옴표 밖 — 설치 경로에 빈칸이 있으면 실행이 깨진다 (bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh)</span>
+<span style="color:var(--red)"># →   FAIL reflect-kit/hooks/hooks.json: ${CLAUDE_PLUGIN_ROOT} 가 큰따옴표 밖 — 설치 경로에 빈칸이 있으면 실행이 깨진다 (bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-tool-failure.sh)</span></pre>
+      <p style="margin-top:10px">따옴표 밖 명령마다 <code>FAIL</code> 줄이 하나씩 나오고, 줄 끝 괄호에 그 명령이 붙는다.</p>
     </div>
     <div class="compare-good">
       <div class="compare-label">✓ V8 — 경로를 큰따옴표로 감쌈</div>
@@ -900,7 +902,7 @@ echo "대상: ${1}"
           <tr><td style="padding:6px 0"><strong>V3</strong></td><td style="padding:6px 0 6px 12px">참조 파일을 만들거나 링크 경로를 고친다</td></tr>
           <tr><td style="padding:6px 0"><strong>V4</strong></td><td style="padding:6px 0 6px 12px">description 에서 겹치는 키워드를 빼거나 더 구체적으로 쓴다</td></tr>
           <tr><td style="padding:6px 0"><strong>V7</strong></td><td style="padding:6px 0 6px 12px">plugin.json 이나 marketplace.json 버전 태그를 맞춘다</td></tr>
-          <tr><td style="padding:6px 0"><strong>V8</strong></td><td style="padding:6px 0 6px 12px"><code>chmod +x &lt;script&gt;</code> 후 커밋해 git 이 <code>100755</code> 로 추적하게 한다</td></tr>
+          <tr><td style="padding:6px 0"><strong>V8</strong></td><td style="padding:6px 0 6px 12px">실행 비트는 <code>chmod +x &lt;script&gt;</code> 후 커밋해 git 이 <code>100755</code> 로 추적하게 한다. 따옴표는 <code>${CLAUDE_PLUGIN_ROOT}</code> 가 든 경로를 <code>\"…\"</code> 로 감싸고 인자는 따옴표 밖에 둔다 (§5 V8 고치는 흐름)</td></tr>
           <tr><td style="padding:6px 0"><strong>V9</strong></td><td style="padding:6px 0 6px 12px">자리마다 다르다 — awk 필드는 <code>$(N)</code>, bash 위치 인자는 <code>${N}</code>, 문법상 <code>$</code> + 숫자여야 하는 곳은 역슬래시 이스케이프 (<a href="#v9">§6</a>)</td></tr>
           <tr><td style="padding:6px 0"><strong>V10</strong></td><td style="padding:6px 0 6px 12px">표 중간에 끼어든 절이나 문단을 표 뒤로 옮겨 헤더와 행을 다시 잇는다</td></tr>
         </tbody>
@@ -921,7 +923,7 @@ echo "대상: ${1}"
 <!-- ── 12. 킷별 예외 카탈로그 ── -->
 <div class="section" id="catalog">
   <div class="section-label">12 · 킷별 예외 카탈로그</div>
-  <p class="desc"><code>templates/</code> 가 없는 킷은 V2 전체 SKIP 이다. 항목 수는 원본 1.3.1 판에서 실제 값으로 맞췄다.</p>
+  <p class="desc"><code>templates/</code> 가 없는 킷은 V2 가 볼 파일이 없다 — 1.5.0 부터 V 줄은 <code>no templates/ — OK</code> 로 나온다. 표의 SKIP 칸은 원본 카탈로그 글자 그대로다. 항목 수는 원본 1.3.1 판에서 실제 값으로 맞췄다.</p>
 
   <div class="table-wrap">
   <table>
@@ -1041,7 +1043,9 @@ python3 scripts/validate-plugin.py &lt;kit-name&gt;</pre>
       <tr><td>2026-09-24</td><td>1.3.0</td><td>V10 table-integrity 추가 — 헤더 없이 끊긴 표 행을 잡는다. markdownlint 는 고립 표 행을 표로 알아보지 못해 경고 수가 안 움직인다 (실측: 같은 파일 세 커밋 내리 14 건). 범위는 V6 + 킷 안 <code>docs/**/*.md</code> (210 파일, 오탐 0 확인)</td></tr>
       <tr><td>2026-09-24</td><td>1.3.1</td><td>사실 정정 — <code>--check</code> 검사 이름 10 개 전부, 출력 예시에 V9 · V10 줄과 실제 요약줄 형식(<code>Total: N plugins, …</code>), 수동 수정 표에 V8 · V9 · V10, 킷별 예외 표의 <code>templates/</code> 항목 수를 실제 값으로(harness 4 · flutter-toolkit 2 · design-kit 8 · rust-kit 5 · tone-kit 6). 금방 낡는 킷 수 · 카이젠 스킬 수 표기와 일부 킷 목록은 뺐다</td></tr>
       <tr><td>2026-09-25</td><td>1.4.0</td><td>V10 범위에 스킬 폴더 안 <code>skills/*/references/**/*.md</code> 를 더했다 — 14 킷 41 개가 검사 밖이었다 (끊긴 표 0 개 확인). V6 는 같은 범위의 언어 힌트 없는 펜스 8 개 때문에 넓히지 않았다</td></tr>
-      <tr><td>2026-09-26</td><td><strong>1.4.1</strong></td><td>V10 코드 블록 판정을 CommonMark 0.31.2 §4.5 에 맞췄다 — 여닫는 줄의 문자 · 길이를 맞추고, 백틱 여는 줄 뒤에 백틱이 있으면 줄 안 코드로, 닫는 줄이 없으면 문서 끝까지로 본다. 표 행은 <code>|</code> 로 시작하면서 <code>|</code> 가 둘 이상인 줄만 본다. <code>~~~</code> 블록 안 PR 본문 틀의 표 24 행이 검사 밖으로 나갔다 (끊긴 표 0 개 그대로). 규격과 다르게 단순화한 곳(여닫는 줄 들여쓰기 칸 수 · 목록 · 인용 · HTML 블록 경계 · 공백 판정)을 적었다. 변경 이력 순서를 날짜 순으로 바로잡았다</td></tr>
+      <tr><td>2026-09-26</td><td>1.4.1</td><td>V10 코드 블록 판정을 CommonMark 0.31.2 §4.5 에 맞췄다 — 여닫는 줄의 문자 · 길이를 맞추고, 백틱 여는 줄 뒤에 백틱이 있으면 줄 안 코드로, 닫는 줄이 없으면 문서 끝까지로 본다. 표 행은 <code>|</code> 로 시작하면서 <code>|</code> 가 둘 이상인 줄만 본다. <code>~~~</code> 블록 안 PR 본문 틀의 표 24 행이 검사 밖으로 나갔다 (끊긴 표 0 개 그대로). 규격과 다르게 단순화한 곳(여닫는 줄 들여쓰기 칸 수 · 목록 · 인용 · HTML 블록 경계 · 공백 판정)을 적었다. 변경 이력 순서를 날짜 순으로 바로잡았다</td></tr>
+      <tr><td>2026-09-26</td><td>1.4.2</td><td>사실 정정 — V8 따옴표 FAIL 예시 2 를 한 킷(reflect-kit) 명령 둘과 실제 출력(명령마다 <code>FAIL</code> 한 줄 · 줄 끝에 명령)으로 바꿨다. 수동 수정 표 V8 행에 따옴표 고치는 법을 더했다. 출력 예시는 명령줄로 만들 수 없던 <code>Total: 2 plugins</code> 대신 킷 하나를 돌린 모양으로 줄였다</td></tr>
+      <tr><td>2026-09-26</td><td><strong>1.5.0</strong></td><td>V2 · V3 · V6 · V8 · V10 동작 변경. V2 — <code>templates/</code> 없는 킷의 줄 글자를 <code>no templates/ — OK</code> 로 판정에 맞췄다. V3 · V6 — V10 과 같은 CommonMark 0.31.2 §4.5 코드 블록 판정을 함께 쓴다(<code>~~~</code> 블록 · 백틱 4 개 블록 · 줄 안 코드 오판을 고쳤다, V6 <code>--fix</code> 가 여는 줄을 고친다). V6 범위에 <code>skills/*/references/**/*.md</code> 를 더했다. V8 — 중괄호 없는 <code>$CLAUDE_PLUGIN_ROOT</code> 도 따옴표 · 실행 비트 검사에 넣었다. V10 — 킷의 저장소 원본 폴더(<code>docs/&lt;원본&gt;</code>)를 그 킷 결과로 읽는다</td></tr>
     </tbody>
   </table>
   </div>
