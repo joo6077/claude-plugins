@@ -91,17 +91,32 @@ printf 'Q4-post landed=%s\n' "$(has '방금 커밋에 실제로 들어간 것' "
 
 # 조용히 지나가야 하는 입력 (종료 코드 · 출력)
 er() {  # er <경우> <훅 파일> <이벤트 인자> <입력> [env 앞말]
-  local out rc
-  out=$(printf '%s' "$4" | ${5:+env $5} bash "$H/$2" ${3:+"$3"}); rc=$?
-  printf '%s rc=%s empty=%s\n' "$1" "$rc" "$(isempty "$out")"
+  local out rc err
+  out=$(printf '%s' "$4" | ${5:+env $5} bash "$H/$2" ${3:+"$3"} 2>"$F/er.err"); rc=$?
+  err=$(cat "$F/er.err")
+  printf '%s rc=%s empty=%s stderr_empty=%s\n' "$1" "$rc" "$(isempty "$out")" "$(isempty "$err")"
 }
+# jq 만 숨긴 PATH — /usr/bin 의 다른 도구는 새 일반 파일(exec 감싸개)로 둔다. 바로가기(ln -s)는 만들지 않는다.
+# PATH=/bin 은 grep 까지 숨겨서(이 맥은 /bin/grep 없음) 「jq 만 없음」 을 재지 못한다.
+NOJQ=$F/nojq-bin
+mkdir -p "$NOJQ"
+for b in /usr/bin/*; do
+  n=${b##*/}
+  [ "$n" = jq ] && continue
+  [ -f "$b" ] && [ -x "$b" ] || continue
+  printf '#!/bin/sh\nexec %s "$@"\n' "$b" > "$NOJQ/$n"
+  chmod +x "$NOJQ/$n"
+done
+printf 'NOJQ-env jq=%s grep=%s\n' \
+  "$(PATH="$NOJQ:/bin" command -v jq >/dev/null 2>&1 && echo 1 || echo 0)" \
+  "$(PATH="$NOJQ:/bin" command -v grep >/dev/null 2>&1 && echo 1 || echo 0)"
 PL=$(jq -nc --arg d "$R" '{tool_name:"Bash",tool_input:{command:"git commit -m x"},cwd:$d}')
 er ER01-pre-empty parallel-session-guard.sh PreToolUse ''
 er ER01-pre-broken parallel-session-guard.sh PreToolUse '{'
-er ER01-pre-nojq parallel-session-guard.sh PreToolUse "$PL" PATH=/bin
+er ER01-pre-nojq parallel-session-guard.sh PreToolUse "$PL" PATH=$NOJQ:/bin
 er ER01-post-empty parallel-session-guard.sh PostToolUse ''
 er ER01-post-broken parallel-session-guard.sh PostToolUse '{'
-er ER01-post-nojq parallel-session-guard.sh PostToolUse "$PL" PATH=/bin
+er ER01-post-nojq parallel-session-guard.sh PostToolUse "$PL" PATH=$NOJQ:/bin
 
 # ---- 세션 마감 훅 (US-1 · US-5) ----
 NOTI=$(jq -r .prompt "$HERE/us-fixtures/task-notification.json")
@@ -132,7 +147,7 @@ printf 'H1 json=%s detect=%s pline_count=%s pline_prd=%s pline_scope=%s pline_ap
 o=$(ho '안녕')
 printf 'H2 empty=%s\n' "$(isempty "$o")"
 for k in empty broken nojq; do
-  case $k in empty) in=''; e='';; broken) in='{'; e='';; nojq) in='{"prompt":"오늘 여기까지"}'; e=PATH=/bin;; esac
+  case $k in empty) in=''; e='';; broken) in='{'; e='';; nojq) in='{"prompt":"오늘 여기까지"}'; e=PATH=$NOJQ:/bin;; esac
   er "ER01-handoff-$k" next-session-handoff.sh '' "$in" $e
 done
 
@@ -169,7 +184,7 @@ codex exec x'
 CPL='{"tool_name":"Bash","tool_input":{"command":"codex exec x"}}'
 er CX-empty enforce-codex-stdin.sh '' ''
 er CX-broken enforce-codex-stdin.sh '' '{'
-er CX-nojq enforce-codex-stdin.sh '' "$CPL" PATH=/bin
+er CX-nojq enforce-codex-stdin.sh '' "$CPL" PATH=$NOJQ:/bin
 er CX-nolib enforce-codex-stdin.sh '' "$CPL" CLAUDE_HOOK_LIB=$F/none.sh
 
 # ---- 핸드오프 5 단계 커밋 (US-4) ----
