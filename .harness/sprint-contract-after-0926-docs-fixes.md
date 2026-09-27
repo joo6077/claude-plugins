@@ -4,7 +4,7 @@ slug: after-0926-docs-fixes
 created: "2026-09-26 20:16"
 complexity: "복잡"
 conditions: 29
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:a1f762a2866454db
 measurement_digest: sha256:57f76c23521e7bc2
