@@ -47,7 +47,7 @@ Codex 위임의 **방법론과 프롬프트 템플릿**을 점진 강화한다. 
 
 ### 1. 신호 수집 (로그 분석)
 
-1. `~/.claude/codex-research-log/*.md`에서 `window` 범위 내, `— codex-rescue (` 로 시작하는 헤더를 가진 엔트리를 나열한다. 헤더에 `completed` 또는 `stalled` 상태가 붙는다. 엔트리 1건은 `- rollout: ` 줄 1개와 일대일 대응하므로 개수는 그 줄로 센다 — `^## ` 로 세면 응답 본문의 마크다운 제목까지 세어 부풀려진다.
+1. `~/.claude/codex-research-log/*.md`에서 `window` 범위 내, `— codex-rescue (` 로 시작하는 헤더를 가진 엔트리를 나열한다. 헤더에 `completed` 또는 `stalled` 상태가 붙는다. 엔트리 1건은 `- rollout:` 줄 1개와 일대일 대응하므로 개수는 그 줄로 센다 — `^##` 로 세면 응답 본문의 마크다운 제목까지 세어 부풀려진다.
 2. 0건이면: `research-only` 호출이 아닌 한 SKIP하고 종료(억지 개선 금지).
 3. 각 엔트리에서 추출: 상태(`completed` / `stalled`), 보낸 프롬프트, codex 응답(verbatim), `search calls` 수와 `Search activity` 목록(어떤 주소를 열었는지), model, cli 버전, `via`(호출 경로).
 4. 리뷰 시점 독립 평가로 아래 약점 패턴을 집계한다(위임 시점 self-score 아님):
@@ -66,6 +66,7 @@ Codex 위임의 **방법론과 프롬프트 템플릿**을 점진 강화한다. 
 식별된 약점 모드마다 **현행 모델 기준 prompting 베스트 프랙티스**를 조사한다. 최신 모델은 `sh ~/.codex/skills/.system/openai-docs/scripts/resolve-latest-model-info` 로 확인하고, 번들 가이드 `~/.codex/skills/.system/openai-docs/references/prompting-guide.md` 를 1차 출처로 읽는다. 어느 출처를 볼지는 `references/search-sources.md`(OpenAI 공식 docs 9종 + 신뢰 기준)를 따른다 — 약점 모드에 매핑되는 소스만 골라 읽고, 전체를 매번 읽지 마라.
 
 리서치로 검증된 핵심 패턴(소스는 search-sources.md):
+
 - **Output contract**: codex CLI는 `codex exec --output-schema schema.json -o result.json`로 JSON Schema를 강제할 수 있다(프롬프트 contract만이 아님). 단 `--json` 스트림의 중간 `agent_message`도 schema-shaped일 수 있으니 최종 turn/`-o` 파일 기준 + 외부 validator 1회 유지.
 - **reasoning effort**: 현재 값을 기준선으로 두고 바꿀 이유가 있을 때만 한 단계 움직인다. `gpt-6-astra`는 `none`을 지원하지 않으므로 `none`/`minimal`을 쓰던 자리는 `low`부터 비교한다. `high`/`xhigh`는 평가로 이득이 확인된 뒤에만.
 - **Grounding**: supporting source만 cite, source ID/URL 발명 금지, 근거 없는 추론은 `추론:` 라벨, 미확인은 열린 질문으로.
@@ -82,6 +83,7 @@ Codex 위임의 **방법론과 프롬프트 템플릿**을 점진 강화한다. 
 ### 3. GAP 분석
 
 현재 `~/.claude/codex-prompt-template.md`를 (Step 1 약점 패턴 + Step 2 리서치 결과)와 대조하여 구체 갭을 enumerate한다:
+
 - 로그에서 반복되지만 템플릿이 막지 못하는 실패 모드.
 - 리서치가 권장하지만 템플릿에 없는 지시/블록.
 - 더 이상 유효하지 않은(모델 세대가 바뀐) 기존 지시.
@@ -109,6 +111,7 @@ Codex 위임의 **방법론과 프롬프트 템플릿**을 점진 강화한다. 
 ### 7. 완료 전 규칙 전수 대조 (rule-by-rule audit)
 
 완료 선언 전에 이 스킬의 Gotchas + 안티패턴을 한 항목씩 자기 대조한다:
+
 - 위임 시점 self-score를 부활시키지 않았는가 / 전역 자산을 승인 없이 편집하지 않았는가 / 리서치 위임에 `gpt-5.6-sol` 이상을 지정했는가 / 단일 실패 1건 patch가 아니라 generalized instruction인가 / 모든 변경에 로그·1차 출처 근거가 있는가 / 템플릿 변경 시 `template_version` 스탬프를 올렸는가.
 - 하나라도 위반이면 적용을 멈추고 수정한다. 이 대조 결과를 사이클 요약에 1줄로 명시한다.
 
