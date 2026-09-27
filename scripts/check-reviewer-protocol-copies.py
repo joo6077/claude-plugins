@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""check-reviewer-protocol-copies.py — 킷 reviewer 일곱이 든 미검증 규칙 사본이 원문과 글자까지 같은지 잰다.
+"""check-reviewer-protocol-copies.py — 킷 reviewer 여덟이 든 미검증 규칙 사본이 원문과 글자까지 같은지 잰다.
 
 원문은 `harness/docs/guides/qa-evaluation-guide.md` 의 두 덩어리다.
 
@@ -19,7 +19,7 @@ backend-reviewer 의 2026-08-13 재동기화, 2026-09-24 Phase 8 기록. 사람 
 Usage:
     python3 scripts/check-reviewer-protocol-copies.py
 
-exit 0 = 일곱 모두 같다, 1 = 다른 사본이나 목록 밖 reviewer 가 있다,
+exit 0 = 여덟 모두 같다, 1 = 다른 사본이나 목록 밖 reviewer 가 있다,
 2 = 원문이나 사본을 읽지 못했다 (1 과 함께 나면 2). 값의 정의는 `harness/evals/gate-exit-codes.md`.
 """
 import re
@@ -36,6 +36,7 @@ REVIEWERS = [
     "api-kit/agents/api-reviewer.md",
     "backend-kit/agents/backend-reviewer.md",
     "design-kit/agents/design-reviewer.md",
+    "howto-kit/agents/howto-reviewer.md",
     "infra-kit/agents/infra-reviewer.md",
     "planning-kit/agents/planning-reviewer.md",
     "react-kit/agents/react-reviewer.md",
@@ -43,10 +44,7 @@ REVIEWERS = [
 ]
 
 # 원문은 모든 `*-kit/agents/*-reviewer.md` 에 사본을 요구하지만 아직 들지 않은 파일. 이유는 출력에 그대로 나간다
-EXCLUDED = {
-    "howto-kit/agents/howto-reviewer.md":
-        "사본을 아직 들지 않는다 — 2026-09-26 사용자 결정이 reviewer 일곱이었다. 다음 사이클 Phase 17 에서 넣는다",
-}
+EXCLUDED: dict[str, str] = {}
 
 
 def normalized(lines: list[str]) -> list[str]:
