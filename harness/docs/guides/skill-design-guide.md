@@ -4,7 +4,11 @@ version: 1.6.0
 last_updated: 2026-09-24
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Claude Code 스킬 설계 가이드
+
+<!-- markdownlint-enable MD025 -->
 
 > Anthropic 공식 문서(2026-09-24 조회) + 내부 스킬 분석 + 커뮤니티 실전 경험 정리
 
@@ -527,7 +531,11 @@ description: >
 
 **"무엇을 하는 스킬인가"뿐 아니라 트리거 키워드와 비트리거 조건까지 명시해야 한다.**
 
+<!-- markdownlint-disable MD024 -->
+
 ### 이 프로젝트의 실제 예시
+
+<!-- markdownlint-enable MD024 -->
 
 `sprint-contract` 스킬의 description:
 

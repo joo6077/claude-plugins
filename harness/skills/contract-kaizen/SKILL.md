@@ -39,7 +39,7 @@ sprint-contract의 계약 작성 품질을 리서치 + 실행 피드백 기반�
 ## 개선 대상
 
 | 영역 | 대상 파일 | 인자 필터 |
-|------|----------|----------|
+| ------ | ---------- | ---------- |
 | 가이드 | `../../docs/guides/contract-design-guide.md` | `guide` |
 | 스킬 프롬프트 | `harness/skills/sprint-contract/SKILL.md` | `skills` |
 | 계약 스키마 | `harness/references/contract-schema.md` | `config` |
@@ -47,7 +47,7 @@ sprint-contract의 계약 작성 품질을 리서치 + 실행 피드백 기반�
 ## 트리거 조건
 
 | 트리거 | 조건 |
-|--------|------|
+| -------- | ------ |
 | 오케스트레이터 | Phase 2로 자동 호출 |
 | 피드백 임계치 | 최근 피드백 10건 중 동일 진단 항목 3회 이상 반복 |
 | 수동 | `/contract-kaizen`, `/contract-kaizen guide`, `/contract-kaizen skills` |
@@ -85,7 +85,7 @@ sprint-contract의 계약 작성 품질을 리서치 + 실행 피드백 기반�
 ### Step 4: VERIFY (3-gate 검증)
 
 | Gate | 검증 | 실패 시 |
-|------|------|---------|
+| ------ | ------ | --------- |
 | GATE 1 | 모든 주장에 URL이 있는가? | URL 없는 주장 폐기 |
 | GATE 2 | WebFetch로 URL 접근 + 내용 일치? | 접근 불가 URL 폐기 |
 | GATE 3 | PR에 출처 URL + 인용 포함? | PR 작성 시 강제 |
@@ -134,7 +134,7 @@ arXiv preprint은 `[preprint]`, 비공식 블로그는 `[blog]`, 6개월 이상�
 ## 버전 bump 판단 가이드
 
 | 변경 유형 | bump |
-|-----------|------|
+| ----------- | ------ |
 | contract-design-guide.md만 수정 | patch |
 | Gotchas 추가/수정 | patch |
 | Process 단계 변경 | minor |

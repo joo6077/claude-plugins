@@ -4,7 +4,11 @@ version: 1.7.0
 last_updated: 2026-09-24
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Claude Code 에이전트 설계 가이드
+
+<!-- markdownlint-enable MD025 -->
 
 > 공식 문서(2026-09-24 조회), Anthropic Research, 학술 논문, 커뮤니티 실전 경험 기반 서브에이전트 설계 원칙과 실전 팁
 
@@ -497,13 +501,21 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 
 에이전트 실패의 대부분은 **실행이 아니라 호출 품질** 문제다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### Bad
+
+<!-- markdownlint-enable MD024 -->
 
 ```text
 "인증 고쳐줘"
 ```
 
+<!-- markdownlint-disable MD024 -->
+
 ### Good
+
+<!-- markdownlint-enable MD024 -->
 
 ```text
 "OAuth 리다이렉트 루프를 수정해라. 로그인 성공 후 /dashboard 대신
@@ -511,6 +523,7 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 ```
 
 **좋은 호출의 4요소:**
+
 1. **컨텍스트 밀도** — 관련 배경 정보
 2. **구체적 범위** — 어떤 파일, 어떤 기능
 3. **파일 참조** — 정확한 경로
@@ -637,7 +650,11 @@ harness/agents/
 
 > **배경 (meta-issue):** skill-design-guide §3.5 "계약 모호성 방지 원칙" 이 이 가이드에 전수되지 않아 design-kit PH-01 REJECT 가 발생했다. 이 가이드 레벨의 변경이 파생 산출물(qa-evaluation-guide, qa-evaluator 에이전트, 하위 리뷰어 에이전트)로 자동 전파되지 않는 구조적 공백을 보완한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 원칙
+
+<!-- markdownlint-enable MD024 -->
 
 에이전트 설계 가이드가 개정되면, **스킬 설계 가이드 · contract-design-guide · qa-evaluation-guide · 하위 에이전트(.md)** 에 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
 

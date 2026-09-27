@@ -1,10 +1,15 @@
+<!-- markdownlint-disable MD041 -->
+
 ## EVAL DEFINITION: harness-orchestration
+
+<!-- markdownlint-enable MD041 -->
 
 Sprint Contract → Generator → QA Evaluator → REJECT/APPROVE 전체 루프가 작동하는지 검증한다.
 
 ### Capability Evals
 
 #### HO-CAP-01: 전체 루프 실행
+
 - Task: "운동 기록 목록 화면 만들어줘"를 전체 하네스로 처리
 - Success Criteria:
   - [ ] Sprint Contract 생성 → 사용자 승인
@@ -14,6 +19,7 @@ Sprint Contract → Generator → QA Evaluator → REJECT/APPROVE 전체 루프�
   - [ ] 전체 과정이 중단 없이 완료
 
 #### HO-CAP-02: REJECT → 재작업 루프
+
 - Task: QA Evaluator가 REJECT했을 때 Generator가 피드백을 반영하여 수정
 - Success Criteria:
   - [ ] Generator가 **평가된 계약과 같은 슬러그**의 QA 산출물을 읽음
@@ -23,6 +29,7 @@ Sprint Contract → Generator → QA Evaluator → REJECT/APPROVE 전체 루프�
   - [ ] 최대 3회 루프 후에도 REJECT이면 사용자에게 에스컬레이션
 
 #### HO-CAP-03: develop 워크플로우 통합
+
 - Task: 기존 /develop 9단계에 하네스가 자연스럽게 삽입
 - Success Criteria:
   - [ ] Step 1(Sprint Contract)에서 계약 생성
@@ -31,6 +38,7 @@ Sprint Contract → Generator → QA Evaluator → REJECT/APPROVE 전체 루프�
   - [ ] 기존 Step 8(audit)과 QA Evaluator(Step 5)는 독립적으로 동작
 
 #### HO-CAP-04: .harness/ 파일 관리
+
 - Task: 하네스 산출물이 체계적으로 관리되는지
 - 경로 규약 SSOT: `harness/references/contract-schema.md` §산출물 3 종
 - Success Criteria:
@@ -44,6 +52,7 @@ Sprint Contract → Generator → QA Evaluator → REJECT/APPROVE 전체 루프�
 ### Regression Evals
 
 #### HO-REG-01: 기존 워크플로우 호환
+
 - Tests:
   - develop-without-harness-still-works: PASS/FAIL (단순 수정엔 하네스 불필요)
   - audit-independent-of-qa: PASS/FAIL
@@ -77,6 +86,7 @@ Expected Flow:
 ```
 
 ### Success Metrics
+
 - pass@3 > 90% for capability evals
 - pass^3 = 100% for regression evals
 - E2E scenario: 3회 실행 중 2회 이상 APPROVE 도달
