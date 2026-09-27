@@ -4,6 +4,7 @@ version: 0.3.0
 last_updated: 2026-03-30
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 컬러
 
 컬러 이론, 심리학, 조화 규칙, 브랜드 컬러 선정 방법론, 시맨틱 토큰 체계, 다크 모드, 접근성을 다룬다.
@@ -50,7 +51,7 @@ WCAG 1.4.1 "Use of Color"는 색상이 정보 전달의 유일한 수단이 되�
 
 현대 디자인 시스템은 색상을 3단계 계층으로 구조화한다. 이 구조는 일관성, 유지보수성, 테마 확장성을 동시에 확보한다.
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │  Tier 3: Component Token                    │
 │  예: button-primary-bg → color-action       │
@@ -67,7 +68,7 @@ WCAG 1.4.1 "Use of Color"는 색상이 정보 전달의 유일한 수단이 되�
 
 원시 색상값을 정의한다. 브랜드에 필요한 모든 색상을 열거하며, 색상 이름과 명도 단계로 구성한다.
 
-```
+```text
 blue-50, blue-100, blue-200, ..., blue-900
 gray-50, gray-100, gray-200, ..., gray-900
 red-500, green-500, yellow-500
@@ -80,7 +81,7 @@ red-500, green-500, yellow-500
 
 용도와 맥락을 부여한다. "이 색이 무엇에 쓰이는가"를 이름에 담는다.
 
-```
+```text
 color-text-primary → gray-900 (Light) / gray-50 (Dark)
 color-bg-surface   → white (Light) / gray-900 (Dark)
 color-action       → blue-600 (Light) / blue-400 (Dark)
@@ -94,7 +95,7 @@ color-error        → red-600 (Light) / red-400 (Dark)
 
 특정 컴포넌트에 한정된 토큰이다. 컴포넌트별 커스터마이징이나 테마 변형이 필요할 때 사용한다.
 
-```
+```text
 button-primary-bg       → color-action
 button-primary-text     → color-on-action
 card-bg                 → color-bg-surface
@@ -119,7 +120,7 @@ MD3는 색상을 **역할(Role)** 기반으로 분류한다. 각 역할은 쌍(p
 #### 브랜드 컬러 (Brand Colors)
 
 | 역할 | 용도 | 쌍(Pair) |
-|------|------|---------|
+| ------ | ------ | --------- |
 | **primary** | CTA 버튼, FAB, 주요 액션 | onPrimary |
 | **primaryContainer** | 선택된 상태, 강조 영역 | onPrimaryContainer |
 | **secondary** | 필터 칩, 보조 액션 | onSecondary |
@@ -130,7 +131,7 @@ MD3는 색상을 **역할(Role)** 기반으로 분류한다. 각 역할은 쌍(p
 #### 표면 컬러 (Surface Colors)
 
 | 역할 | 용도 |
-|------|------|
+| ------ | ------ |
 | **surface** | 페이지 기본 배경 |
 | **surfaceContainer** (Low/Medium/High) | 카드, 시트, 다이얼로그 배경 (고도별 분류) |
 | **inverseSurface** | 스낵바 등 반전 배경 |
@@ -140,7 +141,7 @@ MD3는 색상을 **역할(Role)** 기반으로 분류한다. 각 역할은 쌍(p
 #### 유틸리티 컬러 (Utility Colors)
 
 | 역할 | 용도 | 쌍(Pair) |
-|------|------|---------|
+| ------ | ------ | --------- |
 | **error** | 에러 상태 | onError |
 | **errorContainer** | 에러 배경 | onErrorContainer |
 | **outline** | 경계선, 구분선 | - |
@@ -153,7 +154,7 @@ MD3는 색상을 **역할(Role)** 기반으로 분류한다. 각 역할은 쌍(p
 Apple은 역할 기반의 **Dynamic Color**를 제공하며, Light/Dark 모드에서 자동 전환된다.
 
 | 토큰 | 용도 |
-|------|------|
+| ------ | ------ |
 | **label** / **secondaryLabel** / **tertiaryLabel** | 텍스트 계층 (자동 불투명도 조절) |
 | **systemBackground** / **secondarySystemBackground** | 배경 계층 |
 | **separator** / **opaqueSeparator** | 구분선 |
@@ -167,7 +168,7 @@ Apple은 역할 기반의 **Dynamic Color**를 제공하며, Light/Dark 모드�
 
 ### 시맨틱 토큰 네이밍 규칙
 
-```
+```text
 [카테고리]-[역할]-[변형]
 
 예시:
@@ -203,7 +204,7 @@ Apple HIG는 다크 모드를 "조명을 어둡게 낮춘 것"으로 비유하�
 Apple은 다크 모드에서 두 가지 배경 세트를 사용한다.
 
 | 세트 | 용도 | 밝기 |
-|------|------|------|
+| --- | --- | --- |
 | **Base** | 기본 화면 배경 | 더 어두움 (뒤로 밀려나는 느낌) |
 | **Elevated** | 팝오버, 모달 시트, 전면 인터페이스 | 상대적으로 밝음 (앞으로 나오는 느낌) |
 
@@ -217,7 +218,7 @@ Apple은 다크 모드에서 두 가지 배경 세트를 사용한다.
 MD3는 다크 테마에서 그림자(shadow) 대신 **톤 컬러 오버레이(tonal color overlay)**로 고도(elevation)를 표현한다. primary 색상 슬롯에서 오버레이 색상을 가져온다.
 
 | 고도 | Surface 토큰 | 설명 |
-|------|-------------|------|
+| ------ | ------------- | ------ |
 | 0 | surface | 기본 배경 |
 | 1 | surfaceContainerLowest | 최하위 컨테이너 |
 | 2 | surfaceContainerLow | 하위 컨테이너 |
@@ -233,7 +234,7 @@ MD3는 다크 테마에서 그림자(shadow) 대신 **톤 컬러 오버레이(to
 #### 4. 다크 모드 색상 조정 가이드
 
 | 요소 | 라이트 모드 | 다크 모드 | 조정 방향 |
-|------|-----------|----------|----------|
+| ------ | ----------- | ---------- | ---------- |
 | **배경** | 밝은 회색/흰색 | 어두운 회색 (#121212~#1C1C1E) | 순수 검정(#000000) 피하기 |
 | **텍스트** | gray-900 | gray-50~100 | 순수 흰색(#FFFFFF) 대신 약간 톤다운 |
 | **Primary** | 채도 높은 원색 | 채도 낮추고 명도 올림 | tonal palette에서 밝은 톤 선택 |
@@ -252,7 +253,7 @@ MD3는 다크 테마에서 그림자(shadow) 대신 **톤 컬러 오버레이(to
 ### WCAG 2.1 대비 요구사항
 
 | 기준 | 일반 텍스트 | 대형 텍스트 | UI 컴포넌트/그래픽 |
-|------|-----------|-----------|-------------------|
+| ------ | ----------- | ----------- | ------------------- |
 | **AA** (필수) | **4.5:1** | **3:1** | **3:1** |
 | **AAA** (권장) | **7:1** | **4.5:1** | - |
 
@@ -279,12 +280,12 @@ WCAG 2.1에서 추가된 1.4.11 "Non-text Contrast"는 UI 컴포넌트(버튼 �
 ### 대비 검사 도구
 
 | 도구 | 유형 | URL |
-|------|------|-----|
-| **WebAIM Contrast Checker** | 웹 | https://webaim.org/resources/contrastchecker/ |
-| **Stark** | Figma/Sketch 플러그인 | https://www.getstark.co/ |
-| **Axe DevTools** | 브라우저 확장 | https://www.deque.com/axe/ |
-| **Colour Contrast Analyser (CCA)** | 데스크톱 앱 | https://www.tpgi.com/color-contrast-checker/ |
-| **Accessibility Insights** | 브라우저 확장 | https://accessibilityinsights.io/ |
+| ------ | ------ | ----- |
+| **WebAIM Contrast Checker** | 웹 | <https://webaim.org/resources/contrastchecker/> |
+| **Stark** | Figma/Sketch 플러그인 | <https://www.getstark.co/> |
+| **Axe DevTools** | 브라우저 확장 | <https://www.deque.com/axe/> |
+| **Colour Contrast Analyser (CCA)** | 데스크톱 앱 | <https://www.tpgi.com/color-contrast-checker/> |
+| **Accessibility Insights** | 브라우저 확장 | <https://accessibilityinsights.io/> |
 
 > **출처:** [WebAIM — Contrast Checker](https://webaim.org/resources/contrastchecker/)
 
@@ -323,7 +324,7 @@ WCAG 2.1의 비텍스트 대비(1.4.11) 기준을 인지하지 못하여, 입력
 ### 색상별 연상과 UI 활용
 
 | 색상 | 서구권 연상 | 동아시아 연상 | UI 활용 | 주의점 |
-|------|-----------|-------------|---------|--------|
+| ------ | ----------- | ------------- | --------- | -------- |
 | **파란색** | 신뢰, 안정, 전문성 | 신뢰, 기술, 차가움 | 금융, 헬스케어, 기업 앱의 Primary | 과다 사용 시 차갑고 비인간적 인상 |
 | **빨간색** | 긴급, 에너지, 경고 | 행운, 축하(중국), 경고 | CTA 버튼 강조, 에러 상태, 세일 뱃지 | 에러와 혼동 가능 — CTA로 쓸 때 맥락 분리 필수 |
 | **초록색** | 자연, 성공, 성장 | 자연, 건강 | 성공 피드백, 헬스/환경 앱 | 적록색각이상자에게 빨강과 구분 어려움 |
@@ -346,7 +347,7 @@ WCAG 2.1의 비텍스트 대비(1.4.11) 기준을 인지하지 못하여, 입력
 ### 주요 조화 유형
 
 | 유형 | 색상환 관계 | 특성 | UI 적용 예 |
-|------|-----------|------|-----------|
+| ------ | ----------- | ------ | ----------- |
 | **보색 (Complementary)** | 180° 반대편 | 강한 대비, 긴장감 | CTA 버튼 강조. 단, 동시 사용 면적을 10% 이하로 제한 |
 | **유사색 (Analogous)** | 인접 30~60° | 부드럽고 자연스러운 조화 | 그라데이션 배경, 차트의 동일 카테고리 색상 |
 | **삼각 (Triadic)** | 120° 등간격 | 풍부하고 활기찬 팔레트 | 3가지 정보 카테고리 구분(차트, 대시보드) |

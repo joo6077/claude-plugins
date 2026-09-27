@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-08
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 비주얼 스타일 (UI Visual Styles & Design Morphisms)
 
 UI 비주얼 스타일 35종의 정의, 시각 특성, CSS 구현 기법, 시대적 맥락, 대표 사례를 다룬다. design-kit의 컨셉 시안 생성, 디자인 시스템 세팅, 디자인 감사에서 참조한다.
@@ -38,6 +39,7 @@ CSS/구현 관점에서 표면(surface)에 적용하는 시각 처리를 분류�
 
 물리 사물의 질감, 광택, 입체감을 디지털 인터페이스에 사실적으로 모방하는 스타일. iPhone 초기(2007)부터 iOS 6(2013)까지 Apple이 주도했다. 가죽 텍스처의 캘린더, 나무결 책장, 광택 버튼 등이 대표적이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 사실적 텍스처 (가죽, 나무, 금속, 종이)
@@ -46,6 +48,7 @@ CSS/구현 관점에서 표면(surface)에 적용하는 시각 처리를 분류�
 - 물리 사물과 1:1 대응하는 아이콘/UI 메타포
 - 높은 디테일 밀도, 풍부한 그라데이션
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -77,6 +80,7 @@ CSS/구현 관점에서 표면(surface)에 적용하는 시각 처리를 분류�
 
 Skeuomorphism의 반작용으로 등장. 모든 장식적 요소(그림자, 그라데이션, 텍스처)를 제거하고 단색, 기하학적 형태, 타이포그래피에 집중한다. 콘텐츠 자체가 인터페이스라는 철학이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 그림자, 그라데이션, 텍스처 완전 배제
@@ -85,6 +89,7 @@ Skeuomorphism의 반작용으로 등장. 모든 장식적 요소(그림자, 그�
 - 산세리프 타이포그래피 강조
 - 명확한 색상 대비로 계층 구분
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -118,6 +123,7 @@ Skeuomorphism의 반작용으로 등장. 모든 장식적 요소(그림자, 그�
 
 순수 Flat Design의 사용성 문제(클릭 가능 여부 구분 불가)를 해결하기 위해 미세한 그림자와 그라데이션을 재도입한 절충안. "Almost Flat Design"이라고도 부른다. 현재 대부분의 주류 UI가 이 범주에 속한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 미묘한 그림자(subtle shadow)로 elevation 암시
@@ -126,6 +132,7 @@ Skeuomorphism의 반작용으로 등장. 모든 장식적 요소(그림자, 그�
 - 인터랙티브 요소에만 선택적 그림자 적용
 - 아이콘은 여전히 단순 기하학 유지
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -153,6 +160,7 @@ Skeuomorphism의 반작용으로 등장. 모든 장식적 요소(그림자, 그�
 
 Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에 기반하며 elevation(높이)으로 계층을 표현한다. 명확한 가이드라인과 컴포넌트 라이브러리를 제공하여 일관된 크로스 플랫폼 경험을 추구한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - Elevation 기반 그림자 시스템 (0dp-24dp)
@@ -162,6 +170,7 @@ Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에
 - 8dp 그리드 시스템
 - Material 3에서 Dynamic Color 도입
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -196,6 +205,7 @@ Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에
 
 배경과 동일한 색조의 요소에 밝은 그림자(상단-좌측)와 어두운 그림자(하단-우측)를 동시에 적용하여 요소가 표면에서 볼록하게 솟거나 오목하게 눌린 것처럼 보이게 하는 스타일. 시각적으로 매력적이나 접근성 문제(낮은 대비)로 전면 채택은 드물다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 배경과 동색조(monochromatic) 요소
@@ -204,6 +214,7 @@ Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에
 - 부드럽고 뭉근한(soft) 그림자 반경
 - 최소한의 색상 변화, 단색 팔레트
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -251,6 +262,7 @@ Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에
 
 프로스티드 글라스(frosted glass) 효과. 반투명 배경 + 블러 + 미세한 보더로 유리판 뒤의 콘텐츠가 비쳐 보이는 듯한 느낌을 만든다. Apple의 macOS Big Sur(2020)가 대중화를 이끌었다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - `backdrop-filter: blur()` 기반 반투명 레이어
@@ -259,6 +271,7 @@ Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에
 - 미묘한 그림자로 레이어 분리
 - 밝은 그라데이션 배경과 함께 사용 시 효과 극대화
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -296,6 +309,7 @@ Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에
 
 3D 렌더링의 통통한 클레이(점토) 질감을 UI에 적용한 스타일. 둥글고 부드러운 형태, 파스텔 또는 비비드 컬러, 이중 그림자로 카툰 같은 친근함을 표현한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 크고 둥근 border-radius (20px+)
@@ -304,6 +318,7 @@ Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에
 - 파스텔 또는 비비드 컬러 팔레트
 - 3D 일러스트레이션과 자주 조합
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -338,6 +353,7 @@ Google이 2014년 발표한 디자인 시스템. "종이와 잉크" 메타포에
 
 Apple이 iOS 26(2025)에서 도입한 차세대 UI 스타일. Glassmorphism을 확장하여 실시간 굴절(refraction), 반사(reflection), 광학 왜곡을 시뮬레이션한다. 유리가 아닌 액체 유리 렌즈처럼 뒤의 콘텐츠가 미세하게 왜곡되어 보인다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 실시간 굴절 효과 (콘텐츠가 렌즈처럼 왜곡)
@@ -346,6 +362,7 @@ Apple이 iOS 26(2025)에서 도입한 차세대 UI 스타일. Glassmorphism을 �
 - 시스템 전체에 일관 적용되는 재질(material) 시스템
 - Glassmorphism보다 높은 시각적 복잡도
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -378,6 +395,7 @@ Apple이 iOS 26(2025)에서 도입한 차세대 UI 스타일. Glassmorphism을 �
 
 AI 생성 텍스처와 패턴을 UI 표면에 적용하는 실험적 스타일. Neumorphism의 그림자 기법과 Skeuomorphism의 질감 표현을 결합하되, AI가 생성한 비현실적이거나 초현실적인 텍스처를 사용한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - AI 생성 텍스처/패턴 (절차적 생성, diffusion 기반)
@@ -386,6 +404,7 @@ AI 생성 텍스처와 패턴을 UI 표면에 적용하는 실험적 스타일. 
 - 고해상도 프로시저럴 노이즈
 - 개인화된 동적 텍스처 변형 가능
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -422,6 +441,7 @@ AI 생성 텍스처와 패턴을 UI 표면에 적용하는 실험적 스타일. 
 
 건축의 Brutalism(béton brut = 날것의 콘크리트)에서 차용. 의도적으로 "못생긴", 투박한, 가공하지 않은 느낌의 디자인. 세련됨을 거부하고 기능과 구조를 날것 그대로 드러낸다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 시스템 기본 폰트(Courier, Times New Roman, Arial)
@@ -431,6 +451,7 @@ AI 생성 텍스처와 패턴을 UI 표면에 적용하는 실험적 스타일. 
 - 호버 효과 최소화 또는 과격한 전환
 - 그리드 무시 또는 의도적 파괴
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -465,6 +486,7 @@ AI 생성 텍스처와 패턴을 UI 표면에 적용하는 실험적 스타일. 
 
 Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으로 재해석. 두꺼운 검정 아웃라인, 하드 드롭 셰도우, 비비드 컬러가 특징이다. "Cartoon Brutalism"이라고도 부른다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 두꺼운 검정 보더 (2-4px solid black)
@@ -474,6 +496,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 - 핸드드로잉 또는 조악한(lo-fi) 일러스트
 - 과감한 타이포그래피
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -513,6 +536,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 
 1950년대 스위스에서 시작된 그래픽 디자인 운동. 수학적 그리드, 산세리프 타이포그래피(특히 Helvetica), 객관적 사진, 비대칭 레이아웃을 통한 "보편적 커뮤니케이션"을 추구한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 엄격한 수학적 그리드 시스템
@@ -522,6 +546,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 - 장식 배제, 정보 전달 우선
 - 사진은 오브젝티브(연출 없음)
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -558,6 +583,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 
 일본 도시락(弁当)의 칸막이 구조에서 영감. 다양한 크기의 모듈 카드를 비대칭적으로 배치하여 대시보드, 기능 소개, 포트폴리오를 구성한다. Apple이 2023년 제품 발표에서 대중화했다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 다양한 크기의 직사각형 카드 조합 (1x1, 2x1, 2x2 등)
@@ -567,6 +593,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 - 카드 내부에 아이콘/숫자/그래프 등 단일 정보
 - 스크롤 없이 한 화면에 핵심 정보 개요
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -609,6 +636,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 
 미니멀리즘의 반대. 패턴, 이미지, 텍스처, 컬러, 타이포그래피를 풍부하게 겹쳐 시각적 풍요로움을 추구한다. "More is more." 정보 과잉을 두려워하지 않고 감각적 자극을 극대화한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 빈 공간 최소화, 모든 영역에 시각 요소
@@ -618,6 +646,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 - 레이어링과 콜라주 기법
 - 의도적 시각적 긴장감
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -655,6 +684,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 
 불필요한 요소를 제거하고 본질에 집중하는 디자인 철학. "Less is more." 넓은 여백, 제한된 컬러 팔레트, 명확한 타이포그래피로 콘텐츠가 스스로 말하게 한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 넓은 여백(whitespace) 적극 활용
@@ -664,6 +694,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 - 장식 요소 최소화
 - 콘텐츠 중심 레이아웃
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -702,6 +733,7 @@ Brutalism의 정신을 계승하되 더 접근 가능하고 쾌활한 방향으�
 
 Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 이미지(풀밭, 물방울, 꽃), 파란 하늘, 보케 효과, Segoe UI(Frutiger 계열) 폰트가 특징이다. 2023년 이후 Z세대의 노스탤지어와 함께 복고 유행이 나타났다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 글로시(glossy) 아이콘과 버튼
@@ -711,6 +743,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 - 투명/반투명 유리 효과 (Aero Glass)
 - 밝고 낙관적인 컬러 톤
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -748,6 +781,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 
 1997-2004년 밀레니엄 전후의 미래지향적 디자인. 크롬/메탈릭 표면, 투명 플라스틱(iMac G3), 유기적 블롭(blob) 형태, 사이버 느낌의 타이포그래피가 특징이다. 2021년 이후 복고 유행이 활발하다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 크롬/메탈릭 반사 텍스처
@@ -757,6 +791,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 - 실버, 라벤더, 아쿠아, 라임 등의 컬러
 - 3D 렌더링 오브젝트와 혼합
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -794,6 +829,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 
 1980년대 SF 영화의 미학. 네온 글로우, 원근법 그리드, 석양 그라데이션, 신디사이저 음악 문화와 연결된다. Synthwave/Outrun이라고도 부른다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 네온 핑크/시안/퍼플 글로우
@@ -803,6 +839,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 - 다크 배경 (남색/검정)
 - 팜트리, 스포츠카, 네온사인 모티프
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -839,6 +876,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 
 2010년대 인터넷 서브컬처. 핑크/틸/라벤더 컬러, 그리스-로마 석상, 일본어 텍스트, VHS 글리치, Windows 95/98 UI 요소를 콜라주한다. 소비주의와 디지털 문화에 대한 풍자적 태도가 깔려 있다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 핑크/틸/라벤더/사이버 퍼플 팔레트
@@ -848,6 +886,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 - Windows 95/98 UI 요소 콜라주
 - 체커보드 바닥, 3D 렌더링 오브젝트
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -896,6 +935,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 
 근미래 디스토피아의 시각 언어. 어두운 배경에 강렬한 네온 글로우, 산업적 텍스처, 글리치 효과, HUD(Heads-Up Display) 스타일 UI 요소가 특징이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 다크 배경 (거의 검정 + 약간의 남색/군청)
@@ -905,6 +945,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 - HUD 스타일 데이터 표시 (각진 프레임, 모서리 장식)
 - 모노스페이스 폰트 + 일본어 혼합
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -948,6 +989,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 
 1981년 이탈리아 밀라노에서 Ettore Sottsass가 이끈 Memphis Group에서 시작. 모더니즘의 "좋은 디자인" 규범을 거부하고 대담한 기하학 패턴, 원색과 파스텔의 충돌, 비대칭 구성을 추구했다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 대담한 기하학 패턴 (지그재그, 물방울, 삼각형)
@@ -957,6 +999,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 - 테라초(terrazzo) 패턴
 - 의도적 "충돌"하는 컬러 조합
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1000,6 +1043,7 @@ Windows Vista/7 시대(2004-2013)의 시각적 감성. 광택 있는 UI, 자연 
 
 Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 팔다리, 비현실적 신체 비율, 단순한 얼굴의 플랫 일러스트 스타일. 2017-2023년 SaaS/빅테크 마케팅을 지배했다. 이후 "bland corporate art"이라는 비판과 함께 퇴조했다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 비현실적으로 긴 팔다리와 작은 머리
@@ -1009,6 +1053,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 다양성 표현을 위한 비자연적 피부색 (파랑, 보라 등)
 - 화이트스페이스와 결합한 깔끔한 구성
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1048,6 +1093,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 다색 메시 그라데이션으로 오로라(북극광)와 유사한 몽환적 배경을 만드는 스타일. 부드럽게 흐르는 여러 색상이 유기적으로 혼합되어 깊이감과 움직임을 암시한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 다색 메시 그라데이션 (3-5색)
@@ -1057,6 +1103,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 어두운 배경 위 발광하는 색상
 - 미니멀 UI 요소와 조합
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1098,6 +1145,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 다수의 컬러 포인트가 유기적으로 블렌딩되는 그라데이션. 선형/원형 그라데이션과 달리 여러 색상 앵커가 2D 평면에 분포하여 자연스러운 색상 전환을 만든다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 4개 이상의 색상 포인트
@@ -1106,6 +1154,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 배경/카드 표면에 주로 적용
 - Adobe Illustrator의 Mesh Gradient 도구 원형
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1139,6 +1188,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 디지털 표면에 아날로그 필름 그레인이나 종이 질감의 노이즈를 추가하여 촉감과 따뜻함을 부여하는 기법. 그라데이션의 밴딩(banding)을 해결하는 실용적 용도도 있다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 미세한 모노크롬 또는 컬러 노이즈
@@ -1147,6 +1197,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 복고/핸드메이드 느낌 부여
 - 불투명도 5-20%의 미묘한 적용
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1179,6 +1230,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 이미지나 UI 전체를 2가지 색상으로만 표현하는 기법. Spotify가 2015년 앨범 커버에 적용하면서 대중화되었다. 브랜드 아이덴티티를 강하게 부여하면서 시각적 통일감을 만든다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 2색 팔레트 (보통 대비되는 2색)
@@ -1187,6 +1239,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 다양한 이미지에 일관된 톤 부여
 - 히어로 이미지, 배경에 주로 활용
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1231,6 +1284,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 보는 각도에 따라 색상이 변하는 무지갯빛 효과. 홀로그램 필름, 비눗방울, 진주 등 자연의 간섭 현상을 모방한다. 프리미엄/미래지향적 브랜딩에 사용된다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 각도/위치에 따라 변하는 다색 그라데이션
@@ -1239,6 +1293,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 메탈릭/광택 표면과 자주 결합
 - 마우스/스크롤 반응형 색상 변화
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1285,6 +1340,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 금속 반사 표면(크롬, 실버, 골드, 로즈골드)을 시뮬레이션하는 스타일. 3D 렌더링 기술의 발전으로 웹에서도 실감나는 금속 질감 표현이 가능해졌다. Y2K 복고와 맞물려 2023년 이후 재유행 중이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 다단계 선형 그라데이션으로 반사 시뮬레이션
@@ -1293,6 +1349,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 크롬(시안-실버), 골드(따뜻한 톤), 로즈골드 변형
 - 3D 오브젝트와 자주 결합
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1339,6 +1396,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 네온 사인의 발광 효과를 디지털로 재현. 다크 배경 위에 텍스트, 아이콘, 보더가 빛나는 듯한 효과를 만든다. `text-shadow`와 `box-shadow`의 다중 레이어가 핵심이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 다크 배경 필수 (효과가 돋보이려면)
@@ -1347,6 +1405,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 글로우 범위가 넓을수록 발광 강도 표현
 - 간헐적 깜빡임 애니메이션 (선택)
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1392,6 +1451,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 어두운 배경(#121212 등) 위에 밝은 전경 콘텐츠를 배치하는 시스템 수준의 디자인 패러다임. 단순히 색상을 반전하는 것이 아니라 elevation, 대비, 색상 채도를 체계적으로 조정해야 한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 순수 검정(#000) 대신 짙은 회색(#121212, #1e1e1e) 사용
@@ -1401,6 +1461,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - Primary 컬러는 밝은 톤 변형 사용
 - 그림자 대신 elevation 오버레이로 깊이 표현
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1443,6 +1504,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 스크롤, 마우스, 시간에 반응하여 텍스트가 움직이고 변형되는 스타일. 텍스트 자체가 시각적 경험의 주인공이 된다. 포트폴리오, 에디토리얼, 브랜드 쇼케이스에서 주로 사용한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 스크롤에 연동하여 텍스트 크기/위치/투명도 변화
@@ -1451,6 +1513,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 3D 변환, 회전, 원근법 적용
 - 대형 타이포그래피 (72px+)
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1492,6 +1555,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 다층 요소가 서로 다른 속도로 스크롤되어 깊이감과 몰입감을 만드는 기법. 전경/중경/배경이 서로 다른 속도로 움직이면 시차(parallax) 효과가 발생한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 다층 레이어 (전경/중경/배경)
@@ -1500,6 +1564,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 - 스크롤 위치에 따른 요소 등장/퇴장
 - 스토리텔링과 결합한 순차적 정보 공개
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1552,6 +1617,7 @@ Facebook(현 Meta)의 Alegria 디자인 시스템에서 유래한 이름. 긴 �
 
 Apple visionOS를 위한 3D 공간 UI 패러다임. 2D 윈도우가 3D 공간에 떠있으며, 시선 추적(eye tracking), 손 제스처, 깊이(depth)로 인터랙션한다. 기존 2D 디자인 원칙을 3차원으로 확장한 것이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 글래스 머티리얼 윈도우 (주변 환경이 비침)
@@ -1561,6 +1627,7 @@ Apple visionOS를 위한 3D 공간 UI 패러다임. 2D 윈도우가 3D 공간에
 - 볼류메트릭(3D) 콘텐츠와 2D 윈도우 혼합
 - 미세한 그림자와 반사로 공간감 부여
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1600,6 +1667,7 @@ Apple visionOS를 위한 3D 공간 UI 패러다임. 2D 윈도우가 3D 공간에
 
 Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmorphism과 유사)에 노이즈 텍스처와 색상 틴트(tint)를 추가한다. Glassmorphism이 깨끗한 유리라면 Acrylic은 불투명한 젖빛 유리에 가깝다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 반투명 블러 + 노이즈 텍스처 결합
@@ -1609,6 +1677,7 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 - Reveal Highlight (호버 시 빛 효과)
 - 시스템 수준 Light/Dark 테마 연동
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1653,6 +1722,7 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 
 자연의 유기적 형태(세포, 물결, 잎사귀, 산호)를 UI에 차용하는 스타일. 직선과 직각을 거부하고 부드러운 곡선, 불규칙한 형태, 자연 색상 팔레트로 친근하고 편안한 인터페이스를 만든다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **핵심 시각 특성**
 
 - 유기적/불규칙 곡선 형태
@@ -1662,6 +1732,7 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 - 직각/직선 최소화
 - 자연스러운 그라데이션과 부드러운 전환
 
+<!-- markdownlint-disable-next-line MD036 -->
 **CSS 구현 핵심**
 
 ```css
@@ -1700,7 +1771,7 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 
 ## 시대별 흐름
 
-```
+```text
 2007 ──── Skeuomorphism 전성기 (iPhone 출시)
   │
 2010 ──── Minimalism 부상
@@ -1747,10 +1818,10 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 
 컨셉 시안을 만들 때 각 스타일의 핵심 CSS 속성을 조합하여 룩앤필을 빠르게 전환할 수 있다. 단순히 색상만 바꾸는 것이 아니라 표면 처리(shadow, blur, border), 레이아웃 구조, 타이포그래피까지 달라져야 진정한 시안 차별화가 된다.
 
-**표면 처리 기반 분류 (구현 관점)**
+#### 표면 처리 기반 분류 (구현 관점)
 
 | 표면 처리 | 핵심 CSS 속성 | 해당 스타일 |
-|-----------|--------------|------------|
+| ----------- | -------------- | ------------ |
 | 그림자 깊이 | `box-shadow` 단계 | Material, Flat 2.0, Claymorphism |
 | 이중 그림자 | `box-shadow` (light + dark) | Neumorphism |
 | 하드 셰도우 | `box-shadow` (blur 0) | Neubrutalism |
@@ -1766,10 +1837,10 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 
 단일 스타일을 그대로 적용하는 것보다 2-3개를 조합하면 더 독특하고 현대적인 결과물이 나온다. 단, 충돌하는 철학을 가진 스타일은 조합하지 않는다.
 
-**검증된 조합**
+#### 검증된 조합
 
 | 조합 | 효과 | 적용 맥락 |
-|------|------|----------|
+| ------ | ------ | ---------- |
 | Glassmorphism + Aurora UI | 글라스 카드 뒤로 오로라 빛 투과 | SaaS 히어로 섹션, AI 제품 |
 | Neubrutalism + Memphis | 두꺼운 보더 + 기하학 패턴 장식 | 크리에이티브/에디토리얼 |
 | Dark Mode + Neon Glow | 다크 배경에서 네온 강조 | 게임, 나이트라이프, 테크 |
@@ -1779,10 +1850,10 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 | Liquid Glass + Spatial | 리퀴드 글라스 재질의 3D 공간 레이아웃 | visionOS 앱, 미래지향 UI |
 | Flat 2.0 + Duotone | 깔끔한 UI + 듀오톤 이미지 처리 | 미디어, 음악 서비스 |
 
-**충돌하는 조합 (피할 것)**
+#### 충돌하는 조합 (피할 것)
 
 | 조합 | 충돌 이유 |
-|------|----------|
+| ------ | ---------- |
 | Skeuomorphism + Flat Design | 철학적 정반대 — 사실적 질감 vs 장식 제거 |
 | Neumorphism + Neubrutalism | 미묘한 그림자 vs 강렬한 하드 셰도우, 시각적 혼란 |
 | Brutalism + Minimalism | 의도적 투박함 vs 절제된 우아함, 톤 불일치 |
@@ -1793,17 +1864,17 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 
 비주얼 스타일을 적용할 때 반드시 확인해야 할 접근성 체크리스트.
 
-**1. 대비비 (Contrast Ratio)**
+#### 1. 대비비 (Contrast Ratio)
 
 | 스타일 | 위험 요소 | 대응 |
-|--------|----------|------|
+| -------- | ---------- | ------ |
 | Neumorphism | 배경과 동색조 요소 → 경계 구분 불가 | 보조 보더 추가, 아이콘/라벨 병행 |
 | Glassmorphism | 투명 배경 위 텍스트 가독성 저하 | 최소 blur(8px), 배경 불투명도 확보 |
 | Neon Glow | 글로우가 텍스트 가장자리를 흐리게 함 | 본문이 아닌 제목/장식에만 적용 |
 | Dark Mode | 순수 흰색(#fff) 텍스트 → 눈부심 | #e0e0e0 또는 87% 불투명도 사용 |
 | Holographic | 색상 변화로 안정적 대비 확보 어려움 | 배경 전용, 텍스트 영역 분리 |
 
-**2. 모션 감도 (Motion Sensitivity)**
+#### 2. 모션 감도 (Motion Sensitivity)
 
 ```css
 /* 모든 모션 스타일에 필수 적용 */
@@ -1819,7 +1890,7 @@ Microsoft Fluent Design System의 핵심 머티리얼. 반투명 블러(Glassmor
 
 Kinetic Typography, Parallax, Aurora(애니메이션), Holographic(색상 변화) 등 모션 의존 스타일은 `prefers-reduced-motion` 미디어 쿼리를 반드시 적용한다.
 
-**3. 포커스 가시성 (Focus Visibility)**
+#### 3. 포커스 가시성 (Focus Visibility)
 
 ```css
 /* 모든 스타일에 공통 */
@@ -1831,7 +1902,7 @@ Kinetic Typography, Parallax, Aurora(애니메이션), Holographic(색상 변화
 
 특히 Neumorphism, Glassmorphism처럼 경계가 모호한 스타일에서 포커스 링이 보이지 않으면 키보드 사용자가 현재 위치를 알 수 없다.
 
-**4. 색상 의존 (Color Dependence)**
+#### 4. 색상 의존 (Color Dependence)
 
 Duotone, Neon Glow, Aurora 등 색상 의존도가 높은 스타일에서는 색상만으로 정보를 전달하지 않아야 한다. 항상 텍스트 라벨, 아이콘, 패턴 등 보조 수단을 병행한다.
 

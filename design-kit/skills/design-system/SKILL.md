@@ -55,6 +55,7 @@ user-invocable: true
 
 17. **요청한 토큰 카테고리만 정의 — 풀 시스템 스캐폴딩 임의 확장 금지** (insights-report #1 스코프 오독 · #3 과잉설계 대응) — "컬러 팔레트만 만들어줘", "spacing scale 잡아줘" 처럼 **특정 카테고리** 만 요청받으면 그 카테고리만 정의하라. 요청하지 않은 typography·radius·elevation·motion 토큰까지 전체 체계를 한꺼번에 스캐폴딩하지 마라. "완전한 토큰 체계" 요구(다른 Gotcha의 3계층·semantic 강제)는 **요청된 카테고리 내부의 완전성**을 의미하지, 카테고리 자체의 임의 확장을 의미하지 않는다. 범위가 모호하면 추측해서 확장하지 말고 "컬러만 정의할지, 전체 토큰 체계를 세팅할지" 한 줄로 확인하라. 확장 제안이 가치 있다고 판단되면 산출물에 박지 말고 "추가로 typography/spacing 토큰도 세팅을 권장합니다 — 진행할까요?" 형태의 **별도 제안**으로 분리하라. 3계층(primitive→semantic→component) 풀 빌드도 마찬가지다 — 2026 리서치 기준 대부분의 팀은 primitive+semantic 2계층으로 충분하며 component 토큰 계층은 엔터프라이즈 규모에서만 필요하다. 요청·규모 근거 없이 3계층을 기본 출력하지 마라. 출처: [zeroheight Design Systems Report 2026](https://report.zeroheight.com/) (two-tier가 실무 표준, full three-tier는 절반 정도 팀만), material-design.md:273 (점진적 도입).
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Process
 
 ## Step 1: 프로젝트 디자인 시스템 감지
@@ -97,7 +98,7 @@ Tier 3 — Component (컴포넌트 예외 오버라이드)
 카테고리별 필수/선택 및 semantic 네이밍 기준:
 
 | 카테고리 | 필수 여부 | Semantic 예시 | Scale 기준 |
-|----------|-----------|---------------|------------|
+| ---------- | ----------- | --------------- | ------------ |
 | Color | 필수 | text.primary, text.secondary, text.disabled, background.surface, background.brand, border.default, border.subtle | — |
 | Typography | 필수 | font.display.lg, font.heading.md, font.body.sm, font.label.xs (size+weight+line-height 묶음) | Modular Scale 비율 권장 (1.125 Major Second ~ 1.618 Golden Ratio). Fluid: `clamp(min, preferred, max)` |
 | Spacing | 필수 | space.xs(4), space.sm(8), space.md(16), space.lg(24), space.xl(32), space.2xl(48) | 4px base. Fluid spacing: `clamp()` 기반 연속 간격도 고려 |
@@ -142,6 +143,7 @@ templates/design-tokens.md 포맷으로 토큰 명세를 생성한다.
 - **Fluid Typography 가이드** — typography 토큰 정의 시, 고정 크기 외에 `clamp(min, preferred, max)` 기반 fluid scale 옵션을 제시한다. Modular Scale 비율(1.125 Major Second ~ 1.618 Golden Ratio) 중 프로젝트 성격에 맞는 비율을 추천하고, Utopia 접근법(소형/대형 화면 두 스케일 보간)을 참조한다. 출처: research-log §E.
 - **Fluid Spacing 가이드** — spacing 토큰에 Fixed(고정) 외에 Fluid(`clamp()`) 및 Adaptive(breakpoint별 전환) 옵션을 제시한다. Internal ≤ External 규칙(요소 내부 여백 ≤ 외부 여백)을 명시한다. 출처: research-log §F.
 
+<!-- markdownlint-disable-next-line MD025 -->
 # References
 
 - `references/token-principles.md` — 토큰 설계 원칙 상세

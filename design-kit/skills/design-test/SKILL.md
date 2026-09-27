@@ -11,6 +11,7 @@ argument-hint: "<file-or-directory> [token|a11y|visual|responsive]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable-next-line MD041 -->
 ## Gotchas
 
 1. **스택 감지 없이 테스트 생성 금지** — React/Vue/Svelte/Flutter/HTML 등 프로젝트 프레임워크를 먼저 감지하라. Playwright 테스트를 Flutter 프로젝트에 생성하면 안 된다
@@ -36,7 +37,7 @@ user-invocable: true
 프로젝트 루트에서 UI 스택과 디자인 시스템을 감지한다:
 
 | 감지 대상 | 스택 | 테스트 도구 |
-|-----------|------|-----------|
+| ----------- | ------ | ----------- |
 | `package.json` + React | React | Playwright + axe-core + Storybook (선택) |
 | `package.json` + Vue | Vue | Playwright + axe-core |
 | `package.json` + Svelte | Svelte | Playwright + axe-core |
@@ -45,6 +46,7 @@ user-invocable: true
 | `*.html` (정적 사이트) | HTML/CSS | Playwright + axe-core + pa11y |
 
 추가 감지:
+
 - 디자인 토큰: `**/tokens/**`, `**/theme/**`, `**/design-system/**`, CSS custom properties (`--`)
 - Storybook: `.storybook/`, `*.stories.*`
 - Tailwind: `tailwind.config.*`
@@ -57,7 +59,7 @@ user-invocable: true
 **유형 미지정 시 자동 추론:**
 
 | 대상 특성 | 테스트 유형 |
-|-----------|-----------|
+| ----------- | ----------- |
 | 토큰 파일, 테마 설정 | token (일관성 검증) |
 | 컴포넌트, 페이지 | a11y (접근성) + visual (시각 회귀) |
 | 레이아웃, 그리드 | responsive (반응형) |
@@ -361,7 +363,7 @@ test.describe('Responsive Layout', () => {
 생성된 테스트를 실행한다:
 
 | 테스트 유형 | 실행 명령 |
-|-----------|----------|
+| ----------- | ---------- |
 | 토큰 검증 | `npx vitest run tests/design/tokens.test.ts` |
 | 접근성 | `npx playwright test tests/design/a11y.test.ts` |
 | 시각 회귀 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` (첫 실행) |
@@ -375,13 +377,13 @@ npm install -D @playwright/test @axe-core/playwright
 npx playwright install chromium
 ```
 
-**시각 회귀 baseline 검증 루프 (필수 — 건너뛰지 마라)**
+#### 시각 회귀 baseline 검증 루프 (필수 — 건너뛰지 마라)
 
 첫 실행은 baseline 을 기록할 뿐 아무것도 비교하지 않는다. 아래 4 단계를 모두 마치기 전에는
 "시각 회귀 테스트 통과" 라고 보고하지 않는다 (Gotcha 10).
 
 | 단계 | 명령 | 기대 결과 |
-|------|------|----------|
+| ------ | ------ | ---------- |
 | 1. baseline 기록 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` | 스냅샷 파일 생성 — **통과는 증거가 아님** |
 | 2. negative control | 대상에 의도적 변형을 준 뒤 `npx playwright test tests/design/visual-regression.test.ts` | **실패해야 한다.** 통과하면 테스트가 아무것도 검사하지 않는 것이므로 locator/threshold 를 고쳐라 |
 | 3. 되돌리기 | 변형 revert 후 동일 명령 | 통과 |

@@ -5,7 +5,7 @@ design-guide 스킬이 참조하는 원칙 문서 매핑.
 ## 카테고리별 참조 파일
 
 | 카테고리 | 참조 경로 |
-|----------|----------|
+| ---------- | ---------- |
 | Typography | `../../../docs/design/foundations/typography.md` |
 | Color | `../../../docs/design/foundations/color.md` |
 | Spacing & Layout | `../../../docs/design/foundations/spacing-layout.md`, `../../../docs/design/foundations/ratio-proportion.md`, `../../../docs/design/foundations/information-density.md` |
@@ -25,7 +25,7 @@ design-guide 스킬이 참조하는 원칙 문서 매핑.
 ## 디자인 시스템 레퍼런스
 
 | 시스템 | 참조 경로 |
-|--------|----------|
+| -------- | ---------- |
 | Apple HIG | `../../../docs/design/systems/apple-hig.md` |
 | Material Design | `../../../docs/design/systems/material-design.md` |
 | 오픈소스 시스템 | `../../../docs/design/systems/open-source-systems.md` |
