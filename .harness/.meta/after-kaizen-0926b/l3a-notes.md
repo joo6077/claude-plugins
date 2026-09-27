@@ -12,7 +12,9 @@
 ## 규칙별로 한 일
 
 - MD060 68 건(표 16 개): 머리 줄과 구분 줄은 글자 폭으로 맞춰져 있고 본문 줄은 안 맞은 표다. 자동 고침이 손대지 못했다. 구분 줄만 `| --- | --- |` 꼴로 바꿔 표 전체를 한 꼴로 맞췄다. 칸 내용은 그대로다
-- MD028 2 건: 두 인용 사이 빈 줄을 `>` 한 줄로 바꿨다 (`bambu-kit/skills/bambu-print-profile/references/user-preferences.md:34` · `flutter-toolkit/skills/flutter-error/SKILL.md:86`)
+- MD028 2 건: 처음엔 두 인용 사이 빈 줄을 `>` 한 줄로 바꿨는데, 그러면 따로 떨어진 인용 둘이 한 인용으로 합쳐져 보인다(독립 검토 지적). 빈 줄을 되살리고 두 인용을 `disable MD028` · `enable MD028` 짝으로 감쌌다 (`bambu-kit/skills/bambu-print-profile/references/user-preferences.md:32` · `flutter-toolkit/skills/flutter-error/SKILL.md:89`)
+- MD038 8 자리 · MD037 1 자리: 자동 고침이 코드 조각 안 공백과 `*` 사이 공백을 지웠는데, 그 공백이 뜻의 일부였다(grep 패턴 앞뒤 공백 · `Bearer ` 접두 · `^## ` 셈 기준 · `modules/* + shared/*` 글자). 독립 검토 지적으로 시작 판 글자로 되돌리고 그 줄 하나만 짝으로 감쌌다
+- MD034 자동 고침이 `react-kit/skills/react-animation/SKILL.md` 의 APG 주소를 `(<https://www.w3.org/WAI/ARIA/apg/)을>` 로 감싸 닫는 괄호와 조사까지 링크에 들어갔다. 꺾쇠를 주소 끝까지만 오게 `(<https://www.w3.org/WAI/ARIA/apg/>)을` 로 고쳤다. 나머지 꺾쇠 주소는 끝 글자가 주소 글자라 그대로다
 - MD034 자동 고침 한 자리: `rust-kit/skills/rust-auth/SKILL.md` 의 예시 전자우편 주소를 꺾쇠로 감싼 것을 되돌리고 좁힌 끄기 짝을 넣었다
 - MD036 17 건: 굵은 줄을 제목으로 바꿨다(아래 「제목 단계를 바꾼 자리」)
 - MD041 35 · MD025 52 · MD024 16 · MD033 30(표 6 개와 줄 하나): 규칙을 지키면 뜻이 바뀌는 자리라 그 제목 · 표 · 줄 하나만 `disable` · `enable` 짝으로 감쌌다
@@ -21,7 +23,7 @@
 
 ## 끄기 주석
 
-끄기 주석 수: 222
+끄기 주석 수: 242
 
 - api-kit/skills/api-contract/SKILL.md:14 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - api-kit/skills/api-contract/SKILL.md:18 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
@@ -29,8 +31,16 @@
 - api-kit/skills/api-init/SKILL.md:18 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - api-kit/skills/api-probe/SKILL.md:13 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - api-kit/skills/api-probe/SKILL.md:17 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
+- api-kit/skills/api-probe/SKILL.md:21 MD038 disable — 코드 조각 안 공백이 뜻의 일부다(`Bearer ` 접두는 공백까지 같이 등록해야 하는 값). 자동 고침이 지우면 뜻이 바뀌어 그 줄 하나만 감쌌다
+- api-kit/skills/api-probe/SKILL.md:23 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 줄 하나로 닫는다
+- api-kit/skills/api-probe/SKILL.md:114 MD038 disable — 코드 조각 안 공백이 뜻의 일부다(`Bearer ` 접두는 공백까지 같이 등록해야 하는 값). 자동 고침이 지우면 뜻이 바뀌어 그 줄 하나만 감쌌다
+- api-kit/skills/api-probe/SKILL.md:116 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 줄 하나로 닫는다
 - api-kit/skills/api-verify/SKILL.md:13 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - api-kit/skills/api-verify/SKILL.md:17 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
+- api-kit/skills/api-verify/SKILL.md:24 MD038 disable — 코드 조각 안 공백이 뜻의 일부다(`Bearer ` 접두는 공백까지 같이 등록해야 하는 값). 자동 고침이 지우면 뜻이 바뀌어 그 줄 하나만 감쌌다
+- api-kit/skills/api-verify/SKILL.md:26 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 줄 하나로 닫는다
+- api-kit/skills/api-verify/SKILL.md:75 MD038 disable — 코드 조각 안 공백이 뜻의 일부다(`Bearer ` 접두는 공백까지 같이 등록해야 하는 값). 자동 고침이 지우면 뜻이 바뀌어 그 줄 하나만 감쌌다
+- api-kit/skills/api-verify/SKILL.md:77 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 줄 하나로 닫는다
 - bambu-kit/skills/bambu-print-profile/BACKLOG.md:183 MD024 disable — 다른 부모 절 아래 일부러 두 번 쓴 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
 - bambu-kit/skills/bambu-print-profile/BACKLOG.md:187 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md:124 MD024 disable — 다른 부모 절 아래 일부러 두 번 쓴 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
@@ -47,6 +57,8 @@
 - bambu-kit/skills/bambu-print-profile/references/kaizen-sources.md:83 MD033 enable — 바로 위 `disable MD033` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - bambu-kit/skills/bambu-print-profile/references/seam-recipes.md:181 MD033 disable — 표 칸 속 `<br>` 줄바꿈이다. 표 칸에는 다른 줄바꿈 수단이 없고, 표 줄 사이에 한 줄 끄기를 넣으면 표가 끊겨 짝으로 표 전체만 감쌌다
 - bambu-kit/skills/bambu-print-profile/references/seam-recipes.md:192 MD033 enable — 바로 위 `disable MD033` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
+- bambu-kit/skills/bambu-print-profile/references/user-preferences.md:32 MD028 disable — 따로 한 사용자 원문 두 개라 인용을 둘로 둔다. 사이 빈 줄을 `>` 로 채우면 한 인용으로 합쳐진다
+- bambu-kit/skills/bambu-print-profile/references/user-preferences.md:37 MD028 enable — 바로 위 `disable MD028` 의 짝이다 — 끄는 범위를 그 인용 둘로 닫는다
 - flutter-toolkit/references/figma-parity-self-verify.md:8 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
 - flutter-toolkit/references/figma-parity-self-verify.md:12 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - flutter-toolkit/references/visual-evidence-protocol.md:9 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
@@ -59,6 +71,8 @@
 - flutter-toolkit/skills/flutter-build/SKILL.md:16 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - flutter-toolkit/skills/flutter-error/SKILL.md:14 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - flutter-toolkit/skills/flutter-error/SKILL.md:18 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
+- flutter-toolkit/skills/flutter-error/SKILL.md:89 MD028 disable — 나란히 둔 원칙 두 개라 인용을 둘로 둔다. 사이 빈 줄을 `>` 로 채우면 한 인용으로 합쳐진다
+- flutter-toolkit/skills/flutter-error/SKILL.md:93 MD028 enable — 바로 위 `disable MD028` 의 짝이다 — 끄는 범위를 그 인용 둘로 닫는다
 - flutter-toolkit/skills/flutter-extract/SKILL.md:14 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - flutter-toolkit/skills/flutter-extract/SKILL.md:18 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - flutter-toolkit/skills/flutter-feature/SKILL.md:14 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
@@ -97,6 +111,10 @@
 - react-kit/skills/react-api/SKILL.md:236 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - react-kit/skills/react-audit/SKILL.md:13 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - react-kit/skills/react-audit/SKILL.md:17 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
+- react-kit/skills/react-audit/SKILL.md:83 MD038 disable — 코드 조각 안 공백이 뜻의 일부다(grep 패턴 `^export default ` 끝 공백이 빠지면 `export defaultX` 까지 걸린다). 자동 고침이 지우면 뜻이 바뀌어 그 줄 하나만 감쌌다
+- react-kit/skills/react-audit/SKILL.md:85 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 줄 하나로 닫는다
+- react-kit/skills/react-audit/SKILL.md:98 MD038 disable — 코드 조각 안 공백이 뜻의 일부다(grep 패턴 앞 공백이 빠지면 `has Foo` · `alias Bar` 까지 걸린다). 자동 고침이 지우면 뜻이 바뀌어 그 줄 하나만 감쌌다
+- react-kit/skills/react-audit/SKILL.md:100 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 줄 하나로 닫는다
 - react-kit/skills/react-build/SKILL.md:12 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - react-kit/skills/react-build/SKILL.md:16 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - react-kit/skills/react-error/SKILL.md:11 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
@@ -159,6 +177,8 @@
 - react-kit/skills/react-widget/SKILL.md:209 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - reflect-kit/docs/RESEARCH.md:143 MD024 disable — 다른 부모 절 아래 일부러 두 번 쓴 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
 - reflect-kit/docs/RESEARCH.md:147 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
+- reflect-kit/skills/codex-kaizen/SKILL.md:50 MD038 disable — 코드 조각 안 공백이 뜻의 일부다(`^## ` 끝 공백이 빠지면 `###` 줄까지 세고, `- rollout: ` 은 세는 줄 글자 그대로다). 자동 고침이 지우면 뜻이 바뀌어 그 줄 하나만 감쌌다
+- reflect-kit/skills/codex-kaizen/SKILL.md:52 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 줄 하나로 닫는다
 - rust-kit/skills/rust-api/SKILL.md:11 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - rust-kit/skills/rust-api/SKILL.md:15 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - rust-kit/skills/rust-audit/SKILL.md:39 MD025 disable — `# Gotchas` · `# Process` · `# References` 처럼 H1 을 맨 위 절로 쓰는 스킬 구조다. 내리면 아래 `##` 절과 같은 단계가 되어 목차 뜻이 바뀐다
@@ -213,8 +233,10 @@
 - rust-kit/skills/rust-init/SKILL.md:33 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - rust-kit/skills/rust-init/SKILL.md:35 MD024 disable — 다른 부모 절 아래 일부러 두 번 쓴 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
 - rust-kit/skills/rust-init/SKILL.md:39 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
-- rust-kit/skills/rust-init/SKILL.md:322 MD025 disable — `# Gotchas` · `# Process` · `# References` 처럼 H1 을 맨 위 절로 쓰는 스킬 구조다. 내리면 아래 `##` 절과 같은 단계가 되어 목차 뜻이 바뀐다
-- rust-kit/skills/rust-init/SKILL.md:326 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
+- rust-kit/skills/rust-init/SKILL.md:129 MD037 disable — `modules/* + shared/*` 는 폴더 꼴 글자다. 자동 고침이 공백을 지우면 두 `*` 가 기울임 표시로 바뀌어 글자가 사라진다
+- rust-kit/skills/rust-init/SKILL.md:131 MD037 enable — 바로 위 `disable MD037` 의 짝이다 — 끄는 범위를 그 줄 하나로 닫는다
+- rust-kit/skills/rust-init/SKILL.md:324 MD025 disable — `# Gotchas` · `# Process` · `# References` 처럼 H1 을 맨 위 절로 쓰는 스킬 구조다. 내리면 아래 `##` 절과 같은 단계가 되어 목차 뜻이 바뀐다
+- rust-kit/skills/rust-init/SKILL.md:328 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - rust-kit/skills/rust-l10n/SKILL.md:11 MD041 disable — 앞머리 뒤 첫 제목이 `## Gotchas` 다. H1 을 새로 넣으면 낱말이 늘고, `# Gotchas` 로 올리면 스킬 본문 절 단계가 바뀐다
 - rust-kit/skills/rust-l10n/SKILL.md:15 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 제목 · 표 · 줄 하나로 닫는다
 - rust-kit/skills/rust-middleware/SKILL.md:20 MD025 disable — `# Gotchas` · `# Process` · `# References` 처럼 H1 을 맨 위 절로 쓰는 스킬 구조다. 내리면 아래 `##` 절과 같은 단계가 되어 목차 뜻이 바뀐다
