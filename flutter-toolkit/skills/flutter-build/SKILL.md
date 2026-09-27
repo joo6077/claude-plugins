@@ -9,7 +9,11 @@ argument-hint: "[feature]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - 반드시 FVM 경유: `fvm flutter`, `fvm dart` — bare `flutter`/`dart` 명령은 SDK 버전 불일치로 codegen 실패 가능
 - Windows에서는 `fvm.bat` 사용 — `fvm` 직접 호출하면 PATH 이슈

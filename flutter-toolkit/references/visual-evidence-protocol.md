@@ -6,7 +6,11 @@ source: /insights 2026-07-27 Friction #2 (신규 최상위 신호) · /insights 
 enforcement: E2 (체크리스트 아티팩트)
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Visual Evidence Protocol
+
+<!-- markdownlint-enable MD025 -->
 
 UI 를 만들거나 고치는 flutter-toolkit 스킬(`flutter-widget` · `flutter-screen` ·
 `flutter-skeleton` · `flutter-transition` · `flutter-responsive`)과 화면 확인 스킬 `flutter-ui-verify` 가

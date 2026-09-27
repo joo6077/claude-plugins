@@ -11,7 +11,11 @@ description: >
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - `catch (e)` 단독 사용 금지 — 반드시 예외 타입 명시: `catch (DioException e)` 또는 `catch (Object e, StackTrace st)`
 - 예외 → Failure 변환은 반드시 경계 계층(Repository/DataSource)에서 수행 — Presentation 레이어까지 예외가 새면 안 된다
@@ -31,18 +35,20 @@ user-invocable: true
 스킬 실행 시 프로젝트의 기존 에러 인프라를 탐색한다:
 
 | 탐색 대상 | 감지 방법 |
-|----------|----------|
+| ---------- | ---------- |
 | Failure/Error sealed class | `lib/` 내 `failure`, `error`, `exception` 키워드가 포함된 파일 검색 |
 | Result/Either 타입 | `dartz`, `fpdart`, 또는 커스텀 `Result` 클래스 존재 여부 |
 | 에러 표시 인프라 | 글로벌 에러 notifier/provider/cubit 존재 여부 |
 | Severity 분류 | 에러 심각도 enum 존재 여부 |
 
 탐색 경로:
+
 - `lib/core/error/` — Failure sealed class, error notifier, error listener
 - `lib/core/utils/` — Result/Either typedef
 - `lib/shared/error/` 또는 `lib/shared/domain/`
 
 구체적으로 찾을 것:
+
 - `error_notifier.dart` 또는 유사 파일 → show()/dismiss() 메서드가 있는 notifier
 - `error_listener.dart` → severity별 자동 UI 표시 위젯
 - `app_error.dart` → Failure + severity + stackTrace를 묶는 객체
@@ -53,6 +59,7 @@ user-invocable: true
 없으면 이 가이드의 범용 패턴을 적용한다.
 
 감지된 에러 인프라 정리 (감지 후 기록):
+
 - show 메서드: `ref.read(errorProvider.notifier).show(failure)` 또는 유사
 - severity override: `severityOverride: ErrorSeverity.critical` 또는 유사
 - context 파라미터: `context: 'ScreenName._action'` 으로 발생 위치 전달
@@ -80,10 +87,11 @@ Screen/Widget: failure 감지 → 에러 표시 인프라에 전달
 ## 핵심 원칙: 책임 분리
 
 > **Provider/State는 failure를 저장만 한다. 에러 표시 인프라를 직접 호출하지 않는다.**
-
+>
 > **Screen/Widget이 failure를 감지하고, 에러 표시를 담당한다.**
 
 이 분리가 필요한 이유:
+
 - **테스트 가능성**: Provider가 UI 계층을 모르므로 단위 테스트가 쉬워진다
 - **재사용성**: 같은 Provider를 다른 UI(snackbar/dialog/인라인)로 재사용할 수 있다
 - **중복 방지**: 중첩 호출(Provider A → Provider B)에서 양쪽이 에러를 표시하면 중복된다
@@ -130,6 +138,7 @@ Failure _mapFailure(Object error, StackTrace st) {
 ```
 
 프로젝트에 Failure 타입이 없으면 직접 Exception을 throw하되, 타입을 명시한다:
+
 ```dart
 Future<UserEntity> getUser(String id) async {
   try {
@@ -229,7 +238,7 @@ switch (result) {
 에러 심각도를 분류하여 UI 표시 방식을 결정한다.
 
 | 에러 유형 | 권장 Severity | UI | 이유 |
-|----------|--------------|-----|------|
+| ---------- | -------------- | ----- | ------ |
 | 네트워크 연결 실패 | warning | Snackbar/Toast | 일시적 문제, 자동 복구 가능성 |
 | 로컬 저장 실패 | warning | Snackbar/Toast | 핵심 흐름을 차단하지 않음 |
 | 서버 오류 (5xx) | critical | Dialog | 데이터 정합성 문제 가능성 |

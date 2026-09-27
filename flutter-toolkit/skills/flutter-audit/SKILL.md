@@ -11,7 +11,11 @@ argument-hint: "[quick|deep] [path]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - quick 모드와 deep 모드의 차이: quick은 단일 에이전트 로컬 검토, deep은 최대 4에이전트 병렬 감사 — 변경 파일 5개 이하면 quick, 초과면 deep이 기본
 - Provider watch 대신 select 사용 여부를 체크한다 — 성능 이슈의 주요 원인
@@ -159,7 +163,7 @@ PASS 를 확정하기 **전에** 아래 4 검사를 통과해야 한다. 하나�
 감지 결과에 따라 아래 체크리스트 항목의 활성화/비활성화를 결정한다:
 
 | 감지 키 | 영향받는 검사 |
-|---------|-------------|
+| --------- | ------------- |
 | `ARCH = clean` | Architecture 전체 (레이어 분리, 의존 방향) |
 | `ARCH = feature_first` / `flat` | Architecture를 구조에 맞게 적응 |
 | `HAS_RIVERPOD` | State Management (codegen, mounted, Result) |

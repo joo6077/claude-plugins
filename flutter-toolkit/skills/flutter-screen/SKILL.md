@@ -9,7 +9,11 @@ argument-hint: "<feature>"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - 네비게이션은 `go_router_builder` 생성 Route 클래스로만 — `context.go('/path')` 문자열 경로 직접 사용 금지
 - 페이지 전환 애니메이션 커스텀 적용 금지 — `buildPage` 대신 `build`로 위젯만 반환. 예외: 탭 전환 시 `buildNoTransition`만 허용
@@ -24,6 +28,7 @@ user-invocable: true
 Screen 또는 Page를 생성하고 라우터에 등록한다.
 
 **Screen vs Page 기준:**
+
 - **Screen** = 바텀 네비게이션 탭에 등록된 최상위 화면
 - **Page** = 독립 라우트가 있지만 바텀 네비에는 없는 화면 (push로 진입)
 
@@ -41,12 +46,14 @@ Screen 또는 Page를 생성하고 라우터에 등록한다.
 ### 1. 대상 경로 확인
 
 ARCH에 따라 대상 경로를 결정한다:
+
 - `ARCH = clean` / `feature_first`: `lib/features/$ARGUMENTS/` 존재 확인. 없으면 중단하고 `flutter-feature` 스킬 안내.
 - `ARCH = flat`: `lib/features/` 구조가 없으면 `lib/src/` 또는 `lib/` 직하에 생성. 프로젝트의 기존 screen 파일 위치를 참조한다.
 
 ### 2. 기존 패턴 분석
 
 기존 screen/page 파일과 라우트 등록을 읽어 프로젝트 관습을 파악한다:
+
 - `lib/features/$ARGUMENTS/presentation/` 내 기존 파일
 - 라우터 파일 위치와 등록 패턴 (기존 코드에서 감지)
 - 네이밍 관습: `Screen` vs `Page` vs `View` 접미사
@@ -57,6 +64,7 @@ ARCH에 따라 대상 경로를 결정한다:
 ### 3. 사용자 확인
 
 다음을 확인한다:
+
 - **Screen인지 Page인지** (바텀 네비 탭 여부)
 - Route path (e.g., `/workout`, `/settings`)
 - Route parameters 필요 여부
@@ -66,7 +74,7 @@ ARCH에 따라 대상 경로를 결정한다:
 프로젝트 감지 결과에 따라:
 
 | 조건 | Base Class |
-|------|-----------|
+| ------ | ----------- |
 | `HAS_HOOKS` + `HAS_RIVERPOD` | `HookConsumerWidget` |
 | `HAS_RIVERPOD` (hooks 없음) | `ConsumerWidget` |
 | `HAS_HOOKS` (riverpod 없음) | `HookWidget` |
@@ -145,6 +153,7 @@ class <Name>Page extends <BaseClass> {
 ```
 
 Route 클래스 패턴은 프로젝트마다 다를 수 있다. 기존 Route 클래스를 읽어 패턴을 확인한다:
+
 - `with $<Name>Route` mixin이 있으면 동일하게 사용 (go_router_builder 일부 버전)
 - mixin 없이 `extends GoRouteData`만 사용하면 동일하게 따른다
 
@@ -246,6 +255,7 @@ class <Name>Screen extends <BaseClass> {
 ```
 
 라우터 파일(보통 `app_router.dart` 또는 `router.dart`)에 등록:
+
 ```dart
 AutoRoute(page: <Name>Route.page, path: '/<name>'),
 ```

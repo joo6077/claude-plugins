@@ -9,7 +9,11 @@ argument-hint: "<feature.key> | <text> [| <text2>]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - i18n 라이브러리를 자동 감지한다(slang, easy_localization, intl 등) — 감지 결과를 무시하고 특정 라이브러리를 가정하면 안 된다
 - 번역 키 추가 후 반드시 codegen 재실행 — 명령은 Step 6 표를 따른다. slang 은 pubspec 에 `slang_build_runner` 가 있으면 `flutter-run` codegen 절 블록으로 build_runner 를 돌려 전후 삭제 수를 세고, 없으면 `$DART run slang` 으로 돌린다. intl 은 `fvm flutter gen-l10n`
@@ -25,13 +29,14 @@ i18n 파일에 번역 문자열을 추가/수정하고 codegen을 재생성한�
 ### i18n 라이브러리 감지
 
 | 감지 키 | 패키지 | 파일 패턴 | 키 포맷 | 접근 패턴 |
-|---------|--------|----------|---------|----------|
+| --------- | -------- | ---------- | --------- | ---------- |
 | `HAS_SLANG` | `slang` / `slang_flutter` | `lib/**/i18n/*.i18n.json` | camelCase | `t.<feature>.<key>` |
 | `HAS_EASY_L10N` | `easy_localization` | `assets/translations/*.json` | snake_case | `'feature.key'.tr()` |
 | `HAS_INTL` | `flutter_localizations` + `intl` | `lib/l10n/*.arb` | camelCase | `AppLocalizations.of(context).<key>` |
 
 **i18n 라이브러리가 없으면:**
 > "i18n 라이브러리가 pubspec.yaml에 없습니다. 다국어 지원을 추가하려면 먼저 설치해주세요:
+>
 > - Slang: `$FLUTTER pub add slang_flutter && $FLUTTER pub add dev:slang_build_runner`
 > - easy_localization: `$FLUTTER pub add easy_localization`
 > - Flutter intl: `$FLUTTER pub add flutter_localizations --sdk=flutter && $FLUTTER pub add intl`"
@@ -39,21 +44,25 @@ i18n 파일에 번역 문자열을 추가/수정하고 codegen을 재생성한�
 ### i18n 파일 위치
 
 #### Slang
+
 - **일반적 경로**: `lib/i18n/`, `lib/core/i18n/`, `lib/l10n/`
 - **파일 패턴**: `{locale}.i18n.json` (예: `en.i18n.json`, `ko.i18n.json`)
 - **감지**: `slang.yaml` 또는 `build.yaml`의 slang 설정에서 `input_directory` 확인
 
 #### easy_localization
+
 - **일반적 경로**: `assets/translations/`, `assets/lang/`
 - **파일 패턴**: `{locale}.json` (예: `en.json`, `ko.json`)
 
 #### intl/ARB
+
 - **일반적 경로**: `lib/l10n/`
 - **파일 패턴**: `app_{locale}.arb` (예: `app_en.arb`, `app_ko.arb`)
 
 ### 지원 언어 감지
 
 기존 i18n 파일들에서 언어 코드를 추출한다:
+
 - Slang: `{locale}.i18n.json` 파일명에서 추출 (예: `en.i18n.json`, `ko.i18n.json`)
 - easy_localization: `{locale}.json` 파일명에서 추출 (예: `en.json`, `ko.json`)
 - intl/ARB: `app_{locale}.arb` 파일명에서 추출 (예: `app_en.arb`, `app_ko.arb`)
@@ -61,11 +70,13 @@ i18n 파일에 번역 문자열을 추가/수정하고 codegen을 재생성한�
 ## Input
 
 `$ARGUMENTS` format -- 구분자 `|`를 사용하여 key와 각 언어 텍스트를 분리:
+
 - `<feature.key> | <text1> | <text2>` -- 감지된 언어 순서대로 번역 제공
 - `<feature.key> | <text1>` -- 첫 번째 언어만 제공, 나머지는 사용자에게 질문
 - (no args) -- interactive mode: 추가할 문자열을 사용자에게 질문
 
 Examples:
+
 - `/flutter-l10n workout.title | Workouts | 운동`
 - `/flutter-l10n common.save | Save | 저장`
 - `/flutter-l10n home.welcomeUser | Welcome, ${name} | ${name}님, 환영합니다`
@@ -79,7 +90,7 @@ Examples:
 감지된 라이브러리에 따라 파일을 읽는다:
 
 | 라이브러리 | 읽을 파일 |
-|-----------|----------|
+| ----------- | ---------- |
 | Slang | `lib/**/i18n/{locale}.i18n.json` (모든 감지된 locale) |
 | easy_localization | `assets/translations/{locale}.json` (모든 감지된 locale) |
 | intl/ARB | `lib/l10n/app_{locale}.arb` (모든 감지된 locale) |
@@ -89,19 +100,21 @@ Examples:
 `$ARGUMENTS`에서 key를 파싱한다.
 
 **Slang / easy_localization (JSON)**:
+
 - `.`으로 분리하여 JSON 중첩 경로 결정 (예: `workout.title` -> `{"workout": {"title": "..."}}`)
 - 최상위 키가 없으면 생성
 - 키가 이미 있으면 사용자에게 덮어쓸지 확인
 - **MUST** 최상위 키를 알파벳순으로 유지
 
 **intl/ARB**:
+
 - flat 키로 삽입: `workout.title` -> `"workoutTitle": "..."` (dot을 camelCase로 변환)
 - `@workoutTitle` 메타데이터 항목도 함께 추가
 
 ### 3. 키 네이밍 규칙
 
 | 라이브러리 | 네이밍 규칙 | 예시 |
-|-----------|-----------|------|
+| ----------- | ----------- | ------ |
 | Slang | camelCase | `welcomeUser`, `itemCount` |
 | easy_localization | snake_case | `welcome_user`, `item_count` |
 | intl/ARB | camelCase | `welcomeUser`, `itemCount` |
@@ -109,7 +122,7 @@ Examples:
 ### 4. 보간(interpolation) 문법
 
 | 라이브러리 | 문법 | 예시 |
-|-----------|------|------|
+| ----------- | ------ | ------ |
 | Slang | `${varName}` | `"Welcome, ${name}"` |
 | easy_localization | `{varName}` | `"Welcome, {name}"` |
 | intl/ARB | `{varName}` | `"Welcome, {name}"` |
@@ -121,7 +134,7 @@ Examples:
 ### 6. Codegen 실행
 
 | 라이브러리 | 명령 |
-|-----------|------|
+| ----------- | ------ |
 | Slang · pubspec 에 `slang_build_runner` 있음 | `$DART run build_runner build --delete-conflicting-outputs` — `flutter-run` codegen 절의 블록으로 돌린다 |
 | Slang · `slang_build_runner` 없음 | `$DART run slang` — build_runner 는 `slang_build_runner` 없이는 slang 을 생성 대상으로 알지 못한다 |
 | easy_localization | codegen 불필요 (런타임 로드) |

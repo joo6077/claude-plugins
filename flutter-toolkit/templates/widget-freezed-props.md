@@ -54,7 +54,7 @@ class {widget_prefix}{Domain}{Role}{widget_suffix} extends HookWidget {
 ## 요소별 규칙
 
 | 요소 | 규칙 |
-|---|---|
+| --- | --- |
 | `typedef` | 콜백 prop 마다 시맨틱 typedef. **의미 원천 위젯이 소유** 하고 그 파일에 top-level 로 둔다. 공유 typedef 파일 금지 |
 | Props | `@freezed abstract class ...Props with _$...Props`. `const factory` + `@Default` |
 | 위젯 | 위치 인자 `this._props` + `final ...Props _props;` |
