@@ -47,7 +47,8 @@ Codex 위임의 **방법론과 프롬프트 템플릿**을 점진 강화한다. 
 
 ### 1. 신호 수집 (로그 분석)
 
-1. `~/.claude/codex-research-log/*.md`에서 `window` 범위 내, `— codex-rescue (` 로 시작하는 헤더를 가진 엔트리를 나열한다. 헤더에 `completed` 또는 `stalled` 상태가 붙는다. 엔트리 1건은 `- rollout:` 줄 1개와 일대일 대응하므로 개수는 그 줄로 센다 — `^##` 로 세면 응답 본문의 마크다운 제목까지 세어 부풀려진다.
+<!-- markdownlint-disable-next-line MD038 -->
+1. `~/.claude/codex-research-log/*.md`에서 `window` 범위 내, `— codex-rescue (` 로 시작하는 헤더를 가진 엔트리를 나열한다. 헤더에 `completed` 또는 `stalled` 상태가 붙는다. 엔트리 1건은 `- rollout: ` 줄 1개와 일대일 대응하므로 개수는 그 줄로 센다 — `^## ` 로 세면 응답 본문의 마크다운 제목까지 세어 부풀려진다.
 2. 0건이면: `research-only` 호출이 아닌 한 SKIP하고 종료(억지 개선 금지).
 3. 각 엔트리에서 추출: 상태(`completed` / `stalled`), 보낸 프롬프트, codex 응답(verbatim), `search calls` 수와 `Search activity` 목록(어떤 주소를 열었는지), model, cli 버전, `via`(호출 경로).
 4. 리뷰 시점 독립 평가로 아래 약점 패턴을 집계한다(위임 시점 self-score 아님):
