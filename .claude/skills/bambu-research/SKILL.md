@@ -14,7 +14,7 @@ user-invocable: true
 # Gotchas
 
 1. **출처 없는 갱신 금지** — 추가/변경한 모든 사실에 출처(URL + 접근 일자)를 명시한다. references는 Codex run 출처를 그대로 보존하고 있으므로 동일 포맷 유지.
-2. **MakerWorld는 Cloudflare 차단 빈번** — 갱신된 fallback (2026-05-16): **Playwright MCP** (`mcp__playwright__browser_navigate` + `browser_snapshot`) 1차 → `codex-rescue` 에이전트 위임 (Playwright 미설치 환경) → WebFetch (마지막 대안) → 사용자 수동. **WebFetch만 단독 시도 금지** — 무한 retry로 토큰 낭비. Cloudflare 차단을 만나면 즉시 다음 단계로 이동.
+2. **MakerWorld 는 킷의 「MakerWorld 읽는 순서」를 따른다** — 정본은 `bambu-kit/skills/bambu-print-profile/SKILL.md` 끝 절이다. JSON 주소를 셸 `curl` 로 먼저 부르고, 브라우저 도구는 JSON 에 없는 사진을 볼 때만 쓴다. 브라우저 서버 이름은 환경마다 다르므로 이름을 박지 말고 이 세션의 도구 목록에서 찾는다. 모델 페이지가 `Just a moment...` · HTTP 403 이면 기다렸다 다시 열지 말고 다음 단계로 간다 (2026-09-22 실측: 다시 열어도 같았다). **WebFetch만 단독 시도 금지** — 무한 retry로 토큰 낭비.
 3. **버전 명시 필수** — Bambu Studio 버전, 필라멘트 SKU, OrcaSlicer 버전을 언급할 때 검증한 버전을 `[product@version]` 형태로 적는다. 버전 없는 추천은 6개월 후 outdated 된다.
 4. **Reddit/YouTube는 보조 신호** — 공식 GitHub release / Bambu Blog / Discourse forum이 1순위. Reddit/YouTube는 "반복 출현 + 공식 소스 교차확인" 조건 시에만 references에 반영.
 5. **카테고리별 단일 갱신** — 한 번에 4개 references를 모두 갱신하지 마라. category 인자로 1개씩 처리해야 회귀 추적이 쉽다. 미지정 시 사용자에게 확인.
@@ -42,8 +42,10 @@ user-invocable: true
 1. WebFetch 1차 시도 (Cloudflare 차단 없는 정적 endpoint라 보통 성공)
 2. 실패 시 → `codex-rescue` 에이전트 위임 (research mode, `--read-only`, `MODE=research`)
 
-**B. MakerWorld / Bambu Studio Wiki / Bambu Store** (Cloudflare 또는 JS-rendered):
-1. **Playwright MCP** 1차 — `mcp__playwright__browser_navigate` + `mcp__playwright__browser_snapshot` 또는 `browser_take_screenshot`. Cloudflare bot challenge 우회 + JS 렌더 콘텐츠 추출.
+**B. MakerWorld** — 킷의 「MakerWorld 읽는 순서」(`bambu-kit/skills/bambu-print-profile/SKILL.md`)를 그대로 따른다: JSON 주소 `curl` → 브라우저 도구(이름은 도구 목록에서 찾는다) → Codex 에 주소를 적어 `curl` 위임 → 사용자 수동. 403 · `Just a moment...` 에서 기다리지 않는다.
+
+**C. Bambu Studio Wiki / Bambu Store** (JS 렌더 페이지):
+1. 이 세션의 도구 목록에 있는 브라우저 도구로 열어 렌더된 내용을 읽는다 (서버 이름은 박지 않는다)
 2. 실패 시 → `codex-rescue` 위임 (캐시 활용 가능)
 3. 둘 다 실패 시 → WebFetch (간헐적 성공) → 사용자 수동
 

@@ -94,7 +94,7 @@ user-invocable: true
 | V5 placeholders | 미완성 마커 잔존 (백틱으로 감싼 인용은 제외) |
 | V6 code-fence | 언어 힌트 없는 bare fence |
 | V7 plugin-json | plugin.json 과 marketplace.json 버전 일치 |
-| V8 hook-exec | hooks.json 이 직접 실행하는 `.sh` 의 실행 비트(0755) |
+| V8 hook-exec | hooks.json 명령 안 `${CLAUDE_PLUGIN_ROOT}` 가 큰따옴표 안에 있는지 + 직접 실행하는 `.sh` 의 실행 비트(0755) |
 | V9 arg-substitution | 스킬 본문 코드의 `$` + 숫자 — 호출 인자로 치환되어 스니펫이 깨짐 |
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
