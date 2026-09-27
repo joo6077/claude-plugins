@@ -694,10 +694,10 @@ dirty_except_status() {  # dirty_except_status <계약파일>
   # -U0 조각 머리 `@@ -옛줄,수 +새줄,수 @@` 로 줄 번호를 따라가 앞머리 안의 status 줄만 뺀다
   _inside=$(git diff -U0 --no-color HEAD -- "${1}" \
     | awk -v fo="${_fm_old:-0}" -v fn="${_fm_new:-0}" '
-        /^@@/ { split($(2), a, ","); o = -a[1]; split($(3), b, ","); nw = b[1] + 0; body = 1; next }
-        body && /^-/  { if (!(o <= fo && /^-status:/)) n++; o++; next }
-        body && /^\+/ { if (!(nw <= fn && /^\+status:/)) n++; nw++; next }
-        END { print n + 0 }')
+        /^@@/ { split($(2), old_hd, ","); old_no = -old_hd[1]; split($(3), new_hd, ","); new_no = new_hd[1] + 0; body = 1; next }
+        body && /^-/  { if (!(old_no <= fo && /^-status:/)) cnt++; old_no++; next }
+        body && /^\+/ { if (!(new_no <= fn && /^\+status:/)) cnt++; new_no++; next }
+        END { print cnt + 0 }')
   echo $((_outside + _inside))
 }
 ```
