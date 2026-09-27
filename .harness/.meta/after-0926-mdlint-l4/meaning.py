@@ -252,6 +252,7 @@ def selftest():
     cases = [
         ("모양만", "# 제목\n\n| a   | b   |\n| --- | --- |\n| 1   | 2   |\n\n```text\nx=1\n```\n\n#### 굵은 줄\n\n- 목록\n\n본문 <http://a.b/c> 끝\n", 0, 1),
         ("낱말 바꿈", base.replace("목록", "명단"), 1, 0),
+        ("제목 단계만", base.replace("# 제목", "## 제목"), 0, 1),
         ("순서 바꿈", base.replace("| 1 | 2 |", "| 2 | 1 |"), 1, 0),
         ("끄기 주석", "<!-- markdownlint-disable-next-line MD041 -->\n" + base, 0, 0),
     ]
