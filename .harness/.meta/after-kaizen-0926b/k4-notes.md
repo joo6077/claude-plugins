@@ -98,3 +98,71 @@ H 보존: 옛 주석은 지우지 않았다. 범위 밖 파일은 건드리지 �
 - 문서 페이지 넷 다시 맞추기(위 표) · 기존 마크다운 경고 전체 정리(VS-26)는 부모 몫
 - 교차 진단이 짚은 `DG-02` 측정기의 `comm` 앞 정렬(`sort -u`)은 남은 일 목록 CS-4 의 `LC_ALL=C sort` 와 다르다. 두 입력을 같은 방식으로 정렬해 지금 값은 맞다. 도구는 봉인 뒤라 고치지 않았다
 - `/api-ui` 뷰어가 보류 · flaky 표지를 실제로 그리는지는 스펙만 정했고 예시 `ui.html` 은 바꾸지 않았다(계약 범위 밖). 화면 확인 수단이 이 계약 밖이라는 교차 진단 지적이 그대로 남는다
+
+## 2 회차 계약 (2026-09-27)
+
+1 회차 QA 가 REJECT(31/33)했다. `RE-01` · `RE-02` 의 「새 실행 파일 0 개」 측정이 이 계약 자신의 측정 도우미(`.harness/.meta/after-0926-kits-api-onboarding-howto/` 의 다섯 파일)까지 세어, 계약대로 일하면 통과할 수 없는 측정이었다. 개정 A-01 은 조건을 느슨하게 하는 쪽이라 위임으로 동의 처리하지 않고, 결정 파일 「추가 위임」 절대로 계약을 새 판으로 다시 써서 다시 봉인했다.
+
+- 계약: `.harness/sprint-contract-after-0926-kits-api-onboarding-howto-r2.md` — 조건 33 · 기능 조건 25 · 봉인 `sha256:e480bffbe5e46407` · 측정 지문 `sha256:9ef53fe9b6426fff` · `locked_at` 2026-09-27 12:21
+- 1 회차와 다른 것: `RE-01` · `RE-02` 측정 끝에 `':(exclude).harness'`, `AR-02` 에 봉인 커밋이 1 회차 `927c2a7` 이라는 한 구절. 나머지 30 조건은 글자 그대로
+- 교차 진단 지적 둘의 처리: (1) 1 회차 계약의 `status: superseded` 는 스키마 밖 값이지만 이미 커밋된 1 회차 기록이라 그대로 두었다 — 다음 평가자는 경고만 낸다. (2) GAP 분석 `NEG-KH1` 줄은 값이 맞았고(1 회차 봉인 전 시작 판 실측), 대상 판과 가지 끝 기대값을 같이 적도록 서술만 보강했다
+- 6.5 게이트 재통과: 허용 헤더만 · 조건 33 개 전부 조건 절 · `OK conditions=33` · 커버리지 검출기 `UNCOVERED` 0 · `OK 미실측 0 건`. 봉인 뒤 zsh · bash 둘 다 `SEAL_OK` · `MEASURE_OK`
+- 계약 피드백: `~/.harness/feedback/contract/1a3bcba6-2026-09-27T122742-bda55d45-8428.yaml`, `verify-feedback.sh` PASS
+
+### 가지 끝(`e20ffe2`)에서 스스로 잰 값
+
+구현은 1 회차 그대로이고 2 회차 봉인 뒤 `.harness/` 밖 바뀐 파일은 0 개다(`git diff --name-only c0b0ffb chore/ak2-k4 -- . ':(exclude).harness'` 0 줄). 새 코드를 쓰지 않았다.
+
+| 조건 | 잰 값 | 기대 |
+| --- | --- | --- |
+| SK-01 | `step7_lines=1 chips=1 rows=1` | 같음 |
+| SK-02 | `s6_prefixed_example=2 s6_id_word=1 s9_item7_id=1` | 통과 |
+| SK-03 | `s2_strip_rule=1` | 통과 |
+| SK-04 | `hold=3 flaky=3 hold_fail=3 flaky_fail=3 label=2 state_enum=1 new_state=0` | 통과 |
+| SK-05 | 세 파일 모두 `strict_note=1` | 통과 |
+| SK-06 | `index_asserts=0 collection_line=1` · `n=0/1/2 rc=0` | 통과 |
+| SK-07 | `s7_cmd=1 s7_row=1 s6_csp=1` · `example_csp=1 mockup_v8_csp=0` | 통과 |
+| SK-08 | `ko1_cases=1` · `runner_rc=0 EVALS declared=11 ran=11 fail=0` · NEG-KO `g1_neg_rc=1` | 통과 |
+| SK-09 | `example_same_shell=1 example_g5_pass=1 example_gate_pass=1` | 통과 |
+| SK-10 | `cases=11 g5_one=11` · `five_lines=0 six_lines=2 run_line_g5=1` · `runner_rc=0` | 통과 |
+| SK-11 | `cocoapods_line=1 flutter_keep=1 evals_spm_assert=1` | 통과 |
+| SK-12 | `howto_ok=1` · `source_line=1 grade_line=1 tools=[Read, Grep, Glob]` | 통과 |
+| SK-13 | `unverified_line=1 not_pass=1` | 통과 |
+| SK-14 | `dita_lines=1 url=1 d13=1 checked=1` | 통과 |
+| SK-15 | `lit_assert=1 lit_shell=2` · orig `rc=0 EVALS_PASS` · assert · shell `mutated=1 rc=1 EVALS_FAIL` | 통과 |
+| SK-16 | `rc=0 EVALS total=35 pass=35 fail=0 seconds=8.8` | 통과 |
+| SK-17 | `c5_three=1` | 통과 |
+| SC-01 | `copies_rc=0 ok_lines=8 howto_ok=1 checked=8 violations=0 infra_errors=0 excluded=0 docstring_eight=1` · NEG-KH1 `neg_rc=1 1` | 통과 |
+| ER-01 | `report_unjudged=2 matched=2` | 통과 |
+| ER-02 | `contract_gate=1 verify_class=1 probe_gate=1` | 통과 |
+| ER-03 | `g5_fail_cases=2 empty_kind=1 nourl_kind=1` · `runner_rc=0` · NEG-KO `g5_mutated=1 g5_neg_rc=1` | 통과 |
+| AR-01 | `scope_out=0 required_missing=0 new_onboarding_fixtures=4` | 통과 |
+| AR-02 | `impl_commits=7 mixed=0 seal_commit_files=1 impl_before_seal=0` | 통과 |
+| AR-03 | `9 SEAL_ABSENT 91 SEAL_OK` (`SEAL_BROKEN` 없음) · `tools_sha=8569f2af6e22daa3` | 통과 |
+| AR-04 | 기본 경로 도구 지문 `59fe55125c0dbc77` · `rc=0` 25 줄 · 그 밖은 `feedback-agg-test SKIP (yq 없음)` 하나 | 통과 |
+| AP-03 | `--check=code-fence` 세 킷 모두 종료 코드 0 | 통과 |
+| AP-04 | `validate-plugin.py` 세 킷 모두 종료 코드 0 | 통과 |
+| RE-01 | 바로잡은 측정 0 줄 | 통과 |
+| RE-02 | 같은 측정 0 줄 · `run-gate-evals.sh` `git diff --quiet` 종료 코드 0 | 통과 |
+| DG-01 | `release.sh` 교집합 0 | 통과 |
+| DG-02 | `files=17 new_warnings=0` · `json_bad` 0 줄 | 통과 |
+| DG-03 | DG-01 과 같은 측정 0 | 통과 |
+| DG-04 | 바뀐 파일에 앱 · 서버 진입점 없음 | 통과 |
+
+### 검사
+
+- `python3 scripts/validate-plugin.py` 종료 코드 0 · `sync-docs.py --check-only` 「모든 README가 동기화 상태」 · `sync-evals.py --check-only` 「0 added, 0 orphans, 0 missing」
+- 로컬 CI(`ci-local.sh`, TMPDIR 은 scratchpad `k4r2/ci`): 종료 코드 0, `rc=0` 25 줄, `feedback-agg-test SKIP (yq 없음)` 하나
+- `detect-docs-drift.py`: 위 「문서 페이지 차이」 표와 같은 네 줄. 이번 회차에 원본을 바꾸지 않았다
+- 톤 대조: 이번 회차에 `.harness/` 밖 바뀐 줄이 0 이라 새로 대조할 줄이 없다. 위 「톤 대조」 표가 그대로 유효하다
+
+### 킷별 버전 판단
+
+바뀐 것이 없어 위 판단 그대로다 — api-kit patch · onboarding-kit minor · howto-kit patch.
+
+### 남은 것 (2 회차 기준)
+
+- QA 판정 — 2 회차 계약을 새 qa-evaluator 로 평가한다. 이 문서는 판정을 내리지 않았고 status 는 active 그대로다
+- 1 회차 「남은 것」 첫 줄(A-01 동의)은 2 회차 계약으로 대신했다. A-01 은 동의 없는 1 회차 기록으로 남는다
+- 1 회차 계약의 `status: superseded` 는 스키마 밖 값이다. 다음 평가에서 경고로 나올 수 있다 — 스키마에 대체 상태를 넣을지는 harness 카이젠 몫
+- 문서 페이지 넷 다시 맞추기 · 기존 마크다운 경고 전체 정리(VS-26) · `DG-02` 측정기 정렬 차이 · 뷰어 보류 · flaky 표지 화면 확인은 위 「남은 것」 그대로
