@@ -45,6 +45,7 @@ user-invocable: true
 **B. MakerWorld** — 킷의 「MakerWorld 읽는 순서」(`bambu-kit/skills/bambu-print-profile/SKILL.md`)를 그대로 따른다: JSON 주소 `curl` → 브라우저 도구(이름은 도구 목록에서 찾는다) → Codex 에 주소를 적어 `curl` 위임 → 사용자 수동. 403 · `Just a moment...` 에서 기다리지 않는다.
 
 **C. Bambu Studio Wiki / Bambu Store** (JS 렌더 페이지):
+
 1. 이 세션의 도구 목록에 있는 브라우저 도구로 열어 렌더된 내용을 읽는다 (서버 이름은 박지 않는다)
 2. 실패 시 → `codex-rescue` 위임 (캐시 활용 가능)
 3. 둘 다 실패 시 → WebFetch (간헐적 성공) → 사용자 수동
