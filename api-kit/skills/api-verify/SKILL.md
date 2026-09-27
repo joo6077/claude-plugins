@@ -135,7 +135,7 @@ pin 항목 중 **경로 간 불변식**(`$.meta.total >= len($.data)`)은 여기
 
 - **판정 줄마다 양쪽 실제 값을 적는다** — `orders.list: $.meta.total=47 · len($.data)=10 → PASS`, `orders.list: $.meta.total=-1 · len($.data)=10 → FAIL`. Hurl 의 실패 출력도 값은 찍지만 판정식에 넣은 값이 어느 경로에서 왔는지는 찍지 않는다. 경로 이름 없이 `FAIL` 한 줄만 남기면 어느 쪽이 망가졌는지 처음부터 다시 조사해야 한다.
 - **한쪽 경로라도 없으면 `판정 불가` 다** — `orders.list: $.meta.total=(없음) · len($.data)=10 → 판정 불가`. PASS 로도 FAIL 로도 세지 않고 따로 센다. 그 자체로는 게이트를 깨지 않는다 — 사라진 경로가 계약에 `required` 면 schema drift(필드 삭제 = 계약 실패)가 따로 잡는다. `판정 불가` 를 PASS 에 합치면 경로가 사라진 회귀가 조용히 지나간다.
-- **줄 앞에 `<엔드포인트 id>: ` 앞머리를 붙인다** — 위 예의 `orders.list: `. 한 리포트에 여러 항목의 판정 줄이 섞이므로 앞머리가 없으면 어느 항목 것인지 모른다. `/api-ui` 는 앞머리로 항목을 찾고, 앞머리를 뗀 나머지를 그 항목에 옮긴다.
+- **줄 앞에 `<엔드포인트 id>:` 앞머리와 빈칸 하나를 붙인다** — 위 예의 `orders.list:`. 한 리포트에 여러 항목의 판정 줄이 섞이므로 앞머리가 없으면 어느 항목 것인지 모른다. `/api-ui` 는 앞머리로 항목을 찾고, 앞머리를 뗀 나머지를 그 항목에 옮긴다.
 
 컬렉션은 envelope / item / pagination marker 를 나눠 판정한다 — skip/duplicate 는 schema 위반이 아니라 variance 신호다.
 
@@ -176,7 +176,7 @@ mode = exact               → additive field 는 실패
 4. exit code 와 subreason
 5. 적용된 normalize 규칙과 baseline lineage(env·branch·capturedAt·samples)
 6. baseline 만료 경고
-7. 경로 간 불변식 판정 줄 — `<엔드포인트 id>: ` 앞머리 · 양쪽 실제 값과 PASS · FAIL · 판정 불가 (§6)
+7. 경로 간 불변식 판정 줄 — `<엔드포인트 id>:` 앞머리 · 양쪽 실제 값과 PASS · FAIL · 판정 불가 (§6)
 
 JUnit XML 로 내보낼 때 매핑을 지킨다.
 
