@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 생태계 입출력 상호운용
 
 curl·Talend·HAR·OpenAPI 를 읽어들이고 `.hurl`·HAR·JUnit 으로 내보낼 때의 변환 규칙. 재현 단위, 원본 linkback, 손실 경고 정책을 다룬다.
@@ -71,7 +72,7 @@ import/export 마다 source type, source version, 원본 hash, 처리하지 못�
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | HAR export 버전 | `log.version` required, api-kit 은 `1.2`. UTF-8 저장 required | [HAR 1.2 Spec](https://w3c.github.io/web-performance/specs/HAR/Overview.html) |
 | HAR entry cardinality | HTTP request `1개` → HAR entry `1개` | [HAR 1.2 Spec](https://w3c.github.io/web-performance/specs/HAR/Overview.html) |
 | HAR timing 단위 | milliseconds. unavailable / not applicable 은 `-1` | [HAR 1.2 Spec](https://w3c.github.io/web-performance/specs/HAR/Overview.html) |
@@ -87,7 +88,7 @@ import/export 마다 source type, source version, 원본 hash, 처리하지 못�
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | curl 덤프를 공백 split 으로 파싱 | quoting, `@file` 참조, 반복 옵션이 깨져 잘못된 요청을 생성한다 |
 | HAR 를 OpenAPI 대체물로 사용 | HAR 는 transaction archive 이지 schema/operation 계약이 아니다 |
 | JUnit 만 저장하고 `.hurl`·HAR 를 폐기 | CI 요약만 남아 실패를 재현할 수 없다 |

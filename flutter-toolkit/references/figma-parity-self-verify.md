@@ -5,7 +5,11 @@ last_updated: 2026-05-07
 source: /insights 2026-05-07 fresh report (130 sessions, "5시간 이상을 태운 Flutter–Figma parity 작업")
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Flutter-Figma Parity 자가검증 루프 패턴
+
+<!-- markdownlint-enable MD025 -->
 
 > **상위 규약:** `visual-evidence-protocol.md`. 본 문서는 그 규약의 **Figma 대조 특화 확장**이다.
 > 역할 경계 — 상위 규약은 "시각 산출물의 완료를 증거 없이 선언하지 않는다"(모든 UI 스킬 공통,
@@ -41,7 +45,7 @@ Figma 시안 캡처 → Flutter 렌더 캡처 → SSIM 측정 → 임계값 미�
 ## 도구 스택
 
 | 단계 | 도구 | 비고 |
-|------|------|------|
+| ------ | ------ | ------ |
 | Figma 캡처 | Figma MCP `get_screenshot` | 노드 ID 지정, PNG 추출 |
 | Flutter 캡처 | 프로젝트에 등록된 화면 캡처 MCP(서버 이름은 `.mcp.json` 에서 읽는다) 또는 integration_test golden | 렌더 결과 PNG |
 | SSIM 측정 | Python `scikit-image.metrics.structural_similarity` 또는 `pixelmatch` (Node) | 0.0~1.0 score |
@@ -81,7 +85,7 @@ diff_regions = pixelmatch(figma_png, flutter_png, output=diff_png, threshold=0.1
 ### Step 4: 파라미터 추론 + 조정
 
 | 차이 패턴 | 후보 파라미터 |
-|----------|--------------|
+| ---------- | -------------- |
 | 영역 전체 hue 차이 | `Color`, `LinearGradient.colors` |
 | 윤곽 부드러움 | `BorderRadius`, `BoxShadow.blurRadius` |
 | 인접 그림자 | `BoxShadow.offset`, `BoxShadow.spreadRadius` |

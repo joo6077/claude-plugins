@@ -32,11 +32,16 @@ user-invocable: true
 17. **outbox 를 세팅하면서 "exactly-once" 라고 쓰지 마라** — 비즈니스 갱신과 outbox insert 가 같은 트랜잭션이어도 relay 는 중복 발행할 수 있다. 전달 보장은 **at-least-once** 이며 consumer idempotency(Gotcha 16 의 6 항목)가 세트로 들어가야 규격이 완성된다. Gotcha 10 이 이미 요구하는 (a) 항목의 근거가 이것이다. 출처: [microservices.io Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html).
 18. **시각은 종류부터 나누고 필드마다 표로 남겨라 (enforcement 등급 E2)** — Gotcha 15 의 오프셋 표기 규칙은 한 순간(결제·생성 시각)의 규칙이다. 반복 일정·영업시간·알림 시각 같은 벽시계 값을 순간 하나로 저장하면 시간대가 바뀌거나 서머타임이 드나들 때 사람이 정한 시각과 어긋난다. 규격 산출물(Gotcha 13 의 (c))에 시각 필드마다 한 줄씩 **종류 · 저장 형태 · 시간대 출처 · 순간으로 바꾸는 규칙** 네 칸을 적는다. 종류는 순간 / 받는 사람 지역을 따라가는 벽시계 / 특정 지역에 묶인 벽시계 셋 중 하나이고, 특정 지역에 묶인 벽시계는 IANA 시간대 식별자(`Asia/Seoul` 처럼 지역 이름으로 적는 시간대 이름) 칸을 함께 둔다. 순간으로 바꾸는 규칙에는 서머타임 전환으로 같은 시각이 두 번 오거나 없을 때의 처리를 넣는다. 시간대와 나라를 코드 상수나 한 나라 기본값으로 박지 말고, 요청·기기·사용자 설정·레코드 칸 중 어디서 받는지와 저장 여부를 시간대 출처 칸에 적는다 — 이 칸은 RFC 요구가 아니라 이 킷의 규칙이다. 사용자가 한 지역 전용 서비스라고 밝혔으면 시간대 출처 칸에 그렇게 적는다. 실측(2026-09-14): 한 나라를 기본으로 둔 판단이 사용자 교정 뒤에도 되풀이됐다. 원칙 본문은 `docs/backend/fundamentals/database.md` 원칙 10 이다. 출처: [RFC 5545 §3.3.5](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5), [PostgreSQL Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process (3-Step · 탐색 → 진단 → 처방)
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 탐색 — 프로젝트 백엔드 구조 감지
 
 프로젝트 루트에서 백엔드 관련 파일을 탐색한다:
+
 - 프레임워크 감지 (package.json, requirements.txt, build.gradle, Cargo.toml 등)
 - 기존 아키텍처 패턴 분석 (디렉토리 구조, 에러 핸들러, 미들웨어)
 - API 스펙 파일 존재 여부 (openapi.yaml, schema.graphql, .proto)
@@ -46,9 +51,9 @@ user-invocable: true
 references/system-principles.md 를 참조하여 필요한 카테고리를 rule 단위로 모두 나열한다 (Gotcha 9). 현재 상태와 리서치 기준의 차이를 한 번에 열거.
 
 | 카테고리 | 필수 여부 | 산출물 |
-|----------|-----------|--------|
+| ---------- | ----------- | -------- |
 | 아키텍처 패턴 | 필수 | Hexagonal / Clean / DDD 중 프로젝트 규모에 맞는 선택, 도메인-persistence 분리 규약, 의존성 방향(inward-only). 단순 CRUD는 "간소화 계층형" 선택 가능 |
-| API 규격 | 필수 | HTTP 메서드 규칙, **빈 상태 포함 상태코드 매핑**(Gotcha 14), RFC 9457 problem+json 에러 포맷, OpenAPI 3.1 스펙 파일, **timestamp 타임존·직렬화 규칙**(Gotcha 15), **시각 종류 · 시간대 출처 표**(Gotcha 18), **비멱등 write path idempotency 시맨틱** |
+| API 규격 | 필수 | HTTP 메서드 규칙, **빈 상태 포함 상태코드 매핑**(Gotcha 14), RFC 9457 problem+json 에러 포맷, OpenAPI 스펙 파일(3.1 이상 — 최소 지원선이지 최신판이라는 뜻이 아니다), **timestamp 타임존·직렬화 규칙**(Gotcha 15), **시각 종류 · 시간대 출처 표**(Gotcha 18), **비멱등 write path idempotency 시맨틱** |
 | 계약 아티팩트 | 필수 (계약을 새로 정하거나 바꿀 때) | `contracts/<feature>.md` 6 항목(Gotcha 13) + producer/consumer 양면 파일 열거 체크리스트(Gotcha 12) |
 | 쓰기 경로 무결성 | 필수 (상태 전이·중복 방지·재시도 안전성이 걸린 write path 가 있을 때) | invariant 분류 3 줄 + 제약↔upsert 대조 표 + 멱등 계약 6 항목 (Gotcha 16). outbox 를 쓰면 consumer idempotency 를 같은 규격에 포함 (Gotcha 17) |
 | 에러 처리 | 필수 | 에러 분류, 글로벌 핸들러 패턴, retry 정책 (exponential backoff + jitter) |
@@ -61,6 +66,7 @@ references/system-principles.md 를 참조하여 필요한 카테고리를 rule 
 ## Step 3: 처방 — 규격 문서 출력
 
 각 카테고리별로:
+
 1. 현재 상태 (있으면 분석, 없으면 "미설정")
 2. 권장 규격 (리서치 문서 기반 + 출처 URL 포함)
 3. 개선 사항 (차이점 + 우선순위 + 트레이드오프)
@@ -68,12 +74,17 @@ references/system-principles.md 를 참조하여 필요한 카테고리를 rule 
 계약·직렬화·공유 모델·상태코드·이벤트 페이로드·DB 스키마를 건드리는 세팅이면 아래 체크리스트를 **함께 출력**한다 (Gotcha 12 · E2 아티팩트). 소비면이 별도 저장소면 저장소명까지 적고, 없으면 "소비자 없음 — 근거" 를 적는다. 한 스프린트에서 양면을 다 못 바꾸면 남는 쪽은 `[미검증]` 이 아니라 **명시적 미완 항목**으로 보고한다.
 
 | 면 | 파일 경로 | 변경 내용 | 상태 |
-|----|-----------|----------|------|
+| ---- | ----------- | ---------- | ------ |
 | producer | `server/src/api/schedule.rs` | 빈 목록 응답 404 → 200 `[]` | ☐ |
 | consumer | `app/lib/data/model/schedule_model.dart` | 404 분기 제거 + 빈 배열 파싱 | ☐ |
 | consumer | `app/test/data/schedule_model_test.dart` | 빈 배열 픽스처 추가 | ☐ |
 
+<!-- markdownlint-disable MD025 -->
+
 # References
 
+<!-- markdownlint-enable MD025 -->
+
 - references/system-principles.md — 카테고리별 세팅 원칙
+- 설치본 플러그인에는 `docs/backend/` 가 없다 — 이 파일의 `docs/backend/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
 - ../../references/write-path-integrity-protocol.md — 쓰기 경로 무결성 규격 SSOT (invariant 분류 · upsert arbiter · 멱등 계약 6 항목 · outbox 전달 보장)

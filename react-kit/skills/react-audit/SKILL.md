@@ -10,7 +10,11 @@ argument-hint: "[quick|deep] [path]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **Library Policy 는 빌드 게이트급**: `motion`, `framer-motion`, `@dnd-kit/*`, `react-spring`, `react-transition-group`, `react-dnd`, `react-beautiful-dnd`, `gsap`, `lottie-react`, `@formkit/auto-animate`, `animate.css` import 는 빌드 실패 — 경고가 아니라 즉각 REJECT
 - **WASM 렌더 안 호출**: JSX return 블록 안에서 useMemo 없이 WASM 함수를 직접 호출하면 매 렌더마다 WASM boundary 를 건넘. ❌ 실패
@@ -26,7 +30,7 @@ React 프로젝트의 6개 카테고리 코드 품질 감사.
 `references/project-detection.md` 의 절차를 실행하여 프로젝트 환경을 파악한다.
 
 | 감지 키 | 영향받는 검사 |
-|---------|-------------|
+| --------- | ------------- |
 | `crates/core/` 존재 | Performance — WASM boundary 검사 활성화 |
 | `lingui.config.ts` 존재 | Accessibility — 하드코딩 i18n 문자열 검사 활성화 |
 | `src-tauri/` 존재 | Library Policy — Tauri API 가드 검사 활성화 |
@@ -50,7 +54,7 @@ git diff --name-only --cached
 ```
 
 | 변경 파일 수 | 모드 | 예상 소요 시간 |
-|-------------|------|--------------|
+| ------------- | ------ | -------------- |
 | 1~20 | Quick | 10초~2분 |
 | 21~50 | Deep 권장 (사용자 확인 후 실행) | 3~8분 |
 | 51+ | Deep 강제 | 5~15분 |
@@ -76,7 +80,9 @@ Clean Architecture 레이어 경계 위반을 검출한다. domain 이 data/pres
 - [ ] **상대 경로 3단계 이상** (`'../../../'`) → ⚠️ 경고
   - grep: `^import .* from ['"]\.\./\.\./\.\./`
 - [ ] **`export default` 사용** → ⚠️ 경고
+  <!-- markdownlint-disable MD038 -->
   - grep: `^export default `
+    <!-- markdownlint-enable MD038 -->
 
 ### 2. Strict TypeScript
 
@@ -89,7 +95,9 @@ Clean Architecture 레이어 경계 위반을 검출한다. domain 이 data/pres
   - grep: `\w+!\.\w+|\w+!\[|\w+!\s*[,)]`
   - ESLint rule: `@typescript-eslint/no-non-null-assertion`
 - [ ] **`as` 타입 단언** (`as const` 제외) → ⚠️ 경고
+  <!-- markdownlint-disable MD038 -->
   - grep: ` as [A-Z][a-zA-Z]+\b` (exclude `as const`)
+    <!-- markdownlint-enable MD038 -->
   - ESLint rule: `@typescript-eslint/consistent-type-assertions`
 - [ ] **`React.FC` 사용** → ⚠️ 경고
   - grep: `React\.FC<|: FC<`

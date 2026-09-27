@@ -87,10 +87,11 @@ RECENT   최근 실행 id 배열 (팔레트 `최근 실행` 스코프)
 | `판정 불가` | 경로 간 불변식 판정 줄 가운데 `→ 판정 불가` 로 끝나는 줄이 1 줄 이상 | `'unjudged'` |
 | `PASS` | 위 셋에 걸리지 않는다 | `'pass'` |
 
-판정 불가는 `/api-verify` 의 판정 조건을 그대로 따른다 — 한쪽 경로라도 없으면 `판정 불가` 다. 판정 줄은 양쪽 값과 결과를 한 줄에 적은 것이고, `→ 판정 불가` 로 끝나는 줄만 글자 그대로 `unjudged` 배열에 옮긴다.
+판정 불가는 `/api-verify` 의 판정 조건을 그대로 따른다 — 한쪽 경로라도 없으면 `판정 불가` 다. 판정 줄은 `<엔드포인트 id>:` 앞머리(뒤에 빈칸 하나) 다음에 양쪽 값과 결과를 한 줄에 적은 것이다(`/api-verify` §6). `→ 판정 불가` 로 끝나는 줄만 골라, 앞머리가 가리키는 엔드포인트 id 의 `unjudged` 배열에 앞머리를 뗀 나머지를 글자 그대로 옮긴다.
 
 ```text
-$.meta.total=(없음) · len($.data)=3 → 판정 불가
+리포트    products.list: $.meta.total=(없음) · len($.data)=3 → 판정 불가
+unjudged  $.meta.total=(없음) · len($.data)=3 → 판정 불가
 ```
 
 FAIL 로 정한 엔드포인트에 이런 줄이 있어도 버리지 않는다 — `실패 원인` 탭에 위반 카드와 함께 둔다.
@@ -135,6 +136,8 @@ diff 결과는 **본문 트리의 인라인 거터**와 **데이터 구조 표�
 
 `references/viewer-spec.md` 를 그대로 따라 단일 HTML 을 쓴다. 확정 시안은 `.mockups/api-ui-v8.html` 이고, 레이아웃·토큰·상호작용의 정본이다. **시안에 없는 영역을 발명하지 마라.**
 
+확정 시안에는 CSP `<meta>` 가 없다. 시안만 옮기면 CSP 가 빠지므로 `references/viewer-spec.md` §1 의 CSP `<meta>` 문자열을 `<head>` 에 그대로 넣는다. §7 이 1 줄인지 잰다.
+
 골격은 이렇다.
 
 ```text
@@ -160,6 +163,7 @@ printf '<script src="x"></script>' | grep -c '<script src'      # 기대 1
 grep -c '<script src' "$UI"                                      # 기대 0
 grep -c '<link rel="stylesheet"' "$UI"                           # 기대 0
 grep -c 'fetch(' "$UI"                                           # 기대 0
+grep -c 'http-equiv="Content-Security-Policy"' "$UI"             # 기대 1
 grep -c 'XMLHttpRequest' "$UI"                                   # 기대 0
 grep -cE 'WebSocket|EventSource|sendBeacon|navigator\.sendBeacon' "$UI"   # 기대 0
 grep -oE 'src="https?://|href="https?://[^"]*\.(css|js)' "$UI" | sort -u  # 기대 출력 없음
@@ -171,6 +175,7 @@ wc -c "$UI"                                                      # 10MiB 이하
 | `<script src` 매치 라인 | 0 | 확정 시안 실측 0 |
 | `<link rel="stylesheet"` 매치 라인 | 0 | 확정 시안 실측 0 |
 | `fetch(` 매치 라인 | 0 | 확정 시안 실측 0 |
+| CSP `<meta>` 매치 라인 | 1 | 예시 `ui.html` 실측 1 · 확정 시안 실측 0 (2026-09-27) — 시안에 없어 §6 에서 넣는다 |
 | `XMLHttpRequest` 매치 라인 | 0 | 확정 시안 실측 0 |
 | 외부 리소스 URL | 0 | 확정 시안의 `https://` 출현은 전부 baseUrl **텍스트** 3건뿐이며 리소스 로드가 아니다 |
 | known secret pattern unredacted | 0 | 마스킹 게이트 (Step 3) |
@@ -238,7 +243,7 @@ start .api/ui.html         # Windows
 - PASS / FAIL / 미실행 / 판정 불가 카운트 (요약 칩과 같은 엔드포인트 수)
 - 잘라낸 스냅샷이 있으면 그 목록과 원본 경로
 - Step 7 측정 결과 (명령 출력 인용)
-- Step 7 브라우저 확인 — 연 방법 · 콘솔 error 수와 뺀 `favicon.ico` 건수 · `ep` · `shown` · `under24` · `under44`. 못 했으면 `[미검증]` 과 네 칸
+- Step 7 브라우저 확인 — 연 방법 · 콘솔 error 수와 뺀 `favicon.ico` 건수 · `ep` · `shown` · `under24` · `under44` · 상태 네 가지의 칩 숫자 `chips` 와 트리 줄 수 `rows`. 못 했으면 `[미검증]` 과 네 칸
 - 마스킹 게이트 통과 여부
 
 # References

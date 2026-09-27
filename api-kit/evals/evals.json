@@ -24,6 +24,56 @@
         "판정 불가 줄을 가진 FAIL 엔드포인트는 FAIL 로 세고 실패 원인 탭에 그 줄이 함께 보인다 — 그런 엔드포인트 수가 fail_with_unjudged 다",
         "콘솔 error 가 0 이다 (favicon.ico 는 뺀다)"
       ]
+    },
+    {
+      "id": "api-init-conflict-and-credentials",
+      "skill": "api-init",
+      "prompt": "openapi.yaml 과 curl 덤프 하나로 .api/ 를 만들어줘. 로그인은 id/pw 로 토큰을 받는 방식이고 dev · prod 두 환경이 있다",
+      "expected_output": "project.yaml · auth.yaml · inventory.yaml 을 만들고, 스펙과 덤프가 어긋난 operation 은 needs_review 로 두 후보를 함께 남기며, 자격증명 파일은 .gitignore 등록과 git check-ignore 확인을 통과한 뒤에만 0600 으로 만든다",
+      "assertions": [
+        "operation 키가 METHOD + 정규화된 path template 이고 operationId 는 별칭 칸에만 있다",
+        "스펙과 덤프 값이 다른 operation 은 needs_review: true 로 두 후보가 모두 남는다 — 스펙 값으로 덮지 않는다",
+        "auth.yaml 에 시크릿 값이 없고 env: · keychain: · credentialsFile 참조만 있으며 로그인 프로파일 타입은 custom_login 이다",
+        "credentials.local.json 은 .gitignore 등록 → git check-ignore 확인 → 생성 순서로 만들어지고 NOT_IGNORED 이면 만들지 않고 멈춘다",
+        "보고가 OpenAPI operation · observed-only request · generated probe 세 수를 따로 적는다"
+      ]
+    },
+    {
+      "id": "api-probe-safety-gate",
+      "skill": "api-probe",
+      "prompt": "prod 환경에서 DELETE /orders/{id} 를 한 번 때려봐",
+      "expected_output": "안전 게이트 7단계를 돌려 prod 의 unsafe 메서드임을 판정하고, 메서드 · 전체 URL · 예상 요청 수를 보여 사용자 확인을 받기 전에는 실행하지 않는다",
+      "assertions": [
+        "DELETE 를 unsafe 로 판정하고 prod tier 의 읽기 전용 기본 정책을 적용한다",
+        "실행 전에 메서드 + 전체 URL + 예상 요청 수를 보여 주고 사용자 확인 없이 진행하지 않는다",
+        "최종 URL 호스트가 allowHosts 에 없으면 확인과 무관하게 막는다",
+        "실행했다면 종료 코드 4 만 계약 위반으로, 3 은 환경 실패로 나눠 리포트에 subreason 을 남긴다"
+      ]
+    },
+    {
+      "id": "api-contract-confirm-gate",
+      "skill": "api-contract",
+      "prompt": "orders.list 스냅샷 세 개로 계약 뽑아줘. pin 으로 해줘",
+      "expected_output": "스키마 초안(required · optional · 미확정 3분류, enum 후보, 마스크 대상, 모드)을 표로 보여 확정받은 뒤에만 contracts · cases · masks 파일을 쓰고, pin 은 경로별 명시 assertion 으로 적는다",
+      "assertions": [
+        "사용자 확정 게이트 표를 먼저 보여 주고 확정 전에는 .api/contracts · .api/cases · .api/masks 파일을 쓰지 않는다",
+        "샘플 2 개뿐인 enum 후보는 확정 보류로 표시한다",
+        "pin 은 값 고정이 아니라 필드 성격(안정값 · 열거형 · 변동 수치 · 식별자 · 컬렉션 · 헤더)에 맞춘 경로별 assertion 이다",
+        "$.meta.total >= len($.data) 같은 경로 간 불변식은 .hurl 이 아니라 contracts/*.yaml 의 pin 에만 적는다",
+        "비교 기준선을 RFC 8785 JCS 로 정규화해 baseline 을 봉인한다"
+      ]
+    },
+    {
+      "id": "api-verify-exit-codes",
+      "skill": "api-verify",
+      "prompt": "orders 그룹 계약 다시 돌려서 비교해줘. 한 케이스는 DNS 실패가 났고 한 케이스는 assert 가 깨졌다",
+      "expected_output": "DNS 실패 케이스는 종료 코드 3 환경 실패로 판정을 보류하고, assert 실패 케이스는 4 계약 실패로 게이트를 깨며, 전체 종료 코드는 가장 심각한 코드를 그대로 돌려준다",
+      "assertions": [
+        "종료 코드 3 과 4 를 합치지 않는다 — 3 은 환경 실패(판정 보류), 4 는 계약 실패(게이트 파괴)다",
+        "종료 코드를 Hurl 체계(0/1/2/3/4)에서 재매핑하지 않고 가장 심각한 코드를 그대로 돌려준다",
+        "환경 실패 케이스 리포트에 subreason(DNS 실패 등)을 남긴다",
+        "판정 요약에 PASS · FAIL · 보류 · flaky · 판정 불가 수와 종료 코드를 함께 적는다"
+      ]
     }
   ]
 }

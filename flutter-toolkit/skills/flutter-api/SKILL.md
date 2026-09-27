@@ -13,7 +13,11 @@ argument-hint: "[model|repository|usecase] <feature>/<name>"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - 상대 import `import '../'` 금지 — 반드시 `package:app/...` 절대 import 사용. 리팩터링 시 경로 깨짐 방지
 - Failure 변환은 Repository/DataSource 경계에서 수행 — UseCase에서 try-catch 하지 마라
@@ -30,7 +34,7 @@ user-invocable: true
 ### 모드 결정
 
 | 감지 결과 | 모드 | 생성 구조 |
-|----------|------|----------|
+| ---------- | ------ | ---------- |
 | `ARCH = clean` | Clean Architecture | DataSource → Model → Repository(interface+impl) → UseCase |
 | `ARCH = feature_first` 또는 `flat` | Simple | Service → Model |
 
@@ -43,7 +47,7 @@ user-invocable: true
 `$ARGUMENTS` 파싱으로 서브모드를 결정한다:
 
 | 호출 | 서브모드 | 동작 |
-|------|---------|------|
+| ------ | --------- | ------ |
 | `<feature>/<method>` | 전체 생성 | DataSource → Model → Repository → UseCase 일괄 |
 | `model <feature>/<name>` | 개별 | Entity + Model(DTO) 쌍 생성 |
 | `repository <feature>` | 개별 | Repository interface + impl |
@@ -79,6 +83,7 @@ lib/features/<feature>/
 - 없으면 → 일반 `class` + `fromJson` / `toJson` 수동 작성
 
 **Entity** (domain):
+
 ```dart
 // HAS_FREEZED
 @freezed
@@ -98,6 +103,7 @@ class UserEntity {
 ```
 
 **Model** (data):
+
 ```dart
 // HAS_FREEZED
 @freezed
@@ -128,6 +134,7 @@ lib/features/<feature>/
 ```
 
 **Interface** (domain):
+
 ```dart
 abstract interface class UserRepository {
   Future<Result<UserEntity>> getUser(String id);
@@ -135,6 +142,7 @@ abstract interface class UserRepository {
 ```
 
 **Impl** (data):
+
 ```dart
 class UserRepositoryImpl implements UserRepository {
   const UserRepositoryImpl(this._dataSource);
@@ -155,6 +163,7 @@ class UserRepositoryImpl implements UserRepository {
 ```
 
 `HAS_RIVERPOD`이면 같은 파일에 Repository provider도 생성:
+
 ```dart
 @Riverpod(keepAlive: true)
 UserRepository userRepository(Ref ref) {
@@ -163,6 +172,7 @@ UserRepository userRepository(Ref ref) {
 ```
 
 프로젝트에 `Result<T>` 타입이 없으면:
+
 - `dartz`의 `Either<Failure, T>` 패턴을 감지하여 사용
 - 둘 다 없으면 `try/catch` + 직접 throw 패턴 사용
 
@@ -207,6 +217,7 @@ lib/features/<feature>/domain/usecases/<name>_usecase.dart
 탐색 경로: `lib/core/`, `lib/shared/domain/usecases/`, `lib/core/usecases/` 등에서 `abstract class UseCase`를 검색.
 
 - base class가 **있으면** (`UseCase<TResult, Params>` 등) → 상속하여 생성:
+
 ```dart
 class GetUserUseCase extends UseCase<UserEntity, GetUserParams> {
   const GetUserUseCase(this._repository);
@@ -220,6 +231,7 @@ class GetUserUseCase extends UseCase<UserEntity, GetUserParams> {
 ```
 
 - base class가 **없으면** → plain class로 생성:
+
 ```dart
 class GetUserUseCase {
   const GetUserUseCase(this._repository);
@@ -244,6 +256,7 @@ class GetUserParams {
 ```
 
 `HAS_RIVERPOD`이면 provider도 생성:
+
 ```dart
 @Riverpod(keepAlive: true)
 GetUserUseCase getUserUseCase(Ref ref) {
@@ -270,6 +283,7 @@ lib/features/<feature>/
 또는 프로젝트 구조에 맞게 `lib/src/`, `lib/services/` 등에 생성.
 
 **Model**:
+
 ```dart
 // HAS_FREEZED
 @freezed
@@ -287,6 +301,7 @@ abstract class UserModel with _$UserModel {
 **Service**:
 
 HTTP 클라이언트는 프로젝트에서 감지한다:
+
 - `HAS_DIO` → `Dio` 사용
 - `http` 패키지 존재 → `http.Client` 사용
 - 둘 다 없음 → "HTTP 클라이언트 패키지가 없습니다. `$FLUTTER pub add dio` 또는 `$FLUTTER pub add http`로 설치해주세요."
@@ -334,3 +349,5 @@ class UserService {
 1. 생성/수정된 파일 목록 출력.
 2. `HAS_BUILD_RUNNER`이면 codegen 실행 안내:
    > `$DART run build_runner build --delete-conflicting-outputs`
+
+   직접 돌릴 때는 `flutter-run` 스킬 `### codegen [feature]` 절처럼 전후 삭제 수를 세어 늘어난 삭제가 없는지 본다 — 이 플래그는 삭제를 막지 않는다.

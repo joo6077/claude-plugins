@@ -13,14 +13,18 @@ user-invocable: true
 # Gotchas
 
 1. **Phase 1~10 범위 밖** — 이 스킬은 `.claude/skills/kaizen-orchestrator/SKILL.md` 와 그 `references/` 만 개선 대상으로 삼는다. 플러그인 스킬, harness 스킬, 계약 가이드, qa-evaluator 는 건드리지 마라 — 그것들은 각 카이젠 스킬이 개선한다.
-2. **`<!-- AUTO:plugin_phases:begin -->` ~ `<!-- AUTO:plugin_phases:end -->` 마커 영역 직접 편집 금지** — 이 영역은 `scripts/sync-orchestrator.py` 가 `marketplace.json` 을 기반으로 자동 생성한다. 이 스킬은 마커 바깥의 Step 0, Step 0.5, Step 11, Step 11.5, Step 11.6, Step 12, Gotchas, Process 공통 패턴, Post-Kaizen Checklist 섹션만 수정한다.
+2. **`<!-- AUTO:plugin_phases:begin -->` ~ `<!-- AUTO:plugin_phases:end -->` 마커 영역 직접 편집 금지** — 이 영역은 `scripts/sync-orchestrator.py` 가 `marketplace.json` 을 기반으로 자동 생성한다. 이 스킬은 마커 바깥의 Step 0, Step 0.5, Step F1, Step F2, Step F3, Step F3.5, Step F4, Gotchas, Process 공통 패턴, Post-Kaizen Checklist 섹션만 수정한다.
 3. **리서치 소스는 공식 문서/학술 논문 우선** — Anthropic skill authoring 가이드, arxiv LLM agent orchestration 논문, Claude Code plugin 공식 가이드를 1순위로. 블로그/트위터는 2순위.
 4. **audit-log 는 read-only 입력** — `.harness/.meta/orchestrator-audit-log.md` 는 이 스킬이 읽고 판단 근거로 쓰지만 직접 수정하지 마라. 수정은 `scripts/append-audit-log.py` 로만.
 5. **Self-reference 방지** — 이 스킬이 orchestrator SKILL.md 를 개선하면, 다음 사이클 Step 0.5 가 이 변경을 detect 한다. 너무 자주 돌리면 무한 개선 루프 위험 — 주 1회 이상 돌리지 마라.
 6. **Pre-flight 이전 실행** — 이 스킬은 `/kaizen-orchestrator` 실행보다 **먼저** 돌아야 한다. 다음 사이클 Step 0.5 가 개선된 SKILL.md 를 읽을 수 있도록.
 7. **bare fenced code block 0 건** — SKILL.md 수정 시 모든 fence 에 언어 힌트 (`text`, `bash`, `yaml`) 필수.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 전제 조건 확인
 
@@ -92,7 +96,11 @@ URL/arxiv 링크 필수. Codex 40 초 무응답 시 WebSearch fallback.
 
 `scripts/append-audit-log.py --cycle-id meta-kaizen-<date>` 로 이번 실행 자체도 audit-log 에 기록. 다음 사이클 Step 0.5 가 이를 인지한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `.claude/skills/kaizen-orchestrator/SKILL.md` — 개선 대상
 - `.harness/.meta/orchestrator-audit-log.md` — 입력 자료 (read-only)

@@ -45,19 +45,7 @@ record() {   # record <id> <problems> <상세> — PASS/FAIL 한 줄을 찍고 �
   fi
 }
 
-while IFS='	' read -r id fixture expect asserts; do
-  [ -n "$id" ] || continue
-
-  if [ "${fixture#__NONEXISTENT__}" != "$fixture" ]; then
-    target="/__howto_kit_nonexistent__/x.md"
-  else
-    target="$KIT_DIR/evals/$fixture"
-  fi
-
-  out_zsh=$(zsh  -c ". '$GATE'; howto_gate '$target'" 2>&1)
-  out_bash=$(bash -c ". '$GATE'; howto_gate '$target'" 2>&1)
-  out_sh=$(sh -c ". '$GATE'; howto_gate '$target'" 2>&1)
-
+judge_case() {   # out_zsh · out_bash · out_sh · expect · asserts 를 읽어 problems · missing 을 채운다
   problems=""
   [ "$out_zsh" = "$out_bash" ] || problems="$problems shell_mismatch"
   [ "$out_sh" = "$out_bash" ]  || problems="$problems shell_mismatch_sh"
@@ -74,6 +62,22 @@ while IFS='	' read -r id fixture expect asserts; do
   done < "$ASSERTS"
 
   [ -z "$missing" ] || problems="$problems missing_assert"
+}
+
+while IFS='	' read -r id fixture expect asserts; do
+  [ -n "$id" ] || continue
+
+  if [ "${fixture#__NONEXISTENT__}" != "$fixture" ]; then
+    target="/__howto_kit_nonexistent__/x.md"
+  else
+    target="$KIT_DIR/evals/$fixture"
+  fi
+
+  out_zsh=$(zsh  -c ". '$GATE'; howto_gate '$target'" 2>&1)
+  out_bash=$(bash -c ". '$GATE'; howto_gate '$target'" 2>&1)
+  out_sh=$(sh -c ". '$GATE'; howto_gate '$target'" 2>&1)
+
+  judge_case
 
   detail=""
   if [ -n "$problems" ]; then
@@ -89,6 +93,21 @@ $(printf '%s\n' "$out_sh" | sed 's/^/  /')"
   fi
   record "$id" "$problems" "$detail"
 done < "$TSV"
+
+# 러너 자기 대조 — 위 판정 두 곳(assertion 대조 · 셸 대조)에 알려진 나쁜 입력을 넣어 잡는지 본다.
+# 판정을 true 로 바꾼 러너도 실제 케이스는 전부 통과로 보인다. 그 무력화를 잡는 것은 이 두 줄이다 (2026-09-27 실측).
+out_zsh=GATE_PASS; out_bash=GATE_PASS; out_sh=GATE_PASS; expect=GATE_PASS; asserts=SELFCHECK_ABSENT_LINE
+judge_case
+case $problems in
+  *missing_assert*) record selfcheck-assert "" "" ;;
+  *) record selfcheck-assert " not_detected — 없는 assertion 을 통과시켰다" "" ;;
+esac
+out_zsh=zsh_only; out_bash=same; out_sh=same; expect=same; asserts=""
+judge_case
+case $problems in
+  *shell_mismatch*) record selfcheck-shell "" "" ;;
+  *) record selfcheck-shell " not_detected — zsh 와 bash 출력 차이를 통과시켰다" "" ;;
+esac
 
 # 스킬 본문 · README 에서 게이트를 부르는 ```bash 블록을 뽑아 네 경우에서 zsh · bash 로 돌린다.
 #   plugin  CLAUDE_PLUGIN_ROOT 자리를 킷 경로 글자로 바꾼다 (플러그인으로 불렀을 때 치환되는 모양)

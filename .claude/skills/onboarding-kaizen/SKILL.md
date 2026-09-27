@@ -5,7 +5,11 @@ argument-hint: ""
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 onboarding-kit의 `/setup-guide` SKILL.md, references/ 3종, evals/evals.json을 주기적으로 개선한다.
+
+<!-- markdownlint-enable MD041 -->
 
 ## 트리거
 

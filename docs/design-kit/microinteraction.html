@@ -172,7 +172,7 @@
   .timing-row{display:flex;align-items:center;gap:12px;padding:6px 0}
   .timing-label{min-width:120px;font-size:12px;font-weight:600;color:var(--text2)}
   .timing-bar-wrap{flex:1;height:24px;position:relative}
-  .timing-bar{position:absolute;height:100%;border-radius:4px;display:flex;align-items:center;
+  .timing-bar{position:absolute;height:100%;min-width:max-content;border-radius:4px;display:flex;align-items:center;
     padding-left:8px;font-size:10px;font-weight:700;color:var(--bg)}
 
   /* Haptic viz */
@@ -972,6 +972,8 @@ function selectRadio(el){
   let pct=0;
   const fill=document.getElementById('progressFill');
   const label=document.getElementById('progressPct');
+  // 움직임 줄이기 설정이면 멈춘 한 장면만 보인다
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){fill.style.width='60%';label.textContent='60%';return}
   setInterval(()=>{
     pct+=Math.random()*8;
     if(pct>100){pct=0;fill.style.transition='none';fill.style.width='0%';label.textContent='0%';return}

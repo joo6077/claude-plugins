@@ -6,6 +6,7 @@
 ## 소스 분류
 
 ### 1. Anthropic 공식
+
 - **Claude Code 공식 문서:** code.claude.com/docs — sub-agents, skills, hooks, MCP 서버
 - **Anthropic Research:** anthropic.com/research — Building Effective Agents, tool use, multi-agent
 - **Anthropic Engineering:** anthropic.com/engineering — Claude Code 업데이트, 새 기능
@@ -13,6 +14,7 @@
 - **Claude API Docs:** docs.anthropic.com — API 변경, tool use 업데이트
 
 ### 2. 경쟁사 공식 — AI 에이전트/스킬/하네스
+
 - **OpenAI:**
   - platform.openai.com/docs — Assistants API, function calling, Code Interpreter
   - openai.com/research — agent 관련 연구
@@ -33,6 +35,7 @@
   - Vercel AI SDK — tool calling, structured output 패턴
 
 ### 3. 경쟁 AI 코딩 도구
+
 - **Cursor:** cursor.directory — rules/instructions 패턴, agent mode
 - **Windsurf (Codeium):** rules 패턴, cascade agent
 - **Devin (Cognition):** autonomous coding agent 접근법
@@ -40,6 +43,7 @@
 - **Aider:** agentic coding 오픈소스, convention 패턴
 
 ### 4. 학술 논문 / AI 트렌드
+
 - **검색 대상:** arXiv, Semantic Scholar, ACL Anthology, NeurIPS/ICLR/ICML proceedings
 - **키워드 — 에이전트 설계:**
   - LLM agent design pattern, multi-agent system, tool use orchestration
@@ -59,6 +63,7 @@
 - **후속:** 발견한 논문의 references에서 관련 논문 추적
 
 ### 5. 커뮤니티/실무
+
 - **skills.sh:** Claude Code 스킬 마켓플레이스, 인기 스킬 패턴 분석
 - **GitHub trending:** 키워드: claude-code, agent-skill, prompt-template, mcp-server, ai-agent, coding-agent
 - **블로그:**
@@ -74,7 +79,7 @@
 Phase 1 리서치는 **설계 원칙 수준**의 인사이트를 찾는다:
 
 | 찾는 것 | 예시 |
-|---------|------|
+| --------- | ------ |
 | 새 스킬 아키타입 | 카탈로그에 없는 새로운 유형 |
 | Gotchas 패턴 | Claude가 반복 실패하는 새로운 패턴 |
 | 에이전트 디자인 패턴 | Anthropic 공식 패턴 + 경쟁사에서 발견된 새 패턴 |
@@ -87,6 +92,7 @@ Phase 1 리서치는 **설계 원칙 수준**의 인사이트를 찾는다:
 | 경쟁사 패턴 차용 | OpenAI/Google/MS의 agent 접근법 중 우리에게 적용 가능한 것 |
 
 **Phase 2/3와의 차이:**
+
 - Phase 1: "스킬/에이전트를 **어떻게 설계**해야 하는가" + "AI 트렌드가 **설계 원칙에 어떤 영향**을 주는가" (메타 수준)
 - Phase 2: "harness 스킬을 **어떻게 개선**하는가" (QA/계약 도메인)
 - Phase 3: "flutter-toolkit 스킬을 **어떻게 개선**하는가" (Flutter 도메인)
@@ -94,7 +100,7 @@ Phase 1 리서치는 **설계 원칙 수준**의 인사이트를 찾는다:
 ## 신뢰도 기준
 
 | 유형 | 신뢰도 | 태그 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | Anthropic 공식 docs/blog | 높음 | — |
 | OpenAI/Google/MS 공식 docs | 높음 | `[competitor-official]` |
 | Peer-reviewed 논문 | 높음 | — |

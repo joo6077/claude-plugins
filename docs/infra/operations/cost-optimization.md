@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 비용 최적화
 
 비용 가시성, 태그/라벨 전략, Rightsizing, 구매 모델, 스토리지 lifecycle, Idle resource, FinOps 체계, 비프로덕션 중단을 다룬다.

@@ -10,7 +10,11 @@ argument-hint: "<feature>_<name>"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - 탭 가능한 커스텀 위젯은 반드시 `Pressable`로 래핑 — GestureDetector, InkWell 직접 사용 금지
 - 색상은 `context.colors.xxx` (시맨틱 토큰) 사용 — `Palette.xxx` 직접 참조하면 다크 모드에서 깨짐
@@ -63,7 +67,7 @@ prefix가 `lib/features/` 내 기존 feature와 일치하면 해당 feature에 �
 shared 디렉토리의 일반적인 분류 구조 (프로젝트에 이미 있는 분류를 우선 따른다):
 
 | 카테고리 | 위젯 유형 |
-|---------|----------|
+| --------- | ---------- |
 | `animated/` | 애니메이션 유틸 (StaggeredList, AnimatedClip 등) |
 | `buttons/` | 버튼, Pressable 래퍼 등 터치 인터랙션 |
 | `cards/` | 컨테이너, 카드, 정보 박스 |
@@ -87,6 +91,7 @@ shared 디렉토리의 일반적인 분류 구조 (프로젝트에 이미 있는
 ### 2. 기존 패턴 분석
 
 같은 디렉토리의 기존 위젯을 읽어 로컬 패턴을 파악한다:
+
 - Widget base class 관습
 - Import 패턴
 - 디자인 토큰 사용 방식
@@ -98,7 +103,7 @@ shared 디렉토리의 일반적인 분류 구조 (프로젝트에 이미 있는
 ### 3. Widget Base Class 결정
 
 | 조건 | Base Class |
-|------|-----------|
+| ------ | ----------- |
 | `HAS_HOOKS` | `HookWidget` (provider 접근 불필요 시) |
 | `HAS_HOOKS` + provider 접근 필요 | `HookConsumerWidget` |
 | `HAS_RIVERPOD` + provider 접근 필요 | `ConsumerWidget` |
@@ -208,6 +213,7 @@ final (padding, fontSize, height) = switch (size) {
 ### 6. 탭 인터랙션 처리
 
 프로젝트에 커스텀 Pressable/Tappable 위젯이 있는지 감지한다:
+
 - 있으면: 해당 위젯으로 래핑 (e.g., `Pressable`, `Tappable`). `GestureDetector`, `InkWell` 직접 사용 지양
 - 없으면: `GestureDetector` 또는 `InkWell` 사용
 
@@ -216,6 +222,7 @@ final (padding, fontSize, height) = switch (size) {
 Pressable/Tappable 위젯이 감지되면 해당 위젯의 소스를 읽어 지원하는 옵션을 파악한다:
 
 **흔한 Pressable 옵션 패턴:**
+
 - gradient 배경 위 highlight → `foregroundHighlight: true` (background highlight는 gradient 아래에 그려져 안 보임)
 - 원형 위젯의 highlight → `highlightShape: BoxShape.circle`
 - 누르면 아래로 이동하는 효과 → `pressOffset` (예: `Offset(0, 4)`)
@@ -226,6 +233,7 @@ Pressable/Tappable 위젯이 감지되면 해당 위젯의 소스를 읽어 지�
 ### 7. Widgetbook/Storybook 등록
 
 프로젝트에 위젯 카탈로그 도구가 있는지 감지한다:
+
 - `widgetbook/` 디렉토리 → Widgetbook use case 등록
 - `storybook/` 또는 `.storybook/` → Storybook entry 등록
 - 없으면 → 스킵

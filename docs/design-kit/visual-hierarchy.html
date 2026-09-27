@@ -598,7 +598,7 @@ footer a{color:var(--accent2);text-decoration:none}
         </div>
 
         <!-- Annotations -->
-        <div class="annotation" style="top:10px;right:140px">Dominant: CTA 버튼</div>
+        <div class="annotation" style="top:10px;right:min(140px,30%)">Dominant: CTA 버튼</div>
         <div class="annotation" style="top:72px;left:20px">1단계: 히어로 타이틀</div>
         <div class="annotation" style="top:120px;right:20px">2단계: 서브텍스트</div>
         <div class="annotation" style="top:180px;left:50%;transform:translateX(-50%)">3단계: Primary CTA</div>
@@ -817,7 +817,7 @@ footer a{color:var(--accent2);text-decoration:none}
   </p>
 </footer>
 
-<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})">&#x2191;</div>
 
 <script>
 // ===== HIERARCHY TOOLS TOGGLES =====

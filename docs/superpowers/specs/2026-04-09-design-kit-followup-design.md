@@ -11,7 +11,7 @@ design-kit 템플릿 인프라 구축 완료 후 후속 작업. 구조 정리 �
 4개 스킬의 내부 templates/ 디렉토리를 삭제하고 SKILL.md에서 공유 `design-kit/templates/` 경로를 참조하도록 변경.
 
 | 스킬 | 삭제 대상 | 참조 변경 |
-|------|-----------|-----------|
+| ------ | ----------- | ----------- |
 | design-concept | skills/design-concept/templates/ | ../../templates/moodboard.html |
 | design-reference | skills/design-reference/templates/ | ../../templates/catalog.html |
 | design-mockup | skills/design-mockup/templates/ | ../../templates/mockup.html |

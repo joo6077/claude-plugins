@@ -2,7 +2,7 @@
 /**
  * check-docs-a11y.js — docs/ HTML 페이지의 접근성을 실제 브라우저로 측정한다.
  *
- * 재는 것: 가로 오버플로(375/768/1280px) · 콘솔 에러 · WCAG AA 대비 · 터치 타깃 44x44.
+ * 재는 것: 가로 오버플로(320/375/768/1280px) · 콘솔 에러 · WCAG AA 대비 · 터치 타깃 44x44.
  *
  * 왜 이게 필요한가 (실측 2026-09-05): `design-kit/evals/visuals.spec.js` 는 페이지의
  * **텍스트 대비를 재지 않는다** — color-palette.html 의 대비 체커 위젯이 렌더되는지만 본다.
@@ -59,7 +59,7 @@ const VERBOSE = process.env.VERBOSE === '1';
     await p.goto('file://' + path.resolve(f));
 
     const of = {};
-    for (const w of [375, 768, 1280]) {
+    for (const w of [320, 375, 768, 1280]) {
       await p.setViewportSize({ width: w, height: 900 });
       of[w] = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     }
@@ -139,9 +139,9 @@ const VERBOSE = process.env.VERBOSE === '1';
     const bad = all.filter(o => !o.exempt).length;
     const exempt = all.length - bad;
     const btnOk = !btn || (btn.h >= 44 && btn.w >= 44);
-    const ok = of[375] <= 2 && of[768] <= 2 && of[1280] <= 2 && errs.length === 0 && bad === 0 && btnOk;
+    const ok = of[320] <= 2 && of[375] <= 2 && of[768] <= 2 && of[1280] <= 2 && errs.length === 0 && bad === 0 && btnOk;
     if (!ok) fails++;
-    console.log(`${ok ? 'OK  ' : 'FAIL'} ${path.basename(f).padEnd(42)} of=${of[375]}/${of[768]}/${of[1280]} err=${errs.length} contrastFail=${bad}${exempt ? ' specimen=' + exempt : ''} btn=${btn ? btn.w + 'x' + btn.h : 'none'} theme=${hasLight ? 'both' : 'dark-only'}`);
+    console.log(`${ok ? 'OK  ' : 'FAIL'} ${path.basename(f).padEnd(42)} of=${of[320]}/${of[375]}/${of[768]}/${of[1280]} err=${errs.length} contrastFail=${bad}${exempt ? ' specimen=' + exempt : ''} btn=${btn ? btn.w + 'x' + btn.h : 'none'} theme=${hasLight ? 'both' : 'dark-only'}`);
     errs.slice(0, 3).forEach(e => console.log('        err: ' + e.slice(0, 160)));
     if (bad || VERBOSE) {
       dark.filter(o => VERBOSE || !o.exempt).forEach(o => console.log(`        dark  ${o.got} < ${o.need}  ${o.color} ${o.size}px  .${o.sel}${o.exempt ? '  [면제:' + o.exempt + ']' : ''}`));

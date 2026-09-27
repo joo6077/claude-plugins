@@ -408,15 +408,18 @@ def project_group(project_path: str) -> str:
         return FACETS_TEMP_GROUP
     try:
         proc = subprocess.run(
-            ["git", "-C", project_path, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            ["git", "-C", project_path, "rev-parse", "--path-format=absolute", "--git-common-dir", "--show-toplevel"],
             capture_output=True,
             text=True,
             timeout=10,
         )
     except (OSError, subprocess.TimeoutExpired):
         proc = None
-    if proc is not None and proc.returncode == 0 and proc.stdout.strip():
-        return Path(proc.stdout.strip()).parent.name
+    if proc is not None and proc.returncode == 0 and len(proc.stdout.split("\n")) >= 2:
+        common, toplevel = proc.stdout.split("\n")[:2]
+        # 공통 폴더가 `.git` 일 때만 그 부모가 본 레포다. bare 레포의 워크트리는 부모가 bare 폴더 옆 폴더라
+        # 엉뚱하게 묶인다 — 워크트리 자신으로 묶는다 (reflect-kit hooks/_lib-project-id.sh project_root 와 같은 규칙)
+        return Path(common).parent.name if Path(common).name == ".git" else Path(toplevel).name
     # 지운 워크트리는 git 이 못 연다. 워크트리 꼬리를 떼야 본 레포 묶음에 들어간다.
     return Path(project_path.split("/.claude/worktrees/")[0]).name or project_path
 
@@ -1701,11 +1704,11 @@ def render_data_pool(
         "| 2 Contract | contract-design-guide + sprint-contract | §0 + §1 Reject 사유 (계약 모호성) |",
         "| 3 Evaluator | qa-evaluation-guide + qa-evaluator | §0 + §1 Improvement (L3, set intersection) |",
         "| 4 Harness | harness/skills/* (sprint-contract, qa-evaluator 제외) | §0 + §5 validate-plugin 현재 상태 |",
-        "| 5 Flutter | flutter-toolkit/skills/* | §0 + §2 Hub 외부 프로젝트 (fit-pal, apps) |",
+        "| 5 Flutter | flutter-toolkit/skills/* | §0 + §2 Hub 외부 프로젝트 (Flutter 앱) |",
         "| 6 Design | design-kit/skills/* | §0 + §5 validate-plugin 현재 상태 |",
         "| 7 Backend | backend-kit/skills/* | §0 + §1 Backend 관련 feedback (있다면) |",
         "| 8 Infra | infra-kit/skills/* | §0 + §5 validate-plugin 현재 상태 |",
-        "| 9 Rust | rust-kit/skills/* | §0 + §2 Hub 외부 프로젝트 (fit-pal server) |",
+        "| 9 Rust | rust-kit/skills/* | §0 + §2 Hub 외부 프로젝트 (Rust 서버) |",
         "| 10 React | react-kit/skills/* | §0 + §3 followup-2026-04-11, §5 |",
         "| 11 Planning | planning-kit/skills/* | §0 + §1 planning 관련 feedback |",
         "| 12 Reflect | reflect-kit/skills/* | §0 + §1 Reflexion 패턴 피드백 |",

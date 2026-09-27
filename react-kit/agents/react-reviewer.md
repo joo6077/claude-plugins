@@ -39,7 +39,7 @@ React 코드를 품질 원칙 기준으로 독립 평가하는 읽기 전용 에
 레이어 경계 위반을 검출한다.
 
 | 규칙 ID | 검사 내용 | 심각도 |
-|---------|-----------|--------|
+| --------- | ----------- | -------- |
 | `arch/domain-import` | `domain` 이 `data`/`presentation`/`infrastructure` import | ❌ FAIL |
 | `arch/feature-direct-import` | `features/a` 가 `features/b` 직접 참조 | ❌ FAIL |
 | `arch/infra-reverse` | `domain` 이 `infrastructure/*` import | ❌ FAIL |
@@ -61,7 +61,7 @@ grep 패턴:
 타입 안전성 위반을 검출한다.
 
 | 규칙 ID | 검사 내용 | 심각도 |
-|---------|-----------|--------|
+| --------- | ----------- | -------- |
 | `ts/no-any` | `: any`, `<any>`, `as any` 사용 | ❌ FAIL |
 | `ts/no-non-null` | `!` non-null 단언 | ❌ FAIL |
 | `ts/no-as-cast` | `as <Type>` 단언 (`as const` 제외) | ⚠️ WARN |
@@ -81,7 +81,7 @@ grep 패턴:
 WASM boundary 오용과 렌더 비용을 검출한다.
 
 | 규칙 ID | 검사 내용 | 심각도 |
-|---------|-----------|--------|
+| --------- | ----------- | -------- |
 | `perf/wasm-in-render` | JSX return 안에서 useMemo 없이 WASM 함수 직접 호출 | ❌ FAIL |
 | `perf/wasm-catalog` | wasm-catalog.md 비권장 이식 패턴 | ❌ FAIL |
 | `perf/wasm-string-marshal` | WASM 함수에 고빈도 string 인자 전달 | ⚠️ WARN |
@@ -99,7 +99,7 @@ grep 패턴:
 접근성 원칙 위반을 검출한다.
 
 | 규칙 ID | 검사 내용 | 심각도 |
-|---------|-----------|--------|
+| --------- | ----------- | -------- |
 | `a11y/hardcoded-string` | 한국어/영어 문자열 매크로 미경유 렌더 | ⚠️ WARN |
 | `a11y/missing-aria` | 인터랙티브 요소에 aria-* 누락 | ⚠️ WARN |
 | `a11y/keyboard-path` | 드래그 요소에 onKeyDown/tabIndex 없음 | ⚠️ WARN |
@@ -118,7 +118,7 @@ grep 패턴:
 코드 설계상 바람직하지 않은 일반 패턴을 검출한다.
 
 | 규칙 ID | 검사 내용 | 심각도 |
-|---------|-----------|--------|
+| --------- | ----------- | -------- |
 | `anti/empty-catch` | 빈 catch 블록 | ❌ FAIL |
 | `anti/console` | `console.log/error/warn/debug` (production 코드) | ⚠️ WARN |
 | `anti/domain-throw` | domain 레이어에서 `throw new Error` | ❌ FAIL |
@@ -139,7 +139,7 @@ grep 패턴:
 react-kit 금지 라이브러리. 위반 시 ❌ FAIL — 경고 없이 즉각 REJECT.
 
 | 규칙 ID | 검사 내용 | 심각도 |
-|---------|-----------|--------|
+| --------- | ----------- | -------- |
 | `lib/banned-animation` | motion, framer-motion, @dnd-kit/*, react-spring, react-dnd, react-beautiful-dnd, react-transition-group, gsap, lottie-react, @formkit/auto-animate, animate.css import | ❌ FAIL |
 | `lib/deprecated-shadcn` | `shadcn-ui` 패키지 import 또는 dependency | ❌ FAIL |
 | `lib/tauri-no-guard` | `@tauri-apps/*` 를 `src/infrastructure/tauri/` 외부에서 import | ❌ FAIL |
@@ -208,7 +208,8 @@ grep 패턴:
    (4 분기: FAIL / `UNVERIFIED_ENV` / 4 요건 미충족 / 증거 무효).
    마커 어간은 `[미검증]` 하나이며 접미 `:ENV` / `:INVALID` 는 분류다. **접미 없는 레거시
    `[미검증]` 은 `INVALID` 로 해석한다.**
-3. **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
+
+   **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
    **1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT**.
    "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며 2 건 이상에는
    쓸 수 없다. **`UNVERIFIED_ENV` 는 이 카운터에 합산하지 않고** `env_gaps` 로 따로 세어
@@ -259,7 +260,7 @@ grep 패턴:
 해당 항목은 PASS 가 아니라 `[미검증]` 이다.
 
 | # | 검사 | react-kit 문맥 |
-|---|------|---------------|
+| --- | ------ | --------------- |
 | 1 | **비공백** | Grep 출력·읽은 파일이 실제 내용을 담고 있는가. 0 바이트 파일, 빈 배럴 `index.ts` 를 근거로 쓰지 않는다 |
 | 2 | **활성화** | 그 measurement 가 대상을 한 번이라도 지났는가. `src/domain/**/*.ts` 스코프 grep 이 0 매치일 때 **domain 디렉토리 자체가 없었던 경우**와 "위반 없음" 을 구분한다 |
 | 3 | **반증 가능성** | 위반 상태였다면 이 grep 이 다른 결과를 냈겠는가. `.tsx` 만 있는 트리에 `scope: *.ts` 패턴을 돌린 0 매치는 oracle 이 아니다 |

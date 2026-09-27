@@ -18,14 +18,22 @@ user-invocable: true
 4. **clippy 또는 test 실패 시 즉시 중단** — 이후 단계를 실행하지 않는다.
 5. **Makefile 환경에서는 `make server-preflight` 사용** — `APP_ENV`, `DATABASE_URL`, `RUST_LOG` 등 환경변수가 Makefile에 정의된 경우 직접 `cargo` 호출 시 누락된다. migration이 포함된 프로젝트(예: `DATABASE_URL=postgres://myapp:myapp@localhost:5432/myapp`)는 preflight 전에 DB가 올라와 있어야 한다. 실사용 프로젝트의 `server-preflight` 타겟 = `server-fmt` → `server-lint` → `server-test` 체인.
 6. **DB 의존 테스트가 있으면 `infra-up`을 선행** — `sqlx::test` 또는 `serial_test` 통합 테스트는 실제 Postgres를 요구한다. 실사용 프로젝트 패턴은 `make infra-up` (docker compose up -d) → `make server-migrate` → `make server-preflight` 순서. preflight 단독 실행은 DB가 이미 기동된 상태를 가정한다.
-7. **마이그레이션 미적용 상태에서 test 를 돌리지 마라 (DG-03 회귀 방지)** — 공유 로컬 DB 를 쓰는 통합 테스트는 스키마가 뒤처지면 `column "..." of relation "..." does not exist` 로 실패한다. 이건 코드 결함이 아니라 **환경 미준비**이므로 test 실패로 보고하기 전에 Step 2.5 의 마이그레이션 확인을 먼저 통과시킨다. 2026-06 실측: `cargo test --workspace` 통합 테스트 2 건이 `is_admin` 컬럼 부재로 REJECT → `cargo run -p myapp-migration` 후 통과.
+7. **마이그레이션 미적용 상태에서 test 를 돌리지 마라 (DG-03 회귀 방지)** — 공유 로컬 DB 를 쓰는 통합 테스트는 스키마가 뒤처지면 `column "..." of relation "..." does not exist` 로 실패한다. 이건 코드 결함이 아니라 **환경 미준비**이므로 test 실패로 보고하기 전에 Step 2.5 의 마이그레이션 확인을 먼저 통과시킨다. 2026-06 실측: `cargo test --workspace` 통합 테스트 2 건이 `is_admin` 컬럼 부재로 REJECT → 마이그레이션 크레이트를 실행한 뒤 통과.
 8. **각 단계의 종료 코드를 기록한다 (E2)** — rust-run Gotcha 10 의 파이프라인 규약(`set -o pipefail` + 파이프라인 직후 `rc=$?`)을 그대로 쓰고, Step 5 리포트 표의 `Exit` 칸을 반드시 채운다. 종료 코드 없는 PASS 는 자기보고이지 증거가 아니다 (`skill-design-guide.md` §3.7).
 9. **타깃 필터를 임의로 좁히지 마라** — preflight 의 test 단계는 워크스페이스 전체가 기본이다. 특정 패키지/타깃으로 좁힐 때는 `references/project-detection.md` Step 3a 의 `PKG_TARGETS` 를 확인한다 (바이너리 전용 패키지 `--lib` 금지 — rust-run Gotcha 9).
 10. **빨간 clippy · test 를 내 변경 탓으로 단정하지 말고 원인을 셋으로 가른다 (enforcement 등급 E2)** — 내 변경 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패. 여럿이 같이 쓰는 작업 폴더에서는 남이 고치다 만 파일까지 같이 컴파일돼 내 검사가 실패한다. 가르는 절차는 Step 3.5 이고, 그 결과를 Step 5 리포트의 FAIL 행 Details 첫머리에 적는다. **원인을 갈라도 Status 는 FAIL 그대로다** — 남의 탓이라고 PASS 로 바꾸지 않는다. 남의 변경을 치우려고 `git stash` 를 쓰지 마라 — stash 는 작업 폴더를 `HEAD` 로 되돌려 남이 하던 변경까지 옮긴다 ([git stash](https://git-scm.com/docs/git-stash)). 실측(2026-09-18): 다른 세션들이 깬 공용 개발 가지의 자동 검사 실패 다섯 건을 고치는 데 몇 시간을 썼다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **fmt를 clippy보다 반드시 먼저 실행하라** — `cargo fmt` 후 코드 레이아웃이 변경되면 clippy 경고 위치가 달라진다. fmt 없이 clippy를 실행하면 수정 후 다시 clippy 위치가 바뀌어 혼란스럽다.
 - **테스트 실패 시 파이프라인을 즉시 중단하라** — test가 실패했는데 audit까지 진행하면 시간만 낭비된다. `cargo test` 실패 → 즉시 FAIL 보고 → 파이프라인 종료가 올바른 흐름이다.
@@ -46,6 +54,7 @@ user-invocable: true
 ## 1. fmt 검사
 
 rust-run `fmt --check`를 실행한다.
+
 - PASS → Step 2로
 - FAIL → rust-run `fmt`를 실행하여 자동 적용 후 재검사. 재검사도 FAIL이면 중단.
   - 자동 적용 시: "`cargo fmt`가 파일을 수정했습니다. `git add`로 변경사항을 스테이징하세요." 안내.
@@ -53,6 +62,7 @@ rust-run `fmt --check`를 실행한다.
 ## 2. clippy 검사
 
 rust-run clippy를 실행한다.
+
 - PASS → Step 3로
 - FAIL → 에러 출력 후 중단. 이후 단계 skip. 고치기 전에 Step 3.5 로 원인을 가른다.
 
@@ -80,6 +90,7 @@ rust-run clippy를 실행한다.
 ## 3. test 실행
 
 rust-run test를 실행한다.
+
 - PASS → Step 4로
 - FAIL → 에러 출력 후 중단. 이후 단계 skip. 고치기 전에 Step 3.5 로 원인을 가른다.
 - 실행된 테스트 수가 0 이면 PASS 가 아니라 **타깃 필터/환경 오류**로 처리한다 (Gotcha 9).
@@ -109,13 +120,13 @@ done
 
 | 공용 작업 폴더 | `HEAD` 임시 | `FORK_BASE` 임시 | 판정 |
 | --- | --- | --- | --- |
-| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 내가 쓴 목록 밖이면 남의 미커밋이다 |
+| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 작업을 시작할 때 떠 둔 목록에도 있고 내가 쓴 목록 밖이면 남의 미커밋 후보다. 어느 하나라도 확인하지 못하면 귀속 불명이다 |
 | 실패 | 실패 | 실패 | 기준 커밋에서 이미 실패 — 내 변경 전부터다 |
 | 실패 | 실패 | 통과 | 이번 커밋 탓일 가능성이 크다 |
 
 preflight 는 커밋 전에 돈다 — 첫 줄의 미커밋 변경에는 내 변경도 들어 있다. 내 것과 남의 것을 가르려면 `HEAD` 임시
 워크트리에 내가 쓴 파일만 얹어 한 번 더 돌린다. `<내 경로…>` 는 이번 작업에서 실제로 쓴 파일 목록이다.
-그래서 표 첫 줄 판정 칸의 「남의 미커밋이다」 는 이 블록과 아래 세 조건을 채울 때만 확정한다.
+그래서 표 첫 줄 판정 칸의 「남의 미커밋 후보」 는 이 블록과 아래 세 조건을 채울 때만 확정한다.
 
 ```bash
 t=$(mktemp -d)
@@ -146,6 +157,7 @@ git worktree remove --force "$t"
 ## 4. audit 검사
 
 rust-run audit를 실행한다.
+
 - PASS → 정상
 - FAIL → WARN으로 표시 (non-blocking). 취약점 목록 출력.
 
@@ -174,6 +186,10 @@ Details 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · �
 - `기준 커밋에서 이미 실패 — {FORK_BASE sha · 명령 · exit · toolchain}`
 - `[미검증]` — 네 칸, 통제 불가 사유 칸에 「귀속 불명」
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md

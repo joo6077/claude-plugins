@@ -17,13 +17,13 @@
 ## 1. 어댑터 슬롯 값
 
 | 슬롯 | 값 |
-|---|---|
+| --- | --- |
 | `comment_syntax` | 라인 `//` 가 기본값. `///` 는 dartdoc 전용이며 D-07 의 3개 용도에만. 블록 주석 `/* */` 미사용 |
 | `doc_param_format` | `/// - [param]: 설명` — 파라미터 선언부에서 `[]` 링크 의무, 본문에서는 식별자 언급이 꼭 필요할 때만 |
 | `doc_return_label` | `/// - 반환값: 설명`, void 는 `- 반환값: 없음`. **한국어 축 소유 — 표기 상수의 SSOT 는 `locale-korean.md` 다.** 이 파일은 라벨 문자열을 재정의하지 않는다 |
 | `helper_prefix_forbidden` | `_build*` — 위젯을 반환하는 private 헬퍼 접두사. 접두사 금지만 이 파일 소관이고, 인라인·승격 판정식은 `core-structure.md` |
 | `separator_pattern` | 고정 gap → `Row`/`Column` 의 `spacing:`. 리스트 구분자 → `ListView.separated` 의 `separatorBuilder`. `.expand().skip()` 체이닝과 수동 `SizedBox` 나열 금지 |
-| `fallback_identifier_pattern` | `effective` · `resolved` 뒤에 대문자가 이어지는 식별자 — 금지 접두사. 정규식은 §4 완료 게이트 G-04 줄이 정본이다(표 칸에 옮기면 대안 기호가 깨진다). 처리는 삭제가 아니라 도메인·역할명으로 개명 |
+| `fallback_identifier_pattern` | `effective` · `resolved` 뒤에 대문자가 이어지는 식별자 — 금지 접두사. 정규식은 §4 완료 게이트 첫 `text` 코드 블록의 넷째 줄에 있다(표 칸에 옮기면 대안 기호가 깨진다). 처리는 삭제가 아니라 도메인·역할명으로 개명 |
 | `naming_suffix` | 위젯 `{widget_prefix}...Widget` · Props `...WidgetProps` · raw 상태 `...State` · 파생 뷰 `...ViewState` · 콜백 typedef `...Changed` / `...Tap`. 클래스 UpperCamelCase, 파일 snake_case |
 | `event_vocabulary` | Flutter 공식 제스처 어휘 `on<제스처><단계>` (§3.11). 도메인 이벤트만 프로젝트가 명명 |
 | `state_lib` | Riverpod(`@riverpod` Notifier + `select`) + flutter_hooks(`HookConsumerWidget` · `useState` · `useEffect`) + freezed state 클래스 |
@@ -33,7 +33,7 @@
 ## 2. 규칙표
 
 | ID | 규칙 | 강도 |
-|---|---|---|
+| --- | --- | --- |
 | D-01 | null 은 `??` · `?.` · early return · 패턴 매칭으로 다룬다. 강제 `!` 는 경계부에만 | SHOULD |
 | D-02 | nullable 삽입 문법은 위치가 정한다 — `?element` · `if case` · 삼항 · `switch` expression | SHOULD |
 | D-03 | 고정 gap 은 `spacing:`, 리스트 구분자는 `separatorBuilder`. 수동 `SizedBox` 나열과 함수형 체이닝 금지 | 관측 컨벤션 |
@@ -57,7 +57,7 @@ D-12~D-14 는 강도만 이 파일이 고정하고 **판정식은 `core-structur
 ### 3.1 null 처리 관용구 (D-01 · D-02)
 
 | 문법 위치 | 도구 |
-|---|---|
+| --- | --- |
 | 컬렉션 리터럴 | `?element` — `children: [header, ?trailing]` (Dart 3.8 이상) |
 | statement · collection element | `if (label case final text?) Text(text)` |
 | expression (named parameter 등) | `style: custom ?? defaultStyle`. `if case` 는 문법이 성립하지 않는다 |
@@ -77,7 +77,7 @@ children: sections.indexed.expand((r) { ... }).toList()                     // �
 ### 3.3 lazy 렌더링 (D-04)
 
 | 형태 | 판정 |
-|---|---|
+| --- | --- |
 | `SingleChildScrollView` + `Column` | eager — 위반 |
 | `ListView(children: [...])` | eager — 위반 |
 | `for-in` · `.map().toList()` 로 children 채우기 | eager — 위반 |
@@ -98,7 +98,7 @@ useEffect(() {
 ```
 
 | 구분 | 대상 |
-|---|---|
+| --- | --- |
 | 적용 | 체크박스 · 스위치 · 슬라이더 · 세그먼트 탭 등 자기 상태를 가진 leaf |
 | 비적용 | 그룹형 라디오(형제 해제에 부모 rebuild 필수) · 표시 전용 위젯 · 외부 controller 입력 |
 
@@ -107,7 +107,7 @@ hook 은 `items.isEmpty` 같은 early return **위** 에 둔다. `useEffect` 는
 ### 3.5 freezed state vs 익명 Record (D-06)
 
 | 자리 | 타입 |
-|---|---|
+| --- | --- |
 | Notifier 의 raw 상태 (선택·입력) | freezed `{widget_prefix}XxxState` |
 | derived provider 가 반환하는 파생 뷰 번들 | freezed `{widget_prefix}XxxViewState` |
 | 위젯·provider 표면에 노출되지 않는 함수 내부 국소 튜플 | Record 허용 |
@@ -117,7 +117,7 @@ hook 은 `items.isEmpty` 같은 early return **위** 에 둔다. `useEffect` 는
 ### 3.6 시맨틱 typedef 소유권 (D-08)
 
 | 항목 | 규칙 |
-|---|---|
+| --- | --- |
 | 정의 위치 | 의미 원천 위젯의 같은 파일 top-level |
 | 의미 원천 | 그 콜백이 제어하는 실제 UI 를 그리는 위젯 |
 | forward 만 하는 상위 컴포지트·화면 | 새로 정의하지 않고 import |
@@ -130,7 +130,7 @@ hook 은 `items.isEmpty` 같은 early return **위** 에 둔다. `useEffect` 는
 ### 3.7 doc 커버리지 판정 (D-07)
 
 | 대상 | 판정 |
-|---|---|
+| --- | --- |
 | 로직이 있는 public 메서드 | 필수 |
 | 자명하지 않은 private 메서드 | 필수 |
 | 화면·뷰의 핸들러·리스너 헬퍼 | 필수 — "화면이니까"는 면제 사유가 아니다 |
@@ -143,7 +143,7 @@ hook 은 `items.isEmpty` 같은 early return **위** 에 둔다. `useEffect` 는
 ### 3.8 expression body (D-09)
 
 | 상황 | 형태 |
-|---|---|
+| --- | --- |
 | 단일 expression 함수·콜백 | `=>` expression body |
 | 분기가 있거나 statement 가 둘 이상 | block body |
 | 한 곳에서만 쓰이는 로컬 변수 | 사용처에 인라인 (`final thumbnail = _thumbnail();` 후 1회 사용은 인라인) |
@@ -161,7 +161,7 @@ hook 은 `items.isEmpty` 같은 early return **위** 에 둔다. `useEffect` 는
 ### 3.10 bare catch 컨벤션 (D-11)
 
 | 형태 | 판정 |
-|---|---|
+| --- | --- |
 | `} catch (e) {` · `} catch (e, st) {` | 준수 — 의도된 컨벤션 |
 | `} on SomeType catch (e) {` | 컨벤션 이탈 후보. 위반이 아니다 |
 
@@ -177,7 +177,7 @@ Flutter 는 제스처 생명주기에 `on<제스처><단계>` 어휘를 이미 �
 Down  →  Start  →  Update / MoveUpdate  →  End / Up  →  Cancel
 ```
 
-**제스처별 공식 콜백** (`gesture_detector.dart` 실측, Flutter 3.38.4 기준 **58개**)
+**제스처별 공식 콜백** (`gesture_detector.dart` 실측, Flutter 3.38.4 · 3.47.5 기준 **58개**)
 
 세는 기준: 제스처 접두사(`Tap` · `SecondaryTap` · `TertiaryTap` · `DoubleTap` · `LongPress` · `SecondaryLongPress` · `TertiaryLongPress` · `VerticalDrag` · `HorizontalDrag` · `Pan` · `Scale` · `ForcePress`)를 가진 `on*` 고유 이름만 센다. 재현 명령은 아래와 같다.
 
@@ -192,7 +192,7 @@ grep -v '^\s*///' "$FLUTTER_SDK/packages/flutter/lib/src/widgets/gesture_detecto
 제스처 접두사가 없는 내부 recognizer 콜백 8종(`onDown` · `onStart` · `onUpdate` · `onEnd` · `onCancel` · `onPeak` · `onPointerDown` · `onPointerPanZoomStart`)은 제외한다. 주석까지 포함하면 67이 되는데 그것은 소비자가 이름을 따를 대상이 아니다.
 
 | 제스처 | 콜백 |
-|---|---|
+| --- | --- |
 | tap | `onTapDown` · `onTapMove` · `onTapUp` · `onTap` · `onTapCancel` |
 | double tap | `onDoubleTapDown` · `onDoubleTap` · `onDoubleTapCancel` |
 | long press | `onLongPressDown` · `onLongPressStart` · `onLongPressMoveUpdate` · `onLongPressUp` · `onLongPressEnd` · `onLongPress` · `onLongPressCancel` |
@@ -206,7 +206,7 @@ grep -v '^\s*///' "$FLUTTER_SDK/packages/flutter/lib/src/widgets/gesture_detecto
 
 **폼·선택 계열** — 위젯 API 가 쓰는 이름을 따른다: `onChanged` · `onSubmitted` · `onEditingComplete` · `onSelected` · `onPressed` · `onHover` · `onFocusChange`.
 
-**판정**
+#### 판정
 
 ```dart
 // before — Press 가 tap 인지 long press 인지 이름에서 안 갈린다
@@ -232,7 +232,7 @@ typedef {widget_prefix}PressableTapDown = void Function(TapDownDetails details);
 
 **주의** — 같은 개념에 두 어휘를 섞지 마라. 코퍼스에 `…SelectTap` 과 `…Selected` 가 공존한 사례가 있다. 하나로 고정한다.
 
-> **출처:** Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 실측 — 콜백 58개). 코어 원칙은 `core-naming.md` N-12.
+> **출처:** Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 · 3.47.5 실측 — 콜백 58개). 코어 원칙은 `core-naming.md` N-12.
 
 ## 4. 완료 게이트 grep 10종
 
@@ -252,7 +252,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 ```
 
 | # | 잡는 것 | 히트 = 위반인가 | 판정 절차 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | G-01 | `shrinkWrap: true` | 예 (D-04) | 즉시 위반. builder sliver 또는 `CustomScrollView` 로 전환. 예외는 사람이 명시적으로 허락한 건만 |
 | G-02 | `SingleChildScrollView` | 예 (D-04) | eager 스크롤 컨테이너다. 반복 렌더를 감싸고 있으면 즉시 위반, 고정 콘텐츠 단독이어도 `CustomScrollView` + `SliverToBoxAdapter` 전환 대상 |
 | G-03 | 위젯 반환 `_build*` 헬퍼 | **아니오 — 히트 수 ≠ 위반 수** | 접두사 금지는 확정이지만 인라인할지 위젯으로 승격할지는 `core-structure.md` 판정식이 정한다. 히트를 세어 그대로 보고하면 추출이 정당한 건까지 위반으로 집계된다 |
@@ -267,7 +267,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 ## 5. 수치 상수
 
 | 항목 | 값 |
-|---|---|
+| --- | --- |
 | `?element` (null-aware element) 최소 버전 | Dart 3.8 |
 | 화면당 스크롤 컨테이너 | 1개 |
 | Notifier 파일 분할 하한 | 1000줄 |
@@ -280,7 +280,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 ## 6. 이 파일이 소유하지 않는 것
 
 | 사안 | 소유 |
-|---|---|
+| --- | --- |
 | doc 라벨 표기(`- [param]:` · `- 반환값:` · `없음`)와 한국어 문체 | `locale-korean.md` |
 | 추출 판단 일반 원칙 — 헬퍼 인라인 vs 위젯 승격, 파일 분리 임계, rebuild 격리 조건 | `core-structure.md` |
 | `codegen_cmd` · `<src>` 스코프 경로 · `{widget_prefix}` · `{TokenClass}` 실제 값 | `project-detection.md` |

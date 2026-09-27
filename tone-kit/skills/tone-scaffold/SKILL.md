@@ -51,7 +51,7 @@ user-invocable: true
 ### Step 3. 템플릿 선택
 
 | 생성 대상 | 템플릿 | 축 |
-|---|---|---|
+| --- | --- | --- |
 | 파일 헤더 | [file-header.md](../../templates/file-header.md) | 코어 + 로케일 |
 | 문서 주석 3변종 | [dart-doc.md](../../templates/dart-doc.md) | 어댑터 + 로케일 |
 | 시맨틱 typedef | [dart-typedef.md](../../templates/dart-typedef.md) | 어댑터 |

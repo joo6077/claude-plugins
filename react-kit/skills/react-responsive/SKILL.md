@@ -41,11 +41,16 @@ user-invocable: true
 10. **breakpoint 별 렌더 증거 없이 완료 선언 금지 (E2)** — Tailwind 클래스는 문자열이라 타입 검사를 통과해도 오타(`md:felx`)·Merge 충돌·존재하지 않는 breakpoint 접두사가 그대로 남는다. 즉 "코드에 `md:` 가 있다" 는 정적 확인(R3)일 뿐이고, 그 breakpoint 에서 레이아웃이 실제로 바뀐다는 증거가 아니다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` §4 체크리스트를 채우되, **적용한 breakpoint 마다 최소 1 개씩** 증거를 남긴다 (한 폭에서만 확인하고 나머지를 추정하지 않는다). 증거를 못 얻는 폭은 `[미검증]` 을 달고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 §2)을 채워 부분 완료로 보고한다.
 11. **기준 캡처는 편집 전에 찍는다** — `react-kit/references/render-evidence-protocol.md` §1 Step 0 과 §2 비교 반복 순서의 1 번을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 적용할 breakpoint 마다 편집 전 캡처 경로와 바뀌어야 할 표식)를 응답에 남긴다. 편집한 뒤에는 편집 전 레이아웃을 다시 찍을 수 없다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 프로젝트 환경 감지
 
 `references/project-detection.md` 절차를 실행한다:
+
 - `package.json`에서 Tailwind 버전 확인 (`tailwindcss` 패키지)
   - `^4.x` → `@container` 내장, 플러그인 불필요
   - `^3.x` → `@tailwindcss/container-queries` 설치 여부 확인 (`tailwind.config.ts` 내 plugins 배열)
@@ -53,6 +58,7 @@ user-invocable: true
 - `src/presentation/shared/lib/utils.ts`의 `cn` 헬퍼 존재 여부
 
 Tailwind v3에서 `@container` 사용이 필요하고 플러그인이 없으면 설치를 안내한다:
+
 ```bash
 pnpm add -D @tailwindcss/container-queries
 ```
@@ -69,7 +75,7 @@ pnpm add -D @tailwindcss/container-queries
 명시적 플래그가 없으면 `target_path`로 판단한다:
 
 | 경로 패턴 | 선택 | 이유 |
-|-----------|------|------|
+| ----------- | ------ | ------ |
 | `src/presentation/routes/*.tsx` | 페이지 breakpoint | 뷰포트 전체가 레퍼런스인 최상위 라우트 |
 | `src/presentation/features/*/screens/*.tsx` | 페이지 breakpoint | 화면 단위 레이아웃 |
 | `src/presentation/shared/components/**/*.tsx` | 컨테이너 쿼리 우선 | 다양한 컨텍스트에서 재사용되는 공용 컴포넌트 |
@@ -80,6 +86,7 @@ pnpm add -D @tailwindcss/container-queries
 ## 4. 대상 파일 분석
 
 `target_path` 파일을 읽고 현재 레이아웃을 파악한다:
+
 - 고정된 `grid-cols-N` 또는 `flex` 구조 확인
 - 반응형으로 전환해야 할 레이아웃 블록 식별
 - 이미 적용된 breakpoint 또는 `@container` 확인 (중복 적용 방지)
@@ -87,7 +94,7 @@ pnpm add -D @tailwindcss/container-queries
 ## 5. Tailwind v4 breakpoint 체계 (페이지 쿼리 선택 시)
 
 | 키 | min-width | 권장 용도 |
-|----|-----------|-----------|
+| ---- | ----------- | ----------- |
 | `sm:` | 640px | 큰 모바일 / 세로 태블릿 |
 | `md:` | 768px | 세로 태블릿 |
 | `lg:` | 1024px | 가로 태블릿 / 작은 노트북 |
@@ -133,7 +140,7 @@ export function ProductList({ products }: { products: Product[] }) {
 **기본 컨테이너 크기 기준**:
 
 | 키 | min-width | 설명 |
-|----|-----------|------|
+| ---- | ----------- | ------ |
 | `@xs` | 20rem (320px) | 매우 좁은 패널 |
 | `@sm` | 24rem (384px) | 좁은 패널 |
 | `@md` | 28rem (448px) | 보통 패널 |
@@ -198,11 +205,16 @@ pnpm eslint <target_path> --max-warnings=0
 변경된 파일과 적용된 패턴(페이지/컨테이너)을 요약한다.
 
 다음 단계:
+
 - 로딩 상태 skeleton 추가: `/react-skeleton`
 - 재사용 컴포넌트 감지: widget-inspector-react 에이전트
 - 재사용 컴포넌트 추출: `/react-extract`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 감지 (Tailwind 버전, shadcn 초기화)
 - `references/clean-arch-layout.md` — 컴포넌트 배치 경로 규칙

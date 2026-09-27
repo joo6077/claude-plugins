@@ -1,7 +1,7 @@
 # G4 — Quality & Patterns Skills
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 group: G4
 scope: react-kit 품질 보증 + 에러 처리 + i18n 스킬 3종
 skills: [/react-test, /react-error, /react-l10n]
@@ -31,6 +31,8 @@ react-kit **G4 그룹** 은 프로젝트의 품질을 보장하는 세 스킬이
 - **Result 친화**: 에러 경로 테스트는 throw 가 아니라 `Result.isErr()` 로 검증. UI 의 Error Boundary 는 최후의 안전망일 뿐 1차 에러 처리가 아님.
 - **Strict TS 유지**: 테스트 코드도 `any` 금지. `expect(...).toBe(...)` 의 타입 추론을 활용해 strict 하게.
 - **project-detection 재사용**: G1 의 project-detection 을 재사용해 Vitest / Playwright / Lingui 설치 여부, 버전, 설정 파일 위치를 감지.
+- **시험 수는 두 수로 보고**: `/react-test` 는 Vitest 요약의 passed · skipped 를 그대로 적는다. 0 passed 나 skipped 1 이상은 통과가 아니라 `[미검증]` 이다. 없음을 단정하는 시험에는 같은 조건이 1 이상을 내는 양성 대조를 붙인다.
+- **렌더 증거**: 화면에 닿는 시험 결과는 `react-kit/references/render-evidence-protocol.md` 의 공허 증거 네 유형(queryBy null · passWithNoTests · allowOnly · update-snapshots)으로 거른다.
 - **i18n 커버리지**: 모든 presentation 레이어 문자열은 기본적으로 Lingui macro 경유. 하드코딩된 한국어 / 영어 문자열은 `/react-audit` 이 검출.
 
 ## 1. /react-test — 테스트 코드 자동 생성
@@ -51,7 +53,7 @@ react-kit **G4 그룹** 은 프로젝트의 품질을 보장하는 세 스킬이
 ### 1.3 Clean Architecture 레이어별 테스트 전략
 
 | 레이어 | 테스트 유형 | 도구 | 특징 |
-|--------|-----------|------|------|
+| -------- | ----------- | ------ | ------ |
 | **domain/** (entities, usecases, failures) | Unit | Vitest (node 환경) | 순수 함수. 외부 의존성 없음. 빠르고 독립적. MSW 불필요 |
 | **data/** (datasources, models, repositories) | Unit + integration | Vitest + MSW (fetch 모의) | fetch 모의, Zod parse 실패, Result 변환 경로 검증 |
 | **presentation/hooks** (TanStack Query, Zustand) | Component test | Vitest + Testing Library + QueryClient wrapper | `renderHook`, `waitFor`, store 초기화 |
@@ -173,6 +175,7 @@ describe('LoginForm', () => {
 ```
 
 **핵심 규칙**:
+
 - **`getByRole` 우선** — `getByTestId` 는 마지막 수단. 접근성 기반 쿼리가 실제 사용자 경험에 가깝다
 - **`userEvent` 사용** — `fireEvent` 대신. 실제 키보드/마우스 이벤트에 가까움
 - **`findBy*` 는 비동기** — `await` 필수. `getBy*` 는 동기 (없으면 즉시 throw)
@@ -265,7 +268,7 @@ it('Error Boundary catches render-time error and shows fallback', () => {
 
 ### 2.3 3단계 에러 처리 흐름
 
-```
+```text
 [데이터 경계]             [도메인/프레젠테이션 전파]         [사용자 표시]
 throw / reject  ──────►   Result<T, Failure>   ──────►     Severity → UI 선택
 (fetch, WASM, Tauri)      (neverthrow chain)                (snackbar / dialog / page)
@@ -300,6 +303,7 @@ export function fetchUserDto(id: string): ResultAsync<unknown, UserFailure> {
 ```
 
 **규칙**:
+
 - throw 는 datasource 내부에서만. 즉시 `ResultAsync.fromPromise` 의 두 번째 인자에서 Failure 로 변환
 - Failure 는 discriminated union. `kind` 필드로 분기
 - cause 필드에 원본 에러 메시지 보존 (디버깅용)
@@ -341,7 +345,7 @@ Severity 는 **사용자 관점의 심각도** 이지 기술적 에러 레벨이
 Severity → 표시 위치/형태 매핑 규칙:
 
 | Severity | 표시 형태 | 위치 | 상호작용 |
-|----------|----------|------|---------|
+| ---------- | ---------- | ------ | --------- |
 | `info` | Toast (자동 dismiss) | 화면 우하단 | 없음 |
 | `warning` | Snackbar (action 포함) | 화면 하단 | "다시 시도" 버튼 등 |
 | `error` | Inline error (필드 옆 / 폼 최상단) or Dialog | 관련 위치 | 사용자 액션 유도 |
@@ -459,7 +463,7 @@ Lingui v5 의 매크로 기반 번역 문자열 추가, 자동 codegen, locale �
 
 ### 3.3 Lingui 기본 구조 (G1 생성)
 
-```
+```text
 src/
 ├── infrastructure/i18n/
 │   ├── setup.ts             # i18n.loadAndActivate 초기화
@@ -541,6 +545,7 @@ export function SubmitButton({ disabled }: { disabled: boolean }) {
 ```
 
 **매크로 규칙**:
+
 - `<Trans>` → JSX 내부의 선언적 번역
 - `t` macro (`useLingui` 경유) → 속성 값, 동적 문자열, 함수 반환값
 - `msg` macro → 컴포넌트 밖 (상수 정의, reducer message 등)
@@ -613,7 +618,7 @@ export async function activateLocale(locale: string): Promise<void> {
 
 ## 4. 3개 스킬의 상호작용
 
-```
+```text
 컴포넌트 생성 (G1 /react-widget, /react-screen)
          │
          ▼
@@ -644,22 +649,36 @@ export async function activateLocale(locale: string): Promise<void> {
 
 ## 6. 출처 요약
 
-1. Vitest 공식 가이드: https://vitest.dev/guide/
-2. Vitest — Component Testing: https://vitest.dev/guide/browser/component-testing
-3. Vitest GitHub: https://github.com/vitest-dev/vitest
-4. Testing Library React 문서: https://testing-library.com/docs/
-5. Playwright Component Testing (experimental): https://playwright.dev/docs/test-components
-6. Playwright Fixtures: https://playwright.dev/docs/test-fixtures
-7. Playwright Migrating from Testing Library: https://playwright.dev/docs/testing-library
-8. Lingui 공식 사이트: https://lingui.dev/
-9. Lingui Macros 레퍼런스: https://lingui.dev/ref/macro
-10. Lingui Vite 셋업: https://lingui.dev/tutorials/setup-vite
-11. Lingui React API: https://lingui.dev/ref/react
-12. Lingui Vite Plugin: https://lingui.dev/ref/vite-plugin
-13. Lingui React 튜토리얼: https://lingui.dev/tutorials/react
-14. js-lingui GitHub: https://github.com/lingui/js-lingui
-15. neverthrow GitHub: https://github.com/supermacro/neverthrow
+1. Vitest 공식 가이드: <https://vitest.dev/guide/>
+2. Vitest — Component Testing: <https://vitest.dev/guide/browser/component-testing>
+3. Vitest GitHub: <https://github.com/vitest-dev/vitest>
+4. Testing Library React 문서: <https://testing-library.com/docs/>
+5. Playwright Component Testing (experimental): <https://playwright.dev/docs/test-components>
+6. Playwright Fixtures: <https://playwright.dev/docs/test-fixtures>
+7. Playwright Migrating from Testing Library: <https://playwright.dev/docs/testing-library>
+8. Lingui 공식 사이트: <https://lingui.dev/>
+9. Lingui Macros 레퍼런스: <https://lingui.dev/ref/macro>
+10. Lingui Vite 셋업: <https://lingui.dev/tutorials/setup-vite>
+11. Lingui React API: <https://lingui.dev/ref/react>
+12. Lingui Vite Plugin: <https://lingui.dev/ref/vite-plugin>
+13. Lingui React 튜토리얼: <https://lingui.dev/tutorials/react>
+14. js-lingui GitHub: <https://github.com/lingui/js-lingui>
+15. neverthrow GitHub: <https://github.com/supermacro/neverthrow>
+
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(머리 블록 `skills` 셋)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `59f8ca4` | 2026-09-26 | 설계 영향 없음 — react-l10n 이 지워진 번역 줄을 awk 로 세어 0 건에도 종료 코드 0 을 낸다. §3 흐름은 그대로 |
+| `d6e30aa` | 2026-09-25 | 설계 영향 없음 — react-l10n 지워진 키 수 세기의 종료 코드 수정(위와 같은 결). 같은 커밋의 react-init 변경은 G1 몫 |
+| `001c900` | 2026-09-25 | 고친 절: 공통 설계 원칙 — 시험 수를 passed · skipped 두 수로. §3 `--clean` 을 기본 흐름에서 뺀 것은 이미 반영돼 있어 확인만 했다 |
+| `928fd30` | 2026-07-27 | 고친 절: 공통 설계 원칙 — 양성 대조 · `react-kit/references/render-evidence-protocol.md` 공허 증거 네 유형 |
+| `644e2df` | 2026-06-05 | 설계 영향 없음 — react-l10n 깨진 글자 복구뿐이다 |
+| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — react-l10n(`useLingui` 매크로 · codemod · RTL) · react-test(Vitest 브라우저 모드) Gotcha 추가뿐이다. 매크로 나눔은 §3 에 이미 있다 |
 
 ## 7. 변경 이력
 
 - **2026-04-10** — 초판. G4 3개 스킬 (`/react-test`, `/react-error`, `/react-l10n`) 상세 설계. WebSearch fallback 으로 Vitest v2, Testing Library React, Playwright Component Test, Lingui v5 매크로 (v5 에서 `@lingui/react/macro` 경로 분리) 검증. G2 Result/Failure 패턴을 severity + UI 매핑으로 확장.
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.

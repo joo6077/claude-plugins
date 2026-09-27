@@ -1,7 +1,7 @@
 # G1 — Scaffolding & Generation Skills
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 group: G1
 scope: react-kit 스캐폴딩 및 코드 생성 스킬 4종
 skills: [/react-init, /react-screen, /react-feature, /react-widget]
@@ -25,6 +25,8 @@ research_sources:
 - **프로젝트 감지 공유**: 모든 스킬이 `react-kit/references/project-detection.md` (flutter-toolkit 의 `project-detection.md` 패턴 모방) 를 읽어 프로젝트 환경을 감지한다. pnpm 버전, Node 버전, Vite 설정, Tailwind 설치 여부, shadcn 구성 여부, Cargo workspace 존재 여부 등을 한 곳에서 판정한다.
 - **중복 감지 필수**: 이미 같은 이름/경로의 파일이 존재하면 **overwrite 금지**. 사용자 확인 후 `--force` 플래그가 있을 때만 덮어쓴다.
 - **Strict TypeScript 강제**: 생성된 모든 TS 파일은 `tsc --noEmit` 과 `eslint --max-warnings=0` 을 통과해야 한다. `any`, `as` 단언, `!` non-null 단언을 포함한 코드 생성 금지.
+- **생성 전 전수 스캔 · 요청 범위만**: 만들기 전에 비슷한 이름 · 재사용할 자산 · 겹치는 파일을 먼저 열거하고 합의한 뒤 생성한다. 요청하지 않은 레이어 · variant 를 덧붙이지 않는다.
+- **렌더 증거**: `/react-screen` · `/react-widget` 은 `react-kit/references/render-evidence-protocol.md` 를 편집 전(기준 캡처)과 완료 직전 두 번 실행한다. 코드가 있다는 사실은 화면에 그려졌다는 증거가 아니다.
 - **실패 시 롤백**: 복수 파일 생성 중 하나라도 실패하면 그 스킬 실행으로 생성된 파일을 모두 삭제하고 원상복구한다.
 
 ## 1. /react-init — 프로젝트 스캐폴딩
@@ -117,7 +119,7 @@ my-app/
 │   └── e2e/.gitkeep                   # Playwright
 │
 └── .harness/
-    └── project.yaml                   # harness init 자동 실행
+    └── project.yaml                   # harness init 뒤 킷 틀(harness-project.yaml.template)로 덮어 씀
 ```
 
 ### 1.4 생성 명령 순서
@@ -133,6 +135,7 @@ my-app/
 2. Vite + React + TypeScript 스캐폴딩
    └─ pnpm create vite@latest . --template react-swc-ts
    └─ tsconfig.json strict 옵션 확장 (아래 1.5 참조)
+   └─ vite.config.ts 에 server: { port: 5173, strictPort: true } — 포트가 차 있으면 다른 포트로 옮기지 않고 멈춘다 (Tauri devUrl · harness vm_port 가 5173 을 가리킨다)
 
 3. Tailwind CSS v4 (Vite 플러그인)
    └─ pnpm add -D tailwindcss @tailwindcss/vite
@@ -176,7 +179,7 @@ my-app/
 
 10. Tauri 2 (with-tauri 플래그 true 시)
     └─ pnpm add -D @tauri-apps/cli
-    └─ pnpm tauri init (devUrl: http://localhost:5173, frontendDist: ../dist)
+    └─ pnpm tauri init (devUrl: http://localhost:5173, frontendDist: ../dist) — devUrl 포트는 2 단계 strictPort 포트와 같게 둔다
     └─ src-tauri/capabilities/default.json 최소 권한 세팅
     └─ (출처: https://v2.tauri.app/start/create-project/ , https://v2.tauri.app/start/frontend/vite/)
 
@@ -190,7 +193,8 @@ my-app/
     └─ (출처: https://eslint.org/blog/2025/05/eslint-v9.0.0-retrospective/ , https://typescript-eslint.io/getting-started/)
 
 13. harness 초기화
-    └─ /harness init 호출 → .harness/project.yaml 자동 생성
+    └─ /harness init 호출 뒤 react-kit 의 templates/harness-project.yaml.template 을 .harness/project.yaml 로 덮어 쓴다
+    └─ init 을 먼저 부른다 (.harness/ 가 이미 있으면 init 이 멈춘다). 틀을 쓰는 이유는 runtime_inspection.vm_port: 5173 — 기본 틀은 null 이다
 
 14. git 초기 커밋
     └─ git init && git add -A && git commit -m "chore: initial scaffold"
@@ -224,13 +228,13 @@ my-app/
 ### 1.6 Gotchas
 
 - **pnpm workspace ↔ Cargo workspace 충돌** (커뮤니티 사례 기반, unverified 공식 문서): `pnpm-workspace.yaml` 의 `packages` 목록과 `Cargo.toml` 의 `workspace.members` 를 혼동하지 마라. 전자는 npm 패키지, 후자는 Rust crate. `crates/core` 는 두 파일 모두에 등재되어야 한다 (pnpm 은 Rust crate를 npm 패키지로 취급하지 않지만 경로 해석용). 공식 pitfall 문서는 찾지 못했으며 커뮤니티 사례를 기반으로 작성됨.
-- **Tailwind v4 설치**: v3 문서의 `npx tailwindcss init` 은 v4 에서 **없어짐**. `@tailwindcss/vite` 플러그인과 `@import "tailwindcss";` 만 쓴다 (출처: https://tailwindcss.com/docs/upgrade-guide).
-- **shadcn 패키지 리네임 (2024-08)**: 과거 `shadcn-ui` npm 패키지는 **2024년 8월부터 deprecated** 되고 `shadcn` 으로 리네임되었다. 과거 명령 `npx shadcn-ui@latest init` 은 더 이상 동작하지 않으며 현재는 `pnpm dlx shadcn@latest init --template vite` 를 사용한다 (출처: https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init).
-- **shadcn + Tailwind v4 + React 19 조합**: 2026-04 기준 shadcn 이 Tailwind v4 와 React 19 를 공식 지원하지만, 업스트림 shadcn 이슈 트래커 (shadcn-ui/ui#6585) 에 해당 조합 관련 논의가 진행 중이므로 마이너 이슈 가능성 있음. 초기 설치 직후 `pnpm tsc --noEmit` 으로 타입 오류 점검 필수 (출처: https://github.com/shadcn-ui/ui/issues/6585).
+- **Tailwind v4 설치**: v3 문서의 `npx tailwindcss init` 은 v4 에서 **없어짐**. `@tailwindcss/vite` 플러그인과 `@import "tailwindcss";` 만 쓴다 (출처: <https://tailwindcss.com/docs/upgrade-guide>).
+- **shadcn 패키지 리네임 (2024-08)**: 과거 `shadcn-ui` npm 패키지는 **2024년 8월부터 deprecated** 되고 `shadcn` 으로 리네임되었다. 과거 명령 `npx shadcn-ui@latest init` 은 더 이상 동작하지 않으며 현재는 `pnpm dlx shadcn@latest init --template vite` 를 사용한다 (출처: <https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init>).
+- **shadcn + Tailwind v4 + React 19 조합**: 2026-04 기준 shadcn 이 Tailwind v4 와 React 19 를 공식 지원하지만, 업스트림 shadcn 이슈 트래커 (shadcn-ui/ui#6585) 에 해당 조합 관련 논의가 진행 중이므로 마이너 이슈 가능성 있음. 초기 설치 직후 `pnpm tsc --noEmit` 으로 타입 오류 점검 필수 (출처: <https://github.com/shadcn-ui/ui/issues/6585>).
 - **next-themes + Vite**: next-themes 는 Next.js 중심 설계라 SSR 경고가 나올 수 있음. Vite 에선 client-only 모드로 쓰고 초기 테마를 `<html class="dark">` 로 SSR 없이 직접 설정하는 inline script 필요.
 - **TanStack Router codegen**: `routeTree.gen.ts` 는 플러그인이 자동 생성. **수동 수정 금지** 이며 `.gitignore` 에 올릴지 커밋할지 팀 컨벤션. 기본은 **커밋 대상 제외** 를 권장 (merge conflict 최소화).
 - **Strict TS 위반 거부**: 생성된 초기 파일에 `any`, `as`, `!` 가 포함되어 있으면 생성 실패로 간주하고 롤백. shadcn 일부 컴포넌트가 역사적으로 `any` 를 썼던 이력이 있으므로 설치 직후 `pnpm tsc --noEmit` 으로 검증 필수.
-- **`eslint-plugin-react-hooks` flat config 수동 와이어링**: 2026-04 기준 `eslint-plugin-react-hooks` 의 flat config 지원이 공식 문서에 완전히 반영되지 않아 (facebook/react#28313 참조), `eslint.config.js` 에서 수동으로 `plugins: { 'react-hooks': reactHooks }` + `rules: reactHooks.configs.recommended.rules` 형태로 와이어링해야 한다. `/react-init` 스캐폴딩 템플릿은 이 수동 구성을 기본 포함한다 (출처: https://github.com/facebook/react/issues/28313).
+- **`eslint-plugin-react-hooks` flat config 수동 와이어링**: 2026-04 기준 `eslint-plugin-react-hooks` 의 flat config 지원이 공식 문서에 완전히 반영되지 않아 (facebook/react#28313 참조), `eslint.config.js` 에서 수동으로 `plugins: { 'react-hooks': reactHooks }` + `rules: reactHooks.configs.recommended.rules` 형태로 와이어링해야 한다. `/react-init` 스캐폴딩 템플릿은 이 수동 구성을 기본 포함한다 (출처: <https://github.com/facebook/react/issues/28313>).
 - **Rust WASM crate-type**: `crates/core/Cargo.toml` 에 `crate-type = ["cdylib", "rlib"]` 둘 다 있어야 WASM 빌드와 네이티브 (Tauri) 재사용이 동시에 가능하다. `cdylib` 만 있으면 Tauri 쪽에서 import 불가.
 
 ### 1.7 Clean Architecture 배치
@@ -419,10 +423,19 @@ const primaryButtonVariants = cva(
 type PrimaryButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof primaryButtonVariants> & {
     loading?: boolean
+    ref?: React.Ref<HTMLButtonElement>
   }
 
-export const PrimaryButton = React.forwardRef<HTMLButtonElement, PrimaryButtonProps>(
-  ({ className, variant, size, loading, children, ...props }, ref) => (
+export function PrimaryButton({
+  ref,
+  className,
+  variant,
+  size,
+  loading,
+  children,
+  ...props
+}: PrimaryButtonProps) {
+  return (
     <button
       ref={ref}
       className={cn(primaryButtonVariants({ variant, size }), className)}
@@ -431,17 +444,16 @@ export const PrimaryButton = React.forwardRef<HTMLButtonElement, PrimaryButtonPr
     >
       {loading ? 'Loading...' : children}
     </button>
-  ),
-)
-PrimaryButton.displayName = 'PrimaryButton'
+  )
+}
 ```
 
 ### 4.4 Props 타이핑 규칙
 
-- **`React.FC` 금지**: 제네릭 추론이 약하고 children 이 암묵적으로 포함됨. 대신 `(props: Props) => JSX.Element` 또는 `forwardRef<Ref, Props>` 사용.
+- **`React.FC` 금지**: 제네릭 추론이 약하고 children 이 암묵적으로 포함됨. 대신 `(props: Props) => JSX.Element` 또는 React 19 ref-as-prop 함수 컴포넌트 사용.
 - **Props 타입은 `type` 으로 정의** (interface 아님): `VariantProps` 같은 유틸리티 타입과 교차 타입으로 조합하기 쉽다.
 - **HTML 속성 확장**: 기본 HTML 속성을 그대로 통과시키려면 `React.ButtonHTMLAttributes<HTMLButtonElement>` 등으로 교차.
-- **ref 는 `forwardRef`**: shadcn 표준. React 19 에서는 `ref` 를 prop 으로 받을 수도 있지만 shadcn 생태계 호환을 위해 forwardRef 유지.
+- **ref 는 prop 으로 받는다 (React 19 ref-as-prop)**: 새 컴포넌트는 `forwardRef` 없이 Props 타입에 `ref?: React.Ref<...>` 를 둔다. React 18 호환이 필요할 때만 `forwardRef` 를 쓴다 (`/react-widget` Gotcha 4).
 - **`any` 금지 + `as` 금지**: strict TS 정책. 제네릭이 추론되지 않으면 명시적 타입 파라미터를 쓴다.
 
 ### 4.5 Container Queries 반응형
@@ -463,7 +475,7 @@ PrimaryButton.displayName = 'PrimaryButton'
 - **기존 shadcn 컴포넌트 직접 수정 금지**: shadcn 은 "코드 소유 (own your code)" 모델이라 수정이 가능하지만, `/react-widget` 은 래핑해서 확장한다. 직접 수정은 shadcn CLI 업데이트 시 충돌.
 - **cn 유틸리티 경로**: `src/presentation/shared/lib/utils.ts` 의 `cn(...classes)` 를 import. `@/lib/utils` 처럼 다른 경로 쓰지 말 것 (Clean Arch 준수).
 - **container queries + Tailwind v4 버전**: Tailwind v4 부터 `@container` 내장. v3 에서는 별도 플러그인 필요하므로 프로젝트 Tailwind 메이저 버전 확인 후 사용.
-- **displayName 필수**: forwardRef 컴포넌트는 `displayName` 설정 필수 — React DevTools 디버깅 용이성.
+- **displayName**: ref-as-prop 함수 컴포넌트는 함수 이름이 곧 표시 이름이라 따로 적지 않는다. React 18 호환용 `forwardRef` 컴포넌트에만 `displayName` 을 붙인다.
 - **Props 에 onClick 재정의 금지**: HTML 속성에 이미 `onClick` 이 있으므로 Props 타입에서 덮어쓰면 타입 충돌. 필요하면 `onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void` 명시적으로 다시 선언.
 - **Strict TS 위반 거부**: cva 반환 타입을 `any` 로 캐스팅하는 코드 생성 금지.
 
@@ -478,6 +490,7 @@ PrimaryButton.displayName = 'PrimaryButton'
 4개 스킬이 모두 공유하는 프로젝트 감지 규칙. `react-kit/references/project-detection.md` 에 별도 문서로 작성 (G1 스킬 구현 시 생성 대상).
 
 이 문서는 아래 항목을 감지한다:
+
 - Node 버전 (`.nvmrc` 또는 `package.json` `engines.node`)
 - pnpm 버전 (`packageManager` 필드)
 - React 버전 (`package.json` `dependencies.react`)
@@ -497,29 +510,47 @@ PrimaryButton.displayName = 'PrimaryButton'
 - **G6 (빌드 & 감사)** 의 `/react-audit` 은 `/react-init` 설정 (strict TS, eslint flat, Tailwind v4) 을 기준선으로 위반을 검출.
 
 공용 helpers:
+
 - `react-kit/references/project-detection.md` (4개 스킬 공유)
 - `react-kit/references/clean-arch-layout.md` (레이어 배치 규칙)
 - `react-kit/templates/tsconfig.template.json`, `eslint.config.template.js`, `vite.config.template.ts`
 
 ## 7. 출처 요약
 
-1. Tailwind CSS v4 Vite 설치 가이드: https://tailwindcss.com/docs/guides/vite
-2. Tailwind CSS v4 릴리스 노트: https://tailwindcss.com/blog/tailwindcss-v4
-3. Tailwind CSS v3 → v4 업그레이드 가이드: https://tailwindcss.com/docs/upgrade-guide
-4. shadcn/ui Vite 설치 가이드: https://ui.shadcn.com/docs/installation/vite
-5. shadcn/ui CLI 문서: https://ui.shadcn.com/docs/cli
-6. TanStack Router Vite 설치 가이드: https://tanstack.com/router/latest/docs/installation/with-vite
-7. Tauri 2 프로젝트 생성 가이드: https://v2.tauri.app/start/create-project/
-8. Tauri 2 + Vite 통합 문서: https://v2.tauri.app/start/frontend/vite/
-9. Menci/vite-plugin-wasm (Vite 2~7 지원): https://github.com/Menci/vite-plugin-wasm
-10. shadcn/ui 2024-08 CLI 리네임 changelog: https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init
-11. shadcn/ui Tailwind v4 + React 19 호환 이슈: https://github.com/shadcn-ui/ui/issues/6585
-12. ESLint v9 플랫 컨피그 retrospective: https://eslint.org/blog/2025/05/eslint-v9.0.0-retrospective/
-13. typescript-eslint 플랫 컨피그 getting-started: https://typescript-eslint.io/getting-started/
-14. eslint-plugin-react-hooks 플랫 컨피그 이슈: https://github.com/facebook/react/issues/28313
-15. 대안 Vite WASM 플러그인 비교: https://github.com/nshen/vite-plugin-wasm-pack , https://github.com/rwasm/vite-plugin-rsw
+1. Tailwind CSS v4 Vite 설치 가이드: <https://tailwindcss.com/docs/guides/vite>
+2. Tailwind CSS v4 릴리스 노트: <https://tailwindcss.com/blog/tailwindcss-v4>
+3. Tailwind CSS v3 → v4 업그레이드 가이드: <https://tailwindcss.com/docs/upgrade-guide>
+4. shadcn/ui Vite 설치 가이드: <https://ui.shadcn.com/docs/installation/vite>
+5. shadcn/ui CLI 문서: <https://ui.shadcn.com/docs/cli>
+6. TanStack Router Vite 설치 가이드: <https://tanstack.com/router/latest/docs/installation/with-vite>
+7. Tauri 2 프로젝트 생성 가이드: <https://v2.tauri.app/start/create-project/>
+8. Tauri 2 + Vite 통합 문서: <https://v2.tauri.app/start/frontend/vite/>
+9. Menci/vite-plugin-wasm (Vite 2~7 지원): <https://github.com/Menci/vite-plugin-wasm>
+10. shadcn/ui 2024-08 CLI 리네임 changelog: <https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init>
+11. shadcn/ui Tailwind v4 + React 19 호환 이슈: <https://github.com/shadcn-ui/ui/issues/6585>
+12. ESLint v9 플랫 컨피그 retrospective: <https://eslint.org/blog/2025/05/eslint-v9.0.0-retrospective/>
+13. typescript-eslint 플랫 컨피그 getting-started: <https://typescript-eslint.io/getting-started/>
+14. eslint-plugin-react-hooks 플랫 컨피그 이슈: <https://github.com/facebook/react/issues/28313>
+15. 대안 Vite WASM 플러그인 비교: <https://github.com/nshen/vite-plugin-wasm-pack> , <https://github.com/rwasm/vite-plugin-rsw>
+
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(머리 블록 `skills` 넷)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `9a7c914` | 2026-09-26 | 고친 절: §1.4 13 단계 · §1.2 폴더 트리 `.harness/` 줄 — init 뒤 `templates/harness-project.yaml.template` 로 덮어 쓴다 |
+| `d6e30aa` | 2026-09-25 | 고친 절: §1.4 2 단계 — `vite.config.ts` 에 `strictPort: true` 로 5173 고정 |
+| `001c900` | 2026-09-25 | 고친 절: 공통 설계 원칙(렌더 증거를 편집 전 · 완료 직전 두 번) · §1.4 10 단계(devUrl 포트를 strictPort 포트와 같게). 낡은 버전 문장 갱신은 설계 영향 없음 — 버전 값은 스킬이 기준 원본 |
+| `e7b9508` | 2026-08-13 | 설계 영향 없음 — react-init 템플릿 버전 값과 Zod resolver 우회를 옛 resolver 전용으로 낮춘 Gotcha 뿐이다. 이 문서는 `@latest` 설치 순서만 적고 버전을 고정하지 않는다 |
+| `928fd30` | 2026-07-27 | 고친 절: 공통 설계 원칙 — `/react-screen` · `/react-widget` 이 `react-kit/references/render-evidence-protocol.md` 를 따른다 |
+| `644e2df` | 2026-06-05 | 고친 절: 공통 설계 원칙 — 생성 전 전수 스캔 · 요청 범위만 (screen · feature · widget). 깨진 글자 복구는 설계 영향 없음 |
+| `3b98054` | 2026-04-24 | 설계 영향 없음 — react-feature · react-widget 에 「확장 자리 주석은 미완성 표시가 아니다」 Gotcha, react-feature 설명 문구 정리뿐이다. §3 · §4 의 산출물 · 배치는 그대로 |
+| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — react-init(React Compiler · plugin-react v6 · shadcn Luma · react-hooks v6) · react-screen(flat route · `<Activity />`) Gotcha 추가뿐이다. 단계 순서 · 산출물은 그대로 |
+| `d0010b2` | 2026-04-11 | 고친 절: §4.3 예시 · §4.4 · §4.6 — react-widget 틀이 React 19 ref-as-prop 로 바뀌어 `forwardRef` 예시와 규칙을 옮겼다. react-init 의 Vite 8 · Tailwind v4 `@theme` · Tauri 2 · Lingui 매크로 나눔 안내는 설계 영향 없음 — 스킬 Gotcha 가 기준 원본 |
 
 ## 8. 변경 이력
 
 - **2026-04-10** — 초판. G1 4개 스킬 (`/react-init`, `/react-screen`, `/react-feature`, `/react-widget`) 상세 설계. Codex 리서치 두 차례 중단/정체로 WebSearch fallback 사용하여 Tailwind v4, shadcn CLI, TanStack Router 플러그인, Tauri 2, vite-plugin-wasm 핵심 명령 및 공식 문서 URL 검증.
 - **2026-04-10 (보강)** — G1 문서 vs 추가 WebSearch 비교 결과 6개 보강사항 적용: shadcn 패키지 리네임 2024-08 시점 명시, 대안 WASM 플러그인 3종 언급, ESLint v9 flat config "필수"→"default" 완화, eslint-plugin-react-hooks 수동 와이어링 경고, shadcn+Tailwind v4+React 19 호환 이슈 경고, pnpm+Cargo workspace pitfall unverified 표기. 출처 URL 6개 추가.
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.

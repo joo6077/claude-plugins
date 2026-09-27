@@ -4,9 +4,10 @@ version: 0.2.0
 last_updated: 2026-09-02
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 역할 기반 컴포넌트 네이밍 taxonomy
 
-**이 문서가 잡는 것**
+## 이 문서가 잡는 것
 
 - 외형을 담은 이름 — `BlueRoundedBox` 처럼 색·모서리·크기가 박혀 시안이 바뀌면 거짓이 되는 이름
 - 표 어휘를 세로 리스트에 쓴 이름, 임의 묶음에 붙인 `...Bar` — `DeviceRow`, `FilterBar`
@@ -33,7 +34,7 @@ class {widget_prefix}DeviceItemWidget extends StatelessWidget { ... }
 **0단계 — 프레임워크가 이미 이름을 정했는가?** 정했으면 그 이름을 그대로 쓰고 이 표를 건너뛴다 (원칙 0). 아래 표는 프레임워크가 어휘를 정해 두지 **않은** 자리에서만 돈다.
 
 | 이 요소는 | 이름 | 예 |
-|---|---|---|
+| --- | --- | --- |
 | 탭이 그 요소의 존재 이유다 | `...Button` | `{widget_prefix}RetryButtonWidget` |
 | 세로 리스트 한 장 (형태 미특정) | `...Item` — 기본값 | `{widget_prefix}DeviceItemWidget` |
 | leading/trailing 을 가진 고정 높이 행 | `...Tile` | `{widget_prefix}NotificationTileWidget` |
@@ -56,7 +57,7 @@ class {widget_prefix}DeviceItemWidget extends StatelessWidget { ... }
 ## 어휘 대조표 (2026-08-28 확인)
 
 | 시스템 | 화면 상단 | 리스트의 한 행 | 탭 가능한 그룹 표면 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Material Design 3 | `Top app bar` / `App bars` | `List item` (정의문 확인 실패) | `Card` (정의문 확인 실패) |
 | Apple HIG | `Toolbars` (`navigation-bars` 가 여기로 리다이렉트) | `Lists and tables` (행 용어 확인 실패) | 독립 `Cards` 페이지 확인 실패 |
 | MUI | `AppBar` + `Toolbar` 둘 다 export | `ListItem` / `TableRow` / `TableCell` | `Card` / `CardActionArea` |
@@ -100,10 +101,10 @@ typedef {widget_prefix}ServerSelected = void Function(Server server);
 void onServerSelected(Server server) { ... }
 ```
 
-Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4) 에서 콜백 58개를 확인했다. 단계 축은 `Down → Start → Update/MoveUpdate → End/Up → Cancel` 이고 제스처마다 일관되게 붙는다.
+Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 · 3.47.5) 에서 콜백 58개를 확인했다. 단계 축은 `Down → Start → Update/MoveUpdate → End/Up → Cancel` 이고 제스처마다 일관되게 붙는다.
 
 | 제스처 | 콜백 |
-|---|---|
+| --- | --- |
 | tap | `onTapDown` · `onTapMove` · `onTapUp` · `onTap` · `onTapCancel` |
 | double tap | `onDoubleTapDown` · `onDoubleTap` · `onDoubleTapCancel` |
 | long press | `onLongPressDown` · `onLongPressStart` · `onLongPressMoveUpdate` · `onLongPressUp` · `onLongPressEnd` · `onLongPress` · `onLongPressCancel` |
@@ -124,7 +125,7 @@ Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4) �
 
 **강도:** SHOULD
 
-> **출처:** Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 실측 — 콜백 58개) · 프로젝트 실측 (`handlePressStart` 7건 · `handlePressEnd` 8건, `…SelectTap`/`…Selected` 혼재). 코어 규칙 ID 는 `core-naming.md` N-12, 어댑터 판정은 `adapter-dart-flutter.md` D-15 · §3.11 (슬롯 `event_vocabulary`)
+> **출처:** Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 · 3.47.5 실측 — 콜백 58개) · 프로젝트 실측 (`handlePressStart` 7건 · `handlePressEnd` 8건, `…SelectTap`/`…Selected` 혼재). 코어 규칙 ID 는 `core-naming.md` N-12, 어댑터 판정은 `adapter-dart-flutter.md` D-15 · §3.11 (슬롯 `event_vocabulary`)
 
 ### 1. 이름은 외형이 아니라 역할을 담는다 `[코어]`
 
@@ -202,7 +203,7 @@ class {widget_prefix}OrderTableCellWidget extends StatelessWidget { ... }
 ```
 
 | 접미사 | 언제 |
-|---|---|
+| --- | --- |
 | `Item` | UI 형태를 특정하지 않는 일반 데이터 단위. 세로 리스트 한 장의 기본값 |
 | `Tile` | leading/trailing 을 가진 고정 높이 리스트 행 |
 | `Cell` | 표·그리드의 교차 칸 |
@@ -230,7 +231,7 @@ class {widget_prefix}HomeAppBarWidget extends StatelessWidget { ... }
 ```
 
 | 접미사 | 언제 |
-|---|---|
+| --- | --- |
 | `AppBar` | 화면 최상단 앱 컨테이너 (제목·내비게이션·주요 액션) |
 | `Toolbar` | 현재 작업과 관련된 액션 묶음 |
 | `Header` | 콘텐츠·섹션·카드의 제목부 또는 시작부 |
@@ -391,14 +392,14 @@ class DeviceItem extends StatelessWidget { ... }
 ## 수치 기준
 
 | 항목 | 값 | 출처 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | 조사한 디자인 시스템 | 6 | 2026-08-28 확인 |
 | 상단 영역 어휘가 일치하는 시스템 수 | 0 (6개가 4가지 용어로 갈림) | 어휘 대조표 |
 | 커스텀 컴포넌트 명명 지침을 발행하는 시스템 | 0 | 확인 실패 |
 | 정의문을 인용 가능한 시스템 | 4 (M3·Apple HIG 는 JS 렌더링) | 어휘 대조표 |
 | fallback 접두사 실측 | 9건 / 4파일 (57파일 스캔) | 프로젝트 실측 |
 | 컬렉션 요소 접미사 후보 | 5 (`Item`/`Tile`/`Cell`/`Row`/`Card`) | 합성 taxonomy |
-| Flutter 제스처 콜백 | 58개 (`gesture_detector.dart` 3.38.4) | 프레임워크 실측 |
+| Flutter 제스처 콜백 | 58개 (`gesture_detector.dart` 3.38.4 · 3.47.5) | 프레임워크 실측 |
 | 자체 이벤트 어휘 실측 | 15건 (`handlePressStart` 7 · `handlePressEnd` 8) | 프로젝트 실측 |
 
 ---
@@ -406,7 +407,7 @@ class DeviceItem extends StatelessWidget { ... }
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 세로 리스트 요소를 `...Row` / `...Cell` 로 명명 | 표의 행·칸과 구분되지 않는다. 나중에 진짜 표가 생기면 이름이 충돌한다 |
 | 임의 컨트롤 묶음에 `...Bar` | `Bar` 는 구체어가 없을 때의 fallback 이다. 콘텐츠 상단 구획은 `Header` 다 |
 | 역할이 확정됐는데 `...Box` / `...View` / `...Container` / `...Wrapper` | 의미가 없는 이름은 검색도 안 되고 다음 사람이 역할을 다시 추론해야 한다 |

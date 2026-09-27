@@ -8,7 +8,11 @@ argument-hint: "<locale> <key> [value]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **변수 플레이스홀더 일관성 필수** — 번역 키의 변수(`%{name}`)는 모든 로케일 파일에 동일하게 존재해야 한다. 한 로케일에만 있으면 다른 로케일에서 런타임 패닉이 난다.
 - **`rust-i18n`은 컴파일 타임 키 검증 없음** — 키 오타 시 런타임에 키 이름 그대로 반환되므로, 생성 후 실제 응답을 확인해야 한다.
@@ -42,7 +46,7 @@ user-invocable: true
 두 옵션을 제안하고 사용자가 선택하게 한다:
 
 | 라이브러리 | 특징 | 권장 케이스 |
-|-----------|------|------------|
+| ----------- | ------ | ------------ |
 | `rust-i18n` | TOML 기반, 간단한 API (`t!` 매크로) | 대부분의 백엔드 앱 |
 | `fluent` | Mozilla Fluent 포맷, 복잡한 pluralization | 복잡한 언어 규칙 필요 시 |
 
@@ -155,7 +159,7 @@ Router::new()
 `$ARGUMENTS`에서 로케일, 키, 값을 파싱한다. 인자가 없으면 사용자에게 확인한다:
 
 | 항목 | 예시 |
-|------|------|
+| ------ | ------ |
 | 키 경로 | `messages.order_created` |
 | 플레이스홀더 | `%{order_id}` |
 | 지원 로케일 | `en`, `ko`, `ja` |

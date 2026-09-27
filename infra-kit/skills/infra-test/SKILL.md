@@ -12,7 +12,11 @@ argument-hint: "<file-or-directory> [iac|container|cicd|k8s|security]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 1. **스택 감지 없이 테스트 생성 금지** — Terraform 프로젝트에 Pulumi 테스트를 생성하면 안 된다. Step 0 감지 필수
 2. **`terraform validate`만으로 충족 선언 금지** — validate는 구문 검사일 뿐이다. 실제 인프라 로직 검증은 `terraform test` (HCL 기반) 또는 Terratest (Go 기반)로 해야 한다
@@ -28,7 +32,7 @@ user-invocable: true
 11. **셸 검증 스크립트는 결과 상태를 exit code 로 전파해야 한다** — 이 스킬이 생성하는 스크립트는 CI 게이트로 쓰인다. 결함을 발견하고도 `echo "WARN: ..."` 만 하고 0 으로 끝나면 파이프라인은 항상 통과하고, 스크립트는 검증하는 척만 한다. **상태어 5 종(`PASS` · `VIOLATION` · `SKIP_NO_TARGET` · `TOOL_OR_ENV_MISSING` · `EXECUTION_ERROR`)과 exit 매핑, 머리말 4 카운터, 핵심/선택 도구 분리는 `../../references/gate-result-taxonomy.md` 가 SSOT 다 — 여기서 다시 정의하지 마라.** 그 위에 아래 4 가지를 **생성하는 모든 셸 스크립트에 동시에** 적용하라.
 
     | 항목 | 규칙 | 근거 |
-    |------|------|------|
+    | ------ | ------ | ------ |
     | 파이프 실패 | `set -euo pipefail` 없이 파이프를 쓰지 마라. 파이프는 **마지막 명령의 exit code 만** 평가한다 | [Docker best practices](https://docs.docker.com/build/building/best-practices/) 가 `RUN` 파이프에 `set -o pipefail &&` 선행을 명시 |
     | GH Actions 기본 셸 | 워크플로 `run` 스텝은 `shell: bash` 를 **명시**하라. 비-Windows 기본 셸은 `bash -e {0}` 로 **pipefail 이 없다**. 명시해야 `bash --noprofile --norc -eo pipefail {0}` 가 된다 | [GitHub Actions workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax) |
     | 실패 누적 후 종료 | 첫 실패에서 죽지 말고 `fail=1` 로 누적하고 마지막에 `exit "$fail"`. 전수 리포트를 잃지 않으면서 게이트는 유지된다 | — |
@@ -49,7 +53,7 @@ user-invocable: true
 프로젝트 루트에서 아래 파일/디렉토리를 탐색한다:
 
 | 감지 대상 | 스택 | 테스트 도구 |
-|-----------|------|-----------|
+| ----------- | ------ | ----------- |
 | `*.tf` / `.terraform/` | Terraform | `terraform test`, Terratest |
 | `Pulumi.yaml` / `Pulumi.*.yaml` | Pulumi | `pulumi preview --expect-no-changes`, Policy as Code |
 | `cdk.json` / `lib/*.ts` (CDK) | AWS CDK | `cdk synth` + snapshot test |
@@ -66,7 +70,7 @@ user-invocable: true
 **유형 미지정 시 자동 추론:**
 
 | 대상 파일 | 테스트 유형 |
-|-----------|-----------|
+| ----------- | ----------- |
 | `*.tf` 모듈 | iac (terraform test) |
 | `Dockerfile` | container (hadolint + build) |
 | `docker-compose*.yml` | container (config validate + up --dry-run) |
@@ -77,6 +81,7 @@ user-invocable: true
 ### Step 2: 기존 테스트 탐색
 
 프로젝트에 이미 인프라 테스트가 있는지 확인한다:
+
 - `tests/` 또는 `test/` 내 `*.tftest.hcl`, `*_test.go` (Terratest)
 - `Makefile` 또는 `Taskfile.yml`의 test/lint/validate 타겟
 - CI 파이프라인 내 lint/validate 단계
@@ -217,7 +222,7 @@ shopt -s nullglob
 
 WF_DIR="${WF_DIR:-.github/workflows}"
 PIN_ALLOW_FIRST_PARTY_TAGS="${PIN_ALLOW_FIRST_PARTY_TAGS:-0}"
-CORE_TOOLS="grep"          # 없으면 검사 자체가 불가 → EXECUTION_ERROR
+CORE_TOOLS="grep"          # python3 · PyYAML 이 없을 때 checkout rule 줄 검사가 쓴다 — 그때 없으면 EXECUTION_ERROR
 OPTIONAL_TOOLS="python3"   # 없으면 핀닝 rule 은 [미검증], checkout rule 은 줄 검사로 돈다
 
 have() { command -v "${1}" >/dev/null 2>&1; }
@@ -239,9 +244,14 @@ echo "사용 가능 도구 수: $(count "$tools_ok") [${tools_ok:- 없음} ]"
 echo "미설치 도구 수   : $(count "$tools_missing") [${tools_missing:- 없음} ]"
 
 # 핵심 도구 부재는 "위반 0" 이 아니다 — 검사를 수행하지 못한 것이므로 EXECUTION_ERROR 다.
-for t in $CORE_TOOLS; do
-  have "$t" || { echo "EXECUTION_ERROR : 핵심 도구 '$t' 미설치 — 검사 미수행"; exit 2; }
-done
+# python3 · PyYAML 이 있으면 checkout rule 이 grep 을 쓰지 않으므로 그 환경에서는 grep 을 요구하지 않는다
+yaml_ok=0
+if have python3 && python3 -c 'import yaml' >/dev/null 2>&1; then yaml_ok=1; fi
+if [ "$yaml_ok" = 0 ]; then
+  for t in $CORE_TOOLS; do
+    have "$t" || { echo "EXECUTION_ERROR : python3 · PyYAML 이 없어 줄 검사로 가야 하는데 핵심 도구 '$t' 미설치 — 검사 미수행"; exit 2; }
+  done
+fi
 
 if [ "${#workflows[@]}" -eq 0 ]; then
   echo "SKIP_NO_TARGET  : ${WF_DIR} 에 워크플로 파일 0 개 — 검사 대상 없음"
@@ -324,7 +334,7 @@ for path in sys.argv[1:]:
         with open(path, encoding="utf-8") as fh:
             doc = yaml.safe_load(fh)
     except Exception as exc:
-        print(f"EXECUTION_ERROR : {path} — YAML 파싱 실패: {exc}"); err += 1; continue
+        print(f"EXECUTION_ERROR : {path} — YAML 읽기 실패: {exc}"); err += 1; continue
     if not isinstance(doc, dict):
         print(f"EXECUTION_ERROR : {path} — 최상위가 매핑이 아니다"); err += 1; continue
     jobs = doc.get("jobs")
@@ -383,10 +393,10 @@ exit 0
 제거하고 fixture 를 돌렸을 때 실제로 나온 결과다 (음성 대조).
 
 | 요소 | 빼면 생기는 일 |
-|------|----------------|
+| ------ | ---------------- |
 | 머리말 4 카운터 | "위반 0" 의 분모를 알 수 없다. 대상 0 건인지, 도구가 없어 못 돈 건지 리포트만 보고 구분 불가 |
 | checkout rule 의 YAML 구조 읽기 | 줄 검사만 쓰면 `run: \|` 본문 안의 `uses: actions/checkout@v4` 글자로 PASS 하고, 흐름 표기 스텝(`- {uses: actions/checkout@v4}`)은 `checkout 스텝 없음` 으로 오보한다. python3 · PyYAML 이 없을 때만 줄 검사로 돌고 그 사실을 한 줄 찍는다 |
-| 핵심 도구 사전 검사 (`CORE_TOOLS`) | python3 · PyYAML 이 없어 checkout rule 이 줄 검사로 돌 때 `grep` 까지 없으면 `grep -q` 가 비영 종료해 **`checkout 스텝 없음` VIOLATION 을 오보**한다 (종료 코드는 핀닝 rule 이 같은 까닭으로 `[미검증]` 이라 2). python3 · PyYAML 이 있으면 checkout rule 은 grep 을 쓰지 않아 이 오보가 없지만, 사전 검사가 그보다 먼저 돌아 grep 만 없는 환경도 exit 2 로 멈춘다 — 오보를 내는 갈래를 남기느니 멈추는 쪽을 골랐다 |
+| 핵심 도구 사전 검사 (`CORE_TOOLS`) | python3 · PyYAML 이 없어 checkout rule 이 줄 검사로 돌 때 `grep` 까지 없으면 `grep -q` 가 비영 종료해 **`checkout 스텝 없음` VIOLATION 을 오보**한다 (종료 코드는 핀닝 rule 이 같은 까닭으로 `[미검증]` 이라 2). python3 · PyYAML 이 있으면 checkout rule 은 grep 을 쓰지 않으므로 사전 검사도 grep 을 요구하지 않고, 그 환경은 grep 없이 끝까지 돈다. 사전 검사를 통째로 빼면 grep 도 PyYAML 도 없는 환경에서 위 오보가 되살아난다 |
 | `${#workflows[@]}` 가드 + `exit 3` | 워크플로 0 개 프로젝트가 **exit 0(PASS)** 이 되어 검사한 적 없는 레포가 green 으로 기록된다 |
 | `shopt -s nullglob` | 매칭 없는 glob 이 리터럴 패턴으로 남아 존재하지 않는 파일을 열려다 "YAML syntax error" 를 오보 |
 | YAML 파서 (`yaml.safe_load`) | grep 은 `jobs.<id>.uses`(재사용 워크플로)·로컬 `./`·`docker://` 를 구분하지 못한다. 앵커 있는 grep 도 `actions/*` 를 조용히 면제해 **미핀닝 6 건 전부를 0 건으로 보고**했다 (실측) |
@@ -453,7 +463,7 @@ deny[msg] {
 감지된 스택에 맞는 테스트를 실행한다:
 
 | 스택 | 실행 명령 |
-|------|----------|
+| ------ | ---------- |
 | Terraform | `terraform test` 또는 `tofu test` |
 | Terratest | `cd test && go test -v -timeout 30m` |
 | Pulumi | `pulumi preview --expect-no-changes` |
@@ -471,7 +481,7 @@ deny[msg] {
 실행 전에 `../../references/gate-result-taxonomy.md` §머리말 4 카운터를 그대로 출력해 **검사 범위를 먼저 고정**한다 — 대상 수 · 규칙 소스 수 · 사용 가능 도구 수 · 미설치 도구 수. 그 다음 각 스택의 결과를 상태 5 종 중 하나로 분류한다:
 
 | 관측 | 상태 | exit |
-|------|------|------|
+| ------ | ------ | ------ |
 | 도구가 돌았고 위반 없음 | `PASS` | 0 |
 | 도구가 돌았고 위반 발견 | `VIOLATION` | 1 |
 | 그 스택의 대상 파일이 0 개 | `SKIP_NO_TARGET` | 3 |

@@ -10,7 +10,11 @@ argument-hint: "[--files <glob>] [--skip-wasm] [--skip-e2e]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **cached 파일과 working tree 불일치**: `git add` 된 파일과 수정 후 add 안 한 파일이 섞이면 결과가 부정확함. 실행 전 `git status` 확인 권장
 - **husky + lint-staged 충돌**: lint-staged 가 이미 lint/format 을 돌리고 있으면 preflight 와 중복. react-kit 기본 설정은 lint-staged 미사용 — preflight 한 번에 처리
@@ -68,13 +72,48 @@ React 프로젝트의 커밋 전 종합 품질 게이트.
 ## 단계별 실패 복구 안내
 
 | 단계 | 실패 원인 | 복구 방법 |
-|------|-----------|-----------|
+| ------ | ----------- | ----------- |
 | codegen | routeTree.gen.ts 손상 | 삭제 후 `pnpm tsr generate` 재실행 |
 | lint | 자동 수정 불가 위반 | 위반 파일:라인 확인 후 수동 수정 |
 | tsc | 타입 에러 | 첫 5개 에러 파일 수정 후 재실행 |
 | test | 테스트 실패 | 실패 테스트명 + `--update-snapshots` 필요 여부 안내 |
 | wasm-build | Rust 컴파일 에러 | `cargo check --target wasm32-unknown-unknown -p core` 로 진단 |
 | vite-build | resolve/ESBuild 에러 | `vite.config.ts` alias 설정 확인 |
+
+## 실패 원인 가르기
+
+사본 출처: `harness/skills/sprint/SKILL.md` Step 3 의 원인 가르기 조각과 판정 표 (2026-09-25 추가분). 판정 표와 CI 에서만 실패할 때의 두 경우는 글자 그대로 옮긴 사본이고 CI 가 `scripts/check-cause-table-copies.py` 로 원문과 대조한다. 조각은 임시 워크트리 준비 명령 `pnpm install --frozen-lockfile` 만 붙였다. 원문이 바뀌면 이 절도 같은 문구로 맞춘다.
+
+단계가 빨가면 고치기 전에 원인을 셋으로 가른다 — 이번 변경 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패.
+같은 명령을 깨끗한 임시 워크트리에서 다시 돌려 가른다. `<기준 가지>` 는 합칠 대상 가지, `<실패한 검사 명령>` 은 빨간 단계의 명령이다.
+임시 워크트리에는 추적하지 않는 파일(`node_modules/` · 빌드 산출물)이 없으니 준비 명령을 먼저 돌린다 — 안 돌리면 준비가 안 된 탓의 실패를 기준 커밋 탓으로 읽는다. 생성 파일(`routeTree.gen.ts` · Lingui 카탈로그)을 git 에 올리지 않는 프로젝트에서 tsc · test 가 빨가면 준비 명령 뒤에 2 단계 codegen 명령도 붙인다.
+
+```bash
+FORK_BASE=$(git merge-base HEAD origin/<기준 가지>)
+for ref in HEAD "$FORK_BASE" origin/<기준 가지>; do
+  t=$(mktemp -d)
+  git worktree add -q --detach "$t" "$ref"
+  ( cd "$t" && pnpm install --frozen-lockfile >/dev/null 2>&1 && <실패한 검사 명령> ) >/dev/null 2>&1
+  rc=$?
+  echo "$ref $(git rev-parse --short "$ref") exit=$rc"
+  git worktree remove --force "$t"
+done
+```
+
+| 공용 작업 폴더 | `HEAD` 임시 | `FORK_BASE` 임시 | 판정 |
+| --- | --- | --- | --- |
+| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 작업을 시작할 때 떠 둔 목록에도 있고 내가 쓴 목록 밖이면 남의 미커밋 후보다. 어느 하나라도 확인하지 못하면 귀속 불명이다 |
+| 실패 | 실패 | 실패 | 기준 커밋에서 이미 실패 — 내 변경 전부터다 |
+| 실패 | 실패 | 통과 | 이번 커밋 탓일 가능성이 크다 |
+
+**CI 에서만 실패하면 표 밖 두 경우를 본다.** 세 임시 폴더가 로컬에서 다 통과하는데 CI 만 실패하면 위 세 줄로 가르지 않는다.
+
+- **환경 · 비결정성** — 같은 커밋을 CI 에서 다시 돌렸는데 결과가 달라진다. 러너 이미지 · 도구 판 · 시간 · 외부 서비스가 원인 후보다
+- **미확정** — 기록도 재현 환경도 없어 가를 수 없다. 억지로 세 줄 가운데 하나에 넣지 말고 「미확정 — 같은 커밋 재실행이 필요하다」 로 적는다
+
+`FORK_BASE` 는 분기점이지 기준 가지의 지금 상태가 아니다 (<https://git-scm.com/docs/git-merge-base>).
+`origin/<기준 가지>` 줄은 분기 뒤 기준 가지가 깨졌는지를 본다 — 여기서 실패하면 합친 뒤에도 빨갈 수 있다.
+명령 · 커밋 · 종료 코드를 Report 에 인용한다.
 
 ## 부분 실행 (--files 플래그)
 
@@ -92,7 +131,7 @@ pnpm react-preflight --files "src/presentation/features/auth/**"
 ## 옵션
 
 | 옵션 | 설명 |
-|------|------|
+| ------ | ------ |
 | `--files <glob>` | 지정 파일만 lint/test 대상으로 실행 |
 | `--skip-wasm` | 6단계 wasm-build 건너뜀 |
 | `--skip-e2e` | Playwright e2e 테스트 건너뜀 (기본적으로 미포함) |

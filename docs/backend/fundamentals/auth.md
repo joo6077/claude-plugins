@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 인증과 인가
 
 JWT와 Session 비교, OAuth 2.0/OIDC, RBAC/ABAC, 토큰 갱신 전략, 비밀번호 해싱, MFA, CORS, CSRF 방어를 다룬다.
@@ -15,7 +16,7 @@ JWT와 Session 비교, OAuth 2.0/OIDC, RBAC/ABAC, 토큰 갱신 전략, 비밀�
 ### 1. JWT는 stateless 확장성, Session은 서버 제어력 — 트레이드오프 기반으로 선택한다
 
 | 항목 | JWT | Session |
-|------|-----|---------|
+| ------ | ----- | --------- |
 | 상태 저장 | 클라이언트 (토큰 자체에 클레임 포함) | 서버 (Redis, DB) |
 | 수평 확장 | 세션 저장소 공유 불필요 | 공유 저장소 필요 (Redis 등) |
 | 즉시 무효화 | 어려움 (블랙리스트 필요) | 쉬움 (세션 삭제) |
@@ -37,7 +38,7 @@ JWT는 마이크로서비스 간 인증 전파에 유리하고, Session은 단�
 ### 3. 비밀번호 해싱은 bcrypt(cost 10+) 또는 Argon2id — MD5/SHA 절대 금지
 
 | 알고리즘 | 권장 여부 | 파라미터 |
-|----------|----------|---------|
+| ---------- | ---------- | --------- |
 | **Argon2id** | 최우선 권장 | 메모리 19MiB 이상, iterations 2, parallelism 1 |
 | **bcrypt** | 권장 | cost factor 최소 10 (OWASP: 10 이상) |
 | **scrypt** | 허용 | N=2^17, r=8, p=1 |
@@ -63,7 +64,7 @@ RBAC로 시작하고, "역할 폭발"(role explosion — 조합마다 새 역할
 - **Refresh token TTL**: 7~14일. 사용할 때마다 새 refresh token을 발급하고 이전 것을 무효화한다(rotation).
 - **Refresh token 재사용 감지**: 이미 사용된 refresh token이 다시 제출되면 해당 사용자의 모든 refresh token을 무효화한다 (token family invalidation).
 
-```
+```text
 [Client] --access_token(만료)--> [Server] 401
 [Client] --refresh_token-------> [Auth Server] 새 access + 새 refresh 발급
 ```
@@ -76,7 +77,7 @@ RBAC로 시작하고, "역할 폭발"(role explosion — 조합마다 새 역할
 - 허용 origin 목록을 서버에 유지하고, 요청의 `Origin` 헤더와 대조하여 동적으로 응답한다.
 - `Access-Control-Max-Age`로 preflight 캐싱을 설정한다. 기본값은 5초, 최대 86400초(24시간, 브라우저별 상한 다름).
 
-```
+```http
 Access-Control-Allow-Origin: https://app.example.com
 Access-Control-Allow-Credentials: true
 Access-Control-Allow-Methods: GET, POST, PUT, DELETE
@@ -100,7 +101,7 @@ SameSite만으로 충분하다고 판단하지 않는다. 서브도메인 공격
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | bcrypt cost factor 최소값 | 10 이상 (OWASP: work factor of 10 or more) |
 | Argon2id 최소 메모리 | 19 MiB |
 | Argon2id iterations | 최소 2 |
@@ -114,7 +115,7 @@ SameSite만으로 충분하다고 판단하지 않는다. 서브도메인 공격
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | JWT payload에 민감 정보 저장 | JWT는 서명만 되고 암호화되지 않음. Base64 디코딩으로 즉시 노출. |
 | Refresh token 미회전 | 탈취된 refresh token으로 무한히 새 access token 발급 가능. |
 | `CORS: Access-Control-Allow-Origin: *` | Credentials와 함께 사용 불가. 우회하려고 모든 Origin을 동적 반영하면 의미 없음. |

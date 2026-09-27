@@ -1,0 +1,6 @@
+label=post-notify mode=notify session=530a93ba-7bd3-40c8-b944-c28c0e476989 transcript=/Users/jackson/.claude/projects/-private-tmp-claude-501--Users-jackson-Hub-10-Dev-claude-plugins-bda55d45-296c-491f-89ba-b52042d58e72-scratchpad-us-e2e-post-notify/530a93ba-7bd3-40c8-b944-c28c0e476989.jsonl
+prompt_kw=0 noti_kw=1 handoff_ctx=0
+hook_errors=0
+label=post-quoted mode=quoted session=99f4f0f4-c3b3-47c6-bba4-578f882313a0 transcript=/Users/jackson/.claude/projects/-private-tmp-claude-501--Users-jackson-Hub-10-Dev-claude-plugins-bda55d45-296c-491f-89ba-b52042d58e72-scratchpad-us-e2e-post-quoted-repo/99f4f0f4-c3b3-47c6-bba4-578f882313a0.jsonl
+pre_ctx=0 post_ctx=0 head_subject=init
+hook_errors=0

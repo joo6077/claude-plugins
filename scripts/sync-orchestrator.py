@@ -21,6 +21,8 @@ import json
 import sys
 from pathlib import Path
 
+from plugin_utils import KIT_RESEARCH_DOCS
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
 ORCHESTRATOR_SKILL = REPO_ROOT / ".claude" / "skills" / "kaizen-orchestrator" / "SKILL.md"
@@ -35,8 +37,17 @@ EXCLUDED_PLUGINS = {"harness"}
 FIRST_PLUGIN_PHASE = 5
 
 # 카이젠이 고치는 곳이 스킬 본문만이 아니다 —
-# 2026-09-24 사이클에 reflect-kit 의 hooks/ · docs/ 수정이 범위 줄 밖이었다
-KIT_SCOPE_DIRS = ("references/", "skills/*/references/", "agents/", "hooks/", "docs/", "evals/")
+# 2026-09-24 사이클에 reflect-kit 의 hooks/ · docs/ 수정이, 킷 scripts/ · templates/ 수정도 범위 줄 밖이었다
+KIT_SCOPE_DIRS = (
+    "references/",
+    "skills/*/references/",
+    "agents/",
+    "hooks/",
+    "docs/",
+    "evals/",
+    "scripts/",
+    "templates/",
+)
 
 
 def load_marketplace() -> list[dict]:
@@ -123,29 +134,8 @@ def infer_kaizen_skill(plugin_name: str) -> str:
 
 
 def infer_research_docs_dir(plugin_name: str) -> str | None:
-    """플러그인 이름 → 리서치 문서 디렉토리 경로.
-
-    `backend-kit` → `docs/backend/`
-    `infra-kit` → `docs/infra/`
-    `rust-kit` → `docs/rust/`
-    `react-kit` → `docs/react/`
-    `flutter-toolkit` → `docs/flutter/`
-    `design-kit` → `design-kit/docs/design/`
-    `howto-kit` → `docs/howto/`
-    """
-    mapping = {
-        "backend-kit": "docs/backend/",
-        "infra-kit": "docs/infra/",
-        "rust-kit": "docs/rust/",
-        "react-kit": "docs/react/",
-        "flutter-toolkit": "docs/flutter/",
-        "design-kit": "design-kit/docs/design/",
-        "planning-kit": "docs/planning/",
-        "tone-kit": "docs/tone/",
-        "api-kit": "docs/api/",
-        "howto-kit": "docs/howto/",
-    }
-    return mapping.get(plugin_name)
+    """플러그인 이름 → 리서치 문서 디렉토리 경로. 짝은 plugin_utils.KIT_RESEARCH_DOCS 가 정본이다."""
+    return KIT_RESEARCH_DOCS.get(plugin_name)
 
 
 def _marker_lines(content: str, marker: str) -> list[int]:

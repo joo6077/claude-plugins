@@ -22,7 +22,7 @@ user-invocable: true
 8. **생성 순서 고정** — 반드시 domain → data 순으로 생성한다. presentation 먼저 만들면 존재하지 않는 import로 tsc 오류 발생.
 9. **기존 파일 overwrite 금지** — 같은 경로 파일이 이미 존재하면 `--force` 없이 거부한다.
 10. **`@tauri-apps/*` 직접 import 금지** — datasource에서 Tauri API를 직접 import하면 레이어 경계 위반. 반드시 `src/infrastructure/tauri/`를 경유한다.
-11. **Enumerate-before-Act (skill-design-guide §5.5)** — API 레이어를 생성하기 전에 기존 `src/data/datasources/*`, `src/data/repositories/*`, `src/domain/usecases/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일 엔드포인트/유사 네이밍 datasource, (b) 재사용 가능한 기존 repository·usecase, (c) 같은 DTO/Schema 가 이미 있는지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 중복 repository 는 도메인 의존 그래프를 분산시킨다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+11. **Enumerate-before-Act (skill-design-guide §5.5)** — API 레이어를 생성하기 전에 기존 `src/data/datasources/*`, `src/data/repositories/*`, `src/domain/usecases/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일 엔드포인트/유사 네이밍 datasource, (b) 재사용 가능한 기존 repository·usecase, (c) 같은 DTO/Schema 가 이미 있는지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 중복 repository 는 도메인 의존 그래프를 분산시킨다 (insights-report #2 wrong_approach 대응). 출처: <https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom>
 12. **요청한 엔드포인트만 — 임의 CRUD 확장 금지** — "조회 API 추가" 요청에 생성·수정·삭제·페이지네이션·캐싱 레이어를 요청 없이 임의로 덧붙이지 마라. feature 4계층 풀스택이 필요하면 `/react-feature` 를 안내한다. 프로젝트 컨벤션상 표준으로 끼는 항목이 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
 13. **Counterpart Enumeration — 소비면을 편집 전에 열거한다 (skill-design-guide §5.5 · E2)** — Gotcha #11 Enumerate-before-Act 는 **내가 만들 레이어 안**을 훑는다. 이 규칙은 **반대 방향**이다. 기존 Zod 스키마·DTO·`Result` 에러 `kind`·usecase 시그니처를 **수정**할 때는 그 변경을 소비하는 파일을 편집 **전에** 경로로 열거한다. 필드 rename 이나 nullable 변경은 producer 만 고치면 타입 오류 없이 통과하고 런타임에서 깨진다 (insights-report Friction #4 — "풀스택 변경에서 클라이언트 누락").
 
@@ -39,7 +39,11 @@ user-invocable: true
 
     **부적합**: 소비자가 존재할 수 없는 순수 신규 생성(아무도 아직 import 하지 않는 파일). 이 경우 열거 단계는 noise 다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 프로젝트 환경 감지
 
@@ -220,11 +224,16 @@ pnpm eslint src/domain/entities/<resource>.ts \
 ## 6. 완료 후 안내
 
 생성 파일 목록 출력. 다음 단계:
+
 - TanStack Query 훅 생성: `/react-query`
 - 폼 연동: `/react-form`
 - 스토어 연동: `/react-store`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 환경 감지
 - `references/clean-arch-layout.md` — 4계층 배치 규칙 및 금지 import 방향

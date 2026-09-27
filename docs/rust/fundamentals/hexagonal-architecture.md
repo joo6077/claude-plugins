@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 헥사고날 아키텍처 (Ports & Adapters)
 
 Alistair Cockburn이 2005년 제안한 아키텍처 패턴. 애플리케이션을 외부 세계(UI, DB, 메시지 브로커, 외부 API)로부터 격리하는 것이 핵심 목표다. 외부 시스템이 교체되어도 도메인 로직은 변경되지 않는다. Rust에서는 `trait`이 Port, `impl`이 Adapter 역할을 한다.
@@ -76,7 +77,8 @@ impl DatabasePort for PostgresUserAdapter {
 
 두 방식은 트레이드오프가 다르다.
 
-**제네릭 기반 (정적 디스패치)**
+#### 제네릭 기반 (정적 디스패치)
+
 ```rust
 pub struct UserService<D: DatabasePort> {
     db: D,
@@ -88,9 +90,11 @@ impl<D: DatabasePort> UserService<D> {
     }
 }
 ```
+
 장점: 컴파일 타임 최적화, vtable 없음, 단형화(monomorphization)로 인라인 가능. 단점: 타입 파라미터가 늘어날수록 제네릭 폭발이 발생한다.
 
-**트레잇 객체 기반 (동적 디스패치)**
+#### 트레잇 객체 기반 (동적 디스패치)
+
 ```rust
 pub struct UserService {
     db: Arc<dyn DatabasePort>,
@@ -98,6 +102,7 @@ pub struct UserService {
     email: Arc<dyn EmailPort>,
 }
 ```
+
 장점: 포트가 많을 때 구조체가 단순해짐, DI 컨테이너와 연동 용이. 단점: vtable 간접 호출 비용, `Arc` 힙 할당.
 
 **실용 기준:** 포트가 1~2개면 제네릭, 3개 이상이면 `Arc<dyn Port>` 혼용.
@@ -245,7 +250,7 @@ pub trait JobPort: Send + Sync {
 
 Cargo workspace 기준 권장 레이아웃:
 
-```
+```text
 my-app/
 ├── Cargo.toml                  # workspace
 ├── crates/
@@ -284,6 +289,7 @@ my-app/
 ```
 
 **Cargo.toml 의존 관계:**
+
 ```toml
 # domain/Cargo.toml — 외부 인프라 크레이트 없음
 [dependencies]
@@ -303,9 +309,9 @@ aws-sdk-s3 = "1"
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | `Box<dyn Port>` vs 제네릭 전환 기준 | 포트 3개 이상 | 제네릭 폭발 방지 |
-| async_trait 오버헤드 | ~5ns/call | vtable + Box<Future> 할당. hot path 회피 |
+| async_trait 오버헤드 | ~5ns/call | vtable + `Box<Future>` 할당. hot path 회피 |
 | `Arc<dyn Port>` 비용 | ~2ns/clone | atomic ref count. 대부분 무시 가능 |
 | 포트당 메서드 수 권장 | 3~7개 | 그 이상이면 포트 분리를 검토 |
 | 어댑터당 크레이트 기준 | 인프라 기술 1개 | S3 + GCS를 하나의 어댑터 크레이트에 묶어도 무방 |

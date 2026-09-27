@@ -21,9 +21,17 @@ user-invocable: true
 8. **Enumerate-before-Act (skill-design-guide §5.5)** — feature 모듈을 추가하기 전에 기존 `modules/*` (또는 `src/api/handlers/*`) 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 중복 이름, (b) 유사 네이밍 충돌, (c) 기존 shared port 존재 여부를 먼저 열거한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 중복 모듈 생성은 Consumer-Owned Port 의존 그래프를 깨뜨린다.
 9. **Sibling Consistency (skill-design-guide §8.8) — rust-init · rust-feature · rust-service · rust-api** — 4 스킬 모두 "Composition Root 단일화" + "Consumer-Owned Port" + "Domain event + outbox" + "포트에서 인프라 타입 제거" 4 원칙을 동일 문구·동일 출처(실사용 프로젝트의 서버 규칙) 로 유지한다. 한 스킬에서만 수정되면 드리프트가 발생하므로 카이젠 시 Grep 대조 필수.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **mod.rs 패턴과 파일명 패턴을 혼용하지 마라** — 프로젝트가 `feature/mod.rs` 스타일이면 일관되게 따르고, `feature.rs` + `feature/` 디렉토리 스타일이면 그것을 따르라. 혼용하면 `mod` 선언이 꼬인다.
 - **상위 모듈에 `pub mod` 선언을 빠뜨리지 마라** — 파일을 생성만 하고 `lib.rs`나 부모 `mod.rs`에 `pub mod feature_name;`을 추가하지 않으면 컴파일러가 해당 모듈을 인식하지 못한다.
@@ -48,6 +56,7 @@ user-invocable: true
 ## 2. 기존 패턴 분석
 
 이미 존재하는 feature 모듈의 구조를 읽어 패턴을 파악한다:
+
 - 디렉토리 구조
 - mod.rs 등록 방식
 - 네이밍 컨벤션
@@ -99,6 +108,7 @@ src/{feature}.rs    # 모든 로직을 한 파일에
 ## 5. 라우터 연결 안내
 
 > 라우터에 새 feature를 연결하세요:
+>
 > ```rust
 > .nest("/{feature}", {feature}::router())
 > ```
@@ -111,7 +121,11 @@ src/{feature}.rs    # 모든 로직을 한 파일에
    > - DB 모델 추가: `/rust-model`
    > - 서비스 로직 추가: `/rust-service`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md
 - templates/rust-feature-mod.rs.template — feature 모듈 스캐폴딩 템플릿

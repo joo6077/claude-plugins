@@ -55,8 +55,9 @@ user-invocable: true
 2. **Precedence Table 재판정**
    - **진입 전제**: `actionability == user_environment` 후보는 표를 적용하지 않고 즉시 제외한다 (Gotchas #8). `freq` 는 항상 digest 의 `cluster_freq`(canonical + aliases 합산)다 — 원시 태그 빈도로 임계를 판정하면 파편화된 최상위 이슈가 통째로 누락된다.
    - digest가 제안한 surface를 **그대로 믿지 말고** 다음 4축 + 빈도로 재판정:
+
      | # | 조건 | 승격 surface |
-     |---|---|---|
+     | --- | --- | --- |
      | 0 | `user_stated_constraint == true` (freq ≥ 1, 임계값 우회) | **매-세션 자동 로드 surface로 fast-track** — `scope==global`이면 global CLAUDE.md, 아니면 project CLAUDE.md (200줄 초과 시 path-scoped rule). hard_gate면 hook 후보 병기. memory/관망으로 강등 금지 |
      | 1 | `enforcement_need == hard_gate` | **hook 검토** |
      | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** |
@@ -106,10 +107,10 @@ user-invocable: true
 
    **hook**
    - 영향 범위 큼. **초안만 제시하고 실제 hooks.json 수정은 사용자가 직접** 하게 한다.
-   - 초안에는 이벤트 타입, matcher, command, timeout 을 모두 포함한다. 아래 **이벤트 타입 사실**을 지키지 않은 초안은 예방 게이트가 아니다 (근거: https://code.claude.com/docs/en/hooks).
+   - 초안에는 이벤트 타입, matcher, command, timeout 을 모두 포함한다. 아래 **이벤트 타입 사실**을 지키지 않은 초안은 예방 게이트가 아니다 (근거: <https://code.claude.com/docs/en/hooks>).
 
    | 사실 | 초안에 미치는 영향 |
-   |---|---|
+   | --- | --- |
    | `PreToolUse` 는 tool call **직전**에만 실행된다 | 예방 게이트는 반드시 `PreToolUse` 다 |
    | `PreToolUse` 의 `exit 2` 가 그 tool call 을 **block** 한다 | 차단 의도면 exit code 2 를 명시하라. exit 0/1 은 막지 않는다 |
    | `PostToolUse` 는 **이미 성공한** tool 뒤에 실행된다. 거기서의 `exit 2` 는 stderr 를 Claude 에게 보여줄 뿐 실행을 되돌리지 못한다 | **`PostToolUse` 는 예방 surface 가 아니다.** E3 게이트를 여기에 걸지 마라 — 피드백용이다 |
@@ -117,11 +118,12 @@ user-invocable: true
    | timeout 난 command/http/mcp `PreToolUse` 훅은 tool call 을 **막지 않는다** | timeout 값을 초안에 반드시 적고, 무거운 검사는 게이트로 쓰지 마라 |
 
    - **eligibility denominator 를 조건에 박아라.** "API 문서를 확인하라" 같은 서술은 게이트가 될 수 없다. "**Edit/Write/Bash 로 변경하기 직전, 이번 turn/session 에 공식 docs 조회 증거가 없으면 block**" 처럼 (a) 언제 재는지 (b) 무엇을 세는지 (c) 무엇이 통과인지가 있어야 한다.
-   - 초안에는 **관측 카운터**(fired / blocked / bypassed / timeout)를 남기는 방법도 함께 적는다. 카운터가 없으면 다음 주기에 §B-0 를 돌릴 수 없다. hard gate 는 위반을 줄이지만 false positive 가 많으면 alert fatigue 로 무력화되며 (임상 알람 연구에서 false alarm 비율 72~99% 가 desensitization·missed alarm 으로 이어진다: https://pubmed.ncbi.nlm.nih.gov/24153215/), 우회된 게이트는 없는 게이트보다 나쁘다.
+   - 초안에는 **관측 카운터**(fired / blocked / bypassed / timeout)를 남기는 방법도 함께 적는다. 카운터가 없으면 다음 주기에 §B-0 를 돌릴 수 없다. hard gate 는 위반을 줄이지만 false positive 가 많으면 alert fatigue 로 무력화되며 (임상 알람 연구에서 false alarm 비율 72~99% 가 desensitization·missed alarm 으로 이어진다: <https://pubmed.ncbi.nlm.nih.gov/24153215/>), 우회된 게이트는 없는 게이트보다 나쁘다.
 
 5. **rule_id 발급 + ledger append**
    - `rule_id=$(uuidgen)` (macOS/Linux 모두 기본 제공)
    - `promotions-ledger.md`에 아래 YAML 블록 append:
+
      ```yaml
      - rule_id: <uuid>
        mistake_tag: <canonical_tag>          # lemma_key 안 최빈 원시 표기
@@ -139,6 +141,7 @@ user-invocable: true
        post_freq: null
        status: active
      ```
+
    - `post_freq: null` 로 둔다. `/reflect-kaizen`이 30일 뒤 숫자로 채운다 (`aliases` 포함 합산).
    - `aliases` 는 `tag_canon_groups` 가 낸 `lemma_key` 클러스터의 멤버 **전체**를 그대로 옮긴다 (Gotchas #9). **비워두거나 손으로 추리면 `post_freq` 가 구조적으로 과소집계되어 효과 없는 규칙이 "효과 있음" 으로 오판정된다.**
    - `enforcement_level` 은 신규 승격이면 아래 매핑표에서 surface 에 대응하는 값을 적는다.
@@ -162,7 +165,7 @@ user-invocable: true
 **점검 9 항 — 전부 실행 결과로 답하라. "설정돼 있을 것이다" 는 답이 아니다.**
 
 | # | 점검 | 확인 방법 | FAIL 이면 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | hook installed | 해당 훅이 실제 settings/hooks 선언에 존재하는가 | 승격이 착지하지 않았다 — 재작성 아님, 설치 |
 | 2 | event type | 예방 의도인데 `PostToolUse` 에 걸려 있지 않은가 | `PreToolUse` 로 이동 (§A step 4 hook 표) |
 | 3 | matcher | 실제로 위반이 일어난 tool 이 matcher 에 잡히는가 | matcher 확장 |
@@ -173,7 +176,7 @@ user-invocable: true
 | 8 | dependency | 훅이 쓰는 CLI/파일이 그 환경에 실재하는가 | 의존성 설치 또는 fail-open 명시 |
 | 9 | fired/blocked 카운터 | fire 는 했는데 block 을 안 한 것인가, 아예 fire 를 안 한 것인가 | 두 경우의 처방이 다르다 |
 
-**라우팅 규칙**
+#### 라우팅 규칙
 
 - 1~9 중 하나라도 FAIL → **`hook_coverage_audit` 결과로 보고하고 등급 상향을 하지 않는다.**
   ledger 엔트리는 그대로 두고 `## hook coverage` 절에 FAIL 항목과 조치를 적는다.
@@ -200,7 +203,7 @@ digest 는 PreToolUse 훅이 경고를 띄웠는데도 `skipped-required-api-doc
 3. **surface 재배치** — 등급이 올라가면 그에 맞는 surface 로 옮긴다.
 
    | §3.7 등급 | reflect-kit surface | 형태 |
-   |---|---|---|
+   | --- | --- | --- |
    | E1 | project/global memory, CLAUDE.md 한 줄 | 서술문 (on-demand 또는 매 세션 로드) |
    | E2 | path_scoped_rule, skill 의 Process 체크리스트 | 편집 시 로드되는 규칙 / 채워야 하는 아티팩트 |
    | E3 | hook (PreToolUse 등), 검증 스크립트 | LLM 호출 없이 행위 직전 차단 |

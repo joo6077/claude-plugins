@@ -4,7 +4,11 @@ version: 1.6.0
 last_updated: 2026-09-24
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Claude Code 스킬 설계 가이드
+
+<!-- markdownlint-enable MD025 -->
 
 > Anthropic 공식 문서(2026-09-24 조회) + 내부 스킬 분석 + 커뮤니티 실전 경험 정리
 
@@ -281,7 +285,7 @@ Good: 사용자 "X 함수 수정해" → Claude X 만 수정 → 인접 개선�
 | Enumerate-before-Act | §5.5 | E1 | low-freedom 영역 추정 착수 2 회 재발 → 열거 산출물을 남기는 E2 |
 | Pre-Edit Batch Audit | §3.6 | E2 (승인받는 위반 체크리스트) | 체크리스트 없이 편집 착수 2 회 재발 → 편집 전 audit 산출물 존재를 확인하는 E3 |
 | Rule-by-Rule Audit | §3.6 | E2 (완료 전 대조 리포트) | 완료 보고에 대조 결과 누락 2 회 재발 → 규칙 리스트 자동 대조 스크립트 E3 |
-| Scope-Bound Edits | §3.6 | E1 + Hard-stop 중 커밋의 대량 삭제·되돌림만 E3 (`harness/scripts/commit-guard.sh`) | 범위 밖 편집 2 회 재발 → 허용 경로 화이트리스트를 검사하는 E3 |
+| Scope-Bound Edits | §3.6 | E1 + Hard-stop 중 커밋의 대량 삭제·되돌림 · 계약 `# sprint-scope` 블록 밖 경로가 E3 (`harness/scripts/commit-guard.sh`) | 블록 없는 계약의 범위 밖 편집 2 회 재발 → 계약 작성 때 블록을 빠뜨리지 않게 막는 E3 |
 | Completion Evidence Gate | §3.7 | E2 (`[미검증]` 네 칸 · 증거 블록) | 증거 없는 완료 주장 재발 → 검증 스크립트 통과 전 완료 차단 E3 |
 | 0 기대 양성 대조 | §3.7 | E2 (명령 성공 · 대상 수 · 양성 대조 세 기록) | 대조 없이 0 을 통과로 읽은 일 2 회 재발 → 측정이 대조 결과를 함께 내게 하는 E3 |
 | 알려진 답 대조 | §3.7 | E2 (기대값 · 실제값 · 명령 기록) | 대조 없이 새 측정 값을 믿은 일 2 회 재발 → 알려진 답 입력을 측정과 함께 돌리는 E3 |
@@ -371,8 +375,30 @@ Good: 검증 불가 → "[미검증] 막는 것: 캡처 명령과 그 실패 출
 (`KSH_ARRAYS` 설정 시 예외, [zsh 매뉴얼 — Array Subscripts](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Subscripts)).
 둘 다 작은 입력 하나로 드러났을 결함이다. zsh 첨자 규칙 자체는 계약 측 문서가 맡고 여기서는 사례로만 든다.
 
+**알려진 답 입력은 흔한 실수를 넣은 사본이 다른 값을 내도록 고른다.** 측정이 저지르기 쉬운 실수(방향 무시 · 첫 칸만
+읽기 · 0 부터 세기)를 넣은 사본에서도 같은 값이 나오면 그 입력은 그 실수를 못 잡는다. 봉인 전에 사본으로 한 번 돌려
+값이 떨어지는지 본다. 실측(2026-09-24, bambu-kit 계약): G-code 길이의 알려진 답으로 반원을, 다음에 1/4 호 둘을 골랐는데
+둘 다 방향을 무시해도 같은 길이라 방향 실수를 못 잡았다. 봉인 전 검토가 두 번 고쳐 `G2` 3/4 호 · `G3` 1/4 호(반지름
+다름)로 바꿨다.
+
 **Cross-Surface Parity:** 본 원칙은 §11 parity 표 16 번째 항목이다. 생성 측 전용이라 agent-design-guide 에
 대응 절을 두지 않고, 평가자는 이 대조를 계약 조건으로 받는다.
+
+#### 검사를 만드는 스킬 — 사본 네 가지로 먼저 돌린다
+
+스킬이 만드는 산출물이 입력을 읽어 통과 · 실패나 수를 내는 것(검사 스크립트 · 막는 훅 · 검증기 · 측정 스크립트 ·
+새 시험 파일)이면, 원본 대상에서 나온 「위반 0」 · 「통과」 는 검사가 살아 있다는 증거가 아니다. 완료 보고 전에 대상
+파일은 건드리지 않고 임시 사본으로 아래 넷을 돌려 사본 경로 · 명령 · 종료 코드 · 읽은 대상 수를 증거 블록에 붙인다.
+평가 측 기준 원본은 `qa-evaluation-guide.md` §산출물이 검사일 때 — 사본으로 돌리는 다섯 가지 이고, 이 넷은 그 ①~④ 의 생성 측 짝이다.
+⑤ 효과 증명은 위 양성 대조 · 알려진 답 대조가 맡는다.
+
+1. **첫 칸만 읽기** — 위반을 둘째 이후 칸에만 둔 사본에서 실패와 그 칸이 나오고, 읽은 칸 수가 전체 칸 수와 같다
+2. **표에만 올린 시험** — 새 시험 파일이 실행 목록(러너 수집 명령 · 실행 스크립트 · CI 단계)에 들어가 실행 출력에
+   그 파일이 나온다. 종료 코드 0 은 수집 여부를 말하지 않는다
+3. **한 칸 못 읽으면 전체 꺼짐** — 한 칸은 못 읽게, 다른 칸에는 실제 위반을 넣은 사본에서 위반이 잡히고 못 읽은 칸이
+   따로 나온다. 「위반 없음」 이나 종료 코드 0 이면 결함이다
+4. **셸마다 다른 대상 수** — 셸 코드면 zsh · bash 양쪽에서 읽은 대상 수가 같고 0 보다 크다. 해석기가 정해진
+   스크립트(첫 줄 `#!` 이나 부르는 쪽이 `bash` 로 고정)는 그 해석기로만 돌린다
 
 ---
 
@@ -428,7 +454,7 @@ Good: 사용자 "아직 깨져 있음" → 상태 REOPENED → 6 축 대조 → 
 
 > **출처:** [Skill Authoring Best Practices — YAML frontmatter requirements](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#yaml-frontmatter-requirements)
 
-SKILL.md frontmatter 는 두 개의 필수 필드를 가지며, 각 필드는 엄격한 검증 규칙을 따른다.
+`name` · `description` 을 필수로 두는 것은 Agent Skills 표준(`agentskills.io/specification`)이다. Claude Code 런타임은 frontmatter 필드를 모두 선택으로 받는다 — `description` 은 권장이고 `name` 이 없으면 폴더 이름을 쓴다(`code.claude.com/docs/en/skills` Frontmatter reference, 2026-09-26 원문 대조). 여러 런타임에서 쓰려면 두 필드를 채우고, 채운 값은 아래 검증 규칙을 따른다.
 
 **`name` 필드 규칙:**
 
@@ -505,7 +531,11 @@ description: >
 
 **"무엇을 하는 스킬인가"뿐 아니라 트리거 키워드와 비트리거 조건까지 명시해야 한다.**
 
+<!-- markdownlint-disable MD024 -->
+
 ### 이 프로젝트의 실제 예시
+
+<!-- markdownlint-enable MD024 -->
 
 `sprint-contract` 스킬의 description:
 
@@ -841,7 +871,7 @@ Claude가 도구를 쓰기 직전에 자동으로 검사하는 검문소를 설�
 **호환성 유지 규칙:**
 
 - frontmatter는 `name`, `description` 필드를 공통으로 사용 (모든 플랫폼 지원)
-- `argument-hint`, `user-invocable` 등 Claude Code 전용 필드는 다른 플랫폼에서 무시됨 (호환에 영향 없음)
+- `argument-hint`, `user-invocable` 등 Claude Code 전용 필드를 다른 런타임이 무시한다는 보장은 없다. Claude Code 는 모르는 필드를 오류 없이 넘기지만, Agent Skills 표준은 표준 밖 필드를 모든 런타임이 무시하라고 정하지 않았고, claude.ai 업로드 같은 배포 경로는 검증 오류로 거부한다. 표준 밖 값을 담을 자리는 `metadata` 다
 - 본문의 Process/Gotchas 구조는 마크다운이므로 플랫폼 무관
 - 플랫폼 전용 기능(hooks, MCP 서버)은 별도 설정 파일로 분리
 
@@ -995,6 +1025,25 @@ rust-init/SKILL.md     Gotchas: ["Composition Root 단일화 원칙", "domain ev
 
 ---
 
+## 8.9. 화면 규약 세 벌이 같이 쓰는 숫자
+
+화면을 만들거나 고치는 킷 셋은 규약을 따로 든다 — design-kit `references/visual-change-protocol.md` ·
+flutter-toolkit `references/visual-evidence-protocol.md` · react-kit `references/render-evidence-protocol.md`.
+채널 · 도구 · 명령은 스택마다 다르지만 아래 두 숫자는 셋이 같이 쓴다. 두 숫자의 기준 원본은 이 절이다.
+
+| 숫자 | 뜻 | 규약 자리 |
+| ---- | -- | --------- |
+| 2 개 이상 | 편집 전에 같은 역할의 서로 다른 기존 화면을 2 개 이상 읽어 관례 표로 남긴다 | design §0 · flutter Step 0 · react §1 |
+| 최대 3 회 | 의도 밖 영역이 바뀌면 스스로 되돌리고 다시 고친다. 3 회를 넘기면 사용자에게 넘긴다 | design §3 · flutter Step 2 · react §2 |
+
+킷은 따로 설치되어 harness 파일을 읽지 못하므로 세 규약도 숫자를 그대로 들고 이 절을 인용한다. 값을 바꿀 때는
+이 절을 먼저 고치고, 같은 작업에서 세 규약의 숫자를 함께 바꾼다.
+
+**한계.** 두 숫자를 정하는 바깥 표준은 없다. 형제 규약끼리 맞추는 것과 운영 비용(편집 전에 읽을 화면 수 · 되풀이
+횟수)을 보고 고른 레포 결정이다 (`.harness/.meta/kaizen-0924/phase6-notes.md`).
+
+---
+
 ## 9. 실전 시작 가이드
 
 ### 처음부터 완벽하게 만들지 마라
@@ -1047,6 +1096,8 @@ v0.5: templates/report.md 추가
 1. Sprint task 첫 단계에서 `git fetch --all && git log origin/<base> --oneline -20` 실행
 2. 인접 파일 동시 수정 흔적이 있으면 reconciliation commit 후 진행, 없으면 그대로 진행
 3. orchestrator 류 스킬은 이 단계를 Step 0 (pre-flight) 의 일부로 흡수 — 매 sprint 마다 따로 실행하지 않도록 자동화
+4. 다른 세션과 같은 작업 폴더를 쓰고 있으면 `git checkout -b` 로 가지만 바꾸지 않는다 — 남의 미커밋 변경이 새 가지로 따라온다.
+   `git worktree add <새 폴더> -b <가지> <기준 커밋>` 으로 폴더를 따로 만든다 (<https://git-scm.com/docs/git-worktree>)
 
 **부적합:** 1 파일 변경, 단순 질의, read-only 분석 — 이 단계는 noise 가 된다. **적합:** kaizen, create-kit, 멀티 Phase orchestrator, sprint-level refactor.
 

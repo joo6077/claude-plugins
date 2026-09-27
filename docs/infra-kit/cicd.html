@@ -278,7 +278,6 @@
     padding:28px;
     transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition);
     position:relative;
-    overflow:hidden;
   }
 
   .card::before{
@@ -287,6 +286,7 @@
     top:0;
     left:0;
     width:3px;
+    border-radius:var(--radius) 0 0 var(--radius);
     height:0;
     background:var(--accent);
     transition:height var(--transition);
@@ -887,15 +887,6 @@
     }
   }
 
-  @media(prefers-reduced-motion:reduce){
-    html{
-      scroll-behavior:auto;
-    }
-    *{
-      transition:none!important;
-      animation:none!important;
-    }
-  }
 </style>
 </head>
 <body>
@@ -1070,7 +1061,7 @@ done</code></pre>
             <td><span class="pill fail">실패</span></td>
             <td><span class="pill pass">통과</span></td>
             <td>—</td>
-            <td class="verdict">미커밋 변경 탓 — <code>git status --short</code> 의 파일이 내가 쓴 목록 밖이면 남의 미커밋이다</td>
+            <td class="verdict">미커밋 변경 탓 — <code>git status --short</code> 의 파일이 작업을 시작할 때 떠 둔 목록에도 있고 내가 쓴 목록 밖이면 남의 미커밋 후보다. 어느 하나라도 확인하지 못하면 귀속 불명이다</td>
           </tr>
           <tr>
             <td><span class="pill fail">실패</span></td>

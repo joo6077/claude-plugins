@@ -2,10 +2,12 @@
 
 섹션 순서가 `backend-reviewer` 에이전트의 평가 카테고리 순서와 일치한다. 2026-07 기준 최신 표준·BCP·커뮤니티 모범 사례를 반영한다.
 
+설치본 플러그인에는 `docs/backend/` 가 없다 — 이 파일의 `docs/backend/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 ## 1. Architecture
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 도메인-persistence 분리 | 도메인 엔티티와 DB 매핑 클래스가 분리되어 있다 (단일 엔티티로 DB 애노테이션·비즈니스 규칙 혼재 없음) | [Vaadin DDD+Hexagonal](https://vaadin.com/blog/ddd-part-3-domain-driven-design-and-the-hexagonal-architecture) |
 | Port / Adapter 경계 | 외부 시스템(DB, HTTP, MQ)은 어댑터 경계 뒤에 있고 도메인이 어댑터를 직접 import 하지 않는다 | [AWS Prescriptive Hexagonal](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html) |
 | 의존성 방향 inward-only | 외부 레이어가 내부 레이어에 의존하고 반대는 금지 (Clean Architecture의존성 규칙) | [Hexagonal vs Clean 2026](https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f) |
@@ -15,11 +17,11 @@
 ## 2. API Design
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | HTTP 메서드 의미론 | GET=safe, PUT=전체교체, PATCH=부분수정 | [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110) |
 | 에러 응답 포맷 | application/problem+json (RFC 9457) — `type` URI로 문제 유형 식별, `title`/`status`/`detail`/`instance` 까지 다섯 필드를 넣는다. 다섯 필드를 모두 넣는 것은 이 킷 규칙(`api-design.md` 원칙 3)이다 — RFC 9457 은 `type` 이 없으면 `about:blank` 로 보므로 누락을 RFC 위반으로 적지 않는다. 커스텀 확장 필드 허용 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), [Swagger RFC 9457](https://swagger.io/blog/problem-details-rfc9457-doing-api-errors-well/) |
 | 페이지네이션 | 대량 목록에 cursor/keyset 사용 | [Slack Engineering — Evolving Pagination](https://slack.engineering/evolving-api-pagination-at-slack/) |
-| OpenAPI 3.1 JSON Schema 호환 | 스펙이 OpenAPI 3.1.x 이상이고 JSON Schema draft와 호환되며 실제 응답과 일치 | [OpenAPI Spec 3.1](https://swagger.io/specification/) |
+| OpenAPI 3.1 JSON Schema 호환 | 스펙이 OpenAPI 3.1 이상(최소 지원선 — 3.1 지원 도구는 3.1.* 전부와 호환해야 하고, 최신판 3.2.1 을 요구하지 않는다)이고 JSON Schema draft와 호환되며 실제 응답과 일치 | [OpenAPI Spec 3.1](https://swagger.io/specification/) |
 | 하이브리드 API 경계 선택 | REST/GraphQL/gRPC 선택이 boundary별 설명되어 있다 (단일 프로토콜 강요 금지, public=REST / 다중 클라이언트=GraphQL / internal=gRPC) | [GraphQL vs REST vs gRPC 2026](https://www.javacodegeeks.com/2026/02/graphql-vs-rest-vs-grpc-the-2026-api-architecture-decision.html), [Fordel Studios 2026](https://fordelstudios.com/) |
 | API Versioning 전략 | REST: URL path(/v1/) 기본, Header(Accept-Version + Sunset RFC 8594) 보조. GraphQL: 버전 없는 진화(@deprecated + additive changes). Contract-First 스키마 진화 원칙 존재 | [Moesif API Versioning](https://www.moesif.com/blog/technical/api-design/Best-Practices-for-Versioning-REST-and-GraphQL-APIs/), [Dan Vega GraphQL Evolution](https://www.danvega.dev/blog/2025/09/30/api-versioning-with-graphql) |
 | 빈 상태 상태코드 일관성 | 원소 0 개인 컬렉션에 200(빈 배열) 또는 204 를 반환한다. 404 는 "대상 리소스의 현재 표현을 찾지 못했거나 존재를 밝히지 않겠다" 는 뜻이므로 **존재하는 빈 컬렉션에 쓰면 FAIL**. 같은 리소스군 안에서 빈 상태 처리가 엔드포인트마다 갈리는 것도 FAIL | [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html) |
@@ -30,7 +32,7 @@
 ## 3. Database
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | N+1 부재 | 루프 내 개별 쿼리 없음 | PostgreSQL docs |
 | 인덱스 존재 | WHERE/JOIN 컬럼에 적절한 인덱스 | PostgreSQL indexes |
 | Connection pooling | 풀링 설정 존재 (HikariCP/PgBouncer) | HikariCP docs |
@@ -43,7 +45,7 @@
 ## 4. Authentication & Authorization
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 비밀번호 해싱 | bcrypt(12+) 또는 Argon2id | OWASP |
 | 토큰 저장 | JWT를 localStorage에 미저장 (XSS 탈취 방지) | OWASP Session |
 | CORS 설정 | 와일드카드(*) + credentials 미사용 | MDN CORS |
@@ -57,7 +59,7 @@
 ## 5. Error Handling
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 글로벌 핸들러 | 표준 에러 포맷(RFC 9457 problem+json)으로 변환. `type` URI 필드로 에러 문서 자동 연결 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), [Swagger RFC 9457](https://swagger.io/blog/problem-details-rfc9457-doing-api-errors-well/) |
 | 스택트레이스 미노출 | 프로덕션 에러에 내부 정보 없음 | OWASP |
 | Retry 전략 | exponential backoff + jitter | AWS Architecture |
@@ -67,7 +69,7 @@
 ## 6. Security
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | Injection 방어 | 파라미터화된 쿼리 | OWASP Top 10 |
 | XSS 방어 | 출력 인코딩 + CSP | OWASP XSS |
 | 보안 헤더 | HSTS, X-Content-Type-Options, CSP | OWASP Headers |
@@ -77,7 +79,7 @@
 ## 7. Caching
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | TTL 존재 | 모든 캐시 키에 TTL 설정 | Redis docs |
 | Stampede 방지 | 인기 키에 lock/early expiry | Cloudflare |
 | 무효화 전략 | TTL만이 아닌 이벤트 기반 | Azure Architecture |
@@ -85,7 +87,7 @@
 ## 8. Event-Driven
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | Idempotency | consumer에 중복 처리 방어 (dedupe key, per-aggregate sequence) | Stripe |
 | DLQ 존재 | 실패 메시지 격리 경로 | AWS SQS |
 | 이중쓰기 방지 | outbox 패턴 또는 동등한 원자성 | [microservices.io Outbox](https://microservices.io/patterns/data/transactional-outbox.html) |
@@ -98,7 +100,7 @@
 ## 9. Testing
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 테스트 존재 | 핵심 로직에 단위 테스트 | Google Testing Blog |
 | DB 테스트 | 실제 DB (Testcontainers 등) | Testcontainers |
 | Contract test (Pact v4+) | consumer-driven contract, Pact v4 + Testcontainers 기반, GraphQL/async 메시지 지원. AI-assisted contract testing(PactFlow MCP Server) 도입 시 생성/유지보수 60% 가속화 가능 | [prgrmmng Pact+Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact), [PactFlow MCP Server](https://pactflow.io/blog/pactflow-mcp-server/) |
@@ -109,7 +111,7 @@
 ## 10. Observability
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 구조화 로깅 | JSON 포맷, 표준 필드명, trace_id/span_id 포함, semantic conventions 준수 | [BetterStack OTel Best Practices](https://betterstack.com/community/guides/observability/opentelemetry-best-practices/) |
 | OTel 3 Signals 통합 | Traces + Metrics + Logs 가 OTLP exporter 로 통합 수집된다. W3C Trace Context 가 기본 전파 포맷 | [OTel Specification Status](https://opentelemetry.io/docs/specs/status/), [OTLP 1.10.0](https://opentelemetry.io/docs/specs/otlp/) |
 | PII 마스킹 | 로그에 이메일/전화번호/IP 등 개인정보가 마스킹 처리되어 있다 (GDPR/PIPA 준수) | OWASP Logging |

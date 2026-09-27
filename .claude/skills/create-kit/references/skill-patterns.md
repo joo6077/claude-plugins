@@ -4,7 +4,7 @@
 
 ## 패턴 개요
 
-```
+```text
 {kit-name}/
 ├── .claude-plugin/plugin.json
 ├── skills/

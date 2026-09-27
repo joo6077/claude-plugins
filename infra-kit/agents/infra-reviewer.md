@@ -58,7 +58,7 @@ diff <(grep '^## ' infra-kit/references/audit-criteria.md | grep -v '판정 규�
 표 row 는 카테고리가 아니라 **개별 rule** 단위다 (Rule-by-Rule Audit). 미검증 항목은 `[미검증:ENV]` 또는 `[미검증:INVALID]` 와 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 근거 열에 적는다 — 네 칸은 §`UNVERIFIED_ENV` 남용 방지 4 요건을 채우는 형태이고, 하나라도 비면 `INVALID` 다.
 
 | # | 카테고리 | Rule | 판정 | 파일:라인 | 근거 | 출처 |
-|---|----------|------|------|-----------|------|------|
+| --- | ---------- | ------ | ------ | ----------- | ------ | ------ |
 | 1 | Container | non-root 실행 | PASS/FAIL | `Dockerfile:25` | `USER 1001:1001` 지시어 존재 | [Docker USER](https://docs.docker.com/reference/dockerfile/#user) |
 | 2 | Kubernetes | PSA baseline 라벨 | PASS/FAIL | `k8s/namespace.yaml:5` | `pod-security.kubernetes.io/enforce=baseline` 라벨 확인 | [Kubernetes PSA](https://kubernetes.io/docs/concepts/security/pod-security-admission/) |
 | 3 | IaC | Ephemeral values | `[미검증:ENV]` | n/a | 막는 것: `terraform state pull` 과 그 접근 거부 출력 · 시도한 우회: `main.tf:15` `ephemeral` 블록 정적 확인 · 통제 불가 사유: 백엔드 자격증명이 없다 · 재검증 명령: `AWS_PROFILE=infra terraform state pull \| jq '.resources'` | [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral) |
@@ -113,7 +113,8 @@ diff <(grep '^## ' infra-kit/references/audit-criteria.md | grep -v '판정 규�
    (4 분기: FAIL / `UNVERIFIED_ENV` / 4 요건 미충족 / 증거 무효).
    마커 어간은 `[미검증]` 하나이며 접미 `:ENV` / `:INVALID` 는 분류다. **접미 없는 레거시
    `[미검증]` 은 `INVALID` 로 해석한다.**
-3. **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
+
+   **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
    **1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT**.
    "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며 2 건 이상에는
    쓸 수 없다. **`UNVERIFIED_ENV` 는 이 카운터에 합산하지 않고** `env_gaps` 로 따로 세어

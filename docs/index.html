@@ -236,7 +236,7 @@ body{
         { id: 'agent-design',       title: '에이전트 설계 가이드 v1.7.0',   file: 'harness/agent-design-guide.html' },
         { id: 'contract-design',    title: '계약 설계 원칙 v5.1',           file: 'harness/contract-design-guide.html' },
         { id: 'qa-evaluation',      title: 'QA 평가 방법론 v5.1',           file: 'harness/qa-evaluation-guide.html' },
-        { id: 'contract-schema',    title: 'Sprint Contract 스키마 v5.5',   file: 'harness/contract-schema.html' },
+        { id: 'contract-schema',    title: 'Sprint Contract 스키마 v5.7',   file: 'harness/contract-schema.html' },
         { id: 'feedback-system',    title: '피드백 시스템',           file: 'harness/feedback-system.html' },
         { id: 'plugin-validation',  title: '플러그인 검증 가이드',   file: 'harness/plugin-validation.html' },
       ]
@@ -400,6 +400,7 @@ body{
         { id: 'grpc',             title: 'gRPC',                    file: 'backend-kit/grpc.html' },
         { id: 'realtime',         title: '실시간 통신',             file: 'backend-kit/realtime.html' },
         { id: 'write-path-integrity', title: '쓰기 경로 무결성', file: 'backend-kit/write-path-integrity.html' },
+        { id: 'backend-research-log', title: 'Research Log (연구 기록)', file: 'backend-kit/research-log.html' },
       ]
     },
     {
@@ -449,6 +450,7 @@ body{
         { id: 'tls-secrets',      title: 'TLS & 시크릿 관리',       file: 'infra-kit/tls-secrets.html' },
         { id: 'infra-test',       title: '인프라 테스트 자동 생성',  file: 'infra-kit/infra-test.html' },
         { id: 'gate-result-taxonomy', title: '게이트 결과 taxonomy', file: 'infra-kit/gate-result-taxonomy.html' },
+        { id: 'infra-research-log', title: 'Research Log (연구 기록)', file: 'infra-kit/research-log.html' },
       ]
     },
     {
@@ -476,6 +478,7 @@ body{
         { id: 'ci-cd-rust',            title: 'CI/CD',               file: 'rust-kit/ci-cd.html' },
         { id: 'observability-rust',    title: '관측성',              file: 'rust-kit/observability.html' },
         { id: 'concurrency-guard-protocol', title: '동시성 가드 프로토콜', file: 'rust-kit/concurrency-guard-protocol.html' },
+        { id: 'project-detection-rust', title: 'Rust 프로젝트 감지', file: 'rust-kit/project-detection.html' },
       ]
     },
     {
@@ -492,6 +495,8 @@ body{
         { id: 'react-wasm-catalog', title: 'WASM Decision Catalog',   file: 'react-kit/wasm-catalog.html' },
         { id: 'react-integration',  title: 'Final Integration',       file: 'react-kit/integration.html' },
         { id: 'render-evidence-protocol', title: '렌더 증거 프로토콜', file: 'react-kit/render-evidence-protocol.html' },
+        { id: 'react-project-detection', title: '프로젝트 감지 규칙', file: 'react-kit/project-detection.html' },
+        { id: 'react-research-log', title: 'Research Log (연구 기록)', file: 'react-kit/research-log.html' },
       ]
     },
     {
@@ -503,6 +508,7 @@ body{
         { id: 'reflect-research', title: 'Research (Reflexion · Surface · Audit)',  file: 'reflect-kit/research.html' },
         { id: 'reflect-codex-kaizen', title: 'Codex Kaizen (Auto-log · Method · Approval Gate)', file: 'reflect-kit/codex-kaizen.html' },
         { id: 'tag-canonicalization', title: '태그 정규화', file: 'reflect-kit/tag-canonicalization.html' },
+        { id: 'reflect-digest', title: 'reflect-digest (반복 실수 집계)', file: 'reflect-kit/reflect-digest.html' },
       ]
     },
     {
@@ -543,6 +549,10 @@ body{
         { id: 'tone-antipattern', title: 'Antipattern Catalog (A~J 판정)',           file: 'tone-kit/antipattern-catalog.html' },
         { id: 'tone-adapter',     title: 'Dart / Flutter Idioms (어댑터 슬롯)',      file: 'tone-kit/dart-flutter-idioms.html' },
         { id: 'tone-campaign',    title: 'Campaign Methodology (파일 단위 정리)',    file: 'tone-kit/campaign-methodology.html' },
+        { id: 'adapter-contract', title: '어댑터 계약 (슬롯 정의)', file: 'tone-kit/adapter-contract.html' },
+        { id: 'adapter-dart-flutter', title: 'dart-flutter 어댑터 (슬롯 값 · grep 10종)', file: 'tone-kit/adapter-dart-flutter.html' },
+        { id: 'locale-korean', title: '한국어 축 운영 규칙 (locale-korean)', file: 'tone-kit/locale-korean.html' },
+        { id: 'tone-sources', title: '출처 목록 (축별 근거)', file: 'tone-kit/sources.html' },
       ]
     },
     {
@@ -561,6 +571,7 @@ body{
         { id: 'api-regression-diff',      title: 'Regression Diff &amp; Failure Policy',          file: 'api-kit/regression-diff-failure-policy.html' },
         { id: 'api-viewer',               title: 'Static Evidence Viewer (의존성 0 뷰어)',     file: 'api-kit/static-evidence-viewer-contract.html' },
         { id: 'api-baseline-governance',  title: 'Baseline Governance (승격 거버넌스)',        file: 'api-kit/baseline-governance-promotion.html' },
+        { id: 'api-research-log', title: 'Research Log (연구 기록)', file: 'api-kit/research-log.html' },
       ]
     },
     {
@@ -582,6 +593,7 @@ body{
       pages: [
         { id: 'kaizen-flow',      title: '카이젠 오케스트레이션',    file: 'process/kaizen-flow.html' },
         { id: 'create-kit-flow',  title: 'Create Kit 파이프라인',    file: 'process/create-kit-flow.html' },
+        { id: 'phase-research-templates', title: 'Phase 별 리서치 소스 목록', file: 'process/phase-research-templates.html' },
       ]
     }
   ];
@@ -627,6 +639,9 @@ body{
       'tone-antipattern':   '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>',
       'tone-adapter':       '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 3v6M11 3v6"/><path d="M5 9h8v4a4 4 0 0 1-4 4v4"/><circle cx="18" cy="12" r="3"/></svg>',
       'tone-campaign':      '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M4 12h10M4 18h6"/><path d="M17 7l2 2 4-4"/><path d="M17 15l2 2 4-4"/></svg>',
+      'adapter-contract': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="13" width="7" height="7" rx="1"/><path d="M10 7.5h4a3 3 0 0 1 3 3V13"/></svg>',
+      'adapter-dart-flutter': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 3L5 11l3 3 8-8z"/><path d="M8 14l5 5h6l-5-5"/></svg>',
+      'locale-korean': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5h9M8.5 5v2"/><path d="M5 12c2-1 4-3 5-5"/><path d="M14 20l3.5-9 3.5 9M15.2 17h4.6"/></svg>',
       // API Kit
       'design-concept':      '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>',
       'design-reference':    '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="4" rx="1"/><rect x="14" y="11" width="7" height="9" rx="1"/><rect x="3" y="14" width="7" height="6" rx="1"/></svg>',
@@ -647,10 +662,18 @@ body{
       'api-regression-diff':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="4" width="8" height="16" rx="1"/><rect x="13.5" y="4" width="8" height="16" rx="1"/><path d="M4.5 12h4"/><path d="M17.5 10v4M15.5 12h4"/></svg>',
       'api-viewer':         '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><circle cx="6.5" cy="6.5" r="0.6" fill="currentColor"/><path d="M7 13h6M7 16h9"/></svg>',
       'api-baseline-governance':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h6M4 15h10M4 10h6"/><path d="M17 21V7"/><path d="M13.5 10.5L17 7l3.5 3.5"/></svg>',
+      'api-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'backend-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'infra-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'react-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'react-project-detection': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/><path d="M9 11h4M11 9v4"/></svg>',
+      'tone-sources': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 8h6M9 12h4"/></svg>',
       'bambu-failure-recipes':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
       'tag-canonicalization': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h7l4 4-4 4H3z"/><path d="M14 12h7"/><circle cx="19" cy="8" r="1.5"/><circle cx="19" cy="16" r="1.5"/></svg>',
+      'reflect-digest': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>',
       'gate-result-taxonomy': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v6"/><circle cx="12" cy="11" r="2"/><path d="M12 13v3M6 21v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/></svg>',
       'concurrency-guard-protocol':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M10 7h4a3 3 0 0 1 3 3v4"/></svg>',
+      'project-detection-rust': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/><path d="M9 11h4M11 9v4"/></svg>',
       'write-path-integrity': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>',
       'primitive-substitution-gate':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><path d="M14 6.5h7M14 10h4"/><path d="M6.5 14v7M3 17.5h7"/></svg>',
       'visual-hierarchy':   '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12,2 22,20 2,20"/></svg>',
@@ -681,6 +704,7 @@ body{
       'howto-deprecation-policy': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M4.5 5.5l15 13" stroke-dasharray="2 2"/></svg>',
       'howto-procedure-standards': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M4 12h16M4 18h7"/><path d="M17 5l2 2 3-3"/></svg>',
       'kaizen-flow':        '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>',
+      'phase-research-templates': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h12l4 4v12H4z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>',
       // Harness
       'skill-design':       '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
       'agent-design':       '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>',

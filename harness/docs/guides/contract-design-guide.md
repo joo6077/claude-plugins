@@ -4,7 +4,11 @@ version: v5.1
 last_updated: 2026-09-24
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Contract Design Guide
+
+<!-- markdownlint-enable MD025 -->
 
 > sprint-contract 스킬이 참조하는 계약 작성 원칙.
 > contract-kaizen이 리서치 기반으로 이 문서를 갱신한다.
@@ -607,10 +611,14 @@ PASS 가 발생한다 ([Test Oracle 정의](https://testrigor.com/blog/what-is-t
 금지 대상: 도구·SDK 버전(`02.08.02.61`, `3.16.0`) · 절대경로(`/Users/<name>/...`) ·
 호스트명 · 포트 · 계정/세션 ID · 오늘 날짜 · 설치본에서 읽은 수치.
 
+<!-- markdownlint-disable MD038 -->
+
 | 잘못된 조건 | 고친 조건 |
 | ----------- | --------- |
 | `- [ ] X-01: Bambu Studio 02.08.02.61 기준 enum 4 값이 문서화된다` | `- [ ] X-01: 설치본에서 조회한 enum 값이 문서화되고, 조회 시점 버전이 근거로 함께 적힌다 (Given: 설치본 버전을 조건이 아니라 근거란에 기록)` |
 | `- [ ] X-02: /Users/me/proj/out 에 산출물이 생성된다` | `- [ ] X-02: 계약이 정한 출력 디렉토리에 산출물이 생성된다 (측정: `$OUT_DIR` 기준 상대경로)` |
+
+<!-- markdownlint-enable MD038 -->
 
 **규칙:** 환경값이 조건의 판정에 필요하면 조건 본문이 아니라 `Given:` 절에 **전제**로 적고,
 구체 값은 서술 섹션의 근거란에 남긴다. 조건은 환경이 바뀌어도 유효해야 한다.
@@ -627,10 +635,14 @@ PASS 가 발생한다 ([Test Oracle 정의](https://testrigor.com/blog/what-is-t
 바뀌었는가" 와 "그 문자열이 diff 어딘가에 등장하는가" 를 구분하지 못한다. 값을 바꾸지 않고
 그 값을 **언급하기만 해도** FAIL 한다.
 
+<!-- markdownlint-disable MD033 MD056 -->
+
 | 조건 의도 | 잘못된 oracle | 의미 일치 oracle |
 | ----------- | -------------- | ----------------- |
 | "이 변경은 스키마 버전을 올리지 않았다" | `git diff | grep -cE '^\+.*v5\.[45]'` 가 0 — 본문에 "v5.4 는 다른 브랜치가 선점" 이라고 **적기만 해도** 1 이 되어 FAIL | 버전 **선언 라인**만 본다: `git diff <base>..HEAD -- <file> | grep -E '^[+-]현재: \*\*v5\.'` 가 0 행 (또는 +/- 대칭) |
 | "공개 API 시그니처를 바꾸지 않았다" | `git diff | grep -c '<함수명>'` | 선언부만 추출해 대조 — `git show <base>:<file>`/`HEAD:<file>` 각각에서 시그니처 줄을 뽑아 `diff` |
+
+<!-- markdownlint-enable MD033 MD056 -->
 
 **규칙:** 부정형 조건("바꾸지 않았다" · "남아 있지 않다" · "추가되지 않았다")은 **어디를 볼지**
 먼저 좁혀라. 선언 라인 · 특정 섹션 · 특정 필드로 한정한 뒤 그 범위에서 측정한다. 범위를 안 좁힌
@@ -662,11 +674,15 @@ awk '/^## 이 킷이 사실로 말하지 않는 것/{f=1;print;next} f&&/^## /{e
 
 출력: `9`
 
+<!-- markdownlint-disable MD038 -->
+
 **종료 패턴이 코드펜스 안의 줄에도 매치된다.** 마크다운 문서를 자를 때 `^#{1,4} ` 같은 헤딩
 패턴을 종료 조건으로 쓰면, 본문 코드블록 안의 셸 주석(`# 설명`)에서 추출이 끊긴다. 실측:
 이 절을 `awk '/^#### 측정 명령 타당성/{f=1;print;next} f&&/^#{1,4} /{exit} f'` 로 자르니
 바로 아래 `bash` 블록의 주석 줄에서 멈춰 `awk` 토큰이 1 개만 잡혔다. **셸 주석을 코드펜스
 바깥 산문으로 빼거나, 종료 패턴을 코드펜스 밖에서만 유효하도록 좁혀라.**
+
+<!-- markdownlint-enable MD038 -->
 
 **규칙:** 플래그형(`{f=1;print;next} f&&/<종료>/{exit} f`)을 쓰고, **계약 작성 시점에 1 회
 실행해 줄 수를 서술 섹션에 남겨라.** 0 줄이나 1 줄이 나오면 그 oracle 은 죽은 것이다.
@@ -756,7 +772,7 @@ Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approv
 
 **따라서 0 기대 조건에는 `양성 대조:` 절을 쓰고 봉인 전에 실측한다.** 포맷 정의는 `harness/references/contract-schema.md` §양성 대조 가 SSOT 이며 여기서 재정의하지 않는다. 평가자 쪽 대응 규칙은 `qa-evaluation-guide.md` §0 매치 판정 규칙 이다.
 
-**기계 자동 경보는 두지 않았다.** 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(`grep -c` 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 5 종)과 평가자 규칙으로 막는다.
+**기계 자동 경보는 두지 않았다.** 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(`grep -c` 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 8 종)과 평가자 규칙으로 막는다.
 
 #### 대상 파일을 열거하라 — 개수만 적으면 집합이 재현되지 않는다 (2026-09-23 추가)
 
@@ -1308,5 +1324,5 @@ verdict 에 반영되지 않는다.
 | 항목 | 값 | 원본 |
 | ------ | ------ | ------ |
 | Guide version | 2026-09-24 (Phase 2 kaizen · v5.1) | 이 파일 YAML frontmatter 의 `version` (= `v5.1`) 이 SSOT — 날짜·사유만 이 행에 적는다. 상위 surface(`qa-evaluation-guide.md` §버전 정보 Parity)가 그 필드를 추출하므로 **둘을 같이 올린다** |
-| Schema version | v5.5 | `harness/references/contract-schema.md` §스키마 버전 > `현재:` |
+| Schema version | v5.7 | `harness/references/contract-schema.md` §스키마 버전 > `현재:` |
 | Parity with | skill-design-guide 1.6.0 · agent-design-guide 1.7.0 | 두 가이드 frontmatter `version` |

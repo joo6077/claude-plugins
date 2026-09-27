@@ -32,14 +32,18 @@ user-invocable: true
 18. **멱등성 조언은 "Idempotency-Key 를 쓰세요" 에서 멈추지 마라** — 헤더만으로는 재시도 안전성이 성립하지 않는다. key 범위 · payload fingerprint · replay response · in-flight duplicate · different-payload reuse · expiry **6 항목**을 짚어야 처방이다 (SSOT: 위 프로토콜 §4). 또한 그 IETF 문서는 **만료된 Internet-Draft** 이므로 "표준" 으로 소개하지 마라.
 19. **"UTC 로 통일하라" 전에 시각 종류부터 나눠라 (enforcement 등급 E1)** — Gotcha 15 는 한 순간의 표기 규칙이다. 반복 일정·영업시간·알림 시각 같은 벽시계 값에 같은 처방을 내리면 서머타임이 드나들 때 사람이 정한 시각과 어긋난다. 시각 필드마다 순간인지, 받는 사람 지역을 따라가는 벽시계인지, 특정 지역에 묶인 벽시계인지를 먼저 나누고, 특정 지역에 묶였으면 IANA 시간대 식별자(`Asia/Seoul` 처럼 지역 이름으로 적는 시간대 이름) 칸을 함께 두라고 짚는다. 코드에 한 나라나 한 시간대를 기본값으로 박은 설계를 보면 지적하고, 시간대를 요청·기기·사용자 설정·레코드 칸 중 어디서 받을지 정하게 한다. 이 지적은 RFC 요구가 아니라 이 킷의 규칙이므로 "표준 위반" 이라고 말하지 않는다. 원칙 본문은 `docs/backend/fundamentals/database.md` 원칙 10 이다. 출처: [RFC 5545 §3.3.5](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process (3-Step · 탐색 → 진단 → 처방)
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 탐색 — 맥락 파악
 
 사용자가 제공한 코드/설명에서 관련 백엔드 카테고리를 식별한다:
 
 | 카테고리 | 키워드 |
-|----------|--------|
+| ---------- | -------- |
 | architecture | hexagonal, ports, adapter, clean, DDD, 도메인, bounded context, layered |
 | api-design | REST, 엔드포인트, URL, 상태코드, 페이지네이션, OpenAPI 3.1 |
 | database | 스키마, 인덱스, 쿼리, N+1, migration, 풀링, 벽시계, 반복 일정, 시간대, 서머타임, 나라 코드 |
@@ -79,7 +83,12 @@ user-invocable: true
 
 > **출처:** [출처명](URL)
 
+<!-- markdownlint-disable MD025 -->
+
 # References
 
+<!-- markdownlint-enable MD025 -->
+
 - references/principle-index.md — 카테고리별 원칙 문서 매핑
+- 설치본 플러그인에는 `docs/backend/` 가 없다 — 이 파일의 `docs/backend/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
 - ../../references/write-path-integrity-protocol.md — `write-path-integrity` 카테고리 SSOT (경합 invariant 분류 · upsert arbiter · 멱등 계약 6 항목)

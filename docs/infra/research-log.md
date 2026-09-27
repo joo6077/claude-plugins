@@ -1,9 +1,21 @@
 ---
-version: 1.4.0
-last_updated: 2026-09-25
+version: 1.4.1
+last_updated: 2026-09-26
 ---
 
 # Infra Kit Research Log
+
+## [2026-09-26] - 카이젠 뒤 남은 것 (k2)
+
+FIXED. 2026-09-24 사이클이 기록한 판 번호를 원문과 다시 맞췄다. 근거는 Codex 원문 대조 `.harness/.meta/after-kaizen-0926b/ex/EX-8.md`(2026-09-26 조회) 하나다.
+
+| 대상 | 원문 | 결과 |
+| --- | --- | --- |
+| Kubernetes | [kubernetes.io/releases](https://kubernetes.io/releases/) — 「Latest Release: 1.37.0 (released: 2026-08-26)」, 유지하는 판은 1.37 · 1.36 · 1.35 | **정정** — 2026-09-24 사이클 표 6 행의 「v1.37.1 최신 안정판」 은 원문에 없다. 최신 안정판은 1.37.0 이다. 그 행이 바꾼 `kubeconform` 예시(대상 클러스터 버전 변수)는 판 번호와 무관해 그대로 둔다 |
+| Flux | [fluxcd/flux2 releases](https://github.com/fluxcd/flux2/releases) — v2.9.5, 2026-08-31 게시 | 맞음 |
+| Argo CD | [argoproj/argo-cd releases](https://github.com/argoproj/argo-cd/releases) — v3.5.3, 2026-09-14 게시(v3.6.0-rc1 은 사전 릴리스) | 맞음 |
+
+2026-09-24 항목의 이력 줄은 그대로 두고 여기서 정정한다. Flux v2.9 · Argo CD 3.5 에서 빠진 API 를 원칙으로 올리는 일은 EX-8 이 판 번호와 날짜만 대조해 근거가 없다 — 다음 사이클 후보에 그대로 남는다.
 
 ## [2026-09-24] - Phase 8 kaizen
 
@@ -191,6 +203,7 @@ canonical drift 대상으로 실명 지목했고 (b) digest 의 exit-code 캡처
 
 수정본은 3 fixture(미핀닝 3 건 / 전부 핀닝 / 워크플로 없음)로 재검증하여 각각 `exit 1` · `exit 0` · `SKIP exit 0` 를 확인했다.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 변경 내역
 
 - `agents/infra-reviewer.md` — §9 를 qa-evaluation-guide §Canonical Unverified-Evidence Protocol 5 조항 정본 복제로 교체. 핵심규칙 5 의 임계값 중복 서술 제거. 인프라 도메인 적용 노트(FAIL / N/A / `[미검증]` 3 분기 매핑) 추가.
@@ -200,6 +213,7 @@ canonical drift 대상으로 실명 지목했고 (b) digest 의 exit-code 캡처
 - `references/audit-criteria.md` — CI/CD 에 "셸 실패 전파" · "검증 스텝 exit code" rule 2 행 + 출처 2 건 추가.
 - `.claude/skills/infra-kaizen/SKILL.md` — validate-plugin "7 카테고리" → 8(V1~V8) 3 곳 정정. scope-creep 을 파일 수 → unit(관심사) 기준으로 재정의. Gotcha 7 에 `.harness/history/` 병렬 예외 추가. Gotcha 8 에 §3.7 / E1~E3 / Counterpart Enumeration + SSOT 인용 표 추가.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 다음 사이클 후보 (이번에 미반영)
 
 - `distroless-builder-glibc-mismatch` — builder 와 distroless 런타임의 glibc/ABI 불일치. 실재하는 결함 클래스이나 이번 사이클에 1 차 출처를 확보하지 못해 추측 서술을 피하고 보류. distroless 공식 저장소의 base variant 매트릭스를 확보한 뒤 `audit-criteria.md` Container 의 "베이스 이미지 거버넌스" 행에 붙일 것.
@@ -210,7 +224,6 @@ canonical drift 대상으로 실명 지목했고 (b) digest 의 exit-code 캡처
 ## [2026-06-05] — Phase 8
 
 NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-test parity 3항목 대칭 확인. SKIP.
-
 
 > infra-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
 
@@ -232,7 +245,6 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.
 
 ---
-
 
 ---
 
@@ -379,6 +391,7 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 
 **트리거:** kaizen-orchestrator Phase 8 (research-mode rerun)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
@@ -406,6 +419,7 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 | 21 | Argo Rollouts | <https://argoproj.github.io/argo-rollouts/> | 공식 | 높음 | 채택 |
 | 22 | Flux v2.6 release | <https://fluxcd.io/blog/2025/05/flux-v2.6.0/> | 공식 | 높음 | 채택 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 - **Kubernetes Pod Security Admission (PSA) restricted** 이 2026 표준. `pod-security.kubernetes.io/enforce: restricted` 라벨로 네임스페이스 단위 강제. 적용: infra-audit Kubernetes 카테고리, init-checklist.
@@ -419,6 +433,7 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 - **GitOps 단일 소스 원천**: Argo CD / Flux v2.6+ 을 통한 배포. `kubectl apply` 직접 금지. Progressive delivery (Argo Rollouts) 로 canary / blue-green. 적용: infra-audit Deployment 카테고리.
 - **Platform Engineering 카테고리 신설**: Internal Developer Platform (IDP), Backstage scaffolder, golden path. 적용: principle-index 신규 카테고리.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 신규 스킬 갭 분석
 
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | 상태 |
@@ -426,6 +441,7 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 | `infra-supply-chain` | 런북 | SLSA + Cosign + Syft 스캐폴딩 파이프라인 | 높음 | backlog |
 | `infra-gitops` | 코드 스캐폴딩 | Argo CD / Flux 부트스트랩 | 중간 | backlog |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 없음.
@@ -436,10 +452,12 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 
 ---
 
+<!-- markdownlint-disable-next-line MD024 -->
 ## 2026-04-12
 
 **트리거:** infra-research 수동 실행 (12개 카테고리 추가 조사)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 태그 | 결과 |
@@ -466,17 +484,20 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 | 82 | From Standards to Adoption: Introducing the GSF 2025 Annual Report | <https://greensoftware.foundation/articles/introducing-the-gsf-2025-annual-report/> | 공식 | [official] [dated: 2026-01] | 채택 |
 | 83 | Real Time Cloud standard story | <https://greensoftware.foundation/stories/real-time-cloud/> | 공식 | [official] [dated: 2025-04] | 채택 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 #### Container Orchestration - Kubernetes / Gateway API
 
 - **Gateway API v1.5 성숙도 확장**: 기존 `Gateway`/`HTTPRoute` 안정화에 더해 `TLSRoute` 가 Standard Channel since `v1.5.0` 로 승격. Gateway API 성숙도가 L7 HTTP 중심에서 TLS passthrough/종단 제어까지 확장되며, "Ingress 대체"가 아니라 범용 서비스 네트워킹 API 로 굳어지는 흐름. 적용: infra-guide Networking, infra-audit Kubernetes Networking.
 
+<!-- markdownlint-disable-next-line MD024 -->
 #### IaC Tools
 
 - **Terraform vs OpenTofu split 는 이제 도구 체인 레벨 분리**: HashiCorp 는 Terraform Registry/HCP 에 붙는 `Terraform MCP server` 를 제공해 AI 생성 경로를 자사 생태계에 묶고, OpenTofu 는 별도 공개 Registry 를 운영하며 3,900+ providers / 23,600+ modules 규모를 전면에 내세움. 즉 분기는 라이선스 논쟁을 넘어 레지스트리, AI 보조도구, 배포 경로가 갈라진 상태. 적용: infra-guide IaC 비교, tool-selection 기준.
 - **Pulumi AI 는 단순 코드 생성기를 넘는 운영형 IaC 에이전트로 진화**: Pulumi Neo 는 자연어 요청에서 PR 생성, preview, 멀티스텝 운영 작업까지 연결하고 RBAC 범위 내에서 동작. "AI codegen" 보다는 승인 가능한 인프라 작업 자동화 계층으로 보는 편이 정확함. 적용: infra-guide IaC + Platform Engineering + AI automation.
 
+<!-- markdownlint-disable-next-line MD024 -->
 #### CI/CD Patterns
 
 - **GitHub Actions Arm runners 가 표준 러너 선택지로 확대**: 공식 러너 레퍼런스에 `ubuntu-24.04-arm`, `ubuntu-22.04-arm`, `windows-11-arm` 이 명시됨. Arm 지원이 macOS 전용/실험 단계에서 Linux+Windows 전반으로 넓어져 멀티아키텍처 CI 를 표준 YAML 안에서 처리하기 쉬워짐. 적용: infra-guide CI/CD runner 전략.
@@ -506,6 +527,7 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 
 - **Green Software Foundation 흐름은 캠페인보다 표준화 단계**: 2025 연차보고서 기준 Real Time Energy and Carbon Standard for Cloud Providers (RTC), SOFT, SCI for AI 등 5개 핵심 프로젝트가 ratified 되었고, RTC 는 AWS/Azure/GCP 가 공통 포맷의 실시간 에너지/탄소 데이터를 제공하도록 요구하는 규격으로 정리됨. 클라우드 탄소 추적은 "월별 대시보드"에서 "표준화된 실시간 데이터 계약"으로 넘어가는 중. 적용: infra-guide Sustainability, cost/carbon observability.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 신규 스킬 갭 분석
 
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | 상태 |
@@ -514,6 +536,7 @@ NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-te
 | `infra-runtime-alt` | 가이드 | WASI 0.2 + SpinKube + Talos + eBPF 기반 런타임 대안 비교 | 중간 | backlog |
 | `infra-carbon` | 가이드 | RTC + SOFT + SCI for AI 기반 탄소/비용 관측 프레임워크 | 낮음 | backlog |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 없음.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """플러그인 공통 유틸리티.
 
-validate-plugin.py 와 sync-docs.py 가 공유하는 헬퍼 함수 모음.
+validate-plugin.py · sync-docs.py · sync-orchestrator.py · 사본 검사 둘이 공유하는 헬퍼 함수와 표.
 표준 라이브러리(pathlib, json) + pyyaml 만 의존한다.
 """
 from __future__ import annotations
@@ -14,6 +14,21 @@ import yaml
 
 REPO_ROOT = Path(__file__).parent.parent
 _MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
+
+# 킷 → 그 킷 카이젠이 읽는 리서치 원본 폴더. validate-plugin V10 과 sync-orchestrator 가 함께 읽는다 —
+# 두 스크립트가 따로 두면 한쪽만 늘어나 V10 이 새 킷의 원본을 조용히 빠뜨린다
+KIT_RESEARCH_DOCS: dict[str, str] = {
+    "backend-kit": "docs/backend/",
+    "infra-kit": "docs/infra/",
+    "rust-kit": "docs/rust/",
+    "react-kit": "docs/react/",
+    "flutter-toolkit": "docs/flutter/",
+    "design-kit": "design-kit/docs/design/",
+    "planning-kit": "docs/planning/",
+    "tone-kit": "docs/tone/",
+    "api-kit": "docs/api/",
+    "howto-kit": "docs/howto/",
+}
 
 
 def load_marketplace(path: Path | None = None) -> dict:
@@ -112,3 +127,15 @@ def iter_agents(kit_path: Path) -> list[Path]:
         p for p in kit_path.glob("agents/*.md")
         if p.name != ".gitkeep"
     )
+
+
+def normalized(lines: list[str]) -> list[str]:
+    """사본 대조용 — 줄 앞 공백과 인용 표식 `>` · 끝 공백을 떼고 빈 줄을 버린다."""
+    stripped = (re.sub(r"^[\s>]*", "", line).rstrip() for line in lines)
+    return [line for line in stripped if line]
+
+
+def contains_block(lines: list[str], block: list[str]) -> bool:
+    """block 이 lines 안에 끊김 없이 나오면 참."""
+    width = len(block)
+    return any(lines[start:start + width] == block for start in range(len(lines) - width + 1))

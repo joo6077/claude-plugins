@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 미들웨어 원칙
 
 tower는 Rust 비동기 서비스 추상화 라이브러리다. `Service` trait이 미들웨어 합성의 핵심이며, axum은 tower 위에 구축되어 있다. `ServiceBuilder`로 레이어를 조합하고, `tower-http`가 HTTP 전용 미들웨어를 제공한다.
@@ -61,7 +62,7 @@ let app = Router::new()
 ### 3. `tower-http` 레이어를 상황에 맞게 선택한다
 
 | 레이어 | 용도 |
-|--------|------|
+| -------- | ------ |
 | `TraceLayer` | 요청/응답 구조화 로깅 |
 | `CorsLayer` | CORS 헤더 처리 |
 | `CompressionLayer` | gzip/brotli 응답 압축 |
@@ -95,7 +96,7 @@ TraceLayer::new_for_http()
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | tower 버전 | 0.5.x | axum 0.8과 호환 |
 | tower-http 버전 | 0.6.x | axum 0.8과 호환 |
 | 권장 레이어 순서 | request-id → trace → cors → compression → timeout | 요청 기준 처리 순서 |

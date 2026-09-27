@@ -3,12 +3,14 @@
 ## 소스 분류
 
 ### 학술 논문
+
 - **검색 대상:** arXiv, ACL Anthology, IEEE Xplore, Semantic Scholar
 - **키워드:** Flutter architecture, Dart code generation, mobile app testing, widget composition, state management patterns, reactive UI framework, declarative UI, cross-platform development
 - **범위:** 최근 6개월 우선, 핵심 논문은 기간 무관
 - **후속:** 발견한 논문의 references 섹션에서 관련 논문 추적
 
 ### 공식 소스
+
 - **Flutter:** flutter.dev/docs, api.flutter.dev, medium.com/flutter (공식 블로그)
 - **Dart:** dart.dev/guides, dart.dev/tools, dart.dev/language
 - **Flutter changelog:** github.com/flutter/flutter/releases, flutter.dev/release/breaking-changes
@@ -16,13 +18,15 @@
 - **Google:** medium.com/google-developers (Flutter 관련 포스트)
 
 ### 커뮤니티/실무
+
 - **GitHub:** trending repos — 키워드: flutter, dart, riverpod, widget, architecture
 - **블로그:** Andrea Bizzotto (codewithandrea.com), Remi Rousselet (riverpod 관련), Very Good Ventures (verygood.ventures/blog)
 - **컨퍼런스:** Flutter Forward, FlutterCon, Google I/O Flutter 세션
 - **Reddit/Discord:** r/FlutterDev, Flutter Community Discord — 패턴 논의 트래킹
 
 ### skills.sh 마켓플레이스
-- **URL:** https://skills.sh
+
+- **URL:** <https://skills.sh>
 - **검색 키워드:** flutter, dart, widget, riverpod, state management, mobile, cross-platform
 - **목적:** 다른 Flutter 관련 Claude Code 스킬의 패턴, 접근법, Gotchas를 참고
 - **주의:** 스킬의 SKILL.md 원문을 반드시 확인. 목록 description만으로 판단하지 않는다
@@ -34,7 +38,7 @@
 ## 신뢰도 기준
 
 | 유형 | 신뢰도 | 태그 | 비고 |
-|------|--------|------|------|
+| ------ | -------- | ------ | ------ |
 | Flutter/Dart 공식 docs | 높음 | — | 최신성 + 권위 |
 | Peer-reviewed 논문 | 높음 | — | 가장 신뢰 |
 | pub.dev 주요 패키지 docs | 높음 | — | 생태계 표준 |

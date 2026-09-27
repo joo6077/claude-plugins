@@ -8,7 +8,11 @@ argument-hint: "[서비스명...]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - Rust 바이너리는 glibc에 동적 링크되어 있어서 distro가 다르면 실행 안 된다. `musl` 타겟으로 정적 링크하거나, 빌더(`rust:1-bookworm`)와 runtime(`debian:bookworm-slim`)을 같은 distro로 맞춰라.
 - `cargo-chef`로 의존성 레이어를 분리하지 않으면 소스 한 줄만 바꿔도 전체 재빌드된다. `cargo chef prepare` → `cargo chef cook` 순서로 레이어를 나눠야 캐시가 유효하다.
@@ -40,7 +44,7 @@ user-invocable: true
 `$ARGUMENTS`를 파싱하거나 `Cargo.toml` 의존성을 보고 필요한 서비스를 추론한다:
 
 | 의존성 플래그 | 포함 서비스 |
-|-------------|-----------|
+| ------------- | ----------- |
 | `HAS_SQLX` | PostgreSQL |
 | `HAS_REDIS` (또는 redis 크레이트) | Redis |
 | `HAS_RDKAFKA` | Kafka |
@@ -203,13 +207,17 @@ CMD ["/app"]
 
 1. 생성된 파일 목록 출력: `Dockerfile`, `docker-compose.yml`, `.dockerignore`.
 2. `HAS_SQLX`이면 빌드 전 `cargo sqlx prepare`로 `.sqlx/` 디렉토리를 생성해야 한다고 안내한다:
+
    ```bash
    DATABASE_URL=postgres://... cargo sqlx prepare
    ```
+
 3. 다음 빌드/실행 명령을 안내한다:
+
    ```bash
    docker compose up --build
    ```
+
 4. 다음 단계 안내:
    - CI/CD 파이프라인이 필요하면 GitHub Actions 워크플로우 추가를 제안하세요.
    - 프로덕션 배포를 준비한다면 시크릿을 환경변수 대신 Docker secrets 또는 Vault로 관리하세요.

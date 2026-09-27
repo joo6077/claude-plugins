@@ -6,7 +6,11 @@ source: /insights 2026-07-27 Friction #2 (신규 최상위 신호) · /insights 
 enforcement: E2 (체크리스트 아티팩트)
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Visual Evidence Protocol
+
+<!-- markdownlint-enable MD025 -->
 
 UI 를 만들거나 고치는 flutter-toolkit 스킬(`flutter-widget` · `flutter-screen` ·
 `flutter-skeleton` · `flutter-transition` · `flutter-responsive`)과 화면 확인 스킬 `flutter-ui-verify` 가
@@ -20,6 +24,8 @@ UI 를 만들거나 고치는 flutter-toolkit 스킬(`flutter-widget` · `flutte
 - 마커·임계값 SSOT: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol
 - 증거 유효성 SSOT: 같은 문서 §Evidence Validity Gate
 - 등급(E1/E2/E3) SSOT: `harness/docs/guides/skill-design-guide.md` §3.7
+- design-kit · react-kit 화면 규약과 같이 쓰는 두 숫자(Step 0 관례 표의 「2 개 이상」 · Step 2 의 「최대 3 회」) SSOT: `harness/docs/guides/skill-design-guide.md` §8.9.
+  킷은 따로 설치되어 그 파일을 읽지 못하므로 숫자는 이 문서에도 남긴다
 
 ## 왜 필요한가
 

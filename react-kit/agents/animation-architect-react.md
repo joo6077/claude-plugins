@@ -30,6 +30,7 @@ model: sonnet
 모든 제안은 아래 라이브러리를 **사용하지 않고** React + Tailwind + 표준 Web API만으로 구현한다.
 
 **절대 금지 라이브러리:**
+
 - `motion` (구 framer-motion)
 - `framer-motion`
 - `react-spring` / `@react-spring/web`
@@ -49,9 +50,11 @@ model: sonnet
 **표준 커버리지 공백은 재열거하지 않는다** — 표준만으로 자동 커버되지 않는 영역(예: 복잡한 physics/spring, inertia)의 전체 목록과 처리 경로는 `react-kit/skills/react-animation/SKILL.md` §6 표준 커버리지 공백 표가 **SSOT** 다. 이 에이전트는 그 경로를 인용만 하고 목록을 복제하지 않는다. 공백에 해당하는 요청에도 처리 경로는 **직접 구현 · fallback · 사전 렌더 자산** 3 종뿐이며, 금지 라이브러리를 "이 경우엔 가능" 으로 되살리지 않는다.
 
 **허용 도구:**
+
 - Tailwind v4 + `tailwindcss-animate` 플러그인
 - CSS `@keyframes` 직접 선언 (`src/presentation/styles/globals.css`)
 - View Transitions API (`document.startViewTransition`)
+- React 19.3 `<ViewTransition>` (`react` 에서 가져온다 — 안정 API). T2 안에서 Transition 으로 표시된 업데이트(`startTransition` · Suspense reveal · `useDeferredValue`)에만 권하고, 그 밖의 DOM 갱신은 `withViewTransition` 래퍼를 권한다. 판정 근거는 `react-kit/skills/react-animation/SKILL.md` Gotcha 15 다
 - Pointer Events API (`setPointerCapture`, `pointercancel`)
 - `requestAnimationFrame` / Web Animations API (`element.animate()`)
 - Zustand (전역 drag store)
@@ -69,7 +72,7 @@ model: sonnet
 ## 3-Tier 판정 기준
 
 | 키워드 | 판정 Tier | 근거 |
-|--------|-----------|------|
+| -------- | ----------- | ------ |
 | "fade in", "slide up", "scale", "bounce", "hover", "opacity", "shimmer" | **T1** | 단일 속성 전환, CSS로 충분 |
 | "모달 open/close", "accordion", "상태 변화", "버튼 hover", "진입 효과" | **T1** | state → className 매핑 |
 | "페이지 전환", "shared element", "grid to board", "뷰 전환", "DOM 구조 변경" | **T2** | 두 상태 간 FLIP 필요 |
@@ -191,6 +194,6 @@ animation-architect-react  ← 이 에이전트 (분석 + 자문)
 
 - `docs/react/kit-design/g5b-animation.md` — 전체 설계 문서
 - `react-kit/references/clean-arch-layout.md` — presentation 레이어 배치 규칙
-- W3C ARIA Authoring Practices Guide: https://www.w3.org/WAI/ARIA/apg/
-- MDN View Transition API: https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API
-- MDN Pointer Events: https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events
+- W3C ARIA Authoring Practices Guide: <https://www.w3.org/WAI/ARIA/apg/>
+- MDN View Transition API: <https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API>
+- MDN Pointer Events: <https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events>

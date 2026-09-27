@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 별 리서치 소스 목록 — Process</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#4ADE80;--accent2:#86EFAC;--accent-dim:rgba(74,222,128,0.12);
+    --accent-line:rgba(74,222,128,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#166534;--accent2:#14532D;--accent-dim:rgba(22,101,52,0.10);
+    --accent-line:rgba(22,101,52,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Process</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Process · 카이젠 참고 문서</span>
+  <h1>Phase 별 리서치 소스 목록</h1>
+  <p class="orig-title">원본 제목: <strong>Phase Research Templates</strong></p>
+  <p class="subtitle">카이젠 오케스트레이터의 각 Phase 서브에이전트가 리서치 단계에서 <strong>반드시 조회해야 하는 소스</strong>를 Phase 마다 고정한 목록이다. 소스를 에이전트 판단에 맡기던 때 리서치 품질이 들쭉날쭉했던 것을 막는다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>.claude/skills/kaizen-orchestrator/references/phase-research-templates.md</code></span>
+    <span class="badge">판 1.2.0 · 2026-09-05</span>
+    <span class="badge">Phase 1 ~ 17</span>
+    <span class="badge">출처 주소 93</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>필수 소스 셋 이상</h3>
+      <p>각 Phase 는 필수 소스를 적어도 세 개 조회해야 리서치를 끝낸 것으로 친다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>1 순위 · 2 순위</h3>
+      <p>Context7 · 공식 문서가 1 순위, Codex · WebSearch 가 대체 경로다. 대체 경로를 썼으면 커밋 메시지에 적는다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>계약에 주소로 인용</h3>
+      <p>리서치 결과는 Phase 서브에이전트가 Sprint Contract 에 주소로 인용한다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>Phase 17 까지</h3>
+      <p>설계 가이드부터 howto-kit 까지 Phase 마다 소스 표가 있고, 끝에 사용 규칙이 있다.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>공통 원칙</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>Phase 1 — 설계 가이드 (skill-design-guide, agent-design-guide)</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>Phase 2 — Contract (contract-design-guide, sprint-contract, contract-schema)</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>Phase 3 — Evaluator (qa-evaluation-guide, qa-evaluator)</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>Phase 4 — Harness 지원 스킬 (init, create-skill, create-agent, kaizen 스킬)</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>Phase 5 — flutter-toolkit</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>Phase 6 — design-kit</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>Phase 7 — backend-kit</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>Phase 8 — infra-kit</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>Phase 9 — rust-kit</a></li>
+    <li><a href="#s11"><span class="toc-n">11</span>Phase 10 — react-kit</a></li>
+    <li><a href="#s12"><span class="toc-n">12</span>Phase 11 — planning-kit</a></li>
+    <li><a href="#s13"><span class="toc-n">13</span>Phase 12 — reflect-kit</a></li>
+    <li><a href="#s14"><span class="toc-n">14</span>Phase 13 — bambu-kit</a></li>
+    <li><a href="#s15"><span class="toc-n">15</span>Phase 14 — onboarding-kit</a></li>
+    <li><a href="#s16"><span class="toc-n">16</span>Phase 15 — tone-kit</a></li>
+    <li><a href="#s17"><span class="toc-n">17</span>Phase 16 — api-kit</a></li>
+    <li><a href="#s18"><span class="toc-n">18</span>Phase 17 — howto-kit</a></li>
+    <li><a href="#s19"><span class="toc-n">19</span>사용 규칙</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="table-wrap"><table class="fm">
+<thead><tr><th>머리 설정 키</th><th>값</th></tr></thead><tbody>
+<tr><td><code>title</code></td><td class="fm-val">Phase Research Templates</td></tr>
+<tr><td><code>version</code></td><td class="fm-val">1.2.0</td></tr>
+<tr><td><code>last_updated</code></td><td class="fm-val">2026-09-05</td></tr>
+</tbody></table></div>
+<blockquote class="quote"><p>kaizen-orchestrator 의 각 Phase 서브에이전트가 리서치 단계에서 <strong>반드시 조회해야 하는 소스 목록</strong>. 이전에는 각 Phase subagent 가 자체 판단으로 리서치 소스를 결정했으나, 이로 인해 리서치 품질이 일관되지 않았다 (2026-04-11 세션에서 Context7 quota 소진 fallback 이 인용 없이 수행됨). 이 템플릿은 Phase 별 의무 소스를 고정하여 리서치 재현성을 확보한다.</p></blockquote>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>공통 원칙</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>필수 소스</strong> 는 최소 3 개 이상 조회해야 한다. 3 개 미만이면 Phase 가 리서치 완료로 인정되지 않는다.</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body">각 소스는 <strong>1순위 (Context7/공식)</strong> 와 <strong>2순위 (Codex/WebSearch fallback)</strong> 로 분류된다.</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body">Context7 quota 소진 시 2순위를 사용하되, <strong>어떤 fallback 이 사용됐는지 commit message 에 명시</strong>.</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body">리서치 결과는 Phase 서브에이전트가 Sprint Contract 에 URL 로 인용해야 한다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>Phase 1 — 설계 가이드 (skill-design-guide, agent-design-guide)</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices" target="_blank" rel="noopener">Anthropic Skill Authoring Best Practices</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">frontmatter 스키마, description 작성법, trigger 패턴</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener">Claude Code Sub-agents 공식 문서</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">initialPrompt, color, tools 필드, 에이전트 체인 제약</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/anthropics/skills" target="_blank" rel="noopener">anthropics/skills GitHub repo</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">skill-creator SKILL.md 규칙, SKILL.md 본문 500 줄 미만 권고, gerund form</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">LLM agent skill design arxiv 2026</div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">2026 최신 skill authoring 연구</div></td>
+  <td><div class="c">Codex WebSearch</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>Phase 2 — Contract (contract-design-guide, sprint-contract, contract-schema)</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/abs/2412.05579" target="_blank" rel="noopener">arxiv 2412.05579 — LLMs-as-Judges Survey</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">judge criteria 체계화</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/html/2506.13639v1" target="_blank" rel="noopener">arxiv 2506.13639 — LLM-as-Judge Reliability</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">evaluation criteria 신뢰도</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/andredesousa/gherkin-best-practices" target="_blank" rel="noopener">Gherkin Best Practices</a></div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">one When-Then pair 패턴 (AAA)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://cs.uwaterloo.ca/~dberry/FTP_SITE/tech.reports/TjongThesis.pdf" target="_blank" rel="noopener">Tjong — Avoiding Ambiguity in Requirements</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">모호성 분류 (어휘/구문/의미)</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">Acceptance criteria anti-patterns 2026</div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">AC 반패턴 최신</div></td>
+  <td><div class="c">Codex WebSearch</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>Phase 3 — Evaluator (qa-evaluation-guide, qa-evaluator)</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (5 건 이상, LLM-as-judge 는 가장 활발한 연구 영역)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/abs/2406.07791" target="_blank" rel="noopener">arxiv 2406.07791 — Position Bias</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">Swap Test</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">arxiv 2410.21819 — Self-Preference Bias</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">perplexity 기반 familiarity</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/html/2506.22316v1" target="_blank" rel="noopener">arxiv 2506.22316 — Scoring Bias</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">binary PASS/FAIL 강제</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/html/2411.15594v6" target="_blank" rel="noopener">arxiv 2411.15594 — LLM-as-Judge Survey</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">12 편향 분류</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/abs/2403.18771" target="_blank" rel="noopener">arxiv 2403.18771 — CheckEval</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">boolean 분해 패턴</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/html/2602.05125v1/" target="_blank" rel="noopener">arxiv 2602.05125 — Recursive Rubric Decomposition</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">RRD (<code>[goal]</code> 태그용)</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>Phase 4 — Harness 지원 스킬 (init, create-skill, create-agent, kaizen 스킬)</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">QA 자동화 프레임워크 2026 트렌드</div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">feedback loop, agentic testing</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/mgechev/skills-best-practices" target="_blank" rel="noopener">skills best practices (mgechev 등)</a></div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">negative trigger 패턴</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c">Plugin 검증 스키마 최신 2026</div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">trigger 키워드 충돌, frontmatter drift</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">LLM agent framework plugin authoring</div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">최신 스킬 체계</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>Phase 5 — flutter-toolkit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (Context7 우선)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">Context7 <code>flutter</code> (3.x stable)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">최신 Flutter API</div></td>
+  <td><div class="c">WebFetch docs.flutter.dev</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c">Context7 <code>flutter_riverpod</code> (3.x)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">Riverpod 3 migration</div></td>
+  <td><div class="c">WebFetch riverpod.dev</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c">Context7 <code>flutter_hooks</code></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">최신 hooks 패턴</div></td>
+  <td><div class="c">WebFetch pub.dev/packages/flutter_hooks</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">Context7 <code>go_router</code> 또는 <code>auto_route</code></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">라우터 최신 패턴</div></td>
+  <td><div class="c">WebFetch pub.dev</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">Context7 <code>freezed</code> (3.x)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">sealed/switch 마이그레이션</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c">Hub 외부 프로젝트(Flutter 앱) sprint-feedback</div></td>
+  <td><div class="c">ground truth</div></td>
+  <td><div class="c">실무 피드백</div></td>
+  <td><div class="c">내부 파일 Read</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>Phase 6 — design-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://tailwindcss.com/blog/tailwindcss-v4" target="_blank" rel="noopener">Tailwind v4 announcement</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">OKLCH 기본 팔레트, CSS-first 설정</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/" target="_blank" rel="noopener">W3C DTCG v1 Final Report</a></div></td>
+  <td><div class="c">표준</div></td>
+  <td><div class="c">디자인 토큰 포맷</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener">W3C WCAG 2.2</a></div></td>
+  <td><div class="c">표준</div></td>
+  <td><div class="c">SC 2.5.8 24×24 터치타겟</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries" target="_blank" rel="noopener">MDN Container Queries</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">Baseline container queries</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">Material 3 Expressive / HIG 2026</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">최신 디자인 언어</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>Phase 7 — backend-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">Hexagonal / Clean / DDD 2026 실무</div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">아키텍처 최신 패턴</div></td>
+  <td><div class="c">Codex</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://swagger.io/specification/" target="_blank" rel="noopener">OpenAPI 3.1 spec</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">API 문서화</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://www.asyncapi.com/docs/reference/specification/v3.0.0" target="_blank" rel="noopener">AsyncAPI 3.0 spec</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">이벤트 기반 API</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://datatracker.ietf.org/doc/rfc9700/" target="_blank" rel="noopener">RFC 9700 OAuth 2.1 BCP</a></div></td>
+  <td><div class="c">표준</div></td>
+  <td><div class="c">최신 인증</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://microservices.io/patterns/data/transactional-outbox.html" target="_blank" rel="noopener">microservices.io Transactional Outbox</a></div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">EDA 패턴</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://prgrmmng.com/contract-testing-with-testcontainers-and-pact" target="_blank" rel="noopener">Pact + Testcontainers</a></div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">계약 테스트</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>Phase 8 — infra-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (Context7 + 공식 문서 우선)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/docs/concepts/security/pod-security-admission/" target="_blank" rel="noopener">Kubernetes PSA</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">네임스페이스 보안</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://developer.hashicorp.com/terraform/language/ephemeral" target="_blank" rel="noopener">Terraform 1.10+ ephemeral</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">IaC 최신</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/docs/v1.11/language/state/encryption/" target="_blank" rel="noopener">OpenTofu state encryption</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">Terraform 대안</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://slsa.dev/provenance" target="_blank" rel="noopener">SLSA provenance</a></div></td>
+  <td><div class="c">표준</div></td>
+  <td><div class="c">공급망 보안</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.sigstore.dev/cosign/verifying/attestation/" target="_blank" rel="noopener">Sigstore Cosign</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">서명 검증</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://opentelemetry.io/docs/specs/status/" target="_blank" rel="noopener">OpenTelemetry status</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">signal 마다 안정 상태가 다르다 — 한 문장으로 단정하지 않는다 (<code>infra-kit/skills/infra-guide/SKILL.md</code> Gotcha 13)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
+  <h2>Phase 9 — rust-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (Context7 우선)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">Context7 <code>axum</code> (0.8+)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">path / async_trait 변경</div></td>
+  <td><div class="c">WebFetch tokio.rs blog</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c">Context7 <code>sqlx</code> (0.8+)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">query macro 개선</div></td>
+  <td><div class="c">WebFetch sqlx CHANGELOG</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c">Context7 <code>sea-orm</code> (1.1+)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">MockDatabase 테스트</div></td>
+  <td><div class="c">WebFetch sea-ql.org</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">Context7 <code>tonic</code> (0.13+)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">gRPC 최신</div></td>
+  <td><div class="c">WebFetch hyperium/tonic</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://doc.rust-lang.org/edition-guide/" target="_blank" rel="noopener">Rust Edition 2024 Guide</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">edition 전환</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://rust-lang.github.io/rust-clippy/master/" target="_blank" rel="noopener">Clippy lints index</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">2026 새 lints</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c">Hub 외부 프로젝트(Rust 서버) ground truth</div></td>
+  <td><div class="c">내부</div></td>
+  <td><div class="c">실무 패턴</div></td>
+  <td><div class="c">파일 Read</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s11">
+  <div class="section-label">§ 11</div>
+  <h2>Phase 10 — react-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (Context7 가장 풍부한 Phase)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">Context7 <code>react</code> (19+)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">use() hook, ref-as-prop</div></td>
+  <td><div class="c">WebFetch react.dev blog</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c">Context7 <code>@tanstack/react-query</code> (v5+)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">object-form 시그니처</div></td>
+  <td><div class="c">WebFetch tanstack.com</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c">Context7 <code>tauri</code> (2 GA)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">ACL capabilities</div></td>
+  <td><div class="c">WebFetch v2.tauri.app</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">Context7 <code>tailwindcss</code> (v4)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">@theme directive + OKLCH</div></td>
+  <td><div class="c">WebFetch tailwindcss.com</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">Context7 <code>zustand</code> (v5)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">useShallow 강제</div></td>
+  <td><div class="c">WebFetch pmnd.rs</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c">Context7 <code>@lingui/core</code> (v5)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">macro split</div></td>
+  <td><div class="c">WebFetch lingui.dev</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c">Context7 <code>react-hook-form</code> + <code>zod</code></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">v4 호환성 workaround</div></td>
+  <td><div class="c">WebFetch GitHub issues</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><a class="ext" href="https://vite.dev/blog/announcing-vite8" target="_blank" rel="noopener">Vite 8 Rolldown announcement</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">최신 번들러</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s12">
+  <div class="section-label">§ 12</div>
+  <h2>Phase 11 — planning-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<p>planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks, Stories, Flows, Data Modeling, GitHub 동기화) 을 다루므로 소스는 <code>docs/planning/*.md</code> 에 이미 검증된 1차 URL 을 재사용한다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/" target="_blank" rel="noopener">Teresa Torres — Continuous Discovery / Opportunity Solution Tree</a></div></td>
+  <td><div class="c">community (1차)</div></td>
+  <td><div class="c">discovery 스킬 (plan-discover) 의 기반. OST 구조, weekly touchpoint 원칙</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://www.svpg.com/four-big-risks/" target="_blank" rel="noopener">Marty Cagan — Four Big Risks</a></div></td>
+  <td><div class="c">community (1차)</div></td>
+  <td><div class="c">plan-risks 의 4-risks matrix (Value/Usability/Feasibility/Viability) 기준</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://basecamp.com/shapeup/1.5-chapter-06" target="_blank" rel="noopener">Basecamp — Shape Up (Pitch / Appetite / Betting Table)</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">plan-prd 의 Shape Up pitch 템플릿, appetite 기반 스코핑</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://www.alanklement.com/" target="_blank" rel="noopener">Alan Klement — JTBD switching moments</a></div></td>
+  <td><div class="c">community (1차)</div></td>
+  <td><div class="c">plan-discover 인터뷰 프레임 (switching interview)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://strategyn.com/what-customers-want/" target="_blank" rel="noopener">Strategyn / Tony Ulwick — ODI</a></div></td>
+  <td><div class="c">community (1차)</div></td>
+  <td><div class="c">desired outcome 정량화 원칙</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://agilealliance.org/glossary/invest/" target="_blank" rel="noopener">Agile Alliance — INVEST</a></div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">plan-stories 의 INVEST 기준 (Independent/Negotiable/…)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://cucumber.io/docs/gherkin/" target="_blank" rel="noopener">Cucumber Gherkin docs</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">plan-stories 의 Given-When-Then 수용 기준</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><a class="ext" href="https://hbr.org/2007/09/performing-a-project-premortem" target="_blank" rel="noopener">HBR — Performing a Project Premortem (Gary Klein)</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">plan-risks 의 pre-mortem 절차</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">9</div></td>
+  <td><div class="c"><a class="ext" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">Mermaid.js — ER diagram</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">plan-data-model 의 ER/flow 다이어그램 렌더링</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">10</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/rest/projects" target="_blank" rel="noopener">GitHub Projects REST/GraphQL Docs</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">plan-sync-github (Issue/Projects v2 동기화)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">11</div></td>
+  <td><div class="c"><a class="ext" href="https://leanstack.com/articles/the-lean-canvas-diagnostic-part-2-of-7---structure" target="_blank" rel="noopener">Lean Stack — Lean Canvas / RAT</a></div></td>
+  <td><div class="c">community (1차)</div></td>
+  <td><div class="c">plan-prioritize 의 riskiest assumption 접근</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">12</div></td>
+  <td><div class="c"><code>docs/planning/*.md</code> (레포 내 누적 리서치 9 편)</div></td>
+  <td><div class="c">내부</div></td>
+  <td><div class="c">각 스킬이 인용한 1차 URL 풀</div></td>
+  <td><div class="c">파일 Read</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s13">
+  <div class="section-label">§ 13</div>
+  <h2>Phase 12 — reflect-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<p>reflect-kit 은 대화 피드백 → 학습 → 재주입 파이프라인(Reflexion 방법론)을 다룬다. 훅 계약과 라벨링 품질이 핵심이므로 공식 훅 문서 + 라벨 일관성 연구 + 이벤트 그룹핑 선행 사례를 조회한다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener">Claude Code Hooks</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">Stop/PostToolUse 훅 입력 필드·exit code 의미·timeout·<code>${CLAUDE_PROJECT_DIR}</code> 계약</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener">Reflexion (arXiv 2303.11366)</a></div></td>
+  <td><div class="c">논문</div></td>
+  <td><div class="c">이 킷의 방법론 원전. episodic memory buffer 재주입 근거</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/abs/2605.06940" target="_blank" rel="noopener">닫힌 라벨 집합의 label collapse (arXiv 2605.06940)</a></div></td>
+  <td><div class="c">논문</div></td>
+  <td><div class="c"><code>mistake_tag</code> 를 닫힌 집합으로 강제할 때의 소수 카테고리 미탐지·agreement illusion 위험</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/abs/2605.24247" target="_blank" rel="noopener">라벨링 일관성 / 스펙 상세도 (arXiv 2605.24247)</a></div></td>
+  <td><div class="c">논문</div></td>
+  <td><div class="c">태그 작성 규칙의 상세도 조절 (단순 정의 부족 vs 과잉 상세 drift)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/" target="_blank" rel="noopener">Sentry fingerprint rules</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">동일 근본원인 이벤트 canonicalize 선행 사례, 과잉 병합("really bad groups") 경고</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://prometheus.io/docs/alerting/latest/configuration/" target="_blank" rel="noopener">Prometheus Alertmanager 설정</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c"><code>group_by</code> + <code>repeat_interval</code> 재알림 억제 구조 (환경 오설정 반복 로깅 억제 설계)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><code>~/.claude/logs/*/reflections-*.md</code> + <code>.env-issues.tsv</code></div></td>
+  <td><div class="c">내부</div></td>
+  <td><div class="c">실제 태그 분포·파편화 지표 실측 (읽기 전용, 수정·삭제 금지)</div></td>
+  <td><div class="c">파일 Read</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s14">
+  <div class="section-label">§ 14</div>
+  <h2>Phase 13 — bambu-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<p>bambu-kit 은 Bambu Studio 프로파일 JSON 을 생성하므로 <strong>필드명·기본값·계산 의미를 추측하면 import 가 조용히 실패하거나 실물 출력이 어긋난다.</strong> 슬라이서 소스 코드가 1차 출처다. (references 대량 갱신은 <code>/bambu-research</code> 소관 — 이 Phase 는 스킬 품질 개선에 집중한다.)</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp" target="_blank" rel="noopener">BambuStudio <code>PrintConfig.cpp</code></a></div></td>
+  <td><div class="c">공식(소스)</div></td>
+  <td><div class="c">필드명·기본값·단위의 정본. 태그본과 대조하여 버전 밴드 확인</div></td>
+  <td><div class="c">curl</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintObjectSlice.cpp" target="_blank" rel="noopener">BambuStudio <code>PrintObjectSlice.cpp</code></a></div></td>
+  <td><div class="c">공식(소스)</div></td>
+  <td><div class="c">보정값이 <strong>경계 오프셋인지 지름인지</strong> 등 계산 의미 확인 (2026-07-27 PL-01 근본원인)</div></td>
+  <td><div class="c">curl</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://api.github.com/repos/bambulab/BambuStudio/releases" target="_blank" rel="noopener">BambuStudio Releases API</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">references baseline 버전 밴드가 현행과 얼마나 벌어졌는지</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_precision" target="_blank" rel="noopener">OrcaSlicer quality settings 위키</a></div></td>
+  <td><div class="c">community(1차)</div></td>
+  <td><div class="c">정밀도/공차 파라미터 해설 교차 검증</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/3MFConsortium/spec_core" target="_blank" rel="noopener">3MF Core Spec</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">모델 파싱 시 구조 전제(지오메트리 위치, 속성 포함 태그) 확인</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><code>bambu-kit/skills/bambu-print-profile/references/*</code> (SSOT 7종) + 실측 dogfood 산출물</div></td>
+  <td><div class="c">내부</div></td>
+  <td><div class="c">SSOT 수치와 실제 생성 프로파일의 정합성 전수 대조</div></td>
+  <td><div class="c">파일 Read</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s15">
+  <div class="section-label">§ 15</div>
+  <h2>Phase 14 — onboarding-kit</h2>
+  <div class="doc-body">
+<h3 class="sub">필수 소스 (3 건 이상)</h3>
+<p>onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므로 소스는 <code>.claude/skills/onboarding-kaizen/references/research-sources.md</code> 에 등록된 1차 출처를 재사용한다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank" rel="noopener">Firebase iOS / FlutterFire docs</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">FCM 셋업 절차 변경, APNs 키 형식 변경</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://firebase.google.com/docs/flutter/setup" target="_blank" rel="noopener">Firebase Flutter setup</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">스택별 초기화 절차 (Flutter 는 네이티브 절차와 다르다 — 혼동이 실사고로 이어졌음)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://developer.apple.com/help/account/" target="_blank" rel="noopener">Apple Developer Account Help</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">Bundle ID 정책, 인증서/provisioning 절차, 실측 섹션명</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.stripe.com/" target="_blank" rel="noopener">Stripe docs</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">Stripe SDK 최신 셋업 절차. <strong>구 호스트 <code>stripe.com/docs/</code> 는 크로스호스트 리다이렉트라 fetch 실패</strong></div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://cloud.google.com/docs/" target="_blank" rel="noopener">Google Cloud Console docs</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">GCP 서비스 계정/OAuth 셋업 변경</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c">패키지 레지스트리 (예: <a class="ext" href="https://pub.dev/packages/firebase_messaging" target="_blank" rel="noopener">pub.dev/packages/firebase_messaging</a>)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">버전 확인은 레지스트리 우선 — GitHub Releases fetch 는 구 프리릴리스만 반환하는 사례 확인됨</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c">사용자 피드백 메모리 (<code>~/.claude/projects/.../memory/feedback_setup_guide_*.md</code>)</div></td>
+  <td><div class="c">내부</div></td>
+  <td><div class="c">실사용 막힘 패턴 → Gotchas 개선 (읽기 전용)</div></td>
+  <td><div class="c">파일 Read</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s16">
+  <div class="section-label">§ 16</div>
+  <h2>Phase 15 — tone-kit</h2>
+  <div class="doc-body">
+<p>tone-kit 은 코딩 톤·유지보수성 게이트를 다룬다. <strong>규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션)이 이 킷의 핵심 자산</strong> 이므로, 리서치의 목적은 새 원칙 추가보다 <strong>기존 규칙의 강도가 출처 강도를 넘지 않는지 재확인</strong> 하는 데 있다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://aclanthology.org/2025.emnlp-main.1593/" target="_blank" rel="noopener">Droid: AI-Generated Code Detection (EMNLP 2025)</a></div></td>
+  <td><div class="c">학술</div></td>
+  <td><div class="c">코드 대상 탐지 문헌. adversarial humanizing 위험군 분류 근거</div></td>
+  <td><div class="c"><a class="ext" href="https://arxiv.org/abs/2507.10583" target="_blank" rel="noopener">arXiv</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">SemEval-2026 Task 13</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">기계 생성 코드 탐지 벤치마크. Hybrid / Adversarial 클래스 정의</div></td>
+  <td><div class="c"><a class="ext" href="https://semeval.github.io/SemEval2026/tasks.html" target="_blank" rel="noopener">task list</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">Flutter 성능 모범 사례</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">위젯 분리 권고 문구의 강도 확인 (<code>prefer</code> 인지 강제인지)</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">architectural overview</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">StatelessWidget API</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">헬퍼 대신 위젯 클래스 권고의 원문 문구</div></td>
+  <td><div class="c"><a class="ext" href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">Element.rebuild</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">Effective Dart: Style</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">네이밍 규약 변경 여부</div></td>
+  <td><div class="c"><a class="ext" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">Documentation</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">Google Engineering Practices</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">주석 경제성 원칙 근거</div></td>
+  <td><div class="c"><a class="ext" href="https://abseil.io/resources/swe-book/html/ch03.html" target="_blank" rel="noopener">abseil swe-book</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663" target="_blank" rel="noopener">국립국어원 보도자료 작성 길잡이</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">한국어 축 문체 근거 — 실제 내용은 보도자료 구성 · 형식 안내라 코드 주석 문체 근거로는 약하다</div></td>
+  <td><div class="c"><a class="ext" href="https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/" target="_blank" rel="noopener">LINE 테크니컬 라이팅</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c">디자인 시스템 컴포넌트 인덱스 (M3 · HIG · MUI · Fluent · Ant · Carbon)</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">접미사 taxonomy 어휘 원천. <strong>권위가 아니라 어휘 대조용</strong></div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>주의 3건</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">자연어 텍스트 탐지 문헌(DetectGPT · Binoculars · 텍스트 스타일로메트리)은 <code>tone-kit/references/sources.md</code> 의 제외 목록에 있다. 되살리지 마라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">접미사 taxonomy 는 6개 시스템 중 어느 곳도 문서화하지 않은 <strong>합성 규칙</strong> 이다. 디자인 시스템을 권위로 인용하지 마라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">fallback 접두사(<code>effective*</code> / <code>resolved*</code>) 과대표집 통계는 공개 1차 문헌에 없다 (2026-08 확인). 논문 각주를 붙이지 마라.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s17">
+  <div class="section-label">§ 17</div>
+  <h2>Phase 16 — api-kit</h2>
+  <div class="doc-body">
+<p>api-kit 은 <strong>실제 응답을 SSOT 로 삼는</strong> 블랙박스 계약 검증을 다룬다. 그래서 이 Phase 의 리서치는 "공식 문서에 뭐라고 적혀 있나" 가 아니라 <strong>"적힌 대로 동작하나"</strong> 를 확인하는 데 목적이 있다. <code>docs/api/research-log.md</code> 의 <strong>미검증 항목 표</strong>를 먼저 읽고, 그 항목부터 대조한다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://hurl.dev/docs/manual.html" target="_blank" rel="noopener">Hurl Manual</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">옵션 우선순위(<code>env &lt; CLI &lt; [Options]</code>) · <code>--retry-interval</code> · <code>--max-redirs</code> · exit code 체계. <strong>문서 12종 중 가장 많이 인용된 출처(36 회)</strong></div></td>
+  <td><div class="c">로컬 <code>hurl --help</code> 실측</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://hurl.dev/docs/templates.html#secrets" target="_blank" rel="noopener">Hurl Templates — Secrets</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c"><code>--secret</code> 마스킹 범위. stdout 을 가리지 않는다는 기재가 킷 redaction 설계(§8.2) 전체의 근거</div></td>
+  <td><div class="c">로컬 <code>hurl --secret</code> 실행</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">RFC 8785 — JSON Canonicalization Scheme</a></div></td>
+  <td><div class="c">사양</div></td>
+  <td><div class="c">스냅샷 봉인·회귀 diff 의 비교 기준선. 정렬·수치 표기 규칙이 바뀌면 baseline 전체가 흔들린다</div></td>
+  <td><div class="c"><a class="ext" href="https://www.rfc-editor.org/rfc/rfc7493.html" target="_blank" rel="noopener">I-JSON (RFC 7493)</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">RFC 9110 — HTTP Semantics</a></div></td>
+  <td><div class="c">사양</div></td>
+  <td><div class="c">상태 코드·필드명 규범. 오류 계약(<code>error-status-contracts</code>) 판정 기준</div></td>
+  <td><div class="c"><a class="ext" href="https://www.rfc-editor.org/rfc/rfc9110.html" target="_blank" rel="noopener">rfc-editor</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://spec.openapis.org/oas/v3.1.0" target="_blank" rel="noopener">OpenAPI 3.1 사양</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">인벤토리 정규화의 path/parameter/operation 모델. 3.2 진행 여부 확인</div></td>
+  <td><div class="c"><a class="ext" href="https://swagger.io/specification/" target="_blank" rel="noopener">swagger 문서</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://json-schema.org/draft/2020-12/json-schema-validation" target="_blank" rel="noopener">JSON Schema 2020-12</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">계약 추출 모드의 타입/<code>enum</code>/<code>const</code> 어휘. draft 이동 여부 확인</div></td>
+  <td><div class="c"><a class="ext" href="https://json-schema.org/draft/2020-12/json-schema-core" target="_blank" rel="noopener">core</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.pact.io/pact_broker/advanced_topics/pending_pacts" target="_blank" rel="noopener">Pact — Pending Pacts</a></div></td>
+  <td><div class="c">community(1차)</div></td>
+  <td><div class="c">baseline 승격 거버넌스 선행 사례. 신규 계약을 곧바로 빌드 실패로 만들지 않는 구조</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><code>docs/api/research-log.md</code> 미검증 항목 표 + <code>.api/</code> 실측 산출물</div></td>
+  <td><div class="c">내부</div></td>
+  <td><div class="c">문서 기재 ↔ 실측 대조. 어긋나면 <strong>실측 채택</strong> 후 로그 기록</div></td>
+  <td><div class="c">파일 Read</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>주의 3건</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>pin</code> 의 의미를 되돌리지 마라.</strong> 2026-09-04 리서치에서 '값 고정' → '경로별 명시 assertion' 으로 재정의됐다. 외부 도구(버전 pin · snapshot pin)의 용례를 근거로 되돌리려면 설계문서 §9.2 와 <code>/api-ui</code> 아이콘 어휘를 함께 고쳐야 한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>경로 간 불변식은 <code>.hurl</code> 에도 적을 수 있지만 판정 불가를 표현할 곳이 없다.</strong> <code>$.meta.total &gt;= len($.data)</code> 류에서 한쪽 경로가 없으면 Hurl 이 종료 코드 <code>3</code> 으로 끝나 실패와 판정 불가가 갈리지 않는다 (정본 <code>api-kit/skills/api-verify/SKILL.md</code>). 그래서 계약 YAML 에 기록하고 <code>/api-verify</code> 후처리에서 검사한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>확정 결정 5 건을 리서치로 뒤집지 마라</strong> — <code>exact</code> 는 본문만 · enum 승격 3 샘플 이상 · prod 기본 GET/HEAD/OPTIONS · 기준선 RFC 8785 JCS · 계약 실패와 환경 실패는 exit code 로 분리. 근거는 설계문서 §12 의 사용자 확정이다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s18">
+  <div class="section-label">§ 18</div>
+  <h2>Phase 17 — howto-kit</h2>
+  <div class="doc-body">
+<p>howto-kit 은 사람이 손으로 하는 절차를 화면 → 메뉴 → 항목 → 값 → 확인까지 끊지 않고 안내한다. 출처는 <code>.claude/skills/howto-research/SKILL.md</code> Step 1 표의 1차 출처이고, 아래 URL 은 모두 <code>docs/howto/</code> 문서나 <code>howto-kit/references/provenance-notes.md</code> 에 이미 적힌 것이다. <strong>새 출처를 찾기보다 적힌 출처가 지금도 같은 말을 하는지 다시 보는 것</strong>이 이 Phase 리서치의 목적이다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">조회 이유</div></th>
+  <th><div class="c">Fallback</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://developers.google.com/style/procedures" target="_blank" rel="noopener">Google developer documentation style guide — Procedures</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">스텝 하나에 동작 하나 · 동작 먼저 결과 나중 (<code>docs/howto/procedure-standards.md</code> §1). 매 스텝 확인 규정이 없다는 기록이 그대로인지</div></td>
+  <td><div class="c"><a class="ext" href="https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions" target="_blank" rel="noopener">Microsoft Writing Style Guide</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions" target="_blank" rel="noopener">Microsoft Writing Style Guide — Writing step-by-step instructions</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">번호 목록 · 명령형 동사 규정, UI 지목 어휘 (<code>docs/howto/ui-anchoring.md</code>)</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://support.apple.com/guide/applestyleguide/welcome/web" target="_blank" rel="noopener">Apple Style Guide</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">방향어 용법. 동등 조항은 확인 실패로 남아 있다 — 확정되면 <code>provenance-notes.md</code> 에서 옮긴다</div></td>
+  <td><div class="c"><a class="ext" href="https://help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf" target="_blank" rel="noopener">PDF 판</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">DITA 1.3 언어 참조 <code>cmd</code> · <code>stepresult</code> · <code>taskbody</code> (docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/)</div></td>
+  <td><div class="c">사양</div></td>
+  <td><div class="c">Step Contract 뼈대. 한 문장 명령 · 결과를 매 스텝에 쓰지 않는다는 원문</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">벤더 변경 기록 피드 — <a class="ext" href="https://aws.amazon.com/about-aws/whats-new/recent/feed/" target="_blank" rel="noopener">AWS What's New</a> · <a class="ext" href="https://docs.cloud.google.com/feeds/gcp-release-notes.xml" target="_blank" rel="noopener">Google Cloud release notes</a> · <a class="ext" href="https://developer.apple.com/news/rss/news.rss" target="_blank" rel="noopener">Apple Developer News</a> · <a class="ext" href="https://github.blog/changelog/feed/" target="_blank" rel="noopener">GitHub Changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c"><code>docs/howto/changelog-feeds.md</code> 의 피드 주소가 살아 있는지, RSS · Atom 형식이 바뀌었는지</div></td>
+  <td><div class="c">확인 실패 기록(<code>howto-kit/references/provenance-notes.md</code>)</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c">콘솔 딥링크가 박힌 벤더 문서 — <a class="ext" href="https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview" target="_blank" rel="noopener">Azure Monitor Logs overview</a> 등 <code>docs/howto/deep-links.md</code> 표의 출처 열</div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">문서 본문에 박힌 콘솔 URL 이 그대로인지. 바뀌면 <code>howto-kit/references/navigation-anchors.md</code> 도 같이 고친다</div></td>
+  <td><div class="c">WebFetch</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><code>docs/howto/</code> 리서치 문서 여섯 편의 <code>last_updated</code> + <code>howto-kit/references/provenance-notes.md</code></div></td>
+  <td><div class="c">내부</div></td>
+  <td><div class="c">지난 조회일과 확인 실패 항목을 먼저 읽고 바뀐 것만 다시 본다</div></td>
+  <td><div class="c">파일 Read</div></td>
+</tr>
+</tbody></table></div>
+<p>주의할 점 세 가지:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>ISO/IEC/IEEE 26514 · 26515 를 근거로 인용하지 마라.</strong> 세부 조항은 확인 실패다. <code>iso.org</code> 는 이 환경에서 짧은 빈 쪽만 돌려준다 — 접근이 막힌 것이지 문서가 없는 것이 아니다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>매 스텝 <code>verify</code> 필수와 G5(마지막 동작까지 적었는지) · G6(스텝 하나의 크기) 검사는 표준 인용이 아니라 도메인 실패 기록에 근거한 강화다.</strong> 스타일 가이드에 같은 규정이 없다는 이유로 되돌리지 마라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>howto-kit 은 킷별 리서치 기록 파일이 없다.</strong> 조회 결과는 각 <code>docs/howto/*.md</code> 의 <code>last_updated</code> 와 <code>provenance-notes.md</code> 에 남긴다 — 사용 규칙 1 번의 킷별 <code>research-log.md</code> 를 howto 에는 새로 만들지 않는다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s19">
+  <div class="section-label">§ 19</div>
+  <h2>사용 규칙</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>리서치 로그 저장</strong> — 각 Phase 종료 시 <code>docs/&lt;kit&gt;/research-log.md</code> (또는 <code>docs/kaizen/research-log.md</code>) 에 조회한 소스를 "2026-MM-DD" 엔트리로 기록.</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>중복 리서치 방지</strong> — 지난 사이클 research-log 를 먼저 읽고, 같은 소스의 변경 여부만 확인 (diff 접근).</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>리서치 품질 자가 검증</strong> — 필수 소스 3+ 건 이상 확인했는가? URL 인용 가능한가? 없으면 Phase 재시도.</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>Fallback 기록</strong> — Context7 quota 소진 등으로 fallback 을 썼으면 commit message 에 <code>(fallback: &lt;reason&gt;)</code> 명시.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 93 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices" target="_blank" rel="noopener">&#8599; https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices</a></li>
+    <li><a class="card-source" href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener">&#8599; https://code.claude.com/docs/en/sub-agents</a></li>
+    <li><a class="card-source" href="https://github.com/anthropics/skills" target="_blank" rel="noopener">&#8599; https://github.com/anthropics/skills</a></li>
+    <li><a class="card-source" href="https://arxiv.org/abs/2412.05579" target="_blank" rel="noopener">&#8599; https://arxiv.org/abs/2412.05579</a></li>
+    <li><a class="card-source" href="https://arxiv.org/html/2506.13639v1" target="_blank" rel="noopener">&#8599; https://arxiv.org/html/2506.13639v1</a></li>
+    <li><a class="card-source" href="https://github.com/andredesousa/gherkin-best-practices" target="_blank" rel="noopener">&#8599; https://github.com/andredesousa/gherkin-best-practices</a></li>
+    <li><a class="card-source" href="https://cs.uwaterloo.ca/~dberry/FTP_SITE/tech.reports/TjongThesis.pdf" target="_blank" rel="noopener">&#8599; https://cs.uwaterloo.ca/~dberry/FTP_SITE/tech.reports/TjongThesis.pdf</a></li>
+    <li><a class="card-source" href="https://arxiv.org/abs/2406.07791" target="_blank" rel="noopener">&#8599; https://arxiv.org/abs/2406.07791</a></li>
+    <li><a class="card-source" href="https://arxiv.org/abs/2410.21819" target="_blank" rel="noopener">&#8599; https://arxiv.org/abs/2410.21819</a></li>
+    <li><a class="card-source" href="https://arxiv.org/html/2506.22316v1" target="_blank" rel="noopener">&#8599; https://arxiv.org/html/2506.22316v1</a></li>
+    <li><a class="card-source" href="https://arxiv.org/html/2411.15594v6" target="_blank" rel="noopener">&#8599; https://arxiv.org/html/2411.15594v6</a></li>
+    <li><a class="card-source" href="https://arxiv.org/abs/2403.18771" target="_blank" rel="noopener">&#8599; https://arxiv.org/abs/2403.18771</a></li>
+    <li><a class="card-source" href="https://arxiv.org/html/2602.05125v1/" target="_blank" rel="noopener">&#8599; https://arxiv.org/html/2602.05125v1/</a></li>
+    <li><a class="card-source" href="https://github.com/mgechev/skills-best-practices" target="_blank" rel="noopener">&#8599; https://github.com/mgechev/skills-best-practices</a></li>
+    <li><a class="card-source" href="https://tailwindcss.com/blog/tailwindcss-v4" target="_blank" rel="noopener">&#8599; https://tailwindcss.com/blog/tailwindcss-v4</a></li>
+    <li><a class="card-source" href="https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/" target="_blank" rel="noopener">&#8599; https://www.w3.org/community/reports/design-tokens/CG-FINAL-format-20251028/</a></li>
+    <li><a class="card-source" href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener">&#8599; https://www.w3.org/TR/WCAG22/</a></li>
+    <li><a class="card-source" href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries" target="_blank" rel="noopener">&#8599; https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_container_queries</a></li>
+    <li><a class="card-source" href="https://swagger.io/specification/" target="_blank" rel="noopener">&#8599; https://swagger.io/specification/</a></li>
+    <li><a class="card-source" href="https://www.asyncapi.com/docs/reference/specification/v3.0.0" target="_blank" rel="noopener">&#8599; https://www.asyncapi.com/docs/reference/specification/v3.0.0</a></li>
+    <li><a class="card-source" href="https://datatracker.ietf.org/doc/rfc9700/" target="_blank" rel="noopener">&#8599; https://datatracker.ietf.org/doc/rfc9700/</a></li>
+    <li><a class="card-source" href="https://microservices.io/patterns/data/transactional-outbox.html" target="_blank" rel="noopener">&#8599; https://microservices.io/patterns/data/transactional-outbox.html</a></li>
+    <li><a class="card-source" href="https://prgrmmng.com/contract-testing-with-testcontainers-and-pact" target="_blank" rel="noopener">&#8599; https://prgrmmng.com/contract-testing-with-testcontainers-and-pact</a></li>
+    <li><a class="card-source" href="https://kubernetes.io/docs/concepts/security/pod-security-admission/" target="_blank" rel="noopener">&#8599; https://kubernetes.io/docs/concepts/security/pod-security-admission/</a></li>
+    <li><a class="card-source" href="https://developer.hashicorp.com/terraform/language/ephemeral" target="_blank" rel="noopener">&#8599; https://developer.hashicorp.com/terraform/language/ephemeral</a></li>
+    <li><a class="card-source" href="https://opentofu.org/docs/v1.11/language/state/encryption/" target="_blank" rel="noopener">&#8599; https://opentofu.org/docs/v1.11/language/state/encryption/</a></li>
+    <li><a class="card-source" href="https://slsa.dev/provenance" target="_blank" rel="noopener">&#8599; https://slsa.dev/provenance</a></li>
+    <li><a class="card-source" href="https://docs.sigstore.dev/cosign/verifying/attestation/" target="_blank" rel="noopener">&#8599; https://docs.sigstore.dev/cosign/verifying/attestation/</a></li>
+    <li><a class="card-source" href="https://opentelemetry.io/docs/specs/status/" target="_blank" rel="noopener">&#8599; https://opentelemetry.io/docs/specs/status/</a></li>
+    <li><a class="card-source" href="https://doc.rust-lang.org/edition-guide/" target="_blank" rel="noopener">&#8599; https://doc.rust-lang.org/edition-guide/</a></li>
+    <li><a class="card-source" href="https://rust-lang.github.io/rust-clippy/master/" target="_blank" rel="noopener">&#8599; https://rust-lang.github.io/rust-clippy/master/</a></li>
+    <li><a class="card-source" href="https://vite.dev/blog/announcing-vite8" target="_blank" rel="noopener">&#8599; https://vite.dev/blog/announcing-vite8</a></li>
+    <li><a class="card-source" href="https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/" target="_blank" rel="noopener">&#8599; https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/</a></li>
+    <li><a class="card-source" href="https://www.svpg.com/four-big-risks/" target="_blank" rel="noopener">&#8599; https://www.svpg.com/four-big-risks/</a></li>
+    <li><a class="card-source" href="https://basecamp.com/shapeup/1.5-chapter-06" target="_blank" rel="noopener">&#8599; https://basecamp.com/shapeup/1.5-chapter-06</a></li>
+    <li><a class="card-source" href="https://www.alanklement.com/" target="_blank" rel="noopener">&#8599; https://www.alanklement.com/</a></li>
+    <li><a class="card-source" href="https://strategyn.com/what-customers-want/" target="_blank" rel="noopener">&#8599; https://strategyn.com/what-customers-want/</a></li>
+    <li><a class="card-source" href="https://agilealliance.org/glossary/invest/" target="_blank" rel="noopener">&#8599; https://agilealliance.org/glossary/invest/</a></li>
+    <li><a class="card-source" href="https://cucumber.io/docs/gherkin/" target="_blank" rel="noopener">&#8599; https://cucumber.io/docs/gherkin/</a></li>
+    <li><a class="card-source" href="https://hbr.org/2007/09/performing-a-project-premortem" target="_blank" rel="noopener">&#8599; https://hbr.org/2007/09/performing-a-project-premortem</a></li>
+    <li><a class="card-source" href="https://mermaid.js.org/syntax/entityRelationshipDiagram.html" target="_blank" rel="noopener">&#8599; https://mermaid.js.org/syntax/entityRelationshipDiagram.html</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/rest/projects" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/rest/projects</a></li>
+    <li><a class="card-source" href="https://leanstack.com/articles/the-lean-canvas-diagnostic-part-2-of-7---structure" target="_blank" rel="noopener">&#8599; https://leanstack.com/articles/the-lean-canvas-diagnostic-part-2-of-7---structure</a></li>
+    <li><a class="card-source" href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener">&#8599; https://code.claude.com/docs/en/hooks</a></li>
+    <li><a class="card-source" href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener">&#8599; https://arxiv.org/abs/2303.11366</a></li>
+    <li><a class="card-source" href="https://arxiv.org/abs/2605.06940" target="_blank" rel="noopener">&#8599; https://arxiv.org/abs/2605.06940</a></li>
+    <li><a class="card-source" href="https://arxiv.org/abs/2605.24247" target="_blank" rel="noopener">&#8599; https://arxiv.org/abs/2605.24247</a></li>
+    <li><a class="card-source" href="https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/" target="_blank" rel="noopener">&#8599; https://docs.sentry.io/concepts/data-management/event-grouping/fingerprint-rules/</a></li>
+    <li><a class="card-source" href="https://prometheus.io/docs/alerting/latest/configuration/" target="_blank" rel="noopener">&#8599; https://prometheus.io/docs/alerting/latest/configuration/</a></li>
+    <li><a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp" target="_blank" rel="noopener">&#8599; https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp</a></li>
+    <li><a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintObjectSlice.cpp" target="_blank" rel="noopener">&#8599; https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintObjectSlice.cpp</a></li>
+    <li><a class="card-source" href="https://api.github.com/repos/bambulab/BambuStudio/releases" target="_blank" rel="noopener">&#8599; https://api.github.com/repos/bambulab/BambuStudio/releases</a></li>
+    <li><a class="card-source" href="https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_precision" target="_blank" rel="noopener">&#8599; https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_precision</a></li>
+    <li><a class="card-source" href="https://github.com/3MFConsortium/spec_core" target="_blank" rel="noopener">&#8599; https://github.com/3MFConsortium/spec_core</a></li>
+    <li><a class="card-source" href="https://firebase.google.com/docs/cloud-messaging/ios/client" target="_blank" rel="noopener">&#8599; https://firebase.google.com/docs/cloud-messaging/ios/client</a></li>
+    <li><a class="card-source" href="https://firebase.google.com/docs/flutter/setup" target="_blank" rel="noopener">&#8599; https://firebase.google.com/docs/flutter/setup</a></li>
+    <li><a class="card-source" href="https://developer.apple.com/help/account/" target="_blank" rel="noopener">&#8599; https://developer.apple.com/help/account/</a></li>
+    <li><a class="card-source" href="https://docs.stripe.com/" target="_blank" rel="noopener">&#8599; https://docs.stripe.com/</a></li>
+    <li><a class="card-source" href="https://cloud.google.com/docs/" target="_blank" rel="noopener">&#8599; https://cloud.google.com/docs/</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/firebase_messaging" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/firebase_messaging</a></li>
+    <li><a class="card-source" href="https://aclanthology.org/2025.emnlp-main.1593/" target="_blank" rel="noopener">&#8599; https://aclanthology.org/2025.emnlp-main.1593/</a></li>
+    <li><a class="card-source" href="https://arxiv.org/abs/2507.10583" target="_blank" rel="noopener">&#8599; https://arxiv.org/abs/2507.10583</a></li>
+    <li><a class="card-source" href="https://github.com/mbzuai-nlp/SemEval-2026-Task13" target="_blank" rel="noopener">&#8599; https://github.com/mbzuai-nlp/SemEval-2026-Task13</a></li>
+    <li><a class="card-source" href="https://semeval.github.io/SemEval2026/tasks.html" target="_blank" rel="noopener">&#8599; https://semeval.github.io/SemEval2026/tasks.html</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/perf/best-practices</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/resources/architectural-overview" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/resources/architectural-overview</a></li>
+    <li><a class="card-source" href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html" target="_blank" rel="noopener">&#8599; https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html</a></li>
+    <li><a class="card-source" href="https://api.flutter.dev/flutter/widgets/Element/rebuild.html" target="_blank" rel="noopener">&#8599; https://api.flutter.dev/flutter/widgets/Element/rebuild.html</a></li>
+    <li><a class="card-source" href="https://dart.dev/effective-dart/style" target="_blank" rel="noopener">&#8599; https://dart.dev/effective-dart/style</a></li>
+    <li><a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&#8599; https://dart.dev/effective-dart/documentation</a></li>
+    <li><a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&#8599; https://google.github.io/eng-practices/review/reviewer/looking-for.html</a></li>
+    <li><a class="card-source" href="https://abseil.io/resources/swe-book/html/ch03.html" target="_blank" rel="noopener">&#8599; https://abseil.io/resources/swe-book/html/ch03.html</a></li>
+    <li><a class="card-source" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663" target="_blank" rel="noopener">&#8599; https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663</a></li>
+    <li><a class="card-source" href="https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/" target="_blank" rel="noopener">&#8599; https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/</a></li>
+    <li><a class="card-source" href="https://hurl.dev/docs/manual.html" target="_blank" rel="noopener">&#8599; https://hurl.dev/docs/manual.html</a></li>
+    <li><a class="card-source" href="https://hurl.dev/docs/templates.html#secrets" target="_blank" rel="noopener">&#8599; https://hurl.dev/docs/templates.html#secrets</a></li>
+    <li><a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&#8599; https://www.rfc-editor.org/rfc/rfc8785.html</a></li>
+    <li><a class="card-source" href="https://www.rfc-editor.org/rfc/rfc7493.html" target="_blank" rel="noopener">&#8599; https://www.rfc-editor.org/rfc/rfc7493.html</a></li>
+    <li><a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">&#8599; https://datatracker.ietf.org/doc/html/rfc9110</a></li>
+    <li><a class="card-source" href="https://www.rfc-editor.org/rfc/rfc9110.html" target="_blank" rel="noopener">&#8599; https://www.rfc-editor.org/rfc/rfc9110.html</a></li>
+    <li><a class="card-source" href="https://spec.openapis.org/oas/v3.1.0" target="_blank" rel="noopener">&#8599; https://spec.openapis.org/oas/v3.1.0</a></li>
+    <li><a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-validation" target="_blank" rel="noopener">&#8599; https://json-schema.org/draft/2020-12/json-schema-validation</a></li>
+    <li><a class="card-source" href="https://json-schema.org/draft/2020-12/json-schema-core" target="_blank" rel="noopener">&#8599; https://json-schema.org/draft/2020-12/json-schema-core</a></li>
+    <li><a class="card-source" href="https://docs.pact.io/pact_broker/advanced_topics/pending_pacts" target="_blank" rel="noopener">&#8599; https://docs.pact.io/pact_broker/advanced_topics/pending_pacts</a></li>
+    <li><a class="card-source" href="https://developers.google.com/style/procedures" target="_blank" rel="noopener">&#8599; https://developers.google.com/style/procedures</a></li>
+    <li><a class="card-source" href="https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions" target="_blank" rel="noopener">&#8599; https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions</a></li>
+    <li><a class="card-source" href="https://support.apple.com/guide/applestyleguide/welcome/web" target="_blank" rel="noopener">&#8599; https://support.apple.com/guide/applestyleguide/welcome/web</a></li>
+    <li><a class="card-source" href="https://help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf" target="_blank" rel="noopener">&#8599; https://help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf</a></li>
+    <li><a class="card-source" href="https://aws.amazon.com/about-aws/whats-new/recent/feed/" target="_blank" rel="noopener">&#8599; https://aws.amazon.com/about-aws/whats-new/recent/feed/</a></li>
+    <li><a class="card-source" href="https://docs.cloud.google.com/feeds/gcp-release-notes.xml" target="_blank" rel="noopener">&#8599; https://docs.cloud.google.com/feeds/gcp-release-notes.xml</a></li>
+    <li><a class="card-source" href="https://developer.apple.com/news/rss/news.rss" target="_blank" rel="noopener">&#8599; https://developer.apple.com/news/rss/news.rss</a></li>
+    <li><a class="card-source" href="https://github.blog/changelog/feed/" target="_blank" rel="noopener">&#8599; https://github.blog/changelog/feed/</a></li>
+    <li><a class="card-source" href="https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview" target="_blank" rel="noopener">&#8599; https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview</a></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>.claude/skills/kaizen-orchestrator/references/phase-research-templates.md</code> 의 기준 판은 커밋 <code>6378948</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>

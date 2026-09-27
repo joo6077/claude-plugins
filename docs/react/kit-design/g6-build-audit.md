@@ -1,7 +1,7 @@
 # G6 — Build & Audit Skills
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 group: G6
 scope: react-kit 빌드 자동화 + 품질 감사 스킬 4종 + 에이전트 2종
 skills: [/react-run, /react-build, /react-preflight, /react-audit]
@@ -48,8 +48,8 @@ react-kit **G6 그룹** 은 다른 그룹이 생성한 산출물을 **실행 가
 ### 1.2 서브커맨드 목록
 
 | 서브커맨드 | 명령 | 용도 |
-|----------|------|------|
-| **dev** | `pnpm vite dev` | Vite dev 서버 시작 (포트 5173) |
+| ---------- | ------ | ------ |
+| **dev** | `pnpm vite dev` | Vite dev 서버 시작 (포트 5173 고정 — `strictPort: true` 라 차 있으면 옮기지 않고 멈춘다) |
 | **build** | `pnpm vite build` | 프로덕션 빌드 → `dist/` |
 | **preview** | `pnpm vite preview` | 프로덕션 빌드 결과 로컬 서빙 |
 | **tsc** | `pnpm tsc --noEmit` | TypeScript 타입 체크만 |
@@ -98,7 +98,7 @@ react-kit **G6 그룹** 은 다른 그룹이 생성한 산출물을 **실행 가
 
 ### 2.2 빌드 순서
 
-```
+```text
 [1. WASM 빌드]   crates/core → wasm-pack build → src/wasm/core/
         │ (실패 시 중단)
         ▼
@@ -153,7 +153,7 @@ react-kit **G6 그룹** 은 다른 그룹이 생성한 산출물을 **실행 가
 
 ### 3.2 실행 순서
 
-```
+```text
 1. fix               prettier --write . && eslint . --fix
         ↓ 자동 수정 후에도 해결 안 된 포맷/린트 → 다음 단계에서 검출
 2. codegen           tsr generate + lingui extract/compile
@@ -163,13 +163,11 @@ react-kit **G6 그룹** 은 다른 그룹이 생성한 산출물을 **실행 가
 4. tsc               pnpm tsc --noEmit
         ↓ 실패 → 타입 에러 파일 리스트
 5. test              pnpm vitest run
-        ↓ 실패 → 실패 테스트 목록
+        ↓ 실패 → 실패 테스트 목록 · 보고는 passed · skipped 두 수 (0 passed · skipped 1 이상은 [미검증])
 6. wasm-build        pnpm wasm-pack build (crates/core 존재 시)
         ↓ 실패 → Rust 컴파일 에러
 7. vite-build        pnpm vite build
         ↓ 실패 → 빌드 에러
-8. audit (quick 모드)  /react-audit --quick (변경 파일만)
-        ↓ 실패 → 안티패턴 리포트
 ```
 
 **1단계 fix 의도**: 커밋 전에 prettier/eslint 자동 수정 가능한 것은 **미리 수정**한 뒤 파이프라인 진입. 3단계 `lint` 는 여전히 `--max-warnings=0` 로 엄격 검사 — 자동 수정 불가능한 규칙 위반이 남아 있으면 여기서 실패한다.
@@ -196,9 +194,15 @@ pnpm react-preflight --files "src/presentation/features/auth/**"
 - lint: 지정 파일만
 - tsc: 변경 영향 범위 자동 추적 (`tsc --noEmit` 은 전체 검사이므로 이 옵션은 lint/test 에만 적용)
 - test: 관련 테스트 파일만 (Vitest `--related` 옵션)
-- audit: 변경 파일만
+- wasm-build / vite-build: 항상 전체 빌드
 
-### 3.5 Gotchas
+감사는 preflight 단계가 아니다 — 필요하면 `/react-audit --quick` 을 따로 부른다.
+
+### 3.5 실패 원인 가르기
+
+빨간 단계를 고치기 전에 같은 명령을 깨끗한 임시 워크트리에서 `HEAD` · 분기점(`git merge-base HEAD origin/<기준 가지>`) · `origin/<기준 가지>` 세 곳에서 다시 돌려 이번 변경 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패를 가른다. 임시 워크트리에는 `node_modules/` 가 없으니 `pnpm install --frozen-lockfile` 을 먼저 돌린다. 조각과 판정 표는 `/react-preflight` §실패 원인 가르기 가 기준 원본이다 (`harness/skills/sprint/SKILL.md` Step 3 사본).
+
+### 3.6 Gotchas
 
 - **cached 파일과 working tree 불일치**: `git add` 된 파일과 수정 후 add 안 한 파일이 섞이면 혼란. `git stash` 로 정리 후 실행 권장
 - **husky + lint-staged 충돌**: lint-staged 가 이미 lint/format 을 돌리고 있으면 preflight 와 중복. react-kit 기본은 lint-staged 미사용 — preflight 한 번에 처리
@@ -218,7 +222,7 @@ Quick 모드 (단일 에이전트, 빠른 로컬 검토) 와 Deep 모드 (최대
 ### 4.2 모드 자동 선택 규칙
 
 | 변경 파일 수 | 모드 | 실행 시간 (대략) |
-|--------------|------|----------|
+| -------------- | ------ | ---------- |
 | 1~5 | Quick | 10~30초 |
 | 6~20 | Quick | 30초~2분 |
 | 21~50 | **Deep 권장** (사용자 확인) | 3~8분 |
@@ -234,7 +238,7 @@ Quick 모드 (단일 에이전트, 빠른 로컬 검토) 와 Deep 모드 (최대
 
 Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 각 에이전트는 특정 관점만 책임:
 
-```
+```text
 [Deep Audit]
      │
      ├──► architecture-reviewer   (Clean Arch 경계 위반, Feature 간 직접 import)
@@ -265,6 +269,7 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
 - **상대 경로 사용** (`'../../../shared/...'`) → ⚠️ 경고
   - grep_pattern: `^import .* from ['"]\.\./\.\./\.\./`
 - **`export default` 사용** → ⚠️ 경고
+  <!-- markdownlint-disable-next-line MD038 -->
   - grep_pattern: `^export default `
   - ast_check: `@typescript-eslint/no-default-export` 또는 `import/no-default-export`
 
@@ -274,6 +279,7 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
   - grep_pattern: `: any\b|<any>|as any\b`
   - ast_check: `@typescript-eslint/no-explicit-any` (error level)
 - **`as` 타입 단언** (일반) → ⚠️ 경고 (Zod parse 권고)
+  <!-- markdownlint-disable-next-line MD038 -->
   - grep_pattern: ` as [A-Z][a-zA-Z]+\b` (타입 단언), exclude `as const`
   - ast_check: `@typescript-eslint/consistent-type-assertions`
 - **`!` non-null 단언** → ❌ 실패
@@ -304,6 +310,7 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
 
 - **하드코딩된 i18n 문자열** (매크로 미경유 한국어/영어) → ⚠️ 경고 (G4)
   - grep_pattern: `>[^<{]*[가-힣A-Za-z][^<{]*<|["'][^"']*[가-힣][^"']*["']` (in .tsx)
+    <!-- markdownlint-disable-next-line MD038 -->
   - exclude: `<Trans>`, `t\`...\``, `msg\`...\`` 내부
 - **`aria-*` 누락** (인터랙티브 요소) → ⚠️ 경고
   - ast_check: `eslint-plugin-jsx-a11y/accessible-name`
@@ -406,14 +413,18 @@ react-kit 이 강제하는 **라이브러리 허용/금지** 정책. 위반 시 
 **트리거**: `/react-audit` 스킬이 Agent 도구로 호출. 사용자가 직접 호출 금지 (독립성 보장).
 
 **입력**:
+
 - 변경 파일 경로 리스트
 - 감사 카테고리 (Architecture / Strict TS / Performance / Accessibility / Anti-patterns)
 - 프로젝트 루트 경로
 - G0 `wasm-catalog.md` 및 G5b 금지 라이브러리 목록 참조
 
 **출력**:
+
 ```yaml
-verdict: APPROVE | REJECT
+verdict: APPROVE | REJECT | BLOCKED
+invalid_evidence: <n>
+env_gaps: <n>
 category: <카테고리명>
 failures:
   - file: <path>
@@ -430,6 +441,8 @@ suggestions:
 ```
 
 **도구 스코프**: `Read`, `Grep`, `Glob` — **쓰기 권한 없음**. 파일 수정 금지, 리포트 반환만.
+
+**판정 규칙**: 미검증 규약은 `harness/docs/guides/qa-evaluation-guide.md` v5.1 사본을 따른다. `invalid_evidence` 2 건 이상이면 REJECT, `(평가한 규칙 수 − env_gaps) / 평가한 규칙 수` 가 0.60 미만이면 BLOCKED 다. 사용자 보고와 자기 증거가 부딪히면 같은 가이드의 User-Reported Failure Protocol 사본을 따른다. 화면 · 모션 증거는 `react-kit/references/render-evidence-protocol.md` 가 기준 원본이다.
 
 **모델**: Sonnet 기본. Deep 모드의 고난도 카테고리 (Performance with WASM 판정) 는 Opus 옵션.
 
@@ -483,7 +496,7 @@ G6 스킬들은 내부적으로 이 npm scripts 를 호출 (`pnpm run <script>`)
 
 ## 8. 다른 그룹과 G6 의 관계도
 
-```
+```text
 G0 wasm-catalog.md         ─┐
 G1 Scaffolding             ─┤
 G2 State & Data            ─┤   ─► 생성물 생성 ─►  /react-audit  ─► 품질 리포트
@@ -497,31 +510,50 @@ G5b Animation              ─┘
 
 ## 9. 출처 요약
 
-1. Vitest CLI: https://vitest.dev/guide/cli
-2. Vitest Coverage: https://vitest.dev/guide/coverage
-3. Vite build: https://vitejs.dev/guide/build
-4. wasm-pack build command: https://rustwasm.github.io/docs/wasm-pack/commands/build.html
-5. wasm-pack GitHub: https://github.com/rustwasm/wasm-pack
-6. Playwright test CLI: https://playwright.dev/docs/test-cli
-7. ESLint v9 flat config: https://eslint.org/docs/latest/use/configure/configuration-files
-8. TypeScript compiler options (tsc --noEmit): https://www.typescriptlang.org/docs/handbook/compiler-options.html
-9. Prettier CLI: https://prettier.io/docs/en/cli
-10. Tauri 2 CLI: https://v2.tauri.app/reference/cli/
-11. TanStack Router codegen: https://tanstack.com/router/latest/docs/api/file-based-routing
-12. Lingui CLI: https://lingui.dev/ref/cli
+1. Vitest CLI: <https://vitest.dev/guide/cli>
+2. Vitest Coverage: <https://vitest.dev/guide/coverage>
+3. Vite build: <https://vitejs.dev/guide/build>
+4. wasm-pack build command: <https://rustwasm.github.io/docs/wasm-pack/commands/build.html>
+5. wasm-pack GitHub: <https://github.com/rustwasm/wasm-pack>
+6. Playwright test CLI: <https://playwright.dev/docs/test-cli>
+7. ESLint v9 flat config: <https://eslint.org/docs/latest/use/configure/configuration-files>
+8. TypeScript compiler options (tsc --noEmit): <https://www.typescriptlang.org/docs/handbook/compiler-options.html>
+9. Prettier CLI: <https://prettier.io/docs/en/cli>
+10. Tauri 2 CLI: <https://v2.tauri.app/reference/cli/>
+11. TanStack Router codegen: <https://tanstack.com/router/latest/docs/api/file-based-routing>
+12. Lingui CLI: <https://lingui.dev/ref/cli>
 
 ## 10. 감사 규칙 중요도 레벨
 
 각 카테고리의 규칙은 **중요도** 가 있다. 기본 규칙은 아래 3 레벨:
 
 | 레벨 | 기호 | 의미 | CI 행동 |
-|------|------|------|---------|
+| ------ | ------ | ------ | --------- |
 | **error** | ❌ | 반드시 고쳐야 함. 빌드 게이트 | exit 1 (preflight 실패) |
 | **warn** | ⚠️ | 권장 사항. 고치지 않아도 빌드는 통과 | exit 0 + 경고 리포트 |
 | **info** | ℹ️ | 참고용. 설계 개선 힌트 | 리포트에 섹션으로 추가 |
 
 `.react-audit.config.ts` 로 규칙별 레벨 override 가능. 예: 레거시 마이그레이션 중인 프로젝트는 일부 `error` 를 `warn` 으로 완화 후 점진 수정.
 
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(머리 블록 `skills` · `agents`)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+이번 현행화에서 표 밖으로 더 고친 것: §3.2 에서 `8. audit` 단계를 지웠다(스킬은 7 단계 — `/react-preflight` 에는 audit 단계가 없다) · §3.4 부분 실행을 스킬과 맞췄다 · §3.5 실패 원인 가르기(결정 UD-3, 가지 `chore/ak2-k1` 의 react-kit 커밋).
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `446428a` | 2026-09-26 | 고친 절: §5.1 출력 `verdict:` 줄에 BLOCKED · 두 카운터 줄, 판정 규칙 문단 |
+| `d6e30aa` | 2026-09-25 | 고친 절: §1.2 dev 줄 — react-run 주석이 react-init 단계 2 의 server 블록을 가리킨다 (포트 고정) |
+| `001c900` | 2026-09-25 | 고친 절: §1.2 dev 줄 `strictPort` · §3.2 test 단계 passed · skipped 두 수 |
+| `6760e8d` | 2026-08-14 | 고친 절: §5.1 판정 규칙 — 사용자 보고와 자기 증거 충돌 규약 사본 |
+| `928fd30` | 2026-07-27 | 고친 절: §5.1 판정 규칙 — 미검증 규약 사본 · `react-kit/references/render-evidence-protocol.md` |
+| `644e2df` | 2026-06-05 | 설계 영향 없음 — react-audit 깨진 글자 복구뿐이다 |
+| `3b98054` | 2026-04-24 | 설계 영향 없음 — react-reviewer 근거 필수 · 모호 표현 금지 · grep 히트 단독 FAIL 금지, react-audit Library Policy 완화 금지 문장이다. §4 · §5 의 감사 축 · 입출력은 그대로 |
+| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — react-build Gotcha 두 줄 · react-audit · react-reviewer 한두 줄 문구다. 파이프라인 순서는 그대로 |
+| `d0010b2` | 2026-04-11 | 설계 영향 없음 — react-audit 에 React 19 · Tailwind v4 관련 규칙 몇 줄을 더했다. §4 규칙 목록의 기준 원본은 스킬이다 |
+
 ## 11. 변경 이력
 
 - **2026-04-10** — 초판. G6 4 스킬 (`/react-run`, `/react-build`, `/react-preflight`, `/react-audit`) + 2 에이전트 (`react-reviewer`, `widget-inspector-react` G5 재사용) 상세 설계. Deep 모드 4 병렬 축 (Architecture / Performance / Accessibility / Library Policy) + 5번째 축 (widget-inspector-react). G0~G5b 모든 그룹의 안티패턴 통합 감사 규칙 수록. 중요도 레벨 (error/warn/info) 정책 추가. WebSearch fallback 으로 Vitest CLI, wasm-pack build 옵션 검증.
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.

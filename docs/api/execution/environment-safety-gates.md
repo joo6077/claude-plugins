@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 환경 안전 게이트
 
 실제 API를 호출하기 전에 무엇을 허용할지 판정하는 규칙. 메서드 분류, prod 정책, 재시도·리다이렉트·부하 예산을 실행 직전에 결정한다.
@@ -94,7 +95,7 @@ safe 메서드도 반복·병렬이면 서버에 "unusual burden"이 되므로, 
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | 기본 safe allowlist | `GET`, `HEAD`, `OPTIONS` (3개) | RFC 9110 §9.2.1 + OWASP XST |
 | `TRACE` 허용 | 0회 | OWASP Cross-Site Tracing |
 | non-idempotent 재시도 | 0회 | RFC 9110 §9.2.2 |
@@ -111,7 +112,7 @@ safe 메서드도 반복·병렬이면 서버에 "unusual burden"이 되므로, 
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | prod에서 `POST`/`DELETE`를 "계약 검증"이라며 기본 실행 | 검증 목적이 상태 변경 면책이 되지 않는다. 실데이터가 바뀐다 |
 | `--retry`를 Hurl 파일 전체에 지정 | non-idempotent 요청까지 재시도되어 중복 생성·중복 결제가 난다 |
 | 인증 요청에 `--location-trusted` 사용 | 리다이렉트된 임의 host로 자격증명이 전송된다 |

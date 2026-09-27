@@ -46,6 +46,7 @@ approach_note: <str>                  # 시도한 접근법 1줄
 ```
 
 ### 카테고리 정의
+
 - **misunderstanding** — 사용자 의도 오해 (엉뚱한 파일 수정, 범위 오해, 잘못된 가정)
 - **repeated_error** — 같은 세션 내 또는 사용자 교정 뒤에도 반복된 같은 실수
 - **wrong_approach** — 더 적절한 스킬/에이전트/MCP가 있었는데 비효율적으로 시도
@@ -54,8 +55,9 @@ approach_note: <str>                  # 시도한 접근법 1줄
 카테고리는 **상호 배타적이지 않다**. `primary_category`에 지배적인 하나, `also_applies`에 추가 해당 카테고리를 배열로.
 
 ### 4축 필드 의미
+
 | 축 | 의미 | 값 |
-|---|---|---|
+| --- | --- | --- |
 | `scope` | 이 규칙이 어느 범위에 적용되어야 하는가 | session / project / global |
 | `risk_class` | 위반 시 피해 정도 | low / medium / high |
 | `procedurality` | 단일 규칙 vs 체크리스트 | single_rule / multi_step_procedure |
@@ -78,7 +80,7 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 위에서 아래로 적용. 먼저 맞는 규칙 하나만 선택.
 
 | # | 조건 | 승격 surface |
-|---|---|---|
+| --- | --- | --- |
 | 0 | `user_stated_constraint == true` (freq ≥ 1, 임계값 우회) | **매-세션 자동 로드 surface로 fast-track** (`scope==global` → 글로벌 CLAUDE.md, 아니면 project CLAUDE.md) |
 | 1 | `enforcement_need == hard_gate` (빈도 무관) | **hook 검토** (다른 축 무시) |
 | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** 신설/보강 |
@@ -137,16 +139,19 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 ## 분류 품질 자동화 (reflect-kaizen 계획)
 
 ### 1. LLM-as-judge 월간 스팟체크
+
 - 월 1회, 최근 reflections 중 랜덤 10건을 다른 LLM(Haiku 또는 codex 다른 모델)에 재분류 요청
 - 원 분류 vs 재분류 일치도 측정
 - 일치도 < 70% → Stop 훅 프롬프트 개선 신호, `/reflect-kaizen`이 프롬프트 diff 제안
 
 ### 2. 재발률 역추적 (ledger 기반)
+
 - 승격 규칙의 `post_freq`로 간접 품질 측정
 - 자주 재발하는 규칙 = 분류/규칙 작성 품질 낮음
 - `/reflect-kaizen`이 리포트
 
 ### 3. Self-consistency (선택)
+
 - 비싸므로 초기 버전에 포함하지 않음. 필요 시 추가.
 
 ## 수집 측면: raw prompt redaction 정책
@@ -154,6 +159,7 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 **정책 결정 (Q1 = A)**: 저장은 계속 하되, 민감 패턴 자동 치환.
 
 `_lib-redact.sh`의 `redact_sensitive()`가 치환하는 패턴:
+
 - Anthropic: `sk-ant-...` → `[REDACTED-ANTHROPIC-KEY]`
 - OpenAI: `sk-proj-...`, `sk-...` → `[REDACTED-OPENAI-KEY]` / `[REDACTED-API-KEY]`
 - GitHub: `ghp_`, `gho_`, `ghu_`, `ghs_`, `ghr_`, `github_pat_` → `[REDACTED-GH-*]`
@@ -166,12 +172,14 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 - Private key 블록: `-----BEGIN ... PRIVATE KEY-----` ~ `-----END ... -----` → 블록 전체 제거
 
 ### 보존 정책
+
 - **누적** (이번 세션 결정). 자동 삭제/압축 없음. 월간 파일은 계속 append.
 - 향후 용량 문제 발생 시 retention policy 추가 논의.
 
 ## 에러 관측성 (.errors.log)
 
 `log-reflection.sh`는 실패 시 `.errors.log`에 사유 태그:
+
 - `skip:cli-missing` — codex CLI 없음
 - `skip:transcript-path-empty` — stdin에 transcript_path 없음
 - `skip:transcript-file-missing path=<>` — 파일 없음
@@ -202,15 +210,17 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 2026-04-16 Codex 리서치 2회 결과 반영.
 
 ### 리서치 #1 (방법론/surface)
+
 - 개인 사용자 레벨 실용축: `Reflexion + Self-Refine + 얇은 Constitutional rubric`
 - DPO/KTO는 파인튜닝 전제라 직접 적용 불가
 - `CLAUDE.md` 200줄 권장, path-scoped rules 활용
 - 스킬은 설명만 상시 노출 / 본문은 invoke 시 로드 → 장문 절차 적합
 - hooks는 `command`뿐 아니라 `prompt hook`, `agent hook`도 지원 — LLM 분류기 훅 가능
-- 참고: https://arxiv.org/abs/2303.11366, https://arxiv.org/abs/2303.17651, https://code.claude.com/docs/en/memory, https://code.claude.com/docs/en/skills, https://code.claude.com/docs/en/hooks
+- 참고: <https://arxiv.org/abs/2303.11366>, <https://arxiv.org/abs/2303.17651>, <https://code.claude.com/docs/en/memory>, <https://code.claude.com/docs/en/skills>, <https://code.claude.com/docs/en/hooks>
 - 5축 스코어 25/25
 
 ### 리서치 #2 (adversarial audit)
+
 - blocker: raw 로그 PII (Q1=A redaction으로 해결)
 - major: basename 충돌 (project_id 해시화로 해결)
 - major: category 단일 라벨 (primary + also_applies로 해결)
@@ -226,7 +236,7 @@ Stop 훅이 억제 창 안에서 반복 로깅을 차단하며, 억제분은 `.e
 ## 핵심 설계 결정 요약
 
 | # | 결정 | 근거 |
-|---|---|---|
+| --- | --- | --- |
 | 1 | kit 이름 `reflect-kit` | Reflexion 논문 + 한국어 "성찰" 뉘앙스 + joo6077-plugins 네이밍 컨벤션 |
 | 2 | raw 저장 유지 + redaction | 사용자 Q1=A. 편의성 유지 + 위험 축소 |
 | 3 | project_id = Hybrid (`<basename>` 기본 + 충돌 시 `-<hash6>` fallback) | **v0.3.0 전환**. 운영 데이터 상 basename 충돌 0건 — 상시 해시는 over-engineered. 독립 리뷰로 backward-compatible Hybrid 선정 (아래 상세) |
@@ -253,7 +263,7 @@ v0.1.0~v0.2.0 은 `project_id = <basename>-<6자 md5 hex>` 를 상시 적용했�
 ### Hybrid 동작
 
 | 상황 | 반환 id | 추가 동작 |
-|------|---------|-----------|
+| ------ | --------- | ----------- |
 | 첫 write, basename 디렉토리 없음 | `<basename>` | bucket 생성 + `.project-root` 마커에 git root 기록 |
 | 재호출, 마커가 자기 repo 와 일치 | `<basename>` | no-op |
 | 같은 레포의 링크된 워크트리에서 호출 | 본 레포 `<basename>` | 마커가 본 레포 root 라 일치 — no-op (아래 `### 워크트리`) |

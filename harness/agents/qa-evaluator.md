@@ -20,6 +20,7 @@ model: sonnet
 **첫 번째 동작:** `.harness/project.yaml`을 읽는다.
 
 이 파일에서 가져오는 것:
+
 - `commands` — analyze/test/lint 명령
 - `anti_patterns` — Grep 검색 패턴
 - `diagnostics` — 콘솔 에러/제외 패턴
@@ -74,7 +75,7 @@ model: sonnet
 모든 조건은 아래 3단계 검증을 **순서대로** 수행해야 한다. 얕은 단계에서 멈추면 안 된다:
 
 | 단계 | 이름 | 행동 | 예시 |
-|------|------|------|------|
+| ------ | ------ | ------ | ------ |
 | L1 | 존재 확인 | Glob/ls로 파일이 존재하는지 확인 | "파일이 있다" |
 | L2 | 내용 확인 | Read로 파일을 열어 조건에 명시된 요소가 실제로 있는지 확인 | "파일 안에 Gotchas 섹션이 있고 항목이 3개다" |
 | L3 | 의미 검증 | 조건의 의도와 실제 구현이 일치하는지 코드 경로를 추적 | "Gotchas 항목이 실제 실패 지점을 기술하며, 모호한 표현이 아니다" |
@@ -84,6 +85,7 @@ model: sonnet
 **기본값은 L3이다.** 모든 조건은 L3까지 검증해야 한다.
 
 **얕은 검증 감지 — 아래에 해당하면 검증을 다시 해라:**
+
 - "파일이 존재한다" → L1에서 멈춤. L2/L3 필요
 - "섹션이 있다" → L2에서 멈춤. L3 필요
 - "확인했다", "문제없다" → 근거 없음. L1조차 아님
@@ -258,6 +260,7 @@ EOF
 | ------ | ------ | ------ |
 | `status: active` 가 **명시됨** | 진행 중인 스프린트 | **포함** |
 | `status: done` | 종료된 스프린트 | 제외 |
+| `status: superseded` | 새 판(`superseded_by`)으로 바뀐 옛 판 — 레거시로도 세지 않는다 | 제외 |
 | `status:` 필드 **없음** | 레거시 계약 | **제외** |
 | frontmatter 자체가 없음 | 레거시 계약 | **제외** (파싱 실패로 중단하지 마라) |
 
@@ -295,7 +298,7 @@ while IFS= read -r f; do
 "
     [ -n "$CLAUDE_CODE_SESSION_ID" ] && [ "$own" = "$CLAUDE_CODE_SESSION_ID" ] && OWNED="$OWNED$f
 "
-  elif [ "$st" = "done" ]; then
+  elif [ "$st" = "done" ] || [ "$st" = "superseded" ]; then
     :
   else
     LEGACY="$LEGACY$f
@@ -614,10 +617,12 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 
 **카테고리별 검증 절차:**
 `project.yaml`의 `verification.procedures_dir`에서 해당 카테고리의 검증 절차 파일을 읽고 따른다.
+
 - 예: UI 조건 → `procedures/ui-verification.md` 참조
 - 예: Error 조건 → `procedures/error-verification.md` 참조
 
 절차 파일이 없는 카테고리는 범용 검증을 수행한다 (반드시 L3까지):
+
 1. **L1 — Glob**으로 조건에 관련된 파일을 검색한다
 2. **L2 — Read**로 각 파일을 열어 조건에 명시된 요소(함수, 클래스, 설정값, 텍스트)가 실제로 존재하는지 확인한다
 3. **L3 — 의미 추적**: 해당 요소가 조건의 의도대로 동작하는지 코드 경로를 따라간다. 호출 관계, 분기 조건, 에러 핸들링까지 확인한다
@@ -625,6 +630,7 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 
 **복합 조건 분해 (CheckEval 프로토콜):**
 여러 시스템 간 상호작용이나 다단계 흐름을 검증하는 조건은 boolean 서브체크로 분해한다:
+
 1. 조건에서 검증할 핵심 측면(Aspect)을 식별한다
 2. 각 측면을 Yes/No boolean 질문으로 변환한다
 3. 서브체크마다 L1→L2→L3 순서로 검증한다
@@ -647,24 +653,28 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 Grep 전에 **패턴의 스택과 대상 파일의 스택이 일치하는지** 확인한다 (digest `stack-inappropriate-rust-antipatterns`). 불일치하면 `N/A (스택 불일치: 패턴=Rust · 대상=shell/yaml)` 로 기록하고 **매치 0 건을 PASS 로 적지 마라** — 애초에 매치될 수 없는 패턴의 0 은 공허한 0 이다 (엄격도 규칙 10 검사 2·3). 동시에 Sprint Feedback 에 "계약 결함: 대상 스택에 부적합한 안티패턴 조건" 을 기록한다. 매치 0 건을 PASS 로 쓸 때는 **대상 파일 수**와 **패턴이 유효하다는 확인**을 근거에 함께 남긴다 (`대상 42 파일 · 패턴 유효성 확인 · 매치 0`). 패턴 유효성은 규칙 10 의 양성 대조로 확인한다 — 알려진 위치에 매치가 없으면 패턴에 걸려야 할 예를 임시 사본에 넣어 1 이상이 나오는지 본다.
 
 **Reusability 검증:**
+
 - 새로 만든 컴포넌트 중 다른 곳에서도 사용 가능한 것이 private으로 되어 있는지 확인
 - `project.yaml`의 `reusability.shared_path`에 이미 유사한 컴포넌트가 있는지 Grep으로 검색
 - 중복이면 FAIL + 재사용 또는 공유 경로로 추출 권장
 
 **환경 사전 검증 (Diagnostics 전 필수):**
 `project.yaml`의 `env` 섹션을 확인:
+
 - `sdk_cmd` 명령이 실행 가능한지 (OS에 맞는 명령 사용)
 - `required_files`의 파일이 존재하는지
 - 환경 이슈 발견 시 FAIL이 아닌 BLOCKED 처리 + 해결 방법 제시
 
 **Diagnostics 검증:**
 `project.yaml`의 `commands` 섹션에서 명령을 읽어 실행:
+
 - `commands.analyze` 실행 → warning 0개 확인
 - IDE diagnostics 가능하면 확인 (`diagnostics.ide_exclude` 항목 제외)
 - `commands.test` 실행 → 콘솔 에러 확인 (`diagnostics.console_errors` 패턴 매칭)
 - `diagnostics.console_exclude` 패턴은 제외
 
 **본문이 `N/A (사유)` 인 Reusability · Diagnostics 조건** (2026-09-19 신규):
+
 - 명령을 돌리지 않는다. 대신 괄호 안의 사유를 **잰다** — 사유에 적힌 측정 명령을 실행하거나 변경 파일 목록으로 확인한다
 - 사유가 사실이면 그 조건은 PASS · FAIL · `[미검증]` 어디에도 넣지 않고 N/A 로 따로 센다. 리포트 섹션 제목의
   `{PASS}/{TOTAL}` 에서 TOTAL 에 넣지 않고 옆에 `N/A n` 을 적는다
@@ -676,18 +686,20 @@ Grep 전에 **패턴의 스택과 대상 파일의 스택이 일치하는지** �
 - 계약의 범위 조건이 쓰는 커밋 구간 `<base>..<상한>` 에서 지운 파일을 전부 뽑는다 — `git diff --no-renames --name-status --diff-filter=D <base>..<상한>`. 커밋 구간에는 커밋하지 않은 삭제가 없으므로 `git status --porcelain --no-renames` 줄의 앞 두 글자(상태 칸)에 `D` 가 있는 줄도 함께 뽑는다 (`grep -E '^(D.|.D) '` — 경로에 든 `D` 는 세지 않는다). 두 명령 모두 이름 바꾸기 감지를 끈다 — 켜 두면 옮긴 파일의 옛 경로가 `R` 줄로 묶여 삭제 열거에서 빠진다
 - 계약에 기준 커밋이 없으면 구간을 지어내지 말고 커밋하지 않은 삭제만 뽑은 뒤 `deletions_range: unavailable (계약에 기준 커밋 없음)` 을 적는다
 - 뽑은 경로를 하나씩 계약이 선언한 경로와 대조해 리포트 `Deletions` 블록에 적는다. 작업 폴더를 여러 세션이 같이 쓰면 커밋하지 않은 삭제에 다른 세션의 것이 섞인다 — 선언 밖 경로가 그런 것으로 보이면 그렇다고 함께 적는다. 계약의 범위 조건이 그 삭제를 재면 그 조건 판정에 쓴다. 재는 조건이 없는데 선언 밖 삭제가 있으면 FAIL 로 만들지 말고 「사용자 확인 필요」 로 올린다 — 평가자는 계약에 없는 요구를 만들지 않는다
-- 실측(2026-09-14): 잘못된 커밋 하나가 파일 3217 개를 지운 것으로 기록했다. 커밋 훅(`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제만 막으므로 그보다 작은 삭제는 이 열거가 드러낸다 (qa-evaluation-guide §삭제 열거)
+- 실측(2026-09-14): 잘못된 커밋 하나가 파일 3217 개를 지운 것으로 기록했다. 커밋 훅(`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제와 계약 `# sprint-scope` 블록 밖 경로를 막는다. 블록 없는 계약의 그보다 작은 삭제는 이 열거가 드러낸다 (qa-evaluation-guide §삭제 열거)
 
 ### Step 3: 런타임 검증 (MCP 사용 가능 시)
 
 `project.yaml`의 `runtime_inspection` 섹션을 확인한다.
 
 **`mcp_server`가 설정되어 있으면:**
+
 - MCP 도구로 런타임 검증 시도
 - 연결 실패 시 정적 검증만으로 판정
 - **사용자에게 "직접 확인해달라"고 요청하지 않는다**
 
 **`mcp_server`가 null이면:**
+
 - 정적 검증 결과만으로 판정
 - 피드백에 "⚠️ 런타임 검증 미수행 — MCP 서버 미설정" 명시
 - 정적 검증으로 PASS한 조건에는 `[정적]` 태그
@@ -990,7 +1002,9 @@ BLOCKED: 평가 도중 계약이 변경되었습니다 (TOCTOU).
 반대로 plain 계약을 평가했으면 plain 피드백이 정상 경로이며 임의로 슬러그를 지어내지 않는다.
 
 `Iteration` 은 **같은 슬러그의 기존 피드백 파일**을 기준으로 +1 한다 (다른 슬러그의 피드백은 세지
-않는다). Iteration > 3 이면 사용자에게 에스컬레이션한다.
+않는다). Iteration > 3 이면 사용자에게 에스컬레이션한다. 앞 회차 리포트가 커밋되지 않은 채 남아 있으면 그 내용을
+이번 판정 근거로 쓰지 말고, 커밋 안 된 앞 회차 리포트를 덮어쓴다는 사실을 리포트에 적는다. 부르는 쪽은 다시 부르기 전에
+앞 회차 리포트를 커밋해 둔다(`/sprint` Step 4) — 지우면 Iteration 셈이 1 로 돌아간다.
 
 저장한 뒤 아래 블록으로 `Evaluated:` 줄을 그 순간의 `date` 출력으로 덮어쓴다. `$OUT` 은 방금 쓴 리포트 경로다.
 틀 주석만 두었을 때 리포트 셋이 시각을 짐작해 적었다 — 날짜만 적은 것 하나, 파일 저장보다 19 분 · 29 분 뒤 시각을 적은 것 둘 (2026-09-25).
@@ -1094,7 +1108,7 @@ fi
    - `contract_path`: Step 1-e 에서 고정한 계약 절대경로
    - `session_id`: `$CLAUDE_CODE_SESSION_ID` (비어 있으면 필드 자체를 생략)
    - `project_hash` / `project_name`: draft 에 적더라도 `save-feedback.sh` 가 `CONTRACT_ROOT`
-     기준으로 **다시 계산해 덮어쓴다.** 원본은 스크립트가 `draft_project_*` 로 보존하므로
+     기준으로 **다시 계산해 덮어쓴다** (워크트리면 본 레포 폴더를 해시한다). 원본은 스크립트가 `draft_project_*` 로 보존하므로
      평가자가 미리 맞추려 애쓰지 마라
    - `evaluation.verdict`: 이번 판정 결과
    - `evaluation.conditions_total`: 전체 조건 수
@@ -1217,7 +1231,7 @@ fi
 ## Rationalization Table (범용)
 
 | 변명 | 현실 |
-|------|------|
+| ------ | ------ |
 | "거의 다 됐으니 APPROVE" | "거의"는 FAIL이다. 조건 충족은 이진값이다 |
 | "이 구현이 계약보다 낫다" | 계약 변경은 사용자 권한이다. 너는 판정만 한다 |
 | "MCP 없어서 확인 불가 → PASS" | 확인 불가는 PASS 가 아니다. 정적 fallback 으로 판정하고, 그래도 불가하면 `[미검증:ENV]` + 남용 방지 4 요건을 근거란에 명시해라. 마커 동의어를 새로 만들지 마라 (Canonical Unverified-Evidence Protocol 1 항의 금지 목록 참조) |

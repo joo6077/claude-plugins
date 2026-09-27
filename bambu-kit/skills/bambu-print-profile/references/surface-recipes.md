@@ -3,10 +3,10 @@
 > Last updated: 2026-09-25 (G-code 실측 세 곳에 잰 방법 · 2026-09-08 §2.7 형상 클래스 축 신설 · 최초 2026-05-16)
 > Source: Codex research run `a25261e23b21252b2` (score 24/25)
 > Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
->   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
->   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
->   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
->   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
+> 앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+> `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+> 두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+> 최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 > Sibling references: `seam-recipes.md` (seam 전용), `bambu-fields-baseline.md` §8 · §10 (필드 enum/default), `materials.md` (소재 카탈로그), `failure-recipes.md` (**실측 실패 후 사후 대응** — 이 파일은 사전 정책이다)
 >
 > **2026-08-13 정정 (카이젠 Phase 13):** `layer_height` `0.08` 의 공식 근거 표기 · `enable_arc_fitting` 성격 · `resolution` 적용 축 3 건. 근거: `.harness/.meta/evidence/phase13.md`
@@ -18,6 +18,7 @@
 ### 트리거 조건
 
 다음 중 하나면 surface-first 모드 ON:
+
 - 사용자가 "표면 매끈하게", "심 안 보이게", "완벽한 표면", "퀄리티 우선", "속도 신경 안 씀" 같은 요구를 명시
 - 모델이 외관 prototype, 피규어, 장식품, 케이스 외관, 회전체 화병/컵
 - 사용자가 직접 surface-first 키워드 사용
@@ -99,7 +100,7 @@ flow · PA · Z · 워핑 · 습기가 아니라 **속도값과 냉각 문턱**�
 **측정으로** 붙인다 — 키워드 추측이 아니라 단면 루프 둘레로 판정한다.
 
 | 클래스 | 판정 | 속도 정책 | 냉각 정책 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `planar` | 루프 둘레 `30` mm 미만 비율의 3 높이 중앙값 `< 0.5` | §3 표 적용 (소재별 하향 + 유량비 게이트) | base 위임 (변경 없음) |
 | `thin` | 같은 비율 `>= 0.5` | **§3 속도 하향을 적용하지 않는다.** `outer_wall_speed` · 인접 4 키 · `top_surface_speed` 를 process JSON 에 쓰지 않고 부모 실효값을 그대로 둔다 | 사용자 확인 후 filament 스코프 `overhang_fan_threshold` 1 키만 (`SKILL.md` §filament 튜닝 정책 예외) |
 
@@ -117,7 +118,7 @@ flow · PA · Z · 워핑 · 습기가 아니라 **속도값과 냉각 문턱**�
 2026-09-07 실측 분류 — 같은 3mf 안에서 두 클래스가 갈린다:
 
 | 오브젝트 | 루프 (25 / 50 / 75 %) | `< 30 mm` 비율 중앙값 | 최대 둘레 | 클래스 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Side Container LHS V1 | 52 / 25 / 20 | `1.00` | 20.6 mm | `thin` |
 | Center Container Round Temp V2.1 | 29 / 26 / 30 | `0.97` | 391.2 mm | `thin` |
 | Rear Container V2 | 4 / 42 / 55 | `0.95` | 338.7 mm | `thin` |
@@ -225,7 +226,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 그대로 두고 냉각으로 보상한다. 이 표는 `planar` 전용이다.
 
 | 항목 | Surface-first 값 | 기본 baseline | 근거 |
-|----|----|----|----|
+| ---- | ---- | ---- | ---- |
 | `layer_height` | **`0.12` mm 1 차 권장** (전 형상). 회전체/유기적에서 계단이 핵심이고 시간을 감수할 때만 `0.08-0.12` mm, 큰 평면 `0.12-0.16` mm | H2S 0.20 Standard | `0.12`: 0.12mm High Quality @BBL H2S.json (공식 체인 실재). **`0.08` 은 이 파일의 공식 근거가 아니다** — `min_layer_height 0.07` 하한 위라는 것만 확인되고 H2S 공식 0.08 process 프로파일 근거는 `[미확인]` (`bambu-fields-baseline.md` §10.1) |
 | `wall_loops` | `3` (표면 우선) ~ `4` (강도까지 우선) | `2` (fdm_process_common) | fdm_process_common.json |
 | `outer_wall_speed` | **소재별 매트릭스(아래)가 정본.** PLA `25-40` · Silk `15-25` · **PETG `50-70`** · PA/PC `20-30` · ABS/ASA `25-35` · TPU `10-20` mm/s | H2S 0.12 HQ `60` mm/s | 0.12mm High Quality @BBL H2S.json. ⚠️ PETG 를 PLA 와 같은 저속 그룹에 묶지 마라 — §소재별 매트릭스 참조 |
@@ -245,7 +246,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 ### 소재별 외벽 보정 (matrix)
 
 | 소재 | outer wall (mm/s) | layer (mm) | 추가 보정 |
-|----|----|----|----|
+| ---- | ---- | ---- | ---- |
 | PLA Basic | `25-40` | `0.08-0.12` | 가장 예측 가능. ironing 적극 |
 | PLA Matte | `25-40` | `0.08-0.12` | layer line 가장 잘 숨음. 표면 매끈함 최강 |
 | PLA Silk | `15-25` | `0.10-0.12` | 광택 보존 위해 더 느림. ironing은 topmost만 (광택 죽음 주의) |
@@ -263,7 +264,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 ## 4. Top / Bottom 표면 권장값
 
 | 항목 | Surface-first 값 | 기본 baseline | 근거 |
-|----|----|----|----|
+| ---- | ---- | ---- | ---- |
 | `top_shell_layers` | `0.12mm`: 7-9, `0.16mm`: 6, `0.20mm`: 5-6 | common `3`, single 0.12 `5` | fdm_process_common.json:7-16; fdm_process_single_0.12.json:26-47 |
 | `bottom_shell_layers` | `4-6` | common `3` | fdm_process_common.json |
 | `top_surface_pattern` | 기본 `monotonicline`; 원형 top은 `concentric` 실험; `archimedeanchords`/`hilbertcurve`는 의도적 텍스처일 때만 | `monotonicline` | fdm_process_common.json:167 |
@@ -302,7 +303,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 ### 5.1. 소재별 ironing 정책 (필수 enumerate)
 
 | 소재 | ironing_type | ironing_speed (mm/s) | ironing_flow (%) | ironing_spacing (mm) | ironing_inset (mm) | 판정 |
-|----|----|----|----|----|----|----|
+| ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | **PLA Basic** | `topmost` 또는 `top` | `15-20` | `10-15%` | `0.10-0.15` | `0.21-0.42` | **적극 권장** |
 | **PLA Matte** | `topmost` | `15-20` | `8-12%` | `0.10-0.15` | `0.21-0.42` | **권장**, 과하면 chalky 변색 |
 | **PLA Silk** | `topmost` only | `10-15` | `5-10%` | `0.10-0.15` | `0.3-0.5` | 광택 죽을 수 있음 — 실측 후 결정 |
@@ -323,7 +324,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 ### 5.2. 형상별 ironing 적용성
 
 | 형상 | ironing 적용 | 비고 |
-|----|----|----|
+| ---- | ---- | ---- |
 | 회전체 / 원기둥 | **무의미** | top이 없음 (cylinder는 위쪽 평면 X). spiral vase면 더더욱 무의미 |
 | 박스 / 직육면체 (top 있음) | **강함** | 평면 top에 가장 효과적 |
 | 유기적 곡면 | **부분** | 작은 수평 island top만 `topmost` |
@@ -338,6 +339,7 @@ surface-first 모드를 켜면 발생하는 비용. 모든 사용자에게 사�
 ### 6.1. 표면 vs 치수
 
 낮은 outer speed + scarf + ironing + flow 조정은 외관 ↑하지만:
+
 - **Sharp corner / edge sharpness 흐려짐**
 - **작은 hole 내경 영향** (`Contour and Hole` 모드 켜면 더 심함)
 - 얇은 벽에서 wall 3-4겹 적용 시 형상 깨짐
@@ -362,6 +364,7 @@ surface-first 모드를 켜면 발생하는 비용. 모든 사용자에게 사�
 ### 6.5. 속도 무시 시 부작용
 
 속도 무시는 사용자 명시 요구지만, 너무 느리면:
+
 - **PETG / PC / ABS**: 열 축적 → warping, 광택 불균일, stringing 누적 시간 ↑
 - 외벽 50mm/s 미만에서 chamber 온도 관리 필수 (특히 ABS/ASA enclosure)
 - 0.04mm 같은 극단적 fine layer는 nozzle ooze 누적 → blob 위험 ↑
@@ -374,6 +377,7 @@ surface-first 모드를 켜면 발생하는 비용. 모든 사용자에게 사�
 3. **ABS / ASA** — 출력 난도 ↑, but vapor smoothing 같은 후가공 가능. H2S chamber / 환기 / 수축 관리 필요
 
 비추 (매끈함 목표 한정):
+
 - **PETG HF**: 기능 OK, 단 stringing/blob 의존성 큼
 - **PA-CF / PAHT-CF**: fiber 질감으로 완전 매끈 부적합 (다만 "고급 무광" 텍스처로는 매력)
 - **TPU**: scarf/ironing 한계로 표면 마감 약함
@@ -384,14 +388,14 @@ surface-first 모드를 켜면 발생하는 비용. 모든 사용자에게 사�
 
 - Codex run `a25261e23b21252b2` (2026-05-16, score 24/25)
 - Primary sources:
-  - Bambu Studio GitHub release `v02.06.00.51`: https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51
-  - Scarf seam 회귀 이력: 1.10.0 → 1.10.1 hotfix (https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50)
-  - Bambu PETG HF guide: https://bambulab.com/en-us/filament/petg-hf
-  - Bambu PAHT-CF guide: https://bambulab.com/en-us/filament/pa6-cf
-  - Bambu ABS/ASA: https://bambulab.com/en-us/filament/abs, /asa
-  - Bambu TPU 95A HF: https://bambulab.com/en-us/filament/tpu-95a-hf
-  - AMS HT documentation: https://cdn1.bambulab.com/documentation/h2d/en/AMS_HT_20250109.pdf
-  - OrcaSlicer Ironing wiki: https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html
+  - Bambu Studio GitHub release `v02.06.00.51`: <https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51>
+  - Scarf seam 회귀 이력: 1.10.0 → 1.10.1 hotfix (<https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50>)
+  - Bambu PETG HF guide: <https://bambulab.com/en-us/filament/petg-hf>
+  - Bambu PAHT-CF guide: <https://bambulab.com/en-us/filament/pa6-cf>
+  - Bambu ABS/ASA: <https://bambulab.com/en-us/filament/abs>, /asa
+  - Bambu TPU 95A HF: <https://bambulab.com/en-us/filament/tpu-95a-hf>
+  - AMS HT documentation: <https://cdn1.bambulab.com/documentation/h2d/en/AMS_HT_20250109.pdf>
+  - OrcaSlicer Ironing wiki: <https://www.orcaslicer.com/wiki/print_settings/quality/quality_settings_ironing.html>
 - 로컬 system profile 출처:
   - `~/Library/Application Support/BambuStudio/system/BBL/process/fdm_process_common.json`
   - `~/Library/Application Support/BambuStudio/system/BBL/process/0.20mm Standard @BBL H2S.json`
@@ -404,6 +408,7 @@ surface-first 모드를 켜면 발생하는 비용. 모든 사용자에게 사�
 ### 후속 검증 필요
 
 `BACKLOG.md` "Surface-first 후속 검증" 섹션 참조:
+
 - precise z-seam JSON 키 매핑
 - `seam_slope_steps` / `seam_slope_entire_loop` / `seam_slope_inner_walls` 누락 default 재확인
 - Coupon 부족 소재 (PLA Matte/Silk, PC, ASA, PAHT-CF, TPU) 실측

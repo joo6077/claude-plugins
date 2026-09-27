@@ -27,7 +27,11 @@ user-invocable: true
 13. **편향 완화는 개인 의지가 아니라 장치로** — 확증편향/매몰비용/계획오류는 pre-mortem, kill criteria, reference class forecasting, red team review 같은 운영 장치로만 억제된다. "반대 의견도 들었다"만으로는 부족 — decision memo 에 pro/con 명시 구조를 강제하라. 출처: [The Decision Lab — Confirmation Bias](https://thedecisionlab.com/biases/confirmation-bias), [Commitment Bias](https://thedecisionlab.com/biases/commitment-bias).
 14. **discovery 단계 범위 유지 — 다음 단계로 임의 진주 금지 (skill-design-guide §5.5 Scope-Bound)** — discovery 의 산출물은 Problem/User/Job/Success Metric/Riskiest Assumption 이다. 사용자가 discovery 만 요청했는데 PRD·솔루션·스토리·우선순위를 임의로 작성해 진행하지 마라 (Gotcha 1 의 "해결책 점프 금지" 와 짝). 다음 단계로 넘어갈 준비가 됐으면 plan-prd 인계 여부를 **먼저 묻고** 진행한다. 요청하지 않은 추가 인터뷰 질문 라운드도 임의 확장이다 (insights-report #1 excessive_changes / over-exploration 대응). 출처: [Teresa Torres — Continuous Discovery](https://www.producttalk.org/glossary-discovery-continuous-discovery/).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 전단계 확인
 
@@ -70,6 +74,7 @@ Job 은 제품 독립적이어야 한다 — 우리 앱이 없어도 존재하�
 "이 기획이 실패한다면, 어떤 가정이 틀렸기 때문인가?" 질문. Inversion 사고법 (출처: [Farnam Street — Inversion](https://fs.blog/inversion/)) 으로 실패 조건을 먼저 기술.
 
 3가지 범주로 분류 — 출처: [Marty Cagan — Four Big Risks](https://www.svpg.com/four-big-risks/), [Product Risk Taxonomies](https://www.svpg.com/product-risk-taxonomies/):
+
 - **Desirability** — 사용자가 정말 원하는가 (value + usability)
 - **Viability** — 비즈니스적으로 말이 되는가 (판매/법무/수익/브랜드/운영)
 - **Feasibility** — 기술적으로 가능한가
@@ -105,12 +110,17 @@ Open Questions 이 5개 이상이면 "다음 세션에서 /plan-discover 재실�
 - 가정이 너무 많으면 "간단한 실험/인터뷰 먼저" 권고
 - 우선순위 고민이면 `/plan-prioritize`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/discovery.md` — JTBD, Continuous Discovery, Marty Cagan 4-risks 정리
 - `docs/planning/cognitive-biases.md` — 발견 단계의 편향 목록
 
 주요 1차 출처:
+
 - [Alan Klement — JTBD](https://www.alanklement.com/)
 - [Teresa Torres — Continuous Discovery / OST](https://www.producttalk.org/glossary-discovery-opportunity-solution-tree/)
 - [Marty Cagan — Four Big Risks](https://www.svpg.com/four-big-risks/)

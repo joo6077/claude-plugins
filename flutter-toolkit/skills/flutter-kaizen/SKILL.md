@@ -33,10 +33,11 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 - pub.dev 패키지 트렌드는 다운로드 수만으로 판단하지 마라. likes, pub points, popularity 점수를 함께 확인해라
 - `release.sh`는 interactive prompt가 있다 (dirty check). 카이젠 브랜치에서는 커밋 후 실행해야 한다
 - flutter-toolkit 스킬은 `references/project-detection.md`에 의존한다. 스킬 수정 시 detection 로직과의 정합성을 확인해라
+- **Makefile 규칙(`references/project-detection.md` Step 2b)을 바꾸는 계약은 그 규칙을 따르는 네 파일을 허용 경로에 처음부터 함께 넣어라** — `skills/flutter-preflight/SKILL.md` · `skills/flutter-run/SKILL.md` · `references/flutter-ai-rules.md` · `references/project-detection.md`. 넷 중 하나만 고치면 나머지가 옛 규칙으로 남고, 뒤늦게 고치려면 계약 허용 경로를 넓히는 개정이 필요하다 (실측 2026-09-26 c3a 묶음)
 - **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 프로젝트 감지 활용) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (rust-kit H-01/H-03 REJECT 패턴의 flutter 버전 재발 방지).
 
   | Sibling Group | 공통 원칙 검증 항목 |
-  |---------------|---------------------|
+  | --------------- | --------------------- |
   | flutter-widget · flutter-screen · flutter-feature | Enumerate-before-Act · HAS_DS 분기 · 기존 패턴 읽기 |
   | flutter-audit · flutter-preflight · flutter-build | Rule-by-Rule Audit · Binary Decidability · Scope Range |
   | flutter-hooks · flutter-error | 가이드형 스킬 Process Step 순서 고정 (탐색→진단→처방) |
@@ -53,16 +54,19 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 **출처 없는 주장은 어떤 경우에도 반영하지 않는다.**
 
 3중 검증 게이트를 반드시 통과해야 한다:
+
 1. **GATE 1 — 출처 존재:** 모든 주장에 URL 필수. 없으면 즉시 폐기
 2. **GATE 2 — 출처 접근:** WebFetch로 URL 접근 + 내용이 주장과 일치하는지 확인. 실패 시 폐기
 3. **GATE 3 — 증거 첨부:** PR에 출처 URL + 인용 원문 포함. 사용자가 원문 대조 가능해야 함
 
 **추가 안전장치:**
+
 - arXiv preprint → `[preprint]` 태그
 - 블로그 → 작성자 신뢰도 표기 (공식 vs 개인)
 - 6개월 이상 된 정보 → `[dated: YYYY-MM]` 태그
 
 **이 게이트를 우회하고 싶은 생각이 들면 멈춰라:**
+
 - "이건 널리 알려진 사실이니 출처 없어도 된다" → 아니다. 출처를 찾아라
 - "URL은 안 되지만 내용은 맞다" → 검증 불가능하면 폐기다
 - "비슷한 내용의 다른 출처가 있으니 괜찮다" → 그 다른 출처를 사용해라
@@ -70,7 +74,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 ## 개선 대상 범위
 
 | 영역 | 대상 | 인수 필터 |
-|------|------|-----------|
+| ------ | ------ | ----------- |
 | 스킬 프롬프트 | `flutter-toolkit/skills/*/SKILL.md` | `skills` |
 | 스킬 참조 파일 | `flutter-toolkit/skills/*/references/` | `skills` |
 | Eval | `flutter-toolkit/evals/` | `eval` |
@@ -84,15 +88,19 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 ## 트리거 조건
 
 ### 주기적 (cron)
+
 - **직접 cron 없음** — `kaizen-orchestrator`가 Phase 3에서 호출
 - 독립 실행은 수동 호출로만
 
 ### 이벤트 트리거
+
 `scripts/trigger-check.sh`를 실행하여 감지:
+
 - flutter-toolkit eval 실패 2회 연속
 - 신규 스킬 추가 후 첫 주
 
 ### 수동
+
 - `/flutter-kaizen` — 전체
 - `/flutter-kaizen skills` — 스킬만
 - `/flutter-kaizen eval` — eval만
@@ -116,6 +124,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 `references/search-sources.md`를 읽고 소스별로 검색한다.
 
 **검색 실행:**
+
 1. **WebSearch**로 Flutter/Dart 관련 학술 논문 검색 — 키워드 조합 사용
 2. **WebSearch**로 Flutter 공식 소스 changelog/blog 검색
 3. **WebSearch**로 커뮤니티 소스 검색 (블로그, GitHub trending)
@@ -123,6 +132,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 5. 이전 flutter-research-log.md에 있는 URL은 건너뛴다 (업데이트 제외)
 
 **각 검색 결과마다:**
+
 - 제목, URL, 유형, 날짜를 기록
 - flutter-toolkit 스킬 개선과 관련 있는지 1차 판단
 
@@ -135,6 +145,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 **GATE 3:** 검증 통과한 소스만 다음 단계로
 
 **태그 부착:**
+
 - arXiv preprint → `[preprint]`
 - 공식이 아닌 블로그 → `[blog]`
 - 6개월 이상 → `[dated: YYYY-MM]`
@@ -145,6 +156,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 검증된 소스에서 추출한 인사이트와 현재 flutter-toolkit 스킬을 비교한다.
 
 **기존 스킬 갭 분석:**
+
 - 현재 스킬에 없는 Flutter 기법/패턴이 있는가?
 - 현재 스킬의 접근법보다 나은 방법이 제시되었는가?
 - skills.sh의 다른 Flutter 스킬에서 가져올 수 있는 패턴이 있는가?
@@ -152,17 +164,20 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 - 설계 가이드에 추가할 새 원칙이 있는가?
 
 **신규 스킬 갭 분석:**
+
 - 연구에서 발견한 워크플로우 중 현재 flutter-toolkit에 대응하는 스킬이 없는 것이 있는가?
 - Flutter 생태계에서 반복되는 작업인데 아직 자동화되지 않은 것이 있는가?
 - skills.sh나 커뮤니티에서 인기 있는 Flutter 스킬 유형 중 우리에게 없는 것이 있는가?
 - `harness/docs/guides/skill-design-guide.md`의 아키타입 카탈로그 중 flutter-toolkit에 미충족된 유형이 있는가?
 
 **신규 스킬 판단 기준:**
+
 - 기존 스킬의 범위를 확장하는 것으로 충분한지 먼저 검토 — 별도 스킬이 꼭 필요한 경우만 생성
 - skill-design-guide 원칙: "몇 줄의 지시문 + Gotchas 1개로 시작" — 완성도보다 초안 생성이 우선
 - 이후 카이젠 실행에서 Gotchas가 쌓이면서 점진적으로 성장시킨다
 
 **개선 포인트 도출:**
+
 - 각 포인트에 영역(skill/eval/detection/architecture/guide/new-skill) 태그
 - 영향도(높음/중간/낮음)와 리스크(높음/중간/낮음) 판단
 - 출처 URL과 구체적 근거 매핑
@@ -191,11 +206,13 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
    - ANALYZE에서 신규 스킬이 도출되었으면 이 단계에서 직접 생성한다
    - 초안 수준(v0.1)으로 생성 — skill-design-guide 원칙 "몇 줄의 지시문 + Gotchas 1개"
    - 생성 구조:
+
      ```text
      flutter-toolkit/skills/{신규스킬명}/
      ├── SKILL.md          # frontmatter + Gotchas + 기본 Process
      └── references/       # 필요 시에만
      ```
+
    - frontmatter의 description에 트리거 키워드와 비트리거 조건 명시
    - 리서치에서 발견한 패턴/주의사항을 Gotchas에 반영
    - Process는 핵심 단계만 — 상세화는 이후 카이젠에서 점진적으로
@@ -227,7 +244,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 ## 버전 판단 가이드
 
 | 변경 영역 | bump | 예시 |
-|-----------|------|------|
+| ----------- | ------ | ------ |
 | docs, Gotchas 추가, eval 미세 조정 | **patch** | flutter-widget 스킬에 Gotcha 1개 추가 |
 | 스킬 프롬프트 변경, eval 기준 변경, 새 reference | **minor** | flutter-api 스킬의 프로세스 단계 수정 |
 | 신규 스킬 초안 생성 | **minor** | flutter-test 스킬 v0.1 생성 |
@@ -238,7 +255,7 @@ flutter-toolkit 스킬을 최신 연구, Flutter 생태계 변화, 커뮤니티 
 ## 추적 규칙
 
 | 항목 | 규칙 | 예시 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 커밋 메시지 | `flutter-kaizen:` prefix | `flutter-kaizen: flutter-widget Gotchas에 const 생성자 주의사항 추가` |
 | 브랜치명 | 버전 + 날짜 | `flutter-kaizen/0.4.0-2026-04-07` |
 | PR 제목 | bump 유형 + 플러그인명 | `[minor] flutter-toolkit: widget 스킬 패턴 개선` |

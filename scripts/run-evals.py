@@ -31,7 +31,7 @@ from plugin_utils import REPO_ROOT
 
 ALL_KITS = [
     "harness", "flutter-toolkit", "rust-kit", "react-kit",
-    "design-kit", "backend-kit", "infra-kit", "tone-kit",
+    "design-kit", "backend-kit", "infra-kit", "tone-kit", "api-kit",
 ]
 
 PLACEHOLDER_PATTERNS = [
@@ -63,7 +63,8 @@ def load_evals(kit: str) -> dict | None:
 
 
 def get_eval_list(data: dict) -> list[dict]:
-    return data.get("evals") or data.get("tests") or []
+    # api-kit 은 사례를 `cases` 에 둔다 — 이 열쇠를 안 읽으면 킷을 목록에 넣어도 0 건으로 통과한다
+    return data.get("evals") or data.get("tests") or data.get("cases") or []
 
 
 def _asset_exists(kit: str, skill_name: str) -> bool:
@@ -99,7 +100,8 @@ def validate_eval_entry(kit: str, entry: dict, verbose: bool) -> list[str]:
     if not prompt.strip():
         failures.append(f"eval #{eval_id} ({skill}): prompt 비어있음")
 
-    if not expected.strip():
+    # api-kit 뷰어 사례는 기대 결과를 글이 아니라 `expect` 수치로 적는다
+    if not expected.strip() and not entry.get("expect"):
         failures.append(f"eval #{eval_id} ({skill}): expected_output 비어있음")
 
     if not assertions:
@@ -111,8 +113,8 @@ def validate_eval_entry(kit: str, entry: dict, verbose: bool) -> list[str]:
         failures.append(f"eval #{eval_id} ({skill}): expected_output에 placeholder 텍스트")
 
     for i, a in enumerate(assertions):
-        text = a.get("text", "")
-        atype = a.get("type", "")
+        # 글자 한 줄짜리 assertion 은 출력 판정으로 본다
+        text, atype = (a, "output") if isinstance(a, str) else (a.get("text", ""), a.get("type", ""))
         if not text.strip():
             failures.append(f"eval #{eval_id} ({skill}): assertion[{i}] text 비어있음")
         if atype not in ("behavior", "output"):

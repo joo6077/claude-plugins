@@ -1,15 +1,19 @@
 ---
 title: QA Evaluation Guide
 version: v5.1
-last_updated: 2026-09-24
+last_updated: 2026-09-26
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # QA Evaluation Guide
+
+<!-- markdownlint-enable MD025 -->
 
 > qa-evaluator 에이전트가 참조하는 평가 방법론.
 > evaluator-kaizen이 리서치 기반으로 이 문서를 갱신한다.
 >
-> **참조 스키마**: `harness/references/contract-schema.md` (v5.5)
+> **참조 스키마**: `harness/references/contract-schema.md` (v5.7)
 >
 > **최근 갱신: 2026-09-24 (Phase 3 kaizen · v5.1)** — 입력은 인사이트 처리 배정표의 Phase 3 네 행(`harness:P04` ·
 > `user-setup:P4` · `F16` · `F31`)과 Phase 2 가 넘긴 스키마 v5.5 의 반대편이다.
@@ -140,7 +144,7 @@ LLM이 판정자 역할을 할 때 발생하는 알려진 편향:
 > CheckEval 이므로 인용을 교체했다. 이 논문은 "편향이 무엇인가" 의 출처이지 "그래서 이진으로
 > 채점하라" 의 출처가 아니다.
 >
-> **종합 편향 survey**: [A Survey on LLM-as-a-Judge — arxiv 2411.15594](https://arxiv.org/html/2411.15594v6), [Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge — arxiv 2410.02736](https://arxiv.org/html/2410.02736v1) 에서 12 개 이상의 편향을 분류. 본 가이드는 계약 기반 검증 맥락에서 영향이 큰 6 개에 집중한다.
+> **종합 편향 survey**: [A Survey on LLM-as-a-Judge — arxiv 2411.15594](https://arxiv.org/html/2411.15594v6), [Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge — arxiv 2410.02736](https://arxiv.org/html/2410.02736v1). Survey 는 편향을 두 상위 분류 `task-agnostic` · `judgment-specific` 로 나누고, Justice or Prejudice 는 정확히 12 개 편향을 잰다. 본 가이드는 계약 기반 검증 맥락에서 영향이 큰 6 개에 집중한다.
 >
 > **구현 추종 편향 경고**: LLM은 코드를 읽을 때 구현된 로직을 "의도된 행동"으로 추종하는 경향이 있다
 > ([Understanding LLM-Driven Test Oracle Generation](https://arxiv.org/abs/2601.05542)).
@@ -222,6 +226,7 @@ Independent Verification & Validation (IV&V) 원칙:
 | ------ | ------ | ------ |
 | `status: active` 명시 | 진행 중 | **포함** |
 | `status: done` | 종료 | 제외 |
+| `status: superseded` | 새 판으로 바뀐 옛 판 (레거시로도 세지 않는다) | 제외 |
 | `status:` 필드 없음 | 레거시 | **제외** |
 | frontmatter 자체가 없음 | 레거시 | **제외** (파싱 실패로 중단하지 않는다) |
 
@@ -699,8 +704,8 @@ done | sort -u)
 > **대응:** qa-evaluator Step 2 「삭제 열거」 · 리포트 `Deletions` 블록 · 처리 배정표 `user-setup:P4` · `F31`
 >
 > **배경:** 잘못된 커밋 하나가 파일 3217 개를 지운 것으로 기록했다(2026-09-14). 커밋 훅
-> (`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제만 막는다. 그보다 작은 삭제는 계약에 범위 조건이
-> 없으면 아무도 보지 않는다.
+> (`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제와, 계약이 `# sprint-scope` 블록을 적었을 때 그 밖 경로를 막는다.
+> 블록이 없는 계약에서 50 개 이하 삭제는 계약에 범위 조건이 없으면 아무도 보지 않는다.
 
 - 계약의 범위 조건이 쓰는 커밋 구간에서 `git diff --no-renames --name-status --diff-filter=D <base>..<상한>` 으로 지운 파일을
   전부 뽑는다. `--name-status` 의 상태 문자 `D` 가 삭제다 ([git diff](https://git-scm.com/docs/git-diff)).
@@ -818,7 +823,11 @@ Sprint Contract 의 각 조건에 대해 Step 2 (조건별 정적 검증) 을 �
 >
 > **배경:** 평가자가 조건 일부만 검증하고 "나머지는 비슷하니까 PASS" 로 뭉뚱그리는 패턴. /insights 리포트에서 "Claude consistently fails to spot obvious improvements that your rules already cover" 로 지적됨. 부분 점검의 유혹을 구조적으로 차단하기 위해 전수 점검 단계를 명문화한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 원칙
+
+<!-- markdownlint-enable MD024 -->
 
 Step 4 (판정) 직전에 **모든 계약 조건을 1 회 더 전수 스캔** 한다. 평가 도중 "자명하다"고 넘긴 조건이라도 판정 직전 체크리스트 형식으로 되돌아온다.
 
@@ -1026,7 +1035,11 @@ Step 4 판정 시 평가자는 Sprint Feedback 에 다음을 기록:
 - 판정자는 narrated reasoning 이 아니라 **observable evidence 에 대해 reasoning claim 을 검증**해야 한다. CoT/서술을 신뢰하면 fabricated progress signal 에 속아 false positive 가 최대 90% 증가 ([Gaming the Judge — arxiv 2601.14691](https://arxiv.org/abs/2601.14691))
 - "실행했다" 주장은 실제 실행 로그(receipt)와 **대조**하여 검증한다. 로그 없는 호출 주장은 fabricated tool reference 로 분류 ([Tool Receipts, Not Zero-Knowledge Proofs — arxiv 2603.10060](https://arxiv.org/pdf/2603.10060))
 
+<!-- markdownlint-disable MD024 -->
+
 ### 실패 사례
+
+<!-- markdownlint-enable MD024 -->
 
 - **fit-pal-app AR-03 (2026-05-17)**: "스킬 invoke" 조건에서 파일시스템 아티팩트가 없어 실행 여부를 구조적으로 검증 불가 → 산출물 부재이므로 `[미검증]` 이 정답. 실행 주장만으로 PASS 처리하면 가짜 호출을 통과시킴
 
@@ -1206,8 +1219,25 @@ UI·문서·차트처럼 렌더 결과를 캡처할 수 있는 산출물은 캡�
 
 **한계.** 사본 절차(첫 칸 밖 위반 · 못 읽는 칸 섞기 · 알려진 위반)를 그대로 규정한 외부 1 차 출처는 없다.
 CWE-20 · CWE-754 와 [CheckEval](https://arxiv.org/abs/2403.18771) 의 판별력 원칙을 레포 규칙으로 옮긴 것이다.
-생성 측 · 계약 측 짝은 ⑤ 에만 있다(skill-design-guide §3.7 · contract-schema §양성 대조 · §알려진 답 대조) —
-①~④ 의 짝은 다음 사이클 Phase 1 · 2 로 넘긴다.
+⑤ 의 짝은 skill-design-guide §3.7 · contract-schema §양성 대조 · §알려진 답 대조이고, ①~④ 의 짝은 생성 측이
+skill-design-guide §검사를 만드는 스킬 — 사본 네 가지로 먼저 돌린다, 계약 측이 contract-schema §산출물이 검사인 조건이다.
+
+### 문서 산출물일 때 — 문장 하나를 지운 사본으로 돌린다 (2026-09-26 추가)
+
+이번 스프린트가 고친 것이 문서(가이드 · 스킬 본문 · 규약)이고 조건이 「이 문장이 있다」 를 낱말이 든 줄 수로 재면,
+그 측정이 원본에서 1 이상을 냈다는 것만으로는 조건이 요구한 문장을 판별했다는 증거가 아니다. 다른 줄에 같은 낱말이
+있으면 문장을 틀리게 남겨도 통과한다. 실측(2026-09-24): Phase 1 계약 검토가 모의 편집본으로 「틀리게 남겨도 통과하는
+문장」 을 찾는 방법을 두 번 썼고, 두 번 모두 막는 결함을 찾았다(`.harness/.meta/kaizen-0924/phase1-notes.md`).
+
+문서 조건마다 아래 셋을 한다.
+
+1. 조건이 요구하는 문장 하나를 지운(또는 옛 문장으로 되돌린) 임시 사본을 만든다. 원본은 건드리지 않는다
+2. 그 사본에서 조건의 측정을 다시 돌려 값이 떨어지는지(1 이상 → 0, 통과 → 실패) 본다
+3. 사본 경로 · 지운 문장 · 측정 명령 · 두 값(원본 · 사본)을 리포트 `Check Artifacts` 블록에 남긴다
+
+**판정.** 값이 떨어지지 않으면 그 측정은 문장을 판별하지 못한다. 그 측정에 기댄 PASS 는 `[미검증:INVALID]` 로 센다.
+같은 의도를 판별하는 측정을 찾으면 그것으로 판정하고 `측정-방식-불일치` 를 Improvement 로 남긴다(위 §0 매치 판정 규칙과
+같다). 조건마다 한 문장이면 된다 — 측정이 문장을 가려내는지 보는 절차이지 문장 전부를 지워 보는 절차가 아니다.
 
 ### 보고 형식
 
@@ -1238,11 +1268,9 @@ Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께
 > 이 절을 인용 앵커로 삼는다: `harness/docs/guides/qa-evaluation-guide.md`
 > §Canonical Unverified-Evidence Protocol.
 >
-> **현재 drift (2026-07-27 실측 · 각 kit Phase 가 해소할 것):**
-> `design-reviewer` 는 임계 **3 건**("미검증 3항 프로토콜"), `backend-reviewer` ·
-> `infra-reviewer` · `rust-reviewer` 는 2 건 + CONDITIONAL APPROVE, `planning-reviewer` 는
-> 미검증 0 건 요구, `react-reviewer` 는 조항 없음. 킷마다 다른 임계는 같은 상태를 다른 verdict 로
-> 바꾼다.
+> **사본 검사:** reviewer 일곱과 `flutter-toolkit/skills/flutter-audit/SKILL.md` 의 사본 여덟이 아래 조항과 글자까지 같은지는 CI 가
+> `scripts/check-reviewer-protocol-copies.py` 로 잰다. 이 절을 고치면 같은 작업에서 사본 여덟도 고친다 —
+> 한쪽만 고치면 그 검사가 실패한다. 2026-07-27 에 적어 둔 킷별 임계 차이는 그 검사가 생긴 뒤 0 건이다.
 
 1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
    `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
@@ -1282,7 +1310,8 @@ Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께
    (4 분기: FAIL / `UNVERIFIED_ENV` / 4 요건 미충족 / 증거 무효).
    마커 어간은 `[미검증]` 하나이며 접미 `:ENV` / `:INVALID` 는 분류다. **접미 없는 레거시
    `[미검증]` 은 `INVALID` 로 해석한다.**
-3. **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
+
+   **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
    **1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT**.
    "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며 2 건 이상에는
    쓸 수 없다. **`UNVERIFIED_ENV` 는 이 카운터에 합산하지 않고** `env_gaps` 로 따로 세어
@@ -1509,7 +1538,11 @@ mutation 은 비싸다. 대규모 적용 보고는 전통적 방식이 큰 코�
 - 한 개라도 누락 시 FAIL + 누락 대상 전체 명시
 - 샘플 1~2 개만 확인하고 "나머지도 비슷할 것" 이라는 PASS 금지
 
+<!-- markdownlint-disable MD024 -->
+
 ### 실패 사례
+
+<!-- markdownlint-enable MD024 -->
 
 - **rust-kit H-01/H-03 (2026-04)**: "domain event + outbox 원칙이 rust-init, rust-feature, rust-service, rust-api 4 개 스킬 Gotchas 에 있다" 조건에서 rust-service 만 확인하고 PASS → 실제로 rust-init/rust-feature/rust-api 3 개 누락 → REJECT
 - **react-kit KZ-04 (2026-04)**: References 에 `docs/react/kit-design/` 7 개 그룹 문서 (g1~g6, g5b) 개별 명시 요구였는데 포괄 경로로 처리 → REJECT
@@ -1700,9 +1733,13 @@ CheckEval은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도�
 
 항목을 카운트할 때 Grep 패턴이 대상의 모든 변형을 포함하는지 확인한다:
 
+<!-- markdownlint-disable MD038 -->
+
 - Markdown 헤더: `##` 뿐 아니라 `###`, `####` 등 하위 레벨도 고려
 - 번호 매기기: `1.` 형식과 `- ` 불릿 형식 모두 고려
 - Gotchas 항목 카운트: H2(`## Gotchas`) 하위의 H3(`### 항목`) 또는 불릿(`- **항목**`) 형태 모두 매칭하는 범용 정규식 사용
+
+<!-- markdownlint-enable MD038 -->
 
 ```text
 # 실패 사례: AR-03 REJECT
@@ -1965,7 +2002,7 @@ LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 
 관련 스키마:
 
-- `harness/references/contract-schema.md` — Sprint Contract v5.5 스키마 (허용 섹션 헤더 2 계층 + `CONTRACT_ROOT` + **계약 봉인** + **Amendment `direction` × `consent`** + Counterpart 조건 패턴 + Diff-Scope Oracle 표준형 + **측정 커버리지 표기** + **인자 매트릭스** + **음성 대조** + **알려진 답 대조** + specificity tag + aggregation mode + `[미검증]` 마커 + sibling enumerated)
+- `harness/references/contract-schema.md` — Sprint Contract v5.7 스키마 (허용 섹션 헤더 2 계층 + `CONTRACT_ROOT` + **계약 봉인** + **Amendment `direction` × `consent`** + Counterpart 조건 패턴 + Diff-Scope Oracle 표준형 + **측정 커버리지 표기** + **인자 매트릭스** + **음성 대조** + **알려진 답 대조** + specificity tag + aggregation mode + `[미검증]` 마커 + sibling enumerated)
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
 
 ---
@@ -1976,7 +2013,11 @@ LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 >
 > **배경:** Phase 1/2 에서 Cross-Surface Parity 가 설계 가이드 · 계약 가이드 레이어에 고정되었다. Phase 3 는 동일 parity 를 **평가자 레이어** 에 흡수하고, 향후 본 가이드가 개정될 때 상·하위 surface 로의 전파를 자동 체크한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 원칙
+
+<!-- markdownlint-enable MD024 -->
 
 qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하는지 자동 체크한다:
 
@@ -2044,7 +2085,7 @@ qa-evaluation-guide.md 편집 시:
   예외 파일은 없다 — 2026-08-13 이전에는 `contract-design-guide.md` 에만 frontmatter 가 없어
   이 값의 추출 경로가 달랐고, 그래서 이 절이 스테일해도 아무도 재지 못했다. 그 파일에
   frontmatter 를 신설해 세 값의 원본을 하나로 통일했다.
-- **Schema link**: contract-schema.md v5.5 §산출물 경로 · §계약 봉인 · §Amendment 사이드카 (경로·슬러그·frontmatter·봉인·amendment 축 SSOT — 본 가이드는 인용만 한다)
+- **Schema link**: contract-schema.md v5.7 §산출물 경로 · §계약 봉인 · §Amendment 사이드카 (경로·슬러그·frontmatter·봉인·amendment 축 SSOT — 본 가이드는 인용만 한다)
 - **추출 (값을 손으로 옮겨 적지 마라 · zsh · bash 동일)** — 출력 4 줄이 위 `Parity with` 3 값과
   `Schema link` 의 스키마 버전과 **문자 그대로** 같아야 한다. 한 줄이라도 다르면 이 절이 스테일한
   것이다:

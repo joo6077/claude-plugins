@@ -10,7 +10,7 @@
 문장마다 출처 등급이 다르다. 스킬로 옮길 때 등급을 지우지 마라.
 
 | 등급 | 뜻 | 표기 |
-|---|---|---|
+| --- | --- | --- |
 | **[설치본]** | 설치된 바이너리·시스템 프로파일에서 직접 추출. 이 환경에서 참 | 인용문은 원문 그대로 |
 | **[공식]** | Bambu 공식 wiki·매뉴얼 | URL 명시 |
 | **[Orca]** | OrcaSlicer 문서. 같은 계보지만 **Bambu 와 값·이름이 다를 수 있다** | 반드시 라벨 유지 |
@@ -25,7 +25,7 @@
 `02.08.02.61` 바이너리에 실존하는 내부 모드 이름 **[설치본]**:
 
 | # | UI 이름 | 내부 mode | 보정 대상 | 실행 위치 |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 1 | **Flow Dynamics** | `auto_pa_line_calib_mode` · `pa_line_calib_mode` · `pa_pattern_calib_mode` | 압출 압력 지연 (PA / K 계수) | Calibration 탭 (프린터 연결) |
 | 2 | **Flow Rate** | `flow_rate_coarse_calib_mode` · `flow_rate_fine_calib_mode` | 기대 대비 실제 압출량 비 (`filament_flow_ratio`) | Calibration 탭 (프린터 연결) |
 | 3 | **Max Volumetric Speed** | `vol_speed_tower_calib_mode` | 안정 압출 가능한 최대 체적속도 `mm³/s` | Calibration 탭 |
@@ -112,13 +112,16 @@ Calibration 탭 → 좌측 Flow Rate
 
 ### 4.2 Preset 화면에서 정하는 것 **[설치본 UI]**
 
+<!-- markdownlint-disable MD033 -->
 | 항목 | 선택 | 근거 |
-|---|---|---|
+| --- | --- | --- |
 | **Calibration Type** | `Complete Calibration` = coarse + fine (Calibration1 + Calibration2)<br>`Fine Calibration based on flow ratio` = fine 단독 | 처음이면 Complete **[공식]** |
 | **Nozzle Diameter** | 실제 노즐과 일치 | |
 | **Nozzle Flow** | `Standard` / `High Flow` — 프로파일의 MVS 열과 같아야 함 | |
 | **Plate Type** | **실제 장착된 플레이트와 반드시 일치** | 불일치 → 접착 불량 → 결과 무효 **[설치본]** |
 | **Filament For Calibration** | 실제로 그 출력에 쓴 스풀 | |
+
+<!-- markdownlint-enable MD033 -->
 
 ### 4.3 판정
 

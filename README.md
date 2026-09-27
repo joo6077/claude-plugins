@@ -6,7 +6,7 @@ Claude Code 플러그인 모노레포. 프로젝트 스택별로 필요한 플�
 
 <!-- AUTO:plugins -->
 | 플러그인 | 버전 | 스택 | 설명 |
-|----------|------|------|------|
+| --- | --- | --- | --- |
 | [`harness`](./harness/) | v0.15.2 | 범용 | [v0.15.2 · 2026-09-26] Sprint Contract + QA Evaluator 기반 품질 보증 하네스 (계약 봉인 E3 + 미검증 카운터 분리 + 문서-스크립트 계약 + 게이트 exit taxonomy) |
 | [`flutter-toolkit`](./flutter-toolkit/) | v0.10.1 | Flutter | [v0.10.1 · 2026-09-26] Flutter 개발 워크플로우 스킬 모음 (flutter-scenario-report — 보고서 틀을 템플릿 파일로 분리 · 예시 보고서) |
 | [`design-kit`](./design-kit/) | v0.6.0 | 범용 | [v0.6.0 · 2026-09-26] 스택 무관 UI/UX 디자인 가이드 + 감사 (Variant Distinctiveness Gate + Decision Propagation Manifest + 증거 채널 + WCAG 24×24 정정) |
@@ -50,7 +50,7 @@ Claude Code 세션에서 이 모노레포를 마켓플레이스로 추가한다:
 ### 설치 범위
 
 | 플래그 | 범위 | 설명 |
-|--------|------|------|
+| -------- | ------ | ------ |
 | *(기본)* | user | 모든 프로젝트에서 사용 |
 | `--scope project` | project | 해당 프로젝트에서만 사용 (팀 공유) |
 | `--scope local` | local | 해당 프로젝트, 본인만 사용 (gitignored) |
@@ -150,6 +150,7 @@ bash scripts/release.sh howto-kit patch
 <!-- /AUTO:skills-harness -->
 
 **사용 시작:**
+
 ```text
 /harness init
 ```
@@ -176,6 +177,10 @@ Flutter 프로젝트 전용 개발 워크플로우 스킬.
 - 디자인 시스템 세팅 + 실시간 가이드 + 감사
 - `design-kit/docs/design/` 리서치 문서 기반
 
+<!-- AUTO:skills-design-kit -->
+**스킬 8종** — `design-audit`, `design-component`, `design-concept`, `design-guide`, `design-mockup`, `design-reference`, `design-system`, `design-test` · **에이전트 1종** — `design-reviewer`
+<!-- /AUTO:skills-design-kit -->
+
 > 자세한 내용은 [design-kit/README.md](./design-kit/README.md) 참조.
 
 ### backend-kit
@@ -185,6 +190,10 @@ Flutter 프로젝트 전용 개발 워크플로우 스킬.
 - Hexagonal/Clean/DDD 아키텍처, OAuth 2.1, FAPI 2.0, Outbox 패턴
 - `docs/backend/` 리서치 문서 기반
 
+<!-- AUTO:skills-backend-kit -->
+**스킬 4종** — `backend-audit`, `backend-guide`, `backend-system`, `backend-test` · **에이전트 1종** — `backend-reviewer`
+<!-- /AUTO:skills-backend-kit -->
+
 > 자세한 내용은 [backend-kit/README.md](./backend-kit/README.md) 참조.
 
 ### infra-kit
@@ -193,6 +202,10 @@ Flutter 프로젝트 전용 개발 워크플로우 스킬.
 
 - K8s Gateway API, Terraform/OpenTofu, SLSA, OTel, FinOps
 - `docs/infra/` 리서치 문서 기반
+
+<!-- AUTO:skills-infra-kit -->
+**스킬 4종** — `infra-audit`, `infra-guide`, `infra-init`, `infra-test` · **에이전트 1종** — `infra-reviewer`
+<!-- /AUTO:skills-infra-kit -->
 
 > 자세한 내용은 [infra-kit/README.md](./infra-kit/README.md) 참조.
 
@@ -232,6 +245,10 @@ React + Vite + Tauri 2 + Rust WASM 개발 워크플로우.
 - GitHub Projects v2 동기화, Shape Up · DDD Event Storming · JTBD · PR-FAQ 등 방법론
 - `docs/planning/` 리서치 문서 기반
 
+<!-- AUTO:skills-planning-kit -->
+**스킬 12종** — `plan-audit`, `plan-data-model`, `plan-discover`, `plan-flow`, `plan-guide`, `plan-ideate`, `plan-prd`, `plan-prioritize`, `plan-reference`, `plan-risks`, `plan-stories`, `plan-sync-github` · **에이전트 1종** — `planning-reviewer`
+<!-- /AUTO:skills-planning-kit -->
+
 > 자세한 내용은 [planning-kit/README.md](./planning-kit/README.md) 참조.
 
 ### reflect-kit
@@ -243,6 +260,10 @@ React + Vite + Tauri 2 + Rust WASM 개발 워크플로우.
 - Hybrid project_id (basename 기본 + 충돌 시 hash fallback, backward-compatible)
 - codex 실패 시 Claude CLI fallback, install-scheduler/legacy-id-migrate 유틸
 
+<!-- AUTO:skills-reflect-kit -->
+**스킬 4종** — `codex-kaizen`, `reflect-digest`, `reflect-kaizen`, `reflect-promote`
+<!-- /AUTO:skills-reflect-kit -->
+
 > 자세한 내용은 [reflect-kit/README.md](./reflect-kit/README.md) 참조.
 
 ### bambu-kit
@@ -251,10 +272,69 @@ Bambu Lab H2S 자동 process+filament JSON 생성. 도구형 1스킬 킷 (guide/
 
 - H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정
 - MakerWorld URL/로컬 모델 → 모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 zip 번들
-- references 4종 (bambu-fields-baseline / materials / seam-recipes / kaizen-sources) SSOT
+- references 9종 (bambu-fields-baseline / materials / seam-recipes / kaizen-sources / comment-analysis / failure-recipes / surface-recipes / tolerance / user-preferences) SSOT
 - 카이젠 스킬 (`bambu-research`, `bambu-kaizen`)은 `.claude/skills/`에 분리 (plugin 외부)
 
+<!-- AUTO:skills-bambu-kit -->
+**스킬 1종** — `bambu-print-profile`
+<!-- /AUTO:skills-bambu-kit -->
+
 > 자세한 내용은 [bambu-kit/README.md](./bambu-kit/README.md) 참조.
+
+### onboarding-kit
+
+스택 무관 외부 서비스 셋업 가이드 자동 생성. bambu-kit 과 같은 도구형 1스킬 킷.
+
+- Firebase · GCP · AWS · FCM · OAuth · Stripe 등 외부 서비스 셋업을 단계별 MD 로 만든다
+- 호출할 때마다 공식 문서를 새로 받아 옛 정보로 헤매지 않게 한다
+
+<!-- AUTO:skills-onboarding-kit -->
+**스킬 1종** — `setup-guide`
+<!-- /AUTO:skills-onboarding-kit -->
+
+> 자세한 내용은 [onboarding-kit/README.md](./onboarding-kit/README.md) 참조.
+
+### tone-kit
+
+스택 무관 코딩 톤·유지보수성 게이트.
+
+- 주석 경제성 · 역할 네이밍 · 추출 임계 · 한국어 문체 규칙
+- 규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션), 파일 단위 정리 캠페인
+- `docs/tone/` 리서치 문서 기반
+
+<!-- AUTO:skills-tone-kit -->
+**스킬 3종** — `tone-campaign`, `tone-guide`, `tone-scaffold`
+<!-- /AUTO:skills-tone-kit -->
+
+> 자세한 내용은 [tone-kit/README.md](./tone-kit/README.md) 참조.
+
+### api-kit
+
+실제 응답을 기준으로 삼는 블랙박스 API 계약 검증 킷.
+
+- 탐색 실행 → 스냅샷 봉인 → 계약 추출 → 회귀 diff → 정적 뷰어
+- `pin` 은 값 고정이 아니라 경로별 명시 assertion, 비교 기준은 RFC 8785 JCS
+- `docs/api/` 리서치 문서 기반
+
+<!-- AUTO:skills-api-kit -->
+**스킬 5종** — `api-contract`, `api-init`, `api-probe`, `api-ui`, `api-verify` · **에이전트 1종** — `api-reviewer`
+<!-- /AUTO:skills-api-kit -->
+
+> 자세한 내용은 [api-kit/README.md](./api-kit/README.md) 참조.
+
+### howto-kit
+
+사람이 손으로 하는 절차를 어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인까지 끊지 않고 안내하는 킷.
+
+- 기본은 대화창 즉답, 요청할 때만 MD 문서와 결정론 검사 G1~G6
+- 출처 등급(관측 / 문서 / 추정 / 미확인)으로 확인 못 한 단계를 드러낸다
+- `docs/howto/` 리서치 문서 기반
+
+<!-- AUTO:skills-howto-kit -->
+**스킬 3종** — `howto`, `howto-audit`, `howto-doc` · **에이전트 1종** — `howto-reviewer`
+<!-- /AUTO:skills-howto-kit -->
+
+> 자세한 내용은 [howto-kit/README.md](./howto-kit/README.md) 참조.
 
 ---
 
@@ -321,7 +401,29 @@ claude-plugins/
 │   └── skills/bambu-print-profile/
 │       ├── SKILL.md
 │       ├── BACKLOG.md           # v2 카이젠/capture daemon 백로그
-│       └── references/          # 4종 (fields-baseline/materials/seam-recipes/kaizen-sources)
+│       └── references/          # 9종 (fields-baseline/materials/seam·surface·failure-recipes 등)
+├── onboarding-kit/              # 외부 서비스 셋업 가이드
+│   ├── .claude-plugin/plugin.json
+│   └── skills/
+├── tone-kit/                    # 코딩 톤·유지보수성 게이트
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── references/
+│   ├── templates/
+│   └── evals/
+├── api-kit/                     # 블랙박스 API 계약 검증
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── agents/
+│   ├── references/
+│   └── evals/
+├── howto-kit/                   # 사람이 손으로 하는 절차 안내
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── agents/
+│   ├── references/
+│   ├── scripts/
+│   └── evals/
 ├── docs/                        # 설계 가이드, 리서치, HTML 시각 문서, 카이젠 로그
 ├── scripts/
 │   ├── release.sh               # 플러그인 버전 bump + tag + push 자동화

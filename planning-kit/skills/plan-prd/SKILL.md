@@ -27,7 +27,11 @@ user-invocable: true
 13. **요청한 범위만 — 임의 섹션·기능 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 PRD 의 특정 섹션(예: Problem + Success Metric)만 요청하면 그 범위만 작성한다. "PRD 니까 완결돼야 한다"는 이유로 요청하지 않은 기능·릴리스 계획·KPI·로드맵을 임의로 끼워 넣지 마라. Shape Up 의 appetite 는 "fixed time, variable scope" — appetite 를 넘는 scope 확장은 그 자체가 규율 위반이다. 표준상 빠지면 안 되는 섹션(Non-goals, Open Questions) 이 있으면 추가 **여부를 먼저 알리고** 확인한다. discovery 산출물이 비면 PRD 단계로 임의 진주하지 말고 plan-discover 로 되돌린다 (insights-report #1 excessive_changes / over-engineering 대응 — 53 wrong_approach + 38 misunderstood). 출처: [Basecamp Shape Up §Chapter 6 — Set the Appetite](https://basecamp.com/shapeup/1.5-chapter-06).
 14. **폐기한 결정은 비범위 절 한 곳에 네 칸으로 적는다** — 사용자가 버리기로 한 기능·설정 항목은 이 PRD 의 `## Non-goals (폐기한 결정 포함)` 표(Shape Up 은 `## No-gos`)에 `하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적` 한 줄로 적는다. 결정 원문은 여기 하나다 — 디자인 승인 기록 · 작업 계약 · 핸드오프는 이 PRD 경로를 가리키고 결정을 다시 쓰지 않는다. PRD 를 쓴 뒤에 나온 폐기 결정도 새 파일을 만들지 말고 이 표에 한 줄 더한다. `코드에 남은 흔적` 칸(서버 필드 · 호출되지 않는 화면 파일 등)은 채울 빈틈이 아니라 치울 목록이다 — 흔적을 새 요구로 옮겨 적지 말고, 되살려야 할 것 같으면 사용자에게 먼저 묻는다. 폐기는 영구 금지가 아니다 — 범위 칸(`이번 PRD` · `이번 사이클` · `제품 전체`)이 그 결정이 걸친 폭이고, 다시 꺼낼지는 사용자가 정한다. 하지 않는 것 · 이유 칸은 Shape Up No-gos 가 근거이고 범위 · 흔적 칸은 이 킷의 운영 규칙이다. 실측(`/insights` 2026-09-24 F20): 사용자가 이미 폐기한 시간대·국가 설정 항목을 다시 넣었다. 출처: `docs/planning/prd-patterns.md` §폐기한 결정, [Basecamp Shape Up §Chapter 6](https://basecamp.com/shapeup/1.5-chapter-06), [Agile Alliance — INVEST (Negotiable)](https://agilealliance.org/glossary/invest/).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 자동 로드 (독립 단계)
 
@@ -36,6 +40,7 @@ user-invocable: true
 1. **원칙 문서**: `docs/planning/prd-patterns.md` (Amazon PR/FAQ · Shape Up Pitch · Linear/Stripe/Notion 공개 템플릿). 없으면 `/planning-research prd-patterns` 권고 후 중단.
 2. **이전 단계 산출물**: `.planning/discover-*.md` (discovery) 가 있으면 로드. 없으면 Step 1 에서 Problem/User/JTBD/Success Metric 명시 여부 확인.
 3. **선택 참조**: `.planning/ideate-*.md` (발산/수렴 맥락), `.planning/reference-*.md` (경쟁 teardown, 차별화 근거).
+4. **`PRD 없음` 기록**: PRD 가 없을 때 계약 `범위 경계`(계약도 없으면 디자인 승인 기록 폐기 칸)에 적어 둔 이 기능의 폐기 결정이다. `grep -rnE 'PRD 없음[[:space:]]*[|]?[[:space:]]*$' .harness .design 2>/dev/null` 와 ``grep -rnE '^[[:space:]]*([-*+][[:space:]]|[0-9]+[.)][[:space:]]|[|]).*PRD 없음(`[.]?|[.])[[:space:]]*[|]?[[:space:]]*$' .harness .design 2>/dev/null`` 로 찾는다(뒤엣것은 코드 표시 기호째 옮겨 적었거나 마침표로 끝낸 목록 항목 · 표 행 · harness `/sprint` Step 0.5 와 같은 두 모양). 이 기능의 줄이 있으면 Step 3 에서 `## Non-goals (폐기한 결정 포함)` 표(Shape Up `## No-gos`)에 네 칸 그대로 한 줄씩 옮기고, 원래 줄 끝의 `PRD 없음` 을 `→ .planning/prd-<slug>.md` 로 바꾼다 — 원문은 PRD 표 하나로 남는다 (Gotcha 14). 다른 기능의 줄은 옮기지 않는다.
 
 원칙 문서 없이 Step 1 진입 금지 — 학습 데이터 기반 PRD 는 Shape Up / PR/FAQ 포맷 엄밀성을 보증하지 못한다.
 
@@ -49,7 +54,7 @@ user-invocable: true
 다음 표로 사용자에게 선택하게 한다:
 
 | 포맷 | 적합 | 산출물 구조 | 출처 |
-|------|------|-------------|------|
+| ------ | ------ | ------------- | ------ |
 | **PR/FAQ** (Amazon) | 신규 제품, 큰 기능, 외부 고객 향 | 보도자료(1p) + 내부 FAQ + 외부 FAQ + Non-goals | [About Amazon](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes) |
 | **Shape Up Pitch** (Basecamp) | 6주 이내 해결 가능한 문제 중심 기능 | Problem + Appetite + Solution(스케치) + Rabbit holes + No-gos | [Shape Up §6](https://basecamp.com/shapeup/1.5-chapter-06), [§9](https://basecamp.com/shapeup/2.3-chapter-09) |
 | **Linear-style Spec** | 작은 기능, 엔지니어링 중심 | Problem + Solution + Non-goals + Open questions + Milestones | [Linear Issue Templates](https://linear.app/docs/issue-templates) |
@@ -150,6 +155,7 @@ user-invocable: true
 ## Step 5: 저장 + 다음 단계
 
 `.planning/prd-<slug>.md` 저장. 다음 권고:
+
 - 유저 플로우 필요 → `/plan-flow`
 - 데이터 구조 필요 → `/plan-data-model`
 - 우선순위 → `/plan-prioritize`
@@ -157,12 +163,17 @@ user-invocable: true
 - 리스크 점검 → `/plan-risks`
 - 완성도 감사 → `/plan-audit`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/prd-patterns.md` — Amazon PR/FAQ, Shape Up, Linear, Notion, Stripe, Design Sprint
 - `docs/planning/discovery.md`
 
 주요 1차 출처:
+
 - [Amazon Working Backwards](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes)
 - [Basecamp Shape Up §6](https://basecamp.com/shapeup/1.5-chapter-06)
 - [Basecamp Shape Up §9](https://basecamp.com/shapeup/2.3-chapter-09)

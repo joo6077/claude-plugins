@@ -23,7 +23,11 @@ user-invocable: true
    으로 재정의됐다. 외부 문서에 `pin` 이 다른 뜻으로 나와도 이 킷의 정의를 바꾸려면
    설계문서 §9.2 와 UI 전반을 함께 고쳐야 한다 — 문서만 조용히 바꾸지 마라.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 리서치 범위 결정
 
@@ -49,7 +53,7 @@ docs/api/
 Codex 에 `MODE=research` 로 위임한다 (read-only, foreground). 1 차 출처 우선순위:
 
 | 순위 | 소스 |
-|---|---|
+| --- | --- |
 | 1 | RFC / W3C / IETF 사양 |
 | 2 | 공식 문서 (hurl.dev · spec.openapis.org · json-schema.org) |
 | 3 | 릴리스 노트 · CHANGELOG |
@@ -75,7 +79,11 @@ Codex 에 `MODE=research` 로 위임한다 (read-only, foreground). 1 차 출처
 `docs/api/research-log.md` 에 사이클을 추가한다. **판정(CHANGED / NO-CHANGE)과 외부 조회 횟수**를
 명시하고, 미검증으로 남은 항목은 표에 남긴다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `../../../docs/api/research-log.md` — 미검증 항목 · 이전 사이클 판정
 - `../../../docs/superpowers/specs/2026-09-02-api-kit-design.md` — §9.2 계약 실패 기준, §12 확정 결정

@@ -1,0 +1,18 @@
+# 원본	페이지	codes_new	wr_new	fence_in_new   (옛 판 = 38cccd1, 2026-09-27 봉인 전 실측)
+.claude/skills/kaizen-orchestrator/SKILL.md	docs/process/kaizen-flow.html	150	0.25	0
+.claude/skills/kaizen-orchestrator/references/phase-research-templates.md	docs/process/phase-research-templates.html	75	0.98	0
+api-kit/skills/api-ui/SKILL.md	docs/api-kit/static-evidence-viewer-contract.html	60	0.40	9
+docs/api/verification/static-evidence-viewer-contract.md	docs/api-kit/static-evidence-viewer-contract.html	45	0.92	0
+docs/superpowers/specs/2026-09-02-api-kit-design.md	docs/api-kit/multi-sample-pagination-variance.html	35	0.18	0
+docs/superpowers/specs/2026-09-02-api-kit-design.md	docs/api-kit/contract-extraction-modes.html	47	0.23	0
+docs/backend/fundamentals/api-design.md	docs/backend-kit/api-design.html	20	0.91	8
+bambu-kit/skills/bambu-print-profile/SKILL.md	docs/bambu-kit/bambu-print-profile.html	392	0.73	155
+bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md	docs/bambu-kit/bambu-fields-baseline.html	246	0.70	31
+bambu-kit/skills/bambu-print-profile/references/failure-recipes.md	docs/bambu-kit/failure-recipes.html	69	0.81	0
+bambu-kit/skills/bambu-print-profile/references/materials.md	docs/bambu-kit/materials.html	26	0.68	0
+harness/docs/guides/agent-design-guide.md	docs/harness/agent-design-guide.html	151	0.88	41
+harness/docs/guides/contract-design-guide.md	docs/harness/contract-design-guide.html	203	0.96	59
+harness/docs/guides/plugin-validation-guide.md	docs/harness/plugin-validation.html	174	0.75	70
+harness/docs/guides/qa-evaluation-guide.md	docs/harness/qa-evaluation-guide.html	387	0.94	85
+harness/docs/guides/skill-design-guide.md	docs/harness/skill-design-guide.html	111	0.90	114
+harness/references/contract-schema.md	docs/harness/contract-schema.html	316	0.89	259

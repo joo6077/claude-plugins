@@ -8,12 +8,12 @@
 
 <!-- AUTO:skills -->
 | 스킬 | 설명 |
-|------|------|
+| --- | --- |
 | `contract-kaizen` | sprint-contract 스킬을 학술 논문·공식 문서·커뮤니티 리서치·글로벌 피드백 기반으로 점진적으로 개선하는 카이젠 스킬. |
 | `create-agent` | 설계 가이드 기반으로 새 에이전트를 생성한다. |
 | `create-skill` | 설계 가이드 기반으로 새 스킬을 생성한다. |
 | `evaluator-kaizen` | qa-evaluator 에이전트를 학술 논문·공식 문서·커뮤니티 리서치·글로벌 피드백 기반으로 점진적으로 개선하는 카이젠 스킬. |
-| `harness-kaizen` | 하네스 엔지니어링을 학술 논문·공식 문서·커뮤니티 리서치 기반으로 |
+| `harness-kaizen` | 하네스 엔지니어링을 학술 논문·공식 문서·커뮤니티 리서치 기반으로 점진적으로 개선하는 카이젠 스킬. |
 | `init` | 현재 프로젝트에 .harness/ 디렉토리를 생성하고 초기 설정 파일을 세팅한다. |
 | `refactor-checklist` | 리팩터링 시작 전, 대상 파일에 적용할 모든 규칙 위반을 enumerate 한 체크리스트를 산출하고 사용자 승인을 받는다. |
 | `sprint` | Contract → 구현 → QA → Commit → Push 의 단일 sprint 루프를 한 호출로 실행한다. |
@@ -22,7 +22,7 @@
 
 <!-- AUTO:agents -->
 | 에이전트 | 설명 |
-|----------|------|
+| --- | --- |
 | `qa-evaluator` | Sprint Contract 기반으로 구현 결과를 독립 평가하는 QA 에이전트. |
 <!-- /AUTO:agents -->
 
@@ -45,13 +45,14 @@
 
 `scripts/commit-guard.sh` 가 `hooks/hooks.json` 에 Bash PreToolUse · PostToolUse 로 등록돼 있다. 플러그인을 켜면 모든 프로젝트의 `git commit` 에 걸린다.
 
-커밋 직전(`commit-guard.sh pre`)에 아래 세 가지를 exit 2 로 막는다. 기준은 삭제 50 개 초과다 — 50 개까지는 통과하고 51 개부터 막는다.
+커밋 직전(`commit-guard.sh pre`)에 아래 네 가지를 exit 2 로 막는다. 기준은 삭제 50 개 초과다 — 50 개까지는 통과하고 51 개부터 막는다.
 
 | 막는 것 | 판정 |
 | ------- | ---- |
-| 대량 삭제 | 커밋에 실릴 삭제가 50 개를 넘는다. 이름 바꾸기는 세지 않는다. 같은 명령의 `git add -A` · `git add .` · `git add -u` 나 `git commit -a` 가 올릴 작업 폴더 삭제도 더해 센다 |
+| 대량 삭제 | 커밋에 실릴 삭제가 50 개를 넘는다. 이름 바꾸기는 세지 않는다. 같은 명령의 `git add` 나 `git commit -a` 가 올릴 작업 폴더 삭제도 더해 센다 — `git add <경로>` 는 그 경로 안, `git add -A` · `git add -u` · `git commit -a` 는 하위 폴더에서 불러도 저장소 전체, 하위 폴더의 `git add .` 는 그 폴더 안 |
 | 남의 커밋 되돌림 | 공용 목록(`git add` 로 올려 둔 목록)의 내용이 HEAD 와도 작업 폴더와도 다르고, 작업 폴더는 HEAD 와 같은 파일이 있다. 다른 세션이 커밋한 뒤 옛 내용이 목록에 남은 경우다 |
 | 빈 개인 목록 | `GIT_INDEX_FILE=<경로>` 로 커밋하는데 그 파일이 없거나 비어 있고, 같은 명령에 `git read-tree` 가 없다 |
+| 계약 범위 밖 경로 | 이 세션의 활성 계약(`status: active` · `owner_session` 이 훅 입력의 `session_id`)이 범위 목록 블록을 적었는데, 커밋이 그 목록과 계약 폴더 `.harness/` 밖 경로를 싣는다 |
 
 경로를 지정한 커밋(`-o`, `-- <경로>`)은 공용 목록을 쓰지 않고 HEAD 위에 그 경로의 작업 폴더 상태를 얹는다. 그래서 그 경로 안에서 작업 폴더에 없는 추적 파일만 삭제로 센다 — 목록에만 올라 있는 다른 삭제는 커밋에 실리지 않으므로 세지 않는다. 희소 체크아웃(`git sparse-checkout`)으로 꺼내지 않은 파일은 작업 폴더에 없어도 git 이 싣지 않으므로 세지 않는다. `-i` 는 목록 전체에 그 경로의 작업 폴더 삭제를 더해 센다. 이름 바꾸기는 여기서도 삭제로 세지 않는다 — `git mv d1 d2` 뒤 `git commit -o -- d1 d2` 처럼 옛 경로와 새 경로가 같이 실리면 git 이 이름 바꾸기로 잇는다. 새 경로가 지정한 경로 밖이면 옛 경로가 삭제로 실리므로 센다. 2026-09-25 전에는 경로를 지정한 커밋을 통째로 건너뛰어 그 경로 안의 대량 삭제가 그대로 실렸다.
 
@@ -64,7 +65,7 @@
 
 jq 가 없으면 검사를 못 했다는 알림만 내고 통과시킨다. 시험은 `bash harness/evals/hooks/commit-guard-test.sh` 다.
 
-**계약이 선언한 범위 밖 경로는 아직 막지 않는다.** 막을 때 훅이 읽을 자리는 정했다 — 계약(`sprint-contract-<slug>.md`)의 `## 범위 경계` 절 안, 첫 줄이 `# sprint-scope` 인 `text` 코드 블록이다. 한 줄에 git pathspec 하나를 레포 루트 기준으로 적는다. 계약 봉인 커밋(sprint-contract Step 6.7)이 그 원문을 git 에 남기므로 봉인 뒤에 목록을 넓히면 드러난다. 따로 파일을 두지 않은 것은 봉인 커밋이 계약 파일 하나만 담기 때문이고, frontmatter 에 두지 않은 것은 frontmatter 를 읽는 셸 함수(`read_fm` · `fm_get`)가 한 줄 값만 읽기 때문이다. 계약에 이 블록을 쓰는 절차와 훅이 읽는 절차는 아직 없다.
+**계약 범위 밖 경로** — 훅은 커밋 폴더에서 위로 처음 만나는 `.harness/` 의 계약 가운데 `status: active` 이고 `owner_session` 이 훅 입력의 `session_id`(없으면 `CLAUDE_CODE_SESSION_ID`)와 같은 것을 고른다. 그 계약의 `## 범위 경계` 절 안, 첫 줄이 `# sprint-scope` 인 `text` 코드 블록이 범위 목록이다(여럿이면 합친다). 한 줄에 경로 하나를 레포 루트 기준으로 적는다 — 끝이 `/` 면 폴더, `*` 가 들면 글롭 패턴이다. 커밋이 싣는 경로는 이름 바꾸기를 풀어 옛 경로와 새 경로를 따로 대조하고, 계약 폴더의 `.harness/` 아래는 늘 허용한다. 세션을 모르거나 해당 계약 · 블록이 없거나 계약을 못 읽으면 조용히 통과한다. 계약 봉인 커밋(sprint-contract Step 6.7)이 그 원문을 git 에 남기므로 봉인 뒤에 목록을 넓히면 드러난다. 따로 파일을 두지 않은 것은 봉인 커밋이 계약 파일 하나만 담기 때문이고, frontmatter 에 두지 않은 것은 frontmatter 를 읽는 셸 함수(`read_fm` · `fm_get`)가 한 줄 값만 읽기 때문이다. 쓰는 형식은 `references/contract-schema.md` §범위 목록 블록이다.
 
 ```text
 # sprint-scope
@@ -80,7 +81,7 @@ harness/evals/hooks/
 ### 스크립트
 
 | 스크립트 | 역할 |
-|---------|------|
+| --------- | ------ |
 | `harness/scripts/feedback-path.sh` | OS별 글로벌 피드백 경로 출력 |
 | `harness/scripts/save-feedback.sh <contract\|evaluator> <draft-yaml>` | 스키마 검증 후 글로벌 경로에 저장 |
 | `harness/scripts/verify-feedback.sh <saved-yaml>` | 저장된 피드백 유효성 검증 (PASS/FAIL) |
@@ -89,7 +90,7 @@ harness/evals/hooks/
 ### 참조 파일
 
 | 파일 | 내용 |
-|------|------|
+| --- | --- |
 | `harness/references/feedback-schema.yaml` | 피드백 YAML 스키마 v1 — `save-feedback.sh`가 이 스키마로 검증 |
 | `harness/references/contract-schema.md` | Sprint Contract 포맷 정의 — contract-kaizen + evaluator-kaizen 공유 |
 
@@ -114,7 +115,7 @@ qa-evaluator 완료
 ### 필수 필드
 
 | 필드 | 타입 | 설명 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `stack` | string | 프로젝트 스택. 자유 텍스트 (flutter, rust, react, python 등) |
 | `commands.analyze` | string | 정적 분석 명령. DG-01 검증에 사용 |
 | `commands.test` | string | 테스트 명령. DG-03 검증에 사용 |
@@ -124,7 +125,7 @@ qa-evaluator 완료
 ### 선택 필드
 
 | 필드 | 타입 | 기본값 | 설명 |
-|------|------|--------|------|
+| ------ | ------ | -------- | ------ |
 | `commands.lint` | string\|null | null | 린트 명령. **`commands.analyze` 가 없는 스택(markdown 전용 킷 등)에서 `DG-01` 의 대체 오라클로 쓴다.** 둘 다 null 이면 `DG-01` 은 `N/A (사유)` 로 기록한다 |
 | `commands.format` | string\|null | null | 포맷 명령 |
 | `commands.codegen` | string\|null | null | 코드 생성 명령 |
@@ -149,6 +150,7 @@ contract_categories:
 ```
 
 **제약:**
+
 - `id`는 영문, 공백/특수문자 없음 (파싱에 사용)
 - `prefix`는 고유, 하이픈 미포함 (ID 형식: `{prefix}-{번호}`)
 - 최소 1개 카테고리 필수
@@ -166,13 +168,14 @@ anti_patterns:
 ```
 
 | 필드 | 필수 | 설명 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `id` | 예 | 고유 ID |
 | `message` | 예 | FAIL 시 표시할 메시지 |
 | `pattern` | 조건부 | ripgrep 호환 정규식. `command` 가 없으면 **필수** |
 | `command` | 조건부 | 판정을 수행하는 셸 명령. exit 0 = 위반 없음, non-zero = 위반 |
 
 **`pattern` 과 `command` 의 관계:**
+
 - 둘 중 **최소 하나**는 있어야 한다. 둘 다 없으면 **설정 오류**이며 그 항목은 판정 불가다 —
   평가자는 이것을 PASS 로 넘기지 말고 계약 결함으로 보고한다.
 - 둘 다 있으면 **`command` 가 판정 권위**다. `pattern` 은 사람이 읽는 힌트로만 남는다.
@@ -190,6 +193,7 @@ anti_patterns:
 - 같은 계열: 괄호/들여쓰기 균형, 중복 정의, 참조 무결성, 파일 간 정합성.
 
 **패턴 규칙 (`pattern` 을 쓸 때):**
+
 - ripgrep regex 문법 사용
 - 변경/생성 파일에서만 검색 (전체 프로젝트 아님)
 - 패턴 테스트: `rg "{pattern}" --type-not binary` 로 사전 확인 권장
@@ -275,6 +279,7 @@ runtime_inspection:
 ### 절차 파일이 없으면?
 
 해당 카테고리는 **범용 검증**으로 폴백:
+
 - Glob으로 관련 파일 검색
 - Read로 내용 확인
 - 조건에 명시된 요소가 코드에 존재하는지 확인
@@ -401,7 +406,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 카이젠 스킬 구성
 
 | 스킬 | 역할 | 오케스트레이터 |
-|------|------|---------------|
+| ------ | ------ | --------------- |
 | `/harness-kaizen` | 하네스 전체 (설정·스킬·에이전트·eval·아키텍처) | Phase 1 |
 | `/contract-kaizen` | sprint-contract + contract-schema | Phase 2 |
 | `/evaluator-kaizen` | qa-evaluator + 평가 방법론 가이드 | Phase 3 |
@@ -427,7 +432,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 자동 실행
 
 | 트리거 | 조건 |
-|--------|------|
+| -------- | ------ |
 | **주기적** | `kaizen-orchestrator` 스킬이 매주 월요일 cron으로 Phase 순서대로 호출 |
 | **REJECT 연속** | QA Evaluator REJECT 2회 연속 시 |
 | **피드백 임계치** | 같은 진단 항목이 최근 피드백 10건 중 3회 이상 반복 시 |
@@ -450,7 +455,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 개선 대상
 
 | 영역 | 대상 |
-|------|------|
+| ------ | ------ |
 | 하네스 설정 | `project.yaml`, `procedures/`, anti-patterns |
 | 스킬 프롬프트 | `skills/*/SKILL.md` |
 | 에이전트 로직 | `agents/qa-evaluator.md` |
@@ -463,14 +468,14 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 카이젠 PR은 영향도에 따라 semver bump:
 
 | 변경 영역 | bump |
-|-----------|------|
+| ----------- | ------ |
 | docs, config 튜닝, Gotchas 추가 | **patch** |
 | 스킬 프롬프트, eval 기준, procedure 추가 | **minor** |
 | 아키텍처, 에이전트 로직 대폭 수정 | **major** |
 
 ### 추적 규칙
 
-- 커밋: `kaizen:` prefix — `kaizen: sprint-contract few-shot 판단 로직 추가`
+- 커밋: 바꾼 종류 머리 + 본문 끝 서명 줄 `Kaizen-Phase: <phase 이름>` — `docs(harness): 설계 가이드 — 못 한다 전 네 칸 · 알려진 답 대조 … (카이젠 2026-09-24 Phase 1)` 에 서명 줄 `Kaizen-Phase: kaizen-0924-p01-guides`. 카이젠 커밋을 가리는 것은 머리가 아니라 서명 줄이다 (`harness/skills/harness-kaizen/SKILL.md` 추적 규칙 표)
 - 브랜치: `kaizen/{버전}-{날짜}` — `kaizen/0.4.0-2026-04-07`
 - PR 제목: `[bump유형]` prefix — `[minor] sprint-contract 복잡도 판단 개선`
 

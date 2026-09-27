@@ -20,7 +20,7 @@ user-invocable: true
 6. **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 자동 로드 로직) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (2026-04 backend-kit Phase 7 에서 Phase 5 디자인 반영 때 반복 드리프트 차단).
 
    | Sibling Group | 공통 원칙 검증 항목 |
-   |---------------|---------------------|
+   | --------------- | --------------------- |
    | backend-guide · backend-system | **3-Step Process (탐색→진단→처방)** + Enumerate-before-Act + 트레이드오프 제시 |
    | backend-audit · backend-reviewer (agent) | **Binary Decidability Pre-Check · Rule-by-Rule Audit · `[미검증]` 네 칸 · L3 Coverage Honesty** 4 항목 동시 존재 |
    | backend-guide · backend-audit · backend-system · backend-test | **10 카테고리 명명 규칙** 일치 (Architecture · API Design · Database · Auth · Error · Security · Caching · Event-Driven · Testing · Observability) |
@@ -28,6 +28,7 @@ user-invocable: true
    | backend-system · rust-service (Phase 9) | **Outbox · Circuit Breaker + Rate Limiter 조합 · OAuth 2.1 draft 명시** |
    | backend-system · backend-guide · backend-audit | **Counterpart Enumeration (E2) · 빈 상태 상태코드(RFC 9110) · timestamp 타임존 직렬화(RFC 3339)** 3 항목 동시 존재 |
    | backend-test · backend-audit | **mock-only 를 통합 테스트로 계상 금지 · 통합 테스트 전 마이그레이션 적용** 2 항목 동시 존재 (글로벌 REJECT API-01 · DG-03 대응) |
+   | backend-system · backend-guide · backend-audit | **시각 종류(한 순간 · 벽시계) 나누기** 3 곳 동시 존재 — backend-system 의 저장 규칙, backend-guide 의 「UTC 로 통일」 처방 전 확인, backend-audit 기준표의 「시각 종류별 저장」 행 |
 
 7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (단독 실행 시 생성 대상) · **`.harness/sprint-contract-<slug>.md` (병렬 실행 시 계약 경로 — 슬러그로 Phase 마다 갈리며 `.harness/sprint-contract.md` 를 쓰면 다른 Phase 와 충돌한다. 경로 규약은 `harness/references/contract-schema.md` §계약 파일)** · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/sprint-feedback-<slug>.md` · `.harness/sprint-amendments-<slug>.md` (병렬 실행 때 슬러그 계약의 QA 산출물 · 개정 파일 — qa-evaluator 는 슬러그 계약이면 `sprint-feedback-<slug>.md` 에 쓴다) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지 — Phase 6 design-kaizen 패턴 계승).
 8. **설계 가이드 신규 원칙 감사 (kaizen 시작 시 전수 확인)** — skill §3.5 QA 계약 1:1 매칭 / §3.6 Rule-by-Rule Audit / **§3.7 Completion Evidence Gate + Enforcement 등급 E1·E2·E3** / §5.5 Enumerate-before-Act / **§5.5 Counterpart Enumeration** / §8.7 Code Examples / §8.8 Sibling Consistency / §11 Cross-Surface Parity · agent §3.5 Binary Decidability / §10 Unverifiable / §12 L3 Coverage Honesty · qa-evaluation-guide **§Canonical Unverified-Evidence Protocol** 12 항목 전수 확인. 각 원칙에 대해 반영 스킬 목록을 리포트에 명시.
@@ -38,11 +39,16 @@ user-invocable: true
 9. **README.md + evals/evals.json 생성 회귀 방지 (AR-03 · AR-04 대응)** — 카이젠 세션 종료 시 `ls backend-kit/README.md backend-kit/evals/evals.json` 확인. 둘 다 존재해야 하며 README 의 스킬 테이블은 4 스킬(guide · audit · system · test) 전수 + 에이전트 테이블 + 리서치 문서 카테고리 요약을 포함해야 한다. evals.json 은 4 스킬 커버 + entry 수 >= 7 + placeholder 0 건.
 10. **run-evals.py ER-01 회귀 방지** — `scripts/run-evals.py` 의 `load_evals` 에서 `JSONDecodeError` 시 `sys.exit(2)` 로 즉시 종료하는 구조 유지. exit code 0(PASS) / 1(assertion FAIL) / 2(structural) 구분이 깨지면 CI 가 파싱 실패를 감지 못 함.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 현재 상태 읽기
 
 backend-kit 스킬 4개 + backend-reviewer 에이전트의 Gotchas/Process/references 전체 읽기:
+
 - backend-kit/skills/backend-guide/SKILL.md
 - backend-kit/skills/backend-audit/SKILL.md
 - backend-kit/skills/backend-system/SKILL.md
@@ -52,11 +58,13 @@ backend-kit 스킬 4개 + backend-reviewer 에이전트의 Gotchas/Process/refer
 ## Step 2: 격차 분석
 
 docs/backend/ 문서의 원칙 중 스킬에 반영되지 않은 항목 식별:
+
 - audit-criteria.md에 누락된 체크리스트 항목
 - Gotchas에 추가할 반복 실패 패턴
 - references에 추가할 새 원칙 문서
 
 글로벌 피드백도 확인:
+
 - ~/.harness/feedback/ 에서 backend-kit 관련 피드백 검색
 
 ## Step 3: 개선 적용
@@ -83,7 +91,11 @@ kaizen(backend-kit): [개선 내용 요약]
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - backend-kit/skills/backend-guide/SKILL.md
 - backend-kit/skills/backend-audit/SKILL.md

@@ -16,12 +16,16 @@ user-invocable: true
 4. **라이브러리 0개 원칙 보존** — 새 리서치에서 "이 라이브러리가 편리하다" 라는 제안을 받더라도, G5b 애니메이션의 금지 목록은 유지한다. React + Tailwind + 표준 Web API 만 사용한다는 원칙을 계속 반영한다.
 5. **버전 불일치 주의** — docs/react/ 문서에 명시된 라이브러리 버전과 react-kit/skills/react-init/SKILL.md의 버전이 다르면 문서를 스킬 기준으로 맞춰라. 스킬이 SSOT다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 대상 카테고리 결정
 
 | 인자 | 대상 문서 |
-|------|----------|
+| ------ | ---------- |
 | `g1` | docs/react/kit-design/g1-scaffolding.md |
 | `g2` | docs/react/kit-design/g2-state-data.md |
 | `g3` | docs/react/kit-design/g3-performance.md |
@@ -45,6 +49,7 @@ Context7 MCP (공식 API 문서 조회) 와 Codex 에이전트 (웹 리서치) �
 ## Step 3: 문서 갱신
 
 리서치 결과를 기존 문서에 반영한다:
+
 - `last_updated` 날짜 갱신
 - 새 원칙/안티패턴 추가
 - deprecated API 제거 또는 대체안 명시
@@ -59,7 +64,11 @@ Context7 MCP (공식 API 문서 조회) 와 Codex 에이전트 (웹 리서치) �
 
 문서 갱신 후 `/react-kaizen` 스킬 호출을 권장하여, 갱신된 리서치 기준으로 react-kit 스킬들이 업데이트되도록 한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/react/kit-design/` — 갱신 대상 설계 문서 7개 + final-integration
 - `docs/react/wasm-catalog.md` — WASM 카탈로그

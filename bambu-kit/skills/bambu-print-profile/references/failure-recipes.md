@@ -3,10 +3,10 @@
 > Last updated: 2026-08-13
 > Source: `.harness/.meta/evidence/phase13.md` (카이젠 Phase 13 외부 근거 · Codex foreground · read-only)
 > Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
->   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
->   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
->   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
->   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
+> 앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+> `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+> 두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+> 최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 > Sibling references: `bambu-fields-baseline.md` **§10** (이 문서가 쓰는 키의 enum / 단위 / default **정본**) ·
 > `surface-recipes.md` (표면 우선 정책) · `seam-recipes.md` (seam 전략) · `tolerance.md` (공차 보정)
 
@@ -22,7 +22,7 @@
 ### 실패 모드 3 종
 
 | ID | 사용자가 쓰는 표현 | 절 |
-|----|------------------|----|
+| ---- | ------------------ | ---- |
 | **L1** | "곡면이 계단처럼 보인다", "둥근 데가 층층이", stair-stepping, "curved surface 거칠다" | §1 |
 | **L2** | "실이 늘어진다", "거미줄", stringing, "voronoi 인필 사이에 실" | §2 |
 | **L3** | "바닥이 떴다", "가장자리 들림", 박리, peeling, lifting, warping, "첫 층이 안 붙는다" | §3 |
@@ -36,7 +36,7 @@
 §3.8 의 재현 6 축을 3D 프린팅 도메인으로 치환한 대응표 (이것만 이 문서가 갖는다):
 
 | §3.8 축 | 3D 프린팅 대응 | 확인 질문 |
-|---------|---------------|----------|
+| --------- | --------------- | ---------- |
 | URL / 경로 | **모델 리비전** | 실패한 출력이 지금 슬라이스하려는 STL/3MF 와 같은 리비전인가 |
 | 브랜치 / 커밋 | **적용된 preset 이름** | 실패한 출력이 실제로 그 process/filament preset 으로 슬라이스됐는가 (드롭다운 확인) |
 | viewport | **슬라이서 버전** | 프로파일 생성 시 버전과 출력 시 버전이 같은가 (필수 사전 절차 1) |
@@ -73,7 +73,7 @@ process+filament JSON 범위 밖이다.
 ### 1.2 JSON 으로 **대응 가능** — 고정 레이어 하향 + resolution
 
 | 순서 | 조치 | 값 | 판단 근거 |
-|------|------|----|----------|
+| ------ | ------ | ---- | ---------- |
 | 1 | `layer_height` 하향 | **`0.12` 1 차 권장** | H2S 0.12 High Quality 체인이 공식 프로파일로 실재 (§10.1) |
 | 2 | 계단이 핵심이고 시간을 감수한다면 | `0.08`–`0.12` | `min_layer_height` 하한(§10.1) 위이지만 **H2S 공식 0.08 process 프로파일 근거는 `[미확인]`** — 사용자에게 "비공식 영역" 임을 알린 뒤 적용 |
 | 3 | XY 곡선 faceting 이 함께 거칠면 | `resolution` `0.006`–`0.010` (§8.3) | ⚠️ **Z 계단의 주 해결책이 아니다.** XY 평면 세그먼트 해상도만 올린다 |
@@ -85,7 +85,7 @@ encoding 변경**(직선 세그먼트 → arc 명령)이며, firmware arc segmen
 ### 1.3 부작용 — 반드시 사전 고지
 
 | 조치 | 비용 |
-|------|------|
+| ------ | ------ |
 | `0.20` → `0.12` | 같은 높이에서 **레이어 수 약 1.67 배** (`0.20 / 0.12`) |
 | `0.20` → `0.08` | **약 2.5 배** (`0.20 / 0.08`) |
 | `resolution` 하향 | slicing 시간 + G-code 크기 증가 |
@@ -136,7 +136,7 @@ PC 0.25 %, PA 계열은 한 자릿수 높다. **PLA 와 ABS 를 습기 1 순위�
 (b) 가 리트랙션 축을 가리킬 때만 아래 2 단계를 쓴다.
 
 | 단계 | 조건 | 허용 override |
-|------|------|--------------|
+| --- | --- | --- |
 | (1) | travel stringing 잔존 | `filament_wipe` = `1` · `filament_wipe_distance` = **소재 부모값** |
 | (2) | (1) 로도 잔존 | `filament_retraction_length` 를 **소재 부모값의 1.5 배까지만.** Phase 5 coupon 통과 후에만 본 출력 반영 |
 
@@ -147,12 +147,12 @@ PC 0.25 %, PA 계열은 한 자릿수 높다. **PLA 와 ABS 를 습기 1 순위�
 `Bambu Lab H2S 0.4 nozzle` 의 `0.8` / `2` 와 다르다. §10.2 의 underlying default 열은
 **소재 override 가 없을 때의 값**이므로 그것을 소재값으로 쓰면 리트랙션이 2 배가 된다.
 
-조회에 실패하면 추측값을 쓰지 말고 해당 키를 생략하고 `[미검증]` 으로 보고한다.
+조회에 실패하면 추측값을 쓰지 말고 해당 키를 생략하고 `[미검증]` 으로 보고한다. 보고에는 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙인다 — `SKILL.md` 4.3 통과 규칙.
 
 ### 2.2 금지
 
 | 금지 | 이유 |
-|------|------|
+| ------ | ------ |
 | retraction 을 **자동으로 크게** 올리기 | underextrusion · 필라멘트 grinding · clog |
 | `nozzle_temperature*` 자동 하향 | stringing 은 줄 수 있으나 층간 접착/flow 부족을 만든다. **이 스킬은 온도를 건드리지 않는다** (사용자 명시 요청 2026-05-16) |
 | fan / cooling 자동 변경 | 소재별 부작용이 커서 자동 적용 범위 밖 |
@@ -172,7 +172,7 @@ PC 0.25 %, PA 계열은 한 자릿수 높다. **PLA 와 ABS 를 습기 1 순위�
 ### 3.1 process JSON 자동 대응 — brim 우선
 
 | 키 | 값 | 비고 |
-|----|----|-----|
+| ---- | ---- | ----- |
 | `brim_type` | `outer_only` 또는 `auto_brim` | enum 전체·default 는 §10.3 |
 | `brim_width` | `5`–`8` | fdm_process_common 기본과의 차이는 §10.3 |
 | `brim_object_gap` | `0`–`0.1` | ASA/ABS/PC 는 `0` (접착 우선) |
@@ -186,7 +186,7 @@ PC 0.25 %, PA 계열은 한 자릿수 높다. **PLA 와 ABS 를 습기 1 순위�
 ### 3.2 소재별 게이트
 
 | 소재군 | 조치 | 형태 |
-|--------|------|------|
+| -------- | ------ | ------ |
 | **PLA / PETG 대형 출력** | aux fan off 또는 하향 | **notes 우선 안내** — `additional_cooling_fan_speed` · `close_additional_fan_first_x_layers` (§10.3) 를 JSON 으로 자동 변경하지 않는다 |
 | **ASA / ABS / PC** | chamber preheat + high temp / engineering plate + `brim_object_gap` `0` | plate 온도는 **plate-specific 키**로만 (§3.3) · 자동 변경 전 사용자 확인 |
 | **최후 수단** | `raft_layers` `1`–`3` | **emergency gate** — §3.3 의 충돌 규칙을 먼저 확인 |
@@ -207,7 +207,7 @@ raft 를 켜면 Phase 1.7 의 공차 계산이 통째로 무의미해진다.
 ### 3.4 부작용
 
 | 조치 | 비용 |
-|------|------|
+| ------ | ------ |
 | brim | 제거 흔적 · edge cleanup 필요 |
 | `brim_object_gap` `0` | 접착은 좋아지지만 제거가 어렵다 |
 | raft | 바닥면 품질 저하 · 시간/소재 증가 · `elefant_foot_compensation` 무효화 |
@@ -219,7 +219,7 @@ raft 를 켜면 Phase 1.7 의 공차 계산이 통째로 무의미해진다.
 이 표는 그 목록의 사유 정본이다.
 
 | 금지 키 | 사유 | 대체 |
-|---------|------|------|
+| --------- | ------ | ------ |
 | `adaptive_layer_height` | option 정의 주석 처리 + legacy ignore set — 켜진다는 근거 없음 (§1.1) | `layer_height` 하향 + notes 명시 |
 | `bed_temperature_initial_layer` | obsolete ignored key (§3.3) | plate-specific 키 (§10.3) |
 | `bed_temperature` | 위와 같은 규칙의 대상. **obsolete 여부 자체는 근거상 `bed_temperature_initial_layer` 만 확인됨 → 이 키는 게이트 금지 목록으로만 취급** `[미확인]` | plate-specific 키 (§10.3) |

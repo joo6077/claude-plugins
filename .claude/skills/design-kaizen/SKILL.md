@@ -19,7 +19,7 @@ user-invocable: true
 6. **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 자동 로드 로직) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (2026-04 design-kit SK-05 REJECT 재발 방지 — design-concept 에 Step 0 자동 로드는 있었지만 design-component 에는 Gotcha 외부의 Process Step 형태로만 있어 평가자 판정 갈렸던 사례).
 
    | Sibling Group | 공통 원칙 검증 항목 |
-   |---------------|---------------------|
+   | --------------- | --------------------- |
    | design-concept · design-component · design-mockup · design-reference | **Step 0 = 자동 감지 및 로드** 독립 Process 단계 존재 (Gotchas 외부, 이름 정확히 일치) |
    | design-audit · design-reviewer (agent) | **Binary Decidability Pre-Check · Rule-by-Rule Audit · 미검증 임계 2 (canonical) · Evidence Validity Gate 4 검사 · Before/After 의도 외 영역 FAIL · L3 Coverage Honesty** 6 항목 동시 존재. 임계값·마커 의미는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 정본이며 킷에서 재정의 금지 |
    | design-mockup · design-concept | **승인 기록 아티팩트(`.design/approvals/`) 생성 Process Step** 존재 (글로벌 REJECT UI-06 대응) |
@@ -27,6 +27,7 @@ user-invocable: true
    | design-guide · design-system | **가이드형 스킬 Process Step 순서 고정 (탐색→진단→처방) · Enumerate-before-Act** |
    | design-mockup · design-reference | **HTML 산출물 의도 설계 명시 (AR-01 예외 선언)** |
    | design-system · design-component | **DTCG v1 · OKLCH · 다크모드 토큰 매핑** 공통 원칙 정합성 |
+   | 시각 변경 규약 셋 (`design-kit/references/visual-change-protocol.md` · `flutter-toolkit/references/visual-evidence-protocol.md` · `react-kit/references/render-evidence-protocol.md`) | **편집 전 확정 · 비교 반복 순서 · 캡처 점검 목록** 절이 세 규약에 같은 이름으로 있는지 대조한다. 2026-09-27 기준 편집 전 확정은 design 에만, 비교 반복 순서는 design · react 에, 캡처 점검 목록은 셋 모두에 있다 |
 
 7. **I-02 예외 목록 명시화** — 카이젠 세션 커밋 직전 `git status --short` 점검 시 modified/untracked 허용 예외는 고정 목록이다: `.harness/sprint-contract.md` (생성 대상) · `.harness/sprint-contract-<slug>.md` (오케스트레이터 병렬 실행 시 Phase 별 계약 경로 — 경로 규약은 `harness/references/contract-schema.md` §계약 파일) · `.harness/sprint-feedback.md` (QA 산출물) · `.harness/sprint-feedback-<slug>.md` · `.harness/sprint-amendments-<slug>.md` (병렬 실행 때 슬러그 계약의 QA 산출물 · 개정 파일 — qa-evaluator 는 슬러그 계약이면 `sprint-feedback-<slug>.md` 에 쓴다) · `.harness/.meta/kaizen-data-pool.md` (auto-regenerated) · `.vscode/` (untracked) · sync-docs 자동 갱신 README/HTML. 이 외 modified 0 건이어야 한다 (2026-04 design-kit/infra-kit I-02 REJECT 재발 방지).
 
@@ -38,7 +39,11 @@ user-invocable: true
 
 10. **NO_CHANGE 도 유효한 결과다** — 데이터 풀과 §0 인사이트를 다 뒤졌는데 design 도메인 신규 신호가 0 건이면 **NO_CHANGE 로 보고하라**. 직전 사이클 승격분의 문장을 다시 다듬는 것은 개선이 아니다. 같은 위반이 재발했다면 문장 수정이 아니라 **enforcement 등급 상향**(E1 문장 → E2 체크리스트 아티팩트 → E3 결정론적 게이트)이 정답이다 (skill-design-guide §3.7 등급 승급 규칙).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 등록된 검사 목록은 개수를 적지 말고 **명령으로 얻는다.** 검사가 늘어도 이 문서를 고칠 일이 없다.
 
@@ -53,6 +58,7 @@ design-kit 스킬 8개(design-audit · design-component · design-concept · des
 ## Step 2: 리서치 문서 대비 격차 분석
 
 design-kit/docs/design/ 문서의 원칙 중 스킬에 반영되지 않은 항목을 식별한다:
+
 - audit-criteria.md에 누락된 체크리스트 항목
 - Gotchas에 추가할 반복 실패 패턴
 - references에 추가할 새 원칙 문서
@@ -60,6 +66,7 @@ design-kit/docs/design/ 문서의 원칙 중 스킬에 반영되지 않은 항�
 ## Step 3: 개선 적용
 
 격차 항목별로:
+
 1. Gotchas 추가 — 실패 근거가 있는 항목만
 2. references 갱신 — 새 원칙 추가
 3. Process 보완 — 누락된 단계 추가
@@ -87,7 +94,11 @@ git commit -m "kaizen(design-kit): [개선 요약]"
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - 기존 카이젠 패턴: `.claude/skills/kaizen-orchestrator/SKILL.md`
 - harness-kaizen: `harness/skills/harness-kaizen/SKILL.md`

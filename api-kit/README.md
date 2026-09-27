@@ -21,9 +21,9 @@ api-kit 은 **블랙박스**다 — 돌아가는 서버를 밖에서 때려 계�
 
 <!-- AUTO:skills -->
 | 스킬 | 설명 |
-|------|------|
-| `api-contract` | 봉인된 응답 스냅샷에서 계약을 추출한다. 스키마(존재·타입·nullable·enum)와 경로별 assertion 을 뽑아 |
-| `api-init` | 블랙박스 API 검증의 기반이 되는 `.api/` 를 초기화한다. OpenAPI 스펙 · 사람이 쓴 md · |
+| --- | --- |
+| `api-contract` | 봉인된 응답 스냅샷에서 계약을 추출한다. |
+| `api-init` | 블랙박스 API 검증의 기반이 되는 `.api/` 를 초기화한다. |
 | `api-probe` | 인벤토리의 엔드포인트를 실제로 호출해서 응답을 눈으로 확인하고 스냅샷으로 봉인한다. |
 | `api-ui` | `.api/` 산출물 전체를 읽어 의존성 0 단일 파일 계약 뷰어 `.api/ui.html` 을 생성하고 연다. |
 | `api-verify` | 계약 전체(또는 필터)를 다시 실행해 baseline 과 대조하고 PASS/FAIL 리포트 + canonical diff 를 낸다. |
@@ -33,7 +33,7 @@ api-kit 은 **블랙박스**다 — 돌아가는 서버를 밖에서 때려 계�
 
 <!-- AUTO:agents -->
 | 에이전트 | 설명 |
-|----------|------|
+| --- | --- |
 | `api-reviewer` | 추출된 API 계약이 적절한지 원칙 기준으로 독립 평가한다. |
 <!-- /AUTO:agents -->
 
@@ -50,7 +50,7 @@ exact           정규화 후 본문 전체 diff
 **`pin` 은 '값 고정' 이 아니다.** 값 고정(`const`)은 pin 이 표현할 수 있는 assertion 한 종류일 뿐이다.
 
 | 필드 성격 | assertion | 예 |
-|---|---|---|
+| --- | --- | --- |
 | 안정값 | 값 고정 | `$.token_type = "Bearer"` |
 | 열거형 | 집합 소속 | `$.data[].status ∈ active·shipped·cancelled` |
 | 변동 수치 | 범위·불변식 | `$.meta.total ≥ len($.data)` |
@@ -81,21 +81,25 @@ exact           정규화 후 본문 전체 diff
 `docs/api/` 에 12개 원칙 문서가 있으며 모든 스킬이 이를 SSOT 로 참조한다.
 
 ### discovery — 입력을 인벤토리로
+
 - **api-inventory-normalization** — operation key 표준화, 소스 신뢰도, 충돌 플래그
 - **artifact-interop-import-export** — curl/Talend 임포트 충실도, HAR·JUnit 익스포트, 손실 경고
 
 ### execution — 실제로 때리기
+
 - **probe-synthesis-hurl-semantics** — Hurl 옵션 우선순위, capture, entry 격리, exit code
 - **environment-safety-gates** — safe method, prod read-only, redirect 가드, rate·timeout 예산
 - **auth-secret-lifecycle** — 토큰 발급·TTL 갱신·주입, redaction 경계, 인증 실패 분류
 
 ### contract — 계약 만들기
+
 - **snapshot-sealing-canonicalization** — raw evidence 보존, JCS 정규화, I-JSON 게이트, manifest 해시
 - **contract-extraction-modes** — partial/pin/exact, required 추론, enum 승격, additionalProperties
 - **multi-sample-pagination-variance** — 샘플 예산, 페이지네이션 탐색, 분산 점수, 커서 안전
 - **error-status-contracts** — RFC 9457 problem details, 상태 클래스, 4xx pin, 5xx 제외
 
 ### verification — 회귀 잡기
+
 - **regression-diff-failure-policy** — drift 분류, exit code 계약, 재시도 확정, CI 산출물
 - **static-evidence-viewer-contract** — 런타임 의존성 0, 브라우저 네트워크 0, escape 규칙, 접근성
 - **baseline-governance-promotion** — baseline 불변성, 승격 검토, 환경 계보, 만료 경고
@@ -120,7 +124,7 @@ exact           정규화 후 본문 전체 diff
 ## 범위 밖
 
 | 제외 | 이유 |
-|---|---|
+| --- | --- |
 | gRPC / GraphQL / WebSocket | 계약 모델이 다르다. 필요해지면 별도 어댑터로 |
 | 부하·성능 테스트 | k6 영역 |
 | consumer-driven contract | Pact 영역. 양쪽 코드를 통제할 때의 문제 정의다 |
@@ -130,7 +134,7 @@ exact           정규화 후 본문 전체 diff
 
 <!-- AUTO:references -->
 | 파일 | 설명 |
-|------|------|
+| --- | --- |
 | `api-layout.md` | `.api/` 산출물 레이아웃 |
 | `project-detection.md` | API 프로젝트 감지 |
 <!-- /AUTO:references -->
@@ -139,7 +143,7 @@ exact           정규화 후 본문 전체 diff
 
 <!-- AUTO:evals -->
 | 파일 | 설명 |
-|------|------|
+| --- | --- |
 | `api-ui.spec.js` | 파일 |
 | `evals.json` | 파일 |
 | `fixtures` | 디렉토리 |

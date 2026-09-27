@@ -27,7 +27,7 @@ spawn-kaizen-phase.sh — Phase N 실행 부트스트랩
   bash scripts/spawn-kaizen-phase.sh --help
 
 인자:
-  <phase-num>  1 ~ 10 사이의 Phase 번호
+  <phase-num>  1 ~ 17 사이의 Phase 번호
 
 동작:
   1. git tag kaizen-phase-{N}-pre 생성
@@ -45,6 +45,13 @@ Phase 번호 매핑:
   8 = infra-kit
   9 = rust-kit
   10 = react-kit
+  11 = planning-kit
+  12 = reflect-kit
+  13 = bambu-kit
+  14 = onboarding-kit
+  15 = tone-kit
+  16 = api-kit
+  17 = howto-kit
 EOF
 }
 
@@ -61,8 +68,8 @@ fi
 
 PHASE_NUM="$1"
 
-if ! [[ "$PHASE_NUM" =~ ^[0-9]+$ ]] || [[ "$PHASE_NUM" -lt 1 ]] || [[ "$PHASE_NUM" -gt 10 ]]; then
-    echo "ERROR: phase-num 은 1~10 사이여야 합니다 (받은 값: $PHASE_NUM)" >&2
+if ! [[ "$PHASE_NUM" =~ ^[0-9]+$ ]] || [[ "$PHASE_NUM" -lt 1 ]] || [[ "$PHASE_NUM" -gt 17 ]]; then
+    echo "ERROR: phase-num 은 1~17 사이여야 합니다 (받은 값: $PHASE_NUM)" >&2
     usage
     exit 1
 fi
@@ -81,6 +88,13 @@ case "$PHASE_NUM" in
     8) PHASE_NAME="infra-kit"; PHASE_KIT="infra" ;;
     9) PHASE_NAME="rust-kit"; PHASE_KIT="rust" ;;
     10) PHASE_NAME="react-kit"; PHASE_KIT="react" ;;
+    11) PHASE_NAME="planning-kit"; PHASE_KIT="planning" ;;
+    12) PHASE_NAME="reflect-kit"; PHASE_KIT="reflect" ;;
+    13) PHASE_NAME="bambu-kit"; PHASE_KIT="bambu" ;;
+    14) PHASE_NAME="onboarding-kit"; PHASE_KIT="onboarding" ;;
+    15) PHASE_NAME="tone-kit"; PHASE_KIT="tone" ;;
+    16) PHASE_NAME="api-kit"; PHASE_KIT="api" ;;
+    17) PHASE_NAME="howto-kit"; PHASE_KIT="howto" ;;
 esac
 
 SPRINT_SLUG="kaizen-phase${PHASE_NUM}-${PHASE_KIT}"
@@ -115,9 +129,11 @@ fi
 # Step 2: data pool §N 추출 (해당 Phase 섹션만)
 # kaizen-data-pool.md 의 §1 ~ §5 섹션을 Phase 별 참조 테이블에 따라 매핑
 # 모든 Phase 는 §1 (feedback) + §5 (validate-plugin) 공통 참조
+# §2 · §3 은 수집기 §6 표(scripts/collect-kaizen-data.py 「Phase 별 참조 가이드」)의 그 Phase 행을 따른다 — 표를 고치면 여기도 고친다
 COMMON_SECTIONS="§1 §5"
 case "$PHASE_NUM" in
-    5|6|7|8|9|10) PHASE_SECTIONS="$COMMON_SECTIONS §2 §3" ;;
+    5|9|13) PHASE_SECTIONS="$COMMON_SECTIONS §2" ;;
+    10) PHASE_SECTIONS="$COMMON_SECTIONS §3" ;;
     *) PHASE_SECTIONS="$COMMON_SECTIONS" ;;
 esac
 

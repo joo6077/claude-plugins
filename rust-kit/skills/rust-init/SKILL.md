@@ -26,9 +26,17 @@ user-invocable: true
 9. **Enumerate-before-Act (skill-design-guide §5.5)** — 프로젝트 스캐폴딩 전에 사용자에게 (a) 아키텍처 선택지 3 개(workspace_service / modular / flat), (b) 의존성 체크리스트(ORM / OpenAPI / 인증 / i18n / 관측성), (c) 디렉토리 레이아웃 diff 를 먼저 **모두 열거**하고 합의한 뒤에만 파일을 생성한다. 일부만 보여주고 중간에 선택을 바꾸면 migration 비용이 크다.
 10. **Sibling Consistency (skill-design-guide §8.8) — rust-init · rust-feature · rust-service · rust-api** — 4 스킬 모두 "Composition Root 단일화" + "Consumer-Owned Port" + "Domain event + outbox" + "포트에서 인프라 타입 제거" 4 원칙을 동일 문구·동일 출처(실사용 프로젝트의 서버 규칙) 로 유지한다. 한 스킬에서만 수정되면 드리프트가 발생하므로 카이젠 시 Grep 대조 필수. 프로젝트 스캐폴딩 단계에서 이 4 원칙이 기본 가드레일로 `modules/*/port.rs` 스켈레톤에 포함되도록 한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **rust-toolchain.toml의 channel을 nightly로 설정하지 마라** — 특별한 이유(async trait, GAT 등 nightly-only 기능) 없이 nightly를 기본으로 하면 빌드 재현성이 깨진다. `stable` 또는 특정 버전(`1.77.0`)을 사용하라.
 - **edition을 2021 미만으로 설정하지 마라** — 2024년 이후 프로젝트에서 edition 2018을 쓸 이유가 없다. `edition = "2021"` 이상을 사용하라. resolver도 자동으로 "2"가 된다.
@@ -50,7 +58,7 @@ user-invocable: true
 사용자에게 아키텍처를 제안한다:
 
 | 아키텍처 | 적합 규모 | 특징 |
-|----------|----------|------|
+| ---------- | ---------- | ------ |
 | `workspace_service` (권장) | 중~대규모 | crates/api + domain + infra 분리. ports/adapters hexagonal 기본 포함 |
 | `modular` | 소~중규모 | 단일 크레이트 내 모듈 분리. ports/adapters hexagonal 기본 포함 |
 | `flat` | 프로토타입/소규모 | src/main.rs + lib.rs |
@@ -118,7 +126,9 @@ user-invocable: true
     └── telemetry/
 ```
 
+<!-- markdownlint-disable MD037 -->
 **참고** — 이 레이아웃은 실사용 프로젝트의 서버 구조(apps/api + apps/worker + modules/* + shared/*)를 기반으로 한다. 기존 `crates/api + crates/domain + crates/infra` 레이아웃도 유효하나, 모듈 경계가 뚜렷한 중대규모 프로젝트에서는 `modules/*` 레이아웃이 의존 방향을 더 명확히 강제한다 (apps → modules ← shared).
+<!-- markdownlint-enable MD037 -->
 
 ### modular 구조
 
@@ -166,6 +176,8 @@ user-invocable: true
 ```
 
 ## 4a. `Cargo.toml` 워크스페이스 루트 템플릿 (workspace_service)
+
+아래 버전 값도 스냅샷이다 — 착수 전 `references/project-detection.md` **Step 2c** 표로 최신판과 동작 변경을 확인한다.
 
 ```toml
 [workspace]
@@ -232,7 +244,7 @@ Member crate `Cargo.toml`은 이 `[workspace.lints]`를 한 줄로 상속한다:
 
 ```toml
 [package]
-name = "myapp-api"
+name = "{project}-api"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
@@ -254,7 +266,7 @@ components = ["rustfmt", "clippy"]
 profile = "default"
 ```
 
-`channel`은 `"stable"` 또는 `"1.88.0"` 같은 명시 버전 중 선택. 팀 환경 정합성이 중요하면 명시 버전을 권장한다 (실사용 프로젝트 기준).
+`channel`은 `"stable"` 또는 `"1.88.0"` 같은 명시 버전 중 선택. 팀 환경 정합성이 중요하면 명시 버전을 권장한다 (실사용 프로젝트 기준). 조회 시점 최신 stable 은 `references/project-detection.md` Step 2c 표에 있다.
 
 ## 4c. `deny.toml` 템플릿 (cargo-deny v2 형식)
 
@@ -309,8 +321,13 @@ allow-git = []
    > - DB 모델 추가: `/rust-model`
    > - 인증 설정: `/rust-auth`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md
 - docs/rust/fundamentals/project-structure.md
+- 설치본 플러그인에는 `docs/rust/` 가 없다 — 이 파일의 `docs/rust/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
 - templates/rust-init.toml.template — 초기 Cargo.toml workspace 템플릿

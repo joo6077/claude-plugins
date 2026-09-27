@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 백업 & 재해 복구
 
 RTO/RPO, 3-2-1 규칙, DB 백업(논리/물리), PITR, DR 테스트, 멀티리전, 장애 복구 runbook, chaos engineering을 다룬다.

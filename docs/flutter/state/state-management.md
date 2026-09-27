@@ -8,6 +8,7 @@ last_updated: 2026-08-13
      닫는 펜스를 백틱 3 개 단독 줄로 되돌리지 마라 — bare-fence 검사 오라클이
      닫는 펜스를 언어 힌트 없는 여는 펜스로 오탐한다 (Phase 5 AP-03). -->
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 상태 관리
 
 ## 요약
@@ -17,20 +18,20 @@ Riverpod / Bloc / Provider 비교와 선택 기준. Notifier·AsyncNotifier, `re
 ## 원칙
 
 1. **변경 가능한 복잡 상태는 Riverpod의 `NotifierProvider` / `AsyncNotifierProvider`를 기본으로 쓴다.** 단순 파생값은 `Provider`, 비동기 로딩은 `AsyncNotifierProvider`.
-   - 출처: https://docs-v2.riverpod.dev/docs/providers/notifier_provider
+   - 출처: <https://docs-v2.riverpod.dev/docs/providers/notifier_provider>
 
 2. **`provider` 패키지는 얇은 `InheritedWidget` 래퍼, `flutter_bloc`은 이벤트/상태 전이 모델이다.** 팀 규모와 상태 복잡도에 맞춰 선택하고 한 프로젝트에서 혼용하지 않는다.
-   - 출처: https://pub.dev/packages/provider
-   - 출처: https://pub.dev/packages/flutter_bloc
+   - 출처: <https://pub.dev/packages/provider>
+   - 출처: <https://pub.dev/packages/flutter_bloc>
 
 3. **비동기 UI 상태는 `AsyncValue`처럼 loading / error / data 3 케이스 타입으로 표현한다.** `bool isLoading` + nullable data 조합 금지.
-   - 출처: https://pub.dev/packages/flutter_riverpod
+   - 출처: <https://pub.dev/packages/flutter_riverpod>
 
 4. **상태 객체는 immutable + `copyWith` 기본.** `freezed`로 sealed union과 `copyWith`를 자동 생성한다.
-   - 출처: https://pub.dev/packages/freezed
+   - 출처: <https://pub.dev/packages/freezed>
 
 5. **Provider/Notifier 내부에서 `await` 이후 UI에 반영하기 전 `ref.mounted`를 확인한다.** dispose 이후 접근은 state 설정 예외를 발생시킨다.
-   - 출처: https://pub.dev/documentation/flutter_riverpod/latest/flutter_riverpod/Ref-class.html
+   - 출처: <https://pub.dev/documentation/flutter_riverpod/latest/flutter_riverpod/Ref-class.html>
 
 ## 수치 기준
 
@@ -78,12 +79,12 @@ class ProductList extends _$ProductList {
 }
 ````
 
-- 출처: https://docs-v2.riverpod.dev/docs/providers/notifier_provider
+- 출처: <https://docs-v2.riverpod.dev/docs/providers/notifier_provider>
 
 ### State 설계 원칙
 
 | 상태 유형 | 관리 위치 | 예시 |
-|----------|----------|------|
+| ---------- | ---------- | ------ |
 | 서버 데이터 (캐시) | AsyncNotifierProvider | 상품 목록, 사용자 프로필 |
 | UI 로컬 상태 | useState (hooks) 또는 StateProvider | 탭 인덱스, 폼 입력 |
 | 앱 전역 설정 | NotifierProvider | 테마 모드, 로케일 |
@@ -92,7 +93,7 @@ class ProductList extends _$ProductList {
 ### ref 4종의 역할 분리 — watch / listen / invalidate / refresh
 
 | API | 역할 | 쓰는 곳 |
-|-----|------|--------|
+| ----- | ------ | -------- |
 | `ref.watch` | **선언형 구독** — source 가 바뀌면 자동 재평가 | build / Notifier build / 파생 provider |
 | `ref.listen` | **side effect** — dialog, navigation, logging | build 안에서 등록, 콜백에서 부수효과 |
 | `ref.invalidate` | 현재 state 를 버리고 **다음 read 때 재평가** | mutation 후 영향 provider 정리 |
@@ -107,7 +108,7 @@ class ProductList extends _$ProductList {
 - `Ref.onManualInvalidation()` (**`flutter_riverpod` 3.4.x 이상 전용**) 으로 source 의 수동
   invalidation 을 파생 provider 에 전파할 수 있다. `pubspec.lock` 의 버전을 확인하고 쓴다
 
-출처: https://riverpod.dev/docs/concepts2/refs , https://pub.dev/packages/flutter_riverpod/changelog
+출처: <https://riverpod.dev/docs/concepts2/refs> , <https://pub.dev/packages/flutter_riverpod/changelog>
 
 ### Provider 선택 플로우차트
 
@@ -123,7 +124,7 @@ class ProductList extends _$ProductList {
 - `overrideWith`로 mock repository 주입 (override 는 `ProviderScope` / `ProviderContainer` 의 `overrides` 로만)
 - `container.listen`으로 상태 전이 순서(loading → data) 검증. `autoDispose` provider 는 `read` 만 하면 중간에 dispose 될 수 있어 `listen` 으로 붙잡아야 한다
 - **화면이 provider 변화를 반영하는지**는 unit test 로 못 잡는다 — `ProviderScope` 루트 + `tester.container()` 하네스가 필요하다 (`docs/flutter/quality/testing.md` §Riverpod widget test 하네스)
-- 출처: https://riverpod.dev/docs/how_to/testing
+- 출처: <https://riverpod.dev/docs/how_to/testing>
 
 ## Gotchas
 
@@ -131,4 +132,4 @@ class ProductList extends _$ProductList {
 - sealed union + `Result.when` 분기는 강력하지만 단순 로그인 폼처럼 상태가 3개 이하인 화면에는 과한 ceremony가 된다. 화면당 상태 수를 보고 판단하라.
 - `ref.watch`를 `onPressed` callback 안에서 호출하면 안 된다 — callback 내부는 `ref.read`만 허용된다. watch는 build 메서드(또는 Notifier의 build)에서만 호출하라.
 - `autoDispose`를 모든 provider에 붙이면 화면 전환 시 캐시가 사라져 불필요한 재요청이 발생한다 — keepAlive를 조합하거나 autoDispose 없이 명시적 invalidate를 쓰라.
-- **`autoDispose` 의 실제 수명**: listener 가 0 이 된 **즉시가 아니라 한 프레임 후** dispose 된다. 그리고 provider 가 recompute 되면 **autoDispose 여부와 무관하게 기존 state 가 파괴**된다 — "keepAlive 니까 값이 유지된다" 는 recompute 앞에서 성립하지 않는다. `family` / 파라미터 provider 는 인자 조합마다 인스턴스가 쌓이므로 autoDispose 가 권장된다. 출처: https://riverpod.dev/docs/concepts2/auto_dispose
+- **`autoDispose` 의 실제 수명**: listener 가 0 이 된 **즉시가 아니라 한 프레임 후** dispose 된다. 그리고 provider 가 recompute 되면 **autoDispose 여부와 무관하게 기존 state 가 파괴**된다 — "keepAlive 니까 값이 유지된다" 는 recompute 앞에서 성립하지 않는다. `family` / 파라미터 provider 는 인자 조합마다 인스턴스가 쌓이므로 autoDispose 가 권장된다. 출처: <https://riverpod.dev/docs/concepts2/auto_dispose>

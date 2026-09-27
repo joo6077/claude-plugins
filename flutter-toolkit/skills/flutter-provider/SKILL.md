@@ -13,7 +13,11 @@ argument-hint: "<feature>/<provider-name>"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **요청 범위를 넘는 캐시/추상화/스캐폴딩을 임의 추가하지 마라 — 최소 구현 우선.** "상태 하나 추가"에 캐시 레이어·중간 provider·새 추상화를 끼워 넣지 말고, 요청한 provider만 만들어라. 더 큰 구조가 필요해 보이면 구현 전에 먼저 물어라
 - keepAlive provider는 keepAlive provider만 참조해야 한다 — 비keepAlive를 참조하면 stale state 발생
@@ -41,6 +45,7 @@ Riverpod Notifier + State 클래스를 프로젝트 codegen 패턴에 맞게 생
 이후 단계에서 감지 결과(`$FLUTTER`, `$DART`, `$PACKAGE`, `HAS_RIVERPOD`, `HAS_HOOKS` 등)를 사용한다.
 
 **전제 조건**: `HAS_RIVERPOD`가 true여야 한다.
+
 - `HAS_BLOC`이 감지되면: "이 프로젝트는 Bloc을 사용합니다. 이 스킬은 Riverpod 전용입니다. Bloc/Cubit 생성은 프로젝트의 기존 Bloc 패턴을 참조해주세요."
 - 둘 다 없으면: "flutter_riverpod 또는 hooks_riverpod가 pubspec.yaml에 없습니다. `$FLUTTER pub add flutter_riverpod` 또는 `$FLUTTER pub add hooks_riverpod`로 설치해주세요."
 
@@ -70,6 +75,7 @@ feature가 `lib/features/<feature>/`에 존재하는지 확인한다. 없으면 
 ### 2. 기존 패턴 분석
 
 기존 provider 파일을 읽어 프로젝트 관습을 파악한다:
+
 - `lib/features/<feature>/presentation/providers/` 내 기존 파일
 - codegen 스타일 (`@riverpod` vs `@Riverpod(keepAlive: true)` vs legacy `StateNotifierProvider`)
 - State 클래스 패턴 (수동 copyWith vs Freezed)
@@ -79,6 +85,7 @@ feature가 `lib/features/<feature>/`에 존재하는지 확인한다. 없으면 
 ### 3. 사용자 확인
 
 다음을 확인한다:
+
 - State에 필요한 필드는?
 - 어떤 usecase/repository를 호출하는지?
 - `keepAlive: true` 여부 (기본값: feature-level notifier는 true)

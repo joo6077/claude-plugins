@@ -15,6 +15,14 @@
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
   }
+  [data-theme="light"]{
+    --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--border:#e0dcd4;--text:#1a1a24;--text2:#5a5248;--text3:#6b6259;--accent:#B42318;--accent2:#9B1C12;--accent-dim:rgba(180,35,24,0.1);--green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  .theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+    background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
   html{font-size:16px;scroll-behavior:smooth}
   body{
     font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
@@ -78,6 +86,7 @@
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">라이트</button>
 <div class="page">
 
 <a href="../index.html" class="nav-back">&#8592; Rust Kit</a>
@@ -100,11 +109,11 @@
       </div>
       <div class="card-body">
         <p><code>.clone()</code>은 힙 할당 데이터를 완전히 복사한다. <code>String</code>은 평균 ~40ns, <code>Vec</code>은 길이에 비례한다. 함수에 소유권이 필요하지 않다면 참조를 넘긴다.</p>
-        <pre><span style="color:#f87171">// 비효율 — 호출마다 String 복사</span>
+        <pre><span style="color:var(--red)">// 비효율 — 호출마다 String 복사</span>
 fn greet(name: String) { println!("Hello, {name}"); }
 greet(user.name.clone());
 
-<span style="color:#4ade80">// 효율 — 참조만 빌림</span>
+<span style="color:var(--green)">// 효율 — 참조만 빌림</span>
 fn greet(name: &amp;str) { println!("Hello, {name}"); }
 greet(&amp;user.name);</pre>
         <p style="margin-top:10px;font-size:12px;color:var(--text3)"><code>Arc::clone()</code>처럼 복사 비용이 작은 경우(~5ns atomic op)나 소유권 이전이 실제로 필요한 경우는 허용.</p>
@@ -122,8 +131,8 @@ greet(&amp;user.name);</pre>
       </div>
       <div class="card-body">
         <p><code>&amp;String</code>은 <code>String</code>에서만 빌릴 수 있다. <code>&amp;str</code>은 <code>String</code>, <code>&amp;str</code> 리터럴, 슬라이스 모두에서 빌릴 수 있어 더 범용적이다. 같은 이유로 <code>&amp;Vec&lt;T&gt;</code> 대신 <code>&amp;[T]</code>, <code>&amp;PathBuf</code> 대신 <code>&amp;Path</code>를 사용한다.</p>
-        <pre><span style="color:#4ade80">fn process(name: &amp;str) { ... }    // ✅</span>
-<span style="color:#f87171">fn process(name: &amp;String) { ... } // ❌ Clippy: ptr_arg</span></pre>
+        <pre><span style="color:var(--green)">fn process(name: &amp;str) { ... }    // ✅</span>
+<span style="color:var(--red)">fn process(name: &amp;String) { ... } // ❌ Clippy: ptr_arg</span></pre>
       </div>
       <a href="https://rust-lang.github.io/rust-clippy/master/index.html#ptr_arg" target="_blank" class="source-link">&#8599; Clippy — ptr_arg lint</a>
     </div>
@@ -138,7 +147,7 @@ greet(&amp;user.name);</pre>
       </div>
       <div class="card-body">
         <p>빌림이 길수록 가변 접근이 차단되는 범위가 넓어진다. 값이 필요한 시점 직전에 빌리고, 필요가 끝나면 즉시 해제한다. 중간에 소유권을 이전할 필요가 있으면 빌림을 먼저 끝낸다.</p>
-        <pre><span style="color:#4ade80">// 빌림을 블록으로 제한</span>
+        <pre><span style="color:var(--green)">// 빌림을 블록으로 제한</span>
 let len = {
     let s = &amp;data.name;
     s.len()
@@ -158,13 +167,13 @@ data.name.push_str(" Jr."); // ✅ 가변 접근 가능</pre>
       </div>
       <div class="card-body">
         <p>lifetime 생략 규칙(elision rules)이 대부분의 경우를 자동 처리한다. 명시가 필요한 경우: 반환값이 여러 입력 중 하나에서 빌려오는 경우, 구조체가 참조를 필드로 가지는 경우.</p>
-        <pre><span style="color:#4ade80">// 명시 불필요 — 컴파일러가 추론</span>
+        <pre><span style="color:var(--green)">// 명시 불필요 — 컴파일러가 추론</span>
 fn first_word(s: &amp;str) -&gt; &amp;str { ... }
 
-<span style="color:#fbbf24">// 명시 필요 — 반환값이 두 입력 중 하나</span>
+<span style="color:var(--yellow)">// 명시 필요 — 반환값이 두 입력 중 하나</span>
 fn longer&lt;'a&gt;(x: &amp;'a str, y: &amp;'a str) -&gt; &amp;'a str { ... }
 
-<span style="color:#fbbf24">// 구조체 필드에 참조</span>
+<span style="color:var(--yellow)">// 구조체 필드에 참조</span>
 struct Excerpt&lt;'a&gt; { part: &amp;'a str }</pre>
       </div>
       <a href="https://doc.rust-lang.org/book/ch10-03-lifetime-syntax.html" target="_blank" class="source-link">&#8599; Rust Book Ch.10.3 — Lifetime Syntax</a>
@@ -190,7 +199,7 @@ struct Excerpt&lt;'a&gt; { part: &amp;'a str }</pre>
             <div style="font-size:12px;color:var(--text3)">멀티 스레드 공유 소유권. ~5ns atomic clone. tokio::spawn에서 필수.</div>
           </div>
         </div>
-        <pre><span style="color:#4ade80">// 멀티 스레드 — Arc 사용</span>
+        <pre><span style="color:var(--green)">// 멀티 스레드 — Arc 사용</span>
 let shared: Arc&lt;Config&gt; = Arc::new(Config::load());
 let clone = Arc::clone(&amp;shared); // ~5ns
 tokio::spawn(async move { use_config(&amp;clone) });</pre>
@@ -327,5 +336,23 @@ fn process(items: &amp;[Item]) {
 </div>
 
 </div>
+<script>
+// 테마 — 저장 키 dk-theme. 저장값이 없으면 브라우저 색 설정을 따르고, 누를 때만 저장한다
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  var btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = t === 'dark' ? '라이트' : '다크';
+}
+function toggleTheme(){
+  var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

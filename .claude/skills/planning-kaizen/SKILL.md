@@ -24,11 +24,16 @@ user-invocable: true
    - 필수 워크플로우(1~10): plan-discover, plan-prd, plan-stories, plan-prioritize, plan-flow, plan-data-model, plan-risks, plan-sync-github, plan-guide, plan-audit
    - 선택 전단계(0a/0b): plan-ideate, plan-reference
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 현재 상태 읽기
 
 planning-kit 스킬 12개 + planning-reviewer 에이전트의 Gotchas/Process/references 전체:
+
 - planning-kit/skills/plan-{ideate,reference,discover,prd,stories,prioritize,flow,data-model,risks,sync-github,guide,audit}/SKILL.md (12개)
 - planning-kit/agents/planning-reviewer.md
 
@@ -54,7 +59,7 @@ planning-kit 스킬 12개 + planning-reviewer 에이전트의 Gotchas/Process/re
 
 ## Step 5: 커밋
 
-```
+```text
 kaizen(planning-kit): [개선 내용 요약]
 ```
 
@@ -62,7 +67,11 @@ kaizen(planning-kit): [개선 내용 요약]
 
 세션 시작/종료 시 `scripts/validate-plugin.py planning-kit` 실행하여 **등록된 검사 전부** 확인. 실행 패턴·우선순위는 `harness/docs/guides/plugin-validation-guide.md §7` SSOT.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - planning-kit/skills/*/SKILL.md
 - planning-kit/agents/planning-reviewer.md

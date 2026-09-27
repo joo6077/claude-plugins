@@ -2,10 +2,12 @@
 
 백엔드 원칙 문서 카테고리별 매핑.
 
+설치본 플러그인에는 `docs/backend/` 가 없다 — 아래 상대 경로를 열 수 없으면 앞의 `../` 를 떼고 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/backend/...` 를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 ## Fundamentals
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | Architecture (Hexagonal / Clean / DDD) | ../../../../docs/backend/fundamentals/api-design.md (TBD — `/backend-research` Phase에서 `docs/backend/patterns/architecture.md` 신설 예정) |
 | API Design | ../../../../docs/backend/fundamentals/api-design.md |
 | Contract Counterpart (빈 상태 상태코드 · timestamp 직렬화 · 소비면 열거) | ../../../../docs/backend/fundamentals/api-design.md + ../../../../docs/backend/fundamentals/testing.md (Pact provider verification) |
@@ -18,7 +20,7 @@
 ## Patterns
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | Caching | ../../../../docs/backend/patterns/caching.md |
 | Event-Driven Architecture | ../../../../docs/backend/patterns/event-driven.md |
 | Resilience (Circuit Breaker + Rate Limiter) | ../../../../docs/backend/patterns/resilience.md (TBD) |
@@ -28,7 +30,7 @@
 ## Protocols
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | API Lifecycle | ../../../../docs/backend/protocols/api-lifecycle.md |
 | GraphQL (+ Federation + gRPC hybrid) | ../../../../docs/backend/protocols/graphql.md |
 | gRPC | ../../../../docs/backend/protocols/grpc.md |
@@ -37,7 +39,7 @@
 ## Modern Stacks
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | Architecture Decision (Modular Monolith First) | ../../../../docs/backend/stacks/architecture-decision.md (TBD) |
 | Serverless & Edge (Cold Start, Hono, Workers) | ../../../../docs/backend/stacks/serverless-edge.md (TBD) |
 | Workflow Engines (Temporal, Dapr) | ../../../../docs/backend/stacks/workflow-engines.md (TBD) |

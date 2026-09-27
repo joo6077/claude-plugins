@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # GraphQL
 
 Versionless evolution, nullability, 페이지네이션, N+1 해결, demand control, federation, subscription, 에러 처리를 다룬다.
@@ -77,7 +78,7 @@ GraphQL 응답은 `data`와 `errors`를 동시에 포함할 수 있다. request 
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | Subscription root field 수 | 정확히 1개 |
 | APQ ID 형식 | SHA-256 hash |
 | Depth limit 운영 시작점 | 8~12 |
@@ -89,7 +90,7 @@ GraphQL 응답은 `data`와 `errors`를 동시에 포함할 수 있다. request 
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | Offset pagination을 공개 스키마 표준으로 | 데이터 변경 시 row 누락·중복, 대규모 offset 성능 저하. |
 | DataLoader를 전역 singleton으로 | cross-request 캐시 오염, 메모리 누수, 인증 경계 무시. |
 | Public API에 introspection/batch/alias/depth 모두 개방 | DoS 공격 표면 최대화. 하나만 제한해도 우회 가능. |

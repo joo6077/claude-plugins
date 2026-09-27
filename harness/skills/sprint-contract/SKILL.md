@@ -101,6 +101,7 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
 계약이 엉뚱한 곳에 저장된다 (`cwd-contract-path-drift` 실제 발생).
 
 설정에서 사용하는 항목:
+
 - `contract_categories` — 계약 카테고리 (UI/Logic/Error/Architecture 등)
 - `anti_patterns` — 안티패턴 Grep 패턴 목록
 - `diagnostics` — 빌드/분석 명령, 콘솔 에러 패턴
@@ -341,6 +342,7 @@ verify_measurement "$CF"
 ### 1. 요구사항 분석
 
 `$ARGUMENTS`를 분석하여:
+
 - 어떤 feature인지 (신규 vs 기존 확장)
 - 영향 범위 (레이어, 파일 수)
 - 복잡도 판단 (단순/중간/복잡)
@@ -403,6 +405,7 @@ verify_measurement "$CF"
    onboarding-kit)에서 `<plugin>/agents/*.md` 는 zsh `nomatch` 로 **명령을 통째로 죽여** 출력이
    0 건이 된다. `2>/dev/null` 은 글로빙 실패를 막지 못한다 — 확장은 명령 실행 **전에** 일어난다.
    `skills/` 와 `agents/` 는 깊이가 달라 `find` 를 두 번 돌린다:
+
    ```bash
    PLUGIN=reflect-kit   # 대상 플러그인 이름으로 바꿔라 (`<plugin>` 을 그대로 두면 리다이렉션으로 파싱된다)
    find "$PLUGIN/skills" -mindepth 2 -maxdepth 2 -type f -name 'SKILL.md' \
@@ -410,6 +413,7 @@ verify_measurement "$CF"
    find "$PLUGIN/agents" -maxdepth 1 -type f -name '*.md' \
      -exec grep -Hn '^description:' {} + 2>/dev/null
    ```
+
    `-exec ... +` 는 매치가 0 건이면 `grep` 을 아예 실행하지 않는다. `xargs` 로 바꾸지 마라 —
    BSD `xargs` 는 입력이 비어도 유틸리티를 1 회 실행해 `grep` 이 stdin 을 기다린다.
 2. 각 description 에서 트리거 키워드 (`"..."` 로 묶인 구문, 또는 콤마 분리 구문) 를
@@ -422,6 +426,7 @@ verify_measurement "$CF"
    요구하는 문구로 작성한다
 
 **실패 사례 (RE-02 / SK-05, react-kit 2026-04)**:
+
 - "API 연동" (react-api) ⊂ "API 연동 화면" (react-feature) — substring 중복, set
   intersection 만 검사하면 미탐지
 - "wasm-pack 빌드" (react-run) == "wasm-pack 빌드" (react-wasm) — set intersection
@@ -448,6 +453,7 @@ verify_measurement "$CF"
 되먹여진다.
 
 **각 조건의 규칙:**
+
 - PASS/FAIL로 이진 판정 가능해야 한다
 - "잘 동작한다", "적절히 처리한다" 같은 모호한 표현 금지
 - 구체적 상태, 컴포넌트, 동작을 명시한다
@@ -468,7 +474,7 @@ verify_measurement "$CF"
 
 기능 조건은 자동 포함 여섯 줄(`RE-01` · `RE-02` · `DG-01`~`DG-04`) · `## Anti-patterns` 절 · `N/A (사유)` 줄을 뺀 조건 줄이다. 수는 레포 내부 정책이며 정의와 근거는 `harness/references/contract-schema.md` §복잡도별 조건 수 가이드 가 SSOT 다. 저장 뒤 Step 6.2 의 두 번째 명령으로 센다.
 
-**조건 패턴 5 종 (v5.5)** — 해당하는 조건에만 적용한다. 전 조건에 강요하면 과잉 절차다.
+**조건 패턴 8 종 (v5.7)** — 해당하는 조건에만 적용한다. 전 조건에 강요하면 과잉 절차다.
 포맷 정의는 `harness/references/contract-schema.md` 가 SSOT 이며 여기서 재정의하지 않는다.
 
 | 패턴 | 적용 조건 | 요구 |
@@ -478,6 +484,9 @@ verify_measurement "$CF"
 | **음성 대조** | 조건이 **테스트 통과**로 판정될 때 | `음성 대조:` 절에 "어느 구현 지점을 무력화하면 이 측정이 FAIL 하는지" 를 적는다. `[structural]` 존재 조건에는 적용하지 않는다 |
 | **양성 대조** | 0 이 기대값인 측정 (매치 0 건 · 오류 0 건 · 빈 출력 · 차이 없음) | `양성 대조:` 절에 같은 측정이 **1 이상을 내는** 알려진 나쁜 예를 적고(기존 기록 경로 또는 만들 임시 사본), **봉인 전에 실제로 1 이상이 나오는지 실측**한다. 명령이 오류를 삼키지 않는지(종료 코드)도 함께 본다 |
 | **알려진 답 대조** | 조건의 측정이 새로 짠 스크립트이고 기대값이 0 이 아닌 수일 때 | `알려진 답:` 절에 손으로 답을 셀 수 있는 작은 입력 · 기대값 · 봉인 전 실제값 · 종료 코드를 적는다. 둘이 다르면 봉인하지 않는다 |
+| **산출물이 검사인 조건** | 이번 스프린트가 만든 파일이 입력을 읽어 통과 · 실패나 수를 낼 때 (검사 스크립트 · 막는 훅 · 검증기 · 새 시험 파일) | 평가 가이드 사본 대조 ①~④ 마다 사본과 기대 출력을 조건에 적는다. 해당 없는 항목은 `해당 없음 (사유)` |
+| **기존 동작 유지 조건** | 「A 는 풀되 B 는 그대로 막는다」 처럼 기존 동작을 지키라고 할 때 | 목표 문장을 하위 문장으로 나눠 조건을 하나씩 두고, 기준 판과 새 판을 손으로 고른 입력 + 시드를 적은 무작위 입력 3 개 이상으로 맞댄다 |
+| **페이지 맞추기 계약** | 원본 문서와 그것을 옮긴 페이지(문서 사이트 HTML · README 표)를 맞출 때 | 스키마의 다섯 가지 — 세는 식은 영어 꼴 · 쉼표 나열까지, 주소 검사는 모든 모양, 종료 코드와 검사한 파일 수를 함께, 출력 모양은 상세 줄까지, 0 기대에는 양성 대조 — 를 조건에 적는다 |
 
 **직전 사이클의 amendment 확정분을 원문에 반영한다 (v5.3).** 같은 슬러그를 이어받는
 스프린트라면 사이드카를 먼저 읽고, 확정된 `narrowing` 을 **새 계약 조건의 원문에** 녹여
@@ -505,6 +514,9 @@ Step 1 의 "공개 API·계약 변경" 또는 "소비면 존재" 가 "예" 면 *
 5. 소비면의 **내부 구현**은 조건화하지 않는다 (과잉 계약)
 6. 이번 스프린트에 양면을 다 못 바꾸면 남는 쪽을 **명시적 미완 조건**으로 남긴다.
    `[미검증]` 을 쓰지 마라 — 그 마커는 검증 도구 부재 전용이다
+7. 판정값(`PASS` · `FAIL` · `BLOCKED` 같은 결과 낱말)을 바꾸거나 더하는 계약은 스킬 본문만 보지 말고 `templates/` 아래
+   리포트 틀까지 그 판정값 낱말로 검색해 받아 쓰는 쪽에 넣는다. 실측(2026-09-26): 감사 스킬 본문만 보고 범위를 잡아
+   design-audit 리포트 틀이 `BLOCKED` 를 담지 못했고, 개정 AM-01 로 범위를 늘렸다
 
 상세 규칙과 예시: `../../docs/guides/contract-design-guide.md` §양면 조건 — Counterpart Conditions.
 
@@ -550,6 +562,9 @@ PASS 를 적는다 — 설정 파일 · 문서만 내는 스프린트에서 `DG-
 ```markdown
 - [ ] DG-01: N/A (commands.analyze 는 scripts/release.sh 만 잰다 — 이번 변경 파일과 교집합 0 개. 측정: git diff --name-only origin/main...feat/x | grep -c '^scripts/release.sh$' 이 0)
 ```
+
+편집기 경고 조건(`DG-02`)이 재는 파일에 `<!-- AUTO:* -->` 블록이 있으면 경고를 블록 안과 블록 밖으로 나눠 재고, 봉인 전에
+두 수를 적는다 — 블록 안은 생성기가 쓰는 줄이다. 규칙은 `harness/references/contract-schema.md` §4. Diagnostics 에 있다.
 
 N/A 로 뺀 자리에는 **실제로 성립하는 오라클**을 해당 카테고리의 조건으로 따로 둔다 (예: `python3 scripts/validate-plugin.py <kit>`).
 사유가 거짓이면 평가자가 FAIL 로 잡는다. 사유 없는 `N/A` 는 쓰지 않는다. N/A 줄도 조건 줄이라 Step 6.2 조건 수와
@@ -625,6 +640,7 @@ locked_at: "{YYYY-MM-DD HH:mm}"
 **다른 슬러그의 계약은 읽지도 옮기지도 마라** — 다른 세션이 쓰고 있는 파일이다.
 
 **포맷 규칙 (QA Evaluator 파싱 호환):**
+
 - YAML frontmatter로 메타데이터
 - **섹션 헤더는 2 계층만 허용한다** (`harness/references/contract-schema.md` §허용 섹션 헤더):
   - **조건 섹션 (parsed)** — `project.yaml` 카테고리 ID + `Anti-patterns` + `Reusability` +
@@ -632,7 +648,8 @@ locked_at: "{YYYY-MM-DD HH:mm}"
   - **서술 섹션 (non-parsed)** — `배경` · `리서치 소스` · `GAP 분석` · `범위 경계` · `회귀 게이트`.
     접두 일치면 되고 뒤에 부연을 붙여도 된다. **조건 체크박스 금지** (일반 불릿만)
   - 두 목록 밖의 헤더(`Notes`, `Appendix`, `메모` 등)는 금지 — 평가자 파서가 오작동한다
-  - `범위 경계` 에 폐기한 결정(사용자가 기능·설정 항목을 없애기로 한 결정)을 적을 때는 결정을 다시 쓰지 말고 그 기능 PRD 비범위 표 경로와 항목 이름만 적는다 (planning-kit plan-prd Gotcha 14). PRD 가 없으면 plan-prd 와 같은 네 칸(하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적)으로 적고 끝에 `PRD 없음` 을 붙인다
+  - `범위 경계` 에 이 스프린트가 고칠 경로를 `# sprint-scope` 로 시작하는 `text` 블록으로 적는다 — 커밋 직전 훅이 이 세션의 활성 계약 블록 밖 경로를 막는다. 형식은 `harness/references/contract-schema.md` §범위 목록 블록 이다
+  - `범위 경계` 에 폐기한 결정(사용자가 기능·설정 항목을 없애기로 한 결정)을 적을 때는 결정을 다시 쓰지 말고 그 기능 PRD 비범위 표 경로와 항목 이름만 적는다 (planning-kit plan-prd Gotcha 14). 그 기능의 PRD 가 없으면 결정 원문은 여기 한 곳이다 — plan-prd 와 같은 네 칸(하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적)으로 적고 줄 끝에 `PRD 없음` 을 붙인다. 디자인 승인 기록 · 핸드오프는 이 계약 경로를 가리키고 결정을 다시 쓰지 않는다. 그 기능의 계약도 없던 때 적은 결정은 디자인 승인 기록 폐기 칸에 네 칸으로 있다(줄 끝 `PRD 없음`) — 옮겨 적지 말고 그 승인 기록 경로만 적는다
 - 모든 체크박스는 unchecked `- [ ]` 상태로 저장
 - 모든 카테고리에 최소 1개 조건 필수. 해당 없으면 `- [ ] XX-00: N/A (사유)` — **사유를 괄호에 반드시 적는다.**
   `N/A (사유)` 는 "조건이 이 대상에 애초에 적용 불가" 를 뜻하며 `[미검증]`(재지 못함)과 다르다.
@@ -773,6 +790,9 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
 안 됐다 — 교차 진단이 이 구멍을 짚었다). 섞였으면 `git reset --soft HEAD~1` 로 되돌리고
 계약 경로만 다시 커밋한다.
 
+- **다른 세션과 같은 작업 폴더를 쓰면 (a) 의 `checkout -b` 로 가지를 바꾸지 마라.** 가지만 바꾸면 남의 미커밋 변경이
+  새 가지로 따라온다. 대신 `git worktree add <새 폴더> -b "feat/$SLUG" <기준 커밋>` 으로 폴더를 따로 만들고 거기서
+  계약을 쓰고 커밋한다 — `/sprint` 의 워크트리 규칙과 같다 (<https://git-scm.com/docs/git-worktree>)
 - **`-o` 를 빼지 마라.** 다른 세션이 스테이징해 둔 것을 함께 삼킨다. 이 레포는 작업 폴더를 여러
   세션이 공유한다
 - **병합할 때 스쿼시를 쓰지 마라.** 이 레포는 세 방식(병합 커밋 · 스쿼시 · 재배치)을 모두
@@ -828,34 +848,52 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
 
 ### 9. 피드백 저장
 
-1. 자기진단 + 교차 진단 결과를 합쳐 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성한다
+1. 자기진단 + 교차 진단 결과를 합쳐 피드백 YAML을 `.harness/feedback-draft-<slug>.yaml`에 작성한다 (plain 모드면 `.harness/feedback-draft.yaml`).
+   이름에 슬러그를 넣는 이유는 qa-evaluator 초안과 같다 — 고정 이름이면 같은 폴더의 다른 세션 초안을 덮는다
    - `harness/references/feedback-schema.yaml`의 스키마를 따른다
    - `skill: sprint-contract`
    - `skill_version`: `harness/.claude-plugin/plugin.json`의 `version` 필드 값
    - `project_hash`: **`save-feedback.sh` 가 `CONTRACT_ROOT` 기준으로 재계산해 덮어쓴다.**
      draft 에 적은 값은 참고용이며, 다르면 스크립트가 stderr 로 경고하고 원본을
      `draft_project_hash` 로 보존한다. 경고가 나오면 draft 계산이 틀린 것이니 원인을 확인하라.
-     draft 에 채워 넣을 때도 **`pwd` 가 아니라 `CONTRACT_ROOT` 를 해시한다** — cwd 를 해시하면
+     draft 에 채워 넣을 때도 cwd 가 아니라 **`CONTRACT_ROOT` 에서 구한 뿌리 폴더**를 해시한다 — cwd 를 해시하면
      같은 프로젝트인데도 세션마다 다른 해시가 나와 글로벌 피드백이 흩어진다 (실측: `claude-plugins`
-     하나에 `project_hash` 43 종).
+     하나에 `project_hash` 43 종). **워크트리면 공통 git 폴더의 부모(본 레포 폴더)가 뿌리다** — 스크립트의
+     `identity_root_of` 와 같은 규칙이다. 워크트리 경로를 그대로 해시하면 재계산 값과 늘 달라 경고가 난다
+     (실측 2026-09-26: 워크트리 `70da29df` · 재계산 `1a3bcba6`).
+
      ```bash
-     # sha256sum → python3 → openssl 순서 fallback (입력은 항상 CONTRACT_ROOT)
+     # 뿌리 폴더 — git 밖이면 CONTRACT_ROOT, git 안이면 최상위 폴더, 워크트리면 본 레포 폴더
+     ID_ROOT="$CONTRACT_ROOT"
+     GR=$(git -C "$CONTRACT_ROOT" rev-parse --show-toplevel 2>/dev/null)
+     if [ -n "$GR" ]; then
+       ID_ROOT="$GR"
+       GDIR=$(git -C "$CONTRACT_ROOT" rev-parse --path-format=absolute --git-dir 2>/dev/null)
+       COMMON=$(git -C "$CONTRACT_ROOT" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+       if [ -n "$COMMON" ] && [ "$GDIR" != "$COMMON" ] && [ "$(basename "$COMMON")" = ".git" ]; then
+         ID_ROOT=$(dirname "$COMMON")
+       fi
+     fi
+     # sha256sum → python3 → openssl 순서 fallback
      if command -v sha256sum &>/dev/null; then
-       printf '%s' "$CONTRACT_ROOT" | sha256sum | cut -c1-8
+       printf '%s' "$ID_ROOT" | sha256sum | cut -c1-8
      elif command -v python3 &>/dev/null; then
-       CONTRACT_ROOT="$CONTRACT_ROOT" python3 -c "import hashlib,os; print(hashlib.sha256(os.environ['CONTRACT_ROOT'].encode()).hexdigest()[:8])"
+       ID_ROOT="$ID_ROOT" python3 -c "import hashlib,os; print(hashlib.sha256(os.environ['ID_ROOT'].encode()).hexdigest()[:8])"
      elif command -v openssl &>/dev/null; then
-       printf '%s' "$CONTRACT_ROOT" | openssl dgst -sha256 | sed 's/.*= //' | cut -c1-8
+       printf '%s' "$ID_ROOT" | openssl dgst -sha256 | sed 's/.*= //' | cut -c1-8
      fi
      ```
+
    - `sprint_slug` · `contract_path` · `session_id` — `save-feedback.sh` 가 채운다.
      draft 에 손으로 적지 마라. 단 계약 경로는 2 번처럼 `HARNESS_CONTRACT` 로 넘겨야 채워진다
    - `diagnosis.checklist`: Step 7의 결과
    - `diagnosis.cross_diagnosis_by: qa-evaluator`
    - `diagnosis.cross_diagnosis_notes`: Step 8의 결과
-2. `HARNESS_CONTRACT="$CF" bash harness/scripts/save-feedback.sh contract .harness/feedback-draft.yaml` 실행.
+2. `HARNESS_CONTRACT="$CF" bash harness/scripts/save-feedback.sh contract .harness/feedback-draft-<slug>.yaml` 실행.
    `HARNESS_CONTRACT` 를 빼면 스크립트가 계약 경로를 추측하거나 필드를 뺀다 — 실측(2026-09-26): 슬러그 계약인데
-   `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다
+   `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다.
+   셸 변수는 Bash 호출이 바뀌면 사라진다 — 같은 호출 안에서 `CF=<계약 파일 절대 경로>` 를 다시 적고 부른다.
+   빈 값으로 오면 스크립트는 초안 이름의 `<slug>` 로 계약을 찾는다
 3. 출력된 저장 경로를 기록한다
 
 ### 10. 피드백 검증

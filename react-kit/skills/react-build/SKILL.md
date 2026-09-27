@@ -9,7 +9,11 @@ argument-hint: "[--skip-wasm] [--skip-tsc] [--mode production|staging|developmen
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **WASM 은 반드시 먼저**: `tsc` 와 `vite build` 가 `src/wasm/core/` 를 import 하므로 WASM 산출물이 먼저 존재해야 타입 에러가 발생하지 않음. 순서를 바꾸면 빌드 실패
 - **Vite 는 tsc 를 하지 않음**: Vite 내장 ESBuild 는 타입 stripping 만 함. 타입 에러가 있어도 Vite 빌드가 성공할 수 있어 `tsc --noEmit` 별도 필수
@@ -59,7 +63,7 @@ WASM 포함 React 프로젝트의 전체 프로덕션 빌드 파이프라인.
 ## 옵션
 
 | 옵션 | 설명 |
-|------|------|
+| ------ | ------ |
 | `--mode production` | 기본값. 프로덕션 최적화 번들 |
 | `--mode staging` | 스테이징 환경 번들 |
 | `--mode development` | 소스맵 포함 개발 빌드 |
@@ -70,6 +74,7 @@ WASM 포함 React 프로젝트의 전체 프로덕션 빌드 파이프라인.
 ## 단계별 실패 처리
 
 ### WASM 빌드 실패
+
 Rust 컴파일 에러를 그대로 출력. 다음 안내 제공:
 
 ```bash
@@ -78,9 +83,11 @@ cargo check --target wasm32-unknown-unknown -p core
 ```
 
 ### tsc 실패
+
 타입 에러 파일 리스트 출력 + 첫 5개 에러 요약. 전체 출력은 `tsc-errors.log` 로 저장 안내.
 
 ### Vite 빌드 실패
+
 의존성 resolve 실패 / ESBuild 에러 메시지를 그대로 출력. `vite.config.ts` `resolve.alias` 설정 확인 안내.
 
 ## 산출물 검증 기준

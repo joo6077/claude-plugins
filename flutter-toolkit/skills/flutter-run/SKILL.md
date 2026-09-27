@@ -12,7 +12,11 @@ argument-hint: "<codegen|analyze|fix|test> [args]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - Windows에서 `fvm.bat` 사용 — `fvm` 직접 호출은 PATH 이슈 발생
 - **codegen 에 `--build-filter` 를 스스로 붙이지 마라** — 필터 한 번에 생성물 267 개가 지워진 적이 있다(2026-09-16). feature 인자가 와도 전체를 돌리고 전후 삭제 수를 센다. 필터는 build_runner 가 공식으로 지원하지만, 필터 밖의 기존 생성물을 남긴다는 보장은 공식 자료에 없다

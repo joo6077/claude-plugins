@@ -27,11 +27,26 @@ printf 'decisions:\n  - %s\n    required_surfaces: [dashboard.desktop]\n' "$DECI
 printf 'decisions:\n  - %s\n    required_surfaces:\n      - surface_id: a\n        golden: g.png\n        assertions: "main visible"\n' "$DECISION" > "$W/assertstr.yaml"
 printf 'decisions:\n  - %s\n    required_surfaces:\n      - surface_id: a\n        golden: g.png\n    excluded_surfaces: []\n' "$DECISION" > "$W/goldonly.yaml"
 printf 'decisions: []\n' > "$W/empty.yaml"
-# 상태 값은 approved 하나, excluded_surfaces 키는 늘 적는다 (§6 규칙 두 줄)
+# 상태 값은 approved 와 superseded 둘, excluded_surfaces 키는 늘 적는다 (§6 규칙)
 printf 'decisions:\n  - %s\n    status: draft\n    required_surfaces:\n      - surface_id: a\n        golden: g.png\n        assertions: ["main visible"]\n    excluded_surfaces: []\n' "$ID" > "$W/draft.yaml"
 printf 'decisions:\n  - %s\n    required_surfaces:\n      - surface_id: a\n        golden: g.png\n        assertions: ["main visible"]\n    excluded_surfaces: []\n' "$ID" > "$W/nostatus.yaml"
 printf 'decisions:\n  - %s\n    required_surfaces:\n      - surface_id: a\n        golden: g.png\n        assertions: ["main visible"]\n' "$DECISION" > "$W/noexc.yaml"
 printf 'decisions:\n  - %s\n    required_surfaces: []\n    excluded_surfaces: []\n' "$DECISION" > "$W/bothempty.yaml"
+# 대체된 결정 — superseded 는 화면 자리 검사를 건너뛰고 superseded_by 가 같은 목록의 다른 approved 결정을 가리켜야 한다
+NEXT='  - decision_id: DEC-20260813-002
+    source: .design/approvals/DEC-20260813-002.md
+    status: approved
+    required_surfaces:
+      - surface_id: a
+        golden: g.png
+        assertions: ["main visible"]
+    excluded_surfaces: []'
+printf 'decisions:\n  - %s\n    status: superseded\n    superseded_by: DEC-20260813-002\n    required_surfaces:\n      - surface_id: a\n        golden: g.png\n%s\n' "$ID" "$NEXT" > "$W/sup.yaml"
+printf 'decisions:\n  - %s\n    status: superseded\n%s\n' "$ID" "$NEXT" > "$W/supnoby.yaml"
+printf 'decisions:\n  - %s\n    status: superseded\n    superseded_by: DEC-20260813-009\n%s\n' "$ID" "$NEXT" > "$W/supdangling.yaml"
+printf 'decisions:\n  - %s\n    status: superseded\n    superseded_by: DEC-20260813-001\n%s\n' "$ID" "$NEXT" > "$W/supself.yaml"
+printf 'decisions:\n  - %s\n    status: superseded\n    superseded_by: DEC-20260813-002\n%s\n' "$ID" "${NEXT/status: approved/status: superseded
+    superseded_by: DEC-20260813-001}" > "$W/supchain.yaml"
 # 읽을 수 없는 입력 — 폴더와 UTF-8 이 아닌 바이트
 mkdir "$W/dir.yaml"
 printf 'decisions:\n  - %s\n    note: \377\376\n' "$DECISION" > "$W/nonutf8.yaml"
@@ -39,7 +54,8 @@ printf 'decisions:\n  - %s\n    note: \377\376\n' "$DECISION" > "$W/nonutf8.yaml
 n=0; bad=0
 # 이름:답 — 0 통과 · 1 커버리지 위반 · 2 모양 · 입력 오류 · 3 대상 0 건 (missing 은 파일을 만들지 않는다)
 for c in ok:0 badid:2 exstr:2 decstr:2 toplist:2 reqstr:2 assertstr:2 goldonly:1 empty:3 missing:3 \
-         draft:2 nostatus:2 noexc:1 bothempty:1 dir:2 nonutf8:2; do
+         draft:2 nostatus:2 noexc:1 bothempty:1 dir:2 nonutf8:2 \
+         sup:0 supnoby:2 supdangling:2 supself:2 supchain:2; do
   name=${c%%:*}; want=${c##*:}; n=$((n + 1))
   out=$(python3 "$W/gate.py" "$W/$name.yaml" 2>&1); rc=$?
   tb=$(printf '%s\n' "$out" | grep -c '^Traceback')

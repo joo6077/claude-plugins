@@ -5,16 +5,19 @@ detect-docs-drift.py — docs-site HTML 재생성 필요 manifest 생성
 `git diff --since <ref>..HEAD` 기준으로 변경된 `.md` / `.yaml` 소스 파일을 찾아
 대응하는 `docs/<plugin>/*.html` 경로를 매핑하여 stdout 에 출력한다.
 
-kaizen-orchestrator Step 11.5 (docs-site 재생성) 에서 서브에이전트에게
+kaizen-orchestrator Step F2 (docs-site 재생성) 에서 서브에이전트에게
 "어느 HTML 을 재생성해야 하는지" 를 정확히 알려주기 위한 manifest 역할이다.
 
 사용법:
     python3 scripts/detect-docs-drift.py [--since <ref>] [--json]
+    python3 scripts/detect-docs-drift.py --check-table
 
 옵션:
     --since <ref>    기준 git ref (기본: main)
     --json           JSON array 형식으로 출력
     --verbose        변경된 소스 전체 목록 포함
+    --check-table    이 스크립트의 매핑과 docs-site SKILL.md Step 1 표를 맞댄다.
+                     한쪽에만 있는 (원본, 출력 폴더) 짝을 이름으로 대고 exit 1
     --help           사용법 출력
 """
 
@@ -44,6 +47,8 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     # design-kit 의 references/ · skills/ 에는 페이지가 없는 원본이 섞여 있어 짝이 있는 파일만 잇는다
     ("design-kit/references/visual-change-protocol.md", "docs/design-kit/"),
     ("design-kit/skills/design-test/SKILL.md", "docs/design-kit/"),
+    ("design-kit/skills/design-mockup/SKILL.md", "docs/design-kit/"),
+    ("infra-kit/skills/infra-test/SKILL.md", "docs/infra-kit/"),
     # 아래 3 종은 kaizen-orchestrator SKILL.md 가 매핑 대상으로 명시하는데도 누락되어
     # `.md` 20 개가 조용히 drift 감지 밖에 있었다 (rust-kit 1 · react-kit 7 · docs/planning 12).
     ("rust-kit/references/", "docs/rust-kit/"),
@@ -70,6 +75,8 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     # 스킬 폴더 전체가 아니라 본문과 references/ 만 잇는다
     ("onboarding-kit/skills/setup-guide/SKILL.md", "docs/onboarding-kit/"),
     ("onboarding-kit/skills/setup-guide/references/", "docs/onboarding-kit/"),
+    # 카이젠 참고 문서 폴더에는 페이지 없는 원본이 섞여 있어 짝이 있는 파일만 잇는다
+    (".claude/skills/kaizen-orchestrator/references/phase-research-templates.md", "docs/process/"),
 ]
 
 
@@ -95,7 +102,26 @@ SOURCE_OVERRIDES: dict[str, list[str]] = {
     "reflect-kit/docs/DESIGN.md": ["docs/reflect-kit/design.html"],
     "reflect-kit/docs/SCHEMA.md": ["docs/reflect-kit/schema.html"],
     "reflect-kit/docs/RESEARCH.md": ["docs/reflect-kit/research.html"],
+    ".claude/skills/kaizen-orchestrator/SKILL.md": ["docs/process/kaizen-flow.html"],
+    # 설계 기록 하나를 출처로 단 페이지가 둘이다 (`grep -l api-kit-design docs/api-kit/*.html`)
+    "docs/superpowers/specs/2026-09-02-api-kit-design.md": [
+        "docs/api-kit/multi-sample-pagination-variance.html",
+        "docs/api-kit/contract-extraction-modes.html",
+    ],
+    # 원본보다 페이지가 먼저 생겨 이름이 다르다. 새 이름으로 두 번째 페이지를 만들지 않고 기존 페이지와 짝짓는다 (dca DC-9)
+    "docs/howto/design-brief.md": ["docs/howto-kit/overview.html"],
+    "harness/references/feedback-schema.yaml": ["docs/harness/feedback-system.html"],
+    "docs/react/kit-design/final-integration.md": ["docs/react-kit/integration.html"],
+    "docs/react/kit-design/g1-scaffolding.md": ["docs/react-kit/scaffolding.html"],
+    "docs/react/kit-design/g2-state-data.md": ["docs/react-kit/state-data.html"],
+    "docs/react/kit-design/g3-performance.md": ["docs/react-kit/performance.html"],
+    "docs/react/kit-design/g4-quality.md": ["docs/react-kit/quality.html"],
+    "docs/react/kit-design/g5-ui-patterns.md": ["docs/react-kit/ui-patterns.html"],
+    "docs/react/kit-design/g5b-animation.md": ["docs/react-kit/animation.html"],
+    "docs/react/kit-design/g6-build-audit.md": ["docs/react-kit/build-audit.html"],
 }
+
+DOCS_SITE_SKILL = REPO_ROOT / ".claude/skills/docs-site/SKILL.md"
 
 # 초안 폴더의 SKILL.md 가 스킬 본문 이름 규칙에 걸려 없는 `drafts.html` 을 새 페이지로 냈다
 SOURCE_EXCLUDES: tuple[str, ...] = ("docs/howto/drafts/",)
@@ -252,6 +278,49 @@ def detect_drift(since: str) -> list[DriftEntry]:
     return entries
 
 
+def script_pairs() -> set[tuple[str, str]]:
+    """이 스크립트가 아는 (원본 경로 또는 접두, 출력 폴더) 짝."""
+    pairs = set(SOURCE_TO_HTML)
+    for source, pages in SOURCE_OVERRIDES.items():
+        pairs.update((source, page.rpartition("/")[0] + "/") for page in pages)
+    return pairs
+
+
+def table_pairs() -> set[tuple[str, str]]:
+    """docs-site SKILL.md Step 1 표의 (원본, 출력 폴더) 짝. 백틱으로 적은 칸만 읽는다."""
+    text = DOCS_SITE_SKILL.read_text(encoding="utf-8")
+    step1 = re.search(r"^## Step 1:.*?(?=^## )", text, re.M | re.S)
+    pairs: set[tuple[str, str]] = set()
+    for row in (step1.group(0) if step1 else "").splitlines():
+        cells = [cell.strip() for cell in row.strip().strip("|").split("|")]
+        if not row.startswith("|") or len(cells) != 3:
+            continue
+        outputs = re.findall(r"`([^`]+)`", cells[2])
+        pairs.update((source, output) for source in re.findall(r"`([^`]+)`", cells[1]) for output in outputs)
+    return pairs
+
+
+def check_table() -> int:
+    """표와 스크립트 매핑이 서로를 덮는지 본다. 폴더 원본(`/` 로 끝남)은 그 아래 파일 원본을 덮는다."""
+    def covered(pair: tuple[str, str], others: set[tuple[str, str]]) -> bool:
+        source, output = pair
+        return any(output == other_output and (source == other or (other.endswith("/") and source.startswith(other)))
+                   for other, other_output in others)
+
+    script, table = script_pairs(), table_pairs()
+    if not table:
+        print(f"ERROR: {DOCS_SITE_SKILL.relative_to(REPO_ROOT)} Step 1 표를 못 읽었다 — 맞댈 것이 없다")
+        return 2
+    missing = [f"표에 없는 짝 (스크립트에만): {source} → {output}"
+               for source, output in sorted(script) if not covered((source, output), table)]
+    missing += [f"스크립트에 없는 짝 (표에만): {source} → {output}"
+                for source, output in sorted(table) if not covered((source, output), script)]
+    for line in missing:
+        print(line)
+    print(f"매핑 맞대기: 스크립트 {len(script)} 짝 · 표 {len(table)} 짝 · 어긋남 {len(missing)}")
+    return 1 if missing else 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -267,7 +336,12 @@ def main() -> int:
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Verbose logs"
     )
+    parser.add_argument(
+        "--check-table", action="store_true", help="매핑과 docs-site SKILL.md Step 1 표를 맞댄다"
+    )
     args = parser.parse_args()
+    if args.check_table:
+        return check_table()
 
     entries = detect_drift(args.since)
 

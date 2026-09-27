@@ -22,7 +22,7 @@ Patterns + Feature Suggestions) 을 데이터 풀 §0 으로 자동 통합했다
 ## 신규 원칙 ↔ Kit 적용 매트릭스
 
 | 원칙 (Phase 1 v1.3.0) | flutter-toolkit | design-kit | backend-kit | infra-kit | rust-kit | react-kit | planning-kit | reflect-kit |
-|------------------------|-----------------|------------|-------------|-----------|----------|-----------|--------------|-------------|
+| ------------------------ | ----------------- | ------------ | ------------- | ----------- | ---------- | ----------- | -------------- | ------------- |
 | **1. Pre-Edit Batch Audit** (skill §3.6) — 리팩터링 시작 전 위반 enumerate → 사용자 승인 → 일괄 편집 | flutter-audit / flutter-extract 의 ANALYZE 단계가 이미 enumerate. 명시적 cross-ref. | design-audit ANALYZE 단계와 동일 패턴. cross-ref. | backend-audit ANALYZE. cross-ref. | infra-audit ANALYZE. cross-ref. | rust-audit ANALYZE. cross-ref. | react-audit ANALYZE 6 카테고리. cross-ref. | plan-audit + plan-discover 의 enumerate 단계에 cross-ref. | reflect-digest 의 카테고리별 집계 자체가 enumerate. cross-ref. |
 | **2. Pre-Sprint Sync Check** (skill §9) — Long-running 스킬 시작 전 git fetch + log inspection | flutter-toolkit 의 멀티 스킬 sprint (예: flutter-feature) 진입 직전 적용. | design-kit sprint 진입 직전. | backend-kit sprint 진입 직전. | infra-kit sprint 진입 직전. | rust-kit sprint 진입 직전. | react-kit sprint (Clean Arch 4 layer) 진입 직전. | plan-discover/plan-prd 진입 직전. | (해당 없음 — reflect-kit 은 단일 호출 흐름) |
 | **3. Session Lifecycle 카테고리** (skill §2 10번째 유형) — handoff/work-summary/resume 등 | (해당 없음 — flutter 도메인 무관) | (해당 없음) | (해당 없음) | (해당 없음) | (해당 없음) | (해당 없음) | plan-prd / plan-stories 의 sprint handoff 시점 적용 가능. | **핵심 적용** — reflect-kit 은 본질적으로 Session Lifecycle 카테고리. |

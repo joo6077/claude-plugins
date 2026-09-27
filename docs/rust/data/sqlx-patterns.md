@@ -4,6 +4,7 @@ version: 0.2.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # SQLx 패턴
 
 `sqlx 0.8.x`는 컴파일 타임 SQL 검증을 지원하는 비동기 Rust DB 라이브러리다. 매크로 기반 쿼리(`query!`, `query_as!`)와 런타임 쿼리(`query`, `query_as`) 두 방식을 제공한다.
@@ -152,7 +153,7 @@ let pool = PgPoolOptions::new()
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | sqlx 버전 | 0.8.6 | PostgreSQL + tokio |
 | 풀 max_connections | 10~20 | DB 서버 max_connections의 1/5 이하 |
 | acquire_timeout | 5초 | 초과 시 즉시 에러 반환 |

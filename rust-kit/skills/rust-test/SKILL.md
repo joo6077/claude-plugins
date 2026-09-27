@@ -8,7 +8,11 @@ argument-hint: "<file_or_module> [unit|integration|mock]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **SQLx `#[sqlx::test]` 는 트랜잭션 롤백이 아니다 (사실 정정 2026-08-13)** — 이 매크로는 테스트 함수마다 **새 테스트 DB** 를 만들어 live connection(`PgPool`/`PgConnection`)을 인자로 주입하고, `migrations` 폴더가 있으면 **자동 적용**하며, 테스트가 **성공하면 그 DB 를 정리**한다. "테스트별 독립 트랜잭션을 열고 끝나면 롤백" 이라는 설명은 틀렸다 — 커밋된 데이터도 그대로 남았다가 DB 단위로 폐기된다. Postgres/MySQL 은 `DATABASE_URL` 이 필요하고, 자동 적용을 끄려면 `migrations = false`, 다른 경로를 쓰려면 `migrations = "./migrations"` 를 준다 ([sqlx::test](https://docs.rs/sqlx/latest/sqlx/attr.test.html)). 직접 `PgPool` 을 만들거나 수동 롤백 코드를 넣지 마라.
 - **SeaORM `MockDatabase` — 능력 범위와 한계를 같이 적어라** — Docker/실제 DB 없이 **`MockDatabase::new(DatabaseBackend::Postgres)`** + `.append_query_results(vec![...])` 로 단위 테스트를 돌린다 (`HAS_SEAORM` + `features = ["mock"]`). **검증할 수 있는 것**: `rows_affected` 매핑, repository control flow(0 행일 때 conflict 분기·후속 호출 0 회), 생성된 statement/transaction log. **검증할 수 없는 것**: **실제 SQL predicate 의미** — 문법상 유효하지만 의미상 틀린 `WHERE` 절이 mock 에서는 그대로 통과한다 ([SeaORM MockDatabase](https://www.sea-ql.org/SeaORM/docs/write-test/mock/)). 술어 의미가 걸린 조건(동시성 가드·필터링·권한 범위)은 실 DB 엔진 테스트가 있어야 한다 — `references/concurrency-guard-protocol.md` §3.
@@ -52,7 +56,7 @@ Step 3a(패키지 타깃 구조 감지)는 **필수**다 — 생성한 테스트
 `$ARGUMENTS`에서 파일/모듈 경로를 파싱한다. 대상 파일을 읽어 다음을 추출한다:
 
 | 항목 | 추출 대상 |
-|------|-----------|
+| ------ | ----------- |
 | 공개 함수 | `pub fn`, `pub async fn` 목록 |
 | trait 정의 | `pub trait` 목록과 메서드 시그니처 |
 | 구조체 | `pub struct` + 주요 메서드 |
@@ -76,7 +80,7 @@ Step 3a(패키지 타깃 구조 감지)는 **필수**다 — 생성한 테스트
 대상 코드 특성에 따라 테스트 타입을 선택한다:
 
 | 대상 유형 | 테스트 타입 | 위치 |
-|----------|------------|------|
+| ---------- | ------------ | ------ |
 | 순수 함수 (I/O 없음) | 단위 테스트 | 같은 파일 `#[cfg(test)] mod tests` |
 | trait impl | mock 기반 단위 테스트 | 같은 파일 또는 `tests/unit/` |
 | Axum 핸들러 | 통합 테스트 (TestClient 또는 실제 서버) | `tests/integration/` |

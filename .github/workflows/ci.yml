@@ -62,16 +62,30 @@ jobs:
       - name: Docs internal link check
         run: python3 scripts/check-docs-links.py
 
+      # api-kit 페이지 12 쪽이 원본 출처를 다 싣고 밖에서 받아 오는 자원이 없는지 잰다. 로컬에서만 돌던 검사라
+      # 판정식을 넓혀도(2026-09-27 · `<img src>` · `url(//…)` · 빈칸 없는 `@import`) CI 가 되돌림을 못 잡았다.
+      - name: api-kit docs check (출처 · 외부 자원 · 테마 키)
+        run: python3 scripts/check-api-kit-docs.py
+
       # 생성 HTML 만 고치고 소스 .md 를 빠뜨리면 docs-site 재생성이 조용히 되돌린다.
       # 2026-09-06 하루에 세 번 재발했고 세 번 다 "고친 자리" 만 보고
       # "옛 값이 남았는지" 를 안 봐서 생겼다. 범위가 비면 exit 2 로 실패한다.
       - name: Stale value check (소스에 옛 값이 되살아났는가)
         run: python3 scripts/check-stale-values.py
 
-      # 킷 reviewer 일곱은 평가 가이드의 미검증 규칙을 사본으로 든다. 원문이 바뀌었는데 사본이 따라가지 않은 일이
+      # 드리프트 도구의 원본 → 페이지 짝과 docs-site SKILL.md 표는 따로 고쳐져 갈라졌었다 — 짝 넷이 표에도 스크립트에도 없었다
+      - name: Docs drift mapping check (스크립트 짝 ↔ docs-site 표)
+        run: python3 scripts/detect-docs-drift.py --check-table
+
+      # 킷 reviewer 일곱과 flutter-audit 은 평가 가이드의 미검증 규칙을 사본으로 든다. 원문이 바뀌었는데 사본이 따라가지 않은 일이
       # 세 번 있었다(2026-07-27 · 2026-08-13 · 2026-09-24). 사본이 원문과 글자까지 같은지 잰다.
       - name: Reviewer protocol copy check (미검증 규칙 사본 대조)
         run: python3 scripts/check-reviewer-protocol-copies.py
+
+      # flutter-preflight · react-preflight 는 sprint Step 3 의 실패 원인 판정 표를 사본으로 든다.
+      # 원문이 강화됐는데 사본 둘이 옛 문장으로 남은 일이 있었다(2026-09-27 Codex 점검).
+      - name: Cause table copy check (실패 원인 판정 표 사본 대조)
+        run: python3 scripts/check-cause-table-copies.py
 
       # 수집기가 옛 요약본을 오늘자 인사이트보다 먼저 집던 결함(2026-09-24 재현)을 다시 들이지 않게 한다.
       - name: Kaizen collector test (인사이트 입력 선택 · facets)
@@ -109,6 +123,12 @@ jobs:
       - name: Design-kit decision gate test (결정 전파 검사 종료 코드)
         run: bash design-kit/evals/decision-gate-test.sh
 
+      # 슬라이서가 없는 기계라 설치본이 있어야 도는 시험 파일은 「건너뜀」 으로 적힌다 — 나머지는 판정한다
+      - name: Bambu-kit gate fixtures · MakerWorld fetch test
+        run: |
+          bash bambu-kit/evals/run-gate-fixtures.sh
+          bash bambu-kit/evals/makerworld-fetch-test.sh
+
   playwright:
     name: Playwright Visual Tests
     runs-on: ubuntu-latest
@@ -130,7 +150,7 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test design-kit/evals/visuals.spec.js
 
-      # api-kit 시험은 <킷>/evals/evals.json 에 runner 만 적고 run-evals.py 킷 목록 밖이다 — 여기서 직접 돌린다.
+      # api-kit 뷰어 시험은 브라우저가 필요해 run-evals.py(사례 글만 잰다)가 아니라 여기서 evals.json runner 로 돌린다.
       # 판정 불가를 PASS 에 합친 ui.html 이면 떨어진다
       - name: Api-kit viewer test (판정 불가 칸 · 예시 ui.html)
         run: npx playwright test api-kit/evals/
@@ -166,8 +186,15 @@ jobs:
             echo "SKIP: yq not installed"
           fi
 
-      - name: Commit guard hook test (대량 삭제 · 되돌림 · 빈 개인 목록)
+      - name: Commit guard hook test (대량 삭제 · 되돌림 · 빈 개인 목록 · 계약 범위 목록)
         run: bash harness/evals/hooks/commit-guard-test.sh
+
+      # 공용 측정 파일은 bash · zsh 양쪽에서 읽혀야 한다 — ubuntu-latest 에는 zsh 가 없다
+      - name: Install zsh (공용 측정 파일 시험용)
+        run: command -v zsh >/dev/null || { sudo apt-get update && sudo apt-get install -y zsh; }
+
+      - name: Measure helpers test (도우미 떼기 · 공용 측정 파일)
+        run: bash harness/evals/measure/measure-helpers-test.sh
 
       - name: Dart format-on-edit hook test (편집한 파일 하나만)
         run: bash flutter-toolkit/evals/hooks/format-edited-dart-test.sh
