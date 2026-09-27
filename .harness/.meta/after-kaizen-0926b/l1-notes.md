@@ -33,7 +33,7 @@
 
 규칙별: MD036 71 · MD025 37 · MD024 10 · MD041 1. 줄 번호는 가지 끝 판에서 주석이 있는 줄이다.
 
-좁힌 끄기 주석: 119
+좁힌 끄기 주석: 120
 
 - design-kit/docs/design/accessibility/accessibility.md:7 MD025 머리 `title:` 이 문서 사이트용 제목이고 본문 첫 `#` 제목이 화면 제목이라 둘 다 둔다. 본문 제목을 한 단계 내리면 파일의 제목 전체가 한 칸씩 밀린다
 - design-kit/docs/design/accessibility/accessibility.md:120 MD024 다른 상위 절 아래 같은 이름의 소제목이다. 이름을 바꾸면 글자가 바뀐다
@@ -143,8 +143,9 @@
 - design-kit/skills/design-audit/templates/audit-report.md:49 MD024 틀이 항목 자리를 되풀이해 보여주는 곳이라 같은 제목을 일부러 두 번 쓴다
 - design-kit/skills/design-component/SKILL.md:31 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
 - design-kit/skills/design-component/SKILL.md:166 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
-- design-kit/skills/design-concept/SKILL.md:90 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
-- design-kit/skills/design-concept/SKILL.md:242 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
+- design-kit/skills/design-concept/SKILL.md:88 MD029 Gotchas 11번 항목의 번호를 지킨다. Step 7 이 「Gotcha #11」 로 이 항목을 가리키므로 1 로 바꾸면 참조가 끊긴다
+- design-kit/skills/design-concept/SKILL.md:91 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
+- design-kit/skills/design-concept/SKILL.md:243 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
 - design-kit/skills/design-guide/SKILL.md:32 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
 - design-kit/skills/design-guide/SKILL.md:84 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
 - design-kit/skills/design-mockup/SKILL.md:35 MD025 레포 SKILL.md 관례대로 `# Process` · `# References` 를 맨 윗단계로 둔다(맨 윗단계 관례 215 줄). 내리면 아래 `##` 단계까지 전부 밀린다
