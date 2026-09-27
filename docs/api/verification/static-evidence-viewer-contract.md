@@ -6,7 +6,7 @@ last_updated: 2026-09-24
 
 # 정적 증거 뷰어 계약
 
-검증 결과를 사람이 읽는 단일 HTML 리포트가 지켜야 할 제약. 외부 의존 0건, `file://` 직접 열람, 신뢰할 수 없는 응답 본문의 안전한 인라인, 비밀 마스킹을 다룬다. 확정 시안은 `.mockups/api-ui-v7.html` 이다.
+검증 결과를 사람이 읽는 단일 HTML 리포트가 지켜야 할 제약. 외부 의존 0건, `file://` 직접 열람, 신뢰할 수 없는 응답 본문의 안전한 인라인, 비밀 마스킹을 다룬다. 확정 시안은 `.mockups/api-ui-v8.html` 이다.
 
 ---
 
@@ -79,11 +79,11 @@ operation/testcase 단위 그룹핑과 `failure` / `error` / `skipped` 필터를
 | 항목 | 값 | 근거 |
 |------|-----|------|
 | CSP 최소 정책 | `default-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'` | [MDN default-src](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/default-src), [MDN connect-src](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/connect-src) |
-| 외부 참조 개수 | `<script src` `0` / `<link rel=stylesheet` `0` / `fetch(` `0` / `XMLHttpRequest` `0` | 확정 시안 `.mockups/api-ui-v7.html` 실측 |
+| 외부 참조 개수 | `<script src` `0` / `<link rel=stylesheet` `0` / `fetch(` `0` / `XMLHttpRequest` `0` | 확정 시안 `.mockups/api-ui-v8.html` 실측 |
 | 텍스트 대비 | 일반 `4.5:1` 이상, large text `3:1`, UI component·graphical object `3:1` | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) |
 | 텍스트 확대 | `200%` 까지 정보 손실 없음 | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) |
-| 누르는 자리 최소 크기 | 요소 상자 `24×24` CSS px 미만 `0` 개. `44×44` 는 권장값 | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) 2.5.8 (AA) · 2.5.5 (AAA). 확정 시안 1280×720 실측(2026-09-25): 보이는 누르는 요소 56 개 중 24 미만 0 · 44 미만 39 |
-| 테마 | 라이트·다크 양립 (둘 다 대비 기준 충족) | 확정 시안 `.mockups/api-ui-v7.html` 실측 |
+| 누르는 자리 최소 크기 | 요소 상자 `24×24` CSS px 미만 `0` 개. `44×44` 는 권장값 | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) 2.5.8 (AA) · 2.5.5 (AAA). 확정 시안 1280×720 실측(2026-09-26): 보이는 누르는 요소 57 개 중 24 미만 0 · 44 미만 40 |
+| 테마 | 라이트·다크 양립 (둘 다 대비 기준 충족) | 확정 시안 `.mockups/api-ui-v8.html` 실측 |
 | Data URL 길이 한계 | Chromium·Firefox `512MB`, Safari·WebKit `2048MB` (data URL 기준이며 인라인 HTML 전체 한계는 아님) | [MDN data URL length limitations](https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Schemes/data#length_limitations) |
 | 해시 알고리즘 | `sha256` 최소, 가능하면 `sha384` 이상 (`sha256` / `sha384` / `sha512`) | [W3C SRI](https://www.w3.org/TR/SRI/) |
 | 단일 HTML evidence payload | `10MiB` 초과 warning, `50MiB` 초과 시 split·excerpt 모드 | 추론 — 표준 한계가 아니라 브라우저 parse·메모리·UX 리스크를 줄이는 운영 임계값 |

@@ -11,7 +11,7 @@
   /* Border */
   --border:#2a2a40;
   /* Text (warm tint) */
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
   /* Semantic */
   --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
   /* System */
@@ -50,7 +50,7 @@ WCAG AA(4.5:1)를 넘어야 한다. `--bg` 위만 보면 통과인데 카드 안
   4.21 이었다. hue 는 유지된다.
 - 공유 텍스트 토큰 `--text3` 는 다크 `#948779`(`--bg` 5.55 / `--surface2` 4.67)가 정본이다.
   이전 값 `#7A6F64` 는 3.95 / 3.34 로 미달이었고 전체 실패의 77% 를 혼자 만들었다.
-- 라이트 팔레트를 가진 페이지는 값이 따로 필요하다 — tone-kit `#656C7A`, api-kit `#666D5F`.
+- 라이트 팔레트를 가진 페이지는 값이 따로 필요하다 — tone-kit `#656C7A`, api-kit `#666D5F`, 새 쪽 틀(`page-template.html`) `#6b6259`(밝은 배경 넷 위 최소 5.25). 틀의 옛 밝은 값 `#8a8078` 은 3.39 로 미달이었다.
 - 새 accent 를 고르면 `node scripts/check-docs-a11y.js <페이지>` 로 실측하고 등록하라.
 
 ## 사용 규칙

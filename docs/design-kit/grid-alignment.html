@@ -79,7 +79,7 @@ td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(
 /* === INTERACTIVE GRID === */
 .grid-playground{
   position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
-  min-height:300px;overflow:hidden;padding:0;
+  min-height:300px;overflow-x:auto;padding:0;
 }
 .grid-playground-inner{display:flex;width:100%;min-height:300px;position:relative}
 .gp-margin{background:rgba(240,192,64,0.06);flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
@@ -686,7 +686,7 @@ footer a{color:var(--accent);text-decoration:none}
   </p>
 </footer>
 
-<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})">&#x2191;</div>
 
 <script>
 // ===== INTERACTIVE COLUMN GRID =====

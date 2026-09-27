@@ -329,6 +329,7 @@ footer a{color:var(--accent);text-decoration:none}
   .calc-field input,.calc-field select{width:100%}
   .scale-step{flex-wrap:wrap}
   .scale-step .step-use{width:auto;text-align:left}
+  .typo-demo .td-text{white-space:normal}
 }
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}
@@ -961,7 +962,7 @@ B: <span class="val">190, 117, 73, 45, 28, 17...</span>
   </p>
 </footer>
 
-<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})">&#x2191;</div>
 
 <script>
 // ===== GOLDEN RATIO TABS =====

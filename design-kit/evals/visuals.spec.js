@@ -51,6 +51,9 @@ test.describe('typography-scale.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -130,6 +133,9 @@ test.describe('color-palette.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -207,6 +213,9 @@ test.describe('spacing-system.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -285,6 +294,9 @@ test.describe('ratio-proportion.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -365,6 +377,9 @@ test.describe('grid-alignment.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -442,6 +457,9 @@ test.describe('visual-hierarchy.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -521,6 +539,9 @@ test.describe('motion.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -592,6 +613,9 @@ test.describe('microinteraction.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -668,6 +692,9 @@ test.describe('iconography.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -741,6 +768,9 @@ test.describe('information-density.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -822,6 +852,9 @@ test.describe('image-illustration.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -901,6 +934,9 @@ test.describe('ethical-design.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -981,6 +1017,9 @@ test.describe('animation.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });

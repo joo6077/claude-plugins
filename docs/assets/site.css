@@ -1,5 +1,8 @@
 /* 문서 사이트 모든 쪽이 같아야 하는 규칙만 둔다. 쪽마다 다른 스타일은 각 쪽 <style> 에 남긴다 */
 body{line-height:1.7}
+/* 320px 폭에서 긴 주소 · 코드 · 파일 이름이 상자 밖으로 나가지 않게 낱말 중간에서라도 줄을 바꾼다.
+   넓은 폭에서 켜면 표 칸이 글자 하나 폭까지 줄어 1280 에서도 영어 낱말이 쪼개진다 */
+@media (max-width: 600px){body{overflow-wrap:anywhere}}
 @media (prefers-reduced-motion: reduce){
   /* 반복 1 회를 빼면 무한 반복 애니메이션이 꺼지지 않고 0.01ms 마다 깜빡인다 */
   *,*::before,*::after{
