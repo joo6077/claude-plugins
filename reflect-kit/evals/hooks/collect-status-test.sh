@@ -80,11 +80,11 @@ mkdir -p "$W/repos/alpha" "$W/repos/beta" "$W/wt" "$W/usage/facets" "$W/usage/se
 g -C "$W/repos/alpha" init && printf 'x\n' > "$W/repos/alpha/f" && g -C "$W/repos/alpha" add f && g -C "$W/repos/alpha" commit -m i || exit 2
 g -C "$W/repos/alpha" worktree add "$W/wt/alpha-wt" -b wt1 || exit 2
 fx() {  # fx <파일> <session> <friction> [<project_path> <초 전>] — 뒤 둘이 없으면 session-meta 를 안 만든다. FXU 로 usage 폴더를 바꾼다
-  local u=${FXU:-$W/usage}
-  jq -cn --arg s "$2" --arg f "$3" '{session_id: $s, friction_detail: $f}' > "$u/facets/$1.json"
+  local usage=${FXU:-$W/usage}
+  jq -cn --arg s "$2" --arg f "$3" '{session_id: $s, friction_detail: $f}' > "$usage/facets/$1.json"
   [ $# -ge 5 ] || return 0
   jq -cn --arg s "$2" --arg p "$4" --arg t "$(at "$5" '+%Y-%m-%dT%H:%M:%S.123Z' u)" \
-    '{session_id: $s, project_path: $p, start_time: $t}' > "$u/session-meta/$2.json"
+    '{session_id: $s, project_path: $p, start_time: $t}' > "$usage/session-meta/$2.json"
 }
 fx f1 S-miss "missed friction" "$W/repos/alpha" 172800
 fx f2 B "recorded friction" "$W/repos/alpha" 86400
