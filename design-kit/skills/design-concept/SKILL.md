@@ -85,7 +85,8 @@ user-invocable: true
 
    **주의:** 과거 템플릿에 Tone & Manner 섹션(`section.tone`)이 있었고 Texture/Layout/DoDont가 없었다. Phase B 드라이런에서 이 불일치 때문에 REJECT를 받았다. 7개 필수 섹션과 Tone & Manner(선택)는 별개다.
 
- 1. **컨셉 확정 = 승인 기록 파일 생성** — 사용자가 컨셉을 확정하면 Step 7 에서 `.design/approvals/{YYYYMMDD}-concept.md` 를 생성한다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(승인 기록) 확인 불가" 로 REJECT 된다 (2026-07-13 글로벌 REJECT `UI-06`). **자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시**하라. 컨셉 단계에서는 hex 확정값이 없으므로 "확정된 시각 값" 필드에는 **확정된 방향 서술**(무드 키워드, 역할별 톤 계열, 레이아웃 방향)을 적는다 — Gotcha #3 의 hex 금지 규칙은 승인 기록에도 그대로 적용된다. 규격: `../../references/visual-change-protocol.md` §4.
+<!-- markdownlint-disable-next-line MD029 -->
+11. **컨셉 확정 = 승인 기록 파일 생성** — 사용자가 컨셉을 확정하면 Step 7 에서 `.design/approvals/{YYYYMMDD}-concept.md` 를 생성한다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(승인 기록) 확인 불가" 로 REJECT 된다 (2026-07-13 글로벌 REJECT `UI-06`). **자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시**하라. 컨셉 단계에서는 hex 확정값이 없으므로 "확정된 시각 값" 필드에는 **확정된 방향 서술**(무드 키워드, 역할별 톤 계열, 레이아웃 방향)을 적는다 — Gotcha #3 의 hex 금지 규칙은 승인 기록에도 그대로 적용된다. 규격: `../../references/visual-change-protocol.md` §4.
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Process
