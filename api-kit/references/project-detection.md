@@ -11,7 +11,7 @@ api-kit 은 **블랙박스**다. 돌아가는 서버를 밖에서 때려 계약�
 산출물과 **실제 HTTP 응답**뿐이다.
 
 | 대상 | api-kit 적용 | 대신 적용할 것 |
-|------|--------------|----------------|
+| ------ | -------------- | ---------------- |
 | `.api/**` (계약 · 스냅샷 · 케이스 · 마스크) | O | — |
 | 실행 중인 HTTP(S) JSON API 의 응답 | O | — |
 | 서버 소스 코드 (핸들러 · 서비스 · 리포지토리) | ✗ | backend-kit · rust-kit 의 audit |
@@ -39,7 +39,7 @@ API_ROOT="$REPO_ROOT/.api"
 ## Step 2. `.api/` 존재 확인
 
 | 조건 | 결과 |
-|------|------|
+| ------ | ------ |
 | `$API_ROOT/project.yaml` 존재 | 계속 진행 |
 | 디렉토리는 있으나 `project.yaml` 없음 | 초기화 중단 상태 — `/api-init` 재실행 안내 |
 | 디렉토리 없음 | `/api-init` 안내 후 중단 |
@@ -56,7 +56,7 @@ find "$REPO_ROOT" -maxdepth 3 -name 'openapi.*' -o -maxdepth 3 -name 'swagger.*'
 런타임 노출 경로(`/v3/api-docs`, `/swagger.json`, `/openapi.json`)도 후보다.
 
 | 조건 | 결과 |
-|------|------|
+| --- | --- |
 | 스펙 발견 | `HAS_SPEC = true` — 보조 레일(`--spec-conformance` · `--spec-diff`) 사용 가능 |
 | 없음 | `HAS_SPEC = false` — **정상 경로다.** 사람 문서 · curl 덤프 · 실측 스냅샷만으로 동작해야 한다 |
 
@@ -69,7 +69,7 @@ hurl --version
 ```
 
 | 조건 | 결과 |
-|------|------|
+| --- | --- |
 | 설치됨 | `HAS_HURL = true` — 버전을 기록한다 |
 | 없음 | 설치 안내 후 중단. **curl 로 대체 실행하지 마라** — 케이스·캡처·assert 가 전부 다른 산출물이 된다 |
 
@@ -78,7 +78,7 @@ hurl --version
 `project.yaml` 에서 읽고, `--env` 인자가 있으면 그것이 이긴다.
 
 | 변수 | 값 |
-|------|-----|
+| ------ | ----- |
 | `ENV` | 환경 id (`dev` · `stg` · `prod`) |
 | `TIER` | `dev` / `stg` / `prod` |
 | `BASE_URL` | 해당 환경 baseUrl |
@@ -99,7 +99,7 @@ hurl --version
 세 방식 중 어느 것을 쓰는지 확정한다. 셋은 택일이다.
 
 | 소스 | 감지 | 주의 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `credentialsFile` | `auth.yaml` 에 `credentialsFile:` 존재 → 파일 존재 + 권한 `0600` 확인 | 권한이 느슨하면 중단 |
 | `env:` | 참조된 환경변수가 셸에 있는지 확인 | CI 는 이쪽이 맞다 |
 | `keychain:` | macOS keychain / libsecret 접근 가능 여부 | **headless Linux 에는 없다** — `pass`/GPG 또는 환경변수 fallback 경로가 필요하다 |
@@ -125,7 +125,7 @@ ls "$API_ROOT/snapshots/$ENV"/*.json 2>/dev/null | wc -l
 ```
 
 | 표본 수 | 가능한 판정 |
-|---------|-------------|
+| --------- | ------------- |
 | 1 | enum 은 **후보 표시 + 경고만**. required 확정 불가(미확정으로 남긴다). exact 자격 없음 |
 | 2 | required 후보를 교집합/합집합 차분으로 제시 가능 |
 | ≥3 | enum 승격 가능(distinct ≥2 · 최근 20 관측 신규 값 없음 · domain ≤12). exact 자격 판정 가능(JCS digest variance 0) |
@@ -135,7 +135,7 @@ ls "$API_ROOT/snapshots/$ENV"/*.json 2>/dev/null | wc -l
 없어도 기본 경로가 실패하면 안 된다. 전부 옵트인이다.
 
 | 도구 | 감지 | 없을 때 |
-|------|------|---------|
+| ------ | ------ | --------- |
 | prettier | `npx prettier --version` | `JSON.stringify(obj, null, 2)` 폴백 — 표시 품질만 떨어진다 |
 | Schemathesis | `schemathesis --version` | `--spec-conformance` 비활성. `HAS_SPEC` 일 때만 의미 있다 |
 | oasdiff | `oasdiff --version` | `--spec-diff` 비활성 |
@@ -159,7 +159,7 @@ api-kit 문서에 적힌 도구 버전은 **2026-09-02 리서치 시점 스냅�
 적는 유일한 자리이며, 다른 스킬·기준 문서는 이 절을 인용만 한다.
 
 | 도구 | 버전 (2026-09) | 역할 |
-|------|----------------|------|
+| ------ | ---------------- | ------ |
 | Hurl | 8.0.1 (2026-04-28), Apache-2.0 | 실행 엔진 — 단일 바이너리, 런타임 없음 |
 | Schemathesis | 4.x | OpenAPI conformance / fuzz (옵트인) |
 | oasdiff | — | OpenAPI breaking change 게이트 (옵트인) |

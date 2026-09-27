@@ -39,7 +39,7 @@ api-kit 의 모든 스킬이 읽고 쓰는 디렉토리 구조 정본. 설계 �
 ## 2. 파일별 역할
 
 | 파일 | 쓰는 스킬 | 읽는 스킬 | 내용 |
-|------|-----------|-----------|------|
+| ------ | ----------- | ----------- | ------ |
 | `project.yaml` | `/api-init` | 전부 | 환경별 `tier` · `baseUrl` · `allowHosts` · `authProfile` · `readOnlyByDefault` · `requiresExplicitConfirm` |
 | `auth.yaml` | `/api-init` | `/api-probe` · `/api-verify` | 프로파일 `type`(`oauth2_client_credentials` · `custom_login`) · `tokenUrl` · 시크릿 **참조** · `token.*Path` · `cache` · `inject` |
 | `credentials.local.json` | 사용자 (`/api-init` 이 생성 유도) | auth 런타임 | 환경별 `{ id, password }`. **값이 들어가는 유일한 파일** |
@@ -70,7 +70,7 @@ credentialsFile: .api/credentials.local.json
 baseline 은 캐시가 아니라 **리뷰를 거친 증거**다. 세 층을 분리해 보관한다.
 
 | 층 | 내용 | 용도 |
-|----|------|------|
+| ---- | ------ | ------ |
 | raw (마스킹) | 상태코드 · 원본 헤더 라인 · 본문 바이트. **시크릿 값만** 자리를 유지한 채 마스킹 | 회귀 조사 시 원본 복원 |
 | normalized | mask registry 적용 후 RFC 8785 JCS canonical JSON | 계약 비교 입력 |
 | manifest | raw digest · normalized JCS digest · redaction registry 버전 · media type · extraction mode · lineage(환경 · 브랜치 · API 버전) | 변조 확인 · 어느 환경의 진실인지 식별 |
@@ -95,7 +95,7 @@ enum·required 승격 판정에 표본 수가 필요하기 때문이다.
 ## 4. 커밋 정책
 
 | 대상 | 커밋 | 이유 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `project.yaml` · `auth.yaml` · `inventory.yaml` | O | 값이 아니라 구조와 참조만 들어 있다 |
 | `cases/*.hurl` | O | plain text 라 git diff 가 읽히고 리뷰 대상이 된다 |
 | `contracts/*.yaml` · `masks/*.yaml` | O | 계약과 정규화 규칙은 함께 버전 관리한다 |
@@ -126,7 +126,7 @@ prod 는 **계약 스키마만 커밋**한다. 값이 아니라 형태만 남긴
 ## 5. 명명 규칙
 
 | 대상 | 규칙 | 예 |
-|------|------|-----|
+| ------ | ------ | ----- |
 | 엔드포인트 id | `<그룹>.<동작>` | `orders.list` · `products.inventory` |
 | 케이스 파일 | `cases/<endpointId>.hurl` | `cases/orders.list.hurl` |
 | 계약 파일 | `contracts/<endpointId>.yaml` | `contracts/orders.list.yaml` |

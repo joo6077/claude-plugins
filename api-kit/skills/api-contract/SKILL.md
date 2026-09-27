@@ -11,7 +11,11 @@ argument-hint: "<endpoint-id|group> [--mode partial|pin|exact] [--env dev|stg|pr
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **`pin` 은 '값 고정' 이 아니다 — 경로별 명시 assertion 이다.** 값 고정(`const`)은 pin 이 표현할 수 있는 assertion 한 종류일 뿐이고, 안정 필드(discriminator·통화 코드·고정 status)에만 쓴다. `total`·`cursor`·`id`·`timestamp` 처럼 매 호출 변하는 필드에는 범위·패턴·불변식을 건다 (`$.meta.total >= len($.data)` · `$.orderId ^ord_`). pin 을 payload value freeze 로 구현하면 매 실행 실패한다. **그리고 타입 변경은 pin 이 아니라 partial 이 잡는다** — pin 이 잡는 것은 타입은 멀쩡한 채 값만 망가진 회귀다 (`"Bearer"` → `"bearer"`, `47` → `-1`, `"active"` → `"ACTIVE"` 는 전부 타입이 그대로라 partial 을 통과한다). 이 귀속을 헷갈리면 실패 원인을 잘못 보고하고 엉뚱한 모드를 올려 오탐을 만든다. 출처: `docs/api/contract/contract-extraction-modes.md` §2 · 안티패턴 4행, 설계문서 §9.2.
 - **`exact` 는 본문만 본다. 헤더는 diff 대상 0개다.** `Date`·`X-Request-Id` 류가 매 응답 바뀌므로 헤더를 전체 diff 에 넣으면 항상 실패한다. 계약에 필요한 헤더는 `pin` 으로 개별 지정한다 (`Content-Type ^application/json`, `Cache-Control = "no-store"`). 2026-09-04 확정. 출처: `contract-extraction-modes.md` §4.
@@ -31,7 +35,7 @@ user-invocable: true
 `$ARGUMENTS` 에서 파싱하거나 사용자에게 확인한다.
 
 | 항목 | 예시 | 기본값 |
-|---|---|---|
+| --- | --- | --- |
 | 대상 | `orders.list` 또는 그룹 `orders.*` | 필수 |
 | 환경 | `dev` / `stg` / `prod` | `.api/project.yaml` 의 기본 env |
 | 모드 힌트 | `partial` / `pin` / `exact` | `partial` |
@@ -47,7 +51,7 @@ user-invocable: true
 단일 응답은 계약이 아니라 후보다. 아래 하한을 채웠는지 먼저 확인한다.
 
 | 항목 | 기준 |
-|---|---|
+| --- | --- |
 | 일반 샘플 예산 | 최소 `3` captures, 최대 `5` pages 또는 `500` items |
 | 컬렉션 대표 페이지 | first · next 중 최소 하나 · terminal 세 종류 |
 | 수집 중지 후보 | 연속 `2` 페이지에서 신규 path/type 없음 |
@@ -117,7 +121,7 @@ secrets:
 추론은 초안일 뿐이다. 아래를 path 별로 뽑는다.
 
 | 항목 | 규칙 |
-|---|---|
+| --- | --- |
 | 타입 | 관측된 type set. 섞이면 union(`anyOf`)으로 일반화 — 첫 item 기준 금지 |
 | nullable | `type: ["string", "null"]` 로 명시. `null` 과 missing 을 합치지 않는다 |
 | required | presence 100% 만 후보. 그 외는 `optional`, 샘플 부족은 `미확정` |
@@ -160,7 +164,7 @@ exact           정규화 후 본문 전체 diff     — 헤더 제외
 `pin` assertion 은 필드 성격에 맞춰 고른다.
 
 | 필드 성격 | assertion | 예 |
-|---|---|---|
+| --- | --- | --- |
 | 안정값 | 값 고정 (`const`) | `$.token_type = "Bearer"` |
 | 열거형 | 집합 소속 | `$.data[].status ∈ {active, shipped, cancelled}` |
 | 변동 수치 | 범위·불변식 | `$.meta.total >= len($.data)` · `$.price > 0` |
