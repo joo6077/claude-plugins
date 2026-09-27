@@ -87,6 +87,27 @@ MD036 12 곳의 자리: `docs/tone/dart-flutter-idioms.md` 의 「판정 세부�
 
 `docs/onboarding-kit/plan-2026-05-18.md` 와 `docs/react/kit-design/final-integration.md` 에는 `markdown` 울타리 안에 다시 울타리가 든 자리가 있다. 지금도 안쪽 울타리에서 바깥 블록이 닫혀 화면이 어긋나 있다. 이번에는 도구가 짚은 여는 울타리에 `text` 만 달아 지금 그려지는 모양을 그대로 두었다. 바깥 울타리를 백틱 넷으로 바꾸면 고쳐지지만 화면이 바뀌므로 이 묶음 범위 밖으로 남긴다.
 
+## 2 회차 계약 결과
+
+2 회차 계약 봉인 커밋은 `5655b33` 이고, 슬러그를 적은 기록 커밋은 `1c416c1` 이다. 이 판에서 계약 도우미로 잰 값은 이렇다.
+
+| 조건 | 값 |
+| --- | --- |
+| AR-01 | `warn=0` (목록 123 줄, 시작 판과 같음) |
+| AR-02 | `extra=0 harness_extra=0 docs_not_modify=0 seal_broken=0` |
+| AR-03 | `changed=116 word_same=116 word_diff=0 wide_disable=0` |
+| AR-04 | `impl_commits=4 multi_top=0` |
+| AR-05 | `rows_match=6/6 reason_ok=6/6 rows_extra=0` |
+| ER-01 | `comments=272 useless=0 wide_disable=0` |
+| ER-02 | `pairs=1 pair_useless=0 pair_note=1 r2_cite=1` |
+| AP-03 · AP-04 | `md040=32->0 notes_bare=0` · `fm_changed=0` |
+| DG-02 | `notes_warn=0 list_warn=0` |
+| SC-01 · DG-04 | 검사 열 개 모두 0 · 로컬 CI 25 단계 `rc=0`(yq 가 없어 한 단계 건너뜀) |
+
+이 묶음은 원본 마크다운의 모양만 고쳤다. 문서 사이트 페이지는 하나도 다시 만들지 않았으므로 쪽별 결과 · 원본 담김 값 · 화면 캡처는 없다. 짝 목록의 원본이 바뀌었어도 모양만 바뀐 것이라 페이지를 다시 만들 대상이 아니다.
+
+남은 것은 2 회차 QA 판정과 위 「넘길 것」 두 가지다.
+
 ## 톤 확인
 
 이 기록은 새로 쓴 문장이라 tone-guide 1 단계에서 `tone-kit/references/locale-korean.md` 규칙표를 읽고 적용했다. 어댑터는 없고 주석 언어는 한국어다(`.claude/tone-project.md`).
