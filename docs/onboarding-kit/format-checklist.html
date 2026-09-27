@@ -644,7 +644,7 @@
 
 <!-- ── 7. guide_gate ── -->
 <div class="section">
-  <div class="section-label">Guide Conformance Gate — G1~G4 기계 판정</div>
+  <div class="section-label">Guide Conformance Gate — G1~G5 기계 판정</div>
   <p class="desc">위 규칙들은 문장(E1)이나 자기보고 체크리스트(E2)가 아니라 <strong>결정론적 게이트(E3)</strong> 로 잰다. <code>guide_gate &lt;가이드.md&gt; &lt;스택&gt;</code> 은 LLM 을 부르지 않는 순수 판정이고, 지금 쓰는 가이드와 <strong>이미 배포된 가이드</strong>를 똑같이 잰다. 함수 본문은 SKILL.md §Guide Conformance Gate 에 있다.</p>
 
   <div class="callout callout-red">
@@ -668,6 +668,10 @@
       <span class="gate-id">G4</span>
       <div class="gate-text"><span class="em">deprecation 주장 결합</span> — <code>❌ Deprecated</code> 박스를 쓴 Step 은 그 Step 의 <code>**출처:**</code> 줄이 "출처가 실제로 deprecated 라고 말했다" 는 근거를 담아야 한다. 근거 없는 박스 수를 <code>unsourced_boxes</code> 로 센다. 근거 낱말은 영문과 한국어를 모두 인정한다.</div>
     </div>
+    <div class="gate-row">
+      <span class="gate-id">G5</span>
+      <div class="gate-text"><span class="em">막는 요구 세 칸</span> — <code>| 요구 | 출처 | 막히는 것 | 우회 |</code> 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다. 빈 칸 수를 <code>empty=</code>, 주소 없는 출처 칸 수를 <code>nourl=</code> 로 낸다. 표가 없으면 <code>PASS rows=0</code> 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다.</div>
+    </div>
     <a class="card-source" href="../harness/skill-design-guide.html" target="_top">&#8599; Skill Design Guide — §3.7 Completion Evidence Gate (E1/E2/E3 등급)</a>
   </div>
 
@@ -675,11 +679,12 @@
     <div class="card">
       <div class="card-header"><div><div class="rule-number">보고 규약</div><h3>게이트 출력을 그대로 붙여라</h3></div></div>
       <div class="card-body">
-        <p>"게이트 통과함" 이라는 문장은 증거가 아니다 — <code>GATE_PASS</code> 를 포함한 <span class="em">5 줄 출력</span>이 증거다.</p>
+        <p>"게이트 통과함" 이라는 문장은 증거가 아니다 — <code>GATE_PASS</code> 를 포함한 <span class="em">6 줄 출력</span>이 증거다.</p>
         <pre><code>G1_LEDGER PASS steps=8 ledger=8
 G2_MARKER PASS bare=0 invalid=0 env=0
 G3_STACKMIX PASS stack=flutter swift_fence=0
 G4_DEPRECATION PASS unsourced_boxes=0
+G5_BLOCKING PASS rows=0
 GATE_PASS</code></pre>
         <p>실패하면 이렇게 나온다 — 어느 칸이 왜 깨졌는지 출력에 그대로 있다.</p>
         <pre><code>G1_LEDGER FAIL steps=8 ledger=8 misplaced=2
@@ -705,7 +710,7 @@ done</code></pre>
 
   <div class="grid-2" style="margin-top:20px">
     <div class="callout" style="margin:0">
-      <strong>게이트를 우회하거나 조건을 느슨하게 고치지 마라.</strong> 우회된 게이트는 없는 게이트보다 나쁘다. 게이트가 정당한 경우를 막는다고 보이면 사용자에게 보고하고 판단을 받는다. 게이트가 잡는 것은 <strong>기계로 판정할 수 있는 4 가지</strong>뿐이고, 사실 정확성 · 범위 · 경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다.
+      <strong>게이트를 우회하거나 조건을 느슨하게 고치지 마라.</strong> 우회된 게이트는 없는 게이트보다 나쁘다. 게이트가 정당한 경우를 막는다고 보이면 사용자에게 보고하고 판단을 받는다. 게이트가 잡는 것은 <strong>기계로 판정할 수 있는 5 가지</strong>뿐이고, 사실 정확성 · 범위 · 경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다.
     </div>
     <div class="callout callout-accent" style="margin:0">
       <strong>게이트 함수를 고쳤으면 evals 부터.</strong> <code>sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh</code> 가 <code>EVALS_PASS</code> 로 끝나야 한다. 이 스크립트는 SKILL.md 에서 함수를 그대로 뽑아 <code>evals/evals.json</code> 의 <code>gate_cases</code> 입력마다 zsh · bash 두 셸의 출력을 기대 출력 전체와 맞대 본다. 판정이 바뀌는 수정이면 기대 출력도 같은 커밋에서 고친다.
@@ -900,7 +905,7 @@ done</code></pre>
   <p class="desc">Phase 4 에서 가이드를 내기 전에 이 목록을 돈다. 첫 항목은 기계 판정이라 <strong>가장 먼저</strong> 돌린다. FAIL 이 있으면 그 섹션으로 돌아가 고친 뒤 다시 돈다.</p>
 
   <ul class="checklist">
-    <li><span class="check">&#10003;</span><div><code>guide_gate &lt;가이드.md&gt; &lt;스택&gt;</code> 를 돌리고 <span class="em">출력 5 줄을 보고에 그대로 붙였다</span>. 스택 인자를 비우지 않았고 <code>GATE_PASS</code> 를 확인했다</div></li>
+    <li><span class="check">&#10003;</span><div><code>guide_gate &lt;가이드.md&gt; &lt;스택&gt;</code> 를 돌리고 <span class="em">출력 6 줄을 보고에 그대로 붙였다</span>. 스택 인자를 비우지 않았고 <code>GATE_PASS</code> 를 확인했다</div></li>
     <li><span class="check">&#10003;</span><div>Step 헤더 수와 <code>**출처:**</code> 줄 수가 같고, Step 마다 출처 줄이 하나다 (G1) — 값은 <code>grep -c</code> 로 계산했다</div></li>
     <li><span class="check">&#10003;</span><div>접미 없는 <code>[미검증]</code> 이 0 건이다 (G2 <code>bare=0</code>). <code>[미검증:ENV]</code> 는 4 요건을 모두 갖췄다</div></li>
     <li><span class="check">&#10003;</span><div>마커 집계 세 숫자(<code>bare</code> / <code>invalid</code> / <code>env</code>)를 보고에 그대로 썼고, <span class="em">임계 숫자를 킷에서 다시 정하지 않았다</span></div></li>
