@@ -50,7 +50,18 @@ tone-guide 5 단계 대조: 새 코드 줄은 awk 한 줄과 그 줄 끝 주석 
 - design-kit 0.6.0 → 0.6.1 (patch). 문서 한 문장의 번호 고침.
 - 이 묶음에서는 버전을 올리지 않았다 (계약 범위 밖). 릴리스 묶음에서 올린다.
 
+## QA · 독립 검토
+
+- qa-evaluator: APPROVE, 20/20 (실측 14 · 해당 없음 확인 6). 봉인 두 지문 일치. 리포트 `.harness/sprint-feedback-after-0926-codex-final-fixes.md`, 계약 status done.
+- 독립 검토: 막는 결함 0. LF 가이드 509 개 × bash · zsh 판정은 새 CRLF 픽스처 말고 바뀐 것이 없다.
+
 ## 남은 것
 
-- QA 판정 (qa-evaluator) · 계약 status done 전환 — 이 묶음에서 하지 않음.
 - 두 킷 버전 올리기 · 릴리스 · 푸시.
+- 교차 진단 (`cross_diagnosis_by: pending-parent`) — 부모 세션 몫.
+- G5 가 아직 새는 빈 칸 모양 네 가지 (막는 결함 아님, 고치기 전 코드에서도 같음, 계약 범위 밖). 넷 다 깃허브 마크다운 표로 그려지고 마지막 칸이 비어 보이는데 `GATE_PASS` 가 난다.
+  1. 표 줄 앞 공백 1~3 칸 — awk 가 `/^\|/` 로만 표 줄을 찾아 `rows=0`.
+  2. 표 머리 칸의 줄바꿈 없는 공백(U+00A0) — `trim` 이 스페이스 · 탭만 지워 머리를 못 찾는다.
+  3. 표 머리 칸의 한글 전각 공백(U+3000) — 2 와 같은 이유.
+  4. 우회 칸에 U+00A0 하나만 — 빈 칸으로 세지 않아 `PASS rows=2`.
+  시험 입력 · 스크립트: 세션 임시 폴더 `g5rev/` (`old.sh` · `new.sh` · `render.mjs`).
