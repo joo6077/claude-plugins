@@ -53,6 +53,7 @@ SOURCE_DIRS = [
     "docs/backend", "docs/infra", "docs/tone", "docs/api",
     "docs/rust", "docs/react", "docs/planning",
     "docs/flutter", "docs/howto", "docs/onboarding-kit/examples",
+    ".claude/skills/kaizen-orchestrator/references",
 ]
 
 
