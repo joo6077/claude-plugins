@@ -131,6 +131,11 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
 .trigger-table td{padding:10px 12px;border-bottom:1px solid var(--border)}
 .trigger-table tr:hover{background:rgba(74,222,128,0.04)}
 
+/* 코드 조각 — 긴 줄은 상자 안에서 가로로 민다 */
+.code-pre{font-family:var(--mono);font-size:12px;line-height:1.6;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:12px;overflow-x:auto;max-width:100%;color:var(--text);white-space:pre}
+.ic{font-family:var(--mono);font-size:0.92em;color:var(--text)}
+.final-note{font-size:13px;color:var(--text2);line-height:1.7;margin-top:14px}
+
 /* Interactive simulation */
 .sim-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
 .sim-btn{
@@ -254,9 +259,33 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
         <div class="step-list">
           <div class="step"><div class="step-num">3</div>동시에 도는 킷 Phase 는 3 개까지 — 5 개 · 4 개로 돌린 두 사이클에서 서브에이전트가 과부하 오류(529)로 죽었고 2 ~ 3 개는 무사고였다</div>
           <div class="step"><div class="step-num">✎</div>여러 Phase 가 한 가지에 커밋하면 커밋마다 서명 줄 Kaizen-Phase: &lt;슬러그&gt; 를 넣는다</div>
-          <div class="step"><div class="step-num">§</div>Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 「범위:」 줄과 references/phase-dependencies.md 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 scripts/sync-orchestrator.py 가 킷에 실제로 있는 references/ · skills/*/references/ · agents/ · hooks/ · docs/ · evals/ 를 모두 적어 만든다. 폴더를 새로 만들면 스크립트를 다시 돌린다 (2026-09-24 사이클: 스킬 본문과 참조 폴더만 적던 때 reflect-kit 의 hooks/_lib-project-id.sh · docs/SCHEMA.md 수정이 Phase 12 AUTO 줄 밖이었다)</div>
+          <div class="step"><div class="step-num">§</div>Phase 서브에이전트에 넘기는 범위는 AUTO 영역의 「범위:」 줄과 references/phase-dependencies.md 의 그 Phase 목록을 합친 것이다 — AUTO 줄은 scripts/sync-orchestrator.py 가 킷에 실제로 있는 references/ · skills/*/references/ · agents/ · hooks/ · docs/ · evals/ · scripts/ · templates/ 를 모두 적어 만든다. 폴더를 새로 만들면 스크립트를 다시 돌린다 (2026-09-24 사이클: 스킬 본문과 참조 폴더만 적던 때 reflect-kit 의 hooks/_lib-project-id.sh · docs/SCHEMA.md 수정이 Phase 12 AUTO 줄 밖이었다)</div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE SCOPE -->
+<div class="section">
+  <div class="section-label">Phase 범위 줄</div>
+  <h2>킷 Phase 의 「범위:」 줄 — scripts/ · templates/ 까지</h2>
+  <p class="desc">킷에 <span class="ic">scripts/</span> · <span class="ic">templates/</span> 폴더가 있으면 그 Phase 의 범위 줄에도 들어간다. 아래는 원본 AUTO 영역이 지금 적는 범위 가운데 두 폴더가 붙은 Phase 여덟이다. 나머지 Phase 의 범위 줄은 그대로다.</p>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="trigger-table">
+        <thead><tr><th>Phase</th><th>범위 (원본 AUTO 줄)</th></tr></thead>
+        <tbody>
+          <tr><td>5 flutter-toolkit</td><td><span class="ic">flutter-toolkit/skills/*/SKILL.md</span>, <span class="ic">flutter-toolkit/references/</span>, <span class="ic">flutter-toolkit/skills/*/references/</span>, <span class="ic">flutter-toolkit/agents/</span>, <span class="ic">flutter-toolkit/hooks/</span>, <span class="ic">flutter-toolkit/evals/</span>, <span class="ic">flutter-toolkit/scripts/</span>, <span class="ic">flutter-toolkit/templates/</span>, <span class="ic">docs/flutter/</span> 리서치 문서</td></tr>
+          <tr><td>6 design-kit</td><td><span class="ic">design-kit/skills/*/SKILL.md</span>, <span class="ic">design-kit/references/</span>, <span class="ic">design-kit/skills/*/references/</span>, <span class="ic">design-kit/agents/</span>, <span class="ic">design-kit/hooks/</span>, <span class="ic">design-kit/docs/</span>, <span class="ic">design-kit/evals/</span>, <span class="ic">design-kit/scripts/</span>, <span class="ic">design-kit/templates/</span>, <span class="ic">design-kit/docs/design/</span> 리서치 문서</td></tr>
+          <tr><td>9 rust-kit</td><td><span class="ic">rust-kit/skills/*/SKILL.md</span>, <span class="ic">rust-kit/references/</span>, <span class="ic">rust-kit/skills/*/references/</span>, <span class="ic">rust-kit/agents/</span>, <span class="ic">rust-kit/evals/</span>, <span class="ic">rust-kit/templates/</span>, <span class="ic">docs/rust/</span> 리서치 문서</td></tr>
+          <tr><td>10 react-kit</td><td><span class="ic">react-kit/skills/*/SKILL.md</span>, <span class="ic">react-kit/references/</span>, <span class="ic">react-kit/agents/</span>, <span class="ic">react-kit/evals/</span>, <span class="ic">react-kit/scripts/</span>, <span class="ic">react-kit/templates/</span>, <span class="ic">docs/react/</span> 리서치 문서</td></tr>
+          <tr><td>12 reflect-kit</td><td><span class="ic">reflect-kit/skills/*/SKILL.md</span>, <span class="ic">reflect-kit/references/</span>, <span class="ic">reflect-kit/skills/*/references/</span>, <span class="ic">reflect-kit/hooks/</span>, <span class="ic">reflect-kit/docs/</span>, <span class="ic">reflect-kit/evals/</span>, <span class="ic">reflect-kit/scripts/</span></td></tr>
+          <tr><td>13 bambu-kit</td><td><span class="ic">bambu-kit/skills/*/SKILL.md</span>, <span class="ic">bambu-kit/skills/*/references/</span>, <span class="ic">bambu-kit/evals/</span>, <span class="ic">bambu-kit/scripts/</span></td></tr>
+          <tr><td>15 tone-kit</td><td><span class="ic">tone-kit/skills/*/SKILL.md</span>, <span class="ic">tone-kit/references/</span>, <span class="ic">tone-kit/evals/</span>, <span class="ic">tone-kit/templates/</span>, <span class="ic">docs/tone/</span> 리서치 문서</td></tr>
+          <tr><td>17 howto-kit</td><td><span class="ic">howto-kit/skills/*/SKILL.md</span>, <span class="ic">howto-kit/references/</span>, <span class="ic">howto-kit/agents/</span>, <span class="ic">howto-kit/evals/</span>, <span class="ic">howto-kit/scripts/</span>, <span class="ic">docs/howto/</span> 리서치 문서</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -295,7 +324,7 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
     <div class="phase-card" id="phase-step05" data-phase="pre">
       <div class="phase-badge pre">STEP 0.5 · SELF-AUDIT</div>
       <div class="phase-title">Orchestrator Self-Audit</div>
-      <div class="phase-desc">이전 사이클 meta-feedback 반영 + sync-orchestrator drift 확인. drift 가 있으면 동기화한 뒤에만 Phase 1 로 들어간다.</div>
+      <div class="phase-desc">이전 사이클 meta-feedback 반영 + sync-orchestrator drift 확인. drift 가 있으면 동기화한 뒤에만 Phase 1 로 들어간다. 감사 기록에는 이번 사이클의 빈 항목만 먼저 넣는다 — 실제 meta-issue 와 감시 거리는 사이클 끝 F4 7 번이 <span class="ic">--watch</span> 와 함께 덧붙인다. 같은 날 같은 사이클 항목은 제목에 차례 번호가 붙어 겹치지 않는다.</div>
       <div class="file-list">
         <span class="file-tag">.harness/.meta/orchestrator-audit-log.md</span>
         <span class="file-tag">python3 scripts/sync-orchestrator.py --check-only</span>
@@ -600,12 +629,28 @@ h2{font-size:clamp(20px,2.2vw,28px);font-weight:700;margin-bottom:8px;letter-spa
       <div class="phase-title">교차 Phase 정합성 검증과 마무리</div>
       <div class="phase-desc">Phase 1 원칙 → Phase 2~3 반영 → Phase 4~17 반영. 버전 불일치, 누락 반영 최종 확인. 새 기능 추가 금지. 최소 1개 Phase가 실행되었을 때만 돈다.</div>
       <div class="step-list">
-        <div class="step"><div class="step-num">1</div>F1 전체 정합성 검증 — Final Sprint Contract (Phase 1~17 크로스 정합성) → QA Evaluator</div>
-        <div class="step"><div class="step-num">2</div>F2 docs-site 재생성 — 바뀐 소스에 대응하는 docs/*.html 을 다시 만든다 (건너뛰기 금지)</div>
+        <div class="step"><div class="step-num">1</div>F1 전체 정합성 검증 — 판 번호 원본 목록 뽑기(계약 전) → Final Sprint Contract (Phase 1~17 크로스 정합성) → 처리 배정표 닫기 → QA Evaluator. APPROVE 면 F2 로, 감사 기록은 Post-Kaizen Checklist 결과가 나온 뒤 F4 7 번에서 남긴다</div>
+        <div class="step"><div class="step-num">2</div>F2 docs-site 재생성 — 바뀐 소스에 대응하는 docs/*.html 을 다시 만든다 (건너뛰기 금지). 원칙은 외부 리소스 없이 공통 파일 docs/assets/site&#46;css 링크 한 줄 + 인라인 &lt;style&gt;, 최소 400 라인, design-kit audit-criteria 준수, card-source URL 인용, accent 컬러다</div>
         <div class="step"><div class="step-num">3</div>F3 글로벌 피드백 정리 — 6개월 초과 삭제 · 500개 제한 · .harness/.meta/cleanup-log.yaml 기록</div>
         <div class="step"><div class="step-num">4</div>F3.5 메모리 승격 후보 산출 — 후보 파일만 낸다. 승격은 /reflect-promote 가 한다</div>
-        <div class="step"><div class="step-num">5</div>F4 PR 생성 — 버전 bump · changelog · research-log · evals/evals.json 점검 · Post-Kaizen Checklist 전부 통과 뒤</div>
+        <div class="step"><div class="step-num">5</div>F4 PR 생성 — 버전 bump · changelog · research-log · evals/evals.json 점검 · Post-Kaizen Checklist 전부 통과 뒤. 그 사이 7 번에서 감사 기록을 남긴다</div>
       </div>
+      <p class="final-note"><strong>F1 1 번 · 판 번호 원본 목록 뽑기 (계약 전).</strong> 판 번호(머리 설정 <span class="ic">version</span>)를 바꾼 원본 문서를 손으로 모으면 빠진다. 사이클 시작 판을 <span class="ic">BASE</span>, 끝 판(지금 <span class="ic">HEAD</span>)을 <span class="ic">END</span> 에 넣고 저장소 폴더에서 돌린다. 나온 목록이 2 번 계약의 「버전 번호」 조건 입력이다 — 원본 문서 쪽 판 번호는 이 목록 전부를 대상으로 한다. 계약을 쓴 뒤에 뽑으면 조건은 이미 손으로 모은 목록으로 봉인된다.</p>
+      <pre class="code-pre"># 판 번호 원본 목록 — BASE · END 사이에 머리 설정 version 이 바뀌고 END 에 값이 있는 .md
+fm_version() {
+  git show "${1}:${2}" 2&gt;/dev/null | awk 'NR==1 &amp;&amp; /^---/ {fm=1; next} fm &amp;&amp; /^---/ {exit} fm &amp;&amp; /^version:/ {sub(/^version:[ \t]*/, ""); print; exit}'
+}
+git diff --name-only "$BASE" "$END" -- '*.md' | while IFS= read -r doc; do
+  new=$(fm_version "$END" "$doc"); old=$(fm_version "$BASE" "$doc")
+  [ -n "$new" ] &amp;&amp; [ "$old" != "$new" ] &amp;&amp; printf '%s\n' "$doc"
+done</pre>
+      <p class="final-note"><strong>F4 7 번 · 감사 기록 남기기 (6 번 뒤, PR 전).</strong> 실패 목록은 6 번 Post-Kaizen Checklist 결과에서 만든다. 한 번이라도 FAIL 난 항목을 <span class="ic">{"check": "&lt;항목&gt;", "reason": "&lt;까닭&gt;"}</span> 로 모아 <span class="ic">post-kaizen-failures.json</span> 에 적는다 — 없으면 <span class="ic">[]</span> 를 적는다. 파일이 없으면 도구가 빈 목록으로 읽어 「모든 체크 PASS」 라고 적으므로 아래 블록이 먼저 막는다. 사이클 이름은 상태 파일에서 읽는다 — Step 0.5 가 시작 빈 항목에 쓴 것과 같은 값이다. 교차 진단이 짚은 계약 밖 결함은 실패 목록에 안 들어가니 한 줄마다 <span class="ic">--watch</span> 를 하나씩 넘긴다. 도구는 <span class="ic">scripts/append-audit-log.py</span> 이고 기록은 <span class="ic">.harness/.meta/orchestrator-audit-log.md</span> 에 쌓인다. PR 생성은 그다음 8 번이다.</p>
+      <pre class="code-pre"># 사이클 끝 감사 기록
+CYCLE_ID=$(sed -nE 's/^cycle_id:[ ]*"?([^"]*)"?[ ]*$/\1/p' .harness/.meta/kaizen-state.yaml)
+if [ -z "$CYCLE_ID" ]; then echo "cycle_id 없음 — kaizen-state.yaml 을 먼저 본다" &gt;&amp;2
+elif [ ! -f post-kaizen-failures.json ]; then echo "post-kaizen-failures.json 없음 — 6 번 결과로 먼저 만든다 (실패 0 건이면 [])" &gt;&amp;2
+else python3 scripts/append-audit-log.py --cycle-id "$CYCLE_ID" --failures post-kaizen-failures.json --watch "&lt;교차 진단 · 계약 밖 결함 한 줄&gt;" &amp;&amp; rm post-kaizen-failures.json
+fi</pre>
       <div class="branch">
         <div class="branch-box approve">✅ APPROVE</div>
         <div class="branch-arrow">→</div>
