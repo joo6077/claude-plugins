@@ -232,7 +232,8 @@ EOF
 # 마찰이 적혔는데 reflections 에 한 번도 안 나온 세션을 원문과 함께 낸다. 수집기가 놓친 세션을
 # 찾는 데만 쓴다 — facets 는 다른 분석기 · 다른 분류라 빈도에 더하면 같은 세션을 두 번 센다.
 # facets 에는 프로젝트 경로가 없어 session-meta/<session_id>.json 의 project_path 로 잇는다.
-# 지워진 워크트리 경로는 project_root 가 `.claude/worktrees/` 꼬리를 떼 본 레포 이름으로 잇는다.
+# 지워진 워크트리 경로는 git 이 본 레포를 못 구한다 — `/.claude/worktrees/` 앞에서 잘라 본 레포 이름으로 묶는다
+# (scripts/collect-kaizen-data.py 와 같은 규칙).
 facets_unmatched() {
   [ -n "${BASH_VERSION:-}" ] || { echo "facets_unmatched: bash 로 부른다" >&2; return 2; }
   local days="$1" want="$2" usage="${3:-$HOME/.claude/usage-data}"
@@ -260,7 +261,7 @@ facets_unmatched() {
     st=$(jq -r '.start_time // ""' "$meta" 2>/dev/null)
     ep=$(jq -r '.start_time // "" | sub("\\.[0-9]+Z$"; "Z") | (fromdateiso8601? // 0) | floor' "$meta" 2>/dev/null)
     [ "${ep:-0}" -ge "$since" ] 2>/dev/null || continue
-    [ "$want" = all ] || [ "$(basename "$(project_root "$pp")")" = "$want" ] || continue
+    [ "$want" = all ] || [ "$(basename "$(project_root "${pp%%/.claude/worktrees/*}")")" = "$want" ] || continue
     total=$((total + 1))
     [ -n "$(printf '%s' "$fd" | tr -d '[:space:]')" ] || continue
     fric=$((fric + 1))

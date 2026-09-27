@@ -79,11 +79,12 @@ g() { git -c user.name=t -c user.email=t@t -c init.defaultBranch=main "$@" > /de
 mkdir -p "$W/repos/alpha" "$W/repos/beta" "$W/wt" "$W/usage/facets" "$W/usage/session-meta"
 g -C "$W/repos/alpha" init && printf 'x\n' > "$W/repos/alpha/f" && g -C "$W/repos/alpha" add f && g -C "$W/repos/alpha" commit -m i || exit 2
 g -C "$W/repos/alpha" worktree add "$W/wt/alpha-wt" -b wt1 || exit 2
-fx() {  # fx <파일> <session> <friction> [<project_path> <초 전>] — 뒤 둘이 없으면 session-meta 를 안 만든다
-  jq -cn --arg s "$2" --arg f "$3" '{session_id: $s, friction_detail: $f}' > "$W/usage/facets/$1.json"
+fx() {  # fx <파일> <session> <friction> [<project_path> <초 전>] — 뒤 둘이 없으면 session-meta 를 안 만든다. FXU 로 usage 폴더를 바꾼다
+  local usage=${FXU:-$W/usage}
+  jq -cn --arg s "$2" --arg f "$3" '{session_id: $s, friction_detail: $f}' > "$usage/facets/$1.json"
   [ $# -ge 5 ] || return 0
   jq -cn --arg s "$2" --arg p "$4" --arg t "$(at "$5" '+%Y-%m-%dT%H:%M:%S.123Z' u)" \
-    '{session_id: $s, project_path: $p, start_time: $t}' > "$W/usage/session-meta/$2.json"
+    '{session_id: $s, project_path: $p, start_time: $t}' > "$usage/session-meta/$2.json"
 }
 fx f1 S-miss "missed friction" "$W/repos/alpha" 172800
 fx f2 B "recorded friction" "$W/repos/alpha" 86400
@@ -93,6 +94,9 @@ fx f5 S-nometa "no meta"
 fx f6 S-old "old friction" "$W/repos/alpha" 1728000
 fx f7 S-other "other project" "$W/repos/beta" 86400
 fx f8 S-wt "worktree friction" "$W/wt/alpha-wt" 86400
+# 지워진 워크트리 — 폴더가 없어 git 이 본 레포를 못 구한다. 앞 묶음의 답이 안 바뀌게 usage 폴더를 따로 둔다
+mkdir -p "$W/usage-gone/facets" "$W/usage-gone/session-meta"
+FXU=$W/usage-gone fx g1 S-gone "gone friction" "$W/repos/alpha/.claude/worktrees/gone-wt" 86400
 
 # 정상 종료(no issues) 뒤의 폴더 — 기록 뒤 실패가 있어도 그 뒤 정상 종료가 있으면 멈춤이 아니고, 정상 종료 뒤 다시 실패하면 멈춤이다
 mkdir -p "$W/logs/b5" "$W/logs/b6" "$W/logs/b7"
@@ -162,6 +166,8 @@ check "facets 7 일 · all" "facets 대조: facets 5개 · 마찰 있는 세션 
   "$(fu 7 all "$W/usage" "$W/logs" | head -1)"
 check "facets all · alpha" "facets 대조: facets 5개 · 마찰 있는 세션 4개 · 그중 reflections 없음 3개 (facets 읽기 실패 1 · session-meta 읽기 실패 1)" \
   "$(fu all alpha "$W/usage" "$W/logs" | head -1)"
+check "facets 지워진 워크트리 — 본 레포 이름으로 묶임" "facets 대조: facets 1개 · 마찰 있는 세션 1개 · 그중 reflections 없음 1개 (facets 읽기 실패 0 · session-meta 읽기 실패 0)" \
+  "$(fu 7 alpha "$W/usage-gone" "$W/logs" | head -1)"
 check "facets 폴더 없음" "facets 대조: (없음)
 rc=0" "$(fu 7 alpha "$W/nousage" "$W/logs")"
 

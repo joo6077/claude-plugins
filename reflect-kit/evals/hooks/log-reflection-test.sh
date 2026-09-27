@@ -29,7 +29,8 @@ for a in "$@"; do
   [ "$prev" = "--output-last-message" ] && out=$a
   prev=$a
 done
-printf 'OpenAI Codex v0.154.0\n--------\nsandbox: read-only\n--------\nuser\n%s\n' "$(cat)" >&2
+prompt=$(cat); printf '%s\n' "$prompt" > "$CALLS.prompt"
+printf 'OpenAI Codex v0.154.0\n--------\nsandbox: read-only\n--------\nuser\n%s\n' "$prompt" >&2
 case "${FAKE_CODEX:-ok}" in
   ok) printf '```yaml\nprimary_category: misunderstanding\nmistake_tag: skip-test-tag\nactionability: claude_behavior\n```\n' > "$out"; exit 0 ;;
   limit) printf "ERROR: You've hit your usage limit. Try again at 11:05 PM.\n" >&2; exit 1 ;;
@@ -74,12 +75,13 @@ check() {  # check <이름> <답> <값>
   if [ "$2" = "$3" ]; then echo "일치 $1"
   else echo "불일치 $1 — 값 [$3] (답 [$2])"; bad=$((bad + 1)); fi
 }
-run_bg() {  # run_bg <session> <FAKE_CODEX> <FAKE_CLAUDE> [추가 env...]
+run_bg() {  # run_bg <session> <FAKE_CODEX> <FAKE_CLAUDE> [추가 env...] — LAM 을 주면 입력에 last_assistant_message 로 넣는다
   local sid=$1 in=$W/in/$1.json
   shift
   local fc=$1 fl=$2
   shift 2
-  jq -cn --arg s "$sid" --arg t "$T" --arg c "$W/proj" '{session_id: $s, transcript_path: $t, cwd: $c}' > "$in"
+  jq -cn --arg s "$sid" --arg t "$T" --arg c "$W/proj" --arg m "${LAM-}" --arg has "${LAM+1}" \
+    '{session_id: $s, transcript_path: $t, cwd: $c} + (if $has == "1" then {last_assistant_message: $m} else {} end)' > "$in"
   : > "$CALLS"
   env HOME="$W/home" TMPDIR="$W/tmp" PATH="$W/bin:$PATH" CALLS="$CALLS" FAKE_CODEX="$fc" FAKE_CLAUDE="$fl" "$@" \
     bash "$HOOKS/log-reflection.sh" --background "$in" > /dev/null 2>&1
@@ -166,6 +168,13 @@ mkdir -p "$W/p-plain"
 jq -cn --arg c "$W/p-plain" '{session_id: "P1", cwd: $c, prompt: "hello prompt"}' \
   | env HOME="$W/home" TMPDIR="$W/tmp" bash "$HOOKS/log-prompt.sh" > /dev/null 2>&1
 check "표식 없음 — log-prompt.sh 적음" 1 "$(grep -hc 'hello prompt' "$W/home/.claude/logs/p-plain"/20*.md 2>/dev/null | awk '{s += $1} END {print s + 0}')"
+
+# 7-1. 입력의 last_assistant_message 는 가려서 프롬프트에 싣고, 필드가 없으면 블록을 안 만든다
+LAM="LAM-MARK-9d2b 마지막 응답 sk-ant-$(printf 'Q7%.0s' $(seq 1 20))" run_bg L1 ok ok
+check "last_assistant_message 프롬프트에 실림" 1 "$(grep -c 'LAM-MARK-9d2b' "$CALLS.prompt")"
+check "last_assistant_message 키 가림" 0 "$(grep -c 'sk-ant-Q7' "$CALLS.prompt")"
+run_bg L0 ok ok
+check "last_assistant_message 없으면 블록 없음" 0 "$(grep -c '<last_assistant_message>' "$CALLS.prompt")"
 
 # 8. 임시 파일이 남지 않는다
 check "TMPDIR 비었음" 0 "$(find "$W/tmp" -mindepth 1 | wc -l | tr -d ' ')"

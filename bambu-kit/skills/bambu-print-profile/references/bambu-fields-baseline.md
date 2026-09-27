@@ -7,7 +7,8 @@
 >   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
 >   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
 >   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
-> Latest beta at time of research: 2.7.0 Public Beta (2026-05-14)
+> Latest beta (2026-09-27 조회): 2.8.4 Public Beta `v02.08.04.57` (2026-09-22). 처음 쓸 때는 2.7.0 Public Beta (2026-05-14) 였다.
+> Latest stable (2026-09-27 조회): 2.8.2 Public Release `v02.08.02.61` (2026-08-21). §1 은 처음 쓸 때의 기록이다.
 
 스킬이 process / filament JSON을 inherits 기반으로 자동 생성할 때 참조하는 baseline. 매 실행 시 kaizen 데이터 소스로 cross-check 권장.
 

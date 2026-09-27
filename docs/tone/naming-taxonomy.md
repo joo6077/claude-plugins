@@ -100,7 +100,7 @@ typedef {widget_prefix}ServerSelected = void Function(Server server);
 void onServerSelected(Server server) { ... }
 ```
 
-Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4) 에서 콜백 58개를 확인했다. 단계 축은 `Down → Start → Update/MoveUpdate → End/Up → Cancel` 이고 제스처마다 일관되게 붙는다.
+Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 · 3.47.5) 에서 콜백 58개를 확인했다. 단계 축은 `Down → Start → Update/MoveUpdate → End/Up → Cancel` 이고 제스처마다 일관되게 붙는다.
 
 | 제스처 | 콜백 |
 |---|---|
@@ -124,7 +124,7 @@ Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4) �
 
 **강도:** SHOULD
 
-> **출처:** Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 실측 — 콜백 58개) · 프로젝트 실측 (`handlePressStart` 7건 · `handlePressEnd` 8건, `…SelectTap`/`…Selected` 혼재). 코어 규칙 ID 는 `core-naming.md` N-12, 어댑터 판정은 `adapter-dart-flutter.md` D-15 · §3.11 (슬롯 `event_vocabulary`)
+> **출처:** Flutter SDK `packages/flutter/lib/src/widgets/gesture_detector.dart` (3.38.4 · 3.47.5 실측 — 콜백 58개) · 프로젝트 실측 (`handlePressStart` 7건 · `handlePressEnd` 8건, `…SelectTap`/`…Selected` 혼재). 코어 규칙 ID 는 `core-naming.md` N-12, 어댑터 판정은 `adapter-dart-flutter.md` D-15 · §3.11 (슬롯 `event_vocabulary`)
 
 ### 1. 이름은 외형이 아니라 역할을 담는다 `[코어]`
 
@@ -398,7 +398,7 @@ class DeviceItem extends StatelessWidget { ... }
 | 정의문을 인용 가능한 시스템 | 4 (M3·Apple HIG 는 JS 렌더링) | 어휘 대조표 |
 | fallback 접두사 실측 | 9건 / 4파일 (57파일 스캔) | 프로젝트 실측 |
 | 컬렉션 요소 접미사 후보 | 5 (`Item`/`Tile`/`Cell`/`Row`/`Card`) | 합성 taxonomy |
-| Flutter 제스처 콜백 | 58개 (`gesture_detector.dart` 3.38.4) | 프레임워크 실측 |
+| Flutter 제스처 콜백 | 58개 (`gesture_detector.dart` 3.38.4 · 3.47.5) | 프레임워크 실측 |
 | 자체 이벤트 어휘 실측 | 15건 (`handlePressStart` 7 · `handlePressEnd` 8) | 프로젝트 실측 |
 
 ---

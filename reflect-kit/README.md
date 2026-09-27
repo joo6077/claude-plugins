@@ -153,13 +153,13 @@ claude plugin install reflect-kit@joo6077-plugins
 
 ```bash
 # 등록 예정 cron 라인 미리보기 (crontab 변경 없음)
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh --dry-run
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh" --dry-run
 
 # crontab에 주간+월간 2개 라인 추가 (멱등 — 중복 등록 방지)
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh --install
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh" --install
 
 # 등록된 reflect-kit 항목 제거
-bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh --uninstall
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh" --uninstall
 ```
 
 ## 원칙

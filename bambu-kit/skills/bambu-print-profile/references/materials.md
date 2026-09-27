@@ -137,7 +137,7 @@
 
 ## 5. 미해결 / 검증 필요
 
-1. **PLA Pure** — 2026-05-14 Bambu Studio 2.7.0 Public Beta에 신규 프리셋 추가됨. 2.6.0 stable에는 미포함이라 자동 추천/inherits 대상으로는 보류 안전.
+1. **PLA Pure** — 2026-05-14 Bambu Studio 2.7.0 Public Beta에 신규 프리셋 추가됨. 정식 릴리스 `02.08.02.61` 설치본 번들에는 `Bambu PLA Pure @BBL H2S*.json` 4 개가 있다(2026-09-27 이 맥 관측). 설치본이 이 판보다 옛것이면 부모를 해석할 수 없으니 inherits 대상으로 쓰지 않는다.
 2. **PA-CF 단종** — PAHT-CF 스토어 페이지에 PA-CF가 discontinued라고 명시. Studio에는 base가 남아 있지만 신규 추천은 PAHT-CF로.
 3. **AMS 2 Pro 직접 로드 제약** — 공식 표는 PLA/PETG/ABS/ASA/PET/PA/PC/PVA/BVOH/PP/POM/HIPS, Bambu PLA-CF/PAHT-CF/PETG-CF/Support for PLA/PETG/TPU for AMS를 지원. **PET-CF/PPA-CF/PPS-CF/TPU 95A HF는 외부 스풀 또는 AMS HT bypass 권장.**
 4. **챔버 값** — Bambu Studio H2S filament JSON은 챔버 목표값을 행별 명시하지 않음. 표의 챔버 범위는 TDS 권장 + H2S 65°C active chamber 스펙 기반 분류.

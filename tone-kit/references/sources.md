@@ -94,7 +94,7 @@ SANER 2025 논문의 OpenReview 항목(<https://openreview.net/forum?id=uO8ix6tn
 
 기업 기술 블로그는 개별 글이 아니라 **문서 구조 관행** 의 참고 사례다. 특정 규칙의 단독 근거로 쓰지 않는다.
 
-K-11(새 이름을 만들지 않는다)의 근거는 위 표의 마지막 세 행이다. Microsoft · Google 가이드는 영어 문서용이고, 한글 맞춤법은 새 말 만들기를 금하지 않고 사전에 없는 전문 용어도 정당한 말로 다룬다 — 그래서 K-11 은 관측 컨벤션이고 판정 기준이 사전 등재가 아니다. Microsoft 항목은 공개 저장소 판(파일 날짜 2018)을 읽었고, Learn 페이지 본문과 같은지는 확인하지 않았다.
+K-11(새 이름을 만들지 않는다)의 근거는 위 표의 Microsoft Style Guide · Google 개발자 문서 스타일 가이드 · 한글 맞춤법 세 행이다. Microsoft · Google 가이드는 영어 문서용이고, 한글 맞춤법은 새 말 만들기를 금하지 않고 사전에 없는 전문 용어도 정당한 말로 다룬다 — 그래서 K-11 은 관측 컨벤션이고 판정 기준이 사전 등재가 아니다. Microsoft 항목은 공개 저장소 판(파일 날짜 2018)을 읽었고, Learn 페이지 본문과 같은지는 확인하지 않았다.
 
 ## 어댑터 — Dart / Flutter
 
@@ -140,7 +140,7 @@ K-11(새 이름을 만들지 않는다)의 근거는 위 표의 마지막 세 �
 | `Tab` | <https://api.flutter.dev/flutter/material/Tab/Tab.html> |
 | `CupertinoActionSheet` | <https://api.flutter.dev/flutter/cupertino/CupertinoActionSheet/CupertinoActionSheet.html> |
 | freezed | <https://pub.dev/packages/freezed> |
-| go_router 예제 | <https://pub.dev/packages/go_router/versions/16.3.0/example> |
+| go_router 예제 | <https://pub.dev/packages/go_router/versions/16.3.0/example> — 16.3.0 예제다. 최신은 18.0.1(2026-09-02 게시, 2026-09-26 확인)이고 그 사이 17.0.0 은 깨지는 변경, 18.0.0 은 `material_ui` · `cupertino_ui` 로 옮겼다 — 예제를 옮겨 쓰기 전에 판을 맞춘다 |
 | Riverpod — 코드 생성 | <https://riverpod.dev/ko/docs/concepts/about_code_generation> |
 | Riverpod — 변경 이력 | <https://riverpod.dev/docs/whats_new> |
 
@@ -154,7 +154,7 @@ K-11(새 이름을 만들지 않는다)의 근거는 위 표의 마지막 세 �
 | Flutter — dropdown | <https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/dropdown.dart> |
 | Flutter — tabs | <https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/tabs.dart> |
 | Flutter 샘플 | <https://github.com/flutter/samples> |
-| Flutter 레포 스타일 가이드 | <https://github.com/flutter/flutter/wiki/Style-guide-for-Flutter-repo> — 주의 (위키 이전 이력 있음) |
+| Flutter 레포 스타일 가이드 | <https://github.com/flutter/flutter/blob/main/docs/contributing/Style-guide-for-Flutter-repo.md> — 위키에서 저장소 `docs/contributing/` 으로 옮겼다 (2026-09-26 확인) |
 
 ## 제외된 출처
 
