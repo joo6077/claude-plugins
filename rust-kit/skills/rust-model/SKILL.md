@@ -490,3 +490,4 @@ Docker 이미지에 `cargo install sea-orm-cli`를 포함시키지 않고 앱 �
 
 - references/project-detection.md
 - templates/rust-model.rs.template — SQLx 모델 템플릿
+- 설치본 플러그인에는 `docs/rust/` 가 없다 — 이 파일의 `docs/rust/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
