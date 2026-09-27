@@ -5,7 +5,11 @@ last_updated: 2026-09-26
 scope: "marketplace.json 에 등록된 킷 전부"
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Claude Code 플러그인 검증 가이드
+
+<!-- markdownlint-enable MD025 -->
 
 > 릴리스 전 품질 게이트 + 카이젠 베이스라인을 제공하는 10-카테고리 검증 체계.
 
@@ -60,12 +64,14 @@ python3 scripts/validate-plugin.py --fix
 
 ### V1 Frontmatter 무결성
 
+<!-- markdownlint-disable-next-line MD036 -->
 **기준**
 
 스킬 파일(`skills/*/SKILL.md`)은 `name`, `description`, `user-invocable` 세 필드를 모두 가져야 한다.
 에이전트 파일(`agents/*.md`)은 `name`, `description`, `tools`, `model` 네 필드를 모두 가져야 한다.
 두 경우 모두 YAML frontmatter(`---` 블록)가 정상 파싱되어야 한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **검증 방법**
 
 각 SKILL.md, agents/*.md 파일 상단의 `---` 블록을 `yaml.safe_load()` 로 파싱한다.
@@ -77,10 +83,12 @@ required_skill_fields = {"name", "description", "user-invocable"}
 required_agent_fields = {"name", "description", "tools", "model"}
 ```
 
+<!-- markdownlint-disable-next-line MD036 -->
 **예외**
 
 없음. 모든 스킬과 에이전트는 예외 없이 frontmatter 를 가져야 한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **FAIL 예시**
 
 ```yaml
@@ -106,11 +114,13 @@ description: >
 
 ### V2 Templates 구문
 
+<!-- markdownlint-disable-next-line MD036 -->
 **기준**
 
 `templates/` 디렉토리가 존재할 때, 그 안의 JSON/YAML/TOML 파일은 각각 표준 파서로 파싱되어야 한다.
 `.ts`, `.js` 등 트랜스파일이 필요한 파일은 외부 도구(tsc, node) 없이 검증 불가능하므로 SKIP 한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **검증 방법**
 
 확장자별 파서 매핑:
@@ -125,12 +135,14 @@ description: >
 
 `templates/` 가 없으면 `no templates/ — OK` 로 출력한다. 판정이 OK 인데 줄 글자가 SKIP 이면 V 줄 글자로 판정을 세는 쪽이 헷갈린다 — 1.5.0 에서 글자를 판정에 맞췄다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **예외**
 
 - `templates/` 없는 킷: 볼 파일이 없어 OK (어느 킷인지는 §6 킷별 예외 카탈로그 참조)
 - `.ts`, `.js` 파일: 언제나 SKIP (parse 실패로 처리하지 않음)
 - `.template` 확장자 파일: 내부 확장자(`.json.template`)로 판별. 예를 들어 `package.json.template` 는 `.json` 파서 적용
 
+<!-- markdownlint-disable-next-line MD036 -->
 **FAIL 예시**
 
 ```json
@@ -150,6 +162,7 @@ name: [broken yaml
 
 ### V3 Cross-reference 링크
 
+<!-- markdownlint-disable-next-line MD036 -->
 **기준**
 
 SKILL.md 본문에 등장하는 마크다운 링크가 실제 파일로 해소되어야 한다.
@@ -161,6 +174,7 @@ SKILL.md 본문에 등장하는 마크다운 링크가 실제 파일로 해소�
 
 코드 블록 안의 링크는 보지 않는다. 블록 판정은 V10 과 같은 CommonMark 0.31.2 §4.5 규칙이다 (1.5.0) — `~~~` 블록과 백틱 4 개 블록 안의 링크도 코드다. 백틱 3 개로 시작하는 줄마다 켜고 끄기만 뒤집던 1.4.1 까지의 판은 그 두 블록 안 링크를 없는 파일로 잡았다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **검증 방법**
 
 정규식으로 마크다운 링크와 경로 패턴을 추출하고, SKILL.md 위치를 기준으로 `os.path.exists()` 로 확인한다.
@@ -170,12 +184,14 @@ SKILL.md 본문에 등장하는 마크다운 링크가 실제 파일로 해소�
 pattern = r'\[(?:[^\]]+)\]\(([^)#]+)\)'  # [text](path), 앵커 제외
 ```
 
+<!-- markdownlint-disable-next-line MD036 -->
 **예외**
 
 - 절대 URL: 검증 대상에서 제외
 - 앵커 링크 (`#heading`): 제외
 - `<!-- novalidate -->` 주석이 달린 링크: SKIP (의도적 미해소 링크)
 
+<!-- markdownlint-disable-next-line MD036 -->
 **FAIL 예시**
 
 ```markdown
@@ -194,6 +210,7 @@ pattern = r'\[(?:[^\]]+)\]\(([^)#]+)\)'  # [text](path), 앵커 제외
 
 ### V4 Trigger 키워드
 
+<!-- markdownlint-disable-next-line MD036 -->
 **기준**
 
 각 SKILL.md 의 `description` 에서 따옴표(`"..."` 또는 `'...'`)로 감싼 키워드를 추출하여,
@@ -201,6 +218,7 @@ pattern = r'\[(?:[^\]]+)\]\(([^)#]+)\)'  # [text](path), 앵커 제외
 
 키워드 중복은 두 스킬이 동일한 사용자 발화에 동시에 트리거될 수 있음을 의미한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **검증 방법**
 
 ```python
@@ -210,6 +228,7 @@ pattern = r'["\']([^"\']{3,})["\']'  # 3자 이상 키워드만 추출
 
 추출한 키워드를 소문자 정규화 후 `collections.Counter` 로 중복 검출. 2회 이상 등장하면 WARNING.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **예외**
 
 - 2자 이하 키워드: 너무 일반적이므로 추출에서 제외
@@ -217,6 +236,7 @@ pattern = r'["\']([^"\']{3,})["\']'  # 3자 이상 키워드만 추출
 - 공통 동사(`구현해줘`, `만들어줘`): 중복이 설계 의도일 수 있음. WARNING 으로 처리하되 ERROR 는 아님
 - **Cross-kit context disambiguation**: 두 kit 이 exact-match 키워드를 공유해도, 각 kit 의 description 전체가 **kit-specific 고유 단어** (예: flutter-toolkit → `flutter`, `dart`, `HookWidget`, `Riverpod`; react-kit → `react`, `vite`, `tauri`, `shadcn`; rust-kit → `rust`, `cargo`, `axum`) 를 포함하면 **disambiguation 성공으로 간주하여 WARN 제거**. 이는 "같은 개념 다른 프레임워크" 케이스 (예: Flutter "테스트 만들어줘" vs React "테스트 만들어줘") 가 false positive 로 처리되는 것을 방지한다. 구현: `scripts/validate-plugin.py` 의 `KIT_CONTEXT_TOKENS` 상수.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **FAIL 예시**
 
 ```yaml
@@ -229,7 +249,7 @@ description: >
   "새 화면 추가" 요청 시 트리거.  # 동일 키워드 → WARNING
 ```
 
-**PASS 예시 (context disambiguation 적용)**
+#### PASS 예시 (context disambiguation 적용)
 
 ```yaml
 # flutter-toolkit/skills/flutter-test/SKILL.md
@@ -251,6 +271,7 @@ description: >
 
 ### V5 Placeholders
 
+<!-- markdownlint-disable-next-line MD036 -->
 **기준**
 
 검증 대상 파일(`SKILL.md`, `agents/*.md`, `README.md`, `references/*.md`)의 본문에
@@ -259,6 +280,7 @@ description: >
 코드 블록 안의 주석(`// TODO: ...`, `# TODO: ...`)도 포함한다.
 단, `--fix` 모드는 이를 중립 주석으로 자동 교체한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **검증 방법**
 
 ```python
@@ -268,11 +290,13 @@ pattern = r'\b(TODO|TBD|FIXME)\b'
 
 `re.IGNORECASE` 플래그로 검색. 매치된 파일과 라인 번호를 모두 보고한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **예외**
 
 - `validate-plugin.py` 스크립트 본문: 자기 참조 도구이므로 V5 체크 대상에서 제외 (self-hosting)
 - 코드 템플릿 예시 안의 플레이스홀더: 제외 없음. 설명용이라도 사용자 문서에 노출되므로 FAIL
 
+<!-- markdownlint-disable-next-line MD036 -->
 **FAIL 예시**
 
 ```markdown
@@ -294,6 +318,7 @@ export default {
 
 ### V6 Code fence 언어 힌트
 
+<!-- markdownlint-disable-next-line MD036 -->
 **기준**
 
 마크다운 파일의 코드 블록 여는 fence(` ``` `) 에는 언어 힌트가 있어야 한다.
@@ -301,6 +326,7 @@ export default {
 
 닫는 fence(` ``` ` 단독 라인)는 검증하지 않는다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **검증 방법**
 
 여는 줄 판정은 V10 과 같은 CommonMark 0.31.2 §4.5 규칙이다 (1.5.0). 백틱으로 연 블록의 여는 줄 뒤 글이 비어 있으면 FAIL 이다.
@@ -311,11 +337,13 @@ export default {
 **범위** — 킷의 `skills/*/SKILL.md` · `agents/*.md` · `references/*.md` · `README.md` 에 스킬 폴더 안 `skills/*/references/**/*.md` 를 더했다 (1.5.0).
 1.4.0 에서 이 범위를 미룬 이유였던 언어 힌트 없는 여는 줄 8 개는 킷 `pr-template.md` 의 `~~~markdown` 블록 **안** 줄이라 새 판정에서는 코드다 — 넓혀도 걸리는 것이 0 개다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **예외**
 
 - 닫는 fence: ` ``` ` 단독 라인은 정상, 체크 대상 아님
 - `~~~` 틸드로 여는 블록: 언어 힌트를 검사하지 않는다 (모노레포 컨벤션은 backtick 사용). 그 블록 안 줄은 코드로 본다
 
+<!-- markdownlint-disable-next-line MD036 -->
 **FAIL 예시**
 
 ````markdown
@@ -344,6 +372,7 @@ const x: number = 1;
 
 ### V7 plugin.json ↔ marketplace.json 정합성
 
+<!-- markdownlint-disable-next-line MD036 -->
 **기준**
 
 각 킷의 `.claude-plugin/plugin.json` 과 루트 `.claude-plugin/marketplace.json` 이 일치해야 한다.
@@ -352,6 +381,7 @@ const x: number = 1;
 - `version` 일치
 - marketplace description 의 `[vX.Y.Z · YYYY-MM-DD]` 형식 존재 + 버전 태그 일치
 
+<!-- markdownlint-disable-next-line MD036 -->
 **검증 방법**
 
 ```python
@@ -363,10 +393,12 @@ version_pattern = r'\[v(\d+\.\d+\.\d+)\s*·\s*\d{4}-\d{2}-\d{2}\]'
 2. 정규식으로 버전 태그 파싱
 3. plugin.json 의 `version` 과 비교
 
+<!-- markdownlint-disable-next-line MD036 -->
 **예외**
 
 - 새 킷 초기 단계: marketplace.json 에 등록 전이면 V7 체크 대상 아님 (marketplace 에 없으면 킷 자체가 검증 대상 목록에서 빠짐)
 
+<!-- markdownlint-disable-next-line MD036 -->
 **FAIL 예시**
 
 ```json

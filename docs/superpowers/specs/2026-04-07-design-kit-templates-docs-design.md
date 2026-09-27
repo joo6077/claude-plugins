@@ -16,7 +16,7 @@
 ## 1. 템플릿 파일 목록
 
 | 스킬 | 템플릿 파일 | 산출물 경로 |
-|------|------------|------------|
+| ------ | ------------ | ------------ |
 | design-concept | `templates/concept.md` | `.design/concept.md` |
 | design-concept | `templates/moodboard.html` | `.design/moodboard.html` |
 | design-reference | `templates/references.md` | `.design/references.md` |
@@ -84,6 +84,7 @@
 ### 1-2. design-concept/templates/moodboard.html
 
 standalone HTML. 구조:
+
 - 헤더: 프로젝트명 + 무드 키워드 태그
 - 컬러 팔레트 섹션: 방향을 시각화한 컬러 스워치 (hex 확정 아닌 방향 표현)
 - 타이포 섹션: 서체 분류별 샘플 텍스트
@@ -121,6 +122,7 @@ standalone HTML. 구조:
 ### 1-4. design-reference/templates/reference-catalog.html
 
 standalone HTML. 구조:
+
 - 헤더: 키워드 + 수집 수 요약
 - 필터 바: 소스 채널별 토글 (갤러리/프로덕트/DS)
 - 카드 그리드: 각 레퍼런스의 핵심 시각 요소를 CSS로 재현
@@ -129,6 +131,7 @@ standalone HTML. 구조:
 ### 1-5. design-mockup/templates/mockup.html
 
 standalone HTML. 구조:
+
 - 시안 콘텐츠 (하이파이 레이아웃)
 - 모든 UI 요소에 `id="{컴포넌트명}-{4자리해시}"` 부여
 - 호버 오버레이 JavaScript:
@@ -318,13 +321,15 @@ standalone HTML. 구조:
 ### design-concept/SKILL.md
 
 **Process 수정:**
+
 - Step 4 현재: "`.design/concept.md`를 생성(또는 갱신)한다:"
 - Step 4 수정: "templates/concept.md 포맷으로 `.design/concept.md`를 생성(또는 갱신)한다:"
 - Step 5 현재: "`.design/moodboard.html`을 생성한다:"
 - Step 5 수정: "templates/moodboard.html 포맷으로 `.design/moodboard.html`을 생성한다:"
 
 **References 섹션 추가:**
-```
+
+```text
 - `templates/concept.md` — 컨셉 문서 출력 포맷
 - `templates/moodboard.html` — 비주얼 무드보드 출력 포맷
 ```
@@ -332,13 +337,15 @@ standalone HTML. 구조:
 ### design-reference/SKILL.md
 
 **Process 수정:**
+
 - Step 3 현재: "`.design/references.md`를 생성한다:"
 - Step 3 수정: "templates/references.md 포맷으로 `.design/references.md`를 생성한다:"
 - Step 4 현재: "`.design/reference-catalog.html`을 생성한다:"
 - Step 4 수정: "templates/reference-catalog.html 포맷으로 `.design/reference-catalog.html`을 생성한다:"
 
 **References 섹션 추가:**
-```
+
+```text
 - `templates/references.md` — 레퍼런스 분석 문서 출력 포맷
 - `templates/reference-catalog.html` — 비주얼 카탈로그 출력 포맷
 ```
@@ -346,23 +353,27 @@ standalone HTML. 구조:
 ### design-mockup/SKILL.md
 
 **Process 수정:**
+
 - Step 3 현재: "references/mockup-guidelines.md를 참조하여 시안을 생성한다:"
 - Step 3 수정: "references/mockup-guidelines.md를 참조하고 templates/mockup.html 포맷으로 시안을 생성한다:"
 
 **References 섹션 추가:**
-```
+
+```text
 - `templates/mockup.html` — 시안 HTML 출력 포맷 (ID 오버레이 JavaScript 포함)
 ```
 
 ### design-component/SKILL.md
 
 **Process 수정:**
+
 - Step 3 현재: "컴포넌트 카탈로그를 사용자에게 제시"
 - Step 3 수정: "templates/catalog.md 포맷으로 컴포넌트 카탈로그를 생성하고 사용자에게 제시"
 - 주의: 이 참조는 무조건적이다. "확정 시"는 저장 시점에만 적용되고 포맷 참조는 생성 시점부터 적용된다.
 
 **References 섹션 추가:**
-```
+
+```text
 - `templates/catalog.md` — 컴포넌트 카탈로그 출력 포맷
 ```
 

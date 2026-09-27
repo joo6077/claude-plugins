@@ -18,13 +18,18 @@ user-invocable: true
 6. **Codex 결과 검증 금지 방지** — Codex 가 반환한 URL 은 반드시 WebFetch 로 접근 가능성 확인. 404 링크 저장 금지.
 7. **방법론 유행 함정** — "최신이라서 좋다" 금지. Shape Up(2019) 은 여전히 유효하다. 연식이 아니라 프로덕션 사례 유무를 근거로.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 리서치 범위 결정
 
 카테고리 지정 시 해당 문서만, 미지정 시 전체 docs/planning/ 갱신.
 
 현재 문서 목록 (planning-kit SKILL 들이 참조):
+
 - discovery.md — JTBD, Continuous Discovery, Cagan 4-risks
 - prd-patterns.md — PR/FAQ, Shape Up, Linear 스펙
 - stories.md — INVEST, Gherkin, Story Mapping
@@ -42,6 +47,7 @@ user-invocable: true
 ## Step 3: 외부 리서치 (Codex 위임)
 
 codex:rescue 에이전트에 카테고리별 리서치 위임. 프롬프트 구조:
+
 - 방법론 최신 상태 (deprecated 여부)
 - 새 논문/공식 문서/컨퍼런스 세션
 - 주요 PM 커뮤니티 신규 사례 (Lenny's, Reforge, FirstRound, SVPG, producttalk.org)
@@ -56,11 +62,15 @@ codex:rescue 에이전트에 카테고리별 리서치 위임. 프롬프트 구�
 
 ## Step 5: 커밋
 
-```
+```text
 research(planning): [카테고리] 문서 갱신 — 주요 변경 요약
 ```
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - docs/planning/ — 갱신 대상 SSOT
 - codex:rescue — 외부 리서치 위임

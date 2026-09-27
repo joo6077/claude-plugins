@@ -4,7 +4,11 @@ version: v5.1
 last_updated: 2026-09-26
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # QA Evaluation Guide
+
+<!-- markdownlint-enable MD025 -->
 
 > qa-evaluator 에이전트가 참조하는 평가 방법론.
 > evaluator-kaizen이 리서치 기반으로 이 문서를 갱신한다.
@@ -818,7 +822,11 @@ Sprint Contract 의 각 조건에 대해 Step 2 (조건별 정적 검증) 을 �
 >
 > **배경:** 평가자가 조건 일부만 검증하고 "나머지는 비슷하니까 PASS" 로 뭉뚱그리는 패턴. /insights 리포트에서 "Claude consistently fails to spot obvious improvements that your rules already cover" 로 지적됨. 부분 점검의 유혹을 구조적으로 차단하기 위해 전수 점검 단계를 명문화한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 원칙
+
+<!-- markdownlint-enable MD024 -->
 
 Step 4 (판정) 직전에 **모든 계약 조건을 1 회 더 전수 스캔** 한다. 평가 도중 "자명하다"고 넘긴 조건이라도 판정 직전 체크리스트 형식으로 되돌아온다.
 
@@ -1026,7 +1034,11 @@ Step 4 판정 시 평가자는 Sprint Feedback 에 다음을 기록:
 - 판정자는 narrated reasoning 이 아니라 **observable evidence 에 대해 reasoning claim 을 검증**해야 한다. CoT/서술을 신뢰하면 fabricated progress signal 에 속아 false positive 가 최대 90% 증가 ([Gaming the Judge — arxiv 2601.14691](https://arxiv.org/abs/2601.14691))
 - "실행했다" 주장은 실제 실행 로그(receipt)와 **대조**하여 검증한다. 로그 없는 호출 주장은 fabricated tool reference 로 분류 ([Tool Receipts, Not Zero-Knowledge Proofs — arxiv 2603.10060](https://arxiv.org/pdf/2603.10060))
 
+<!-- markdownlint-disable MD024 -->
+
 ### 실패 사례
+
+<!-- markdownlint-enable MD024 -->
 
 - **fit-pal-app AR-03 (2026-05-17)**: "스킬 invoke" 조건에서 파일시스템 아티팩트가 없어 실행 여부를 구조적으로 검증 불가 → 산출물 부재이므로 `[미검증]` 이 정답. 실행 주장만으로 PASS 처리하면 가짜 호출을 통과시킴
 
@@ -1525,7 +1537,11 @@ mutation 은 비싸다. 대규모 적용 보고는 전통적 방식이 큰 코�
 - 한 개라도 누락 시 FAIL + 누락 대상 전체 명시
 - 샘플 1~2 개만 확인하고 "나머지도 비슷할 것" 이라는 PASS 금지
 
+<!-- markdownlint-disable MD024 -->
+
 ### 실패 사례
+
+<!-- markdownlint-enable MD024 -->
 
 - **rust-kit H-01/H-03 (2026-04)**: "domain event + outbox 원칙이 rust-init, rust-feature, rust-service, rust-api 4 개 스킬 Gotchas 에 있다" 조건에서 rust-service 만 확인하고 PASS → 실제로 rust-init/rust-feature/rust-api 3 개 누락 → REJECT
 - **react-kit KZ-04 (2026-04)**: References 에 `docs/react/kit-design/` 7 개 그룹 문서 (g1~g6, g5b) 개별 명시 요구였는데 포괄 경로로 처리 → REJECT
@@ -1716,9 +1732,13 @@ CheckEval은 Likert 스케일 대신 boolean 분해로 평가자 간 일치도�
 
 항목을 카운트할 때 Grep 패턴이 대상의 모든 변형을 포함하는지 확인한다:
 
+<!-- markdownlint-disable MD038 -->
+
 - Markdown 헤더: `##` 뿐 아니라 `###`, `####` 등 하위 레벨도 고려
 - 번호 매기기: `1.` 형식과 `- ` 불릿 형식 모두 고려
 - Gotchas 항목 카운트: H2(`## Gotchas`) 하위의 H3(`### 항목`) 또는 불릿(`- **항목**`) 형태 모두 매칭하는 범용 정규식 사용
+
+<!-- markdownlint-enable MD038 -->
 
 ```text
 # 실패 사례: AR-03 REJECT
@@ -1992,7 +2012,11 @@ LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 >
 > **배경:** Phase 1/2 에서 Cross-Surface Parity 가 설계 가이드 · 계약 가이드 레이어에 고정되었다. Phase 3 는 동일 parity 를 **평가자 레이어** 에 흡수하고, 향후 본 가이드가 개정될 때 상·하위 surface 로의 전파를 자동 체크한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 원칙
+
+<!-- markdownlint-enable MD024 -->
 
 qa-evaluation-guide 가 개정되면 다음 파일에 대응 원칙이 존재하는지 자동 체크한다:
 

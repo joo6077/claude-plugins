@@ -31,7 +31,7 @@
 ## 신뢰도 기준
 
 | 유형 | 신뢰도 | 태그 | 비고 |
-|------|--------|------|------|
+| ------ | -------- | ------ | ------ |
 | 학회 논문 (peer-reviewed) | 높음 | — | NeurIPS, ICLR, ACL, EMNLP, ICSE, FSE |
 | 공식 블로그/문서 | 높음 | — | Anthropic, OpenAI, Google |
 | arXiv preprint | 중간 | `[preprint]` | 인용 수 확인 |

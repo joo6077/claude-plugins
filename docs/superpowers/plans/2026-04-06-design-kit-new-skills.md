@@ -12,7 +12,7 @@
 
 ## 파일 구조
 
-```
+```text
 design-kit/skills/
 ├── design-concept/
 │   ├── SKILL.md                          # 신규
@@ -33,6 +33,7 @@ design-kit/skills/
 ### Task 1: design-concept SKILL.md
 
 **Files:**
+
 - Create: `design-kit/skills/design-concept/SKILL.md`
 
 - [ ] **Step 1: 디렉토리 생성**
@@ -40,6 +41,8 @@ design-kit/skills/
 Run: `mkdir -p design-kit/skills/design-concept/references`
 
 - [ ] **Step 2: SKILL.md 작성**
+
+<!-- markdownlint-disable MD025 MD031 MD032 -->
 
 ```markdown
 ---
@@ -146,7 +149,7 @@ references/concept-criteria.md의 카테고리별로 컨셉 요소를 정리한�
 # References
 
 - `references/concept-criteria.md` — 컨셉 도출 기준 상세
-```
+```text
 
 - [ ] **Step 3: 파일 생성 확인**
 
@@ -162,11 +165,18 @@ git commit -m "feat(design-kit): design-concept SKILL.md 추가
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
 
+<!-- markdownlint-enable MD025 MD031 MD032 -->
+
 ---
+
+<!-- markdownlint-disable MD001 -->
 
 ### Task 2: design-concept references
 
+<!-- markdownlint-enable MD001 -->
+
 **Files:**
+
 - Create: `design-kit/skills/design-concept/references/concept-criteria.md`
 
 - [ ] **Step 1: concept-criteria.md 작성**
@@ -248,6 +258,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 3: design-mockup SKILL.md
 
 **Files:**
+
 - Create: `design-kit/skills/design-mockup/SKILL.md`
 
 - [ ] **Step 1: 디렉토리 생성**
@@ -294,11 +305,18 @@ user-invocable: true
 프로젝트에서 이전 단계 산출물을 탐색한다:
 
 ```
+
+<!-- markdownlint-disable MD025 -->
+
 # 감지 대상
+
+<!-- markdownlint-enable MD025 -->
+
 .design/concept.md          → 컨셉 로드
 **/theme/** **/tokens/**    → 디자인 토큰 로드
 **/design-tokens.*          → 디자인 토큰 로드
-```
+
+```text
 
 - 컨셉 존재 → 무드 키워드, 컬러/타이포 방향, UI 패턴을 시안에 반영
 - 토큰 존재 → 구체적 컬러값, 타이포 스케일, 간격을 시안에 적용
@@ -364,9 +382,14 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
+<!-- markdownlint-disable MD001 -->
+
 ### Task 4: design-mockup references
 
+<!-- markdownlint-enable MD001 -->
+
 **Files:**
+
 - Create: `design-kit/skills/design-mockup/references/mockup-guidelines.md`
 
 - [ ] **Step 1: mockup-guidelines.md 작성**
@@ -462,6 +485,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 5: design-component SKILL.md
 
 **Files:**
+
 - Create: `design-kit/skills/design-component/SKILL.md`
 
 - [ ] **Step 1: 디렉토리 생성**
@@ -499,11 +523,18 @@ user-invocable: true
 프로젝트에서 이전 단계 산출물을 탐색한다:
 
 ```
+
+<!-- markdownlint-disable MD024 MD025 -->
+
 # 감지 대상
+
+<!-- markdownlint-enable MD024 MD025 -->
+
 .design/concept.md              → 컨셉 로드 (컬러/타이포/UI 패턴 방향)
 **/theme/** **/tokens/**        → 디자인 토큰 로드
 .design/mockups/*.html          → 확정 시안 로드
-```
+
+```text
 
 - 시안 존재 → 시안에서 반복되는 UI 요소를 자동 식별하여 제안
 - 토큰 존재 → 컴포넌트별 토큰 매핑 자동 생성
@@ -555,12 +586,19 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 ---
 
+<!-- markdownlint-disable MD001 -->
+
 ### Task 6: design-component references
 
+<!-- markdownlint-enable MD001 -->
+
 **Files:**
+
 - Create: `design-kit/skills/design-component/references/component-spec-template.md`
 
 - [ ] **Step 1: component-spec-template.md 작성**
+
+<!-- markdownlint-disable MD031 MD058 MD060 -->
 
 ```markdown
 # 컴포넌트 정의 템플릿
@@ -637,7 +675,7 @@ design-component 스킬이 출력하는 컴포넌트 카탈로그의 포맷.
 | 네비게이션 | default, active/selected, hover |
 | 토글/스위치 | off, on, disabled |
 | 체크박스 | unchecked, checked, indeterminate, disabled |
-```
+```text
 
 - [ ] **Step 2: 파일 생성 확인**
 
@@ -653,11 +691,14 @@ git commit -m "feat(design-kit): design-component references 추가
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
 
+<!-- markdownlint-enable MD031 MD058 MD060 -->
+
 ---
 
 ### Task 7: README 동기화 및 최종 검증
 
 **Files:**
+
 - Modify: `design-kit/README.md`
 
 - [ ] **Step 1: sync-docs 실행**
@@ -678,7 +719,8 @@ Run: `grep -n "트리거" design-kit/skills/*/SKILL.md`
 Run: `find design-kit/skills -name "*.md" | sort`
 
 Expected:
-```
+
+```text
 design-kit/skills/design-audit/SKILL.md
 design-kit/skills/design-audit/references/audit-criteria.md
 design-kit/skills/design-audit/templates/audit-report.md
@@ -713,7 +755,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 `.harness/sprint-contract.md`의 모든 조건을 하나씩 검증한다:
 
 | 조건 | 검증 방법 |
-|------|-----------|
+| ------ | ----------- |
 | SK-01 | `ls design-kit/skills/design-concept/SKILL.md design-kit/skills/design-mockup/SKILL.md design-kit/skills/design-component/SKILL.md` |
 | SK-02 | 각 SKILL.md에서 `grep -c "user-invocable: true"` |
 | SK-03 | 각 SKILL.md description에서 트리거 키워드 존재 확인 |

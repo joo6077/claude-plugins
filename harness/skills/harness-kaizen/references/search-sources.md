@@ -3,17 +3,20 @@
 ## 소스 분류
 
 ### 학술 논문
+
 - **검색 대상:** arXiv, ACL Anthology, IEEE Xplore, Semantic Scholar
 - **키워드:** LLM agent evaluation, prompt engineering, quality assurance, agentic workflow, tool use, multi-agent, code generation verification
 - **범위:** 최근 6개월 우선, 핵심 논문은 기간 무관
 - **후속:** 발견한 논문의 references 섹션에서 관련 논문 추적
 
 ### 공식 소스
+
 - **Anthropic:** docs.anthropic.com changelog, anthropic.com/research, anthropic.com/engineering
 - **OpenAI:** platform.openai.com/docs changelog, openai.com/research, cookbook
 - **Google DeepMind:** deepmind.google/research, cloud.google.com/vertex-ai docs
 
 ### 커뮤니티/실무
+
 - **GitHub:** trending repos — 키워드: agent, harness, prompt, evaluation, quality
 - **블로그:** Simon Willison (simonwillison.net), Lilian Weng (lilianweng.github.io), Eugene Yan (eugeneyan.com)
 - **컨퍼런스:** NeurIPS, ICLR, ACL, EMNLP — 최신 proceedings
@@ -22,7 +25,7 @@
 ## 신뢰도 기준
 
 | 유형 | 신뢰도 | 태그 | 비고 |
-|------|--------|------|------|
+| ------ | -------- | ------ | ------ |
 | Peer-reviewed 논문 | 높음 | — | 가장 신뢰 |
 | 공식 블로그/docs (Anthropic, OpenAI, Google) | 높음 | — | 최신성 높음 |
 | arXiv preprint | 중간 | `[preprint]` | 미검증 논문 명시 필수 |

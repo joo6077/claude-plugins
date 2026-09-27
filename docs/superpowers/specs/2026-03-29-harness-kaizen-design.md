@@ -4,7 +4,11 @@ version: 1.0.0
 last_updated: 2026-03-30
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Harness Kaizen — 지속적 개선 스킬 설계 스펙
+
+<!-- markdownlint-enable MD025 -->
 
 > 학술 논문, 공식 문서, 커뮤니티 리서치를 기반으로 하네스 엔지니어링을 주기적·자동으로 개선하는 스킬
 
@@ -29,7 +33,7 @@ last_updated: 2026-03-30
 ## 2. 개선 대상 범위
 
 | 영역 | 대상 파일/디렉토리 | 예시 |
-|------|---------------------|------|
+| ------ | --------------------- | ------ |
 | 하네스 설정 | `.harness/project.yaml`, `procedures/` | anti-pattern 추가, 카테고리 정교화 |
 | 스킬 프롬프트 | `harness/skills/*/SKILL.md` | Gotchas 추가, 프롬프트 기법 개선 |
 | 에이전트 로직 | `harness/agents/qa-evaluator.md` | 평가 로직 강화, 검증 패턴 추가 |
@@ -50,7 +54,7 @@ last_updated: 2026-03-30
 ### 3.2 이벤트 트리거
 
 | 이벤트 | 감지 방법 | 카이젠 범위 |
-|--------|-----------|-------------|
+| -------- | ----------- | ------------- |
 | QA Evaluator REJECT 2회 연속 | `sprint-feedback.md` REJECT 이력 확인 | REJECT 원인 영역 집중 개선 |
 | 같은 anti-pattern 3회 이상 반복 | feedback 히스토리 분석 | 해당 anti-pattern 규칙 강화 또는 스킬 가이드 보완 |
 | 새 스킬 추가 후 첫 주 | 스킬 폴더 변경 감지 | 신규 스킬이 설계 가이드 원칙을 따르는지 점검 |
@@ -66,7 +70,7 @@ last_updated: 2026-03-30
 
 ## 4. 실행 파이프라인
 
-```
+```text
 [트리거]
 ├─ cron: 매주 월요일 09:00 KST
 ├─ 이벤트: REJECT 2연속 / anti-pattern 3회 반복 / 신규 스킬 추가
@@ -193,7 +197,7 @@ last_updated: 2026-03-30
 
 ### 소스 분류
 
-```
+```text
 학술 논문
 ├─ 검색: arXiv "LLM agent" OR "prompt engineering" + 최근 6개월
 ├─ 키워드: evaluation, verification, quality assurance, agentic
@@ -213,7 +217,7 @@ last_updated: 2026-03-30
 ### 신뢰도 기준
 
 | 유형 | 신뢰도 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | Peer-reviewed 논문 | 높음 | 가장 신뢰 |
 | 공식 블로그/docs (Anthropic, OpenAI, Google) | 높음 | 최신성 높음 |
 | arXiv preprint | 중간 | `[preprint]` 태그 필수 |
@@ -231,7 +235,7 @@ last_updated: 2026-03-30
 
 ## 8. 스킬 폴더 구조
 
-```
+```text
 harness/skills/harness-kaizen/
 ├── SKILL.md                     # 메인 지시문 + 파이프라인 정의
 ├── references/
@@ -245,7 +249,7 @@ harness/skills/harness-kaizen/
 
 ### 산출물 디렉토리
 
-```
+```text
 docs/kaizen/
 ├── research-log.md              # 누적 연구 기록 (소스 + 채택/폐기)
 └── changelog.md                 # 카이젠으로 인한 변경 이력
@@ -281,7 +285,7 @@ docs/kaizen/
 ## 10. 수동 호출 인터페이스
 
 | 명령 | 동작 |
-|------|------|
+| ------ | ------ |
 | `/harness-kaizen` | 전체 영역 리서치 + PR |
 | `/harness-kaizen config` | `.harness/` 설정 영역만 집중 |
 | `/harness-kaizen skills` | 스킬 프롬프트 영역만 집중 |
@@ -294,7 +298,7 @@ docs/kaizen/
 ### Semver 규칙 (영향도 기반)
 
 | 변경 영역 | bump | 예시 |
-|-----------|------|------|
+| ----------- | ------ | ------ |
 | docs, config 튜닝, anti-pattern 추가, Gotchas 추가 | **patch** `0.3.1 → 0.3.2` | project.yaml에 anti-pattern 1개 추가 |
 | 스킬 프롬프트 변경, eval 기준 변경, 새 procedure 추가 | **minor** `0.3.2 → 0.4.0` | sprint-contract 스킬의 프로세스 단계 수정 |
 | 아키텍처 변경, 에이전트 로직 대폭 수정, breaking change | **major** `0.4.0 → 1.0.0` | qa-evaluator 평가 방식 전면 교체 |
@@ -331,7 +335,7 @@ PR마다 아래 파일을 자동으로 업데이트한다:
 ### 추적 규칙
 
 | 항목 | 규칙 | 예시 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 커밋 메시지 | `kaizen:` prefix | `kaizen: sprint-contract few-shot 판단 로직 추가` |
 | 브랜치명 | 버전 포함 | `kaizen/0.4.0-2026-04-07` |
 | PR 제목 | bump 유형 명시 | `[minor] sprint-contract 복잡도 판단 개선` |

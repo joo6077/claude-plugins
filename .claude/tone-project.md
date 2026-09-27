@@ -7,7 +7,7 @@
 ## 결정론적 감지값
 
 | 키 | 값 | 감지 근거 |
-|---|---|---|
+| --- | --- | --- |
 | `scope_paths` | `scripts/` · `*/scripts/` · `*/skills/` · `*/references/` · `docs/` | 디렉토리 존재 |
 | `token_class_names` | 해당 없음 | UI 코드 없음 |
 | `state_lib` | 해당 없음 | 의존성 파일 없음 |
@@ -23,6 +23,6 @@ UI 코드가 없어 해당 없음. `file_header_fields` 는 스크립트 첫 줄
 ## 명령
 
 | 키 | 값 | 출처 |
-|---|---|---|
+| --- | --- | --- |
 | `analyze_cmd` | `bash -n scripts/release.sh` | `.harness/project.yaml` `commands.analyze` |
 | `codegen_cmd` | 없음 | `.harness/project.yaml` `commands.codegen` 이 null |

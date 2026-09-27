@@ -14,7 +14,7 @@
 
 ## File Structure
 
-```
+```text
 harness/skills/harness-kaizen/        # 신규 생성
 ├── SKILL.md                          # 메인 지시문 + 파이프라인
 ├── references/
@@ -37,6 +37,7 @@ docs/kaizen/                          # 신규 생성
 ### Task 1: 산출물 디렉토리 초기화 (docs/kaizen/)
 
 **Files:**
+
 - Create: `docs/kaizen/research-log.md`
 - Create: `docs/kaizen/changelog.md`
 
@@ -78,6 +79,7 @@ git commit -m "kaizen: docs/kaizen/ 산출물 디렉토리 초기화"
 ### Task 2: 참조 문서 — search-sources.md
 
 **Files:**
+
 - Create: `harness/skills/harness-kaizen/references/search-sources.md`
 
 - [ ] **Step 1: search-sources.md 작성**
@@ -140,6 +142,7 @@ git commit -m "kaizen: 검색 소스 및 신뢰도 기준 문서 추가"
 ### Task 3: 참조 문서 — pr-template.md
 
 **Files:**
+
 - Create: `harness/skills/harness-kaizen/references/pr-template.md`
 
 - [ ] **Step 1: pr-template.md 작성**
@@ -247,6 +250,7 @@ git commit -m "kaizen: PR 본문 및 changelog 엔트리 템플릿 추가"
 ### Task 4: 이벤트 트리거 감지 스크립트
 
 **Files:**
+
 - Create: `harness/skills/harness-kaizen/scripts/trigger-check.sh`
 
 - [ ] **Step 1: trigger-check.sh 작성**
@@ -361,6 +365,7 @@ git commit -m "kaizen: 이벤트 트리거 감지 스크립트 추가"
 ### Task 5: 연구 로그 엔트리 템플릿
 
 **Files:**
+
 - Create: `harness/skills/harness-kaizen/templates/research-log-entry.md`
 
 - [ ] **Step 1: research-log-entry.md 작성**
@@ -396,7 +401,8 @@ git commit -m "kaizen: 이벤트 트리거 감지 스크립트 추가"
 
 - PR URL 또는 "개선 포인트 없음"
 ```
-```
+
+```text
 
 - [ ] **Step 2: 커밋**
 
@@ -410,9 +416,12 @@ git commit -m "kaizen: 연구 로그 엔트리 템플릿 추가"
 ### Task 6: 메인 스킬 파일 — SKILL.md
 
 **Files:**
+
 - Create: `harness/skills/harness-kaizen/SKILL.md`
 
 - [ ] **Step 1: SKILL.md 작성**
+
+<!-- markdownlint-disable MD029 MD031 MD058 MD060 -->
 
 ```markdown
 ---
@@ -613,7 +622,7 @@ EOF
 | 커밋 메시지 | `kaizen:` prefix | `kaizen: sprint-contract few-shot 판단 로직 추가` |
 | 브랜치명 | 버전 + 날짜 | `kaizen/0.4.0-2026-04-07` |
 | PR 제목 | bump 유형 명시 | `[minor] sprint-contract 복잡도 판단 개선` |
-```
+```text
 
 - [ ] **Step 2: 커밋**
 
@@ -621,6 +630,8 @@ EOF
 git add harness/skills/harness-kaizen/SKILL.md
 git commit -m "kaizen: 메인 스킬 파일 (SKILL.md) 추가"
 ```
+
+<!-- markdownlint-enable MD029 MD031 MD058 MD060 -->
 
 ---
 
@@ -632,7 +643,7 @@ git commit -m "kaizen: 메인 스킬 파일 (SKILL.md) 추가"
 
 Claude Code의 `/schedule` 기능을 사용하여 등록한다:
 
-```
+```text
 Schedule name: harness-kaizen-weekly
 Cron: 0 0 * * 1   (매주 월요일 00:00 UTC = 09:00 KST)
 Prompt: /harness-kaizen
@@ -667,6 +678,7 @@ Expected: 7개 파일 모두 존재
 - [ ] **Step 2: SKILL.md frontmatter 검증**
 
 SKILL.md의 frontmatter가 올바른 YAML인지 확인:
+
 - `name: harness-kaizen` 존재
 - `description:` 트리거 조건 포함
 - `user-invocable: true` 존재
@@ -684,6 +696,7 @@ Expected: exit code 1 (트리거 없음)
 - [ ] **Step 4: /harness-kaizen 수동 실행 테스트**
 
 `/harness-kaizen`을 실행하여:
+
 1. Step 1 (상태 확인)이 정상 동작하는지
 2. Step 2 (COLLECT)에서 WebSearch가 결과를 반환하는지
 3. Step 3 (VERIFY)에서 3중 게이트가 작동하는지

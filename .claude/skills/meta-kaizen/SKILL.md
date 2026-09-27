@@ -20,7 +20,11 @@ user-invocable: true
 6. **Pre-flight 이전 실행** — 이 스킬은 `/kaizen-orchestrator` 실행보다 **먼저** 돌아야 한다. 다음 사이클 Step 0.5 가 개선된 SKILL.md 를 읽을 수 있도록.
 7. **bare fenced code block 0 건** — SKILL.md 수정 시 모든 fence 에 언어 힌트 (`text`, `bash`, `yaml`) 필수.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 전제 조건 확인
 
@@ -92,7 +96,11 @@ URL/arxiv 링크 필수. Codex 40 초 무응답 시 WebSearch fallback.
 
 `scripts/append-audit-log.py --cycle-id meta-kaizen-<date>` 로 이번 실행 자체도 audit-log 에 기록. 다음 사이클 Step 0.5 가 이를 인지한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `.claude/skills/kaizen-orchestrator/SKILL.md` — 개선 대상
 - `.harness/.meta/orchestrator-audit-log.md` — 입력 자료 (read-only)

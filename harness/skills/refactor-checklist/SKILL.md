@@ -41,7 +41,7 @@ test -f .harness/project.yaml && cat .harness/project.yaml
 스택별 규칙 출처 (`{kit}` / `{rel}` 은 아래 표에서 정한다):
 
 | 감지 마커 | 킷 (`{kit}`) | 규칙 소스 상대경로 (`{rel}`) |
-|----------|--------------|------------------------------|
+| ---------- | -------------- | ------------------------------ |
 | `pubspec.yaml` | flutter-toolkit | `references/flutter-ai-rules.md` |
 | `package.json` + `vite.config.*` | react-kit | `references/` |
 | `Cargo.toml` | rust-kit | `references/` |

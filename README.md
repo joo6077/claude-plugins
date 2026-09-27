@@ -50,7 +50,7 @@ Claude Code 세션에서 이 모노레포를 마켓플레이스로 추가한다:
 ### 설치 범위
 
 | 플래그 | 범위 | 설명 |
-|--------|------|------|
+| -------- | ------ | ------ |
 | *(기본)* | user | 모든 프로젝트에서 사용 |
 | `--scope project` | project | 해당 프로젝트에서만 사용 (팀 공유) |
 | `--scope local` | local | 해당 프로젝트, 본인만 사용 (gitignored) |
@@ -150,6 +150,7 @@ bash scripts/release.sh howto-kit patch
 <!-- /AUTO:skills-harness -->
 
 **사용 시작:**
+
 ```text
 /harness init
 ```

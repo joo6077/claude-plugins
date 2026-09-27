@@ -81,7 +81,7 @@ harness/evals/hooks/
 ### 스크립트
 
 | 스크립트 | 역할 |
-|---------|------|
+| --------- | ------ |
 | `harness/scripts/feedback-path.sh` | OS별 글로벌 피드백 경로 출력 |
 | `harness/scripts/save-feedback.sh <contract\|evaluator> <draft-yaml>` | 스키마 검증 후 글로벌 경로에 저장 |
 | `harness/scripts/verify-feedback.sh <saved-yaml>` | 저장된 피드백 유효성 검증 (PASS/FAIL) |
@@ -90,7 +90,7 @@ harness/evals/hooks/
 ### 참조 파일
 
 | 파일 | 내용 |
-|------|------|
+| --- | --- |
 | `harness/references/feedback-schema.yaml` | 피드백 YAML 스키마 v1 — `save-feedback.sh`가 이 스키마로 검증 |
 | `harness/references/contract-schema.md` | Sprint Contract 포맷 정의 — contract-kaizen + evaluator-kaizen 공유 |
 
@@ -115,7 +115,7 @@ qa-evaluator 완료
 ### 필수 필드
 
 | 필드 | 타입 | 설명 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `stack` | string | 프로젝트 스택. 자유 텍스트 (flutter, rust, react, python 등) |
 | `commands.analyze` | string | 정적 분석 명령. DG-01 검증에 사용 |
 | `commands.test` | string | 테스트 명령. DG-03 검증에 사용 |
@@ -125,7 +125,7 @@ qa-evaluator 완료
 ### 선택 필드
 
 | 필드 | 타입 | 기본값 | 설명 |
-|------|------|--------|------|
+| ------ | ------ | -------- | ------ |
 | `commands.lint` | string\|null | null | 린트 명령. **`commands.analyze` 가 없는 스택(markdown 전용 킷 등)에서 `DG-01` 의 대체 오라클로 쓴다.** 둘 다 null 이면 `DG-01` 은 `N/A (사유)` 로 기록한다 |
 | `commands.format` | string\|null | null | 포맷 명령 |
 | `commands.codegen` | string\|null | null | 코드 생성 명령 |
@@ -150,6 +150,7 @@ contract_categories:
 ```
 
 **제약:**
+
 - `id`는 영문, 공백/특수문자 없음 (파싱에 사용)
 - `prefix`는 고유, 하이픈 미포함 (ID 형식: `{prefix}-{번호}`)
 - 최소 1개 카테고리 필수
@@ -167,13 +168,14 @@ anti_patterns:
 ```
 
 | 필드 | 필수 | 설명 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `id` | 예 | 고유 ID |
 | `message` | 예 | FAIL 시 표시할 메시지 |
 | `pattern` | 조건부 | ripgrep 호환 정규식. `command` 가 없으면 **필수** |
 | `command` | 조건부 | 판정을 수행하는 셸 명령. exit 0 = 위반 없음, non-zero = 위반 |
 
 **`pattern` 과 `command` 의 관계:**
+
 - 둘 중 **최소 하나**는 있어야 한다. 둘 다 없으면 **설정 오류**이며 그 항목은 판정 불가다 —
   평가자는 이것을 PASS 로 넘기지 말고 계약 결함으로 보고한다.
 - 둘 다 있으면 **`command` 가 판정 권위**다. `pattern` 은 사람이 읽는 힌트로만 남는다.
@@ -191,6 +193,7 @@ anti_patterns:
 - 같은 계열: 괄호/들여쓰기 균형, 중복 정의, 참조 무결성, 파일 간 정합성.
 
 **패턴 규칙 (`pattern` 을 쓸 때):**
+
 - ripgrep regex 문법 사용
 - 변경/생성 파일에서만 검색 (전체 프로젝트 아님)
 - 패턴 테스트: `rg "{pattern}" --type-not binary` 로 사전 확인 권장
@@ -276,6 +279,7 @@ runtime_inspection:
 ### 절차 파일이 없으면?
 
 해당 카테고리는 **범용 검증**으로 폴백:
+
 - Glob으로 관련 파일 검색
 - Read로 내용 확인
 - 조건에 명시된 요소가 코드에 존재하는지 확인
@@ -402,7 +406,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 카이젠 스킬 구성
 
 | 스킬 | 역할 | 오케스트레이터 |
-|------|------|---------------|
+| ------ | ------ | --------------- |
 | `/harness-kaizen` | 하네스 전체 (설정·스킬·에이전트·eval·아키텍처) | Phase 1 |
 | `/contract-kaizen` | sprint-contract + contract-schema | Phase 2 |
 | `/evaluator-kaizen` | qa-evaluator + 평가 방법론 가이드 | Phase 3 |
@@ -428,7 +432,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 자동 실행
 
 | 트리거 | 조건 |
-|--------|------|
+| -------- | ------ |
 | **주기적** | `kaizen-orchestrator` 스킬이 매주 월요일 cron으로 Phase 순서대로 호출 |
 | **REJECT 연속** | QA Evaluator REJECT 2회 연속 시 |
 | **피드백 임계치** | 같은 진단 항목이 최근 피드백 10건 중 3회 이상 반복 시 |
@@ -451,7 +455,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 개선 대상
 
 | 영역 | 대상 |
-|------|------|
+| ------ | ------ |
 | 하네스 설정 | `project.yaml`, `procedures/`, anti-patterns |
 | 스킬 프롬프트 | `skills/*/SKILL.md` |
 | 에이전트 로직 | `agents/qa-evaluator.md` |
@@ -464,7 +468,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 카이젠 PR은 영향도에 따라 semver bump:
 
 | 변경 영역 | bump |
-|-----------|------|
+| ----------- | ------ |
 | docs, config 튜닝, Gotchas 추가 | **patch** |
 | 스킬 프롬프트, eval 기준, procedure 추가 | **minor** |
 | 아키텍처, 에이전트 로직 대폭 수정 | **major** |

@@ -17,7 +17,11 @@ user-invocable: true
 4. **수치 없는 원칙 금지** — "적절한 대비를 유지하라" 같은 모호한 표현 금지. 반드시 구체적 수치를 포함하라 (예: "WCAG AA 4.5:1", "최소 44pt 터치 타겟", "200~500ms 애니메이션").
 5. **카테고리 미지정 시 전체 순회 금지** — 사용자가 카테고리를 지정하지 않으면 전체를 한 번에 갱신하지 말고 우선순위가 높은 카테고리를 사용자에게 제안하여 확인받아라. 전체 순회는 토큰 소진과 품질 저하를 유발한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 대상 카테고리 결정
 
@@ -28,7 +32,7 @@ user-invocable: true
 카테고리별 관련 소스를 WebSearch + WebFetch로 조사한다:
 
 | 카테고리 | 우선 소스 |
-|----------|-----------|
+| ---------- | ----------- |
 | foundations/ | Apple HIG, Material Design 3, Fluent Design |
 | interaction/ | NNGroup, Baymard Institute |
 | accessibility/ | WCAG 2.1/2.2, Apple HIG Accessibility |
@@ -39,6 +43,7 @@ user-invocable: true
 ## Step 3: 분석 및 정리
 
 크롤링 결과를 해당 design-kit/docs/design/ 문서에 반영:
+
 - 각 원칙에 `> **출처:**` 인라인 태그
 - 섹션 구조는 기존 스켈레톤을 따름
 - 수치/기준값은 명확하게 (예: "4.5:1", "44pt", "200~500ms")
@@ -46,6 +51,7 @@ user-invocable: true
 ## Step 4: frontmatter 업데이트
 
 수정한 문서의 frontmatter에서:
+
 - `last_updated` → 오늘 날짜
 - `version` → patch bump (내용 추가) 또는 minor bump (구조 변경)
 
@@ -56,7 +62,11 @@ git add design-kit/docs/design/
 git commit -m "docs(design): [카테고리] 리서치 갱신 — [소스 요약]"
 ```
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - 크롤링 대상 소스 목록은 Process Step 2 테이블 참조
 - 기존 design-kit/docs/design/ 문서의 섹션 구조를 따를 것

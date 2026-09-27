@@ -4,7 +4,11 @@ version: 1.2.0
 last_updated: 2026-09-05
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Phase Research Templates
+
+<!-- markdownlint-enable MD025 -->
 
 > kaizen-orchestrator 의 각 Phase 서브에이전트가 리서치 단계에서 **반드시 조회해야 하는 소스 목록**.
 > 이전에는 각 Phase subagent 가 자체 판단으로 리서치 소스를 결정했으나, 이로 인해 리서치 품질이 일관되지 않았다 (2026-04-11 세션에서 Context7 quota 소진 fallback 이 인용 없이 수행됨).
@@ -30,7 +34,11 @@ last_updated: 2026-09-05
 
 ## Phase 2 — Contract (contract-design-guide, sprint-contract, contract-schema)
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -55,7 +63,11 @@ last_updated: 2026-09-05
 
 ## Phase 4 — Harness 지원 스킬 (init, create-skill, create-agent, kaizen 스킬)
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -79,7 +91,11 @@ last_updated: 2026-09-05
 
 ## Phase 6 — design-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -91,7 +107,11 @@ last_updated: 2026-09-05
 
 ## Phase 7 — backend-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -117,7 +137,11 @@ last_updated: 2026-09-05
 
 ## Phase 9 — rust-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (Context7 우선)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -146,7 +170,11 @@ last_updated: 2026-09-05
 
 ## Phase 11 — planning-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks, Stories, Flows, Data Modeling, GitHub 동기화) 을 다루므로 소스는 `docs/planning/*.md` 에 이미 검증된 1차 URL 을 재사용한다.
 
@@ -167,7 +195,11 @@ planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks,
 
 ## Phase 12 — reflect-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 reflect-kit 은 대화 피드백 → 학습 → 재주입 파이프라인(Reflexion 방법론)을 다룬다. 훅 계약과
 라벨링 품질이 핵심이므로 공식 훅 문서 + 라벨 일관성 연구 + 이벤트 그룹핑 선행 사례를 조회한다.
@@ -184,7 +216,11 @@ reflect-kit 은 대화 피드백 → 학습 → 재주입 파이프라인(Reflex
 
 ## Phase 13 — bambu-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 bambu-kit 은 Bambu Studio 프로파일 JSON 을 생성하므로 **필드명·기본값·계산 의미를 추측하면
 import 가 조용히 실패하거나 실물 출력이 어긋난다.** 슬라이서 소스 코드가 1차 출처다.
@@ -201,7 +237,11 @@ import 가 조용히 실패하거나 실물 출력이 어긋난다.** 슬라이�
 
 ## Phase 14 — onboarding-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므로 소스는 `.claude/skills/onboarding-kaizen/references/research-sources.md` 에 등록된 1차 출처를 재사용한다.
 
@@ -230,6 +270,7 @@ tone-kit 은 코딩 톤·유지보수성 게이트를 다룬다. **규칙 강도
 | 7 | [국립국어원 보도자료 작성 길잡이](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) | 공식 | 한국어 축 문체 근거 — 실제 내용은 보도자료 구성 · 형식 안내라 코드 주석 문체 근거로는 약하다 | [LINE 테크니컬 라이팅](https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/) |
 | 8 | 디자인 시스템 컴포넌트 인덱스 (M3 · HIG · MUI · Fluent · Ant · Carbon) | 공식 | 접미사 taxonomy 어휘 원천. **권위가 아니라 어휘 대조용** | WebFetch |
 
+<!-- markdownlint-disable-next-line MD036 -->
 **주의 3건**
 
 - 자연어 텍스트 탐지 문헌(DetectGPT · Binoculars · 텍스트 스타일로메트리)은 `tone-kit/references/sources.md` 의 제외 목록에 있다. 되살리지 마라.
@@ -253,6 +294,7 @@ api-kit 은 **실제 응답을 SSOT 로 삼는** 블랙박스 계약 검증을 �
 | 7 | [Pact — Pending Pacts](https://docs.pact.io/pact_broker/advanced_topics/pending_pacts) | community(1차) | baseline 승격 거버넌스 선행 사례. 신규 계약을 곧바로 빌드 실패로 만들지 않는 구조 | WebFetch |
 | 8 | `docs/api/research-log.md` 미검증 항목 표 + `.api/` 실측 산출물 | 내부 | 문서 기재 ↔ 실측 대조. 어긋나면 **실측 채택** 후 로그 기록 | 파일 Read |
 
+<!-- markdownlint-disable-next-line MD036 -->
 **주의 3건**
 
 - **`pin` 의 의미를 되돌리지 마라.** 2026-09-04 리서치에서 '값 고정' → '경로별 명시 assertion'

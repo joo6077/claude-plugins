@@ -41,14 +41,14 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 ## 개선 대상
 
 | 영역 | 대상 파일 | 인자 필터 |
-|------|----------|----------|
+| ------ | ---------- | ---------- |
 | 가이드 | `../../docs/guides/qa-evaluation-guide.md` | `guide` |
 | 에이전트 프롬프트 | `harness/agents/qa-evaluator.md` | `skills` |
 
 ## 트리거 조건
 
 | 트리거 | 조건 |
-|--------|------|
+| -------- | ------ |
 | 오케스트레이터 | Phase 3으로 자동 호출 |
 | 피드백 임계치 | 최근 피드백 10건 중 동일 진단 항목 3회 이상 반복 |
 | 수동 | `/evaluator-kaizen`, `/evaluator-kaizen guide`, `/evaluator-kaizen skills` |
@@ -88,7 +88,7 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 ### Step 4: VERIFY (3-gate 검증)
 
 | Gate | 검증 | 실패 시 |
-|------|------|---------|
+| ------ | ------ | --------- |
 | GATE 1 | 모든 주장에 URL이 있는가? | URL 없는 주장 폐기 |
 | GATE 2 | WebFetch로 URL 접근 + 내용 일치? | 접근 불가 URL 폐기 |
 | GATE 3 | PR에 출처 URL + 인용 포함? | PR 작성 시 강제 |
@@ -126,7 +126,7 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 ## 버전 bump 판단 가이드
 
 | 변경 유형 | bump |
-|-----------|------|
+| ----------- | ------ |
 | qa-evaluation-guide.md만 수정 | patch |
 | Gotchas 추가/수정 | patch |
 | 검증 레벨/루브릭 변경 | minor |

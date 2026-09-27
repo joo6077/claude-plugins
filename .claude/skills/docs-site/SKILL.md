@@ -38,7 +38,11 @@ user-invocable: true
     저대비가 본질인 디자인 스타일 표본은 `data-contrast-exempt="specimen"` 으로 **명시 면제**하고
     왜 면제인지 페이지에 한 줄 적어라 — 조용히 넘기는 것과 구분된다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 대상 식별
 
@@ -76,6 +80,7 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 **문서를 묶거나 단일 overview로 만들지 마라.** 콘텐츠 밀도가 떨어지고 네비게이션에서 찾기 어려워진다.
 
 예시:
+
 - design-kit 22개 문서 → 22개 페이지 (color.md → color-palette.html)
 - backend-kit 12개 문서 → 12개 페이지 (api-design.md → api-design.html, database.md → database.html ...)
 - infra-kit 12개 문서 → 12개 페이지
@@ -85,6 +90,7 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 ## Step 3: 소스 .md 읽기
 
 해당 .md 파일을 읽어 핵심 내용을 파악한다:
+
 - 제목, 버전, 주요 섹션
 - 표, 코드 블록, 다이어그램 요소
 - 원칙 리스트와 출처 URL (반드시 HTML에 옮겨야 함)
@@ -94,6 +100,7 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 ## Step 4: HTML 생성
 
 `references/page-template.html`을 골격으로 사용한다:
+
 - `:root`의 `--accent`/`--accent2`를 `references/css-tokens.md`의 플러그인 매핑에 따라 설정
 - `.md` 내용을 시각적 HTML 섹션으로 변환 (카드, 테이블, 비교 패널, 체크리스트 등)
 - 제목에 `h1` + gradient, 섹션에 `.section-label`, 내용에 `.card` + `.grid-2/3` 패턴 사용
@@ -101,6 +108,7 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 ### design-kit 원칙 적용
 
 `design-kit/skills/design-audit/references/audit-criteria.md`를 읽고 다음을 준수한다:
+
 - **Typography**: 타이포 스케일 일관성, 본문 최소 16px. 본문 행간 1.7 은 공통 파일 `docs/assets/site.css` 가 준다 — 쪽에서 다시 정하지 않는다
 - **Color**: 텍스트/배경 대비 WCAG AA 4.5:1 이상, 시맨틱 토큰 사용
 - **Spacing**: 스페이싱 스케일 일관성, 같은 레벨 요소 동일 간격
@@ -113,14 +121,17 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 
 1. `docs/{plugin-name}/{page-name}.html`에 저장
 2. `docs/index.html`의 해당 플러그인 카테고리에 페이지 항목 추가:
+
    ```javascript
    { id: '{page-name}', title: '{한국어 제목}', file: '{plugin-name}/{page-name}.html' }
    ```
+
 3. `getIcon()` 함수에 SVG 아이콘 추가
 
 ## Step 6: 자가 검증
 
 Sprint Contract 전에 다음을 확인한다:
+
 1. Glob `docs/{plugin-name}/{page-name}.html` → 파일 존재 확인
 2. Read `docs/index.html` → categories 배열에 해당 `id` 항목이 추가되었는지 확인
 3. Read `docs/index.html` → `getIcon()` 함수에 해당 `id` 키가 존재하는지 확인
@@ -165,7 +176,11 @@ Sprint Contract 전에 다음을 확인한다:
 3. 구현 완료 확인
 4. `qa-evaluator` 실행 — 계약 기준 APPROVE/REJECT
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/page-template.html` — HTML 페이지 골격 템플릿
 - `references/css-tokens.md` — Claude 컬러 시스템 + 플러그인별 accent 매핑

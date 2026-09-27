@@ -100,7 +100,7 @@ Phase 17: Howto-kit 카이젠 (howto-kaizen)
 ## Phase 간 의존성 상세
 
 | 상위 | 하위 | 관계 |
-|------|------|------|
+| ------ | ------ | ------ |
 | skill-design-guide.md | 모든 SKILL.md | Gotchas 패턴, 아키타입 분류, 트리거 조건 원칙 |
 | agent-design-guide.md | qa-evaluator.md | 도구 스코핑, 모델 선택, 영속 메모리 원칙 |
 | contract-design-guide.md | sprint-contract SKILL.md | 계약 작성 원칙, 카테고리 설계, 이진 판정 기준 |

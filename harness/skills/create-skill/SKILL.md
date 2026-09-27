@@ -17,6 +17,8 @@ user-invocable: true
 
 ## Gotchas
 
+<!-- markdownlint-disable MD038 -->
+
 - description 을 사람용 요약으로 쓰면 트리거 정확도가 떨어진다 — "언제 이 스킬을 켜라" + 트리거 키워드 + **negative trigger (비트리거 조건)** 까지 명시해라. negative trigger 는 "X 같은 요청에는 트리거하지 않는다" 형식으로 최소 1 개 이상 포함한다 (리서치 근거: skills-best-practices, mgechev — "React skill should specify: Don't use for Vue, Svelte, or vanilla CSS").
 - description 은 **3 인칭 일관성** 을 유지해라 — "이 스킬은 ~한다" 또는 명령형 ("~해라") 중 하나로 통일. 1 인칭 ("나는 ~할 수 있다") 이나 2 인칭 ("당신의 ~") 은 Anthropic 공식 best practice 위반이다. description 은 system prompt 에 injection 되므로 관점 불일치가 discovery 문제를 유발한다.
 - description 은 "무엇을 하는 스킬인가" + "언제 사용하는가" 양쪽을 모두 포함해야 한다 — Anthropic 공식 예시: "Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction."
@@ -37,12 +39,15 @@ user-invocable: true
 - **Trigger 키워드 substring 검사** — description 트리거 키워드는 기존 스킬과 (1) 정확 중복 금지, (2) substring containment 금지 (예: "API 연동" ⊂ "API 연동 화면" 위반). `python3 scripts/validate-plugin.py <plugin> --check=triggers` 로 검증되며 RE-02 (react-kit 2026-04) REJECT 재발 방지 (skill-design-guide §4).
 - **Rule-by-Rule Audit Before Completion** — 스킬 Process의 마지막 Step은 반드시 "완료 선언 전 규칙 전수 대조 패스" 를 포함해야 한다 (skill-design-guide §3.6). create-skill이 만드는 스킬도 이 패턴을 상속하도록 Gotchas 섹션에 "완료 전 rule-by-rule audit" 항목을 기본 포함시켜라.
 
+<!-- markdownlint-enable MD038 -->
+
 ## Process
 
 ### 1. 설계 가이드 읽기
 
 `../../docs/guides/skill-design-guide.md`를 읽어 최신 설계 원칙을 확인한다.
 특히 아래 섹션을 참조:
+
 - 섹션 2: 스킬 유형 체크리스트
 - 섹션 3: Gotchas 작성법
 - 섹션 3.5: 검증 가능한 성공 기준
@@ -53,6 +58,7 @@ user-invocable: true
 ### 2. 요구사항 분석
 
 사용자의 요청에서:
+
 - **스킬 이름** (snake_case, 하이픈)
 - **목적** — 무엇을 하는 스킬인가
 - **아키타입** — 카탈로그의 어느 유형에 속하는가 (복수 가능하면 주된 것 1개)
@@ -73,6 +79,7 @@ user-invocable: true
 ### 4. SKILL.md 작성
 
 **frontmatter:**
+
 ```yaml
 ---
 name: {스킬명}
@@ -86,7 +93,9 @@ user-invocable: true
 ```
 
 **본문 구조:**
+
 1. **Gotchas** — 최소 1개. 알려진 주의사항이 없으면 빈 섹션으로 남기되 주석 추가:
+
    ```markdown
    ## Gotchas
 

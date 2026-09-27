@@ -101,6 +101,7 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
 계약이 엉뚱한 곳에 저장된다 (`cwd-contract-path-drift` 실제 발생).
 
 설정에서 사용하는 항목:
+
 - `contract_categories` — 계약 카테고리 (UI/Logic/Error/Architecture 등)
 - `anti_patterns` — 안티패턴 Grep 패턴 목록
 - `diagnostics` — 빌드/분석 명령, 콘솔 에러 패턴
@@ -341,6 +342,7 @@ verify_measurement "$CF"
 ### 1. 요구사항 분석
 
 `$ARGUMENTS`를 분석하여:
+
 - 어떤 feature인지 (신규 vs 기존 확장)
 - 영향 범위 (레이어, 파일 수)
 - 복잡도 판단 (단순/중간/복잡)
@@ -403,6 +405,7 @@ verify_measurement "$CF"
    onboarding-kit)에서 `<plugin>/agents/*.md` 는 zsh `nomatch` 로 **명령을 통째로 죽여** 출력이
    0 건이 된다. `2>/dev/null` 은 글로빙 실패를 막지 못한다 — 확장은 명령 실행 **전에** 일어난다.
    `skills/` 와 `agents/` 는 깊이가 달라 `find` 를 두 번 돌린다:
+
    ```bash
    PLUGIN=reflect-kit   # 대상 플러그인 이름으로 바꿔라 (`<plugin>` 을 그대로 두면 리다이렉션으로 파싱된다)
    find "$PLUGIN/skills" -mindepth 2 -maxdepth 2 -type f -name 'SKILL.md' \
@@ -410,6 +413,7 @@ verify_measurement "$CF"
    find "$PLUGIN/agents" -maxdepth 1 -type f -name '*.md' \
      -exec grep -Hn '^description:' {} + 2>/dev/null
    ```
+
    `-exec ... +` 는 매치가 0 건이면 `grep` 을 아예 실행하지 않는다. `xargs` 로 바꾸지 마라 —
    BSD `xargs` 는 입력이 비어도 유틸리티를 1 회 실행해 `grep` 이 stdin 을 기다린다.
 2. 각 description 에서 트리거 키워드 (`"..."` 로 묶인 구문, 또는 콤마 분리 구문) 를
@@ -422,6 +426,7 @@ verify_measurement "$CF"
    요구하는 문구로 작성한다
 
 **실패 사례 (RE-02 / SK-05, react-kit 2026-04)**:
+
 - "API 연동" (react-api) ⊂ "API 연동 화면" (react-feature) — substring 중복, set
   intersection 만 검사하면 미탐지
 - "wasm-pack 빌드" (react-run) == "wasm-pack 빌드" (react-wasm) — set intersection
@@ -448,6 +453,7 @@ verify_measurement "$CF"
 되먹여진다.
 
 **각 조건의 규칙:**
+
 - PASS/FAIL로 이진 판정 가능해야 한다
 - "잘 동작한다", "적절히 처리한다" 같은 모호한 표현 금지
 - 구체적 상태, 컴포넌트, 동작을 명시한다
@@ -634,6 +640,7 @@ locked_at: "{YYYY-MM-DD HH:mm}"
 **다른 슬러그의 계약은 읽지도 옮기지도 마라** — 다른 세션이 쓰고 있는 파일이다.
 
 **포맷 규칙 (QA Evaluator 파싱 호환):**
+
 - YAML frontmatter로 메타데이터
 - **섹션 헤더는 2 계층만 허용한다** (`harness/references/contract-schema.md` §허용 섹션 헤더):
   - **조건 섹션 (parsed)** — `project.yaml` 카테고리 ID + `Anti-patterns` + `Reusability` +
@@ -854,6 +861,7 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
      하나에 `project_hash` 43 종). **워크트리면 공통 git 폴더의 부모(본 레포 폴더)가 뿌리다** — 스크립트의
      `identity_root_of` 와 같은 규칙이다. 워크트리 경로를 그대로 해시하면 재계산 값과 늘 달라 경고가 난다
      (실측 2026-09-26: 워크트리 `70da29df` · 재계산 `1a3bcba6`).
+
      ```bash
      # 뿌리 폴더 — git 밖이면 CONTRACT_ROOT, git 안이면 최상위 폴더, 워크트리면 본 레포 폴더
      ID_ROOT="$CONTRACT_ROOT"
@@ -875,6 +883,7 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
        printf '%s' "$ID_ROOT" | openssl dgst -sha256 | sed 's/.*= //' | cut -c1-8
      fi
      ```
+
    - `sprint_slug` · `contract_path` · `session_id` — `save-feedback.sh` 가 채운다.
      draft 에 손으로 적지 마라. 단 계약 경로는 2 번처럼 `HARNESS_CONTRACT` 로 넘겨야 채워진다
    - `diagnosis.checklist`: Step 7의 결과
