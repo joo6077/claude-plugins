@@ -34,6 +34,7 @@ awk -F'|' '/^\| `evals\/gate-fixtures\/[^`]+\.json` \|/ {
   print name "\t" slicer "\t" expect "\t" kind
 }' "$SKILL" > "$T/table.tsv"
 # (2) 실행 줄 → 이름 · 슬라이서
+# shellcheck disable=SC2016  # $GATE · $FX 는 SKILL.md 실행 줄의 글자 그대로다
 grep -E '^TARGET_SLICER=[a-z]+ +python3 "\$GATE" \$FX/[^;]+;' "$SKILL" \
   | sed -E 's/^TARGET_SLICER=([a-z]+) +python3 "\$GATE" \$FX\/([^;]+);.*/\2 \1/' > "$T/runs.txt"
 if [ ! -s "$T/table.tsv" ] || [ ! -s "$T/runs.txt" ]; then
