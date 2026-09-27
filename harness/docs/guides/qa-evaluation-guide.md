@@ -226,6 +226,7 @@ Independent Verification & Validation (IV&V) 원칙:
 | ------ | ------ | ------ |
 | `status: active` 명시 | 진행 중 | **포함** |
 | `status: done` | 종료 | 제외 |
+| `status: superseded` | 새 판으로 바뀐 옛 판 (레거시로도 세지 않는다) | 제외 |
 | `status:` 필드 없음 | 레거시 | **제외** |
 | frontmatter 자체가 없음 | 레거시 | **제외** (파싱 실패로 중단하지 않는다) |
 

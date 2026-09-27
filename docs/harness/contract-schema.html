@@ -413,7 +413,7 @@ created: "{YYYY-MM-DD HH:mm}"   # 저장하는 순간 date '+%Y-%m-%d %H:%M' 출
 complexity: "{simple|medium|complex}"
 conditions: {총 조건 수}
 slug: {slug}                # v5 — 접미형일 때 필수, plain 모드면 생략. 따옴표 없이
-status: active              # v5 — active | done. 따옴표 없이
+status: active              # v5 — active | done | superseded. 따옴표 없이
 owner_session: {세션 ID}    # v5 — $CLAUDE_CODE_SESSION_ID. 값이 없으면 필드 자체를 생략. 따옴표 없이
 conditions_digest: sha256:{16hex}   # v5.3 — 조건 봉인. 따옴표 없이
 measurement_digest: sha256:{16hex}  # v5.6 — 조건 아래 들여쓴 줄 봉인. 따옴표 없이
@@ -442,7 +442,8 @@ locked_at: "{YYYY-MM-DD HH:mm}"     # v5.3 — 봉인 시각</code>
           <thead><tr><th>필드</th><th>값</th><th>규칙</th></tr></thead>
           <tbody>
             <tr><td><code>slug</code></td><td>슬러그 규칙을 만족하는 문자열</td><td>파일명 접미와 <strong>동일</strong>해야 한다. plain 모드면 필드 자체를 생략</td></tr>
-            <tr><td><code>status</code></td><td><code>active</code> | <code>done</code></td><td>작성 시 <code>active</code>. <code>done</code> 전환 주체·시점은 <a class="jump" href="#status">아래</a> 참조</td></tr>
+            <tr><td><code>status</code></td><td><code>active</code> | <code>done</code> | <code>superseded</code></td><td>작성 시 <code>active</code>. <code>done</code> 전환 주체·시점은 <a class="jump" href="#status">아래</a> 참조. <code>superseded</code> 는 같은 일을 새 판 계약으로 다시 쓸 때 옛 판에 붙인다</td></tr>
+            <tr><td><code>superseded_by</code></td><td>새 판 계약의 슬러그</td><td><code>status: superseded</code> 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(<code>sprint-contract-&lt;슬러그&gt;.md</code>)이 있어야 하고 그 계약이 다시 <code>superseded</code> 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다</td></tr>
             <tr><td><code>owner_session</code></td><td><code>$CLAUDE_CODE_SESSION_ID</code> 값</td><td>환경변수가 비어 있으면 <strong>필드를 쓰지 마라.</strong> 빈 문자열·<code>unknown</code> 같은 placeholder 금지</td></tr>
           </tbody>
         </table>
@@ -598,6 +599,7 @@ verify_measurement() {  # verify_measurement &lt;계약파일&gt; → MEASURE_OK
     <li><span class="check">✓</span><code>status:</code> 필드가 <strong>없으면 레거시</strong>로 간주하고 <strong>active 후보에서 제외</strong>한다</li>
     <li><span class="check">✓</span><strong>frontmatter 자체가 없어도 동일하게 제외</strong>한다. 파싱 실패로 중단하지 마라</li>
     <li><span class="check">✓</span><code>status: done</code> 은 당연히 제외한다</li>
+    <li><span class="check">✓</span><code>status: superseded</code> 는 active 후보에서도 레거시에서도 뺀다. 새 판(<code>superseded_by</code>)이 평가 대상이다 — 레거시로 세면 superseded 계약 하나만 남았을 때 3.5b 가 그것을 고르고, 레거시 하나와 함께 있으면 BLOCKED 가 된다</li>
   </ul>
   <div class="note bad">
     <div class="note-title">근거 (실측, 2026-07-27 기준)</div>
@@ -650,7 +652,7 @@ while IFS= read -r f; do
          [ "$(fm_get "$f" owner_session)" = "$CLAUDE_CODE_SESSION_ID" ]; then
         n_own=$((n_own + 1)); pick_own="$f"
       fi ;;
-    "done") ;;
+    "done"|superseded) ;;
     *)
       n_leg=$((n_leg + 1)); pick_leg="$f"
       [ "$(basename "$f")" = "sprint-contract.md" ] &amp;&amp; pick_plain="$f" ;;
