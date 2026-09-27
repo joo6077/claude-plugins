@@ -76,4 +76,5 @@ references/system-principles.md 를 참조하여 필요한 카테고리를 rule 
 # References
 
 - references/system-principles.md — 카테고리별 세팅 원칙
+- 설치본 플러그인에는 `docs/backend/` 가 없다 — 이 파일의 `docs/backend/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
 - ../../references/write-path-integrity-protocol.md — 쓰기 경로 무결성 규격 SSOT (invariant 분류 · upsert arbiter · 멱등 계약 6 항목 · outbox 전달 보장)
