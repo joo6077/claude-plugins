@@ -4,7 +4,7 @@ slug: after-0926-codex-final-fixes
 created: "2026-09-27 18:26"
 complexity: "복잡"
 conditions: 20
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:26c72dfbcc4e6f88
 measurement_digest: sha256:ffe639f290b0e037
