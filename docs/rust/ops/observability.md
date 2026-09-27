@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 관측성 원칙
 
 `tracing`으로 구조화 로깅과 스팬을 생성하고, `tracing-opentelemetry`로 OTLP 트레이싱을 내보내며, `metrics-exporter-prometheus`로 Prometheus 메트릭을 노출한다.
@@ -146,7 +147,7 @@ gauge!("active_connections").set(active_count as f64);
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | tracing-subscriber 버전 | 0.3.x | `env-filter`, `json` feature |
 | tracing-opentelemetry 버전 | 0.32.x | opentelemetry 0.28과 호환 |
 | metrics-exporter-prometheus 버전 | 0.18.x | metrics 0.24와 호환 |

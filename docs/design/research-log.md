@@ -80,7 +80,7 @@ last_updated: 2026-09-25
 WCAG 2.2 주요 신규 기준 (2023-10 발표. ADA/Section 508/EAA 현행 법적 표준):
 
 | 기준 | 레벨 | 핵심 요구사항 |
-|------|------|---------------|
+| ------ | ------ | --------------- |
 | 2.4.11 Focus Not Obscured (Minimum) | AA | 포커스된 컴포넌트가 완전히 가려지면 안 됨 |
 | 2.4.13 Focus Appearance | AAA | 포커스 인디케이터 최소 2px 두께, 3:1 대비 |
 | 2.5.7 Dragging Movements | AA | 드래그 기능에 단일 포인터 대안 필수 |
@@ -92,7 +92,7 @@ WCAG 2.2 주요 신규 기준 (2023-10 발표. ADA/Section 508/EAA 현행 법적
 APCA Lc(Lightness Contrast) 임계값 (WCAG 3.0 Working Draft):
 
 | Lc 값 | 용도 | 최소 폰트 요구 |
-|--------|------|-----------------|
+| -------- | ------ | ----------------- |
 | Lc 90 | 본문 텍스트 (권장) | 18px/300w, 14px/400w, 12px/400w(비본문) |
 | Lc 75 | 본문 텍스트 (최소) | 24px/300w, 18px/400w, 16px/500w, 14px/700w |
 | Lc 60 | 비본문 콘텐츠 텍스트 최소 | — |
@@ -113,7 +113,7 @@ APCA Lc(Lightness Contrast) 임계값 (WCAG 3.0 Working Draft):
 주요 스케일 비율:
 
 | 비율 | 이름 | 특성 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 1.125 | Major Second | 밀도 높은 UI, 조밀한 진행 |
 | 1.200 | Minor Third | 미묘하고 작은 진행 |
 | 1.250 | Major Third | 일반적인 본문-제목 진행 |
@@ -177,7 +177,7 @@ Parent (상태 관리)
 - 2025 권장 브레이크포인트 (레거시 호환):
 
 | 브레이크포인트 | 용도 |
-|---------------|------|
+| --------------- | ------ |
 | 480px | 모바일 가로 |
 | 768px | 태블릿 |
 | 1024px | 랩톱 |
@@ -202,7 +202,7 @@ Parent (상태 관리)
 ## Changelog
 
 | 날짜 | 변경 내용 |
-|------|-----------|
+| --- | --- |
 | 2026-04-12 | 초기 작성 — 10개 카테고리 리서치 (DTCG spec, Style Dictionary, Spectrum, Polaris, Carbon, M3, WCAG 2.2, APCA, OKLCH, typography scales, spacing grids, compound components, dark mode, Figma workflows, container queries). 포맷 v1.1.0으로 재구성. |
 | 2026-04-12 | 추가 조사 — 11개 확장 토픽 보강 (DTCG post-2025.10 상태 확인, Style Dictionary v4.4.0/migration, Figma auto layout/variables/dev mode 최신 문서, Open Props, Radix Colors/Themes, Panda CSS, Lightning CSS, design system analytics, Figma AI/Galileo→Stitch, axe-core/Pa11y/Lighthouse, OKLCH/Lab/LCH 브라우저 채택 현황). |
 
@@ -387,6 +387,7 @@ Parent (상태 관리)
 | 84 | Expressive Material Design — Google Research | <https://design.google/library/expressive-material-design-google-research?pubDate=20250521> | official | 참조 — 기존 승인값보다 상위로 두지 않음 |
 | 85 | Apple — Adopting Liquid Glass | <https://developer.apple.com/tutorials/data/documentation/technologyoverviews/adopting-liquid-glass.md> | official | 참조 (84 와 동일 결론) |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 확인된 사실
 
 #### R. 변형 구별성은 "확립된 UI 표준" 이 아니라 설계 탐색 방법의 이식이다

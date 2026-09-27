@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 한국어 기술 문서·주석 문체
 
 ## 이 문서가 잡는 것
@@ -55,7 +56,7 @@ Good : dart-flutter 어댑터 문서는 `- 반환값:` 라벨과 `///` 문법만
 아래 6개 구문을 주석에서 지운다. 종결어미만 `한다`체로 바꾸면 6종은 그대로 남는다.
 
 | 패턴 | 문제 | 대체형 |
-|---|---|---|
+| --- | --- | --- |
 | `~을 처리합니다` / `~을 관리합니다` | 동사가 비어 있어 메서드명을 한국어로 되풀이하는 데 그친다 | 실제 동작 동사: `길게 누르기 반복을 시작한다` |
 | `~에 대해서` / `~에 대해` | `about` / `for` 직역. 목적격 조사면 충분하다 | `서버 이름을 보여 준다` |
 | `~하도록 합니다` | 사역 구문 직역. 주체가 사라진다 | 단정형 `~한다`: `키보드 입력을 이어 간다` |
@@ -115,6 +116,7 @@ void evictExpired() { }
 /// 아이콘이 있으면 라벨 왼쪽에 붙인다.
 ```
 
+<!-- markdownlint-disable-next-line MD036 -->
 **6) 과한 수동태 → 주체 + 능동**
 
 ```dart
@@ -154,6 +156,7 @@ Good : // 값이 없으면 빈 영역을 만들지 않는다.
 
 **왜.** 세 번째 Bad 줄은 번역투(`~에 의해`)와 음역(`오버레이`)이 함께 걸린 사례다. 한 문장이 두 규칙을 동시에 어기는 일이 흔하므로 고칠 때 둘 다 본다. 문장 수사보다 정보 설계가 먼저이고, 주석의 값어치는 `what` 이 아니라 `why` 에서 나온다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **강도: SHOULD**
 
 > **출처:** [LINE 테크니컬 라이팅](https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/) · [Google Engineering Practices](https://google.github.io/eng-practices/review/reviewer/looking-for.html)
@@ -210,6 +213,7 @@ final expiresAt = issuedAt.add(ttl); // UTC 기준
 
 **코드 식별자는 이 규칙의 대상이 아니다.** 타입·함수·변수·메서드 이름은 영어를 그대로 둔다. 번역하면 doc 링크가 끊긴다. 음역 금지는 한국어 본문만 겨냥한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **강도: SHOULD**
 
 > **출처:** [Effective Dart documentation](https://dart.dev/effective-dart/documentation) · [국립국어원 공공언어 자료](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663)
@@ -240,6 +244,7 @@ int timeoutSeconds,
 
 **왜.** 식별자가 영어이고 주석이 한국어라서 번역 주석이 정보를 더하는 것처럼 보이지만 실제로는 같은 내용의 반복이다. 원본 코드베이스 진단에서 이 유형이 48개 파일에 약 85건으로 두 번째로 큰 카테고리였고 (1위는 템플릿 마커 약 90건), 전체 안티패턴 약 275건의 30% 를 차지했다. 영어 단일 언어 프로젝트라면 `// button text` 는 누구도 안 쓴다 — 번역이라는 명분이 붙어야 생기므로 한국어 축에 속한다. 남길 것은 값의 우선순위, 무효화 조건, 허용 범위처럼 이름·타입에서 안 읽히는 계약뿐이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **강도: SHOULD**
 
 > **출처:** [Effective Dart documentation](https://dart.dev/effective-dart/documentation) (`AVOID redundancy with the surrounding context`) · [Microsoft Code with Engineering Playbook](https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/)
@@ -279,6 +284,7 @@ int timeoutSeconds,
 
 **왜.** 상수로 다루는 이유는 검색성이다. 원본 코드베이스에서 `- 반환값:` 은 80개 파일에 577건, `- [param]:` 은 788건 나왔다. 이 규모에서 표기가 둘로 갈리면 커버리지 측정과 일괄 치환이 모두 깨진다. `- 반환값: 없음` 을 노이즈로 보고 지우는 것도 금지다 — 있고 없음이 섞이면 "doc 이 없는 것"과 "반환값이 없는 것"을 구분할 수 없다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **강도: 관측 컨벤션**
 
 > **출처:** [Effective Dart documentation](https://dart.dev/effective-dart/documentation) · 프로젝트 실측 — `- 반환값:` 577건 / 80파일, `- [param]:` 788건 (2026-08-28)
@@ -313,6 +319,7 @@ Good — 프로젝트 저장소에 두고, 판정이 갈렸던 행만 3열로 �
 
 **왜.** 원칙 5 의 3원칙만으로는 매번 판정이 갈린다. 도메인 어휘와 정착 외래어 판정은 프로젝트마다 다르므로, 공용 문서로 올리면 다른 프로젝트에 잘못된 번역을 강제한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **강도: 관측 컨벤션**
 
 > **출처:** [국립국어원 공공언어 자료](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) · 프로젝트 실측 — 초기 표 6행 / 3열, 2026-08 시점
@@ -347,7 +354,7 @@ Good — 프로젝트 저장소에 두고, 판정이 갈렸던 행만 3열로 �
 ## 규칙 강도
 
 | 등급 | 뜻 | 어길 때 |
-|------|-----|--------|
+| ------ | ----- | -------- |
 | **MUST** | 킷 구조를 결정하는 규칙. 어기면 문서 체계가 깨진다 | 개정 시 SSOT 가 갈라져 한쪽만 갱신된다 |
 | **SHOULD** | 공개 1차 근거가 있는 규칙. 프로젝트가 MUST 로 승격할 수 있다 | 문체가 흔들리지만 체계는 남는다 |
 | **관측 컨벤션** | 공개 출처 없이 프로젝트 실측만 있는 규칙 | 준수 강도가 낮다는 뜻이 아니다 — grep·커버리지 측정이 먼저 깨진다 |
@@ -357,7 +364,7 @@ Good — 프로젝트 저장소에 두고, 판정이 갈렸던 행만 3열로 �
 ## 수치 기준
 
 | 항목 | 값 | 출처 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | 번역투 킬러 패턴 | 6종 | 원본 리서치 축3 |
 | 이름 번역 주석 실측 | 약 85건 / 48파일 (전체 안티패턴의 약 30%) | 원본 코드베이스 진단 (57파일 스캔) |
 | 코드베이스 안티패턴 총계 | 약 275건 / 10 카테고리 | 원본 코드베이스 진단 |
@@ -373,7 +380,7 @@ Good — 프로젝트 저장소에 두고, 판정이 갈렸던 행만 3열로 �
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | `~을 처리합니다` 로 doc 본문 종결 | 동사가 비어 메서드명을 한국어로 반복하는 데 그친다. 주석이 정보를 0 만큼 더한다 |
 | 종결어미만 `한다`체로 바꾸고 끝내기 | `~에 의해` · `~되어 있는 경우` 는 종결형과 무관하다. 문장 구조가 그대로면 번역투도 그대로다 |
 | `보더 라디우스` 같은 음역 | 한국어도 영어도 아니라 검색이 안 되고 공식 API 이름과도 어긋난다 |

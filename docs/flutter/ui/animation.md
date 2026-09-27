@@ -8,6 +8,7 @@ last_updated: 2026-08-13
      닫는 펜스를 백틱 3 개 단독 줄로 되돌리지 마라 — bare-fence 검사 오라클이
      닫는 펜스를 언어 힌트 없는 여는 펜스로 오탐한다 (Phase 5 AP-03). -->
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 애니메이션
 
 AnimationController, Tween, Hero, implicit vs explicit, Curves, Rive/Lottie, CustomPainter의 shouldRepaint를 다룬다.
@@ -15,15 +16,15 @@ AnimationController, Tween, Hero, implicit vs explicit, Curves, Rive/Lottie, Cus
 ## 원칙
 
 1. **단순 property 변화는 implicit(AnimatedContainer 등), 정밀 제어가 필요하면 explicit(AnimationController)을 쓴다.** 선택 기준은 "직접 컨트롤/동기화/역재생이 필요한가"다.
-   - 출처: https://docs.flutter.dev/ui/animations/implicit-animations , https://docs.flutter.dev/ui/animations/tutorial
+   - 출처: <https://docs.flutter.dev/ui/animations/implicit-animations> , <https://docs.flutter.dev/ui/animations/tutorial>
 2. **AnimationController는 vsync를 요구하며 반드시 dispose()해야 한다.** SingleTickerProviderStateMixin 또는 HookWidget의 useAnimationController로 자동 관리하라.
-   - 출처: https://api.flutter.dev/flutter/animation/AnimationController-class.html
+   - 출처: <https://api.flutter.dev/flutter/animation/AnimationController-class.html>
 3. **Tween은 값 범위, Curve는 속도 곡선을 담당한다.** 둘을 분리해 조합하면 동일 animation에 다양한 interpolation을 붙일 수 있다.
-   - 출처: https://api.flutter.dev/flutter/animation/Curves-class.html
+   - 출처: <https://api.flutter.dev/flutter/animation/Curves-class.html>
 4. **Hero는 shared element transition 전용이다.** route 간 "동일한 semantic element가 이동하는" 경우에만 쓰고, 단순 fade/slide에는 쓰지 마라.
-   - 출처: https://docs.flutter.dev/ui/animations/hero-animations
+   - 출처: <https://docs.flutter.dev/ui/animations/hero-animations>
 5. **CustomPainter 기반 애니메이션은 shouldRepaint를 정확히 구현한다.** 애니메이션 값이 바뀔 때만 true를 반환해야 하며, 항상 true는 비용이 심각하다.
-   - 출처: https://api.flutter.dev/flutter/rendering/CustomPainter/shouldRepaint.html
+   - 출처: <https://api.flutter.dev/flutter/rendering/CustomPainter/shouldRepaint.html>
 
 ## 수치·경계값
 
@@ -51,26 +52,26 @@ final slideAnim = Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero)
     .animate(CurvedAnimation(parent: controller, curve: Interval(0.0, 0.6, curve: Curves.easeOut)));
 ````
 
-- 출처: https://docs.flutter.dev/ui/animations/staggered-animations
+- 출처: <https://docs.flutter.dev/ui/animations/staggered-animations>
 
 ### AnimatedSwitcher vs PageRouteBuilder
 
 같은 위치에서 위젯을 교체할 때는 `AnimatedSwitcher`, route 전환은 `PageRouteBuilder`/`CustomTransitionPage`를 쓴다. 혼동하면 layout shift가 발생한다.
 
-- 출처: https://api.flutter.dev/flutter/widgets/AnimatedSwitcher-class.html
+- 출처: <https://api.flutter.dev/flutter/widgets/AnimatedSwitcher-class.html>
 
 ### RepaintBoundary 활용
 
 애니메이션되는 위젯을 `RepaintBoundary`로 감싸면 해당 서브트리만 별도 레이어로 분리되어 나머지 UI의 repaint를 방지한다.
 
-- 출처: https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html
+- 출처: <https://api.flutter.dev/flutter/widgets/RepaintBoundary-class.html>
 
 ## 성능 프로파일링
 
 - DevTools의 "Performance Overlay"에서 UI thread와 Raster thread 모두 16ms 이내인지 확인
 - `Timeline.startSync('animation_label')`로 특정 애니메이션의 비용을 측정
 - Impeller 환경에서는 shader compilation jank가 사라지므로 first-frame 성능이 개선됨 (iOS 필수 · Android API 29+ 기본 · macOS/Linux/Windows 는 Flutter 3.47 부터 기본 · Web 은 Skia — 플랫폼별 상태는 `docs/flutter/quality/performance.md` §Impeller 성능 특성 참조)
-- 출처: https://docs.flutter.dev/perf/ui-performance
+- 출처: <https://docs.flutter.dev/perf/ui-performance>
 
 ## Gotchas
 

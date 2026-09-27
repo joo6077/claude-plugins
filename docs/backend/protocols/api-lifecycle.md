@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # API 수명주기
 
 API 버전 전략, deprecation/sunset 신호, rate limiting과 throttling, 멱등성 키, gateway 역할, changelog 관리를 다룬다.
@@ -81,7 +82,7 @@ POST 같은 비멱등 요청에 `Idempotency-Key` 헤더를 첨부한다. 같은
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | Retry-After 형식 | HTTP-date 또는 non-negative seconds (정수) |
 | 429 용도 | rate limiting 전용 (throttling은 503 + Retry-After) |
 | Stripe idempotency key 최대 길이 | 255자 |
@@ -94,7 +95,7 @@ POST 같은 비멱등 요청에 `Idempotency-Key` 헤더를 첨부한다. 같은
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | /v1에 breaking change를 계속 넣기 | 기존 클라이언트가 예고 없이 깨진다. 버전의 의미가 없어진다. |
 | 429에 Retry-After 없음 | 클라이언트가 재시도 시점을 알 수 없어 맹목적 폴링 또는 포기한다. |
 | Idempotency key를 주문 ID와 혼용 | 같은 주문의 다른 요청(수정, 취소)이 첫 요청 결과를 재생한다. |

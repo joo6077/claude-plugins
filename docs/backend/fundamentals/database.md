@@ -4,6 +4,7 @@ version: 0.3.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 데이터베이스
 
 스키마 설계, 정규화와 반정규화, 인덱스 전략, 쿼리 최적화, N+1 문제, connection pooling, 마이그레이션 전략, 파티셔닝, 쓰기 경로 경합(동시성 가드), 시각 종류별 저장을 다룬다.
@@ -21,7 +22,7 @@ last_updated: 2026-09-25
 ### 2. 인덱스는 쿼리 패턴 기반으로 선택한다
 
 | 인덱스 타입 | 용도 | 적합한 쿼리 |
-|------------|------|------------|
+| ------------ | ------ | ------------ |
 | **B-tree** | 범위 검색, 정렬, 등치 비교 | `WHERE created_at > ?`, `ORDER BY id` |
 | **Hash** | 등치 비교 전용 | `WHERE email = ?` (PostgreSQL에서는 B-tree가 대부분 더 나음) |
 | **GIN** | 전문 검색, 배열, JSONB | `WHERE tags @> '{python}'`, `to_tsvector() @@ to_tsquery()` |
@@ -53,6 +54,7 @@ SELECT * FROM orders WHERE user_id = 42 AND status = 'pending';
 N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발생하는 패턴이다. 100개의 주문을 조회하면 101번의 쿼리가 실행된다.
 
 해결 방법:
+
 - **Eager loading**: `joinedload()` (SQLAlchemy), `include()` (Prisma), `prefetch_related()` (Django).
 - **DataLoader 패턴**: 같은 이벤트 루프 내 중복 요청을 배치로 묶는다 (GraphQL에서 필수).
 - **SQL 직접 작성**: ORM이 비효율적인 쿼리를 생성하면 JOIN을 직접 작성한다.
@@ -84,7 +86,7 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 ### 7. 파티셔닝은 TB급 테이블에서 range/list/hash 중 선택한다
 
 | 전략 | 적합한 케이스 | 예시 |
-|------|-------------|------|
+| ------ | ------------- | ------ |
 | **Range** | 시계열, 날짜 기반 | 월별 로그 테이블 |
 | **List** | 이산적 카테고리 | 국가별, 상태별 |
 | **Hash** | 균등 분산 | 사용자 ID 기반 샤딩 |
@@ -100,7 +102,7 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 지켜야 하는지부터 분류하고 담당 primitive 를 고른다.
 
 | invariant 유형 | 담당 primitive | 예시 |
-|---------------|---------------|------|
+| --------------- | --------------- | ------ |
 | 같은 row 의 상태 전이 | 조건부 `UPDATE ... WHERE <기대 상태/버전>` (compare-and-swap) | `UPDATE orders SET status='paid' WHERE id=$1 AND status='pending'` |
 | 존재 · 권한 · 가시성 predicate | 쓰기 SQL 자체의 `WHERE EXISTS (...)` / 조인 술어 | 차단 관계·공개 범위를 사전 `SELECT` 가 아니라 `INSERT ... SELECT ... WHERE EXISTS` 로 |
 | cross-row · absence · aggregate | unique / partial unique / exclusion 제약, 명시적 lock, `Serializable` + 직렬화 실패 재시도 | 구간 겹침 금지 → exclusion 제약 |
@@ -164,7 +166,7 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | HikariCP `maximumPoolSize` 기본값 | 10 |
 | HikariCP `connectionTimeout` 기본값 | 30초 |
 | HikariCP `idleTimeout` 기본값 | 10분 |
@@ -179,7 +181,7 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 모든 컬럼에 인덱스 | 쓰기 성능 저하, 디스크 낭비, 옵티마이저 혼란. |
 | `SELECT *` | 불필요한 데이터 전송, covering index 활용 불가. |
 | ORM 기본 lazy loading 방치 | N+1 문제로 쿼리 수가 데이터 크기에 비례하여 폭증. |

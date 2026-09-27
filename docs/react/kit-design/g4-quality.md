@@ -53,7 +53,7 @@ react-kit **G4 그룹** 은 프로젝트의 품질을 보장하는 세 스킬이
 ### 1.3 Clean Architecture 레이어별 테스트 전략
 
 | 레이어 | 테스트 유형 | 도구 | 특징 |
-|--------|-----------|------|------|
+| -------- | ----------- | ------ | ------ |
 | **domain/** (entities, usecases, failures) | Unit | Vitest (node 환경) | 순수 함수. 외부 의존성 없음. 빠르고 독립적. MSW 불필요 |
 | **data/** (datasources, models, repositories) | Unit + integration | Vitest + MSW (fetch 모의) | fetch 모의, Zod parse 실패, Result 변환 경로 검증 |
 | **presentation/hooks** (TanStack Query, Zustand) | Component test | Vitest + Testing Library + QueryClient wrapper | `renderHook`, `waitFor`, store 초기화 |
@@ -175,6 +175,7 @@ describe('LoginForm', () => {
 ```
 
 **핵심 규칙**:
+
 - **`getByRole` 우선** — `getByTestId` 는 마지막 수단. 접근성 기반 쿼리가 실제 사용자 경험에 가깝다
 - **`userEvent` 사용** — `fireEvent` 대신. 실제 키보드/마우스 이벤트에 가까움
 - **`findBy*` 는 비동기** — `await` 필수. `getBy*` 는 동기 (없으면 즉시 throw)
@@ -267,7 +268,7 @@ it('Error Boundary catches render-time error and shows fallback', () => {
 
 ### 2.3 3단계 에러 처리 흐름
 
-```
+```text
 [데이터 경계]             [도메인/프레젠테이션 전파]         [사용자 표시]
 throw / reject  ──────►   Result<T, Failure>   ──────►     Severity → UI 선택
 (fetch, WASM, Tauri)      (neverthrow chain)                (snackbar / dialog / page)
@@ -302,6 +303,7 @@ export function fetchUserDto(id: string): ResultAsync<unknown, UserFailure> {
 ```
 
 **규칙**:
+
 - throw 는 datasource 내부에서만. 즉시 `ResultAsync.fromPromise` 의 두 번째 인자에서 Failure 로 변환
 - Failure 는 discriminated union. `kind` 필드로 분기
 - cause 필드에 원본 에러 메시지 보존 (디버깅용)
@@ -343,7 +345,7 @@ Severity 는 **사용자 관점의 심각도** 이지 기술적 에러 레벨이
 Severity → 표시 위치/형태 매핑 규칙:
 
 | Severity | 표시 형태 | 위치 | 상호작용 |
-|----------|----------|------|---------|
+| ---------- | ---------- | ------ | --------- |
 | `info` | Toast (자동 dismiss) | 화면 우하단 | 없음 |
 | `warning` | Snackbar (action 포함) | 화면 하단 | "다시 시도" 버튼 등 |
 | `error` | Inline error (필드 옆 / 폼 최상단) or Dialog | 관련 위치 | 사용자 액션 유도 |
@@ -461,7 +463,7 @@ Lingui v5 의 매크로 기반 번역 문자열 추가, 자동 codegen, locale �
 
 ### 3.3 Lingui 기본 구조 (G1 생성)
 
-```
+```text
 src/
 ├── infrastructure/i18n/
 │   ├── setup.ts             # i18n.loadAndActivate 초기화
@@ -543,6 +545,7 @@ export function SubmitButton({ disabled }: { disabled: boolean }) {
 ```
 
 **매크로 규칙**:
+
 - `<Trans>` → JSX 내부의 선언적 번역
 - `t` macro (`useLingui` 경유) → 속성 값, 동적 문자열, 함수 반환값
 - `msg` macro → 컴포넌트 밖 (상수 정의, reducer message 등)
@@ -615,7 +618,7 @@ export async function activateLocale(locale: string): Promise<void> {
 
 ## 4. 3개 스킬의 상호작용
 
-```
+```text
 컴포넌트 생성 (G1 /react-widget, /react-screen)
          │
          ▼
@@ -646,21 +649,21 @@ export async function activateLocale(locale: string): Promise<void> {
 
 ## 6. 출처 요약
 
-1. Vitest 공식 가이드: https://vitest.dev/guide/
-2. Vitest — Component Testing: https://vitest.dev/guide/browser/component-testing
-3. Vitest GitHub: https://github.com/vitest-dev/vitest
-4. Testing Library React 문서: https://testing-library.com/docs/
-5. Playwright Component Testing (experimental): https://playwright.dev/docs/test-components
-6. Playwright Fixtures: https://playwright.dev/docs/test-fixtures
-7. Playwright Migrating from Testing Library: https://playwright.dev/docs/testing-library
-8. Lingui 공식 사이트: https://lingui.dev/
-9. Lingui Macros 레퍼런스: https://lingui.dev/ref/macro
-10. Lingui Vite 셋업: https://lingui.dev/tutorials/setup-vite
-11. Lingui React API: https://lingui.dev/ref/react
-12. Lingui Vite Plugin: https://lingui.dev/ref/vite-plugin
-13. Lingui React 튜토리얼: https://lingui.dev/tutorials/react
-14. js-lingui GitHub: https://github.com/lingui/js-lingui
-15. neverthrow GitHub: https://github.com/supermacro/neverthrow
+1. Vitest 공식 가이드: <https://vitest.dev/guide/>
+2. Vitest — Component Testing: <https://vitest.dev/guide/browser/component-testing>
+3. Vitest GitHub: <https://github.com/vitest-dev/vitest>
+4. Testing Library React 문서: <https://testing-library.com/docs/>
+5. Playwright Component Testing (experimental): <https://playwright.dev/docs/test-components>
+6. Playwright Fixtures: <https://playwright.dev/docs/test-fixtures>
+7. Playwright Migrating from Testing Library: <https://playwright.dev/docs/testing-library>
+8. Lingui 공식 사이트: <https://lingui.dev/>
+9. Lingui Macros 레퍼런스: <https://lingui.dev/ref/macro>
+10. Lingui Vite 셋업: <https://lingui.dev/tutorials/setup-vite>
+11. Lingui React API: <https://lingui.dev/ref/react>
+12. Lingui Vite Plugin: <https://lingui.dev/ref/vite-plugin>
+13. Lingui React 튜토리얼: <https://lingui.dev/tutorials/react>
+14. js-lingui GitHub: <https://github.com/lingui/js-lingui>
+15. neverthrow GitHub: <https://github.com/supermacro/neverthrow>
 
 ## 현행화 기록
 

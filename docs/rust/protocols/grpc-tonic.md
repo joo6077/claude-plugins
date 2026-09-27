@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # gRPC 원칙
 
 `tonic 0.14.x`는 Rust의 표준 gRPC 구현이다. `.proto` 파일에서 `tonic-prost-build`로 서버/클라이언트 코드를 생성하고, tokio 위에서 비동기로 동작한다.
@@ -144,7 +145,7 @@ Err(status)
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | tonic 버전 | 0.14.x | prost 0.13과 호환 |
 | tonic-prost-build 버전 | 0.14.x | build-dependencies |
 | 기본 포트 | 50051 | gRPC 관례 |

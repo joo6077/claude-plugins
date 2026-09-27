@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 컨테이너
 
 Dockerfile 작성, 멀티스테이지 빌드, 레이어 캐싱, 이미지 보안, docker-compose 프로덕션 운영, 리소스 제한, 헬스체크, 로깅 전략을 다룬다.
@@ -59,7 +60,7 @@ Dockerfile 작성, 멀티스테이지 빌드, 레이어 캐싱, 이미지 보안
 ## 수치/기준값
 
 | 항목 | 값 | 비고 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | 메모리 하드 리밋 최소값 | 6m | Docker가 허용하는 최저값 |
 | CPU CFS period | 100000us (100ms) | `--cpu-period` 기본값 |
 | `--cpus="0.5"` | quota 50000 / period 100000 | 0.5 CPU 코어 상당 |

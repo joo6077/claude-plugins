@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-05
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 반응형 레이아웃
 
 MediaQuery와 LayoutBuilder 선택, breakpoint, SafeArea, NavigationRail vs BottomNavigationBar를 다룬다.
@@ -11,15 +12,15 @@ MediaQuery와 LayoutBuilder 선택, breakpoint, SafeArea, NavigationRail vs Bott
 ## 원칙
 
 1. **Responsive와 Adaptive는 다르다.** Responsive는 주어진 공간에 맞춰 레이아웃을 늘리고 줄이는 것, Adaptive는 그 공간에서 usable한 UI 패턴을 선택하는 것이다.
-   - 출처: https://docs.flutter.dev/ui/adaptive-responsive
+   - 출처: <https://docs.flutter.dev/ui/adaptive-responsive>
 2. **창 전체 크기는 `MediaQuery.sizeOf(context)`, 지역 레이아웃은 `LayoutBuilder`를 쓴다.** LayoutBuilder는 부모 constraints 기준이라 중첩 컨테이너에 정확하다.
-   - 출처: https://docs.flutter.dev/ui/adaptive-responsive/general
+   - 출처: <https://docs.flutter.dev/ui/adaptive-responsive/general>
 3. **디바이스 종류가 아니라 window size로 브랜치한다.** "폰이냐 태블릿이냐"가 아니라 "현재 width class가 무엇이냐"로 결정하라.
-   - 출처: https://docs.flutter.dev/ui/adaptive-responsive/general
+   - 출처: <https://docs.flutter.dev/ui/adaptive-responsive/general>
 4. **작은 창에는 BottomNavigationBar, 넓은 창에는 NavigationRail을 쓴다.** 내비게이션 패턴 자체를 width class에 따라 교체하는 것이 adaptive의 핵심.
-   - 출처: https://docs.flutter.dev/ui/adaptive-responsive/general
+   - 출처: <https://docs.flutter.dev/ui/adaptive-responsive/general>
 5. **SafeArea와 system UI inset을 항상 고려한다.** 노치·상태바·제스처 영역을 무시하면 기기마다 레이아웃이 어긋난다.
-   - 출처: https://docs.flutter.dev/ui/adaptive-responsive
+   - 출처: <https://docs.flutter.dev/ui/adaptive-responsive>
 
 ## 수치·경계값
 
@@ -48,19 +49,19 @@ abstract class Breakpoints {
 }
 ```
 
-- 출처: https://m3.material.io/foundations/layout/applying-layout/window-size-classes
+- 출처: <https://m3.material.io/foundations/layout/applying-layout/window-size-classes>
 
 ### Sliver 기반 반응형
 
 `CustomScrollView` + `SliverGrid`를 사용하면 crossAxisCount를 width class에 따라 동적으로 변경할 수 있다. `SliverGridDelegateWithMaxCrossAxisExtent`가 가장 유연하다.
 
-- 출처: https://api.flutter.dev/flutter/rendering/SliverGridDelegateWithMaxCrossAxisExtent-class.html
+- 출처: <https://api.flutter.dev/flutter/rendering/SliverGridDelegateWithMaxCrossAxisExtent-class.html>
 
 ### Foldable 지원
 
 `Display` API(Flutter 3.13+)로 hinge 위치를 감지하고 콘텐츠가 힌지 영역을 피하도록 배치한다. dual-screen 시나리오에서는 두 패널을 힌지 양쪽에 분리 배치한다.
 
-- 출처: https://docs.flutter.dev/ui/adaptive-responsive/large-screens
+- 출처: <https://docs.flutter.dev/ui/adaptive-responsive/large-screens>
 
 ### 가로/세로 전환 대응
 
@@ -70,7 +71,7 @@ OrientationBuilder를 사용하면 단순 portrait/landscape 분기가 가능하
 
 - `tester.binding.setSurfaceSize(Size(1200, 800))`로 widget test에서 다양한 화면 크기를 시뮬레이션
 - Golden test에서 compact/medium/expanded 3가지 크기를 각각 캡처하면 regression 방지
-- 출처: https://docs.flutter.dev/cookbook/testing/widget/introduction
+- 출처: <https://docs.flutter.dev/cookbook/testing/widget/introduction>
 
 ## Gotchas
 

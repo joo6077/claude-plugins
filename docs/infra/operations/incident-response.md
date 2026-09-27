@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 인시던트 대응
 
 Severity 분류, 온콜 체계, 역할 분리, Runbook, Postmortem, RCA, Status Page, 복구 우선순위를 다룬다.

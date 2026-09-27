@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # gRPC
 
 Proto 계약, RPC 타입 선택, deadline 전파, metadata, 구조화 에러, 헬스체크, 로드밸런싱, TLS, 호환성 규칙을 다룬다.
@@ -71,7 +72,7 @@ field number를 삭제 후 재사용하면 이전 클라이언트가 다른 타�
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | Field number 범위 | 1~536,870,911 (19000~19999 예약) |
 | RPC 타입 | 4가지 (unary, server streaming, client streaming, bidirectional) |
 | Metadata 권고 크기 | 기본 8 KiB |
@@ -83,7 +84,7 @@ field number를 삭제 후 재사용하면 이전 클라이언트가 다른 타�
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 삭제한 field의 같은 tag number 재사용 | 이전 클라이언트가 다른 타입으로 파싱, silent data corruption. |
 | Unary로 충분한 걸 streaming으로 구현 | 연결 관리, 에러 처리, LB 복잡도가 불필요하게 증가. |
 | Deadline 없는 내부 fan-out | 하위 서비스 장애 시 상위 서비스 리소스 누수, cascading failure. |

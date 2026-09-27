@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-05
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 비동기 패턴
 
 ## 요약
@@ -13,19 +14,19 @@ last_updated: 2026-04-05
 ## 원칙
 
 1. **단발성 결과는 `Future`, 지속적 이벤트 스트림은 `Stream`을 쓴다.** 한 번만 받아올 데이터를 Stream으로 감싸지 않는다.
-   - 출처: https://dart.dev/language/concurrency
+   - 출처: <https://dart.dev/language/concurrency>
 
 2. **단순 async 렌더링은 `FutureBuilder` / `StreamBuilder`, 앱 상태와 결합되는 경우에는 `AsyncValue` 같은 상위 abstraction을 쓴다.** 화면 상태가 provider와 섞이는 순간 Builder류는 한계가 온다.
-   - 출처: https://pub.dev/packages/flutter_riverpod
+   - 출처: <https://pub.dev/packages/flutter_riverpod>
 
 3. **async 오류는 `try`/`catch`로 처리하고, sync/async 오류를 동일하게 다루려면 `Future.sync`로 감싼다.**
-   - 출처: https://dart.dev/libraries/async/futures-error-handling
+   - 출처: <https://dart.dev/libraries/async/futures-error-handling>
 
 4. **한 프레임(~16ms)을 넘길 계산은 isolate로 옮긴다.** JSON 대량 파싱은 `compute`가 기본.
-   - 출처: https://docs.flutter.dev/cookbook/networking/background-parsing
+   - 출처: <https://docs.flutter.dev/cookbook/networking/background-parsing>
 
 5. **취소는 `Future` 자체가 아니라 Dio의 `CancelToken`, Stream subscription cancel, provider dispose로 구현한다.** Dart `Future`는 표준 cancel API가 없다.
-   - 출처: https://pub.dev/documentation/dio/latest/dio/CancelToken-class.html
+   - 출처: <https://pub.dev/documentation/dio/latest/dio/CancelToken-class.html>
 
 ## 수치 기준
 
@@ -68,7 +69,7 @@ class _MyWidgetState extends State<MyWidget> {
 }
 ```
 
-- 출처: https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html
+- 출처: <https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html>
 
 ### Isolate 통신 패턴 (Flutter 3.19+)
 
@@ -81,12 +82,12 @@ final result = await Isolate.run(() {
 });
 ```
 
-- 출처: https://dart.dev/language/isolates
+- 출처: <https://dart.dev/language/isolates>
 
 ### 취소 패턴 비교
 
 | 접근법 | 사용 시점 |
-|--------|----------|
+| -------- | ---------- |
 | `CancelToken` (Dio) | HTTP 요청 취소 — 화면 pop 시 |
 | `StreamSubscription.cancel()` | Stream 구독 해제 |
 | `ref.onDispose(() => ...)` | Riverpod provider dispose 시 cleanup |
@@ -95,6 +96,7 @@ final result = await Isolate.run(() {
 ### Debounce + Cancel 조합
 
 검색 입력처럼 rapid-fire 요청이 발생하는 경우:
+
 1. Timer로 debounce (300ms)
 2. 이전 요청의 CancelToken을 cancel
 3. 새 요청 발생
@@ -106,7 +108,7 @@ final result = await Isolate.run(() {
 - `FutureBuilder` 테스트: `tester.pump()` 1회 → loading 확인, `tester.pumpAndSettle()` → data/error 확인
 - Mock을 `Future.delayed(Duration(milliseconds: 100), () => data)`로 만들어 loading 상태 확인 가능
 - `compute` 테스트: 실제 isolate spawn이 일어나므로 integration test에서 검증
-- 출처: https://docs.flutter.dev/cookbook/testing
+- 출처: <https://docs.flutter.dev/cookbook/testing>
 
 ## Gotchas
 

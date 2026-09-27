@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 프로젝트 구조 원칙
 
 Rust 프로젝트는 Cargo workspace로 여러 크레이트를 관리한다. 크레이트 경계가 의존성 규칙을 컴파일 타임에 강제한다 — 도메인이 인프라를 import하면 컴파일이 실패한다. 초기부터 workspace를 구성하면 나중에 분리 비용이 없다.
@@ -40,7 +41,7 @@ serde = { workspace = true }
 
 의존 방향: `app → api → adapters → domain`. `domain`은 외부 인프라 크레이트를 가지지 않는다. 순환 의존은 Cargo가 컴파일 에러로 강제 차단한다.
 
-```
+```text
 crates/
 ├── domain/      # 외부 인프라 의존성 없음 (thiserror, serde만 허용)
 ├── adapters/    # domain만 의존. sqlx, aws-sdk 등 인프라 라이브러리 포함
@@ -56,7 +57,7 @@ crates/
 
 Rust 2018 edition부터 `mod.rs` 없이 `foo.rs` + `foo/bar.rs` 구조를 사용할 수 있다. `mod.rs`는 디렉토리 안에 숨어 있어 에디터에서 혼동을 일으킨다. 새 코드는 파일명 기반 방식을 사용한다.
 
-```
+```text
 # 권장 (Rust 2018+)
 src/
 ├── lib.rs
@@ -96,7 +97,7 @@ pub(super) fn module_helper() { ... }    // 상위 모듈만
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | 크레이트 분리 기준 | 의존 방향 경계 | 크기가 아닌 의존성 규칙 기준 |
 | workspace 멤버 수 권장 | 3~7개 | 그 이상이면 추가 workspace 분리 검토 |
 | 크레이트당 public API 수 | 최소화 | `pub use`로 re-export 선별 |

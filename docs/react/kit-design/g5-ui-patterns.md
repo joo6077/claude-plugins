@@ -54,7 +54,7 @@ react-kit **G5 그룹** 은 기존 컴포넌트 위에 **UI 품질 레이어**�
 Tailwind v4 의 기본 페이지 breakpoint:
 
 | 키 | min-width | 용도 |
-|----|-----------|------|
+| ---- | ----------- | ------ |
 | `sm:` | 640px | 큰 모바일 / 세로 태블릿 |
 | `md:` | 768px | 세로 태블릿 |
 | `lg:` | 1024px | 가로 태블릿 / 작은 노트북 |
@@ -84,7 +84,7 @@ Tailwind v4 는 `@container` 유틸리티가 **내장** — 별도 플러그인 
 **기본 컨테이너 크기**:
 
 | 키 | min-width |
-|----|-----------|
+| ---- | ----------- |
 | `@xs` | 20rem (320px) |
 | `@sm` | 24rem (384px) |
 | `@md` | 28rem (448px) |
@@ -108,7 +108,7 @@ Tailwind v4 는 `@container` 유틸리티가 **내장** — 별도 플러그인 
 ### 1.5 "페이지 크기 기반" vs "컨테이너 크기 기반" 결정 규칙
 
 | 시나리오 | 선택 | 이유 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | **앱 최상위 레이아웃** (사이드바 펼침/접힘, 상단 네비 분기) | **페이지 (sm/md/lg)** | 뷰포트 전체가 레퍼런스. 전체 앱 구조 결정 |
 | **그리드 아이템 재배치** (카드 목록 1→2→3 컬럼) | **페이지 (sm/md/lg)** | 유저가 "화면 크기" 로 기대하는 경험 |
 | **사이드바 안의 카드** (같은 카드가 전체 화면에도, 모달 안에도) | **컨테이너 (`@container`)** | 부모 영역 크기에 따라 적응해야 재사용 가능 |
@@ -119,6 +119,7 @@ Tailwind v4 는 `@container` 유틸리티가 **내장** — 별도 플러그인 
 **원칙**: 컴포넌트의 **재사용 범위가 어디까지인가** 가 판단 기준. 화면 전체에서만 쓰이면 페이지, 여러 컨텍스트에서 쓰이면 컨테이너.
 
 `/react-responsive` 는 대상 파일 경로를 보고 자동 판단:
+
 - `routes/*.tsx` 또는 `features/<feature>/screens/*.tsx` → 페이지 쿼리
 - `shared/components/**/*.tsx` 또는 `features/<feature>/components/**/*.tsx` → 컨테이너 쿼리 우선 (fallback 페이지)
 - 명시적 플래그 (`--container-query` / `--page-query`) 로 override
@@ -280,7 +281,7 @@ function UserProfileCardEmpty() {
 3가지 상태를 **명확히 구분해서 분기**한다. 혼동하면 UX 가 나빠진다:
 
 | 상태 | 조건 | 표시 | 사용자 액션 |
-|------|------|------|-----------|
+| ------ | ------ | ------ | ----------- |
 | **Loading** | `isPending === true` | Skeleton | 기다림 (자동) |
 | **Error** | `isError === true` | Error 메시지 + "다시 시도" 버튼 | 재시도 |
 | **Empty** | `data === undefined` 또는 빈 배열 | "표시할 데이터 없음" + 주요 액션 안내 | CTA 클릭 |
@@ -346,6 +347,7 @@ react-kit 은 에이전트 `widget-inspector-react` 를 제공. 이 에이전트
 - **After**: `import { LogoBanner } from '@/presentation/shared/components/logo-banner'` (absolute)
 
 **규칙**:
+
 - 항상 **absolute import** (`@/...`) 로 업데이트. 상대 경로 유지 금지
 - **named export 만 지원**: `export default` 인 컴포넌트는 먼저 named export 로 리팩터 후 이동
 - **Type-only import 는 `import type`** 으로 분리 (strict TS `verbatimModuleSyntax: true` 정책)
@@ -356,6 +358,7 @@ react-kit 은 에이전트 `widget-inspector-react` 를 제공. 이 에이전트
 단순 grep + sed 로는 "함수 내부 문자열에 같은 패턴" 이 있으면 오염될 수 있다. `/react-extract` 는 `ts-morph` 또는 TypeScript Compiler API 기반으로 AST 수준에서 import 노드를 식별하여 변환.
 
 **최소 요구사항**:
+
 - Import 경로 변환은 반드시 AST 노드 기반
 - Rename 시 `export` / `import` / `type` 모두 일관 업데이트
 - 순환 참조 감지 — 이동으로 새 순환이 생기면 경고 + 롤백
@@ -377,7 +380,7 @@ react-kit 은 에이전트 `widget-inspector-react` 를 제공. 이 에이전트
 
 ## 4. 3개 스킬의 상호작용
 
-```
+```text
 [컴포넌트 작성] (G1 /react-widget, /react-screen)
          │
          ▼
@@ -405,13 +408,13 @@ widget-inspector-react 에이전트   ←── 주기 실행 또는 수동
 
 ## 6. 출처 요약
 
-1. Tailwind v4 container queries (내장): https://tailwindcss.com/docs/hover-focus-and-other-states#container-queries
-2. Tailwind v4.0 릴리스 노트: https://tailwindcss.com/blog/tailwindcss-v4
-3. Tailwind v4 container 논의 (v4 에서 container plugin 통합): https://github.com/tailwindlabs/tailwindcss/discussions/14801
-4. tailwindcss-container-queries (v3 플러그인, v4 에서는 불필요): https://github.com/tailwindlabs/tailwindcss-container-queries
-5. shadcn/ui Skeleton 컴포넌트: https://ui.shadcn.com/docs/components/skeleton
-6. shadcn Skeleton animate-pulse 이슈: https://github.com/shadcn-ui/ui/issues/5809
-7. TanStack Query v5 useQuery 반환 (isPending, isError 등): https://tanstack.com/query/v5/docs/framework/react/reference/useQuery
+1. Tailwind v4 container queries (내장): <https://tailwindcss.com/docs/hover-focus-and-other-states#container-queries>
+2. Tailwind v4.0 릴리스 노트: <https://tailwindcss.com/blog/tailwindcss-v4>
+3. Tailwind v4 container 논의 (v4 에서 container plugin 통합): <https://github.com/tailwindlabs/tailwindcss/discussions/14801>
+4. tailwindcss-container-queries (v3 플러그인, v4 에서는 불필요): <https://github.com/tailwindlabs/tailwindcss-container-queries>
+5. shadcn/ui Skeleton 컴포넌트: <https://ui.shadcn.com/docs/components/skeleton>
+6. shadcn Skeleton animate-pulse 이슈: <https://github.com/shadcn-ui/ui/issues/5809>
+7. TanStack Query v5 useQuery 반환 (isPending, isError 등): <https://tanstack.com/query/v5/docs/framework/react/reference/useQuery>
 
 ## 현행화 기록
 

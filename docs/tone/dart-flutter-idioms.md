@@ -4,9 +4,10 @@ version: 0.2.0
 last_updated: 2026-09-27
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Dart / Flutter 어댑터 관용구
 
-**이 문서가 잡는 것**
+## 이 문서가 잡는 것
 
 - 문법이 이미 답을 가진 자리를 손으로 채운 코드 — `!` 강제 캐스트, 수동 `SizedBox` 나열, `.expand().skip()` 체이닝
 - 화면 밖까지 전부 빌드하는 eager 리스트와, 부모가 쥐고 있어 subtree 를 통째로 흔드는 leaf 토글 상태
@@ -237,6 +238,7 @@ return {widget_prefix}SwitchWidget(
 
 탭할 때 자기만 rebuild 되므로 상위 트리가 흔들리지 않는다. `setState` 는 "possibly triggering rebuilds for the entire subtree rooted at this widget" 이므로, 상태를 상위에 둔 채 하위만 쪼개면 격리 효과가 상쇄된다. `useState` 만으로는 부모의 외부 override(전체 선택 등)가 반영되지 않는데, 초기값이 첫 build 에만 쓰이기 때문이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **판정 세부**
 
 - hook 은 `items.isEmpty` 같은 early return **위** 에 둔다(rules of hooks).
@@ -277,6 +279,7 @@ final notifier = ref.read(deviceListProvider.notifier);
 
 타입명이 없으면 의미와 재사용성이 약하고, 프로젝트 전역이 freezed state 컨벤션이라 표기가 갈린다. 결정적으로 레코드의 `==` 는 List 필드를 identity 로 비교해 freezed 의 깊은 컬렉션 비교와 rebuild 결과가 달라진다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **판정 세부**
 
 - raw 상태와 파생 상태는 분리한다. 선택·입력 같은 raw 는 Notifier state(`{widget_prefix}XxxState`), 그로부터 계산된 뷰 번들은 derived provider 가 반환하는 별도 freezed state(`{widget_prefix}XxxViewState`) 다.
@@ -313,6 +316,7 @@ class {widget_prefix}DeviceItemWidgetProps {
 
 소유권 규칙은 하나다. **typedef 는 그 콜백의 의미 원천 위젯이 같은 파일 top-level 에 정의하고, 상위 컴포지트와 화면은 import 해서 쓴다.** 의미 원천은 그 콜백이 제어하는 실제 UI 를 그리는 위젯이며, forward 만 하는 상위는 새로 정의하지 않는다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **판정 세부**
 
 - 프리미티브 위젯(switch/button/checkbox/radio/slider)은 자기 base typedef 를 계속 소유한다.
@@ -352,6 +356,7 @@ void startLongPressRepeat(Duration interval) { ... }
 
 `///` 는 dartdoc 이 수집하는 API 문서용이라 자명한 필드에 붙으면 생성 코드까지 오염된다 — freezed 는 constructor parameter 의 `///` 를 property 와 class 레벨로 전파한다. 이름을 한국어로 옮기기만 하는 필드 doc 은 금지이며 `antipattern-catalog.md` 의 A 카테고리다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **판정 세부**
 
 - 커버리지 판정은 레이어가 아니라 **로직 유무** 로 한다. provider · model · service · repository · util 뿐 아니라 화면·뷰의 핸들러·리스너 헬퍼도 로직이 있으면 doc 을 단다. 면제되는 것은 `build` 와 자명한 getter 뿐이고, private 도 자명하지 않으면 단다. 화면·VM 메서드 doc 을 "화면이니까"라는 이유로 떼는 것은 컨벤션 이탈이다.
@@ -447,6 +452,7 @@ ref.listen(updateProvider, (previous, next) {
 
 비대화의 실제 원인은 줄 수가 아니라 조합 폭발이다. Notifier 파일 하나에 enum + freezed 모델 + extension + Notifier 본체 + 헬퍼를 다 넣지 않고, 1000줄을 넘으면 state 모델 · helper extension · Notifier 본체(실행 흐름과 reducer 만) 세 파일로 분할한다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **판정 세부**
 
 - `isIdle` · `isRunning` · `isCompleted` 같은 extension getter 를 sub-state 마다 양산하지 않는다. 호출부에서 enum 을 직접 비교하는 편이 명확하고, 정말 자주 쓰이는 1~2개만 추출한다.
@@ -581,10 +587,10 @@ Down          →  Start        →  Update / MoveUpdate  →  End / Up   →  C
 포인터 접촉       제스처 확정       진행 중 갱신             정상 종료      인식 취소
 ```
 
-**제스처별 공식 콜백**
+#### 제스처별 공식 콜백
 
 | 제스처 | 콜백 |
-|---|---|
+| --- | --- |
 | tap | `onTapDown` · `onTapMove` · `onTapUp` · `onTap` · `onTapCancel` |
 | double tap | `onDoubleTapDown` · `onDoubleTap` · `onDoubleTapCancel` |
 | long press | `onLongPressDown` · `onLongPressStart` · `onLongPressMoveUpdate` · `onLongPressUp` · `onLongPressEnd` · `onLongPress` · `onLongPressCancel` |
@@ -595,16 +601,17 @@ Down          →  Start        →  Update / MoveUpdate  →  End / Up   →  C
 
 `Secondary` · `Tertiary` 변형도 같은 규칙으로 존재한다(`onSecondaryTapDown` 처럼 제스처 이름 앞에 끼워 넣는다). 폼·선택 계열은 `onChanged` · `onSubmitted` · `onEditingComplete` · `onSelected` · `onPressed` · `onHover` · `onFocusChange` 다.
 
-**코퍼스 위반 실측**
+##### 코퍼스 위반 실측
 
 | 프로젝트 이름 | 실측 | 프레임워크 대응 |
-|---|---|---|
+| --- | --- | --- |
 | `handlePressStart` | 7건 | `onTapDown` 또는 `onLongPressStart` |
 | `handlePressEnd` | 8건 | `onTapUp` 또는 `onLongPressEnd` |
 | `…SelectTap` ↔ `…Selected` | 혼재 | 같은 개념에 두 어휘 |
 
 `Press` 하나로는 tap 인지 long press 인지 이름에서 안 갈린다. 프레임워크는 갈라 놨는데 프로젝트가 도로 합친 것이다.
 
+<!-- markdownlint-disable-next-line MD036 -->
 **판정 세부**
 
 - 판정식은 하나다 — **이 이벤트를 프레임워크가 이미 알고 있는가.** 알고 있으면 그 이름을 쓰고, 모르면 프로젝트가 짓는다.
@@ -624,7 +631,7 @@ Down          →  Start        →  Update / MoveUpdate  →  End / Up   →  C
 `tone-guide` 와 `tone-scaffold` 가 이 표에서 값을 읽는다.
 
 | 슬롯 | dart-flutter 값 |
-|---|---|
+| --- | --- |
 | `comment_syntax` | 기본 `//`. `///` 는 dartdoc 전용이며 원칙 8 의 3개 용도에만. 블록 주석 `/* */` 미사용 |
 | `doc_param_format` | `/// - [param]: 설명` — 파라미터 선언부에서 `[]` 링크 의무, 본문에서는 필요할 때만 |
 | `doc_return_label` | `/// - 반환값: 설명`, void 는 `- 반환값: 없음` (`N/A` 신규 도입 금지). **한국어 축 — 표기 상수의 소유자는 `korean-technical-writing.md` 다** |
@@ -655,7 +662,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 ### grep 판정표 — 히트가 곧 위반인가
 
 | # | 잡는 것 | 히트 = 위반? | 판정 방법 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | `shrinkWrap: true` | 조건부 | lazy 수단으로 쓴 자리는 위반이다(원칙 4). 히트마다 판정을 적는다 |
 | 2 | `SingleChildScrollView` | 조건부 | eager 다. 스크롤이 실제로 불필요한 건은 사람이 명시 허락한 경우에만 유지 |
 | 3 | `_build*` 헬퍼 | **아니다** | 금지 접두사이되 인라인/위젯 승격 판정은 `extraction-thresholds.md` 와 `antipattern-catalog.md` I 카테고리에 있다 |
@@ -672,7 +679,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 ## 수치 기준
 
 | 항목 | 값 | 출처 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | `?element` (null-aware element) 최소 버전 | Dart 3.8 | 원본 규칙 문서 기록 (2026-04-18) |
 | `if case` 사용 가능 위치 | statement · collection element 2곳 | [Dart patterns](https://dart.dev/language/patterns) |
 | `switch` expression 전환 분기 수 | 3분기 이상 (2분기는 삼항 / `if`) | 프로젝트 실측 |
@@ -692,7 +699,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' <src>
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | `if (x != null) Widget(x!)` | 컴파일러가 이미 아는 사실을 `!` 로 재단언한다. `if case final v?` 로 바인딩하면 `!` 가 사라진다 |
 | 2분기 null 체크에 `switch` expression | `switch` 는 분기 3개부터 이득이 난다. 2분기에서는 삼항보다 길기만 하다 |
 | expression 위치에 `if case` 시도 | named parameter 자리에서는 문법이 성립하지 않는다. 컴파일 실패 후 `!` 로 회귀한다 |

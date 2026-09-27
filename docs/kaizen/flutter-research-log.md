@@ -4,6 +4,7 @@ version: 1.4.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Flutter Kaizen Research Log
 
 ## [2026-09-24] — Phase 5 (codegen 필터 · 삭제 수 블록 · 관례 대조)
@@ -44,7 +45,7 @@ last_updated: 2026-09-25
 것이고, evidence 에 없는 출처는 쓰지 않았다.
 
 | # | URL | 확인한 사실 |
-|---|-----|------------|
+| --- | ----- | ------------ |
 | 1 | <https://pub.dev/packages/freezed/changelog> | 최신 stable **3.2.5**. `.when`/`.map` 제거는 **3.0** 의 breaking 이고 **3.1.0 에서 재추가** — "3 부터 제거" 를 절대 규칙으로 쓰면 낡은 조항 |
 | 2 | <https://docs.flutter.dev/release/release-notes> | stable 목록 최상단 **3.47.0** |
 | 3 | <https://flutter.dev/blog/whats-new-in-flutter-3-47> | Android 의존성 매트릭스 — Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1 |
@@ -108,7 +109,6 @@ golden_toolkit(**discontinued**, 3년 전).
 
 insights 2026-06-04 Friction #3(과잉설계)의 Flutter 도메인 발현 대응. flutter-feature 는 clean arch 풀스택을 까는 스킬이라 과잉설계 취약 → 최소 구현 우선 Gotcha.
 
-
 > flutter-kaizen 스킬 실행 시 연구 결과를 누적 기록한다.
 > 형식: `flutter-toolkit/skills/flutter-kaizen/templates/research-log-entry.md`
 
@@ -136,12 +136,13 @@ insights 2026-06-04 Friction #3(과잉설계)의 Flutter 도메인 발현 대응
 | 12 | apps iter2 sprint-feedback (22/22) | (internal) | ground truth | 높음 | 채택 |
 | 13 | fit-pal iter2 sprint-feedback (33/33) | (internal) | ground truth | 높음 | 채택 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 - **Riverpod 3.0 Notifier 재생성 라이프사이클**: Notifier 내부에 `Timer`, `StreamSubscription`, `TextEditingController` 선언 금지 — provider 재생성 시 leak. `ref.onDispose(() => timer.cancel())` 로 분리 필요. 적용: flutter-provider, flutter-audit.
 - **Freezed 3.0 sealed switch expression**: `when` / `map` 제거, sealed class 필수로 전환 → Dart 3 switch expression `switch (result) { Success(:final value) => ..., Failure(:final error) => ... }` 권장. 적용: flutter-error, flutter-audit.
 - **go_router StatefulShellRoute.indexedStack + preload**: 2026 기준 탭 네비게이션 공식 권장 패턴. `preload: true` 로 사용자 첫 방문 전 빌드 완료 → 체감 성능 개선. 적용: flutter-screen.
-- **context.mounted vs ref.mounted async gap**: Navigator.push / showDialog / Future<T> 반환 후 context 를 재사용할 때 `if (!context.mounted) return;` 필수. `ref.mounted` 는 Provider 수준, `context.mounted` 는 위젯 수준. 두 가드를 혼동하지 마라. 적용: flutter-hooks.
+- **context.mounted vs ref.mounted async gap**: Navigator.push / showDialog / `Future<T>` 반환 후 context 를 재사용할 때 `if (!context.mounted) return;` 필수. `ref.mounted` 는 Provider 수준, `context.mounted` 는 위젯 수준. 두 가드를 혼동하지 마라. 적용: flutter-hooks.
 - **Makefile monorepo 감지**: fit-pal/apps 모노레포에서 `make app-run` / `make app-preflight` 타겟이 표준. flutter-toolkit 스킬이 이를 감지하면 `flutter` / `fvm flutter` 대신 `make` 경로를 제안한다. 적용: references/project-detection.md Step 2b.
 - **Props 번들링 감지 (widget-inspector)**: HAS_FREEZED + HAS_HOOKS 동시 프로젝트에서 위젯 파라미터 6+ 개면 `@freezed Props` 클래스로 번들링 권장. Named constructor variant (ex. `Button.primary`) 는 면제. 적용: widget-inspector 감지 기준 5.
 
@@ -159,6 +160,7 @@ insights 2026-06-04 Friction #3(과잉설계)의 Flutter 도메인 발현 대응
 
 **트리거:** manual (전체)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
@@ -172,6 +174,7 @@ insights 2026-06-04 Friction #3(과잉설계)의 Flutter 도메인 발현 대응
 | 7 | Flutter AI Development Guide | <https://docs.flutter.dev/ai/create-with-ai> | 공식 | 높음 | 채택 |
 | 8 | skills.sh (flutter-animations) | <https://skills.sh> | skills.sh | 중간 | 폐기 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 - **MVVM 공식 권장:** Flutter가 View ↔ ViewModel 1:1 + Repository + Service 패턴을 공식 아키텍처로 권장 — 적용 영역: detection
@@ -194,6 +197,7 @@ insights 2026-06-04 Friction #3(과잉설계)의 Flutter 도메인 발현 대응
 
 - **소스 8 (skills.sh):** Flutter 관련 스킬이 1개(flutter-animations)뿐이라 참고 가치 낮음
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### PR
 
 - <https://github.com/joo6077/claude-plugins/pull/2>

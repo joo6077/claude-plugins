@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 캐싱
 
 캐시 계층 구조, 캐싱 전략(cache-aside, write-through, write-behind, refresh-ahead), TTL, cache stampede, Redis vs Memcached, 캐시 무효화, 분산 캐시를 다룬다.
@@ -59,7 +60,7 @@ Phil Karlton의 격언대로 캐시 무효화는 컴퓨터 과학에서 가장 �
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | Redis maxmemory-policy | `allkeys-lru` 권장 | 기본값 `noeviction`은 메모리 초과 시 쓰기 거부 |
 | TTL — 설정/메타데이터 | 30분~1시간 | 변경 빈도 낮은 데이터 |
 | TTL — 피드/목록 | 5분~15분 | 변경 빈도 높은 데이터 |

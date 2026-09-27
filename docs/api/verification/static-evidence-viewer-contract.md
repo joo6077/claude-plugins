@@ -4,6 +4,7 @@ version: 0.1.1
 last_updated: 2026-09-24
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 정적 증거 뷰어 계약
 
 검증 결과를 사람이 읽는 단일 HTML 리포트가 지켜야 할 제약. 외부 의존 0건, `file://` 직접 열람, 신뢰할 수 없는 응답 본문의 안전한 인라인, 비밀 마스킹을 다룬다. 확정 시안은 `.mockups/api-ui-v8.html` 이다.
@@ -77,7 +78,7 @@ operation/testcase 단위 그룹핑과 `failure` / `error` / `skipped` 필터를
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | CSP 최소 정책 | `default-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'` | [MDN default-src](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/default-src), [MDN connect-src](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/connect-src) |
 | 외부 참조 개수 | `<script src` `0` / `<link rel=stylesheet` `0` / `fetch(` `0` / `XMLHttpRequest` `0` | 확정 시안 `.mockups/api-ui-v8.html` 실측 |
 | 텍스트 대비 | 일반 `4.5:1` 이상, large text `3:1`, UI component·graphical object `3:1` | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) |
@@ -94,7 +95,7 @@ operation/testcase 단위 그룹핑과 `failure` / `error` / `skipped` 필터를
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | CDN 의 JS/CSS 를 불러와야 열리는 리포트 | 오프라인·에어갭 환경에서 증거가 열리지 않고, CDN 변조가 리포트 내용을 바꾼다 |
 | `file://report.html` 에서 sidecar JSON 을 `fetch('./data.json')` 로 로드 | opaque origin 때문에 CORS 로 막혀 리포트가 빈 화면이 된다 |
 | raw response body 를 `innerHTML` 로 렌더링 | 대상 API 가 반환한 문자열이 열람자 브라우저에서 실행된다 |
