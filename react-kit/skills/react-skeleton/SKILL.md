@@ -23,17 +23,24 @@ user-invocable: true
 9. **"아무것도 안 보인다" 를 성공으로 읽지 마라 (E2)** — 이 스킬의 산출물은 **비어 보이는 것이 정상인 UI** 라서 검증 착오가 가장 쉽게 일어난다. 로딩 분기가 아예 렌더되지 않아 화면이 빈 것과, skeleton 이 정상 표시되어 회색 블록만 있는 것은 캡처상 구분되지 않을 수 있다. 부재 단정(`queryByTestId(...)` → `null`)은 컴포넌트가 렌더 실패했을 때도 통과하므로, **양성 대조(positive control)를 먼저 확보**한다 — pending 상태에서 skeleton 요소를 `getByRole`/`getByTestId` 로 지목하고, resolved 상태에서 실제 콘텐츠를 지목한 **두 증거를 쌍으로** 남긴다. 완료 직전에 `react-kit/references/render-evidence-protocol.md` 의 §3 (a) 와 §4 체크리스트를 채운다. 증거를 못 얻으면 `[미검증]` 을 달고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 §2)을 채워 부분 완료로 보고한다.
 10. **기준 캡처는 편집 전에 찍는다** — `react-kit/references/render-evidence-protocol.md` §1 Step 0 과 §2 비교 반복 순서의 1 번을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 지금의 loading 화면 캡처 경로와 바뀌어야 할 표식)를 응답에 남긴다. 편집한 뒤에는 편집 전 loading 화면을 다시 찍을 수 없다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 프로젝트 환경 감지
 
 `references/project-detection.md` 절차를 실행한다:
+
 - `components.json` 존재 여부 (shadcn 초기화 확인)
 - `src/presentation/shared/components/ui/skeleton.tsx` 존재 여부
   - 없으면 설치 안내 후 중단:
+
     ```bash
     pnpm dlx shadcn@latest add skeleton
     ```
+
 - `src/presentation/shared/lib/utils.ts`의 `cn` 헬퍼 확인
 
 ## 2. 입력 수집
@@ -44,6 +51,7 @@ user-invocable: true
 ## 3. 대상 파일 분석
 
 `target_path` 파일을 읽고 다음을 파악한다:
+
 - 현재 사용 중인 TanStack Query 훅 (`useQuery`, `useSuspenseQuery` 등)
 - `isPending`, `isError`, `data` 상태를 이미 분기하는지 여부
 - 실제 콘텐츠 레이아웃 구조 (container 래퍼, 간격, 텍스트 크기, 이미지 비율)
@@ -76,7 +84,7 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
 3가지 상태를 명확히 구분해서 분기한다:
 
 | 상태 | 조건 | 표시 | 액션 |
-|------|------|------|------|
+| ------ | ------ | ------ | ------ |
 | **Loading** | `isPending === true` | Skeleton | 자동 대기 |
 | **Error** | `isError === true` | Error UI + 재시도 버튼 | 재시도 |
 | **Empty** | `!data` 또는 `data.length === 0` | Empty UI + CTA | CTA 클릭 |
@@ -106,6 +114,7 @@ export function UserProfileCard({ userId }: { userId: string }) {
 실제 레이아웃과 1:1 매핑하는 skeleton private 함수를 같은 파일 하단에 생성한다.
 
 **크기 가이드**:
+
 - 제목류 텍스트: `h-7 w-48`
 - 본문류 텍스트: `h-5 w-64`
 - 보조 텍스트: `h-4 w-32`
@@ -200,11 +209,16 @@ pnpm eslint <target_path> --max-warnings=0
 변경된 파일과 추가된 skeleton 컴포넌트를 요약한다.
 
 다음 단계:
+
 - 반응형 skeleton이 필요하면: `/react-responsive`
 - 컴포넌트 재사용 패턴 감지: widget-inspector-react 에이전트
 - 컴포넌트 품질 감사: `/react-audit`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 감지 (shadcn 초기화 여부)
 - `references/clean-arch-layout.md` — skeleton 배치 경로 (`shared/components/skeletons/`)

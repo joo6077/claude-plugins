@@ -6,7 +6,11 @@ source: /insights 2026-07-27 Friction #2 · /insights 2026-09-24 F01 · F03 · F
 enforcement: E2 (체크리스트 아티팩트)
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Render Evidence Protocol
+
+<!-- markdownlint-enable MD025 -->
 
 렌더 결과가 산출물인 react-kit 스킬(`react-screen` · `react-widget` · `react-skeleton` ·
 `react-responsive` · `react-animation`)이 따르는 증거 규약이다. 이 규약은 **편집 전과 완료 직전 두 번** 실행한다.

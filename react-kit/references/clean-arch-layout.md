@@ -5,7 +5,7 @@ react-kit 의 모든 스킬이 공유하는 레이어 배치 + 의존성 방향 
 ## 레이어 정의
 
 | 레이어 | 경로 | 의존성 방향 |
-|--------|------|------------|
+| -------- | ------ | ------------ |
 | **domain** | `src/domain/` | 외부 의존성 **0개**. 오직 순수 TS + Zod |
 | **data** | `src/data/` | `domain/` 만 알고, `presentation/`, `infrastructure/` 모름 |
 | **presentation** | `src/presentation/` | `domain/`, `data/repositories/`, `shared/`, `infrastructure/` 알 수 있음 |
@@ -14,12 +14,14 @@ react-kit 의 모든 스킬이 공유하는 레이어 배치 + 의존성 방향 
 ## 하위 디렉토리
 
 ### domain
+
 - `entities/` — Zod 스키마 + `z.infer` 파생 타입
 - `usecases/` — 함수 시그니처 (`Promise<Result<T, Failure>>`)
 - `failures/` — `<Feature>Failure` discriminated union
 - `types/` — 공유 타입 (WASM 경계 포함)
 
 ### data
+
 - `datasources/remote/` — fetch + Zod parse (boundary 검증)
 - `datasources/local/` — localStorage, IndexedDB
 - `datasources/wasm/` — Comlink Worker 래퍼 + WASM 바인딩
@@ -27,6 +29,7 @@ react-kit 의 모든 스킬이 공유하는 레이어 배치 + 의존성 방향 
 - `repositories/` — UseCase 구현 (의존성 주입)
 
 ### presentation
+
 - `features/<feature>/` — components/, hooks/, store.ts, screens/, index.ts
 - `shared/components/ui/` — shadcn 원본 (수정 금지)
 - `shared/components/` — 공용 위젯
@@ -38,6 +41,7 @@ react-kit 의 모든 스킬이 공유하는 레이어 배치 + 의존성 방향 
 - `styles/` — globals.css (@theme @keyframes)
 
 ### infrastructure
+
 - `tauri/` — `@tauri-apps/*` 유일한 import 위치, `isTauri()` 가드 래퍼
 - `storage/` — localStorage 어댑터
 - `http/` — fetch 클라이언트 (Zod 검증 + Result 반환)

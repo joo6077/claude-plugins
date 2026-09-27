@@ -24,10 +24,14 @@ user-invocable: true
 10. **`@tauri-apps/*` 직접 import 금지** — presentation/data 레이어에서 Tauri API를 직접 import하면 레이어 경계 위반이다. 반드시 `src/infrastructure/tauri/`를 경유한다.
 11. **템플릿 내 확장 포인트 주석은 미완성 마커가 아니다** — 아래 Process 템플릿에 등장하는 `// 필요한 ... 추가`, `// DTO -> Domain 매핑 추가`, `// feature UI 내용` 형태의 주석은 "프로젝트에서 해당 위치를 채우라"는 **확장 포인트 안내**이지, 구현 대기 미완성 마커가 아니다. 생성된 실제 코드에 미완성 키워드(대문자 4글자 T-O-D-O / F-I-X-M-E / X-X-X) 문자열을 포함시키지 않는다. 스킬이 생성하는 파일은 프로젝트에 들어간 순간 그대로 컴파일 가능해야 하며, 미구현 마커를 남기지 않는다.
 12. **Zustand vs TanStack Query vs Hook Form 3-way 상태 분리** — 이 스킬이 생성하는 store(`store.ts`)는 **클라이언트 전용 UI 상태**만 담는다. 서버 데이터는 TanStack Query hook(`hooks/use<Feature>.ts`)이 단일 진실 공급원이며 Zustand store에 복사 금지. 폼 로컬 상태는 React Hook Form(`/react-form`)이 전담. 서로 다른 3 도메인을 섞지 않는다.
-13. **Enumerate-before-Act (skill-design-guide §5.5)** — feature 4계층을 생성하기 전에 기존 `src/domain/entities/*`, `src/domain/usecases/*`, `src/data/repositories/*`, `src/presentation/features/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 feature 명, (b) 재사용 가능한 기존 entity·repository·shared store, (c) 중복 usecase 를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 풀스택 스캐폴딩은 산출물이 5+ 파일이라 중복을 선(先) 생성하면 롤백 비용이 가장 크다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+13. **Enumerate-before-Act (skill-design-guide §5.5)** — feature 4계층을 생성하기 전에 기존 `src/domain/entities/*`, `src/domain/usecases/*`, `src/data/repositories/*`, `src/presentation/features/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 feature 명, (b) 재사용 가능한 기존 entity·repository·shared store, (c) 중복 usecase 를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 풀스택 스캐폴딩은 산출물이 5+ 파일이라 중복을 선(先) 생성하면 롤백 비용이 가장 크다 (insights-report #2 wrong_approach 대응). 출처: <https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom>
 14. **요청한 feature 범위만 — 임의 레이어 확장 금지** — 사용자가 `--with-api false` 또는 특정 레이어만 요청하면 그 범위만 생성한다. "feature 추가" 라는 이유로 요청하지 않은 인증·캐싱·소프트삭제·감사 로직·테스트를 4계층에 임의로 끼워 넣지 마라. 프로젝트 컨벤션상 표준으로 끼는 레이어가 있으면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응 — 스코프 자동 확장 차단).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 프로젝트 환경 감지
 
@@ -45,6 +49,7 @@ PascalCase 변형 계산: `user-profile` → `UserProfile`. kebab-case 유지: `
 ## 3. 중복 확인
 
 아래 경로가 이미 존재하는지 확인한다:
+
 - `src/domain/entities/<feature>.ts`
 - `src/domain/failures/<feature>-failures.ts`
 - `src/domain/usecases/<feature>-usecases.ts`
@@ -263,11 +268,16 @@ pnpm eslint src/domain/entities/<feature>.ts \
 ## 6. 완료 후 안내
 
 생성 파일 목록 출력. 다음 단계:
+
 - 스토어/쿼리 심화 설정: `/react-store`, `/react-query`, `/react-form`
 - 테스트 생성: `/react-test`
 - 추가 컴포넌트: `/react-widget`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 감지
 - `references/clean-arch-layout.md` — 4계층 배치 규칙 및 금지 import 방향
