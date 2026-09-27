@@ -116,9 +116,55 @@
 
 ## 남은 것
 
-- 개정 A-01(SC-05 `mut` 값) 사용자 동의.
+- 개정 A-01(SC-05 `mut` 값)은 동의 없이 1 회차 개정 파일에 남는다. 2 회차 계약이 그 조건을 바로잡아 다시 봉인했으므로 동의가 없어도 막히는 것은 없다 — 아래 「2 회차 계약」.
 - 문서 사이트 페이지 재생성 — 위 드리프트 목록 아홉(부모).
 - SKILL.md 버전 교차 확인 표(시작 판 `:2541-2545` 「references 는 `02.06.00.51` 기준」)는 `/bambu-research` 몫이라 고치지 않았다.
 - `compatible_printers` · 메타필드 · 숫자 타입 검사의 FAIL 시험 파일은 목록 밖이라 만들지 않았다.
 - `G91` 실물 확인(H2S 펌웨어). KT-3 의 C-06 강도 · `etc_seq=663` · `__` 예시는 바깥 근거를 새로 찾아야 판단할 수 있다.
 - 킷 버전 올리기(릴리스 단계).
+
+## 2 회차 계약
+
+1 회차 SC-05 측정 기대 `mut=4` 는 봉인 전에 잰 적 없는 값이었다(시작 판 · 가지 끝 모두 `mut=10`). 결정 파일 「추가 위임」 절대로 개정 대신 새 판 계약을 다시 봉인했다.
+
+- 계약 `.harness/sprint-contract-after-0926-kits-reflect-bambu-tone-r2.md` — 조건 32(기능 24), 봉인 `sha256:9ee4c5cccc722588` · 측정 지문 `sha256:69bb247ef8d5b16a` · `locked_at` 2026-09-27 12:24, 봉인 커밋 `0ece417`(파일 1 개).
+- 1 회차 처리: QA 리포트(REJECT) 커밋 `7f0a203`, 1 회차 계약 `status: superseded` 커밋 `e52318f`(조건 줄은 그대로, 봉인 `94c9205998801dd1` 유지).
+- 1 회차와 달라진 조건 줄은 AR-01 하나(기대 경로 스물넷 → 스물일곱 — 2 회차 계약 · 피드백 · 개정 세 경로). 측정 줄은 SC-05 두 줄이 바뀌고 음성 대조 `SC-05N` 이 더해졌다.
+- 교차 진단(qa-evaluator, 봉인 전): 도우미를 직접 돌려 SC-05 · SC-05N · AR-01 값을 글자 그대로 재현, 나머지 31 조건은 1 회차와 바이트가 같다고 확인. 지적 하나 — 1 회차의 `status: superseded` 가 스키마 값 밖이라는 것. 봉인 차단은 아니어서 배경에 까닭만 적었다(`supersedes_digest` · `supersedes_commit` 은 같은 파일을 다시 봉인할 때 쓰는 평가자 칸이라 새 파일인 이 계약엔 맞지 않는다). 배경의 굵은 글씨 가짜 제목 둘은 `###` 로 바꿨다.
+- 6.5 재통과: `##` 헤더 12 개 모두 허용 · `OK conditions=32` · `UNCOVERED` 13 건 모두 「범위 경계」 해소 줄 · `OK 미실측 0 건`. 봉인 직후 `SEAL_OK` · `MEASURE_OK`.
+- 피드백: `~/.harness/feedback/contract/1a3bcba6-2026-09-27T123130-bda55d45-47965.yaml` · `verify-feedback.sh` PASS.
+- 새 코드는 쓰지 않았다. 2 회차 조건이 구현 빈틈을 드러낸 곳은 없다.
+
+### 2 회차 자기 측정 (끝점 `0ece417`, 도우미는 봉인된 계약에서 뽑은 판 — 앞 사본과 바이트가 같다)
+
+- SK-01 ~ SK-11 · SC-01 ~ SC-04 · SC-06 ~ SC-08 · ER-01 · RE-01 · RE-02 · DG-02 값은 위 「자기 측정」 과 같다.
+- SC-05 `mut=10 rc=0 fixtures=24 match=8 bad=0 skip=16 skip_named=16` · `neg mut=1 rc=1 bad_class=1` · SC-05N `noskip mut=1 rc=1 bad=16 skip=0 match=8` — 2 회차 기대대로.
+- ER-02 (`m SC-07`) `403: fail_design=1 exit=1` · `c403=2`.
+- AR-01 `changed=25 extra=0 multi_top=0 reflect=6 bambu=7 tone=2 docs_tone=2 github=1` (notes 커밋 전) · AR-02 `committed=1` 서른 토큰 모두 1 이상 · `rc=0 pages=9 miss=0`.
+- AP-03 `--check=code-fence` 종료 코드 0 · AP-04 `--check=frontmatter` 종료 코드 0 · DG-01 `scripts/release.sh` 0.
+- validate-plugin 전체 `Total: 14 plugins, 14 OK` · sync-docs `--check-only` 동기화됨 · sync-evals `--check-only` `0 added, 0 orphans, 0 missing`.
+- 킷 시험: reflect 35 · 19 경우, bambu 완료 검사 24 경우, 받는 법 5 경우 — 모두 불일치 0.
+- 로컬 CI `ci-local.sh`(sha256 앞자리 `59fe55125c0dbc77`, 끝점 `0ece417`, 247 초) — `rc=0` 25 줄, 나머지 한 줄 `feedback-agg-test SKIP (yq 없음)`.
+- 원본 문서는 이번 회차에 바꾸지 않아 문서 사이트 드리프트 목록은 위와 같다(아홉).
+
+### 2 회차 톤 대조 (tone-kit:tone-guide 5 단계)
+
+이번 회차에 바뀐 것은 `.harness` 의 계약 · QA 리포트 · 이 notes 뿐이고 코드 · 킷 문서는 0 줄이다. 그래서 주석 · 이름 · 구조 규칙은 대상이 없고, 한국어 문체 규칙만 새 글에 대조했다.
+
+| 규칙 | 건수 | 판정 |
+| --- | --- | --- |
+| C · N · S (주석 · 이름 · 구조) | — | 대상 없음 — 코드 변경 0 줄 |
+| K-02 번역투 | 0 | 통과 |
+| K-04 종결형 | 0 | 통과 — 「한다」 체 |
+| K-05 음역 | 0 | 통과 — 새로 음역한 낱말 없음 |
+| K-11 새 이름 | 0 | 통과 — 「2 회차 계약」 · 「새 판」 은 결정 파일의 말 |
+
+### 킷별 버전 판단 (2 회차)
+
+바뀐 것이 없어 위 판단 그대로다 — reflect-kit 0.10.0 · bambu-kit 0.11.0 · tone-kit 0.2.2 권장, `plugin.json` 은 릴리스 단계 몫.
+
+### 2 회차 남은 것
+
+- 2 회차 QA(qa-evaluator) 판정. `status` 는 `active` 그대로 둔다.
+- 스키마에 새 판 계약을 가리키는 정식 칸이 없다 — 다음 계약 카이젠 후보(피드백 제안에 적음).
+- 위 「남은 것」 의 문서 사이트 재생성 · 버전 올리기 · `G91` 실물 확인 · 바깥 근거 없는 KT-3 세 항목은 그대로 남는다.
