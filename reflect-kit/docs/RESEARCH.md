@@ -9,6 +9,7 @@
 ## 리서치 #1 — 방법론·surface·탐지·측정 (2026-04-16T18:14)
 
 ### Task
+
 개인 개발자가 Claude Code(CLI + plugins)를 장기 사용하며 AI 오해/실수를 줄이고 의도 파악을 개선하는 피드백 수집→분석→재주입 파이프라인의 모범 사례(방법론/surface/탐지/측정/공개사례/워크플로우) 리서치. read-only.
 
 ### 결과 (5축 25/25)
@@ -16,15 +17,15 @@
 #### 1. 방법론 비교 (개인 사용자 레벨 적용성)
 
 | 방법론 | 개인 적용성 | 난이도 | 기대 효과 | Claude Code식 구현 해석 | 출처 |
-|---|---|---:|---:|---|---|
-| **Reflexion** | 높음 | 중 | 높음 | 실패/교정 로그를 "언어적 반성 + 에피소드 메모리"로 저장하고 다음 세션에 재주입. reflect-kit 수집 레이어와 1:1 매칭 | https://arxiv.org/abs/2303.11366 |
-| **Self-Refine** | 높음 | 낮음~중 | 중 | 세션 종료 요약, 실패 요약, 규칙 초안 생성. "초안→자기비평→개선안"을 훅/배치로 돌리기 쉬움 | https://arxiv.org/abs/2303.17651 |
-| CoVe | 중 | 중 | 중~높음 | 사실성/외부근거/체크리스트 검증에 강함. 반복 실수 교정엔 과함 | https://arxiv.org/abs/2309.11495 |
-| Constitutional AI self-critique | 중~높음 | 낮음 | 중 | 개인용 "헌법"을 CLAUDE.md/skill rubric로 두고 자기비평. 현실적 | https://arxiv.org/abs/2212.08073 |
-| Self-Consistency | 중 | 중~높음 | 중 | 다수결/합의. 비용 큼, 기본축엔 비효율 | https://arxiv.org/abs/2203.11171 |
-| DSPy | 낮음~중 | 높음 | 중 | 외부 분석기/분류기 파이프라인 용. Claude 주입 표면엔 부적합 | https://dspy.ai/ |
-| DPO | 매우 낮음 | 매우 높음 | 직접 효과 낮음 | 파인튜닝 전제. 선호쌍 데이터셋 아이디어만 차용 가능 | https://openreview.net/forum?id=HPuSIXJaa9 |
-| KTO | 매우 낮음 | 매우 높음 | 직접 효과 낮음 | 파인튜닝 전제. "좋음/나쁨 이진 라벨" 운영 방식만 차용 | https://openreview.net/forum?id=iUwHnoENnl |
+| --- | --- | ---: | ---: | --- | --- |
+| **Reflexion** | 높음 | 중 | 높음 | 실패/교정 로그를 "언어적 반성 + 에피소드 메모리"로 저장하고 다음 세션에 재주입. reflect-kit 수집 레이어와 1:1 매칭 | <https://arxiv.org/abs/2303.11366> |
+| **Self-Refine** | 높음 | 낮음~중 | 중 | 세션 종료 요약, 실패 요약, 규칙 초안 생성. "초안→자기비평→개선안"을 훅/배치로 돌리기 쉬움 | <https://arxiv.org/abs/2303.17651> |
+| CoVe | 중 | 중 | 중~높음 | 사실성/외부근거/체크리스트 검증에 강함. 반복 실수 교정엔 과함 | <https://arxiv.org/abs/2309.11495> |
+| Constitutional AI self-critique | 중~높음 | 낮음 | 중 | 개인용 "헌법"을 CLAUDE.md/skill rubric로 두고 자기비평. 현실적 | <https://arxiv.org/abs/2212.08073> |
+| Self-Consistency | 중 | 중~높음 | 중 | 다수결/합의. 비용 큼, 기본축엔 비효율 | <https://arxiv.org/abs/2203.11171> |
+| DSPy | 낮음~중 | 높음 | 중 | 외부 분석기/분류기 파이프라인 용. Claude 주입 표면엔 부적합 | <https://dspy.ai/> |
+| DPO | 매우 낮음 | 매우 높음 | 직접 효과 낮음 | 파인튜닝 전제. 선호쌍 데이터셋 아이디어만 차용 가능 | <https://openreview.net/forum?id=HPuSIXJaa9> |
+| KTO | 매우 낮음 | 매우 높음 | 직접 효과 낮음 | 파인튜닝 전제. "좋음/나쁨 이진 라벨" 운영 방식만 차용 | <https://openreview.net/forum?id=iUwHnoENnl> |
 
 **추론**: 개인 사용자 레벨 실용축은 `Reflexion + Self-Refine + 얇은 Constitutional rubric + 제한적 CoVe`. DPO/KTO 는 학습법이라 직접 적용 불가.
 
@@ -32,21 +33,21 @@
 
 #### 2. Claude Code 주입 surface 공식 사실
 
-- CLAUDE.md + auto memory 모두 매 대화 시작 로드. 둘 다 context 이지 enforced config 아님. https://code.claude.com/docs/en/memory
-- CLAUDE.md 매 세션 전체 로드. auto memory 는 MEMORY.md 앞 200줄/25KB 만. https://code.claude.com/docs/en/memory
-- 공식 권고: **"Claude가 같은 실수 2번째 → CLAUDE.md 에 추가"**. https://code.claude.com/docs/en/memory
-- **path-scoped `.claude/rules/`** 는 특정 파일에만 로드 → 토큰 절약. https://code.claude.com/docs/en/memory
-- skills: 설명만 상시 노출, 본문은 invoke 시 로드. 장문 절차에 적합. `disable-model-invocation:true` 로 수동 전용화 가능. https://code.claude.com/docs/en/skills
-- subagents: 별도 context window + 전용 system prompt/tool 권한. https://code.claude.com/docs/en/subagents
-- hooks: SessionStart, SessionEnd, UserPromptSubmit, PreToolUse, PostToolUse, Stop 지원. **command 뿐 아니라 `prompt hook`, `agent hook` 타입도 지원** → LLM 분류기/검증기를 훅에 직접 등록 가능. https://code.claude.com/docs/en/hooks
-- slash commands 는 명시적 수동 인터페이스. 커스텀은 skills 로 통합됨. https://code.claude.com/docs/en/commands
+- CLAUDE.md + auto memory 모두 매 대화 시작 로드. 둘 다 context 이지 enforced config 아님. <https://code.claude.com/docs/en/memory>
+- CLAUDE.md 매 세션 전체 로드. auto memory 는 MEMORY.md 앞 200줄/25KB 만. <https://code.claude.com/docs/en/memory>
+- 공식 권고: **"Claude가 같은 실수 2번째 → CLAUDE.md 에 추가"**. <https://code.claude.com/docs/en/memory>
+- **path-scoped `.claude/rules/`** 는 특정 파일에만 로드 → 토큰 절약. <https://code.claude.com/docs/en/memory>
+- skills: 설명만 상시 노출, 본문은 invoke 시 로드. 장문 절차에 적합. `disable-model-invocation:true` 로 수동 전용화 가능. <https://code.claude.com/docs/en/skills>
+- subagents: 별도 context window + 전용 system prompt/tool 권한. <https://code.claude.com/docs/en/subagents>
+- hooks: SessionStart, SessionEnd, UserPromptSubmit, PreToolUse, PostToolUse, Stop 지원. **command 뿐 아니라 `prompt hook`, `agent hook` 타입도 지원** → LLM 분류기/검증기를 훅에 직접 등록 가능. <https://code.claude.com/docs/en/hooks>
+- slash commands 는 명시적 수동 인터페이스. 커스텀은 skills 로 통합됨. <https://code.claude.com/docs/en/commands>
 
 → **reflect-kit 설계 반영**: Stop 훅에 LLM 분석 삽입(`log-reflection.sh` 의 codex exec). 향후 `prompt hook`/`agent hook` 타입 활용 여지.
 
 #### 3. Surface 선택 기준
 
 | Surface | 토큰 비용 | 영향력 | 지속성 | 적용 지연 | 업데이트 비용 | 적합한 피드백 |
-|---|---:|---:|---:|---:|---:|---|
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
 | CLAUDE.md | 높음 | 높음 | 높음 | 즉시 | 중 | 항상 지켜야 할 규칙, 프로젝트 불변 규약 |
 | auto memory | 중하 | 중 | 높음 | 즉시 | 매우 낮음 | 개인 선호, 자주 쓰는 명령, 디버깅 메모 |
 | skills | 평시 매우 낮음 | 높음 | 높음 | 필요 시 | 중 | 다단계 절차, 체크리스트, 리뷰 플레이북 |
@@ -54,7 +55,8 @@
 | hooks | 평시 0에 가까움 | 매우 높음 | 높음 | 즉시(이벤트) | 중~높음 | 강제/차단/자동수집/자동주입 |
 | slash commands | 평시 0에 가까움 | 낮음~중 | 높음 | 수동 즉시 | 낮음 | 명시적으로 돌리는 분석, 주간 집계 |
 
-**결정 규칙**
+##### 결정 규칙
+
 - "항상 그래야 함" → CLAUDE.md 또는 hook
 - "자주 도움되지만 치명적 아님" → auto memory
 - "절차/검토 프롬프트" → skill
@@ -97,7 +99,7 @@
 - rule introduction date 기준 pre/post 비교
 - 교정 후 동일 태그 재발까지 median sessions
 - goldens: 로그에서 뽑은 대표 프롬프트 20~50개 월별 고정셋
-- online + offline hybrid 권장. Cursor 사례: https://cursor.com/blog/cursorbench
+- online + offline hybrid 권장. Cursor 사례: <https://cursor.com/blog/cursorbench>
 
 → **reflect-kit 설계 반영**: Promotion Ledger 의 `initial_freq / post_freq / calibration_window_days` 로 pre/post 자동화.
 
@@ -105,13 +107,13 @@
 
 - **Claude Code 공식**: CLAUDE.md, auto memory, skills, subagents, hooks
 - **Cursor**: Rules/Memories, Bugbot learned rules, hybrid online/offline eval
-  - https://docs.cursor.com/context/rules
-  - https://docs.cursor.com/en/context/memories
-  - https://cursor.com/blog/bugbot-learning/
-  - https://cursor.com/blog/cursorbench
-- **Cline Memory Bank**: 구조화 문서 기반 지속 메모리. https://docs.cline.bot/features/memory-bank
-- **Continue rules-memory**: https://docs.continue.dev/customize/deep-dives/rules
-- **aider conventions**: 항상 읽는 규약 파일. https://aider.chat/docs/usage/conventions.html
+  - <https://docs.cursor.com/context/rules>
+  - <https://docs.cursor.com/en/context/memories>
+  - <https://cursor.com/blog/bugbot-learning/>
+  - <https://cursor.com/blog/cursorbench>
+- **Cline Memory Bank**: 구조화 문서 기반 지속 메모리. <https://docs.cline.bot/features/memory-bank>
+- **Continue rules-memory**: <https://docs.continue.dev/customize/deep-dives/rules>
+- **aider conventions**: 항상 읽는 규약 파일. <https://aider.chat/docs/usage/conventions.html>
 
 → **reflect-kit 포지셔닝**: Cursor 의 "learned rules + hybrid eval" 와 가장 가깝지만, Claude Code 고유의 **skills / subagents / hooks** 조합으로 차별화.
 
@@ -138,7 +140,12 @@
 
 ## 리서치 #2 — adversarial design audit (2026-04-16T19:30)
 
+<!-- markdownlint-disable MD024 -->
+
 ### Task
+
+<!-- markdownlint-enable MD024 -->
+
 초기 dialog-feedback 파이프라인 설계 (훅 3개 + digest 스킬)의 결함을 독립 평가자 관점에서 감사. read-only.
 
 ### 결과 (5축 24/25)
@@ -146,7 +153,7 @@
 #### 발견된 결함 (severity + smallest safe fix)
 
 | # | severity | 결함 | 해결 상태 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | **blocker** | raw 로그 PII 유출 리스크 (prompt 전문, tool_input/response 전문 저장) | ✅ Q1=A: `_lib-redact.sh` 구현 |
 | 2 | major | 프로젝트 분리 정책이 basename 식별자와 충돌 (같은 이름 다른 repo) | ✅ `<basename>-<hash6>` (`_lib-project-id.sh`) |
 | 3 | major | category 4종 상호배타 아님 (단일 라벨 스키마) | ✅ `primary_category + also_applies` |
@@ -188,20 +195,23 @@
 ## 두 리서치의 공통 결론
 
 ### 원칙
+
 1. Reflexion 구조가 개인 사용자 레벨 개선 루프의 근간.
 2. Surface 는 단일 차원이 아니라 `scope × risk × procedurality × enforcement × frequency` 다차원으로 결정.
 3. 임계값은 사전 고정하지 말고 데이터로 calibrate.
 4. 수집·분석·승격·측정을 하나의 사이클로 닫아야 효과 있음.
 
 ### reflect-kit 핵심 설계 반영도
+
 | 원칙 | 구현 위치 |
-|---|---|
+| --- | --- |
 | Reflexion 구조 | 전체 파이프라인 |
 | 다차원 Surface 결정 | DESIGN.md Precedence Table |
 | 임계값 calibration | `/reflect-kaizen` (미구현) + 임계값에 hypothesis 표기 |
 | 닫힌 사이클 | 수집 훅 3 → digest → promote → kaizen → ledger → digest |
 
 ### 플러그인 구현 시 먼저 봐야 할 곳
+
 1. 이 파일 (RESEARCH.md) — 설계 근거
 2. DESIGN.md — 스키마 정본, precedence, ledger 스키마
 3. MIGRATION.md — 파일 이동 + 이름 변경 체크리스트

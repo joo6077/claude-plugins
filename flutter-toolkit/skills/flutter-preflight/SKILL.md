@@ -10,7 +10,11 @@ argument-hint: "[feature]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - anti-pattern 5개가 자동 체크된다: StatefulWidget, bare catch(e), 상대 import, GestureDetector/InkWell, Palette 직접 참조 — 하나라도 걸리면 preflight FAIL
 - FVM 미설치 환경에서 preflight 실행하면 모든 단계가 실패한다 — 먼저 FVM 존재를 확인해라
@@ -29,7 +33,7 @@ user-invocable: true
 ### 사용 가능한 단계 감지
 
 | 단계 | 조건 | 없으면 |
-|------|------|--------|
+| ------ | ------ | -------- |
 | fix | 항상 사용 가능 | — |
 | codegen | `HAS_BUILD_RUNNER = true` | skip |
 | analyze | 항상 사용 가능 | — |

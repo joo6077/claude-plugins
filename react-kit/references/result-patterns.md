@@ -38,7 +38,7 @@ export type UserFailure =
 ## 레이어별 사용 규칙
 
 | 레이어 | 사용 |
-|--------|------|
+| -------- | ------ |
 | domain/usecases | **시그니처** `Promise<Result<T, Failure>>` 로 선언만 |
 | data/datasources/remote | `ResultAsync.fromPromise(fetch(...), e => Failure)` 로 경계 변환 |
 | data/repositories | datasource 호출 + Zod parse → Result 체인 |

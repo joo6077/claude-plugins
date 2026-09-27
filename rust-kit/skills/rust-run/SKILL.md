@@ -32,9 +32,17 @@ user-invocable: true
 11. **실행 가드를 cwd 로 우회하지 마라** — `.harness/env.sh` 같은 실행 가드가 `APP_ENV`/`DATABASE_URL` 을 요구하며 `cargo run` 을 막으면, 상위 디렉토리로 옮겨 다른 `.harness` 를 소싱해 통과시키지 마라. (a) 가드가 요구하는 환경변수를 실제로 주입하거나 (b) 가드가 잘못됐다고 판단되면 **우회 대신 사용자에게 명시 보고**한다. 모든 명령은 `references/project-detection.md` Step 1a 에서 확정한 `$CARGO_ROOT` 기준으로 실행한다. 출처: 2026-07 실측 `bypass-run-guard-by-cwd`.
 12. **비-Rust 산출물에 Rust 기준 적용 금지** — 이 스킬이 셸 스크립트·compose·CI YAML 을 다루게 되면 `unwrap()`/`println!` 같은 Rust 안티패턴 기준을 그대로 옮기지 마라. 스택별 대응 기준은 `references/project-detection.md` Step 0 표를 따른다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **서브커맨드 문자열을 정규화하지 않으면 안 된다** — 사용자가 "빌드", "build", "b" 등 다양한 형태로 입력할 수 있다. 매핑 테이블을 통해 정규화하라. 인식 불가 시 사용 가능한 서브커맨드 목록을 보여주라.
 - **workspace 플래그를 단일 크레이트 프로젝트에 전달하지 마라** — `[workspace]` 섹션이 없는 프로젝트에서 `--workspace`를 붙이면 에러가 발생한다. Cargo.toml을 읽어 workspace 여부를 먼저 판단하라.
@@ -60,7 +68,7 @@ user-invocable: true
 ## 1. 서브커맨드 파싱
 
 | 서브커맨드 | 실행 커맨드 | 성공 조건 |
-|-----------|------------|----------|
+| ----------- | ------------ | ---------- |
 | `build` | `$CARGO build` + (`--workspace --all-targets` if `IS_WORKSPACE`) | exit 0 |
 | `clippy` | `$CARGO clippy` + (`--workspace --all-targets --all-features` if `IS_WORKSPACE`) + `-- -D warnings` | exit 0, 워닝 0 |
 | `fmt` | `$CARGO fmt --all` (적용) / `$CARGO fmt --all -- --check` (검사만) | exit 0 |
@@ -93,6 +101,10 @@ user-invocable: true
 - `test` 결과는 **실행된 테스트 수**를 함께 적는다. `0 passed` 는 통과가 아니라 타깃 필터가 틀렸다는
   신호다 (Gotcha 9).
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md

@@ -9,7 +9,11 @@ argument-hint: "<ServiceName> [dep:RepositoryTrait ...]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **`#[async_trait]` 매크로 heap allocation** — 매크로는 내부적으로 `Box::pin`을 발생시킨다. 성능 크리티컬 경로라면 Rust 1.75+ RPITIT(`async fn`이 trait에서 직접 동작)로 native async trait을 고려할 수 있다. 단, `dyn Trait` object safety가 필요한 경우(예: `Arc<dyn Port>` 라우터 상태)에는 지금도 `#[async_trait]`가 실질적인 선택이다.
 - **서비스 의존 폭발 방지** — 서비스가 여러 repository에 의존하면 제네릭 파라미터가 폭발적으로 복잡해진다(`UserServiceImpl<R1: UserRepo, R2: OrderRepo, ...>`). 의존이 3개 이상이면 구체 타입(`Arc<dyn Trait>`) 필드로 시작하고 필요 시 제네릭으로 추출하라.
@@ -48,7 +52,7 @@ user-invocable: true
 `$ARGUMENTS`에서 파싱하거나 사용자에게 확인한다:
 
 | 항목 | 예시 |
-|------|------|
+| ------ | ------ |
 | 서비스 이름 | `UserService` |
 | 의존하는 포트 | `UserRepository`, `EmailPort` 등 |
 | 주요 메서드 | `create_user`, `get_user`, `delete_user` |
@@ -71,7 +75,7 @@ user-invocable: true
 
 `domain/ports/`에 두 종류의 trait을 정의한다:
 
-**3a. 서비스가 의존하는 포트 (이미 없는 경우만 생성)**
+### 3a. 서비스가 의존하는 포트 (이미 없는 경우만 생성)
 
 `rust-model` 스킬이 이미 Repository trait을 생성했다면 재사용한다. 새로 필요한 포트만 추가한다.
 
@@ -86,7 +90,7 @@ pub trait EmailPort: Send + Sync {
 }
 ```
 
-**3b. 서비스 자체를 포트로 노출**
+### 3b. 서비스 자체를 포트로 노출
 
 핸들러 레이어가 구체 서비스 타입을 모르도록 서비스도 trait으로 정의한다.
 
@@ -168,7 +172,11 @@ where
 }
 ```
 
+<!-- markdownlint-disable MD033 -->
+
 **Arc<dyn> 방식 (의존 3개 이상):**
+
+<!-- markdownlint-enable MD033 -->
 
 ```rust
 // domain/services/user_service_impl.rs

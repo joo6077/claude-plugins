@@ -11,7 +11,11 @@ argument-hint: "<file-or-class> [unit|widget|integration]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - Mock보다 Fake/Stub을 선호해라 — Flutter 공식 AI rules 권장. `mockito`/`mocktail`은 인터페이스가 복잡할 때만 사용
 - 테스트 파일 위치는 소스 파일과 미러링해라 — `lib/features/auth/auth_service.dart` → `test/features/auth/auth_service_test.dart`
@@ -38,6 +42,7 @@ user-invocable: true
 ### 1. 대상 분석
 
 `$ARGUMENTS`에서 대상 파일/클래스와 테스트 유형을 파싱한다.
+
 - 유형 미지정 시: 클래스 종류로 자동 판단
   - Repository/Service/UseCase → unit test
   - Widget/Screen/Page → widget test
@@ -48,6 +53,7 @@ user-invocable: true
 ### 2. 기존 테스트 패턴 분석
 
 `test/` 디렉토리에서 기존 테스트 파일을 읽어 프로젝트 관습을 파악:
+
 - import 패턴 (package import vs relative)
 - setUp/tearDown 사용 여부
 - Mock/Fake 패턴 (mocktail, mockito, 수동 fake)
@@ -58,6 +64,7 @@ user-invocable: true
 ### 3. 테스트 코드 생성
 
 **Arrange-Act-Assert 구조:**
+
 ```dart
 test('should {expected behavior} when {condition}', () {
   // Arrange
@@ -72,6 +79,7 @@ test('should {expected behavior} when {condition}', () {
 ```
 
 **생성 규칙:**
+
 - 각 public 메서드에 최소 1개 테스트 (정상 케이스)
 - 에러/엣지 케이스 테스트 추가 (nullable 파라미터, 빈 리스트 등)
 - widget test 시 `pumpWidget` + `find.byType` 패턴 사용

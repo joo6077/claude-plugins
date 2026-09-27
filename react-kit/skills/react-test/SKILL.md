@@ -9,7 +9,11 @@ argument-hint: "<file-or-class-path> [unit|component|e2e] [--coverage]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 1. **domain 테스트에서 직접 fetch/API 호출 금지** — domain 레이어(usecases, entities, failures)는 순수 함수이므로 외부 의존성이 없어야 한다. 네트워크 호출이 필요하면 대상 파일이 data 레이어인지 재확인하고 MSW 로 모킹하라.
 2. **에러 경로는 `isErr()` 로 검증** — Result 패턴에서 throw 가 없기 때문에 `expect(() => ...).toThrow()` 대신 `expect(result.isErr()).toBe(true)` + kind 체크로 검증한다.
@@ -77,7 +81,7 @@ user-invocable: true
 유형 미지정 시 파일 경로의 레이어로 자동 판단:
 
 | 파일 경로 패턴 | 자동 선택 |
-|--------------|---------|
+| -------------- | --------- |
 | `src/domain/` | `unit` (Vitest, node 환경) |
 | `src/data/` | `unit` (Vitest + MSW) |
 | `src/presentation/hooks/` 또는 `hooks/*.ts` | `component` (Vitest + Testing Library + QueryClient wrapper) |
@@ -101,7 +105,7 @@ user-invocable: true
 **출력 파일 위치:**
 
 | 테스트 유형 | 출력 경로 |
-|-----------|---------|
+| ----------- | --------- |
 | unit | `tests/unit/<layer>/<module>.test.ts` |
 | component | `tests/component/<ComponentName>.test.tsx` |
 | e2e | `tests/e2e/<flow>.spec.ts` |

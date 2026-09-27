@@ -14,6 +14,7 @@ v0.2.x SKILL Phase 1은 MakerWorld 웹페이지 텍스트/스크린샷만 읽음
 - GitHub 레포의 변경 이력 (R1 vs R1S 같은 리비전 차이)
 
 Stealth Press 1S 케이스에서 v0.2.x로는 놓쳤을 항목:
+
 1. Heat-set 인서트 VORON 표준 M3x5x4 명시
 2. 숨은 인서트 5군데 ("Insert on other side!" 표시)
 3. 희생 부품 break out + 부싱 super glue 3방울
@@ -37,6 +38,7 @@ reference notes.md: `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/no
 **목표:** H2S print 결과를 홈서버에서 자동 수집 → JSONL 로그 → 카이젠 스킬이 주 1회 읽어 references default 값 보정.
 
 ### 환경
+
 - **호스트:** 홈서버 (macOS 아님, Linux 가정)
 - **프린터:** Bambu Lab H2S
 - **네트워크:** 동일 LAN
@@ -44,6 +46,7 @@ reference notes.md: `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/no
 ### 셋업 (예상)
 
 1. Python 가상환경 + 의존성:
+
    ```bash
    python3 -m venv ~/.bambu-log-venv
    ~/.bambu-log-venv/bin/pip install bambulabs-api paho-mqtt
@@ -64,6 +67,7 @@ reference notes.md: `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/no
    - timelapse는 별도 downloader cron 또는 daemon 종료 시 snapshot
 
 4. systemd 서비스 (홈서버 Linux):
+
    ```ini
    ~/.config/systemd/user/bambu-print-log.service
    [Unit]
@@ -78,6 +82,7 @@ reference notes.md: `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/no
    [Install]
    WantedBy=default.target
    ```
+
    `systemctl --user enable --now bambu-print-log` (또는 system-level service로 olarak)
 
 5. **USB 스틱 필수** (H2S timelapse/recording은 USB 없으면 안 켜짐):
@@ -105,7 +110,7 @@ reference notes.md: `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/no
 
 ### 대안 검토 후보
 
-- **Bambuddy** (https://github.com/maziggy/bambuddy): self-hosted, 이미 print log/archive/CSV export 다 있음. v1 대신 Bambuddy 깔고 그 DB/CSV를 카이젠 input으로 쓰는 게 더 가벼울 수도 있음. v2 착수 시 둘 다 PoC 비교 권장.
+- **Bambuddy** (<https://github.com/maziggy/bambuddy>): self-hosted, 이미 print log/archive/CSV export 다 있음. v1 대신 Bambuddy 깔고 그 DB/CSV를 카이젠 input으로 쓰는 게 더 가벼울 수도 있음. v2 착수 시 둘 다 PoC 비교 권장.
 
 ### 출처
 
@@ -125,6 +130,7 @@ reference notes.md: `/Users/jackson/Hub/60_3D Print/Settings/stealth-press-1s/no
 Bambu Studio 2.6+ UI에 "precise z-seam" 또는 동등 옵션이 보이는지, 그리고 해당 옵션이 어느 JSON 키에 매핑되는지 확인 필요. 현재 로컬 baseline에는 명시 필드 없음 — 2.6+에서 변경/제거되었거나 다른 키로 흡수되었을 가능성.
 
 검증 방법:
+
 1. Bambu Studio UI에서 Process → Seam 탭 옵션 enumerate
 2. Studio에서 dummy preset 만든 후 "Edit in Place" → JSON export하여 키 추출
 3. GitHub `src/libslic3r/PrintConfig.cpp` grep으로 `z_seam|precise_z` 키 검색
@@ -139,17 +145,20 @@ Bambu Studio 2.6+ UI에 "precise z-seam" 또는 동등 옵션이 보이는지, �
 3. Bambu 시스템 정적 default (UI 보여주기 전 단계)
 
 검증 방법:
+
 - `grep -rn "seam_slope_steps\|seam_slope_entire_loop\|seam_slope_inner_walls" ~/Library/Application\ Support/BambuStudio/system/BBL/process/`
 - 미발견 시 BambuStudio 소스 `src/libslic3r/PrintConfig.cpp` 직접 확인
 
 ### (c) Coupon 부족 소재 실측 — PLA Matte / PLA Silk / PC / ASA / PAHT-CF / TPU 중 최소 3종
 
 기존 실측 사례 (`SKILL.md` Phase 5 + `seam-recipes.md` Real-world findings):
+
 - ✅ PETG HF (vent pipe 회전체)
 - ✅ PLA Basic (박스 오프너 dual-color)
 - ✅ TPU 90A (sealing ring — scarf off 검증)
 
 surface-first 정책 적용 후 coupon 검증이 필요한 소재 (`surface-recipes.md` §3·§5·§7 권장값 검증):
+
 - **PLA Matte** — layer line 은폐 최강 가설 검증, ironing 과다 시 chalky 변색 가설
 - **PLA Silk** — top ironing 광택 불일치 가설 (옆면과 매트 차이)
 - **PC** — chamber 60°C + outer 20-30mm/s + topmost 소형 ironing 실험
@@ -171,6 +180,10 @@ PETG HF는 lot별 흡습 + 습도 환경 의존성이 큼. 같은 surface-first 
 
 결과를 `surface-recipes.md` §6.5 (속도 무시 부작용) 또는 새 Finding으로 환류.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 우선순위
+
+<!-- markdownlint-enable MD024 -->
 
 **중간** — surface-first 정책이 default ON 가능하려면 (a)~(b) 문서 갭은 1-2주 내 보강 권장. (c)/(d) 실측은 3-6 모델 출력 후 점진 환류.

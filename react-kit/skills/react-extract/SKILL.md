@@ -24,11 +24,16 @@ user-invocable: true
 9. **순환 참조 감지** — 이동으로 새로운 순환 의존이 생기는지 확인한다. 순환이 감지되면 경고 후 이동을 중단한다.
 10. **widget-inspector 리포트 신뢰하되 사용자 승인 필수** — 에이전트 판단이 100% 정확하지 않을 수 있다. 추출 전 반드시 사용자가 계획을 확인하고 승인한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 프로젝트 환경 감지
 
 `references/project-detection.md` 절차를 실행한다:
+
 - `tsconfig.json`의 `paths` 설정에서 `@/` alias 확인
 - `src/presentation/shared/components/` 디렉토리 존재 여부
 - `src/presentation/shared/components/ui/` (shadcn 원본 디렉토리)
@@ -36,11 +41,13 @@ user-invocable: true
 ## 2. 추출 대상 확인
 
 **widget-inspector-react 리포트가 있는 경우:**
+
 - 리포트의 감지 결과를 사용자에게 보여준다
 - 사용자가 선택한 항목을 추출 대상으로 확정한다
 - `--dry-run` 모드에서는 실제 파일 이동 없이 변경 내역만 보고한다
 
 **직접 지정한 경우:**
+
 - `source_path` 파일을 읽는다
 - 컴포넌트가 다음 조건에 해당하는지 확인한다:
   - feature 특화 domain 타입을 import하지 않는가 (shared 가능 여부)
@@ -73,6 +80,7 @@ user-invocable: true
 - shadcn 컴포넌트 확장인 경우: `src/presentation/shared/components/ui/<kebab-name>.tsx`
 
 **이름 충돌 감지:**
+
 ```bash
 # 대상 경로에 이미 같은 이름 파일이 있으면 충돌 경고
 ```
@@ -82,6 +90,7 @@ user-invocable: true
 이동 전에 컴포넌트를 shared에 적합하게 정리한다:
 
 **Props 타입 export 확인:**
+
 ```tsx
 // 없으면 추가
 export type LogoBannerProps = {
@@ -91,6 +100,7 @@ export type LogoBannerProps = {
 ```
 
 **named export 확인:**
+
 ```tsx
 // export default → named export 변환 (사용자 승인 후)
 // Before
@@ -101,6 +111,7 @@ export function LogoBanner(props: LogoBannerProps) { ... }
 ```
 
 **feature 타입 제거:**
+
 ```tsx
 // Before (추출 불가)
 import type { AuthUser } from '@/domain/entities/auth-user'
@@ -125,6 +136,7 @@ pnpm tsc --noEmit --listFiles 2>/dev/null | head -20
 ```
 
 Grep으로 후보를 빠르게 찾고, AST로 정확히 검증한다:
+
 - `import { LogoBanner }` 패턴
 - `import type { LogoBannerProps }` 패턴
 - 동적 import: `import('./logo-banner')` 패턴
@@ -151,6 +163,7 @@ import type { LogoBannerProps } from '@/presentation/shared/components/logo-bann
 ```
 
 **규칙:**
+
 - 항상 absolute import(`@/...`)로 업데이트. 상대 경로 유지 금지
 - `type`만 import하는 경우 `import type`으로 분리 (strict TS `verbatimModuleSyntax` 정책)
 
@@ -168,6 +181,7 @@ pnpm eslint src/presentation --max-warnings=0
 ```
 
 실패 시 즉시 전체 롤백:
+
 - 생성한 `destination` 파일 삭제
 - 수정한 모든 import를 원래 상태로 복원
 - 삭제한 `source_path` 파일 복원
@@ -193,11 +207,16 @@ eslint: 통과
 ## 12. 완료 후 안내
 
 다음 단계:
+
 - 추출된 컴포넌트에 반응형 적용: `/react-responsive`
 - 테스트 재생성: `/react-test`
 - 전체 재사용 패턴 재스캔: widget-inspector-react 에이전트 (deep 모드)
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 감지 (tsconfig paths alias)
 - `references/clean-arch-layout.md` — 공용 컴포넌트 배치 (`presentation/shared/components/`)

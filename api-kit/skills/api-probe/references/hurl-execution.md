@@ -23,7 +23,7 @@
 ### 1-1. method class
 
 | 분류 | 메서드 | 기본 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | safe | `GET` `HEAD` `OPTIONS` | 실행 허용 |
 | unsafe | `POST` `PUT` `PATCH` `DELETE` | allowlist 있을 때만 |
 | 금지 | `TRACE` | 0회. 자격증명이 붙는 프로파일에서는 명시 요청도 거부 |
@@ -35,7 +35,7 @@
 ### 1-2. env 정책
 
 | tier | 기본 |
-|------|------|
+| --- | --- |
 | dev / stg | safe 실행 허용, unsafe 는 allowlist |
 | prod | read-only 기본 — `GET`/`HEAD`/`OPTIONS`. `--jobs 1` 고정 |
 
@@ -50,7 +50,7 @@ prod unsafe 실행은 allowlist 통과 후에도 대상 목록을 보여주고 �
 ### 1-4. retry
 
 | 대상 | 재시도 |
-|------|--------|
+| --- | --- |
 | safe 메서드 · `PUT` · `DELETE` · 명시적 idempotent 태깅 | 허용 |
 | 그 외 | `0`회 |
 
@@ -118,7 +118,7 @@ operation 당 기본 probe 는 `1`개(preferred media type), explicit examples �
 `Accept` · `Content-Type` · `Authorization` 은 추론하지 말고 명시 생성한다.
 
 | 헤더 | 파생 출처 |
-|------|-----------|
+| ------ | ----------- |
 | `Accept` | 기대 response media type |
 | `Content-Type` | requestBody media type |
 | `Authorization` | 해당 operation 의 security requirement |
@@ -221,7 +221,7 @@ rm -f "$SECRETS"
 ## 5. exit code 규약
 
 | exit | 의미 | 분류 | 처리 |
-|------|------|------|------|
+| ------ | ------ | ------ | ------ |
 | `0` | 성공 | — | pass |
 | `1` | CLI 옵션 파싱 오류 | 도구 사용 오류 | 실행 중단, 재시도 금지 |
 | `2` | 입력(.hurl) 파싱 오류 | probe 생성 버그 | 합성 로직 수정 |
@@ -242,7 +242,7 @@ non-zero 를 전부 계약 실패로 보고하면 회귀 diff 가 노이즈로 �
 JSON 리포트는 두 종류의 파일을 쓰고 그 둘의 처리가 다르다.
 
 | 가려지는 곳 | 가려지지 않는 곳 |
-|-------------|------------------|
+| ------------- | ------------------ |
 | stderr 로그 (`--verbose` / `--very-verbose`) | 기본 stdout (HTTP 응답) |
 | JSON 리포트의 `report.json` (`curl_cmd` · 요청 헤더) | `--include` 출력 |
 | `--curl <file>` 의 헤더 값 (실측 2026-09-24) | `--output <file>` |
@@ -288,7 +288,7 @@ CI artifact 로 저장할 경우 저장을 끄거나 후처리 scrubber 를 강�
 ## 7. 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | URL query 와 `[Query]` 섹션 동시 생성 | Hurl 이 둘 다 전송해 파라미터가 중복된다 |
 | dependent flow 를 여러 `.hurl` 파일로 분할 | `--test` 가 파일을 병렬 실행해 순서 보장이 깨진다 |
 | cli-only 옵션을 `[Options]` 에 기입 | 무시되어 파일의 실행 의미와 실제 실행이 달라진다 |

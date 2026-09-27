@@ -16,9 +16,17 @@ user-invocable: true
 4. **`#[tonic::async_trait]` 유지** — Axum 0.8이 `#[async_trait]`을 제거한 것과 달리 **tonic 0.14의 사용자 impl은 여전히 `#[tonic::async_trait]` 매크로를 요구**한다. tonic이 코드 생성하는 Server trait이 dyn 호환을 유지하기 위해 `async_trait` 매크로 기반의 `Pin<Box<dyn Future>>` 시그니처를 사용한다. 네이티브 async fn in trait로 교체하지 마라 — 컴파일 에러가 난다.
 5. **tonic-health / tonic-reflection은 별도 크레이트** — gRPC health checking protocol과 reflection은 `tonic` 본체에 포함되지 않는다. 필요하면 `tonic-health = "0.14"`, `tonic-reflection = "0.14"`을 별도로 추가한다 — 본문 `[dependencies]` 예시와 같은 0.14 계열이다 (`references/project-detection.md` Step 2c).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **proto 파일 경로를 build.rs에서 잘못 지정하지 마라** — `tonic_build::compile_protos("proto/service.proto")`의 경로는 Cargo.toml 기준 상대경로다. workspace 루트가 아니라 크레이트 루트 기준임을 확인하라.
 - **build.rs에 `tonic-build` 의존성을 `[build-dependencies]`에 넣어야 한다** — `[dependencies]`에 넣으면 런타임 바이너리에 protobuf 컴파일러가 포함된다. 반드시 `[build-dependencies]`에 배치하라.
@@ -38,6 +46,7 @@ user-invocable: true
 ## 1. 서비스/RPC 확인
 
 사용자에게 다음을 확인한다:
+
 - 서비스 이름 (PascalCase, e.g. `UserService`)
 - RPC 메서드 이름과 요청/응답 타입
 - 스트리밍 종류: unary / server streaming / client streaming / bidirectional
@@ -145,7 +154,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 tonic 의존은 이 레이어에만 존재한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### ARCH = workspace_service / hexagonal
+
+<!-- markdownlint-enable MD024 -->
 
 `crates/infra/src/adapters/user_grpc.rs`:
 
@@ -230,7 +243,11 @@ impl UserService for UserGrpcAdapter {
 }
 ```
 
+<!-- markdownlint-disable MD024 -->
+
 ### ARCH = modular / flat
+
+<!-- markdownlint-enable MD024 -->
 
 `src/infra/adapters/user_grpc.rs` (modular) 또는 `src/grpc_adapter.rs` (flat)에 동일 패턴으로 생성.
 
@@ -253,7 +270,11 @@ Server::builder()
 > `cargo build`를 실행하세요. tonic-build가 proto를 컴파일하여 Rust 코드를 자동 생성합니다.
 > `protoc` 관련 에러가 나오면 Gotcha #1을 확인하세요.
 
+<!-- markdownlint-disable MD025 -->
+
 # After Creation
+
+<!-- markdownlint-enable MD025 -->
 
 1. 생성/수정된 파일 목록을 출력한다.
 2. 다음 단계를 안내한다:
@@ -262,6 +283,10 @@ Server::builder()
    > - gRPC 클라이언트 테스트: `grpcurl` 또는 `cargo test`
    > - 서비스 테스트: `/rust-test`로 mock 기반 단위 테스트 생성
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md

@@ -3,10 +3,10 @@
 > Last updated: 2026-05-15
 > Source: Codex research run `a5afcf864d05cf3b7` (score 25/25)
 > Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
->   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
->   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
->   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
->   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
+> 앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+> `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+> 두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+> 최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 > Latest beta (2026-09-27 조회): 2.8.4 Public Beta `v02.08.04.57` (2026-09-22). 처음 쓸 때는 2.7.0 Public Beta (2026-05-14) 였다.
 > Latest stable (2026-09-27 조회): 2.8.2 Public Release `v02.08.02.61` (2026-08-21). §1 은 처음 쓸 때의 기록이다.
 
@@ -16,35 +16,38 @@
 
 - **2.6.0 / v02.06.00.51** — Public Release Hotfix, 2026-04-17 13:02
 - 2.6.1 / v02.06.01.55는 Public Beta (pre-release)
-- 출처: https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51, https://github.com/bambulab/BambuStudio/releases
+- 출처: <https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51>, <https://github.com/bambulab/BambuStudio/releases>
 
 ## 2. H2S 공식 Base 프로파일
 
 ### Machine
+
 - **이름:** `Bambu Lab H2S 0.4 nozzle`
 - **파일:** `resources/profiles/BBL/machine/Bambu Lab H2S 0.4 nozzle.json`
 - `default_print_profile`: `0.20mm Standard @BBL H2S`
 - `default_filament_profile`: `Bambu PLA Basic @BBL H2S`
-- 출처: https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/machine/Bambu%20Lab%20H2S%200.4%20nozzle.json
+- 출처: <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/machine/Bambu%20Lab%20H2S%200.4%20nozzle.json>
 
 ### Process (default 0.4mm nozzle)
+
 - **이름:** `0.20mm Standard @BBL H2S`
 - **파일:** `resources/profiles/BBL/process/0.20mm Standard @BBL H2S.json`
 - `inherits: fdm_process_single_0.20`
 - `compatible_printers: ["Bambu Lab H2S 0.4 nozzle"]`
-- 출처: https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/process/0.20mm%20Standard%20%40BBL%20H2S.json
+- 출처: <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/process/0.20mm%20Standard%20%40BBL%20H2S.json>
 
 ### AMS 표기 정정
+
 - 사용자가 자주 쓰는 "AMS Pro 2"의 **공식 표기는 `AMS 2 Pro`**.
 - H2S 공식 페이지: 최대 4개 AMS 2 Pro + 8개 AMS HT, 총 24 슬롯 지원.
-- 출처: https://us.store.bambulab.com/en/products/h2s, https://github.com/bambulab/BambuStudio/releases/tag/v02.00.00.95
+- 출처: <https://us.store.bambulab.com/en/products/h2s>, <https://github.com/bambulab/BambuStudio/releases/tag/v02.00.00.95>
 
 ## 3. Process 프로파일 — Seam/Scarf/Fuzzy/Wall 키
 
 소스: `src/libslic3r/PrintConfig.cpp`, `resources/profiles/BBL/process/fdm_process_common.json`
 
 | 키 | 허용값 / 단위 | 비고 |
-|----|---------------|------|
+| ---- | --------------- | ------ |
 | `seam_position` | `nearest`, `aligned`, `back`, `random` | |
 | `seam_gap` | percent | |
 | `seam_slope_type` | `none`, `external`, `all` | scarf 전체 토글 (process 측) |
@@ -65,15 +68,16 @@
 ⚠️ Legacy 주의: `wall_infill_order`는 로딩 시 자동 매핑되지만 신규 JSON 생성에는 `wall_sequence`를 써야 함.
 
 출처:
-- https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp
-- https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/process/fdm_process_common.json
+
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp>
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/process/fdm_process_common.json>
 
 ## 4. Filament 프로파일 — Seam/Scarf/온도 키
 
 소스: `src/libslic3r/PrintConfig.cpp`, `resources/profiles/BBL/filament/fdm_filament_common.json`, `Bambu PLA Basic @base.json`, `Bambu PLA Basic @BBL H2S.json`
 
 | 키 | 허용값 / 단위 | 비고 |
-|----|---------------|------|
+| ---- | --------------- | ------ |
 | `filament_scarf_seam_type` | `none`, `external`, `all` | array (variant-aware) |
 | `filament_scarf_height` | mm 또는 `%` (layer_height 기준) | array |
 | `filament_scarf_gap` | mm 또는 `%` (nozzle_diameter 기준) | array |
@@ -88,9 +92,10 @@
 ⚠️ **배열 길이**: H2S 프로파일은 Standard / High Flow variant 배열을 쓴다. variant-aware 필드(속도/온도/scarf)는 부모 프로파일의 해당 키 길이를 읽어 맞추는 편이 견고. 단일 값만 넣어도 Studio가 보정할 수는 있으나 자동 생성 스킬은 명시적 길이 매칭 권장.
 
 출처:
-- https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp
-- https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/filament/fdm_filament_common.json
-- https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/filament/Bambu%20PLA%20Basic%20%40base.json
+
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp>
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/filament/fdm_filament_common.json>
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/resources/profiles/BBL/filament/Bambu%20PLA%20Basic%20%40base.json>
 
 ## 5. inherits 사용법과 권장 Base 체인
 
@@ -116,16 +121,23 @@
         → fdm_filament_common
 ```
 
+<!-- markdownlint-disable MD024 -->
+
 ### Machine
+
+<!-- markdownlint-enable MD024 -->
+
 - **생성하지 말 것.** 시스템 `Bambu Lab H2S 0.4 nozzle`을 그대로 참조.
 
 출처:
-- https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/Preset.hpp
-- https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/Preset.cpp
+
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/Preset.hpp>
+- <https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/Preset.cpp>
 
 ## 6. 권장 최소 JSON 형태
 
 ### Process (튜닝 필드만)
+
 ```json
 {
   "type": "process",
@@ -145,6 +157,7 @@
 ```
 
 ### Filament (튜닝 필드만)
+
 ```json
 {
   "type": "filament",
@@ -163,11 +176,13 @@
 
 ## 7. inherits vs 전체 필드 명시 트레이드오프
 
-**inherits 기반 (권장)**
+### inherits 기반 (권장)
+
 - 장점: Bambu 공식 H2S/AMS/노즐/펌웨어 업데이트를 자동 반영. JSON 작고 schema 변경에 덜 취약.
 - 단점: 부모 프로파일 업데이트 시 결과가 미세하게 변경 가능. 재현성 엄격 고정 필요 시 생성 시점 부모 버전 기록 필요.
 
-**전체 필드 명시**
+### 전체 필드 명시
+
 - 장점: 생성 당시 동작 고정, 독립 실행형 프리셋.
 - 단점: v2.x schema 변화, H2S variant 배열, AMS HT/AMS 2 Pro 관련 필드 변화를 직접 추적해야 함. outdated 키 섞일 위험.
 
@@ -179,17 +194,17 @@
 ### 8.1. Ironing 필드 (top surface 마감)
 
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
-|----|-------------|---------|--------------------------|
+| ---- | ------------- | --------- | -------------------------- |
 | `ironing_type` | enum: `no ironing` (default 표기), `top`, `topmost`, `solid` — **Bambu 값이다. OrcaSlicer 는 같은 기능에 다른 값 이름을 쓰며, 그 이름을 넣으면 Bambu 가 에러 없이 무시한다** | `"no ironing"` | fdm_process_common.json:57-61; 설치본 `02.08.02.61` 바이너리 enum 테이블 (연속 배치 확인) + user preset 실측 `topmost`/`top`. ⚠️ Orca wiki 를 이 키의 출처로 쓰지 마라 — 값 이름이 다르다 |
 | `ironing_flow` | `%` (line flow 대비) | `10%` (H2S 0.20 override `15%`) | fdm_process_common.json:57; 0.20mm Standard @BBL H2S.json:41 |
 | `ironing_spacing` | `mm` (line spacing) | `0.15` mm | fdm_process_common.json:59 |
 | `ironing_speed` | `mm/s` | `30` mm/s | fdm_process_common.json:60 |
-| `ironing_inset` | `mm` (외벽에서 들여서 시작하는 거리) | `0.21` mm | fdm_process_common.json:58; https://github.com/bambulab/BambuStudio/releases/tag/v01.10.00.74 (lines 213-215) |
+| `ironing_inset` | `mm` (외벽에서 들여서 시작하는 거리) | `0.21` mm | fdm_process_common.json:58; <https://github.com/bambulab/BambuStudio/releases/tag/v01.10.00.74> (lines 213-215) |
 
 ### 8.2. Top / Bottom Surface 필드
 
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
-|----|-------------|---------|--------------------------|
+| ---- | ------------- | --------- | -------------------------- |
 | `top_surface_pattern` | enum: `monotonic`, `monotonicline`, `concentric`, `archimedeanchords`, `hilbertcurve` | `monotonicline` | fdm_process_common.json:167 |
 | `top_surface_speed` | `mm/s` | common `30`; H2S 0.20 Standard `200`; 0.12 HQ `150` | fdm_process_common.json:169-170; 0.20mm Standard @BBL H2S.json; 0.12mm High Quality @BBL H2S.json |
 | `top_surface_acceleration` | `mm/s²` | H2S default `2000` | 0.20mm Standard @BBL H2S.json:165-167; 0.12mm High Quality @BBL H2S.json:146-168 |
@@ -200,7 +215,7 @@
 ### 8.3. Wall / Travel / Resolution 필드
 
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
-|----|-------------|---------|--------------------------|
+| ---- | ------------- | --------- | -------------------------- |
 | `reduce_crossing_wall` | `0` / `1` (bool) | `0` (surface-first에서는 `1` 권장) | fdm_process_common.json:100; source: src/libslic3r/PrintConfig.cpp |
 | `avoid_crossing_wall_includes_support` | `0` / `1` (bool) | `0` | fdm_process_common.json:76; source: src/libslic3r/PrintConfig.cpp |
 | `resolution` | `mm` (gcode arc/segment resolution) | 로컬 default `0.012`; source default `0.01`; normalize min `0.001` | fdm_process_common.json:103; source: src/libslic3r/PrintConfig.cpp:188-189, 278-282 |
@@ -214,9 +229,8 @@
 확인한다. 프로파일 JSON grep 을 키 존재 판정의 오라클로 쓰지 마라 — 실측에서 두 번 오판했다.
 두 근거를 함께 재는 법과 그 실측 결과는 **§11.1** 에 있다.
 
-
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
-|----|-------------|---------|--------------------------|
+| ---- | ------------- | --------- | -------------------------- |
 | `spiral_mode` | `0` / `1` (bool) | `0` | PrintConfig.cpp:5280-5286 (v02.08.02.61); fdm_process_common.json:123 |
 | `spiral_mode_smooth` | `0` / `1` (bool) | `0` — "Smooth Spiral". XY 이동까지 매끄럽게 해 **수직이 아닌 벽에서도** seam 을 없앤다 | PrintConfig.cpp:5288-5293 |
 | `spiral_mode_max_xy_smoothing` | mm 또는 `%` (**노즐 지름** 기준) | `200%` — H2S 0.4 에서 0.8mm. min 0 / max 1000, `max_literal` 10 (10 초과 맨숫자는 % 로 해석) | PrintConfig.cpp:5295-5304 |
@@ -230,7 +244,7 @@
 §3 표에 키 자체는 enumerate되어 있으나, 로컬 `fdm_process_common.json` 기본값이 누락된 항목. PrintConfig.cpp 또는 exported preset 재확인 (BACKLOG `Surface-first 후속 검증` 항목 (b) 참조).
 
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
-|----|-------------|---------|--------------------------|
+| ---- | ------------- | --------- | -------------------------- |
 | `seam_slope_steps` | int (min `1`) | `10` (커뮤니티/Orca wiki 권장 기본; 로컬 fdm_process_common 미확인 — BACKLOG (b) 검증) | references/seam-recipes.md §2 표 `Scarf steps`; source: src/libslic3r/PrintConfig.cpp |
 | `seam_slope_entire_loop` | `0` / `1` (bool) | `0` (Off — Bambu 공식 권장; 로컬 fdm_process_common 미확인 — BACKLOG (b) 검증) | references/seam-recipes.md §2 표 `Scarf around entire wall`; source: src/libslic3r/PrintConfig.cpp |
 | `seam_slope_inner_walls` | `0` / `1` (bool) | `0` (외벽 한정 권장 — vent pipe Finding 2 실측; 로컬 fdm_process_common 미확인 — BACKLOG (b) 검증) | references/seam-recipes.md Finding 2; source: src/libslic3r/PrintConfig.cpp |
@@ -261,7 +275,7 @@
 ### 10.1. L1 곡면 계단현상 — Layer height 필드
 
 | 키 | enum / 단위 | default | 출처 (file:line 또는 URL) |
-|----|-------------|---------|--------------------------|
+| ---- | ------------- | --------- | -------------------------- |
 | `layer_height` | `mm` | source `0.2` (툴팁: 작을수록 정확도 ↑ · 시간 ↑). H2S 0.20 Standard 는 `0.2` 상속, 0.12 HQ 체인은 `fdm_process_single_0.12` 의 `0.12` | PrintConfig.cpp:796-802; fdm_process_common.json:67; fdm_process_single_0.12.json |
 | `min_layer_height` | `mm` | `0.07` — 툴팁이 adaptive layer 하한으로 설명 | src/libslic3r/PrintConfig.cpp |
 | `max_layer_height` | `mm` (nullable) | `0` = auto — 툴팁이 adaptive layer 상한으로 설명 | src/libslic3r/PrintConfig.cpp |
@@ -276,7 +290,7 @@
 "미설정" 으로 읽고 임의 숫자로 채우지 마라. 아래 underlying default 는 위임됐을 때의 실효값이다.
 
 | 키 | enum / 단위 | filament profile default | underlying default | 출처 |
-|----|-------------|-------------------------|--------------------|------|
+| ---- | ------------- | ------------------------- | -------------------- | ------ |
 | `filament_retraction_length` | `mm` | `"nil"` (위임) | `0.8` | fdm_filament_common.json; src/libslic3r/PrintConfig.cpp |
 | `filament_retraction_speed` | `mm/s` | `"nil"` (위임) | `30` | 동일 |
 | `filament_retraction_minimum_travel` | `mm` | `"nil"` (위임) | `2` | 동일 |
@@ -292,7 +306,7 @@
 ### 10.3. L3 바닥 박리 — Brim / raft / 첫 레이어 / plate 온도 / aux fan 필드
 
 | 키 | enum / 단위 | default | 출처 |
-|----|-------------|---------|------|
+| ---- | ------------- | --------- | ------ |
 | `brim_type` | enum: `auto_brim`, `brim_ears`, `outer_only`, `inner_only`, `outer_and_inner`, `no_brim` | source `auto_brim` | src/libslic3r/PrintConfig.cpp |
 | `brim_width` | `mm` | source `0`; fdm_process_common `5` | fdm_process_common.json |
 | `brim_object_gap` | `mm` | source `0`; fdm_process_common `0.1` | fdm_process_common.json |
@@ -310,7 +324,7 @@
 ### 10.4. 금지 / obsolete 키 (Phase 4.3 게이트 검사 대상)
 
 | 키 | 판정 | 대체 |
-|----|------|------|
+| ---- | ------ | ------ |
 | `adaptive_layer_height` | option 정의 주석 처리 + legacy ignore set (§10.1) | `layer_height` 하향 + notes 명시 |
 | `bed_temperature_initial_layer` | **obsolete ignored key** | §10.3 plate-specific 키 |
 | `bed_temperature` | 같은 규칙의 대상. obsolete 여부 자체는 근거상 `bed_temperature_initial_layer` 만 확인됨 → 게이트 금지 목록으로만 취급 `[미확인]` | §10.3 plate-specific 키 |
@@ -329,7 +343,7 @@
 아래 표의 파일 수는 그때의 프로파일 집계라 참고값이다 — 종류 판정은 목록을 따른다.
 
 | 키 | 스코프 (process / filament 실측 파일 수) | 단위 | H2S 소재 실효값 | 출처 |
-|----|-------------|------|-----------------|------|
+| ---- | ------------- | ------ | ----------------- | ------ |
 | `overhang_fan_threshold` | filament (0 / 146) | `%` 미지지 비율 문턱 | ABS `25%` · ABS-GF `10%` · PETG HF `10%` · PLA Basic `50%` | `Bambu <소재> @BBL H2S.json` 체인 실측 |
 | `overhang_fan_speed` | filament (0 / 165) | `%` | ABS `100` · ABS-GF `30` · PETG HF `100` · PLA Basic `100` | 동일 |
 | `fan_cooling_layer_time` | filament (0 / 364) | `s` | ABS `30` · ABS-GF `12` · PETG HF `20` · PLA Basic `100` | 동일 |

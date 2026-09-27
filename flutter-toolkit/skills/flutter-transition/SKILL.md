@@ -11,7 +11,11 @@ argument-hint: "<route-name> [transition-type]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - 커스텀 페이지 전환을 금지하는 프로젝트가 있다 (`buildPage` 대신 `build` 로 위젯만 반환) — 프로젝트 규칙을 먼저 확인해라
 - 예외: 탭 전환 시 `buildNoTransition`만 허용되는 프로젝트가 있다 — 프로젝트의 CLAUDE.md 또는 라우터 설정 확인
@@ -49,6 +53,7 @@ CustomRoute(
 ```
 
 커스텀 전환이 필요하면:
+
 ```dart
 CustomRoute(
   page: <Name>Route.page,
@@ -67,6 +72,7 @@ CustomRoute(
 ```
 
 auto_route의 `TransitionsBuilders`에 내장된 전환 목록:
+
 - `TransitionsBuilders.fadeIn` — fade
 - `TransitionsBuilders.slideLeft` — slide from right
 - `TransitionsBuilders.slideBottom` — slide from bottom
@@ -102,7 +108,7 @@ Navigator.push(context, PageRouteBuilder(
 프로젝트에서 애니메이션 상수 파일을 탐색한다:
 
 | 탐색 패턴 | 감지 결과 |
-|-----------|----------|
+| ----------- | ---------- |
 | `lib/**/constants/animation*` | 애니메이션 상수 파일 경로 |
 | `lib/**/tokens/*anim*` 또는 `lib/**/tokens/*motion*` | 모션 토큰 파일 경로 |
 | 없음 | 기본값 사용 |
@@ -113,6 +119,7 @@ Navigator.push(context, PageRouteBuilder(
 ## Input
 
 `$ARGUMENTS`: `<route-name> [transition-type]`
+
 - `/flutter-transition login scale-fade`
 - `/flutter-transition workout fade-slide`
 - `/flutter-transition home none`
@@ -120,7 +127,7 @@ Navigator.push(context, PageRouteBuilder(
 ## Transition Types
 
 | 타입 | 용도 | forward Duration | reverse Duration | Curve |
-|------|------|-----------------|-----------------|-------|
+| ------ | ------ | ----------------- | ----------------- | ------- |
 | `fade-slide` | 일반 페이지 (기본값) | 300ms | 200ms | `Curves.easeInOut` |
 | `scale-fade` | 모달, 로그인, 온보딩 | 450ms | 200ms | `Curves.easeOutBack` |
 | `none` | 탭 전환, 같은 레벨 | 0ms | 0ms | - |
@@ -132,6 +139,7 @@ Navigator.push(context, PageRouteBuilder(
 ### page_transitions.dart 생성/확인
 
 프로젝트에 페이지 전환 빌더 파일이 있는지 확인한다:
+
 - `lib/**/router/page_transitions.dart`
 - `lib/**/transitions/`
 
@@ -228,6 +236,7 @@ c. 애니메이션 상수 파일 감지 -> 있으면 import하여 사용
 ### 2. 라우트 파일 찾기
 
 프로젝트의 라우트 정의 파일을 찾는다:
+
 - `HAS_GO_ROUTER_BUILDER`: `TypedGoRoute` 어노테이션이 있는 파일
 - 일반 GoRouter: `GoRoute(` 또는 `GoRouter(` 정의가 있는 파일
 
@@ -238,6 +247,7 @@ c. 애니메이션 상수 파일 감지 -> 있으면 import하여 사용
 `build` override를 `buildPage`로 변경:
 
 **Before:**
+
 ```dart
 @TypedGoRoute<WorkoutRoute>(path: '/workout')
 class WorkoutRoute extends GoRouteData {
@@ -251,6 +261,7 @@ class WorkoutRoute extends GoRouteData {
 ```
 
 **After:**
+
 ```dart
 @TypedGoRoute<WorkoutRoute>(path: '/workout')
 class WorkoutRoute extends GoRouteData {
@@ -271,6 +282,7 @@ class WorkoutRoute extends GoRouteData {
 `pageBuilder`를 추가/수정:
 
 **Before:**
+
 ```dart
 GoRoute(
   path: '/workout',
@@ -279,6 +291,7 @@ GoRoute(
 ```
 
 **After:**
+
 ```dart
 GoRoute(
   path: '/workout',
@@ -292,6 +305,7 @@ GoRoute(
 ### 4. Import 추가
 
 page_transitions 파일의 import를 추가한다:
+
 ```dart
 import 'package:$PACKAGE/<path>/page_transitions.dart';
 ```

@@ -11,7 +11,11 @@ argument-hint: "[파일경로|위젯이름]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - 추출할 때 기존 사용처의 import를 빠뜨리면 컴파일 에러 — 추출 후 반드시 모든 사용처에서 import 추가/변경 확인
 - private → public 전환 시 하드코딩된 값을 그대로 두면 재사용 불가 — 반드시 파라미터화 검토
@@ -39,10 +43,12 @@ user-invocable: true
 ### 1. 추출 대상 확인
 
 **widget-inspector 리포트가 있는 경우:**
+
 - 리포트의 추출 후보 목록을 사용자에게 보여준다
 - 사용자가 선택한 항목을 추출 대상으로 확정한다
 
 **리포트가 없거나 직접 지정한 경우:**
+
 - 지정된 파일/위젯을 Read로 읽는다
 - 추출 가능한 부분을 분석한다:
   - private 위젯 클래스 → shared로 이동 후보
@@ -69,6 +75,7 @@ user-invocable: true
 ### 3. 배치 경로 결정
 
 **shared 위젯으로 추출하는 경우:**
+
 - 프로젝트의 shared 위젯 디렉토리를 감지한다
   - `lib/shared/presentation/widgets/` (clean architecture)
   - `lib/core/widgets/` (feature-first)
@@ -78,6 +85,7 @@ user-invocable: true
 - 분류가 모호하면 사용자에게 확인
 
 **같은 파일 내 분리인 경우:**
+
 - 같은 파일 하단에 private 위젯으로 추출
 
 ### 4. 공용 위젯 생성
@@ -85,17 +93,20 @@ user-invocable: true
 추출 대상별 변환 규칙:
 
 **Private → Public 전환:**
+
 - `_WidgetName` → `WidgetName`
 - 하드코딩된 값을 생성자 파라미터로 추출
 - `const` 생성자 사용 가능하면 적용
 
 **파라미터화:**
+
 - 텍스트, 아이콘, 색상 등 데이터 값 → required/optional 파라미터
 - 콜백 (onTap, onChanged 등) → `VoidCallback?`, `ValueChanged<T>?` 파라미터
 - feature 특화 타입 → 제네릭 또는 콜백으로 일반화
 - 기본값이 자연스러운 파라미터는 optional + default value
 
 **기존 패턴 유지:**
+
 - Widget base class는 프로젝트 패턴을 따른다 (HookWidget, ConsumerWidget 등)
 - 디자인 토큰 사용 방식 유지 (HAS_DS면 semantic token)
 - import 패턴 유지 (`package:$PACKAGE/...`)

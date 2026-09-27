@@ -54,6 +54,7 @@ user-invocable: true
 - **워크트리 이름 폴더**: 이 규칙 전에 워크트리 이름으로 생긴 폴더는 옮기지 않는다. 그 폴더들에는 reflections 가 없고 원시 로그와 `.errors.log` 만 있다 — `project=all` 이 그대로 순회한다
 
 헬퍼: `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh`
+
 - `compute_project_id "$cwd"` — 쓰기용 id 계산 (basename 또는 hash fallback)
 - `project_root "$cwd"` — 본 레포 root (링크된 워크트리면 본 레포, 지워진 워크트리 경로(`.claude/worktrees/` 아래)도 본 레포, 그 밖의 git 밖 폴더는 cwd)
 - `normalize_project_query "<query>"` — 읽기용 glob pattern union 확장
@@ -63,7 +64,7 @@ user-invocable: true
 입력이 어느 형태든 **같은 basename 의 glob union** 으로 확장되어 backward-compat 을 보장한다:
 
 | 입력 | 확장 결과 |
-|------|-----------|
+| --- | --- |
 | `app_kiosk` | `app_kiosk  app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]` |
 | `app_kiosk-a3b4f9` | `app_kiosk  app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]` (basename 추출 후 동일 union) |
 
@@ -135,6 +136,7 @@ approach_note: <str>
 6. **태그 클러스터링** — 원시 태그 빈도로 곧장 집계하지 않는다 (Gotcha #8). 순서를 지켜라: **결정론 먼저, 판단은 그다음**.
 
    **6-a. 결정론적 pass (기계)** — 이 단계에서 눈대중을 섞지 마라.
+
    ```bash
    # 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
    . "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
@@ -155,14 +157,14 @@ approach_note: <str>
    - **묶는 기준은 근본원인이다.** `undesired_behavior` **와** `desired_behavior` 가 **둘 다** 같을 때만 한 클러스터다. 표기 유사도(문자열 거리)만으로 묶지 마라 — `edit-before-read` 와 `edited-wrong-file` 은 철자가 비슷해도 다른 원인이다.
    - LLM 은 **새 alias 후보와 그 근거를 제시할 뿐**이고, 최종 병합은 `tag-lemma-map.tsv` 에 `alias` 행을 추가한 뒤 6-a 를 **다시 실행해 출력으로 확인**하는 것으로 확정한다 (SSOT §7 절차). 리포트 안에서만 합산하고 맵에 남기지 않으면 다음 주기에 같은 판단을 다시 해야 한다.
    - **감사 흔적 필수** — 클러스터마다 멤버 태그 전체와 개별 freq 를 리포트에 나열한다. 묶은 근거 없이 합산 숫자만 제시하면 승격 판단을 검증할 수 없다.
-   - **과잉 병합 금지.** 서로 다른 근본원인을 한 태그로 합치면 승격 규칙 문구가 모호해져 아무 행동도 바뀌지 않는다. 확신이 없으면 묶지 말고 `## 병합 보류` 로 남겨라. 집계 키를 잘못 잡으면 신호 자체가 망가진다는 점은 Alertmanager `group_by` 설계가 보여준다 (https://prometheus.io/docs/alerting/latest/configuration/). Sentry fingerprint 규칙도 같은 취지의 경고를 하지만, 2026-08-13 재확인 시 원문 직접 인용에 실패했으므로 **직접 인용 없이** 참고 링크로만 둔다 (https://github.com/getsentry/sentry/issues/75567).
+   - **과잉 병합 금지.** 서로 다른 근본원인을 한 태그로 합치면 승격 규칙 문구가 모호해져 아무 행동도 바뀌지 않는다. 확신이 없으면 묶지 말고 `## 병합 보류` 로 남겨라. 집계 키를 잘못 잡으면 신호 자체가 망가진다는 점은 Alertmanager `group_by` 설계가 보여준다 (<https://prometheus.io/docs/alerting/latest/configuration/>). Sentry fingerprint 규칙도 같은 취지의 경고를 하지만, 2026-08-13 재확인 시 원문 직접 인용에 실패했으므로 **직접 인용 없이** 참고 링크로만 둔다 (<https://github.com/getsentry/sentry/issues/75567>).
    - 클러스터가 3개 이상 멤버를 가지면 `## ⚠️ 태그 파편화` 섹션에 별도 보고한다.
 
    **6-c. family 분리 (병합하지 않음)** — `undesired`/`desired` 중 하나라도 다르면 alias 가 아니다. 이때는 출력 포맷의 family 섹션으로만 보고하고 **`cluster_freq` 에 합산하지 않는다.** family 판별은 결정론적 문자열 규칙이다 (예: 세그먼트에 `stale` 이 있으면 `stale-context-reference`). 2026-08 실측 10 개 멤버가 전부 remediation 이 달랐다 — SSOT §4.
 7. **집계** (5·6 단계 결과 기준) — 아래 5 계층을 **분리해서** 보관한다. 하나로 뭉치면 효과 측정과 감사 중 하나가 반드시 깨진다.
 
    | 계층 | 쓰임 |
-   |---|---|
+   | --- | --- |
    | `raw_tag` | 감사·재현용. 절대 버리지 않는다 |
    | `lemma_key` | 6-a 출력. **집계·`post_freq` 의 유일한 키** |
    | `canonical_tag` | 클러스터 최빈 원시 표기. 사람이 읽는 대표 이름 |
@@ -223,7 +225,7 @@ Precedence Table #3 (`scope == global` AND 복수 프로젝트 freq ≥ 3) 판�
 single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. **진입 전제 4가지(`user_environment` 제외 · `cluster_freq` 사용 · `grounding: self_inference` 단독 근거 제외 · ledger active 재발은 등급 상향)는 아래 "Surface Precedence Table" 과 동일하게 적용한다.** 아래 `global_freq` / `project_count` 는 모두 클러스터 단위다.
 
 | # | 조건 (project=all 기준) | 승격 surface |
-|---|---|---|
+| --- | --- | --- |
 | 0 | 어느 프로젝트든 `user_stated_constraint == true` (global_freq ≥ 1) | **fast-track** — `project_count ≥ 2`면 글로벌 CLAUDE.md, 단일 프로젝트면 해당 project CLAUDE.md |
 | 1 | 어느 프로젝트든 `enforcement_need == hard_gate` | **hook 검토** |
 | 2 | `procedurality == multi_step_procedure` AND `global_freq ≥ 2` | **skill** |
@@ -238,6 +240,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 - **Given** `/reflect-digest project=all period=30d` 호출,
 - **When** digest가 `~/.claude/logs/*/reflections-*.md` 를 순회하고 (내부 디렉토리 제외),
 - **Then** 리포트 상단에 아래 형태의 메타라인이 정확히 표시된다:
+
   ```text
   # Reflect Digest — project=all (30d)
   대상 프로젝트: N개 (basename B개 / hash-fallback H개) / 총 엔트리: M개
@@ -248,6 +251,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
   원시 태그 J개 → 클러스터 C개 / singleton S개 (singleton_share 0.NNN · 임계 0.70) · fold_ratio F
   ⚠️ 편중: <pid> 가 전체의 X% (N/M 엔트리) — 글로벌 판정(rule #3) 신뢰도 낮음
   ```
+
 - `basename B개` = hash suffix 없는 Hybrid 기본 포맷 bucket 수
 - `hash-fallback H개` = `<basename>-<6자 hex>` 충돌 fallback + v0.2.0 레거시 bucket 수
 - `집계 실패 프로젝트` / `파싱 실패` / 파편화 지표 라인은 값이 0 이어도 생략하지 않고 `0` 으로 명시한다 (검증 용이성).
@@ -286,7 +290,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 아래 규칙을 **위에서 아래로** 적용. 먼저 맞는 규칙 하나만 선택.
 
 | # | 조건 | 승격 surface |
-|---|------|--------------|
+| --- | ------ | -------------- |
 | 0 | `user_stated_constraint == true` (freq ≥ 1, 임계값 우회) | **매-세션 자동 로드 surface로 fast-track** — `scope==global`이면 글로벌 CLAUDE.md, 아니면 project CLAUDE.md (200줄 초과 시 path-scoped rule). `enforcement_need==hard_gate`면 추가로 hook 후보 병기 |
 | 1 | `enforcement_need == hard_gate` (빈도 무관) | **hook 검토** (다른 축 무시) |
 | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** 신설/보강 |
@@ -296,7 +300,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 | 6 | `risk_class == low` AND freq == 1 | **관망** (no action, 다음 주 재평가) |
 | 7 | 그 외 | **review 후보 (수동)** |
 
-> **규칙 #0 근거 (Friction #2 — insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응)**: 사용자가 명시적으로 금지/지시한 제약(예: "ValueNotifier 쓰지 마")의 재위반은 일반 실수보다 **사용자 좌절이 크고**, 연구상 long-context에서 가장 먼저 잊히는 omission 제약이다 (Omission Constraints Decay While Commission Constraints Persist, https://arxiv.org/html/2604.20911). 따라서 freq 2/3회 누적을 기다리지 말고 **첫 재위반부터** 매-세션 자동 로드 surface(CLAUDE.md/hook)로 보낸다. memory(on-demand 로드)나 관망으로 보내면 재주입이 약해 friction이 해소되지 않는다. 단 surface 반영은 항상 `/reflect-promote`가 사용자 승인을 거쳐 수행한다 (digest는 후보 표시만).
+> **규칙 #0 근거 (Friction #2 — insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응)**: 사용자가 명시적으로 금지/지시한 제약(예: "ValueNotifier 쓰지 마")의 재위반은 일반 실수보다 **사용자 좌절이 크고**, 연구상 long-context에서 가장 먼저 잊히는 omission 제약이다 (Omission Constraints Decay While Commission Constraints Persist, <https://arxiv.org/html/2604.20911>). 따라서 freq 2/3회 누적을 기다리지 말고 **첫 재위반부터** 매-세션 자동 로드 surface(CLAUDE.md/hook)로 보낸다. memory(on-demand 로드)나 관망으로 보내면 재주입이 약해 friction이 해소되지 않는다. 단 surface 반영은 항상 `/reflect-promote`가 사용자 승인을 거쳐 수행한다 (digest는 후보 표시만).
 
 ### 임계값은 hypothesis
 

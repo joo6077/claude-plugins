@@ -12,6 +12,7 @@ react-kit 스킬/에이전트를 작성하거나 개선할 때 반복되는 실�
 **사례 (SK-05/RE-02)**: `react-wasm` 과 `rust-kit` 의 "wasm-pack 빌드" 키워드 중복 → 어느 스킬이 트리거될지 모호.
 
 **해결**: 키워드에 컨텍스트 단어를 추가해 도메인을 명확히 한다.
+
 - 나쁜 예: `"wasm 추가"`, `"빌드"`
 - 좋은 예: `"React 컴포넌트에서 WASM 호출"`, `"Vite 프로젝트 wasm-pack 연동"`
 
@@ -24,6 +25,7 @@ react-kit 스킬/에이전트를 작성하거나 개선할 때 반복되는 실�
 **사례 (AP-03)**: `react-audit` 의 Library Policy 섹션에서 `react-transition-group` 이 누락된 채 배포 → QA REJECT.
 
 **해결**: 새 스킬이나 에이전트를 작성할 때 Library Policy 문구를 복사하지 말고 아래 3 파일을 **정전 소스**로 참조한다.
+
 - `react-kit/skills/react-animation/SKILL.md` — Gotcha #1
 - `react-kit/agents/animation-architect-react.md` — § 금지 라이브러리 목록
 - `react-kit/skills/react-audit/SKILL.md` — Library Policy 카테고리
@@ -41,6 +43,7 @@ react-kit 스킬/에이전트를 작성하거나 개선할 때 반복되는 실�
 **사례 (DG-01)**: 코드 템플릿에 미완성 마커 주석이 남아 있어 사용자가 복사 후 그대로 사용할 위험.
 
 **해결**: descriptive placeholder 표현을 사용한다.
+
 - 나쁜 예: `// [미완성 마커]: 여기에 로직 추가`
 - 좋은 예: `// 비즈니스 로직을 여기에 위치시킨다`, `/* fetch / transform 처리 */`
 
@@ -53,9 +56,11 @@ react-kit 스킬/에이전트를 작성하거나 개선할 때 반복되는 실�
 **사례 (CD-03)**: docs-site integration.html 의 원칙 카드에 card-source URL 이 없어 QA REJECT.
 
 **해결**: 원칙 카드 말미에 출처를 명시한다.
+
 ```text
 card-source: docs/react/kit-design/g1-scaffolding.md §2
 ```
+
 내부 문서면 파일 경로, 외부 문서면 URL 을 사용한다.
 
 ---
@@ -67,6 +72,7 @@ card-source: docs/react/kit-design/g1-scaffolding.md §2
 **사례 (KZ-04)**: References 그룹 경로만 명시 → 어떤 섹션을 봐야 하는지 불명확.
 
 **해결**:
+
 ```markdown
 ## References
 - `docs/react/kit-design/g2-state-data.md` §3 — TanStack Query 설계 상세
@@ -117,6 +123,7 @@ N. **[제목]**: [설명]
 **원칙**: 동일 그룹 스킬들은 `Gotchas` / `Process` / `Rules` / `Report Format` 섹션 구조를 parity 유지한다. 한 스킬만 포맷이 다르면 사용자는 어느 스킬이 정식 패턴인지 혼동한다.
 
 **Sibling Group (react-kit)**:
+
 - 빌드 프리미티브 3총사: `react-run` / `react-build` / `react-preflight` — Gotchas + 서브커맨드 테이블 + Report Format + Rules 구조 동일.
 - API 스캐폴딩 3총사: `react-feature` / `react-api` / `react-widget` — Gotchas + Process + Strict TS 검증 + 완료 안내 동일.
 - 메타 스킬: `react-audit` / `react-extract` — Mode(quick/deep) + Agent 도구 위임 구조 동일.
@@ -167,6 +174,7 @@ N. **[제목]**: [설명]
 ## 사용 가이드
 
 이 파일은 다음 시점에 참조한다:
+
 - 새 react-kit 스킬 작성 시 (harness `create-skill` 전 필독)
 - react-kit 카이젠 시 Gotchas 섹션 품질 검증 기준으로
 - QA Evaluator 가 react-kit 스킬을 평가할 때 체크리스트로

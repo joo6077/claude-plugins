@@ -16,6 +16,7 @@ flutter-toolkit 스킬은 이 규칙과 정합성을 유지해야 한다.
 ## State Management (서드파티 패키지 없을 때)
 
 공식 우선순위:
+
 1. `ValueNotifier` + `ValueListenableBuilder` — 단일 값
 2. `Stream` + `StreamBuilder` — 비동기 이벤트 시퀀스
 3. `Future` + `FutureBuilder` — 일회성 비동기

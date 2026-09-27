@@ -3,10 +3,10 @@
 > Last updated: 2026-05-16 (v2 — surface-first 정책 추가)
 > Source: Codex research run `afcf4968339021b29` (score 25/25, v1 기반) + run `a25261e23b21252b2` (score 24/25, v2 surface-first 정책)
 > Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
->   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
->   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
->   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
->   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
+> 앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+> `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+> 두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+> 최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 
 스킬이 모델 형상 + 선택된 소재에 맞춰 process 측 `seam_*` / `seam_slope_*` + filament 측 `filament_scarf_*` 권장 조합을 도출할 때 참조.
 
@@ -23,7 +23,7 @@ Prusa 공식 KB 는 spiral vase 가 아닌 이상 모든 perimeter loop 에 시�
 ### 사용자 피드백 두 건 — 모순이 아니다
 
 | 시점 | 발언 | 거부 대상 |
-|---|---|---|
+| --- | --- | --- |
 | 2026-05-17 | *"한쪽에 몰아넣는거 말고 차라리 랜덤"* · *"내가 뭘 페인팅해야 한다는 거"* | **수작업 부담** (painted) |
 | 2026-09-05 | *"솔직히 랜덤 별로임"* · *"심 해결하는 방법 안 나옴?"* | **결과 품질** (random) |
 
@@ -69,26 +69,29 @@ Prusa 공식 KB 는 spiral vase 가 아닌 이상 모든 perimeter loop 에 시�
 ## 1. Scarf seam 메커니즘 — Contour vs All
 
 ### Contour
+
 - 외곽 perimeter에만 scarf 적용
 - 외관 대비 비용 가장 좋음
 - 내부 구멍 seam은 그대로 남음
 
 ### Contour and Hole / "All"
+
 - 외곽 + 구멍 주변 내벽까지 확장
 - 내경 치수 영향, 작은 디테일 거칠어짐, 시간 ↑
 
 ⚠️ **Bambu 1.10 이력**: Bambu Studio 1.10에서 scarf seam이 filament 설정으로 옮겨졌고 PLA Basic/Matte/Silk에 한때 기본 활성화됐다가 **1.10.1에서 기본 비활성화**됨. 이유는 모델 각도 판정에 따라 같은 Z 라인에서 scarf 적용/미적용이 섞여 표면 품질이 불균일해졌기 때문. Bambu 권장 해결책은 `Scarf application angle threshold` 낮추기 또는 `Smart scarf seam application` 끄기.
 
 출처:
-- Bambu Studio 1.10 beta: https://github.com/bambulab/BambuStudio/releases/tag/v01.10.00.74
-- 1.10.1 hotfix: https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50
-- Orca seam wiki: https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_seam
-- Bambu inside-circle case: https://forum.bambulab.com/t/scarf-seam-does-not-work-on-the-inside-of-a-circle/187310
+
+- Bambu Studio 1.10 beta: <https://github.com/bambulab/BambuStudio/releases/tag/v01.10.00.74>
+- 1.10.1 hotfix: <https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50>
+- Orca seam wiki: <https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_seam>
+- Bambu inside-circle case: <https://forum.bambulab.com/t/scarf-seam-does-not-work-on-the-inside-of-a-circle/187310>
 
 ## 2. 주요 파라미터의 의미
 
 | 파라미터 | 단위 의미 | 기본 시작점 / 권장 |
-|---------|---------|-------------------|
+| --------- | --------- | ------------------- |
 | **Scarf length** (`seam_slope_min_length`) | **scarf 램프의 길이(mm).** `0`이면 scarf 비활성 | Bambu 기본 **10 mm**. 상한은 §2.2 |
 | **Scarf start height** | ramp 시작 Z 오프셋. `%`는 layer height 기준. 예: 0.2 mm layer에서 50%는 0.1 mm | `0%/0 mm` (가장 낮게 시작, 부드러운 블렌드) |
 | **Scarf slope gap** (`seam_slope_gap`) | **내벽·외벽을 지정량만큼 짧게 잘라낸다.** mm 또는 노즐 지름 대비 `%` | **`0`** (Bambu 기본). 올리지 마라 — §2.1 |
@@ -103,7 +106,7 @@ Prusa 공식 KB 는 spiral vase 가 아닌 이상 모든 perimeter loop 에 시�
 추출한 툴팁 원문:
 
 | 키 | 라벨 | 툴팁 (원문) | 기본값 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `seam_slope_gap` | Scarf slope gap | *"In order to reduce the visiblity of the seam in closed loop, **the inner wall and outer wall are shortened** by a specified amount."* | **`0`** |
 | `seam_gap` | Seam gap | *"In order to reduce the visibility of the seam in a closed loop extrusion, **the loop is interrupted and shortened** by a specified amount. This amount as a percentage of the current extruder diameter."* | **`15%`** |
 
@@ -120,9 +123,10 @@ scarf 는 이미 ramp 로 시작·끝을 완만하게 만든다. 거기에 `seam
 "단면상 골 파임" 이 이 기전이다.
 
 출처:
-- Orca wiki: https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_seam
-- Reddit optimal settings: https://www.reddit.com/r/OrcaSlicer/comments/1b7lthr/what_are_the_optimal_settings_for_scarf_seams/
-- Reddit Bambu guide: https://www.reddit.com/r/3Dprinting/comments/1o6i5a1/how_to_improve_your_seams_on_curved_surfaces/
+
+- Orca wiki: <https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_seam>
+- Reddit optimal settings: <https://www.reddit.com/r/OrcaSlicer/comments/1b7lthr/what_are_the_optimal_settings_for_scarf_seams/>
+- Reddit Bambu guide: <https://www.reddit.com/r/3Dprinting/comments/1o6i5a1/how_to_improve_your_seams_on_curved_surfaces/>
 
 ### 2.2 scarf 길이 상한 — 루프 둘레 대비
 
@@ -134,7 +138,7 @@ scarf_length = clamp( min(10mm, 둘레 x 0.10~0.15), 하한 3mm )
 ```
 
 | 둘레 | 권장 scarf 길이 | 비고 |
-|---|---|---|
+| --- | --- | --- |
 | `>= 100 mm` | `10 mm` (Bambu 기본) | 여유 |
 | `60 ~ 100 mm` | `8 ~ 10 mm` | |
 | `30 ~ 60 mm` | `3 ~ 6 mm` | ⌀10~⌀19 원통 구간 |
@@ -174,8 +178,10 @@ Phase 4.3 검사는 위 식의 두 끝을 같이 본다. 상한은 `길이 / 둘
 
 ## 3. 형상별 권장 조합 (0.4mm nozzle / 0.2mm layer 기준)
 
+<!-- markdownlint-disable MD033 -->
+
 | 형상 | Process 추천 | Filament scarf 추천 |
-|------|-------------|---------------------|
+| ------ | ------------- | --------------------- |
 | **회전체/원기둥, 컵, 화병** | `seam_position: aligned` 또는 `back`<br>보이는 면 없는 원통은 `aligned`<br>`wall_sequence: inner-outer-inner`<br>outer wall 60-80 mm/s<br>Preview 확인 | `Contour and Hole / All`<br>start `0%`, gap `0`, length `20mm`, steps `10`<br>`Scarf around entire wall: Off`<br>Smart 먼저 On, 줄 끊기면 Off |
 | **원통 "선 최대한 안 보이게"** | 가능하면 **Spiral vase가 유일한 진짜 무 seam**<br>일반 벽 구조면 위 원통값 + seam 위치를 후면/내측으로 paint | 검증 조합: `Contour and Hole`, start `0 mm/0%`, **gap `0`** (§2.1), length `20 mm`, `10 steps`, around entire wall Off |
 | **구체/돔** | `aligned back` 또는 painted back<br>Smart가 중간 각도에서 끊기면 Off / threshold 낮춤 | `Contour`, start `0-10%`, gap `0`, length `10-20 mm`<br>overhang 큰 하부는 scarf 기대 낮춤 |
@@ -183,9 +189,12 @@ Phase 4.3 검사는 위 식의 두 끝을 같이 본다. 상한은 `길이 / 둘
 | **유기적 곡면 / 피규어** | `aligned back` + seam painting (주름/머리카락/후면)<br>wall order inner-first | `Contour`, start `0-10%`, gap `0`, length `10-20 mm`<br>Smart On 후 Preview 끊기면 Off |
 | **얇은 벽 / 미세 디테일** | seam painting 우선, `nearest`는 시간 절약용<br>작은 홀에는 scarf 확장 주의 | `Contour` 또는 `None`<br>length `5-10 mm`, start `5-10%`, gap `0`<br>All/holes는 치수·내벽 흔적 위험 |
 
+<!-- markdownlint-enable MD033 -->
+
 검증 출처:
-- MakerWorld 원통 테스트: https://makerworld.com/en/models/1886187-scarf-seam-test-cylinder-with-hole
-- Reddit 검증: https://www.reddit.com/r/OrcaSlicer/comments/1b7lthr/what_are_the_optimal_settings_for_scarf_seams/
+
+- MakerWorld 원통 테스트: <https://makerworld.com/en/models/1886187-scarf-seam-test-cylinder-with-hole>
+- Reddit 검증: <https://www.reddit.com/r/OrcaSlicer/comments/1b7lthr/what_are_the_optimal_settings_for_scarf_seams/>
 
 ## 4. 소재 x seam 전략 결정표 (2026-09-05 v4)
 
@@ -196,7 +205,7 @@ Phase 4.3 검사는 위 식의 두 끝을 같이 본다. 상한은 `길이 / 둘
 `seam_slope_entire_loop = 0` · `seam_slope_inner_walls = 0`. 길이 상한은 §2.2.
 
 | 소재 | 1 순위 전략 | scarf 길이 | 금지 · 주의 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **PLA Basic** | vase → aligned/back + painted | `10-15 mm` | random 을 default 로 쓰지 마라. 기준 소재 |
 | **PLA Matte** | 소재 자체가 은폐 → aligned/back | off 또는 `5-8 mm` | 공식 layer-line 은폐 근거 있음. 긴 scarf 이득 작다 |
 | **PLA Silk** | **vase 최우선**, 불가 시 painted 필수 | `5-10 mm` | 광택 끊김이 seam 보다 치명적. 속도 차 큰 scarf 금지 |
@@ -221,7 +230,7 @@ Phase 4.3 검사는 위 식의 두 끝을 같이 본다. 상한은 `길이 / 둘
 ## 5. 흔한 실패 모드와 회피
 
 | 실패 모드 | 원인 | 회피 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | **scarf가 아예 안 걸림** | filament profile의 scarf type이 `None`, 또는 1.10 이후 슬롯/프로파일 버그 | Preview에서 적용 여부 확인 필요 |
 | **중간부터 세로 줄 재등장** | Smart scarf가 각도/overhang 판단으로 일부 레이어만 적용 | `scarf_angle_threshold` ↓ 또는 Smart Off |
 | **blob** | PA 낮음, ooze, 온도 과다 | PA 보정, 외벽 전 wipe + inner-first wall order. **`seam_slope_gap` 을 올려 덮지 마라** — 그건 벽을 깎는 키다 (§2.1) |
@@ -229,9 +238,10 @@ Phase 4.3 검사는 위 식의 두 끝을 같이 본다. 상한은 `길이 / 둘
 | **거친 패치 / 두 번째 선** | scarf start와 end가 분산되어 length만큼 떨어진 두 흔적 발생 | length ↓ 또는 `Scarf around entire wall` 실험 (대신 print time + 거친 면 ↑) |
 
 출처:
-- Bambu forum scarf 안 걸림: https://forum.bambulab.com/t/scarf-joints-doesnt-seam-to-always-work/157900
-- Smart scarf 회귀: https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50
-- Reddit guide update: https://www.reddit.com/r/3Dprinting/comments/1phmaak/how_to_improve_your_seams_on_curved_surfaces/
+
+- Bambu forum scarf 안 걸림: <https://forum.bambulab.com/t/scarf-joints-doesnt-seam-to-always-work/157900>
+- Smart scarf 회귀: <https://github.com/bambulab/BambuStudio/releases/tag/v01.10.01.50>
+- Reddit guide update: <https://www.reddit.com/r/3Dprinting/comments/1phmaak/how_to_improve_your_seams_on_curved_surfaces/>
 
 ## 6. 옵션별 트레이드오프
 
@@ -354,6 +364,7 @@ Phase 4.3 검사는 위 식의 두 끝을 같이 본다. 상한은 `길이 / 둘
 > 외관 우선은 `aligned_back` 또는 `back` + painted seam, 전방향 노출 원통은 `aligned` + entire_loop 테스트가 낫습니다.
 
 **실측 결과**:
+
 - `seam_position: aligned`: 외벽 한쪽에 미세 수직 라인 (광택 변화) **눈에 띔**
 - `seam_position: random`: 외벽 둘레에 작은 specks 분산 **덜 거슬림**
 
@@ -384,11 +395,13 @@ Phase 4.3 검사는 위 식의 두 끝을 같이 본다. 상한은 `길이 / 둘
 **상황**: PETG HF + `seam_slope_entire_loop: 1` 출력에서 stringing 다수 발생.
 
 **원인 분석**:
+
 - entire_loop는 perimeter당 scarf ramp 길어서 travel/direction change 증가
 - PETG는 흡습성 강함 — 건조 부족 시 stringing 폭발
 - PETG HF의 nozzle temp 250°C 상단은 과압출 위험
 
 **적용 권장**:
+
 - PETG HF + entire_loop 콤보는 반드시 **AMS HT 65°C 8h 사전 건조 + continuous drying** 전제
 - nozzle_temperature: 245°C 권장 (TDS 245-250 하단)
 - 건조 환경 의심되면 entire_loop 끄고 일반 seam으로 fallback

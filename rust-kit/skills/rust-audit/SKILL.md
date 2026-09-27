@@ -36,9 +36,17 @@ user-invocable: true
 16. **파이프라인 종료 코드로만 도구 결과를 판정한다** — `cargo clippy ... | tee` 처럼 파이프를 쓰면 bash 기본 규칙상 마지막 명령의 상태가 반환되어 clippy 실패가 은폐된다. rust-run Gotcha 10 의 정식 형태(`set -o pipefail` + 파이프라인 직후 `rc=$?`)를 쓰고, 종료 코드를 확보하지 못했으면 그 row 는 `[미검증]` 이고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙인다 — rust-run §2 첫 항목과 같다.
 17. **Sibling Consistency (skill-design-guide §8.8) — rust-audit ↔ backend-audit** — 동일 개념의 Rule-by-Rule 표 / CONDITIONAL APPROVE 판정 규칙 / 출처 URL 포맷을 backend-audit Step 3 와 parity 있게 유지한다. Rust 고유 카테고리(Ownership & Borrowing · unsafe 블록 · async Send+Sync · SQLx offline) 은 독립 row 로 추가하되, RFC 9457 / OWASP 같이 스택 공통인 원칙은 backend-audit 와 동일 문구로 인용한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **생성된 코드를 감사하지 마라** — `target/`, `generated/`, `*.generated.rs`, protobuf 출력 등 자동 생성 파일은 스캔 대상에서 제외하라. 수동 수정 불가능한 코드에 FAIL을 매기면 노이즈만 생긴다.
 - **스타일 선호를 FAIL로 판정하지 마라** — `match` vs `if let`, `unwrap_or_else` vs `unwrap_or_default` 같은 동등한 관용구 차이는 INFO로 보고하되 FAIL 근거로 쓰지 마라.
@@ -58,7 +66,7 @@ user-invocable: true
 ## 1. 대상 범위 결정
 
 | 입력 | 범위 |
-|------|------|
+| ------ | ------ |
 | 파일 경로 | 해당 파일만 |
 | 디렉토리 경로 | 하위 전체 |
 | 미지정 | `git diff --name-only` 기준 변경 파일 |
@@ -66,7 +74,7 @@ user-invocable: true
 ## 2. 모드 결정
 
 | 모드 | 동작 |
-|------|------|
+| --- | --- |
 | `quick` (기본) | 변경 파일만, 직접 검사, 경량 리포트 |
 | `deep` | 전체 프로젝트, rust-reviewer 에이전트 위임, 상세 리포트 |
 
@@ -93,7 +101,7 @@ prompt: |
 카테고리 순서는 `references/audit-criteria.md` 섹션 순서와 일치시킨다 (총 7 카테고리). 각 row 는 **하나의 체크항목(rule)** 에 대응하며, 카테고리 단위로 묶지 않고 개별 판정·근거·출처를 생성한다. 표 자리표시자(`...`) 금지.
 
 | # | 카테고리 | 체크항목 | 판정 | 근거(파일:라인) | 출처 URL |
-|---|----------|---------|------|-----------------|----------|
+| --- | ---------- | --------- | ------ | ----------------- | ---------- |
 | 1 | Ownership & Borrowing | 불필요 `.clone()` 부재 | PASS/FAIL | `src/service/user.rs:42` Copy 타입에 clone 호출 0 건 | [Rust Book Ownership](https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html) |
 | 2 | Ownership & Borrowing | `needless_pass_by_value` 위반 0 건 | PASS/FAIL | clippy 출력 해당 lint 0 건 | [Clippy needless_pass_by_value](https://rust-lang.github.io/rust-clippy/master/#needless_pass_by_value) |
 | 3 | Error Handling | `?` 연산자 + `From` 구현 패턴 | PASS/FAIL | `src/domain/error.rs:1-40` thiserror 2 derive 사용 | [thiserror docs](https://docs.rs/thiserror/latest/thiserror/) |
@@ -139,7 +147,11 @@ prompt: |
 - 무효 K 건은 `UNVERIFIED_INVALID_EVIDENCE` 카운터에 합산 (현재 누계: M)
 ```
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/audit-criteria.md — 카테고리별 PASS/FAIL 체크리스트 (존재 시 SSOT)
 - backend-kit/skills/backend-audit/SKILL.md §Step 3 — 10 카테고리 Rule-by-Rule sibling ground truth

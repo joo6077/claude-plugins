@@ -10,7 +10,11 @@ argument-hint: "[--files <glob>] [--skip-wasm] [--skip-e2e]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **cached 파일과 working tree 불일치**: `git add` 된 파일과 수정 후 add 안 한 파일이 섞이면 결과가 부정확함. 실행 전 `git status` 확인 권장
 - **husky + lint-staged 충돌**: lint-staged 가 이미 lint/format 을 돌리고 있으면 preflight 와 중복. react-kit 기본 설정은 lint-staged 미사용 — preflight 한 번에 처리
@@ -68,7 +72,7 @@ React 프로젝트의 커밋 전 종합 품질 게이트.
 ## 단계별 실패 복구 안내
 
 | 단계 | 실패 원인 | 복구 방법 |
-|------|-----------|-----------|
+| ------ | ----------- | ----------- |
 | codegen | routeTree.gen.ts 손상 | 삭제 후 `pnpm tsr generate` 재실행 |
 | lint | 자동 수정 불가 위반 | 위반 파일:라인 확인 후 수동 수정 |
 | tsc | 타입 에러 | 첫 5개 에러 파일 수정 후 재실행 |
@@ -127,7 +131,7 @@ pnpm react-preflight --files "src/presentation/features/auth/**"
 ## 옵션
 
 | 옵션 | 설명 |
-|------|------|
+| ------ | ------ |
 | `--files <glob>` | 지정 파일만 lint/test 대상으로 실행 |
 | `--skip-wasm` | 6단계 wasm-build 건너뜀 |
 | `--skip-e2e` | Playwright e2e 테스트 건너뜀 (기본적으로 미포함) |

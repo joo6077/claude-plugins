@@ -9,7 +9,11 @@ argument-hint: "<message> [--context=<번역자용 설명>] [--component=<파일
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 1. **하드코딩된 문자열 금지** — 모든 사용자 표시 문자열은 반드시 `t` 매크로 또는 `<Trans>` 컴포넌트를 경유해야 한다. 하드코딩된 한국어/영어 문자열은 `/react-audit` 이 검출한다.
 2. **매크로 import 경로 혼동 주의** — Lingui v5 에서 `@lingui/macro` (구버전) 가 분리됨. JSX/React 는 `@lingui/react/macro`, core 함수는 `@lingui/core/macro`. 잘못 import 하면 컴파일 단계에서 매크로가 적용되지 않는다.
@@ -49,7 +53,7 @@ user-invocable: true
 `references/project-detection.md` 절차를 실행하여 Lingui 설치 여부와 설정 파일을 확인한다.
 
 | 감지 대상 | 경로/패턴 |
-|----------|---------|
+| ---------- | --------- |
 | Lingui 설치 | `package.json` 의 `@lingui/react`, `@lingui/core`, `@lingui/cli` |
 | 설정 파일 | `lingui.config.ts` (프로젝트 루트) |
 | locale catalog | `src/infrastructure/i18n/locales/<locale>.po` |
@@ -134,7 +138,7 @@ export function getLabel(): string {
 **매크로 선택 요약:**
 
 | 사용처 | 매크로 | import |
-|--------|--------|--------|
+| -------- | -------- | -------- |
 | JSX 렌더 안 | `<Trans>` | `@lingui/react/macro` |
 | 속성값, 동적 문자열 | `t` (via `useLingui`) | `@lingui/react/macro` |
 | 복수형 | `<Plural>` | `@lingui/react/macro` |
@@ -328,4 +332,4 @@ const { t } = useLingui()
 - `references/project-detection.md` — 환경 감지
 - `references/clean-arch-layout.md` — 레이어별 경로 규칙
 - 소스 문서: `docs/react/kit-design/g4-quality.md` §3
-- Lingui 공식: https://lingui.dev/ref/macro, https://lingui.dev/tutorials/react
+- Lingui 공식: <https://lingui.dev/ref/macro>, <https://lingui.dev/tutorials/react>

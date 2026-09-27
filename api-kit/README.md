@@ -50,7 +50,7 @@ exact           정규화 후 본문 전체 diff
 **`pin` 은 '값 고정' 이 아니다.** 값 고정(`const`)은 pin 이 표현할 수 있는 assertion 한 종류일 뿐이다.
 
 | 필드 성격 | assertion | 예 |
-|---|---|---|
+| --- | --- | --- |
 | 안정값 | 값 고정 | `$.token_type = "Bearer"` |
 | 열거형 | 집합 소속 | `$.data[].status ∈ active·shipped·cancelled` |
 | 변동 수치 | 범위·불변식 | `$.meta.total ≥ len($.data)` |
@@ -81,21 +81,25 @@ exact           정규화 후 본문 전체 diff
 `docs/api/` 에 12개 원칙 문서가 있으며 모든 스킬이 이를 SSOT 로 참조한다.
 
 ### discovery — 입력을 인벤토리로
+
 - **api-inventory-normalization** — operation key 표준화, 소스 신뢰도, 충돌 플래그
 - **artifact-interop-import-export** — curl/Talend 임포트 충실도, HAR·JUnit 익스포트, 손실 경고
 
 ### execution — 실제로 때리기
+
 - **probe-synthesis-hurl-semantics** — Hurl 옵션 우선순위, capture, entry 격리, exit code
 - **environment-safety-gates** — safe method, prod read-only, redirect 가드, rate·timeout 예산
 - **auth-secret-lifecycle** — 토큰 발급·TTL 갱신·주입, redaction 경계, 인증 실패 분류
 
 ### contract — 계약 만들기
+
 - **snapshot-sealing-canonicalization** — raw evidence 보존, JCS 정규화, I-JSON 게이트, manifest 해시
 - **contract-extraction-modes** — partial/pin/exact, required 추론, enum 승격, additionalProperties
 - **multi-sample-pagination-variance** — 샘플 예산, 페이지네이션 탐색, 분산 점수, 커서 안전
 - **error-status-contracts** — RFC 9457 problem details, 상태 클래스, 4xx pin, 5xx 제외
 
 ### verification — 회귀 잡기
+
 - **regression-diff-failure-policy** — drift 분류, exit code 계약, 재시도 확정, CI 산출물
 - **static-evidence-viewer-contract** — 런타임 의존성 0, 브라우저 네트워크 0, escape 규칙, 접근성
 - **baseline-governance-promotion** — baseline 불변성, 승격 검토, 환경 계보, 만료 경고
@@ -120,7 +124,7 @@ exact           정규화 후 본문 전체 diff
 ## 범위 밖
 
 | 제외 | 이유 |
-|---|---|
+| --- | --- |
 | gRPC / GraphQL / WebSocket | 계약 모델이 다르다. 필요해지면 별도 어댑터로 |
 | 부하·성능 테스트 | k6 영역 |
 | consumer-driven contract | Pact 영역. 양쪽 코드를 통제할 때의 문제 정의다 |

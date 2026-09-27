@@ -23,9 +23,17 @@ user-invocable: true
 9. **타깃 필터를 임의로 좁히지 마라** — preflight 의 test 단계는 워크스페이스 전체가 기본이다. 특정 패키지/타깃으로 좁힐 때는 `references/project-detection.md` Step 3a 의 `PKG_TARGETS` 를 확인한다 (바이너리 전용 패키지 `--lib` 금지 — rust-run Gotcha 9).
 10. **빨간 clippy · test 를 내 변경 탓으로 단정하지 말고 원인을 셋으로 가른다 (enforcement 등급 E2)** — 내 변경 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패. 여럿이 같이 쓰는 작업 폴더에서는 남이 고치다 만 파일까지 같이 컴파일돼 내 검사가 실패한다. 가르는 절차는 Step 3.5 이고, 그 결과를 Step 5 리포트의 FAIL 행 Details 첫머리에 적는다. **원인을 갈라도 Status 는 FAIL 그대로다** — 남의 탓이라고 PASS 로 바꾸지 않는다. 남의 변경을 치우려고 `git stash` 를 쓰지 마라 — stash 는 작업 폴더를 `HEAD` 로 되돌려 남이 하던 변경까지 옮긴다 ([git stash](https://git-scm.com/docs/git-stash)). 실측(2026-09-18): 다른 세션들이 깬 공용 개발 가지의 자동 검사 실패 다섯 건을 고치는 데 몇 시간을 썼다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **fmt를 clippy보다 반드시 먼저 실행하라** — `cargo fmt` 후 코드 레이아웃이 변경되면 clippy 경고 위치가 달라진다. fmt 없이 clippy를 실행하면 수정 후 다시 clippy 위치가 바뀌어 혼란스럽다.
 - **테스트 실패 시 파이프라인을 즉시 중단하라** — test가 실패했는데 audit까지 진행하면 시간만 낭비된다. `cargo test` 실패 → 즉시 FAIL 보고 → 파이프라인 종료가 올바른 흐름이다.
@@ -46,6 +54,7 @@ user-invocable: true
 ## 1. fmt 검사
 
 rust-run `fmt --check`를 실행한다.
+
 - PASS → Step 2로
 - FAIL → rust-run `fmt`를 실행하여 자동 적용 후 재검사. 재검사도 FAIL이면 중단.
   - 자동 적용 시: "`cargo fmt`가 파일을 수정했습니다. `git add`로 변경사항을 스테이징하세요." 안내.
@@ -53,6 +62,7 @@ rust-run `fmt --check`를 실행한다.
 ## 2. clippy 검사
 
 rust-run clippy를 실행한다.
+
 - PASS → Step 3로
 - FAIL → 에러 출력 후 중단. 이후 단계 skip. 고치기 전에 Step 3.5 로 원인을 가른다.
 
@@ -80,6 +90,7 @@ rust-run clippy를 실행한다.
 ## 3. test 실행
 
 rust-run test를 실행한다.
+
 - PASS → Step 4로
 - FAIL → 에러 출력 후 중단. 이후 단계 skip. 고치기 전에 Step 3.5 로 원인을 가른다.
 - 실행된 테스트 수가 0 이면 PASS 가 아니라 **타깃 필터/환경 오류**로 처리한다 (Gotcha 9).
@@ -146,6 +157,7 @@ git worktree remove --force "$t"
 ## 4. audit 검사
 
 rust-run audit를 실행한다.
+
 - PASS → 정상
 - FAIL → WARN으로 표시 (non-blocking). 취약점 목록 출력.
 
@@ -174,6 +186,10 @@ Details 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · �
 - `기준 커밋에서 이미 실패 — {FORK_BASE sha · 명령 · exit · toolchain}`
 - `[미검증]` — 네 칸, 통제 불가 사유 칸에 「귀속 불명」
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md

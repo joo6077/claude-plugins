@@ -5,6 +5,7 @@ The authoritative WASM decision catalog lives at the repo-level development doc:
 **`docs/react/wasm-catalog.md`** (521 lines)
 
 Contents:
+
 - §1 WASM 권장 카테고리 9 항목 (이미지, 압축, ML, SQL, 파서, 수치, 집계, 암호화)
 - §2 WASM 비권장 카테고리 10 항목 (UI, 폼, JSON, 문자열, Web Crypto small, 고빈도 콜백, tiny 함수, 애니메이션, 네트워크, event bus)
 - §3 Boundary cost 수치 (JS↔WASM call ~50-100ns, 문자열 마샬링 600-2500ns)

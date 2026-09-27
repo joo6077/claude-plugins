@@ -30,11 +30,16 @@ user-invocable: true
 17. **`@vitejs/plugin-react` v6 — Babel 제거, Oxc 기반** — Vite 8 과 함께 출시. React Refresh 트랜스폼을 Oxc 로 처리하여 Babel 의존성 제거. 기존 Babel 플러그인을 사용하는 프로젝트는 별도 `babel.config.js` 와 `@vitejs/plugin-react` 의 `babel` 옵션으로 유지 가능하지만, 새 프로젝트는 Oxc 기본 경로를 따른다.
 18. **shadcn Luma 디자인 시스템 (2026-03)** — `shadcn/create` 에서 Luma preset 선택 가능. 둥근 기하학, 부드러운 elevation, 넉넉한 spacing. Radix UI 외에 Base UI 프리미티브도 선택 가능하여 번들 사이즈 최적화 옵션이 열렸다. 초기화 시 사용자에게 프리미티브 선택지(Radix/Base UI) 를 제시한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 입력 수집
 
 다음을 확인한다:
+
 - `project_name` (필수): npm 패키지명 규칙 (`^[a-z][a-z0-9-]*$`). 미지정 시 사용자에게 요청.
 - `--with-wasm` (기본 true): `crates/core/` + wasm-pack 파이프라인 포함 여부
 - `--with-tauri` (기본 true): Tauri 데스크탑 대상 포함 여부. false면 웹 전용 Vite 앱
@@ -316,11 +321,16 @@ pnpm eslint . --max-warnings=0
 ## 6. 완료 후 안내
 
 생성된 파일/디렉토리 목록 출력 후 다음 단계 안내:
+
 - 화면 추가: `/react-screen`
 - 기능 구현: `/react-feature`
 - 재사용 컴포넌트: `/react-widget`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 감지
 - `references/clean-arch-layout.md` — 레이어 배치

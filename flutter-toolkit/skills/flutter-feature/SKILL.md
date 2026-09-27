@@ -11,7 +11,11 @@ user-invocable: true
 disable-model-invocation: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - 아키텍처 감지 결과(Clean/Feature-first/Flat)에 따라 디렉토리 구조가 완전히 달라진다 — 감지 없이 하드코딩하면 기존 구조와 충돌
 - 새 feature 디렉토리 생성 후 반드시 codegen 실행 — Freezed/Retrofit 어노테이션이 있으면 `.g.dart`/`.freezed.dart` 없어서 컴파일 에러
@@ -63,6 +67,7 @@ lib/features/$ARGUMENTS/
 ```
 
 상태 관리 디렉토리는 프로젝트의 상태관리 라이브러리에 따라:
+
 - `HAS_RIVERPOD` → `providers/`
 - `HAS_BLOC` → `blocs/`
 - 둘 다 없음 → `controllers/` (또는 프로젝트 기존 관습)
@@ -81,6 +86,7 @@ lib/src/$ARGUMENTS/
 **기존 feature가 있으면** 해당 구조를 참조하여 동일한 패턴으로 생성한다 (기존 프로젝트 관습 우선).
 
 기존 feature가 있으면 해당 구조를 참조하되, 아래 사항에 주의:
+
 - `presentation/screens/` 하위 구조가 보이면 레거시로 간주한다 — 신규 코드에서는 `presentation/` 직하에 Screen, `presentation/pages/`에 Page를 배치
 - 기존 코드에 `StatefulWidget`이 사용되고 있어도, `HAS_HOOKS`면 `HookWidget` 사용
 - 기존 코드에 상대경로 import가 있어도 신규 코드는 `package:$PACKAGE/...` 사용
@@ -91,7 +97,7 @@ lib/src/$ARGUMENTS/
 
 #### Clean Architecture (ARCH = clean)
 
-**Data Layer**
+##### Data Layer
 
 - **Remote data source** (`data/datasources/{name}_remote_data_source.dart`):
   - `HAS_RETROFIT` → Retrofit `@RestApi()` 패턴
@@ -108,7 +114,7 @@ lib/src/$ARGUMENTS/
   - 프로젝트에 Failure sealed class가 있으면 `_mapFailure` 헬퍼를 포함한다
   - `HAS_RIVERPOD` → `@Riverpod(keepAlive: true)` provider
 
-**Domain Layer**
+##### Domain Layer
 
 - **Entity** (`domain/entities/{name}.dart`):
   - `HAS_FREEZED` → Freezed class
@@ -121,7 +127,7 @@ lib/src/$ARGUMENTS/
   - 프로젝트에 `UseCase` base class가 있으면 extends 패턴
   - 없으면 단순 callable class
 
-**Presentation Layer**
+##### Presentation Layer
 
 - **Provider** (`presentation/providers/{name}_provider.dart`):
   - `HAS_RIVERPOD` → Notifier + State class (flutter-provider 스킬 패턴)
