@@ -168,6 +168,16 @@
 <h1>Bambu Fields Baseline</h1>
 <p class="subtitle">Bambu Studio v2.6.0+ process / filament JSON 핵심 키, silent skip 회피 규칙, system preset 검색 절차. inherits 기반 자동 생성 시 매번 cross-check 권장.</p>
 
+<div class="hero-meta">
+  <span class="tag">처음 쓸 때 안정판 v02.06.00.51 (2026-04-17)</span>
+  <span class="tag">Latest beta v02.08.04.57 (2026-09-22)</span>
+  <span class="tag">Latest stable v02.08.02.61 (2026-08-21)</span>
+  <span class="tag">Codex run a5afcf864d05cf3b7</span>
+  <span class="tag">Score 25 / 25</span>
+  <span class="tag">Last updated 2026-05-15</span>
+  <span class="tag">v3 fields 2026-08-13</span>
+</div>
+
 <div class="hero-note" style="border-left:3px solid #14B8A6;background:rgba(20,184,166,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px">
   <strong style="color:#14B8A6">v2 확장 (2026-05-16):</strong> §8 Surface Quality 필드 <strong>19종</strong> 추가 — ironing 5종 (type/flow/spacing/speed/inset), top·bottom 6종 (pattern/speed/accel/flow/bridge_flow/bridge_speed), wall·resolution 3종, spiral·seam 2종, seam_slope 3종 (steps/entire_loop/inner_walls). 정책 결정 트리 → <a href="surface-recipes.html" style="color:#5EEAD4;text-decoration:underline">Surface Recipes</a>. Codex run <code>a25261e23b21252b2</code>.
 </div>
@@ -176,18 +186,10 @@
   <strong style="color:#5EEAD4">v3 확장 (2026-08-13 · 카이젠 Phase 13):</strong> §10 <strong>실측 실패 모드 관련 필드</strong> 추가 — L1 layer height 4종, L2 filament override 7종, L3 brim/raft/첫 레이어/plate 온도/aux fan 13종, 금지·obsolete 4종. <strong>이 절이 키 이름 / 단위 / default 의 정본</strong>이고 정책·게이트·부작용은 <a href="failure-recipes.html" style="color:#5EEAD4;text-decoration:underline">Failure Recipes</a> 가 갖는다 — 두 문서에 같은 수치를 중복 기재하지 마라. 근거: <code>.harness/.meta/evidence/phase13.md</code>.
 </div>
 
-<div class="hero-meta">
-  <span class="tag">v02.06.00.51 (2026-04-17)</span>
-  <span class="tag">Codex run a5afcf864d05cf3b7</span>
-  <span class="tag">Score 25 / 25</span>
-  <span class="tag">Last synced 2026-05-15</span>
-  <span class="tag">v3 fields 2026-08-13</span>
-</div>
-
 <!-- ── Section 1: 안정 버전 + Base 프로파일 ── -->
 <div class="section">
   <div class="section-label">01 — 안정 버전 / Base 프로파일</div>
-  <p class="desc">Bambu Studio 안정판은 v02.06.00.51 (2026-04-17 Public Release Hotfix). 2.6.1은 아직 Public Beta. H2S 0.4mm nozzle을 기준 machine으로 잡는다.</p>
+  <p class="desc">이 절은 처음 쓸 때의 기록이다 — 그때 Bambu Studio 안정판은 v02.06.00.51 (2026-04-17 Public Release Hotfix), 2.6.1은 아직 Public Beta 였다. 2026-09-27 조회로는 최신 안정판이 2.8.2 Public Release <code>v02.08.02.61</code> (2026-08-21), 최신 베타가 2.8.4 Public Beta <code>v02.08.04.57</code> (2026-09-22)다. 처음 쓸 때 베타는 2.7.0 Public Beta (2026-05-14) 였다. H2S 0.4mm nozzle을 기준 machine으로 잡는다.</p>
 
   <div class="grid-2">
     <div class="card">

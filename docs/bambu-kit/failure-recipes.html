@@ -351,28 +351,47 @@
 <!-- ── Section 3: L2 ── -->
 <div class="section">
   <div class="section-label">Section 3 — L2 스트링잉 (voronoi 인필 · travel stringing)</div>
-  <p class="desc">L2 의 지배 변수는 프로파일이 아니라 <strong>습도</strong>다. 커뮤니티 사례는 PETG/stringing 에서 “retraction 기본값이면 충분, 건조가 우선” 이라는 답과, 다중 retraction 파트에서 wipe-while-retract 및 노즐 온도 −5~−10 °C 가 도움 된다는 보고가 <strong>같이</strong> 존재한다. 그래서 게이트가 필요하다.</p>
+  <p class="desc"><strong>건조 여부를 먼저 묻지 마라.</strong> 습기를 원인으로 지목하려면 습기에 특이적인 신호를 대야 한다. “일단 말려라” 는 진단이 아니라 진단의 회피다 — 실측 실패 6 건 중 4 건이 근거 없이 건조로 종결됐고, 사용자가 건조를 명시 확인한 1 건(2026-07-31 skadis-frame)에서만 실제 원인 2 개가 즉시 발견됐다.</p>
 
-  <h3 style="margin-bottom:14px">3.1. 진단 게이트 — 건조가 먼저다</h3>
+  <h3 style="margin-bottom:14px">3.1. 진단 게이트 — 관측 신호가 먼저다</h3>
 <pre class="tree">L2 감지
   │
-  ├─ <span class="kw">(0)</span> 소재 상태 확인 <span class="cm">— 이 단계에서 대부분 끝난다</span>
-  │      · AMS HT 건조 이력 <span class="cm">(소재별 시간/온도는 materials.md)</span>
-  │      · 스풀 개봉 시점 / 보관 상태
-  │      · 같은 스풀로 다른 모델에서도 났는가
-  │      <span class="ok">→ 건조 미충족이면 JSON 변경 없이 건조 후 재출력 권고로 종료</span>
+  ├─ <span class="kw">(a)</span> 습기 특이 신호가 관측되는가?
+  │      · 압출 중 pop / crackle + 가시 증기
+  │      · 압출물 표면의 무작위 기포 · 공극 <span class="cm">(경로와 무관)</span>
+  │      · 결손이 전역 랜덤 — 특정 feature 나 위치에 고정되지 않음
+  │      · 건조 스풀로 교체하면 사라짐
+  │      <span class="ok">YES → 습기 1 순위. 건조 후 재출력 권고 + JSON 보류</span>
   │
-  ├─ <span class="kw">(1)</span> 건조 충족인데도 travel stringing → <span class="ok">filament wipe 만 opt-in</span>
-  │      <span class="kw">filament_wipe</span> = 1 · <span class="kw">filament_wipe_distance</span> = 2 <span class="cm">(기본값 §10.2)</span>
-  │      <span class="cm">→ 이 2 키가 L2 의 유일한 무조건 허용 override 다</span>
+  ├─ <span class="kw">(b)</span> 위치 · 시점 패턴이 있는가?  <span class="cm">(습기로는 설명되지 않는다)</span>
+  │      · travel 직후 <strong>선 시작부</strong>에 집중  → 리트랙션 재가압 · PA · seam
+  │      · <strong>특정 속도 구간</strong>에서만          → MVS 클램프 · 부분 막힘 · 온도 부족
+  │      · <strong>외벽에서만</strong>, 인필은 멀쩡        → 유량 계단 <span class="cm">(SKILL.md §유량비 게이트)</span>
+  │      · 속도 급변 <strong>경계에서만</strong>           → 유량 계단
+  │      <span class="ok">YES → 해당 축을 먼저 진단한다</span>
   │
-  └─ <span class="kw">(2)</span> (1) 로도 남으면 retraction 소량 상향 <span class="bad">— coupon 통과 후에만</span>
-         <span class="kw">filament_retraction_length</span> 를 기준값(§10.2)에서 <span class="kw">1.0</span>–<span class="kw">1.2</span> 까지만
-         <span class="cm">→ Phase 5 coupon 으로 검증한 뒤 본 출력에 반영</span>
+  └─ <span class="kw">(c)</span> 둘 다 아님 → §1 의 6 축 재현 대조부터
 </pre>
 
   <div class="callout">
-    <strong>“nil” 은 미설정이 아니다.</strong> 공통 filament profile 기본은 대체로 <code>"nil"</code> 이고, 이는 <strong>printer / extruder 기본에 위임</strong>된 상태다. <code>"nil"</code> 을 “설정 안 됨” 으로 읽고 임의 숫자로 채우면 <strong>프린터 기본 튜닝을 통째로 덮어쓴다.</strong> 위임 상태의 실효값은 Fields Baseline §10.2 의 <em>underlying default</em> 열을 본다.
+    <strong>건조 미확인은 진단 중단 사유가 아니라 confidence cap 이다.</strong> 검증되지 않았으면 결론에 그 사실을 적고 신뢰도를 낮춰 보고하되, (b) 축의 진단과 JSON 수정은 그대로 진행한다. 고흡습 소재(PA · PVA · TPU · PC · PETG)는 cap 을 더 강하게 둔다. <code>materials.md</code> 기준 25 °C / 55 % RH 포화 흡습률: PLA Basic 0.43 % · PETG HF 0.40 % · ABS 0.65 % · PC 0.25 %, PA 계열은 한 자릿수 높다. <strong>PLA 와 ABS 를 습기 1 순위로 두려면 (a) 신호가 실제로 관측돼야 한다.</strong>
+  </div>
+
+  <p class="desc">(b) 가 리트랙션 축을 가리킬 때만 아래 2 단계를 쓴다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>단계</th><th>조건</th><th>허용 override</th></tr></thead>
+      <tbody>
+        <tr><td>(1)</td><td>travel stringing 잔존</td><td><code>filament_wipe</code> = <code>1</code> · <code>filament_wipe_distance</code> = <strong>소재 부모값</strong></td></tr>
+        <tr><td>(2)</td><td>(1) 로도 잔존</td><td><code>filament_retraction_length</code> 를 <strong>소재 부모값의 1.5 배까지만.</strong> Phase 5 coupon 통과 후에만 본 출력 반영</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>기준값은 machine 기본이 아니라 소재 부모값이다.</strong> <code>fdm_filament_common</code> 의 <code>"nil"</code> 은 위임이지만, 위임된 실효값이 곧 machine 값인 것은 아니다 — 소재 프로파일이 machine 을 덮는다. 실측 (02.06.00.51): <code>Bambu ABS @BBL H2S</code> · <code>Bambu PLA Basic @BBL H2S</code> 는 <code>filament_retraction_length</code> <code>0.4</code> · <code>filament_wipe_distance</code> <code>1</code> 을 명시하며, machine <code>Bambu Lab H2S 0.4 nozzle</code> 의 <code>0.8</code> / <code>2</code> 와 다르다. §10.2 의 underlying default 열은 <strong>소재 override 가 없을 때의 값</strong>이므로 그것을 소재값으로 쓰면 리트랙션이 2 배가 된다.
+    <br><br>
+    조회에 실패하면 추측값을 쓰지 말고 해당 키를 생략하고 <code>[미검증]</code> 으로 보고한다. 보고에는 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙인다 — <code>SKILL.md</code> 4.3 통과 규칙.
   </div>
 
   <h3 style="margin:32px 0 14px">3.2. 금지</h3>
@@ -679,7 +698,7 @@
       <li><span class="check">✓</span><span><strong><code>0.08</code> 을 자동으로 밀어넣지 않는다</strong> — H2S 공식 process 프로파일 근거는 <code>[미확인]</code>. <code>0.12</code> 가 1 차값이고, 레이어 수 배수를 고지한 뒤 사용자 선택을 받는다.</span></li>
       <li><span class="check">✓</span><span><strong><code>enable_arc_fitting</code> 을 계단 대응 카드로 제시하지 않는다</strong> — 품질 기능이 아니라 G-code encoding 변경이며 firmware arc segmentation 리스크가 있다.</span></li>
       <li><span class="check">✓</span><span><strong><code>resolution</code> 을 Z 계단 해결책으로 말하지 않는다</strong> — XY 세그먼트 해상도 전용이다.</span></li>
-      <li><span class="check">✓</span><span><strong>L2 는 건조부터</strong> — 게이트 (0) 을 통과하지 않으면 JSON 을 변경하지 않는다. <code>filament_wipe</code> · <code>filament_wipe_distance</code> 만 무조건 허용 override.</span></li>
+      <li><span class="check">✓</span><span><strong>L2 는 관측 신호부터</strong> — 습기 특이 신호 (a) 가 있을 때만 건조 후 재출력으로 JSON 을 보류한다. 건조 미확인은 신뢰도 상한이지 진단 중단이 아니다. 리트랙션 축 override 의 기준값은 소재 부모값이다.</span></li>
       <li><span class="check">✓</span><span><strong><code>"nil"</code> 을 임의 숫자로 채우지 않는다</strong> — 위임 상태이며, 채우면 프린터 기본 튜닝을 덮어쓴다.</span></li>
       <li><span class="check">✓</span><span><strong>온도를 건드리지 않는다</strong> — <code>nozzle_temperature*</code> 자동 하향 금지 (사용자 명시 요청 2026-05-16).</span></li>
       <li><span class="check">✓</span><span><strong><code>raft_layers &gt; 0</code> 과 <code>elefant_foot_compensation</code> 을 같이 쓰지 않는다</strong> — 공차 보정이 조용히 무효화된다.</span></li>
