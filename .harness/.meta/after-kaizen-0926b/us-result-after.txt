@@ -18,6 +18,12 @@ Q2-pre empty=1 shared=0 mine=0 private=0
 Q3-pre empty=1 shared=0 mine=0 private=0
 Q4-pre empty=0 shared=1 mine=0 private=0
 Q5-pre empty=0 shared=1 mine=0 private=0
+Q6-pre empty=0 shared=1 mine=0 private=0
+Q7-pre empty=0 shared=1 mine=0 private=0
+Q8-pre empty=0 shared=1 mine=0 private=0
+Q9-pre empty=0 shared=1 mine=0 private=0
+Q10-pre empty=0 shared=1 mine=0 private=0
+Q11-pre empty=1 shared=0 mine=0 private=0
 I1-pre empty=0 shared=1 mine=0 private=0
 I2-pre empty=0 shared=0 mine=1 private=1
 I3-pre empty=0 shared=0 mine=1 private=1
@@ -27,6 +33,7 @@ SC04c landed=1
 Q1-post landed=0
 Q2-post landed=0
 Q4-post landed=1
+Q6-post landed=1
 NOJQ-env jq=0 grep=1
 ER01-pre-empty rc=0 empty=1 stderr_empty=1
 ER01-pre-broken rc=0 empty=1 stderr_empty=1

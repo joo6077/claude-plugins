@@ -43,13 +43,23 @@ fi
 # 개인 인덱스로 커밋하는 형태가 통째로 안 잡혔다(실측). 되풀이해 벗긴다.
 # 따옴표 안 글자는 인자다 — `printf '%s' 'a; git commit'` 이나 큰따옴표 안 줄바꿈 뒤의 "git commit" 을
 # 명령 위치로 읽어 헛경고와 헛알림을 냈다(실측). 판별용 사본에서만 따옴표 안을 `_` 로 덮는다.
+# 따옴표 밖 `\'` 와 주석(`# don't`) 속 따옴표는 따옴표가 아니다 — 그걸 시작으로 읽어 뒤의 진짜
+# 커밋까지 덮어 경고가 사라졌다(실측). 둘 다 따옴표 판정 전에 먼저 덮는다. 주석은 줄 끝까지다.
+# `$'…'` 안에서는 `\'` 가 따옴표를 닫지 않는다 — 큰따옴표처럼 역슬래시 다음 글자를 건너뛴다.
 cmd_unquoted=$(printf '%s' "$cmd" | awk 'BEGIN { RS = "\001"; ORS = "" } {
-  len = length($0); quote = ""; out = ""
+  len = length($0); quote = ""; out = ""; comment = 0
   for (i = 1; i <= len; i++) {
     ch = substr($0, i, 1)
-    if (quote == "") { if (ch == "\047" || ch == "\"") quote = ch; out = out ch; continue }
-    if (quote == "\"" && ch == "\\" && i < len) { out = out "__"; i++; continue }
-    if (ch == quote) { quote = ""; out = out ch; continue }
+    if (comment) { if (ch == "\n") { comment = 0; out = out ch } else out = out "_"; continue }
+    if (quote == "") {
+      if (ch == "\\" && i < len) { out = out "__"; i++; continue }
+      if (ch == "#" && (i == 1 || substr($0, i - 1, 1) ~ /[[:space:];&|(]/)) { comment = 1; out = out "_"; continue }
+      if (ch == "\047" || ch == "\"") quote = ch
+      if (ch == "\047" && i > 1 && substr($0, i - 1, 1) == "$") quote = "$\047"
+      out = out ch; continue
+    }
+    if (quote != "\047" && ch == "\\" && i < len) { out = out "__"; i++; continue }
+    if (ch == quote || (quote == "$\047" && ch == "\047")) { quote = ""; out = out ch; continue }
     out = out "_"
   }
   print out

@@ -67,6 +67,16 @@ git commit -m y"')"
 show Q3-pre "$(pg PreToolUse 'printf "%s" "a && git commit -m z"')"
 show Q4-pre "$(pg PreToolUse 'git commit -m "a; git commit"')"
 show Q5-pre "$(pg PreToolUse "echo 'x' && git commit -m y")"
+# 따옴표 밖 `\'` · `\"` 와 주석 속 작은따옴표는 따옴표가 아니다 — 뒤의 진짜 커밋을 잡는다
+show Q6-pre "$(pg PreToolUse "echo it\\'s done; git commit -m x")"
+show Q7-pre "$(pg PreToolUse "# don't forget
+git commit -m x")"
+show Q8-pre "$(pg PreToolUse "echo don\\'t
+git commit -m x")"
+show Q9-pre "$(pg PreToolUse 'printf %s can\"t; git commit -m x')"
+# $'…' 안의 \' 는 따옴표를 닫지 않는다 — Q10 은 밖의 진짜 커밋, Q11 은 안의 글자
+show Q10-pre "$(pg PreToolUse "echo \$'a\\'b'; git commit -m x")"
+show Q11-pre "$(pg PreToolUse "echo \$'a\\'b; git commit -m x'")"
 # US-2 (나) GIT_INDEX_FILE 이 git add 에만 붙은 꼴
 show I1-pre "$(pg PreToolUse "GIT_INDEX_FILE=$IDX git add mine.txt && git commit -m x")"
 show I2-pre "$(pg PreToolUse "GIT_INDEX_FILE=$IDX git add mine.txt && GIT_INDEX_FILE=$IDX git commit -m x")"
@@ -88,6 +98,8 @@ git commit -m y"')
 printf 'Q2-post landed=%s\n' "$(has '방금 커밋에 실제로 들어간 것' "$c")"
 c=$(pg PostToolUse 'git commit -m "a; git commit"')
 printf 'Q4-post landed=%s\n' "$(has '방금 커밋에 실제로 들어간 것' "$c")"
+c=$(pg PostToolUse "echo it\\'s done; git commit -m x")
+printf 'Q6-post landed=%s\n' "$(has '방금 커밋에 실제로 들어간 것' "$c")"
 
 # 조용히 지나가야 하는 입력 (종료 코드 · 출력)
 er() {  # er <경우> <훅 파일> <이벤트 인자> <입력> [env 앞말]
