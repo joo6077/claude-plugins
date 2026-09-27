@@ -187,8 +187,11 @@
     <li><a href="#s2"><span class="toc-n">02</span>2. 플러그인 파일 구조</a></li>
     <li><a href="#s3"><span class="toc-n">03</span>3. Marketplace 등록</a></li>
     <li><a href="#s4"><span class="toc-n">04</span>4. README 섹션 구조</a></li>
-    <li><a href="#s5"><span class="toc-n">05</span>Architecture</a></li>
-    <li><a href="#s6"><span class="toc-n">06</span>주요 철학</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>5. 에이전트 설계 가이드 연동</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>6. 기존 플러그인과의 구조 일관성</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>7. 스캐폴딩 시 생성되는 .harness/project.yaml 의 커스터마이징</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>현행화 기록</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>8. 변경 이력</a></li>
     <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
   </ol>
 </nav>
@@ -622,96 +625,157 @@ cd my-app
 /react-wasm "이미지 리사이즈"
 
 # 5. 커밋 전 검증
-/react-preflight</code></pre></div>
-  </div>
-</section>
+/react-preflight
+```
 
-<section class="section doc" id="s5">
-  <div class="section-label">§ 05</div>
-  <h2>Architecture</h2>
-  <div class="doc-body">
-<p>이 플러그인이 생성하는 프로젝트는 Clean Architecture 를 따른다:</p>
-<div class="code"><pre><code>src/
+## Architecture
+
+이 플러그인이 생성하는 프로젝트는 Clean Architecture 를 따른다:
+
+```
+src/
 ├── domain/              # entities, usecases, failures (순수)
 ├── data/                # datasources, models, repositories
 ├── presentation/        # features, shared, routes, styles
 └── infrastructure/      # tauri, storage, http, i18n
 
 crates/core/             # Rust 코어 (WASM + Tauri 네이티브 공유)
-src-tauri/               # Tauri 백엔드</code></pre></div>
-<p>상세 설계는 <code>docs/react/kit-design/g1-scaffolding.md</code> ~ <code>g6-build-audit.md</code> 참조.</p>
+src-tauri/               # Tauri 백엔드
+```
+
+상세 설계는 `docs/react/kit-design/g1-scaffolding.md` ~ `g6-build-audit.md` 참조.
+
+## 주요 철학
+
+1. **성능 우선**: 번들 크기와 런타임 성능을 모든 결정의 1순위 판단 기준
+2. **라이브러리 0개 애니메이션**: Motion/dnd-kit/react-spring 금지, 네이티브 브라우저 API + 커스텀 primitives
+3. **Clean Architecture**: flutter-toolkit, rust-kit 과 일관된 레이어 분리
+4. **Strict TypeScript**: any/as/! 금지, Zod 경계 검증 필수
+5. **Result 타입**: throw 금지, neverthrow Result&lt;T, Failure&gt; 로 타입 안전 에러
+6. **WASM 결정은 카탈로그 기반**: 측정 없이도 research-backed 판정 (G0 wasm-catalog.md)</code></pre></div>
+<h3 class="sub">4.1 문서 위치 구분</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">위치</div></th>
+  <th><div class="c">역할</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>react-kit/README.md</code></div></td>
+  <td><div class="c">플러그인 사용자 대상 — 스킬 목록, 퀵스타트, 철학</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>react-kit/references/*.md</code></div></td>
+  <td><div class="c">스킬 내부가 읽는 공유 레퍼런스 (사용자 직접 안 봄)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>docs/react/*.md</code> (이 레포)</div></td>
+  <td><div class="c"><strong>레포 개발용 리서치 문서</strong> — 카이젠 루프가 갱신. <code>wasm-catalog.md</code> 등</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>docs/react/kit-design/*.md</code> (이 레포)</div></td>
+  <td><div class="c"><strong>레포 개발용 설계 문서</strong> — react-kit 의 스킬별 상세 스펙. 실제 SKILL.md 작성의 소스</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>구분 원칙</strong>: <code>react-kit/</code> 안은 <strong>배포 대상</strong> (플러그인 이용자가 받음), <code>docs/react/</code> 는 <strong>개발 내부 문서</strong> (플러그인 품질 관리). 두 위치의 동기화는 <code>/react-kaizen</code> 카이젠 스킬이 담당.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>5. 에이전트 설계 가이드 연동</h2>
+  <div class="doc-body">
+<p><code>harness/docs/guides/agent-design-guide.md</code> (이 레포 내부 문서) 의 6개 디자인 패턴 중 <code>react-kit</code> 의 에이전트 3종이 사용하는 패턴:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>react-reviewer</strong> — <em>Independent Reviewer</em> 패턴. 메인 Claude 컨텍스트 편향 배제를 위해 새 세션 spawn, 읽기 전용 도구로 판정만</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>widget-inspector-react</strong> — <em>Codebase Scanner</em> 패턴. 전체 스캔 → 리포트 → 사용자 승인 후 다른 스킬이 실행</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>animation-architect-react</strong> — <em>Design Consultant</em> 패턴. 자문 → 사용자 승인 → 스킬이 구현</div></li>
+</ul>
+<p>각 에이전트 파일은 <code>harness/create-agent</code> 스킬로 생성. 설계 가이드의 tool 스코핑, 모델 선택, description 작성법을 따름.</p>
   </div>
 </section>
 
 <section class="section doc" id="s6">
   <div class="section-label">§ 06</div>
-  <h2>주요 철학</h2>
+  <h2>6. 기존 플러그인과의 구조 일관성</h2>
   <div class="doc-body">
-<ul class="md-list ordered">
-  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>성능 우선</strong>: 번들 크기와 런타임 성능을 모든 결정의 1순위 판단 기준</div></li>
-  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>라이브러리 0개 애니메이션</strong>: Motion/dnd-kit/react-spring 금지, 네이티브 브라우저 API + 커스텀 primitives</div></li>
-  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>Clean Architecture</strong>: flutter-toolkit, rust-kit 과 일관된 레이어 분리</div></li>
-  <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>Strict TypeScript</strong>: any/as/! 금지, Zod 경계 검증 필수</div></li>
-  <li class="lv0"><span class="li-mark">5.</span><div class="li-body"><strong>Result 타입</strong>: throw 금지, neverthrow Result&lt;T, Failure&gt; 로 타입 안전 에러</div></li>
-  <li class="lv0"><span class="li-mark">6.</span><div class="li-body"><strong>WASM 결정은 카탈로그 기반</strong>: 측정 없이도 research-backed 판정 (G0 wasm-catalog.md)</div></li>
+<p>아래 구조 원칙을 flutter-toolkit / rust-kit 과 동일하게 유지:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>.claude-plugin/plugin.json</code></strong>: 동일 필드 (name, description, version, author, repository, license, keywords)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>skills/&lt;name&gt;/SKILL.md</code></strong>: frontmatter + process 구조, Gotchas 섹션 포함</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>agents/&lt;name&gt;.md</code></strong>: frontmatter (name, description, tools, model) + 본문</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>references/</code>, <code>templates/</code>, <code>evals/</code></strong>: 선택적이지만 react-kit 은 모두 사용</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>README.md <code>&lt;!-- AUTO:xxx --&gt;</code> 마커</strong>: <code>scripts/sync-docs.py</code> 가 자동 갱신할 수 있도록 같은 마커 사용</div></li>
 </ul>
-<div class="code"><pre><code>
-### 4.1 문서 위치 구분
+<p>한 가지 차이점: flutter-toolkit, rust-kit 은 <code>scripts/</code> 를 사용 안 하지만 react-kit 은 <code>project-detect.sh</code> 같은 bash 헬퍼를 둘 수 있음. 이는 스킬 내부 구현 선택.</p>
+  </div>
+</section>
 
-| 위치 | 역할 |
-|------|------|
-| `react-kit/README.md` | 플러그인 사용자 대상 — 스킬 목록, 퀵스타트, 철학 |
-| `react-kit/references/*.md` | 스킬 내부가 읽는 공유 레퍼런스 (사용자 직접 안 봄) |
-| `docs/react/*.md` (이 레포) | **레포 개발용 리서치 문서** — 카이젠 루프가 갱신. `wasm-catalog.md` 등 |
-| `docs/react/kit-design/*.md` (이 레포) | **레포 개발용 설계 문서** — react-kit 의 스킬별 상세 스펙. 실제 SKILL.md 작성의 소스 |
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>7. 스캐폴딩 시 생성되는 .harness/project.yaml 의 커스터마이징</h2>
+  <div class="doc-body">
+<p><code>/react-init</code> 13 단계가 <code>/harness init</code> 을 먼저 부른 뒤, <code>templates/harness-project.yaml.template</code> (§1.1 전체) 로 사용자 프로젝트의 <code>.harness/project.yaml</code> 을 덮어 쓴다. 화면 · 모션 증거 규약은 <code>react-kit/references/render-evidence-protocol.md</code> 다. 사용자는 필요 시 수정 가능 (예: <code>runtime_inspection.vm_port</code> 를 다른 포트로, 특정 anti_pattern 을 disable).</p>
+  </div>
+</section>
 
-**구분 원칙**: `react-kit/` 안은 **배포 대상** (플러그인 이용자가 받음), `docs/react/` 는 **개발 내부 문서** (플러그인 품질 관리). 두 위치의 동기화는 `/react-kaizen` 카이젠 스킬이 담당.
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>현행화 기록</h2>
+  <div class="doc-body">
+<p>2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 <code>6378948</code> 에서 이 문서가 맡은 경로(<code>react-kit/references</code> · <code>templates</code> · <code>scripts</code>)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">커밋</div></th>
+  <th><div class="c">날짜</div></th>
+  <th><div class="c">이 문서에 준 영향</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>001c900</code></div></td>
+  <td><div class="c">2026-09-25</div></td>
+  <td><div class="c">고친 절: §2.1 트리 — <code>evals/scripts/project-detect-test.sh</code>, <code>scripts/project-detect.sh</code> 와 <code>references/project-detection.md</code> 관계 문장. <code>vite.config.template.ts</code> 의 <code>strictPort</code> 는 §1.1 <code>vm_port: 5173</code> 과 맞아 설계 영향 없음</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>e7b9508</code></div></td>
+  <td><div class="c">2026-08-13</div></td>
+  <td><div class="c">설계 영향 없음 — <code>package.json.template</code> 버전 값 · <code>project-detection.md</code> 한 줄이다. 이 문서는 템플릿 이름만 적는다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>928fd30</code></div></td>
+  <td><div class="c">2026-07-27</div></td>
+  <td><div class="c">고친 절: §2.1 트리 · §7 — <code>references/render-evidence-protocol.md</code> 추가</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>3b98054</code></div></td>
+  <td><div class="c">2026-04-24</div></td>
+  <td><div class="c">설계 영향 없음 — <code>common-gotchas.md</code> 에 G7~G10 을 더한 내용 변경이다. 파일 자리는 d0010b2 줄에서 트리에 넣었다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>d59cc5e</code></div></td>
+  <td><div class="c">2026-04-12</div></td>
+  <td><div class="c">설계 영향 없음 — <code>common-gotchas.md</code> 한 줄이다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>d0010b2</code></div></td>
+  <td><div class="c">2026-04-11</div></td>
+  <td><div class="c">고친 절: §2.1 트리 — 빠져 있던 <code>references/common-gotchas.md</code> 를 넣었다. 같은 커밋의 react-widget 틀 변경에 맞춰 §4 README 표 <code>/react-widget</code> 줄을 ref-as-prop 로</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>9a7c914</code></div></td>
+  <td><div class="c">2026-09-26</div></td>
+  <td><div class="c">(맡은 경로 밖, README 구조 확인) 고친 절: §4 Quickstart 의 따로 부르던 <code>/harness init</code> 을 뺐다 · §7 문장 — init 뒤 덮어 쓴다</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
 
-## 5. 에이전트 설계 가이드 연동
-
-`harness/docs/guides/agent-design-guide.md` (이 레포 내부 문서) 의 6개 디자인 패턴 중 `react-kit` 의 에이전트 3종이 사용하는 패턴:
-
-- **react-reviewer** — *Independent Reviewer* 패턴. 메인 Claude 컨텍스트 편향 배제를 위해 새 세션 spawn, 읽기 전용 도구로 판정만
-- **widget-inspector-react** — *Codebase Scanner* 패턴. 전체 스캔 → 리포트 → 사용자 승인 후 다른 스킬이 실행
-- **animation-architect-react** — *Design Consultant* 패턴. 자문 → 사용자 승인 → 스킬이 구현
-
-각 에이전트 파일은 `harness/create-agent` 스킬로 생성. 설계 가이드의 tool 스코핑, 모델 선택, description 작성법을 따름.
-
-## 6. 기존 플러그인과의 구조 일관성
-
-아래 구조 원칙을 flutter-toolkit / rust-kit 과 동일하게 유지:
-
-- **`.claude-plugin/plugin.json`**: 동일 필드 (name, description, version, author, repository, license, keywords)
-- **`skills/&lt;name&gt;/SKILL.md`**: frontmatter + process 구조, Gotchas 섹션 포함
-- **`agents/&lt;name&gt;.md`**: frontmatter (name, description, tools, model) + 본문
-- **`references/`, `templates/`, `evals/`**: 선택적이지만 react-kit 은 모두 사용
-- **README.md `&lt;!-- AUTO:xxx --&gt;` 마커**: `scripts/sync-docs.py` 가 자동 갱신할 수 있도록 같은 마커 사용
-
-한 가지 차이점: flutter-toolkit, rust-kit 은 `scripts/` 를 사용 안 하지만 react-kit 은 `project-detect.sh` 같은 bash 헬퍼를 둘 수 있음. 이는 스킬 내부 구현 선택.
-
-## 7. 스캐폴딩 시 생성되는 .harness/project.yaml 의 커스터마이징
-
-`/react-init` 13 단계가 `/harness init` 을 먼저 부른 뒤, `templates/harness-project.yaml.template` (§1.1 전체) 로 사용자 프로젝트의 `.harness/project.yaml` 을 덮어 쓴다. 화면 · 모션 증거 규약은 `react-kit/references/render-evidence-protocol.md` 다. 사용자는 필요 시 수정 가능 (예: `runtime_inspection.vm_port` 를 다른 포트로, 특정 anti_pattern 을 disable).
-
-## 현행화 기록
-
-2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(`react-kit/references` · `templates` · `scripts`)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
-
-| 커밋 | 날짜 | 이 문서에 준 영향 |
-| --- | --- | --- |
-| `001c900` | 2026-09-25 | 고친 절: §2.1 트리 — `evals/scripts/project-detect-test.sh`, `scripts/project-detect.sh` 와 `references/project-detection.md` 관계 문장. `vite.config.template.ts` 의 `strictPort` 는 §1.1 `vm_port: 5173` 과 맞아 설계 영향 없음 |
-| `e7b9508` | 2026-08-13 | 설계 영향 없음 — `package.json.template` 버전 값 · `project-detection.md` 한 줄이다. 이 문서는 템플릿 이름만 적는다 |
-| `928fd30` | 2026-07-27 | 고친 절: §2.1 트리 · §7 — `references/render-evidence-protocol.md` 추가 |
-| `3b98054` | 2026-04-24 | 설계 영향 없음 — `common-gotchas.md` 에 G7~G10 을 더한 내용 변경이다. 파일 자리는 d0010b2 줄에서 트리에 넣었다 |
-| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — `common-gotchas.md` 한 줄이다 |
-| `d0010b2` | 2026-04-11 | 고친 절: §2.1 트리 — 빠져 있던 `references/common-gotchas.md` 를 넣었다. 같은 커밋의 react-widget 틀 변경에 맞춰 §4 README 표 `/react-widget` 줄을 ref-as-prop 로 |
-| `9a7c914` | 2026-09-26 | (맡은 경로 밖, README 구조 확인) 고친 절: §4 Quickstart 의 따로 부르던 `/harness init` 을 뺐다 · §7 문장 — init 뒤 덮어 쓴다 |
-
-## 8. 변경 이력
-
-- **2026-04-10** — 초판. react-kit 의 harness 통합, 플러그인 파일 구조, marketplace 등록, plugin.json, README 구조를 통합 명세. flutter-toolkit / rust-kit / harness 의 기존 플러그인 레이아웃과 100% 일관성 유지. 21 스킬 + 3 에이전트 모두 파일 경로 확정. scripts/release.sh 는 기존 패턴 재사용 (수정 불필요). 레포 docs/react/ vs react-kit/ 디렉토리 역할 구분 명시.
-- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.
-</code></pre></div>
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>8. 변경 이력</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-04-10</strong> — 초판. react-kit 의 harness 통합, 플러그인 파일 구조, marketplace 등록, plugin.json, README 구조를 통합 명세. flutter-toolkit / rust-kit / harness 의 기존 플러그인 레이아웃과 100% 일관성 유지. 21 스킬 + 3 에이전트 모두 파일 경로 확정. scripts/release.sh 는 기존 패턴 재사용 (수정 불필요). 레포 docs/react/ vs react-kit/ 디렉토리 역할 구분 명시.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-09-26</strong> — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.</div></li>
+</ul>
   </div>
 </section>
 
