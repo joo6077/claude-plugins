@@ -4,7 +4,7 @@ slug: after-0926-docs-new-pages-2
 created: "2026-09-27 16:46"
 complexity: "복잡"
 conditions: 26
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:3536904c066d26d5
 measurement_digest: sha256:1a7c2175c3f905a3
