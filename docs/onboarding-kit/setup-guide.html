@@ -63,6 +63,7 @@
     border-bottom:1px dashed var(--accent);padding:4px 0;align-self:flex-start}
   .card-source:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
   a:focus-visible{outline:2px solid var(--accent2);outline-offset:4px;border-radius:4px}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
     font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
@@ -109,7 +110,6 @@
   .metric-label{font-size:13px;color:var(--text2)}
   @media(max-width:720px){.compare{grid-template-columns:1fr}}
   @media(max-width:600px){.grid-2,.grid-3,.grid-4,.compare{grid-template-columns:1fr}.page{padding:20px}}
-  @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -223,6 +223,7 @@
           <tr><td><span class="badge badge-info">G2_MARKER</span></td><td>미검증 마커</td><td>접미 없는 레거시 0건, INVALID 2건 이상이면 FAIL, ENV는 별도 집계. 2는 이 킷의 새 임계가 아니라 현재 정본을 그대로 구현한 값이다.</td></tr>
           <tr><td><span class="badge badge-info">G3_STACKMIX</span></td><td>스택 혼용</td><td>스택 인자 필수. Flutter 가이드의 Swift 코드 fence를 실패 처리</td></tr>
           <tr><td><span class="badge badge-info">G4_DEPRECATION</span></td><td>deprecated 주장 결합</td><td>Deprecated 박스가 있는 Step의 출처 줄에 근거 토큰 필요</td></tr>
+          <tr><td><span class="badge badge-info">G5_BLOCKING</span></td><td>막는 요구 세 칸</td><td><code>| 요구 | 출처 | 막히는 것 | 우회 |</code> 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다. 표가 없으면 <code>PASS rows=0</code> 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9)</td></tr>
         </tbody>
       </table>
     </div>
@@ -237,6 +238,7 @@ G1_LEDGER ...
 G2_MARKER ...
 G3_STACKMIX ...
 G4_DEPRECATION ...
+G5_BLOCKING ...
 GATE_PASS</code></pre>
     <h3>함수 원문</h3>
     <p class="desc">원본 <code>onboarding-kit/skills/setup-guide/SKILL.md</code> 의 함수를 그대로 옮겼다. 게이트를 고칠 때는 원본을 먼저 고친다.</p>
@@ -311,15 +313,39 @@ guide_gate() {
     echo "G4_DEPRECATION PASS unsourced_boxes=0"
   fi
 
+  # G5 막는 요구 세 칸 — `| 요구 | 출처 | 막히는 것 | 우회 |` 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다.
+  #    표가 없으면 PASS rows=0 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9).
+  blk=$(awk '
+    function trim(text){ gsub(/^[ \t]+|[ \t]+$/, "", text); return text }
+    /^\|/ {
+      row=$(0); sub(/^\|/, "", row); sub(/\|[ \t]*$/, "", row)
+      ncell=split(row, cell, "|")
+      for (i=1; i&lt;=ncell; i++) cell[i]=trim(cell[i])
+      if (ncell==4 &amp;&amp; cell[1]=="요구" &amp;&amp; cell[2]=="출처" &amp;&amp; cell[3]=="막히는 것" &amp;&amp; cell[4]=="우회") { in_table=1; next }
+      if (!in_table || row ~ /^[ \t:|-]+$/) next
+      rows++
+      if (ncell!=4 || cell[1]=="" || cell[2]=="" || cell[3]=="" || cell[4]=="") empty++
+      if (cell[2] !~ /http/) nourl++
+      next
+    }
+    { in_table=0 }
+    END { print rows+0, empty+0, nourl+0 }
+  ' "$g")
+  blk_rows=${blk%% *}; blk_rest=${blk#* }; blk_empty=${blk_rest%% *}; blk_nourl=${blk_rest#* }
+  if [ "$blk_empty" -ne 0 ] || [ "$blk_nourl" -ne 0 ]; then
+    echo "G5_BLOCKING FAIL rows=$blk_rows empty=$blk_empty nourl=$blk_nourl"; fail=1
+  else
+    echo "G5_BLOCKING PASS rows=$blk_rows"
+  fi
   [ "$fail" -eq 0 ] &amp;&amp; echo GATE_PASS || echo GATE_FAIL
 }</code></pre>
     <ul class="checklist">
-      <li><span class="check">!</span><div>게이트 출력 5줄을 보고에 그대로 붙인다. “통과함”이라는 문장은 증거가 아니다.</div></li>
-      <li><span class="check">!</span><div>G3는 스택 인자가 비어 있으면 FAIL이다. 판정 불가를 PASS로 흘리지 않는다.</div></li>
-      <li><span class="check">!</span><div><code>GATE_FAIL</code>이면 완료 보고를 중단하고 수정한 뒤 다시 실행한다.</div></li>
-      <li><span class="check">!</span><div>게이트를 우회하거나 느슨하게 바꾸지 않는다. 정당한 케이스를 막으면 사용자 판단을 받는다.</div></li>
-      <li><span class="check">!</span><div>함수를 바꿨다면 <code>sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh</code>가 <code>EVALS_PASS</code>로 끝나야 한다.</div></li>
-      <li><span class="check">!</span><div>게이트가 잡는 것은 네 가지뿐이다. 사실 정확성·스코프·경로 날조는 별도 검증한다.</div></li>
+      <li><span class="check">!</span><div><strong>게이트 출력을 그대로 보고에 붙여라.</strong> "게이트 통과함" 이라는 문장은 증거가 아니다 — <code>GATE_PASS</code> 를 포함한 6 줄 출력이 증거다.</div></li>
+      <li><span class="check">!</span><div><strong>G3 는 스택 인자가 없으면 <code>FAIL</code> 이다.</strong> 스택을 모르면 혼용을 판정할 수 없고, 판정할 수 없는 것을 PASS 로 흘리는 것이 no-op 게이트의 정체다. 스택은 Phase 1 에서 확정한 값을 넘긴다.</div></li>
+      <li><span class="check">!</span><div><code>GATE_FAIL</code> 이면 완료 보고를 하지 마라. 고치고 다시 돌린다.</div></li>
+      <li><span class="check">!</span><div><strong>게이트를 우회하거나 조건을 느슨하게 고치지 마라.</strong> 우회된 게이트는 없는 게이트보다 나쁘다. 게이트가 정당한 케이스를 막는다고 판단되면 그 사실을 사용자에게 보고하고 판단을 받는다.</div></li>
+      <li><span class="check">!</span><div><strong>게이트 함수를 고쳤으면 <code>sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh</code> 가 <code>EVALS_PASS</code> 로 끝나야 한다.</strong> 이 스크립트는 SKILL.md 에서 함수를 그대로 뽑아 <code>evals/evals.json</code> 의 <code>gate_cases</code> 입력마다 zsh · bash 두 셸의 출력을 기대 출력 전체와 대조한다. 판정이 바뀌는 수정이면 기대 출력도 같은 커밋에서 고친다.</div></li>
+      <li><span class="check">!</span><div>게이트가 잡는 것은 <strong>기계로 판정 가능한 5 가지</strong>뿐이다. 사실 정확성·스코프·경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다 (단일 게이트는 보장이 아니다).</div></li>
     </ul>
   </section>
 
@@ -328,7 +354,7 @@ guide_gate() {
     <div class="section-label" id="gotchas-title">Gotchas (반복 실수 방지)</div>
     <p class="desc">반복 실패를 막는 9개 체크다. 서비스 절차뿐 아니라 스택, 공개 문서의 한계, 범위, 저장소 근거, 비밀 보호까지 통제한다.</p>
     <ul class="checklist">
-      <li><span class="check">1</span><div><strong>스택 확정 없이 작성 금지.</strong> Flutter·네이티브 iOS·React Native·Node 백엔드는 SDK, 초기화 코드, CLI가 다르다. 탐지 실패 시 명시적으로 묻는다.</div></li>
+      <li><span class="check">1</span><div><strong>스택 확정 없이 작성 금지.</strong> Flutter·네이티브 iOS·React Native·Node 백엔드는 SDK, 초기화 코드, CLI가 다르다. 탐지 실패 시 명시적으로 묻는다.<br>iOS Firebase SDK 설치 방식도 스택마다 갈린다.<br>· 네이티브 Apple 가이드는 Swift Package Manager 로 안내한다 — 공식 문서가 새 프로젝트에 SPM 을 쓰라 하고, CocoaPods 는 폐기 예정이며 Firebase 12 가 CocoaPods 로 나오는 마지막 major 라고 적었다. 폐기 날짜는 원문에 없다 (<a href="https://firebase.google.com/docs/ios/setup">https://firebase.google.com/docs/ios/setup</a>, 조회 2026-09-26)<br>· Flutter 가이드는 FlutterFire 절차를 따르고, 위 문서를 근거로 그 절차의 CocoaPods 단계를 SPM 으로 바꾸지 않는다 — 위 문서는 Apple 네이티브 범위라 FlutterFire 가 무엇으로 설치하는지 말하지 않는다</div></li>
       <li><span class="check">2</span><div><strong>로그인 뒤 콘솔 화면은 검증 불가.</strong> 공개 문서에 적힌 라벨만 인용하고 버튼 단위 흐름을 단정하지 않는다. 화면 차이 안내와 상위 섹션 검색어를 남긴다.</div></li>
       <li><span class="check">3</span><div><strong>Apple 사이트는 작업별로 나눈다.</strong> 키·식별자 발급은 Developer Account, 앱 레코드와 배포는 App Store Connect다. GCP/Firebase와 AWS Console/Marketplace도 구분한다.</div></li>
       <li><span class="check">4</span><div><strong>글로벌 유니크 식별자 충돌.</strong> Bundle ID, Package Name, Project ID의 “not available” 해결책으로 조직·도메인의 reverse prefix를 안내한다.</div></li>
@@ -461,13 +487,13 @@ done</code></pre>
       <div class="step-where">Phase 4</div>
       <div class="step-title">검증 + 완료 안내</div>
       <ol>
-        <li>Guide Conformance Gate를 먼저 실행하고 5줄 출력을 그대로 보고한다.</li>
-        <li>프로젝트 경로와 env 키를 Glob/Grep 실측 근거와 대조한다.</li>
-        <li>외부 URL이 공식 도메인이며 현재 canonical host인지 확인한다.</li>
-        <li>11개 포맷 섹션 누락을 확인한다.</li>
-        <li>막는 요구마다 출처·막히는 것·우회 세 칸을 확인한다.</li>
-        <li>G2의 <code>bare</code>·<code>invalid</code>·<code>env</code> 숫자를 그대로 보고한다.</li>
-        <li>파일 경로, “막히는 부분 알려주세요”, 코드 지원, 콘솔 화면 차이를 안내한다.</li>
+        <li><strong>Guide Conformance Gate 실행 (E3 · 먼저 한다)</strong> — <code>guide_gate &lt;생성한 가이드&gt; &lt;스택&gt;</code> 을 돌리고 <strong>출력 6 줄을 보고에 그대로 붙인다.</strong> <code>GATE_FAIL</code> 이면 완료 보고를 하지 말고 고친 뒤 다시 돌린다. 이 게이트가 G1(출처 원장 완전성) · G2(마커 분류/임계) · G3(스택 혼용) · G4(deprecation 근거 결합) · G5(막는 요구 세 칸) 를 기계적으로 판정한다.</li>
+        <li><strong>레포 근거 대조</strong> — 가이드에 등장하는 프로젝트 내부 경로·env 키가 전부 Glob/Grep 실측 근거를 갖는지 확인 (Gotcha 8). 근거 없는 항목은 제거하거나 "새로 생성" 으로 고친다.</li>
+        <li>생성된 가이드의 모든 외부 URL이 공식 도메인인지 + <strong>그 시점 canonical host</strong> 인지 확인 (<code>references/search-strategy.md</code>)</li>
+        <li>11개 섹션 누락 확인</li>
+        <li><strong>막는 요구 세 칸 확인</strong> — 칸이 비었거나 출처 칸에 주소가 없는 행은 게이트 G5 가 잡는다. 사람은 그 출처가 그 요구를 실제로 말하는지 본다 (Gotcha 9). 출처가 요구하지 않는 요구는 지운다</li>
+        <li><strong>마커 집계 보고</strong> — 게이트 G2 가 낸 <code>bare</code> / <code>invalid</code> / <code>env</code> 세 숫자를 그대로 쓴다. <code>invalid</code> 에 대한 건수별 판정은 정본(<code>harness/docs/guides/qa-evaluation-guide.md</code> §카운팅 및 자동 REJECT 임계)을 그대로 적용하고 <strong>여기서 숫자를 재정의하지 않는다.</strong> <code>env</code> 는 임계에 합산하지 않고 검증 커버리지로 따로 보고한다.</li>
+        <li>사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내. <strong>콘솔 라벨은 공개 문서 기준이며 로그인 뒤 화면과 다를 수 있다</strong>는 점을 함께 알린다 (Gotcha 2).</li>
       </ol>
     </div>
   </section>
@@ -482,9 +508,9 @@ done</code></pre>
           <tr><td><strong>2~3년</strong></td><td>연도 없는 검색에서 오래된 결과가 상위 노출될 수 있는 범위</td><td>현재 연도 포함</td></tr>
           <tr><td><strong>4단계</strong></td><td>Fetch 실패 시 fallback 사다리</td><td>ENV 근거</td></tr>
           <tr><td><strong>4요건</strong></td><td>ENV 근거: 시도·fallback·출력·통제 밖 사유와 재검증</td><td>하나라도 없으면 INVALID</td></tr>
-          <tr><td><strong>4개</strong></td><td>G1~G4 결정론적 검사</td><td>나머지는 별도 검증</td></tr>
+          <tr><td><strong>5개</strong></td><td>G1~G5 결정론적 검사</td><td>나머지는 별도 검증</td></tr>
           <tr><td><strong>2건 이상</strong></td><td>현재 정본을 구현한 INVALID 실패 조건</td><td>이 킷에서 독립적으로 재정의하지 않음</td></tr>
-          <tr><td><strong>5줄</strong></td><td>G1~G4와 최종 판정 출력</td><td>보고에 원문 첨부</td></tr>
+          <tr><td><strong>6줄</strong></td><td>G1~G5와 최종 판정 출력</td><td>보고에 원문 첨부</td></tr>
           <tr><td><strong>6개 중 3개</strong></td><td>2026-08-13 쇼케이스 eval 위반 실측</td><td>소급 게이트 근거</td></tr>
           <tr><td><strong>3개월</strong></td><td>위반 상태가 배포된 기간</td><td>Drift 검사 필요</td></tr>
           <tr><td><strong>0/8</strong></td><td>문제가 된 쇼케이스의 Step 대비 출처 원장</td><td>Step별 출처</td></tr>
@@ -516,7 +542,7 @@ done</code></pre>
           <li>공개 문서의 상위 섹션만 확정하고 차이 고지</li>
           <li>주장 강도를 1차 출처와 정확히 맞춤</li>
           <li>스택 확정 후 해당 스택 코드만 제공</li>
-          <li>G1~G4와 GATE_PASS 5줄 첨부</li>
+          <li>G1~G5와 GATE_PASS 6줄 첨부</li>
           <li>기존 파일에 게이트부터 실행</li>
         </ul>
       </div>
@@ -559,7 +585,7 @@ done</code></pre>
       <li><span class="check">✓</span><div>기존 가이드가 있다면 drift 게이트를 먼저 실행했다.</div></li>
       <li><span class="check">✓</span><div>외부 URL이 공식 도메인과 최종 canonical host를 사용한다.</div></li>
       <li><span class="check">✓</span><div>11개 섹션을 확인했고 해당 없는 내용을 날조하지 않았다.</div></li>
-      <li><span class="check">✓</span><div>G1~G4와 최종 판정 5줄, <code>bare</code>·<code>invalid</code>·<code>env</code>를 보고한다.</div></li>
+      <li><span class="check">✓</span><div>G1~G5와 최종 판정 6줄, <code>bare</code>·<code>invalid</code>·<code>env</code>를 보고한다.</div></li>
     </ul>
   </section>
 

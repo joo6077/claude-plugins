@@ -201,11 +201,6 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.9em
   .card{padding:22px}
   .checklist{padding:8px 18px}
 }
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  .card,.feat-card{transition:opacity .2s ease}
-  .feat-card:hover{transform:none}
-}
 </style>
 </head>
 <body>
@@ -623,7 +618,7 @@ test.describe('Scoped visual change — 대상만 변하고 주변은 불변', (
   <div class="section-label">Step 5-b · 조건부</div>
   <h2 class="section-title" id="step5b-title">결정 전파 테스트 생성</h2>
   <p class="section-desc"><code>.design/decisions.yaml</code>이 있을 때만 실행합니다. manifest 가 없으면 이 단계를 건너뛰되 "해당 없음" 이 아니라 "manifest 부재" 로 보고합니다 — 체커가 <code>NO_MANIFEST</code> + exit 3 을 내는 이유와 같습니다. 대상 0 건과 통과는 다릅니다.</p>
-  <p class="section-desc">manifest 가 있으면 <code>decision_id</code> 마다 <code>required_surfaces[]</code> 를 순회하며 surface 당 테스트 1 개를 생성합니다. 스키마와 커버리지 규칙 4 조는 <code>../../references/visual-change-protocol.md</code> §6 이 정본이며 여기서 재정의하지 않습니다. 생성 규칙은 셋입니다.</p>
+  <p class="section-desc">manifest 가 있으면 <code>status: approved</code> 인 <code>decision_id</code> 마다 <code>required_surfaces[]</code> 를 순회하며 surface 당 테스트 1 개를 생성한다. <code>status: superseded</code>(대체됨) 결정은 테스트를 만들지 않는다 — 그 화면 자리는 <code>superseded_by</code> 가 가리키는 <code>approved</code> 결정이 받는다. 스키마와 커버리지 규칙 4 조는 <code>../../references/visual-change-protocol.md</code> §6 이 정본이며 여기서 재정의하지 않는다. 생성 규칙은 셋이다.</p>
   <div class="grid-3 mb-32">
     <div class="card">
       <div class="card-title"><span class="step-num">1</span>셋업</div>
