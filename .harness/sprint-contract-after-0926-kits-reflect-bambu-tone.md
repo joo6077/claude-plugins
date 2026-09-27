@@ -4,11 +4,13 @@ slug: after-0926-kits-reflect-bambu-tone
 created: "2026-09-27 10:19"
 complexity: "복잡"
 conditions: 32
-status: active
+status: superseded
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:94c9205998801dd1
 locked_at: "2026-09-27 10:31"
 ---
+
+2 회차 계약: sprint-contract-after-0926-kits-reflect-bambu-tone-r2.md
 
 ## 배경
 
