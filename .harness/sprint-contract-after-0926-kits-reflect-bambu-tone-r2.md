@@ -4,7 +4,7 @@ slug: after-0926-kits-reflect-bambu-tone-r2
 created: "2026-09-27 12:15"
 complexity: "복잡"
 conditions: 32
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:9ee4c5cccc722588
 measurement_digest: sha256:69bb247ef8d5b16a
