@@ -400,7 +400,29 @@ claude-plugins/
 │   └── skills/bambu-print-profile/
 │       ├── SKILL.md
 │       ├── BACKLOG.md           # v2 카이젠/capture daemon 백로그
-│       └── references/          # 4종 (fields-baseline/materials/seam-recipes/kaizen-sources)
+│       └── references/          # 9종 (fields-baseline/materials/seam·surface·failure-recipes 등)
+├── onboarding-kit/              # 외부 서비스 셋업 가이드
+│   ├── .claude-plugin/plugin.json
+│   └── skills/
+├── tone-kit/                    # 코딩 톤·유지보수성 게이트
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── references/
+│   ├── templates/
+│   └── evals/
+├── api-kit/                     # 블랙박스 API 계약 검증
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── agents/
+│   ├── references/
+│   └── evals/
+├── howto-kit/                   # 사람이 손으로 하는 절차 안내
+│   ├── .claude-plugin/plugin.json
+│   ├── skills/
+│   ├── agents/
+│   ├── references/
+│   ├── scripts/
+│   └── evals/
 ├── docs/                        # 설계 가이드, 리서치, HTML 시각 문서, 카이젠 로그
 ├── scripts/
 │   ├── release.sh               # 플러그인 버전 bump + tag + push 자동화
