@@ -82,3 +82,4 @@ no docs drift since 6378948
 - `.claude/skills/bambu-research/SKILL.md` description · Gotcha 5 의 「references 4종」 — 이 항목(VS-20)이 가리킨 문구가 아니라 두었다. 실제 수는 9 다
 - 시각 변경 규약 세 파일의 절 이름 차이(편집 전 확정은 design 에만, 비교 반복 순서는 design · react 에만) — 형제 표 행이 대조 대상으로 적었을 뿐 킷 문서는 고치지 않았다
 - 판 올림 — 킷 폴더 변경이 없어 해당 없음. 릴리스는 부모
+- 옛 단계 이름 「Step 11 · 11.5」 가 두 곳에 더 남았다 — `.claude/skills/meta-kaizen/SKILL.md:16`(수정 허용 절 목록) · `scripts/detect-docs-drift.py:8`(머리 설명). 이 묶음의 바뀐 파일 14 개 밖이라(AR-01) 두었다. 각각 `Step F1 · F2 · F3 · F4` 로 바꾸면 된다
