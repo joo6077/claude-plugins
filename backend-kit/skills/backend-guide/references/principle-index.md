@@ -7,7 +7,7 @@
 ## Fundamentals
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | Architecture (Hexagonal / Clean / DDD) | ../../../../docs/backend/fundamentals/api-design.md (TBD — `/backend-research` Phase에서 `docs/backend/patterns/architecture.md` 신설 예정) |
 | API Design | ../../../../docs/backend/fundamentals/api-design.md |
 | Contract Counterpart (빈 상태 상태코드 · timestamp 직렬화 · 소비면 열거) | ../../../../docs/backend/fundamentals/api-design.md + ../../../../docs/backend/fundamentals/testing.md (Pact provider verification) |
@@ -20,7 +20,7 @@
 ## Patterns
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | Caching | ../../../../docs/backend/patterns/caching.md |
 | Event-Driven Architecture | ../../../../docs/backend/patterns/event-driven.md |
 | Resilience (Circuit Breaker + Rate Limiter) | ../../../../docs/backend/patterns/resilience.md (TBD) |
@@ -30,7 +30,7 @@
 ## Protocols
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | API Lifecycle | ../../../../docs/backend/protocols/api-lifecycle.md |
 | GraphQL (+ Federation + gRPC hybrid) | ../../../../docs/backend/protocols/graphql.md |
 | gRPC | ../../../../docs/backend/protocols/grpc.md |
@@ -39,7 +39,7 @@
 ## Modern Stacks
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | Architecture Decision (Modular Monolith First) | ../../../../docs/backend/stacks/architecture-decision.md (TBD) |
 | Serverless & Edge (Cold Start, Hono, Workers) | ../../../../docs/backend/stacks/serverless-edge.md (TBD) |
 | Workflow Engines (Temporal, Dapr) | ../../../../docs/backend/stacks/workflow-engines.md (TBD) |

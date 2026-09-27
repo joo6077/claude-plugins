@@ -57,7 +57,7 @@ Architecture 카테고리는 단순 CRUD 앱에 Hexagonal/DDD를 강요하는 �
 표 row 는 카테고리가 아니라 **개별 rule** 단위다 (Rule-by-Rule Audit). 미검증 항목은 `[미검증:ENV]` 또는 `[미검증:INVALID]` 와 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 근거 열에 적는다 — 네 칸은 §`UNVERIFIED_ENV` 남용 방지 4 요건을 채우는 형태이고, 하나라도 비면 `INVALID` 다.
 
 | # | 카테고리 | Rule | 판정 | 파일:라인 | 근거 | 출처 |
-|---|----------|------|------|-----------|------|------|
+| --- | ---------- | ------ | ------ | ----------- | ------ | ------ |
 | 1 | Architecture | 도메인-persistence 분리 | PASS/FAIL | `src/domain/user.py:1-40` | SQLAlchemy 애노테이션 부재 | [Vaadin DDD+Hex](https://vaadin.com/blog/ddd-part-3-domain-driven-design-and-the-hexagonal-architecture) |
 | 2 | Auth | OAuth 2.1 PKCE 필수 | PASS/FAIL | `src/auth/oauth.py:15` | PKCE code_verifier 생성 확인 | [OAuth 2.1 draft-16](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) |
 | 3 | Database | 경합 가드 적합성 (invariant 분류) | PASS/FAIL | `src/service/order.py:88` | invariant=A(같은 row 상태 전이) / primitive=조건부 UPDATE + 영향 행 0 → conflict | [PostgreSQL Transaction Isolation](https://www.postgresql.org/docs/current/transaction-iso.html) |
