@@ -42,6 +42,7 @@ Axum + Tokio + SQLx 기반 Rust 백엔드 프로젝트의 스캐폴딩, API 생�
 `docs/rust/` 디렉토리에 20개 원칙 문서가 있으며, 모든 스킬이 이를 SSOT로 참조한다.
 
 ### fundamentals
+
 - **소유권과 빌림** — ownership, borrowing, lifetime, clone 회피
 - **에러 처리** — thiserror, anyhow, Result 패턴, 에러 계층화
 - **비동기/동시성** — Tokio, async/await, spawn, 동시성 프리미티브
@@ -51,22 +52,26 @@ Axum + Tokio + SQLx 기반 Rust 백엔드 프로젝트의 스캐폴딩, API 생�
 - **헥사고날 아키텍처** — Ports & Adapters, trait 기반 포트, 어댑터 교체 패턴
 
 ### web
+
 - **Axum 패턴** — Router, State, Extractor, IntoResponse
 - **미들웨어** — tower 레이어, tower-http, 미들웨어 순서
 - **인증** — JWT, OAuth, Bearer 토큰, Claims
 - **OpenAPI** — utoipa, Swagger UI, 스키마 자동 생성
 
 ### data
+
 - **SQLx 패턴** — query_as!, FromRow, 타입 매핑, 트랜잭션
 - **마이그레이션** — sqlx migrate, 오프라인 모드
 - **캐싱** — Redis, in-memory 캐시, 캐시 전략
 
 ### protocols
+
 - **gRPC** — tonic, proto 정의, streaming
 - **GraphQL** — async-graphql, schema, dataloader
 - **실시간** — WebSocket, SSE
 
 ### ops
+
 - **Docker** — cargo-chef, 멀티스테이지 빌드, compose
 - **CI/CD** — GitHub Actions, 캐시 전략, 배포 파이프라인
 - **관측성** — tracing, metrics, structured logging

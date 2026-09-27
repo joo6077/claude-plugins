@@ -14,9 +14,17 @@ user-invocable: true
 1. **build 없이 clippy만 실행하지 않는다** — build가 선행되어야 clippy가 증분 분석을 제대로 수행한다.
 2. **실패 시 즉시 중단** — build 실패 시 clippy를 실행하지 않는다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **workspace 루트에서 단일 크레이트 명령을 실행하지 마라** — `cargo build`를 workspace 루트에서 실행하면 모든 멤버가 빌드된다. 특정 크레이트만 빌드하려면 `cargo build -p crate-name`을 사용하라.
 - **clippy 경고를 무시하고 빌드 성공만 보고하지 마라** — `cargo clippy -- -D warnings`로 경고를 에러로 승격시켜야 CI와 동일한 기준이 된다. 빌드 성공 ≠ 품질 통과다.
@@ -45,10 +53,14 @@ rust-run clippy를 실행한다.
 ## 3. 결과 리포트
 
 | Step | Status | Details |
-|------|--------|---------|
+| --- | --- | --- |
 | build | {PASS/FAIL} | {상세} |
 | clippy | {PASS/FAIL} | {상세} |
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md

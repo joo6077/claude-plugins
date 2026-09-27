@@ -26,9 +26,17 @@ user-invocable: true
 9. **Enumerate-before-Act (skill-design-guide §5.5)** — 프로젝트 스캐폴딩 전에 사용자에게 (a) 아키텍처 선택지 3 개(workspace_service / modular / flat), (b) 의존성 체크리스트(ORM / OpenAPI / 인증 / i18n / 관측성), (c) 디렉토리 레이아웃 diff 를 먼저 **모두 열거**하고 합의한 뒤에만 파일을 생성한다. 일부만 보여주고 중간에 선택을 바꾸면 migration 비용이 크다.
 10. **Sibling Consistency (skill-design-guide §8.8) — rust-init · rust-feature · rust-service · rust-api** — 4 스킬 모두 "Composition Root 단일화" + "Consumer-Owned Port" + "Domain event + outbox" + "포트에서 인프라 타입 제거" 4 원칙을 동일 문구·동일 출처(실사용 프로젝트의 서버 규칙) 로 유지한다. 한 스킬에서만 수정되면 드리프트가 발생하므로 카이젠 시 Grep 대조 필수. 프로젝트 스캐폴딩 단계에서 이 4 원칙이 기본 가드레일로 `modules/*/port.rs` 스켈레톤에 포함되도록 한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **rust-toolchain.toml의 channel을 nightly로 설정하지 마라** — 특별한 이유(async trait, GAT 등 nightly-only 기능) 없이 nightly를 기본으로 하면 빌드 재현성이 깨진다. `stable` 또는 특정 버전(`1.77.0`)을 사용하라.
 - **edition을 2021 미만으로 설정하지 마라** — 2024년 이후 프로젝트에서 edition 2018을 쓸 이유가 없다. `edition = "2021"` 이상을 사용하라. resolver도 자동으로 "2"가 된다.
@@ -50,7 +58,7 @@ user-invocable: true
 사용자에게 아키텍처를 제안한다:
 
 | 아키텍처 | 적합 규모 | 특징 |
-|----------|----------|------|
+| ---------- | ---------- | ------ |
 | `workspace_service` (권장) | 중~대규모 | crates/api + domain + infra 분리. ports/adapters hexagonal 기본 포함 |
 | `modular` | 소~중규모 | 단일 크레이트 내 모듈 분리. ports/adapters hexagonal 기본 포함 |
 | `flat` | 프로토타입/소규모 | src/main.rs + lib.rs |
@@ -118,7 +126,7 @@ user-invocable: true
     └── telemetry/
 ```
 
-**참고** — 이 레이아웃은 실사용 프로젝트의 서버 구조(apps/api + apps/worker + modules/* + shared/*)를 기반으로 한다. 기존 `crates/api + crates/domain + crates/infra` 레이아웃도 유효하나, 모듈 경계가 뚜렷한 중대규모 프로젝트에서는 `modules/*` 레이아웃이 의존 방향을 더 명확히 강제한다 (apps → modules ← shared).
+**참고** — 이 레이아웃은 실사용 프로젝트의 서버 구조(apps/api + apps/worker + modules/*+ shared/*)를 기반으로 한다. 기존 `crates/api + crates/domain + crates/infra` 레이아웃도 유효하나, 모듈 경계가 뚜렷한 중대규모 프로젝트에서는 `modules/*` 레이아웃이 의존 방향을 더 명확히 강제한다 (apps → modules ← shared).
 
 ### modular 구조
 
@@ -311,7 +319,11 @@ allow-git = []
    > - DB 모델 추가: `/rust-model`
    > - 인증 설정: `/rust-auth`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md
 - docs/rust/fundamentals/project-structure.md

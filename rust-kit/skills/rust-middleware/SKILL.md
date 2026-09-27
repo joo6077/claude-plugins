@@ -17,9 +17,17 @@ user-invocable: true
 5. **`from_fn`은 `State` extractor를 지원하지 않는다** — `middleware::from_fn` 클로저 안에서 `State(s): State<AppState>`를 뽑으면 컴파일 에러가 난다. 상태가 필요한 미들웨어는 반드시 **`middleware::from_fn_with_state(state, f)`**를 사용한다. Axum 0.7/0.8 마이그레이션에서 가장 흔한 "왜 State가 안 뽑히지?" 류 오류 포인트다.
 6. **`from_fn` 계열 extractor 순서 제약** — 미들웨어 함수 시그니처는 `FromRequestParts` extractor 0개 이상 + (선택) 하나의 `FromRequest` extractor + 마지막 인자 `Next` 순서여야 한다. 커스텀 extractor와 `Request`를 섞을 때 인자 순서가 틀리면 에러 메시지가 장황하고 원인 파악이 어렵다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
 
+<!-- markdownlint-enable MD025 -->
+
+<!-- markdownlint-disable MD024 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD024 -->
 
 - **미들웨어 적용 순서가 실행 순서와 반대임을 잊지 마라** — Axum에서 `.layer(A).layer(B)` 순서로 추가하면 요청은 B → A 순서로 통과한다. CORS를 인증보다 먼저 실행하려면 인증을 먼저 `.layer()`하고 CORS를 나중에 `.layer()`해야 한다.
 - **CORS preflight(OPTIONS)를 인증 미들웨어가 차단하지 않도록 하라** — 브라우저의 preflight 요청은 Authorization 헤더를 포함하지 않는다. 인증 미들웨어에서 OPTIONS 메서드를 예외 처리하거나, CORS 레이어를 인증 밖에 배치하라.
@@ -39,6 +47,7 @@ user-invocable: true
 ## 1. 미들웨어 종류 확인
 
 사용자에게 추가할 미들웨어를 확인한다:
+
 - **cors** — `CorsLayer` (tower-http)
 - **logging** — `TraceLayer` (tower-http) + tracing
 - **rate-limit** — 커스텀 레이어 또는 `governor` 크레이트
@@ -207,7 +216,11 @@ let protected = Router::new()
 > `cargo build`를 실행하여 미들웨어 등록이 올바른지 확인하세요.
 > tower-http features가 누락되면 컴파일 에러로 즉시 확인 가능합니다.
 
+<!-- markdownlint-disable MD025 -->
+
 # After Creation
+
+<!-- markdownlint-enable MD025 -->
 
 1. 생성/수정된 파일 목록을 출력한다.
 2. 다음 단계를 안내한다:
@@ -215,6 +228,10 @@ let protected = Router::new()
    > - 멀티 인스턴스 환경이면 rate limiter를 Redis 어댑터로 교체
    > - 미들웨어 테스트: `/rust-test`로 통합 테스트 생성
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/project-detection.md
