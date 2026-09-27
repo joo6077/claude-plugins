@@ -108,6 +108,17 @@ SOURCE_OVERRIDES: dict[str, list[str]] = {
         "docs/api-kit/multi-sample-pagination-variance.html",
         "docs/api-kit/contract-extraction-modes.html",
     ],
+    # 원본보다 페이지가 먼저 생겨 이름이 다르다. 새 이름으로 두 번째 페이지를 만들지 않고 기존 페이지와 짝짓는다 (dca DC-9)
+    "docs/howto/design-brief.md": ["docs/howto-kit/overview.html"],
+    "harness/references/feedback-schema.yaml": ["docs/harness/feedback-system.html"],
+    "docs/react/kit-design/final-integration.md": ["docs/react-kit/integration.html"],
+    "docs/react/kit-design/g1-scaffolding.md": ["docs/react-kit/scaffolding.html"],
+    "docs/react/kit-design/g2-state-data.md": ["docs/react-kit/state-data.html"],
+    "docs/react/kit-design/g3-performance.md": ["docs/react-kit/performance.html"],
+    "docs/react/kit-design/g4-quality.md": ["docs/react-kit/quality.html"],
+    "docs/react/kit-design/g5-ui-patterns.md": ["docs/react-kit/ui-patterns.html"],
+    "docs/react/kit-design/g5b-animation.md": ["docs/react-kit/animation.html"],
+    "docs/react/kit-design/g6-build-audit.md": ["docs/react-kit/build-audit.html"],
 }
 
 DOCS_SITE_SKILL = REPO_ROOT / ".claude/skills/docs-site/SKILL.md"
