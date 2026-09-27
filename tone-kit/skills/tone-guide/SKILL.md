@@ -57,7 +57,7 @@ user-invocable: true
 Step 1 결과에 따라 추가로 읽는다.
 
 | 조건 | 로드 |
-|---|---|
+| --- | --- |
 | 주석 언어가 한국어 | `../../references/locale-korean.md` |
 | 어댑터가 dart-flutter | `../../references/adapter-dart-flutter.md` |
 | 어댑터 없음 | 스택 고유 게이트 비활성. 코어만으로 진행하고 그 사실을 보고에 명시 |
@@ -85,6 +85,7 @@ Step 1 결과에 따라 추가로 읽는다.
 | N-07 | 2 | 위반 — path/to/file:12, path/to/file:31 |
 ```
 
+<!-- markdownlint-disable-next-line MD029 -->
 4. 위반이 있으면 고치고 다시 대조한다. 대조 없이 "규칙을 지켰다" 고 서술하는 것은 대조가 아니다.
 
 ### Step 6. meta-audit

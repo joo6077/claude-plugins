@@ -30,7 +30,11 @@ user-invocable: true
 14. **생성 리소스 ≠ 로컬 산출물** — 이 스킬이 생성하는 GitHub Issues/Milestones/Projects 는 **외부에 보이는 reversible 리소스**다. 로컬 `.planning/*.md` 산출물 생성과 달리 사용자/팀원이 즉시 관측하므로 dry-run + 승인 없이 실행 금지 (Gotcha 1 강화). 실패 시 이미 생성된 리소스는 자동 롤백 금지 — 목록만 보고하고 사용자가 수동 cleanup 결정하도록 둔다 (Gotcha 8).
 15. **sync-log 는 재실행 안전성 계약** — `.planning/sync-log-<date>.md` 에 생성된 모든 Issue URL + Milestone number + Project item id 를 기록. 다음 실행에서 이 로그를 먼저 읽어 중복 생성 방지 (Gotcha 2 강화). 로그 없이 재실행하면 같은 Epic 이 #100 / #200 / #300 으로 세 번 생성된다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 사전 확인
 
@@ -51,7 +55,7 @@ git remote get-url origin # 레포 추론
 매핑 근거: [GitHub Projects Best Practices](https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects), [About Issues](https://docs.github.com/articles/about-issues).
 
 | 기획 산출물 | GitHub 리소스 |
-|------------|---------------|
+| ------------ | --------------- |
 | PRD | Epic Issue (label: `epic`) |
 | Story | Child Issue (label: `story`, body 에 Epic reference) |
 | Priority(RICE/Kano) | Project v2 custom field |
@@ -96,6 +100,7 @@ git remote get-url origin # 레포 추론
 ## Step 4: Issue Body 템플릿
 
 ### Epic
+
 ```markdown
 <!-- planning-kit: epic -->
 
@@ -120,6 +125,7 @@ git remote get-url origin # 레포 추론
 ```
 
 ### Story
+
 ```markdown
 <!-- planning-kit: story -->
 Part of #<epic-number>
@@ -145,6 +151,7 @@ so that <benefit>.
 ## Step 5: 검증
 
 생성 후 확인:
+
 - `gh issue list --milestone <milestone>` 개수 일치
 - 각 Issue 에 label / body / milestone 반영
 - Project 에 추가됐는지 `gh project item-list`
@@ -158,12 +165,17 @@ so that <benefit>.
 - 개발 착수 → harness `/sprint-contract` (이슈 하나당 또는 Milestone 단위)
 - 구현 후 qa-evaluator REJECT 시 → 자동으로 Issue 에 코멘트 추가하는 후속 자동화 고려
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/github-integration.md` — Issues/Milestones/Projects v2 + gh CLI 패턴 + Linear 비교
 - GitHub CLI: `gh help issue` / `gh help project` — 실행 시점 버전 참조
 
 주요 1차 출처:
+
 - [GitHub Docs — Projects Best Practices](https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects)
 - [GitHub Docs — About Issues](https://docs.github.com/articles/about-issues)
 - [GitHub Docs — About Milestones](https://docs.github.com/en/enterprise-cloud@latest/issues/using-labels-and-milestones-to-track-work/about-milestones)

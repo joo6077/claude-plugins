@@ -5,7 +5,7 @@
 ## 의존성 파일 → 스택 매핑
 
 | 파일 (글로브 탐색) | 스택 | 비고 |
-|------------------|------|------|
+| ------------------ | ------ | ------ |
 | `pubspec.yaml` | Flutter / Dart | `flutter:` 키 존재 시 Flutter 확정 |
 | `Cargo.toml` | Rust | `[workspace]` 있으면 워크스페이스 |
 | `package.json` | Node.js / JS | `dependencies` 안의 `react`/`next`/`vue` 등으로 세분 |
@@ -29,7 +29,7 @@
 코드 안의 SDK 사용 흔적을 찾아 활성 서비스 목록 도출:
 
 | 서비스 | grep 패턴 |
-|--------|----------|
+| -------- | ---------- |
 | Firebase | `firebase_core`, `firebase_messaging`, `FirebaseApp.configure`, `import { initializeApp } from "firebase/app"` |
 | GCP | `google-cloud-`, `from google.cloud`, `GOOGLE_APPLICATION_CREDENTIALS` |
 | AWS | `boto3`, `aws-sdk`, `@aws-sdk/`, `import software.amazon.awssdk` |

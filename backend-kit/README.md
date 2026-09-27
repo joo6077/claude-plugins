@@ -9,7 +9,7 @@
 ## 스킬
 
 | 스킬 | 용도 |
-|------|------|
+| ------ | ------ |
 | `/backend-guide` | 백엔드 코드/설계에 대한 원칙 기반 가이드 (가벼운 리뷰) |
 | `/backend-audit` | 백엔드 코드를 카테고리별 PASS/FAIL로 체계적 감사 |
 | `/backend-system` | 프로젝트 백엔드 아키텍처 기반 세팅 (API 규격, 에러 처리 등) |
@@ -18,7 +18,7 @@
 ## 에이전트
 
 | 에이전트 | 용도 |
-|---------|------|
+| --- | --- |
 | `backend-reviewer` | backend-audit에서 호출하는 읽기 전용 독립 평가 에이전트 |
 
 ## 리서치 문서
@@ -26,6 +26,7 @@
 `docs/backend/` 디렉토리에 12개 원칙 문서가 있으며, 모든 스킬이 이를 SSOT(Single Source of Truth)로 참조한다.
 
 ### Fundamentals
+
 - **api-design** — REST 리소스 설계, HTTP 의미론, RFC 9457 에러, 페이지네이션
 - **database** — 스키마 설계, 인덱스, EXPLAIN, N+1, connection pooling, migration
 - **auth** — JWT/Session, OAuth 2.0/OIDC, RBAC/ABAC, 비밀번호 해싱, CORS/CSRF
@@ -34,10 +35,12 @@
 - **security** — OWASP Top 10, injection, XSS, 보안 헤더, PII 마스킹
 
 ### Patterns
+
 - **caching** — 캐시 계층, cache-aside/write-through, stampede, Redis/Memcached
 - **event-driven** — 메시지 큐 vs 스트리밍, outbox, saga, idempotency, CQRS
 
 ### Protocols
+
 - **api-lifecycle** — 버저닝, deprecation/sunset, rate limiting, idempotency key
 - **graphql** — 스키마 설계, DataLoader, demand control, federation, subscriptions
 - **grpc** — proto 계약, streaming, deadline, 구조화 에러, 헬스체크

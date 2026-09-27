@@ -7,7 +7,7 @@
 ## 1. Architecture
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 도메인-persistence 분리 | 도메인 엔티티와 DB 매핑 클래스가 분리되어 있다 (단일 엔티티로 DB 애노테이션·비즈니스 규칙 혼재 없음) | [Vaadin DDD+Hexagonal](https://vaadin.com/blog/ddd-part-3-domain-driven-design-and-the-hexagonal-architecture) |
 | Port / Adapter 경계 | 외부 시스템(DB, HTTP, MQ)은 어댑터 경계 뒤에 있고 도메인이 어댑터를 직접 import 하지 않는다 | [AWS Prescriptive Hexagonal](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html) |
 | 의존성 방향 inward-only | 외부 레이어가 내부 레이어에 의존하고 반대는 금지 (Clean Architecture의존성 규칙) | [Hexagonal vs Clean 2026](https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f) |
@@ -17,7 +17,7 @@
 ## 2. API Design
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | HTTP 메서드 의미론 | GET=safe, PUT=전체교체, PATCH=부분수정 | [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110) |
 | 에러 응답 포맷 | application/problem+json (RFC 9457) — `type` URI로 문제 유형 식별, `title`/`status`/`detail`/`instance` 까지 다섯 필드를 넣는다. 다섯 필드를 모두 넣는 것은 이 킷 규칙(`api-design.md` 원칙 3)이다 — RFC 9457 은 `type` 이 없으면 `about:blank` 로 보므로 누락을 RFC 위반으로 적지 않는다. 커스텀 확장 필드 허용 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), [Swagger RFC 9457](https://swagger.io/blog/problem-details-rfc9457-doing-api-errors-well/) |
 | 페이지네이션 | 대량 목록에 cursor/keyset 사용 | [Slack Engineering — Evolving Pagination](https://slack.engineering/evolving-api-pagination-at-slack/) |
@@ -32,7 +32,7 @@
 ## 3. Database
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | N+1 부재 | 루프 내 개별 쿼리 없음 | PostgreSQL docs |
 | 인덱스 존재 | WHERE/JOIN 컬럼에 적절한 인덱스 | PostgreSQL indexes |
 | Connection pooling | 풀링 설정 존재 (HikariCP/PgBouncer) | HikariCP docs |
@@ -45,7 +45,7 @@
 ## 4. Authentication & Authorization
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 비밀번호 해싱 | bcrypt(12+) 또는 Argon2id | OWASP |
 | 토큰 저장 | JWT를 localStorage에 미저장 (XSS 탈취 방지) | OWASP Session |
 | CORS 설정 | 와일드카드(*) + credentials 미사용 | MDN CORS |
@@ -59,7 +59,7 @@
 ## 5. Error Handling
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 글로벌 핸들러 | 표준 에러 포맷(RFC 9457 problem+json)으로 변환. `type` URI 필드로 에러 문서 자동 연결 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), [Swagger RFC 9457](https://swagger.io/blog/problem-details-rfc9457-doing-api-errors-well/) |
 | 스택트레이스 미노출 | 프로덕션 에러에 내부 정보 없음 | OWASP |
 | Retry 전략 | exponential backoff + jitter | AWS Architecture |
@@ -69,7 +69,7 @@
 ## 6. Security
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | Injection 방어 | 파라미터화된 쿼리 | OWASP Top 10 |
 | XSS 방어 | 출력 인코딩 + CSP | OWASP XSS |
 | 보안 헤더 | HSTS, X-Content-Type-Options, CSP | OWASP Headers |
@@ -79,7 +79,7 @@
 ## 7. Caching
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | TTL 존재 | 모든 캐시 키에 TTL 설정 | Redis docs |
 | Stampede 방지 | 인기 키에 lock/early expiry | Cloudflare |
 | 무효화 전략 | TTL만이 아닌 이벤트 기반 | Azure Architecture |
@@ -87,7 +87,7 @@
 ## 8. Event-Driven
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | Idempotency | consumer에 중복 처리 방어 (dedupe key, per-aggregate sequence) | Stripe |
 | DLQ 존재 | 실패 메시지 격리 경로 | AWS SQS |
 | 이중쓰기 방지 | outbox 패턴 또는 동등한 원자성 | [microservices.io Outbox](https://microservices.io/patterns/data/transactional-outbox.html) |
@@ -100,7 +100,7 @@
 ## 9. Testing
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 테스트 존재 | 핵심 로직에 단위 테스트 | Google Testing Blog |
 | DB 테스트 | 실제 DB (Testcontainers 등) | Testcontainers |
 | Contract test (Pact v4+) | consumer-driven contract, Pact v4 + Testcontainers 기반, GraphQL/async 메시지 지원. AI-assisted contract testing(PactFlow MCP Server) 도입 시 생성/유지보수 60% 가속화 가능 | [prgrmmng Pact+Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact), [PactFlow MCP Server](https://pactflow.io/blog/pactflow-mcp-server/) |
@@ -111,7 +111,7 @@
 ## 10. Observability
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 구조화 로깅 | JSON 포맷, 표준 필드명, trace_id/span_id 포함, semantic conventions 준수 | [BetterStack OTel Best Practices](https://betterstack.com/community/guides/observability/opentelemetry-best-practices/) |
 | OTel 3 Signals 통합 | Traces + Metrics + Logs 가 OTLP exporter 로 통합 수집된다. W3C Trace Context 가 기본 전파 포맷 | [OTel Specification Status](https://opentelemetry.io/docs/specs/status/), [OTLP 1.10.0](https://opentelemetry.io/docs/specs/otlp/) |
 | PII 마스킹 | 로그에 이메일/전화번호/IP 등 개인정보가 마스킹 처리되어 있다 (GDPR/PIPA 준수) | OWASP Logging |

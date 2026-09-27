@@ -25,7 +25,11 @@ user-invocable: true
 11. **편향 완화는 장치 기반** — 확증편향은 decision memo pro/con 강제, 매몰비용은 kill criteria 사전 정의, 계획 오류는 reference class forecasting. "반대 의견도 들었다" 로 부족. 출처: [The Decision Lab — Confirmation Bias](https://thedecisionlab.com/biases/confirmation-bias), [Commitment Bias](https://thedecisionlab.com/biases/commitment-bias), [Planning Fallacy](https://thedecisionlab.com/biases/planning-fallacy), [Availability Heuristic](https://thedecisionlab.com/biases/availability-heuristic), [Authority Bias](https://thedecisionlab.com/biases/authority-bias), [Survivorship Bias](https://thedecisionlab.com/fr-CA/biases/survivorship-bias).
 12. **리스크 식별까지만 — 임의 대응 구현/범위 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 이 스킬의 산출물은 리스크 식별 + 점수 + Mitigation/Early Signal **기술**까지다. 식별된 리스크를 해소하겠다고 요청하지 않은 PRD 수정·재우선순위화·구현 작업으로 임의 진주하지 마라. 4-risks 4축은 모두 답해야 하지만(Gotcha 6), 사용자가 준 기획 범위를 넘어선 인접 기능의 리스크까지 임의로 끌어오는 것은 scope 확장이다. 후속 액션이 필요하면 **먼저 제안하고** 별도 단계로 인계한다 (insights-report #1 excessive_changes 대응). 출처: [Marty Cagan — Four Big Risks](https://www.svpg.com/four-big-risks/).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 리서치 문서 로드
 
@@ -46,7 +50,7 @@ user-invocable: true
 각 시나리오를 4 카테고리로 분류:
 
 | Risk | 질문 | 예시 시나리오 |
-|------|------|--------------|
+| ------ | ------ | -------------- |
 | **Value** | 사용자가 정말 원하는가 | 출시했는데 아무도 안 씀 |
 | **Usability** | 사용자가 쓸 수 있는가 | UI 너무 복잡해서 이탈 |
 | **Feasibility** | 기술적으로 만들 수 있는가 | 실시간 요구사항 못 맞춤 |
@@ -70,7 +74,7 @@ Score = P × I. 15 이상은 반드시 완화책 + Early Signal 필수.
 핵심 의사결정 3개를 뒤집어 본다:
 
 | 결정 | Inversion 질문 |
-|------|---------------|
+| ------ | --------------- |
 | "A 기능을 추가한다" | "A 를 추가하면 무엇이 망가질 수 있는가?" |
 | "B 기술 스택을 쓴다" | "B 로 인해 못 하게 되는 것은?" |
 | "C 유저를 타깃한다" | "C 유저 외 모두를 쫓아내는 결과가 나오면?" |
@@ -111,12 +115,17 @@ Score = P × I. 15 이상은 반드시 완화책 + Early Signal 필수.
 - 특정 리스크 검증 실험 필요 → discovery 사이클 재진입
 - 감사 → `/plan-audit`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/risks.md` — Pre-mortem, Inversion, FMEA, 4-risks
 - `docs/planning/cognitive-biases.md` — 편향 목록 + PM 실패 사례
 
 주요 1차 출처:
+
 - [HBR — Performing a Project Premortem (Gary Klein)](https://hbr.org/2007/09/performing-a-project-premortem)
 - [Farnam Street — Inversion](https://fs.blog/inversion/)
 - [ASQ — FMEA](https://asq.org/learn-about-quality/process-analysis-tools/overview/fmea.html)

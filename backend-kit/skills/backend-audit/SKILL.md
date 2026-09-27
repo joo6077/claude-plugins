@@ -29,14 +29,18 @@ user-invocable: true
 15. **"트랜잭션으로 감싸라" 만으로 동시성 항목을 PASS 시키지 마라** — 트랜잭션 경계는 원자성을 주지 사전 조회 후 쓰기 경합을 막지 않는다. PASS 하려면 (a) 어떤 anomaly 를 막는지 (b) 어떤 DB primitive 가 담당하는지 **둘 다** 근거에 있어야 한다. invariant 분류 3 유형과 primitive 매핑은 `write-path-integrity-protocol.md` §1~§2 가 SSOT 다. 실측 근거: 2026-08-12 글로벌 REJECT `ER-02` (동시성 가드를 삭제해도 테스트가 통과).
 16. **outbox 나 outbox+CDC 조합을 근거로 exactly-once 를 PASS 시키지 마라** — outbox relay 는 중복 발행할 수 있으므로 outbox 또는 outbox+CDC 조합만으로 exactly-once 가 보장되지 않는다. 이 축의 판정 기준은 `write-path-integrity-protocol.md` §6 이며, consumer idempotency 가 함께 있어야 PASS 다. `audit-criteria.md` §8 `CDC 파이프라인` 행도 같은 기준으로 판정한다. 출처: [microservices.io Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 스택 감지 (backend-test Step 0 parity)
 
 감사 기준을 적용하기 전에 대상 프로젝트의 스택을 먼저 확정한다. 이 결과가 없으면 Gotcha 13 위반(타 스택 고유 기준 오적용)을 판정할 수 없다.
 
 | 감지 파일 | 스택 | 대응 확인 대상 예시 |
-|-----------|------|--------------------|
+| ----------- | ------ | -------------------- |
 | `requirements.txt` / `pyproject.toml` | Python | SQLAlchemy · Pydantic · asyncpg pool |
 | `package.json` | Node.js | Prisma/Drizzle/TypeORM · Zod · pg-pool |
 | `build.gradle` / `pom.xml` | Java/Kotlin | JPA · HikariCP · Bean Validation |
@@ -51,6 +55,7 @@ user-invocable: true
 ## Step 1: 대상 범위 결정
 
 사용자가 지정한 경로를 기준으로 감사 대상을 결정한다:
+
 - 파일 경로 → 해당 파일만
 - 디렉토리 경로 → 하위 백엔드 관련 파일 전체
 - 미지정 → 최근 변경된 백엔드 파일 (git diff 기준)
@@ -69,7 +74,7 @@ Agent 도구를 사용하여 backend-reviewer 서브에이전트를 생성한다
 카테고리 순서는 `references/audit-criteria.md` 섹션 순서와 일치시킨다 (총 10 카테고리). 각 row 는 **하나의 체크항목(rule)** 에 대응하며, 카테고리 단위로 묶지 않고 개별 판정·근거·출처를 생성한다 (Gotcha 10 참조). 표 자리표시자(`...`) 금지.
 
 | # | 카테고리 | 체크항목 | 판정 | 근거(파일:라인) | 출처 URL |
-|---|----------|---------|------|-----------------|----------|
+| --- | ---------- | --------- | ------ | ----------------- | ---------- |
 | 1 | Architecture | 도메인-persistence 분리 | PASS/FAIL | `src/domain/user.py:1-40` 에 SQLAlchemy 애노테이션 없음 | [Vaadin DDD+Hexagonal](https://vaadin.com/blog/ddd-part-3-domain-driven-design-and-the-hexagonal-architecture) |
 | 2 | Architecture | Port/Adapter 경계 | PASS/FAIL | `src/infra/db.py:12` 가 domain 을 import / domain 은 infra 미참조 | [AWS Hexagonal](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html) |
 | 3 | Architecture | Modular Monolith First | PASS/FAIL/WARN | `docker-compose.yml:1-30` 서비스 수 vs 팀 규모 명시 | [ByteIota 2026](https://byteiota.com/modular-monolith-42-ditch-microservices-in-2026/) |
@@ -117,7 +122,11 @@ Agent 도구를 사용하여 backend-reviewer 서브에이전트를 생성한다
 
 `env_gaps` 로 세려면 남용 방지 4 요건을 모두 채워야 한다 (`backend-reviewer.md` §`UNVERIFIED_ENV` 남용 방지 4 요건). 못 채운 주장은 `UNVERIFIED_INVALID_EVIDENCE` 로 강등된다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/audit-criteria.md — 10 카테고리 기존 rule 의 PASS/FAIL 체크리스트
 - ../../references/write-path-integrity-protocol.md — 쓰기 경로 무결성 rule (경합 가드 적합성 · upsert arbiter · 멱등 저장 계약 · 통합 타깃 증명 · guard 음성 대조) SSOT
