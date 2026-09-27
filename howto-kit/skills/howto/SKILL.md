@@ -14,7 +14,11 @@ user-invocable: true
 allowed-tools: Read, Grep, Glob, WebFetch, WebSearch
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 사용자가 **직접 손으로** 수행해야 하는 절차를, 화면에서 길을 잃지 않을 입도로 안내한다.
+
+<!-- markdownlint-enable MD041 -->
 
 ## 이 스킬의 존재 이유
 
