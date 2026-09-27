@@ -278,7 +278,6 @@
     padding:28px;
     transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition);
     position:relative;
-    overflow:hidden;
   }
 
   .card::before{
@@ -287,6 +286,7 @@
     top:0;
     left:0;
     width:3px;
+    border-radius:var(--radius) 0 0 var(--radius);
     height:0;
     background:var(--accent);
     transition:height var(--transition);
@@ -887,15 +887,6 @@
     }
   }
 
-  @media(prefers-reduced-motion:reduce){
-    html{
-      scroll-behavior:auto;
-    }
-    *{
-      transition:none!important;
-      animation:none!important;
-    }
-  }
 </style>
 </head>
 <body>
