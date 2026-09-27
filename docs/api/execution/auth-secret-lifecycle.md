@@ -47,7 +47,7 @@ api-kit은 자격증명을 `.api/credentials.local.json`에 두고 gitignore와 
 ### 5. 리포트 전 마스킹 등록
 
 Hurl `--secret`은 exact match로만 가린다. 부분 일치나 인코딩 변형은 잡지 못한다.
-base64 인코딩본, 대소문자 변환본, `Bearer` 접두 포함본 같은 변형값은 각각 별도 secret으로 등록해야 한다.
+base64 인코딩본, 대소문자 변환본, `Bearer ` 접두 포함본 같은 변형값은 각각 별도 secret으로 등록해야 한다. <!-- markdownlint-disable-line MD038 -->
 
 실측(8.0.1)으로 확인했다 — `--secret token=<v>`를 걸고 `X-B64` 헤더에 그 값의 base64본을 실어 보내면
 `Authorization`의 원본은 `***`로 바뀌지만 base64본은 stderr·`curl_cmd`·리포트 3곳에 평문으로 남는다.
@@ -125,7 +125,7 @@ OAuth BCP도 access token 권한을 최소 필요 범위로 제한하라고 규�
 
 - **`--secret`이 가린다고 확인된 채널은 stderr 로그 · `report.json` · `--curl <file>`이다** — 기본 stdout, `--include`, `--output <file>`, `--json` stdout 전체, JSON 리포트의 `store/*_response.json`에는 평문이 남는다(실측 2026-09-05). 응답 저장 경로에는 api-kit 자체 redaction을 반드시 걸어라.
 - **`--json` stdout에는 응답 body 필드가 아예 없다** — 그래서 "body가 안 새더라"는 관측은 마스킹의 증거가 아니다. 대신 같은 출력의 `curl_cmd`·요청 헤더·`captures[].value`가 평문이다. 새는 자리가 다를 뿐 새는 건 맞다.
-- **`--secret`은 exact value 매칭이다** — 값 하나당 등록 하나다. base64본, 대소문자 변환본, `Bearer` 접두 포함본처럼 변형이 N개면 secret도 N개를 따로 등록해야 한다. 하나라도 빠지면 그 형태로 로그에 노출된다.
+- **`--secret`은 exact value 매칭이다** — 값 하나당 등록 하나다. base64본, 대소문자 변환본, `Bearer ` 접두 포함본처럼 변형이 N개면 secret도 N개를 따로 등록해야 한다. 하나라도 빠지면 그 형태로 로그에 노출된다. <!-- markdownlint-disable-line MD038 -->
 - **`redact` capture는 소급 적용되지 않는다** — 이후 로그에만 유효하고, 이미 출력된 원본 응답을 지우지는 못한다. 실측에서는 사정거리가 더 좁았다: 캡처값을 다음 entry 헤더로 넘기면 `--json` stdout의 `curl_cmd`와 요청 헤더에 평문으로 나타났고, JSON 리포트의 원본 응답 파일도 평문이었다.
 - **`redact` capture와 `--very-verbose`는 함께 쓸 수 없다** — Hurl 8.0.1은 `redacted secret not authorized in verbose`로 실행을 거부한다. 진단하려고 verbose를 켜는 순간 파일이 안 돈다.
 - **Hurl 옵션 우선순위는 env < CLI < `[Options]`** — 파일 안 `[Options]`가 profile 설정을 덮어쓴다. profile 충돌은 실행 전에 api-kit이 먼저 잡아야 한다. 실측으로 `HURL_MAX_REDIRS=3` < `--max-redirs 5` < `[Options] max-redirs: 7` 순서를 확인했다.

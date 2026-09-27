@@ -112,14 +112,16 @@ Calibration 탭 → 좌측 Flow Rate
 
 ### 4.2 Preset 화면에서 정하는 것 **[설치본 UI]**
 
+<!-- markdownlint-disable MD033 -->
 | 항목 | 선택 | 근거 |
 | --- | --- | --- |
-<!-- markdownlint-disable-next-line MD033 -->
 | **Calibration Type** | `Complete Calibration` = coarse + fine (Calibration1 + Calibration2)<br>`Fine Calibration based on flow ratio` = fine 단독 | 처음이면 Complete **[공식]** |
 | **Nozzle Diameter** | 실제 노즐과 일치 | |
 | **Nozzle Flow** | `Standard` / `High Flow` — 프로파일의 MVS 열과 같아야 함 | |
 | **Plate Type** | **실제 장착된 플레이트와 반드시 일치** | 불일치 → 접착 불량 → 결과 무효 **[설치본]** |
 | **Filament For Calibration** | 실제로 그 출력에 쓴 스풀 | |
+
+<!-- markdownlint-enable MD033 -->
 
 ### 4.3 판정
 
