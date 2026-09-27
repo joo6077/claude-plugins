@@ -1,0 +1,15 @@
+# 페이지	머리(본문 첫 700 글자)에 있어야 할 판 번호 · 날짜 — 원본 머리에서 옮김. kaizen-flow · bambu-print-profile 은 원본 머리에 판 · 날짜가 없어 뺀다
+docs/process/phase-research-templates.html	1.2.0	2026-09-05
+docs/api-kit/static-evidence-viewer-contract.html	0.1.1	2026-09-24
+docs/api-kit/multi-sample-pagination-variance.html	0.1.0	2026-09-04
+docs/api-kit/contract-extraction-modes.html	0.1.1	2026-09-24
+docs/backend-kit/api-design.html	0.1.1	2026-09-25
+docs/bambu-kit/bambu-fields-baseline.html	2026-05-15	v02.08.04.57	v02.08.02.61
+docs/bambu-kit/failure-recipes.html	2026-08-13
+docs/bambu-kit/materials.html	2026-05-15
+docs/harness/agent-design-guide.html	1.7.0	2026-09-24
+docs/harness/contract-design-guide.html	v5.1	2026-09-24
+docs/harness/plugin-validation.html	1.5.0	2026-09-26
+docs/harness/qa-evaluation-guide.html	v5.1	2026-09-26
+docs/harness/skill-design-guide.html	1.6.0	2026-09-24
+docs/harness/contract-schema.html	v5.7	2026-09-26
