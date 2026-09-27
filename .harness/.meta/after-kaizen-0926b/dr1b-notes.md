@@ -49,3 +49,9 @@ coverage.py(기준 `38cccd1`)와 fence2.py(기준만 `38cccd1` 로 바꾼 사본
 - setup-guide 는 원문을 풀어 쓴 문장이 많아 낱말 비율이 0.65 에 머문다. 뜻은 담았고 옛 판보다 높다. 원문을 더 옮기려면 다음 다시 맞추기 때 한다.
 - 원본을 더 고칠 다른 묶음(KR-1 · KR-3 · VS-21 등)이 합쳐진 뒤 `python3 scripts/detect-docs-drift.py --since <합친 기준>` 으로 다시 맞출 쪽을 뽑는다.
 - 이웃 묶음 dr1a 와 대상 집합이 겹치지 않는지는 dr1a 계약이 채워진 뒤 부모가 한 번 더 대조한다.
+
+## 검토 뒤 고친 것
+
+- 검토에서 onboarding 두 쪽이 한 쪽 안에서 게이트 숫자가 어긋난다고 짚었다. setup-guide 의 수치 표 두 줄과 끝 점검 목록, format-checklist 의 제목 · 보고 규약 · 통과 예시 출력 · 끝 점검 목록을 원본대로 G1~G5 · 6 줄 · 5 가지로 고쳤다. format-checklist 에는 G5 설명 줄을 더했다.
+- 두 쪽에서 `G1~G4` · `5 줄` · `5줄` · `4 가지` 를 다시 찾으면 0 건이다. 담김 값은 고치기 전과 같다(setup-guide 0.65, format-checklist 0.88).
+- 범위 밖 쪽 search-strategy 에도 `guide_gate G1~G4` 가 남아 있다. 짝 목록에 없는 쪽이라 이번에는 두고 다음 묶음에 넘긴다.
