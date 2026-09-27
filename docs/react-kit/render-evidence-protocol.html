@@ -459,10 +459,6 @@ pre code{
   .section{padding:38px 0}
   .card,.type{padding:20px}
 }
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{transition:none!important}
-}
 </style>
 <!-- kaizen-cycle: 2026-09-25 · source v1.1.0 전체 동기화 -->
 </head>
@@ -520,7 +516,7 @@ pre code{
   </div>
   <div class="callout warn">
     <div class="callout-title">형제 규약과 같은 숫자</div>
-    <p>§1 의 「같은 역할 기존 화면 <strong>2 개 이상</strong>」 과 §2 의 「스스로 고치기 <strong>최대 3 회</strong>」 는 flutter-toolkit <code>references/visual-evidence-protocol.md</code> Step 0 · Step 2, design-kit <code>references/visual-change-protocol.md</code> §0 · §3 과 같은 값이다. 세 규약이 같이 쓰는 규칙의 정본은 harness <code>skill-design-guide.md</code> 한 절에 두기로 했고 그 절은 아직 없다 — 생기기 전까지는 한쪽 값을 바꾸면 다른 두 쪽도 같이 바꾼다.</p>
+    <p>§1 의 「같은 역할 기존 화면 <strong>2 개 이상</strong>」 과 §2 의 「스스로 고치기 <strong>최대 3 회</strong>」 는 flutter-toolkit <code>references/visual-evidence-protocol.md</code> Step 0 · Step 2, design-kit <code>references/visual-change-protocol.md</code> §0 · §3 과 같은 값이다. 세 규약이 같이 쓰는 두 숫자의 정본은 harness <code>skill-design-guide.md</code> §8.9 다. 킷은 따로 설치되어 그 파일을 읽지 못하므로 숫자는 이 문서에도 남긴다 — 값을 바꿀 때는 §8.9 를 먼저 고치고 세 규약을 같이 바꾼다.</p>
     <a class="card-source" href="../flutter-toolkit/visual-evidence-protocol.html">Visual Evidence Protocol</a>
     <a class="card-source" href="../design-kit/visual-change-protocol.html">Visual Change Protocol</a>
   </div>
