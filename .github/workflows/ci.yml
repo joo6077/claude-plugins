@@ -68,6 +68,10 @@ jobs:
       - name: Stale value check (소스에 옛 값이 되살아났는가)
         run: python3 scripts/check-stale-values.py
 
+      # 드리프트 도구의 원본 → 페이지 짝과 docs-site SKILL.md 표는 따로 고쳐져 갈라졌었다 — 짝 넷이 표에도 스크립트에도 없었다
+      - name: Docs drift mapping check (스크립트 짝 ↔ docs-site 표)
+        run: python3 scripts/detect-docs-drift.py --check-table
+
       # 킷 reviewer 일곱은 평가 가이드의 미검증 규칙을 사본으로 든다. 원문이 바뀌었는데 사본이 따라가지 않은 일이
       # 세 번 있었다(2026-07-27 · 2026-08-13 · 2026-09-24). 사본이 원문과 글자까지 같은지 잰다.
       - name: Reviewer protocol copy check (미검증 규칙 사본 대조)
@@ -130,7 +134,7 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test design-kit/evals/visuals.spec.js
 
-      # api-kit 시험은 <킷>/evals/evals.json 에 runner 만 적고 run-evals.py 킷 목록 밖이다 — 여기서 직접 돌린다.
+      # api-kit 뷰어 시험은 브라우저가 필요해 run-evals.py(사례 글만 잰다)가 아니라 여기서 evals.json runner 로 돌린다.
       # 판정 불가를 PASS 에 합친 ui.html 이면 떨어진다
       - name: Api-kit viewer test (판정 불가 칸 · 예시 ui.html)
         run: npx playwright test api-kit/evals/

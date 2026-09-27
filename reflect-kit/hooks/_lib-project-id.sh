@@ -65,7 +65,9 @@ project_root() {
   [ -z "$dir" ] && dir="$PWD"
   top=$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)
   if [ -z "$top" ]; then
-    printf '%s\n' "$dir"
+    # 지운 워크트리 경로는 git 이 못 연다. `.claude/worktrees/` 꼬리를 떼야 본 레포로 묶인다
+    # (수집기 scripts/collect-kaizen-data.py project_group 과 같은 규칙). git 밖 폴더는 그대로 돌려준다
+    printf '%s\n' "${dir%%/.claude/worktrees/*}"
     return 0
   fi
   gdir=$(git -C "$dir" rev-parse --path-format=absolute --git-dir 2>/dev/null)
@@ -230,7 +232,7 @@ EOF
 # 마찰이 적혔는데 reflections 에 한 번도 안 나온 세션을 원문과 함께 낸다. 수집기가 놓친 세션을
 # 찾는 데만 쓴다 — facets 는 다른 분석기 · 다른 분류라 빈도에 더하면 같은 세션을 두 번 센다.
 # facets 에는 프로젝트 경로가 없어 session-meta/<session_id>.json 의 project_path 로 잇는다.
-# 지워진 워크트리 경로는 git 이 본 레포를 못 구해 폴더 이름으로 남는다 — 그 세션은 all 에서만 보인다.
+# 지워진 워크트리 경로는 project_root 가 `.claude/worktrees/` 꼬리를 떼 본 레포 이름으로 잇는다.
 facets_unmatched() {
   [ -n "${BASH_VERSION:-}" ] || { echo "facets_unmatched: bash 로 부른다" >&2; return 2; }
   local days="$1" want="$2" usage="${3:-$HOME/.claude/usage-data}"

@@ -52,6 +52,7 @@ SOURCE_DIRS = [
     "flutter-toolkit/references",
     "docs/backend", "docs/infra", "docs/tone", "docs/api",
     "docs/rust", "docs/react", "docs/planning",
+    "docs/flutter", "docs/howto", "docs/onboarding-kit/examples",
 ]
 
 

@@ -30,8 +30,9 @@ SOURCE_LINE = re.compile(r"^>\s*\*\*출처[^\n]*", re.MULTILINE)
 MD_URL = re.compile(r"\]\((https?://[^)\s]+)\)")
 HTML_HREF = re.compile(r'href="(https?://[^"]+)"')
 
-# 외부 리소스 — standalone 위반
-EXTERNAL = re.compile(r'<link\s|<script[^>]+src=|@import\s|url\(\s*[\'"]?https?://')
+# 외부 리소스 — standalone 위반. 같은 사이트 상대 경로 `<link>`(`../assets/site.css`)는 문서 사이트 공용 스타일이라
+# 세지 않는다 — 통째로 잡던 판은 12 쪽이 모두 그 한 줄로 떨어졌다. 주소 앞 `https:` · `//` 가 있는 `<link>` 만 외부다
+EXTERNAL = re.compile(r'<link\b[^>]*\bhref\s*=\s*["\']?(?:[a-z][a-z0-9+.-]*:|//)|<script[^>]+src=|@import\s|url\(\s*[\'"]?https?://')
 # 오버플로 억제 — 내용 손실이므로 금지 (overflow-x:auto 는 허용)
 SUPPRESS = re.compile(r"overflow\s*:\s*hidden|overflow-x\s*:\s*hidden")
 
