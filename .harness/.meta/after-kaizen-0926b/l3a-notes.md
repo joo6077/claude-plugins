@@ -298,4 +298,7 @@
 
 - 목록 밖 경고: 고치지 않는 파일 4 개의 경고 145 건은 이 묶음 밖이라 그대로다
 - 바꾼 md 에 짝이 있는 docs html 페이지(`docs/bambu-kit/materials.html` · `docs/bambu-kit/bambu-fields-baseline.html` 등)는 다시 만들지 않았다. 바뀐 것은 모양뿐이라 페이지 내용과 어긋나지 않는다
-- QA 판정은 아직이다
+- QA 2 회차 APPROVE (20/20). 리포트 `.harness/sprint-feedback-after-0926-mdlint-l3a.md`
+- 끝 판 독립 검토의 막는 결함 셋(rust-init MD037 · react-animation APG 링크 · react-audit grep 공백)은 앞 커밋에서 이미 되돌렸다. 막지 않는 셋 가운데 `Bearer ` · `^## ` 공백과 인용 둘 합쳐짐도 이미 되돌렸다
+- 막지 않는 결함 하나가 남았다: 파일 8 개에서 목록 안 코드 블록 앞뒤에 빈 줄(MD031)이 들어가 그 목록 항목이 문단으로 그려진다. 간격이 달라 보일 뿐 뜻은 같다. 되돌리면 MD031 경고가 다시 난다
+- `meaning.py` 가 `disable-next-line` 단독 꼴을 잘못 판정하는 결함(위 「측정 도구 결함」)은 봉인된 도구라 고치지 않았다. 다음 계약에서 고친다
