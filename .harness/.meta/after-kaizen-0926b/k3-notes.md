@@ -165,6 +165,7 @@
 
 ### 2 회차 남은 것
 
-- 2 회차 QA(qa-evaluator) 판정. `status` 는 `active` 그대로 둔다.
+- 2 회차 QA 는 APPROVE — 29 조건 실측 · 음성 대조 8 개 직접 실행, 리포트 `.harness/sprint-feedback-after-0926-kits-reflect-bambu-tone-r2.md` 와 계약 `status: done` 을 `6353e14` 로 커밋했다.
+- 독립 검토 결함 하나(막는 것 아님): `bambu-kit/evals/run-gate-fixtures.sh:63-72` 가 FAIL 줄 수 · `RESULT: PASS` 줄 · 종료 코드만 보고 `[미검증]` 줄 수는 판정하지 않는다. 표의 `filament-lattice-fanfix.json`(「`[미검증]` 0 줄」) · `process-thin-baseline.json`(「벽 예산 `[미검증]` 1 줄」) 두 행의 기대 일부가 재지 않는 채 남는다. 검토자가 SKILL.md 사본 완료 검사에 가짜 미검증 줄 하나를 넣어도 `결과: 24 경우 중 불일치 0` 이 나왔다. 리눅스 CI 에서는 설치본이 없어 fanfix 에도 `[미검증]` 이 1 줄 생기므로 일부러 뺀 것으로 보이나, 그 까닭이 스크립트 머리 주석 · 표 문구에 없다. 다음 bambu-kaizen 에서 슬라이서가 있을 때만 `[미검증]` 줄 수를 대조하거나, 빼는 까닭을 주석에 적는다.
 - 스키마에 새 판 계약을 가리키는 정식 칸이 없다 — 다음 계약 카이젠 후보(피드백 제안에 적음).
 - 위 「남은 것」 의 문서 사이트 재생성 · 버전 올리기 · `G91` 실물 확인 · 바깥 근거 없는 KT-3 세 항목은 그대로 남는다.
