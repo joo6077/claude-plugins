@@ -25,7 +25,7 @@ scope: claude-plugins 모노레포에 추가할 신규 플러그인 react-kit �
 ## 2. 기술 스택 (확정)
 
 | 영역 | 선택 | 근거 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 빌드 도구 | **Vite 5+** + `@vitejs/plugin-react-swc` | 가장 빠른 개발 서버, Tauri 와 자연 통합 |
 | 데스크탑 런타임 | **Tauri 2.10+** (2024-10 stable) | 번들 ~3MB, rust-kit 과 Rust 코어 공유 가능 |
 | UI 프레임워크 | **React 19** | Server Components 미사용 (Tauri 호환) |
@@ -46,7 +46,7 @@ scope: claude-plugins 모노레포에 추가할 신규 플러그인 react-kit �
 
 ## 3. 아키텍처 — Clean Architecture 모노레포
 
-```
+```text
 my-app/
 ├── package.json                       # pnpm workspace root
 ├── pnpm-workspace.yaml
@@ -93,6 +93,7 @@ my-app/
 ```
 
 **Clean Arch 엄격 규칙**:
+
 - `domain/` → 외부 의존성 0개. `data/`, `presentation/`, `infrastructure/`, WASM, Tauri 모두 모름
 - `data/` → `domain/` 만 알고, `presentation/` 을 모름
 - `presentation/features/a` → `features/b` 직접 참조 금지 (공유는 `shared/` 나 `domain/` 경유)
@@ -104,7 +105,7 @@ my-app/
 6개 그룹으로 조직. 각 그룹은 sprint-contract → WebSearch 리서치 → 상세 설계 문서 → qa-evaluator APPROVE 사이클로 설계 완료.
 
 | 그룹 | 스킬 수 | 스킬 | 상세 문서 |
-|------|--------|------|----------|
+| ------ | -------- | ------ | ---------- |
 | **G1 스캐폴딩 & 생성** | 4 | `/react-init`, `/react-screen`, `/react-feature`, `/react-widget` | [g1-scaffolding.md](../../react/kit-design/g1-scaffolding.md) (525 줄) |
 | **G2 상태 & 데이터** | 4 | `/react-store`, `/react-api`, `/react-query`, `/react-form` | [g2-state-data.md](../../react/kit-design/g2-state-data.md) (653 줄) |
 | **G3 고성능 레이어** | 2 | `/react-wasm`, `/react-tauri` | [g3-performance.md](../../react/kit-design/g3-performance.md) (519 줄) |
@@ -116,7 +117,7 @@ my-app/
 **에이전트 3종** (읽기 전용):
 
 | 에이전트 | 소속 | 역할 |
-|---------|------|------|
+| --------- | ------ | ------ |
 | `widget-inspector-react` | G5 | 중복 위젯 / 사유화 재사용 가능 컴포넌트 감지. G6 deep 모드의 5번째 병렬 축으로도 재사용 |
 | `animation-architect-react` | G5b | 복잡 애니메이션 설계 자문. Tier 1/2/3 판정 + 엣지케이스 리포트 |
 | `react-reviewer` | G6 | `/react-audit` 의 독립 평가 에이전트. Deep 모드에서 4개 축 (architecture / performance / accessibility / library-policy) 으로 병렬 spawn |
@@ -152,6 +153,7 @@ my-app/
 - **Tier 3 — 커스텀 pointer primitives** — `useDrag` (FSM: idle/dragging/dropping), `useDrop` (Zustand drag-store 연동), `useSortable`, `Connector` (SVG 화살표). Pointer Events API + setPointerCapture + `touch-action: none`
 
 **복잡 시나리오 커버**:
+
 - 그리드 ↔ 보드 뷰 전환 (Tier 2)
 - 칸반 드래그앤드롭 전체 코드 (Tier 3)
 - SVG 화살표 노드 연결 (Tier 3)
@@ -172,6 +174,7 @@ my-app/
 - **`react-kit/README.md`** — 기존 flutter-toolkit/rust-kit README 구조 모방, `<!-- AUTO:skills -->` 마커로 sync-docs.py 호환
 
 **docs/react/ vs react-kit/ 역할 분리**:
+
 - `react-kit/` → 배포 대상 (플러그인 이용자가 받음)
 - `docs/react/` → 레포 개발용 내부 문서 (리서치 + 설계). `/react-kaizen` 이 주기 갱신
 - 두 위치의 동기화는 카이젠 루프가 담당
@@ -179,7 +182,7 @@ my-app/
 ## 8. 모든 6개 그룹의 QA 판정
 
 | 설계 문서 | QA 판정 | Iterations | 조건 |
-|----------|--------|------------|------|
+| ---------- | -------- | ------------ | ------ |
 | wasm-catalog.md (G0) | ✅ APPROVE | 2 | 14 + 4 |
 | g1-scaffolding.md | ✅ APPROVE | 1 | 13 + 4 |
 | g2-state-data.md | ✅ APPROVE | 2 | 14 + 4 |

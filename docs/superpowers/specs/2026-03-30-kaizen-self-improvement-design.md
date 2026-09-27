@@ -33,7 +33,7 @@
 
 ### 변경 전
 
-```
+```text
 Step 0: 공유 리서치 (전체 몰아서)
 Phase 1: 설계 가이드
 Phase 2: Harness
@@ -42,7 +42,7 @@ Phase 3: Flutter-toolkit
 
 ### 변경 후
 
-```
+```text
 Phase 1: 설계 가이드 카이젠 (design-guide-kaizen)
 Phase 2: Contract 카이젠 (contract-kaizen)        ← NEW
 Phase 3: Evaluator 카이젠 (evaluator-kaizen)      ← NEW
@@ -52,9 +52,11 @@ Phase 6: Design-kit 카이젠 (design-kaizen)        ← NEW
 ```
 
 **Phase 순서 논리:**
+
 - 설계 가이드가 최상위 → contract 설계 원칙이 바뀌면 → evaluator가 그 변경을 반영 → harness 나머지 스킬들이 갱신된 contract/evaluator 기준에 맞춰 개선 → flutter-toolkit → design-kit 순서.
 
 **구조 변경:**
+
 - 공유 리서치 Step 0 **제거**
 - 각 Phase는 새 서브에이전트로 실행 (fresh load로 이전 Phase 변경사항 반영)
 - Phase 시작 시 **triage** → 개선 불필요 시 SKIP + 로그
@@ -62,7 +64,7 @@ Phase 6: Design-kit 카이젠 (design-kaizen)        ← NEW
 
 ### 각 Phase 공통 실행 패턴
 
-```
+```text
 1. Triage: 피드백 읽기 → 개선 필요? → 불필요 시 SKIP + 로그
    ⚠ 부트스트랩: 피드백이 0건이면 SKIP하지 않고 리서치 전용 모드로 진행 (패턴 분석 생략, 리서치→예방적 분석만 실행)
 2. 자체 리서치: 자기 search-sources.md 기반, 피드백에서 식별된 3-5개 도메인만 (0건 시 search-sources.md 전체에서 우선순위 상위 3개)
@@ -89,7 +91,7 @@ Phase 6: Design-kit 카이젠 (design-kaizen)        ← NEW
 **구성:**
 
 | 섹션 | 내용 |
-|------|------|
+| ------ | ------ |
 | 핵심 원칙 | 좋은 계약 조건의 기준 (검증 가능, 단일 해석, 측정 가능), precondition/postcondition/invariant 모델, Given-When-Then 구조화 패턴 |
 | 조건 작성법 | NASA 스타일 요구사항 작성 규칙 (능동태, 단일 조건, 모호 형용사 금지), IEEE 29148 기반 품질 체크리스트, Property 기반 vs Example 기반 조건 사용 시점 |
 | 카테고리 설계 | GQM(Goal-Question-Metric) 기반 카테고리 도출, Consumer-Driven 원칙: 평가자가 검증 가능한 조건만 작성 |
@@ -105,7 +107,7 @@ Phase 6: Design-kit 카이젠 (design-kaizen)        ← NEW
 **구성:**
 
 | 섹션 | 내용 |
-|------|------|
+| ------ | ------ |
 | 핵심 원칙 | Test Oracle로서의 evaluator 역할, LLM-as-a-Judge 편향 완화 (위치/장황함/자기강화), IV&V 독립성 보장 |
 | 검증 방법론 | 3-Level 검증의 학술적 근거 (lint→semantic→AI 3계층 모델), Rubric 기반 분해: 계약 항목→boolean 서브체크, 다관점 평가 (Fagan/PBR: 기능/엣지/성능/보안) |
 | 판정 기준 | Metamorphic Testing: 절대 정답 없을 때 관계 기반 검증, Evidence-Based 판정: 감사 가능한 증거 체인 |
@@ -126,7 +128,7 @@ Phase 6: Design-kit 카이젠 (design-kaizen)        ← NEW
 
 ### 5.1 경로 구조
 
-```
+```text
 $HOME/.harness/feedback/
 ├── contract/
 │   ├── {project-hash}-{date}.yaml
@@ -197,7 +199,7 @@ user_comment: null
 
 sprint-contract / qa-evaluator 실행 흐름 마지막:
 
-```
+```text
 Step N-2: LLM이 자기진단 결과를 포함한 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성
   → 피드백 스키마(harness/references/feedback-schema.yaml) 준수
 
@@ -227,7 +229,7 @@ Gotchas 최상단:
 
 **경로**: `harness/skills/contract-kaizen/`
 
-```
+```text
 harness/skills/contract-kaizen/
 ├── SKILL.md
 ├── references/
@@ -242,7 +244,7 @@ harness/skills/contract-kaizen/
 **리서치 도메인:**
 
 | 카테고리 | 도메인 |
-|----------|--------|
+| --- | --- |
 | 계약 설계 | BDD/Gherkin, ATDD/Specification by Example, Design by Contract (DbC), Formal Specification (TLA+/Alloy), Requirements Engineering (IEEE 29148), LLM-Assisted Formal Specification, Property-Based Testing, GQM Framework, Checklist-Based Defect Prevention, Consumer-Driven Contract Testing (Pact), NASA Requirements Writing Standards |
 | 자기개선 | Reflection/Self-Refine, Meta-Learning, Retrospective/Post-Mortem, PDCA/Kaizen Cycle, LLM Self-Correction, Experience Replay |
 
@@ -256,6 +258,7 @@ harness/skills/contract-kaizen/
 6. **Regression Smoke Test**: `evals/kaizen/contract-kaizen/` 활용
 
 **개선 대상:**
+
 - `docs/guides/contract-design-guide.md` (가이드 원칙 갱신)
 - `harness/skills/sprint-contract/SKILL.md` (스킬 프롬프트, Gotchas 갱신)
 - `harness/references/contract-schema.md` (계약 스키마 변경 제안)
@@ -264,7 +267,7 @@ harness/skills/contract-kaizen/
 
 **경로**: `harness/skills/evaluator-kaizen/`
 
-```
+```text
 harness/skills/evaluator-kaizen/
 ├── SKILL.md
 ├── references/
@@ -279,23 +282,25 @@ harness/skills/evaluator-kaizen/
 **리서치 도메인:**
 
 | 카테고리 | 도메인 |
-|----------|--------|
+| --- | --- |
 | 평가 방법론 | Test Oracle Problem/LLM-as-Oracle, LLM-as-a-Judge, Rubric-Based LLM Evaluation, Multi-Agent Verification/Consensus, Metamorphic Testing, Mutation Testing, IV&V (Independent V&V), Fagan Inspection/PBR, Symbolic Execution/Concolic Testing, N-Version Programming, Evidence-Based Software Engineering, Automated Code Review (AI-assisted) |
 | 자기개선 | Reflection/Self-Refine, Meta-Learning, Retrospective/Post-Mortem, PDCA/Kaizen Cycle, LLM Self-Correction, Experience Replay |
 
 **실행 흐름:** contract-kaizen과 동일 패턴. 대상만 다름:
+
 - 피드백: `evaluator/` 읽기
 - 대조 대상: `harness/agents/qa-evaluator.md` + `docs/guides/qa-evaluation-guide.md`
 - 추가: `harness/references/contract-schema.md` 변경 여부 확인 → 변경 시 평가 루브릭 갱신 포함
 
 **개선 대상:**
+
 - `docs/guides/qa-evaluation-guide.md` (가이드 원칙 갱신)
 - `harness/agents/qa-evaluator.md` (에이전트 프롬프트, 검증 로직 갱신)
 
 ### 6.3 트리거 조건 (양쪽 공통)
 
 | 트리거 | 조건 |
-|--------|------|
+| -------- | ------ |
 | 오케스트레이터 호출 | Phase 순서에 따라 자동 |
 | 피드백 임계치 | 최근 피드백 10건 중 동일 진단 항목 3회 이상 반복 |
 | 수동 | `/contract-kaizen`, `/evaluator-kaizen` |
@@ -364,7 +369,7 @@ harness/skills/evaluator-kaizen/
 
 ### 8.1 Draft → QA → Apply 패턴 (순환 의존성 방지)
 
-```
+```text
 Phase N:
 1. Sprint Contract 작성 (현재 버전 사용)
 2. 개선안 DRAFT 작성 (파일에 적용하지 않음)
@@ -379,7 +384,7 @@ QA는 항상 변경 전 버전으로 판단. 변경은 QA 통과 후에만 적�
 
 ### 8.2 Regression Smoke Test
 
-```
+```text
 각 Phase 완료 후:
 1. 개선된 스킬을 fixture 시나리오에 실행
 2. expected-improvements.md와 대조
@@ -390,7 +395,7 @@ QA는 항상 변경 전 버전으로 판단. 변경은 QA 통과 후에만 적�
 
 **Fixture 구조:**
 
-```
+```text
 harness/evals/kaizen/contract-kaizen/
 ├── fixture-feedback-data/
 │   ├── ambiguous-conditions.yaml    # 모호 조건 반복 패턴 피드백
@@ -413,7 +418,7 @@ harness/evals/kaizen/contract-kaizen/
 
 ### 8.3 메타 Eval 구조
 
-```
+```text
 harness/evals/kaizen/
 ├── contract-kaizen/
 │   ├── fixture-feedback-data/
@@ -431,7 +436,7 @@ harness/evals/kaizen/
 ### 8.4 교차 진단 프로토콜
 
 | 시점 | 진단자 | 진단 대상 | 핵심 질문 |
-|------|--------|-----------|-----------|
+| --- | --- | --- | --- |
 | sprint-contract 실행 후 | qa-evaluator 서브에이전트 | 계약 조건 | "이 조건을 독립적으로 검증할 수 있는가?" |
 | qa-evaluator 실행 후 | sprint-contract 서브에이전트 | 평가 판정 | "계약 조건의 원래 의도를 정확히 해석했는가?" |
 
@@ -440,7 +445,7 @@ harness/evals/kaizen/
 ### 8.5 자기진단 3중 구조
 
 | 계층 | 방법 | 신뢰도 |
-|------|------|--------|
+| ------ | ------ | -------- |
 | 구조화 체크리스트 | 구체적 항목 체크 (동시성, 에러 경로, 경계값 등) | 중 |
 | 교차 진단 (서브에이전트) | qa-evaluator 에이전트를 실제 서브에이전트로 호출하여 contract 품질 진단 (역방향도 동일). 같은 LLM의 관점 전환이 아닌 별도 에이전트 컨텍스트에서 실행하여 구조적 분리 확보. | 상 |
 | 사용자 시그널 | `user_rating` + `user_comment` (optional) | 최상 |
@@ -448,7 +453,7 @@ harness/evals/kaizen/
 ### 8.6 롤백 체인
 
 | 실패 시나리오 | 대응 |
-|--------------|------|
+| -------------- | ------ |
 | QA REJECT 3회 | Phase 중단, 사용자 에스컬레이션 |
 | Regression FAIL | git revert + BLOCKED 로그 + 다음 Phase 진행 |
 | Regression 2연속 FAIL | 해당 Phase 일시 중단 + 사용자 알림 |
@@ -462,7 +467,7 @@ harness/evals/kaizen/
 contract-kaizen과 evaluator-kaizen 모두 자기 도메인별 리서치 외에 다음 자기개선 도메인을 공통으로 포함:
 
 | # | 도메인 | 핵심 가치 |
-|---|--------|-----------|
+| --- | -------- | ----------- |
 | 1 | Reflection / Self-Refine | LLM 자기 출력 평가 후 반복 개선 |
 | 2 | Meta-Learning / Learning to Learn | 과거 태스크에서 전략을 추출해 미래에 적용 |
 | 3 | Retrospective / Post-Mortem | 실행 이력 회고에서 체계적 교훈 도출 방법론 |
@@ -477,7 +482,7 @@ contract-kaizen과 evaluator-kaizen 모두 자기 도메인별 리서치 외에 
 ### 신규 생성
 
 | 경로 | 목적 |
-|------|------|
+| ------ | ------ |
 | `docs/guides/contract-design-guide.md` | 계약 작성 원칙 가이드 |
 | `docs/guides/qa-evaluation-guide.md` | 평가 방법론 가이드 |
 | `harness/references/contract-schema.md` | 계약 포맷 공유 정의 |
@@ -502,7 +507,7 @@ contract-kaizen과 evaluator-kaizen 모두 자기 도메인별 리서치 외에 
 ### 수정
 
 | 경로 | 변경 내용 |
-|------|-----------|
+| ------ | ----------- |
 | `harness/skills/sprint-contract/SKILL.md` | 자기진단 + 피드백 hard gate + 가이드 참조 추가 |
 | `harness/agents/qa-evaluator.md` | 자기진단 + 피드백 hard gate + 가이드 참조 추가 |
 | `.claude/skills/kaizen-orchestrator/SKILL.md` | 6 Phase 재구성 + 공유 리서치 제거 + triage/regression 추가 |

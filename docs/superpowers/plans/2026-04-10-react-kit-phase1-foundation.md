@@ -9,6 +9,7 @@
 **Tech Stack:** pnpm, Claude Code plugin manifest (JSON), Markdown, YAML, TypeScript config templates, bash.
 
 **Scope boundary:**
+
 - ✅ This plan: plugin directory + metadata + reference docs + templates + marketplace registration + evals scaffolding
 - ❌ Not this plan: SKILL.md files (Phases 2~8, one plan per skill group), agent .md files (Phase 7, 8, 9), release tagging (Phase 10)
 
@@ -20,7 +21,7 @@
 
 Files created in this plan (all paths relative to repo root):
 
-```
+```text
 react-kit/
 ├── .claude-plugin/
 │   └── plugin.json                        # NEW — plugin metadata
@@ -76,11 +77,13 @@ No existing files are modified except `.claude-plugin/marketplace.json` (1 add-o
 ### Task 1: Create `react-kit/` root directory and `.claude-plugin/plugin.json`
 
 **Files:**
+
 - Create: `react-kit/.claude-plugin/plugin.json`
 
 - [ ] **Step 1.1: Create the plugin root directory**
 
 Run:
+
 ```bash
 mkdir -p react-kit/.claude-plugin
 ```
@@ -120,6 +123,7 @@ Create `react-kit/.claude-plugin/plugin.json` with this exact content:
 - [ ] **Step 1.3: Verify JSON is valid**
 
 Run:
+
 ```bash
 python3 -c "import json; json.load(open('react-kit/.claude-plugin/plugin.json')); print('OK')"
 ```
@@ -138,6 +142,7 @@ git commit -m "feat(react-kit): add plugin.json scaffold v0.1.0"
 ### Task 2: Create `react-kit/README.md`
 
 **Files:**
+
 - Create: `react-kit/README.md`
 
 Content is sourced from `docs/react/kit-design/final-integration.md` §4 (lines 323–449). Use the full README block from that section verbatim.
@@ -145,6 +150,7 @@ Content is sourced from `docs/react/kit-design/final-integration.md` §4 (lines 
 - [ ] **Step 2.1: Extract README content**
 
 Run:
+
 ```bash
 sed -n '/^```markdown$/,/^```$/p' docs/react/kit-design/final-integration.md | sed '1d;$d' | head -130
 ```
@@ -160,6 +166,7 @@ Copy the README markdown block from `docs/react/kit-design/final-integration.md`
 - [ ] **Step 2.3: Verify AUTO markers present**
 
 Run:
+
 ```bash
 grep -c "AUTO:" react-kit/README.md
 ```
@@ -178,11 +185,13 @@ git commit -m "docs(react-kit): add initial README with AUTO markers"
 ### Task 3: Create `references/project-detection.md`
 
 **Files:**
+
 - Create: `react-kit/references/project-detection.md`
 
 - [ ] **Step 3.1: Create the references directory**
 
 Run:
+
 ```bash
 mkdir -p react-kit/references
 ```
@@ -260,6 +269,7 @@ git commit -m "docs(react-kit): add project-detection reference"
 ### Task 4: Create `references/clean-arch-layout.md`
 
 **Files:**
+
 - Create: `react-kit/references/clean-arch-layout.md`
 
 - [ ] **Step 4.1: Write clean-arch-layout.md**
@@ -344,6 +354,7 @@ git commit -m "docs(react-kit): add clean-arch-layout reference"
 ### Task 5: Create `references/result-patterns.md`
 
 **Files:**
+
 - Create: `react-kit/references/result-patterns.md`
 
 - [ ] **Step 5.1: Write result-patterns.md**
@@ -423,6 +434,7 @@ git commit -m "docs(react-kit): add result-patterns reference"
 ### Task 6: Create `references/wasm-catalog.md` (link to docs/react/wasm-catalog.md)
 
 **Files:**
+
 - Create: `react-kit/references/wasm-catalog.md`
 
 - [ ] **Step 6.1: Create as a pointer (not symlink — portability)**
@@ -471,6 +483,7 @@ git commit -m "docs(react-kit): add wasm-catalog pointer reference"
 ### Task 7: Create `references/style-guide.md`
 
 **Files:**
+
 - Create: `react-kit/references/style-guide.md`
 
 - [ ] **Step 7.1: Write style-guide.md**
@@ -559,6 +572,7 @@ git commit -m "docs(react-kit): add style-guide reference"
 ### Task 8: Create `templates/` directory with 9 template files
 
 **Files:**
+
 - Create: `react-kit/templates/tsconfig.template.json`
 - Create: `react-kit/templates/eslint.config.template.js`
 - Create: `react-kit/templates/vite.config.template.ts`
@@ -846,6 +860,7 @@ git commit -m "feat(react-kit): add 9 scaffolding templates (tsconfig, vite, tai
 ### Task 9: Create empty `skills/` and `agents/` directories with `.gitkeep`
 
 **Files:**
+
 - Create: `react-kit/skills/.gitkeep`
 - Create: `react-kit/agents/.gitkeep`
 
@@ -868,6 +883,7 @@ git commit -m "chore(react-kit): scaffold empty skills/ and agents/ dirs"
 ### Task 10: Create `evals/evals.json` and fixture directories
 
 **Files:**
+
 - Create: `react-kit/evals/evals.json`
 - Create: `react-kit/evals/test-fixtures/empty-project/.gitkeep`
 - Create: `react-kit/evals/test-fixtures/clean-arch-project/.gitkeep`
@@ -923,6 +939,7 @@ git commit -m "feat(react-kit): scaffold evals.json and 5 test-fixture dirs"
 ### Task 11: Create `scripts/project-detect.sh`
 
 **Files:**
+
 - Create: `react-kit/scripts/project-detect.sh`
 
 - [ ] **Step 11.1: Create scripts directory**
@@ -1049,6 +1066,7 @@ git commit -m "feat(react-kit): add project-detect.sh bash helper"
 ### Task 12: Register `react-kit` in `.claude-plugin/marketplace.json`
 
 **Files:**
+
 - Modify: `.claude-plugin/marketplace.json`
 
 - [ ] **Step 12.1: Inspect current marketplace.json**
@@ -1093,6 +1111,7 @@ git commit -m "feat(react-kit): register in marketplace.json as v0.1.0"
 ### Task 13: Run `sync-docs.py --check-only` and fix any issues
 
 **Files:**
+
 - Potentially modify: `react-kit/README.md` (if sync-docs reports issues)
 
 - [ ] **Step 13.1: Run sync-docs in check mode**
@@ -1155,6 +1174,7 @@ git commit -m "docs(react-kit): align README with sync-docs check"
 ### Task 14: Harness project.yaml update for this repo (add react-kit trigger keywords)
 
 **Files:**
+
 - Modify: `.harness/project.yaml` (optional — if kit-design keywords are not already in trigger.always)
 
 - [ ] **Step 14.1: Check current trigger keywords**
@@ -1190,6 +1210,7 @@ git commit -m "chore(harness): add react-kit trigger keywords"
 ### Task 15: Verify full file tree
 
 **Files:**
+
 - None modified.
 
 - [ ] **Step 15.1: Verify directory layout**
@@ -1199,7 +1220,8 @@ find react-kit -type f -not -path '*/.*' | sort
 ```
 
 Expected output (19+ files):
-```
+
+```text
 react-kit/.claude-plugin/plugin.json
 react-kit/README.md
 react-kit/evals/evals.json
@@ -1265,6 +1287,7 @@ Expected: multiple files reference react-kit/ paths. The plan itself is the sour
 This task follows the user policy: every implementation phase gets a sprint-contract + qa-evaluator cycle.
 
 **Files:**
+
 - None additional.
 
 - [ ] **Step 16.1: Archive any existing sprint-contract**
@@ -1322,7 +1345,7 @@ scope: "react-kit/ 플러그인 디렉토리 스캐폴드 + marketplace.json 등
 
 Use the Agent tool to spawn `harness:qa-evaluator` with a prompt similar to:
 
-```
+```text
 Evaluate react-kit Phase 1 Foundation against the sprint contract.
 
 Target: react-kit/ directory + .claude-plugin/marketplace.json entry
@@ -1349,6 +1372,7 @@ git commit -m "chore(harness): archive react-kit Phase 1 sprint-contract (APPROV
 ### Task 17: Final commit + summary
 
 **Files:**
+
 - None.
 
 - [ ] **Step 17.1: Verify no uncommitted changes**
@@ -1383,6 +1407,7 @@ echo "Next: Phase 2 (G1 scaffolding skills) — write a new plan via writing-pla
 After implementation, verify:
 
 **1. Spec coverage**:
+
 - ✅ Spec §2 (Tech Stack) → `templates/` files pin versions
 - ✅ Spec §3 (Clean Arch monorepo) → `references/clean-arch-layout.md`
 - ✅ Spec §4 (21 skills) → **explicitly deferred** to Phase 2~9 (skills/ empty)

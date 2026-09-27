@@ -27,7 +27,7 @@ README 파일에 HTML 주석 마커를 삽입하여 자동 갱신 영역을 지�
 ### 마커 종류
 
 | 마커 | 대상 파일 | 내용 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | `AUTO:skills` | 플러그인 README | 스킬 테이블 |
 | `AUTO:agents` | 플러그인 README | 에이전트 테이블 |
 | `AUTO:hooks` | 플러그인 README | 훅 테이블 |
@@ -40,7 +40,7 @@ README 파일에 HTML 주석 마커를 삽입하여 자동 갱신 영역을 지�
 ### 데이터 소스 매핑
 
 | 대상 | 소스 파일 | 추출 항목 |
-|------|-----------|-----------|
+| ------ | ----------- | ----------- |
 | 버전 | `{plugin}/.claude-plugin/plugin.json` | `version` |
 | 설명 | `{plugin}/.claude-plugin/plugin.json` | `description` |
 | 스킬 목록 | `{plugin}/skills/*/SKILL.md` frontmatter | `name`, `description` |
@@ -143,7 +143,7 @@ python scripts/sync-docs.py --dry-run
 
 ### 출력 형식
 
-```
+```text
 [sync-docs] harness/README.md — 스킬 테이블 갱신 (7개)
 [sync-docs] README.md — 플러그인 테이블 갱신 (harness v0.3.5)
 [sync-docs] CLAUDE.md — 요약 갱신
@@ -151,7 +151,8 @@ python scripts/sync-docs.py --dry-run
 ```
 
 `--check-only`:
-```
+
+```text
 [sync-docs] 변경 감지: harness/skills/new-skill/SKILL.md
 [sync-docs] 문서 동기화가 필요합니다. `python scripts/sync-docs.py harness` 를 실행하세요.
 ```
@@ -185,7 +186,7 @@ PostToolUse 훅으로 Edit/Write 도구 실행 시 자동 감지:
 
 ## 파일 구조
 
-```
+```text
 scripts/
 ├── sync-docs.py          ← 메인 동기화 스크립트
 └── release.sh            ← 기존 릴리스 스크립트

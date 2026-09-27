@@ -14,7 +14,7 @@
 
 ## 파일 구조
 
-```
+```text
 design-kit/skills/
 ├── design-concept/templates/
 │   ├── concept.md                    # 신규
@@ -47,6 +47,7 @@ docs/
 ### Task 1: Markdown 템플릿 4개 생성
 
 **Files:**
+
 - Create: `design-kit/skills/design-concept/templates/concept.md`
 - Create: `design-kit/skills/design-reference/templates/references.md`
 - Create: `design-kit/skills/design-component/templates/catalog.md`
@@ -104,6 +105,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 2: HTML 템플릿 3개 생성
 
 **Files:**
+
 - Create: `design-kit/skills/design-concept/templates/moodboard.html`
 - Create: `design-kit/skills/design-reference/templates/reference-catalog.html`
 - Create: `design-kit/skills/design-mockup/templates/mockup.html`
@@ -113,6 +115,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 - [ ] **Step 1: moodboard.html 생성**
 
 standalone HTML. 스펙 §1-2 구조:
+
 - 헤더: `{{project-name}}` + 무드 키워드 태그
 - 컬러 팔레트 섹션: `{{color-direction}}` 방향을 시각화한 스워치 플레이스홀더
 - 타이포 섹션: `{{font-family}}` 서체별 샘플 텍스트
@@ -122,6 +125,7 @@ standalone HTML. 스펙 §1-2 구조:
 - [ ] **Step 2: reference-catalog.html 생성**
 
 standalone HTML. 스펙 §1-4 구조:
+
 - 헤더: `{{keywords}}` + `{{count}}/{{target}}` 요약
 - 필터 바: 소스 채널별 토글 (갤러리/프로덕트/DS) JavaScript
 - 카드 그리드: `{{reference-cards}}` 플레이스홀더
@@ -130,6 +134,7 @@ standalone HTML. 스펙 §1-4 구조:
 - [ ] **Step 3: mockup.html 생성**
 
 standalone HTML. 스펙 §1-5 구조:
+
 - `{{mockup-content}}` 시안 콘텐츠 영역
 - ID 오버레이 JavaScript:
   - 우하단 토글 버튼 (기본 OFF)
@@ -159,6 +164,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 3: SKILL.md 4개 업데이트
 
 **Files:**
+
 - Modify: `design-kit/skills/design-concept/SKILL.md`
 - Modify: `design-kit/skills/design-reference/SKILL.md`
 - Modify: `design-kit/skills/design-mockup/SKILL.md`
@@ -173,7 +179,8 @@ Process Step 4에서 "`.design/concept.md`를 생성(또는 갱신)한다:" → 
 Process Step 5에서 "`.design/moodboard.html`을 생성한다:" → "templates/moodboard.html 포맷으로 `.design/moodboard.html`을 생성한다:"
 
 References 섹션에 추가:
-```
+
+```text
 - `templates/concept.md` — 컨셉 문서 출력 포맷
 - `templates/moodboard.html` — 비주얼 무드보드 출력 포맷
 ```
@@ -185,7 +192,8 @@ Process Step 3에서 "`.design/references.md`를 생성한다:" → "templates/r
 Process Step 4에서 "`.design/reference-catalog.html`을 생성한다:" → "templates/reference-catalog.html 포맷으로 `.design/reference-catalog.html`을 생성한다:"
 
 References 섹션에 추가:
-```
+
+```text
 - `templates/references.md` — 레퍼런스 분석 문서 출력 포맷
 - `templates/reference-catalog.html` — 비주얼 카탈로그 출력 포맷
 ```
@@ -195,7 +203,8 @@ References 섹션에 추가:
 Process Step 3에서 "references/mockup-guidelines.md를 참조하여 시안을 생성한다:" → "references/mockup-guidelines.md를 참조하고 templates/mockup.html 포맷으로 시안을 생성한다:"
 
 References 섹션에 추가:
-```
+
+```text
 - `templates/mockup.html` — 시안 HTML 출력 포맷 (ID 오버레이 JavaScript 포함)
 ```
 
@@ -204,13 +213,15 @@ References 섹션에 추가:
 Process Step 3에서 "컴포넌트 카탈로그를 사용자에게 제시" → "templates/catalog.md 포맷으로 컴포넌트 카탈로그를 생성하고 사용자에게 제시"
 
 References 섹션에 추가:
-```
+
+```text
 - `templates/catalog.md` — 컴포넌트 카탈로그 출력 포맷
 ```
 
 - [ ] **Step 5: 검증**
 
 각 SKILL.md에서 "templates/" 문자열이 Process + References에 존재하는지 확인:
+
 ```bash
 grep -c "templates/" design-kit/skills/design-concept/SKILL.md
 grep -c "templates/" design-kit/skills/design-reference/SKILL.md
@@ -234,6 +245,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 4: docs site — design-concept.html
 
 **Files:**
+
 - Create: `docs/design-kit/design-concept.html`
 
 기존 `docs/design-kit/accessibility.html`의 CSS `:root` 블록과 공통 클래스를 그대로 복사하여 베이스로 사용. 스펙 §2 공통 HTML 스켈레톤 구조를 따른다.
@@ -247,6 +259,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 스펙 §2-1 + §5(TaskFlow 컨텍스트) 기준:
 
 섹션 구성:
+
 1. **Hero**: "디자인 컨셉" + "프로젝트의 디자인 방향성을 정의하고 비주얼 무드보드로 시각화한다"
 2. **Workflow**: `[design-concept] → design-system → design-mockup → design-component` 다이어그램 (현재 스킬 accent 하이라이트)
 3. **Template**: concept.md 포맷의 테이블 구조 설명 (무드 키워드, 컬러 방향, 타이포 방향, UI 패턴, 레퍼런스 섹션)
@@ -275,6 +288,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 5: docs site — design-reference.html
 
 **Files:**
+
 - Create: `docs/design-kit/design-reference.html`
 
 - [ ] **Step 1: design-reference.html 생성**
@@ -282,6 +296,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 스펙 §2-2 + §5(TaskFlow) 기준. Task 4에서 사용한 CSS를 동일하게 사용.
 
 섹션 구성:
+
 1. **Hero**: "디자인 레퍼런스" + "실제 프로덕트/서비스의 시각 디자인을 체계적으로 크롤링하고 비주얼 카탈로그로 정리한다"
 2. **Workflow**: `design-concept → [design-reference] → design-system → design-mockup` (현재 하이라이트)
 3. **Template**: references.md 포맷 + catalog HTML 구조 설명 (3개 소스 채널 테이블, 기본 30개)
@@ -302,6 +317,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 6: docs site — design-mockup.html
 
 **Files:**
+
 - Create: `docs/design-kit/design-mockup.html`
 
 - [ ] **Step 1: design-mockup.html 생성**
@@ -309,6 +325,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 스펙 §2-3 + §5(TaskFlow) 기준.
 
 섹션 구성:
+
 1. **Hero**: "디자인 목업" + "하이파이 HTML 시안 5개를 생성하여 제시한다"
 2. **Workflow**: `design-concept → design-system → [design-mockup] → design-component` (현재 하이라이트)
 3. **Template**: mockup.html 포맷 설명 — ID 시스템(`{컴포넌트명}-{4자리해시}`), 호버 오버레이, Figma 연동
@@ -329,6 +346,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 7: docs site — design-component.html
 
 **Files:**
+
 - Create: `docs/design-kit/design-component.html`
 
 - [ ] **Step 1: design-component.html 생성**
@@ -336,6 +354,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 스펙 §2-4 + §5(TaskFlow) 기준.
 
 섹션 구성:
+
 1. **Hero**: "컴포넌트 카탈로그" + "반복되는 UI 요소를 컴포넌트로 정의하고 카탈로그화한다"
 2. **Workflow**: `design-concept → design-system → design-mockup → [design-component]` (현재 하이라이트)
 3. **Template**: catalog.md 포맷 설명 — 역할, Variants, 상태, 사이즈, 토큰 매핑, 사용 가이드라인
@@ -358,6 +377,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ### Task 8: index.html 업데이트 + README 동기화
 
 **Files:**
+
 - Modify: `docs/index.html` (~line 333)
 - Modify: `design-kit/README.md` (via sync-docs)
 
@@ -406,7 +426,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 `.harness/sprint-contract.md`의 16개 조건을 하나씩 검증:
 
 | 조건 | 검증 방법 |
-|------|-----------|
+| ------ | ----------- |
 | SK-01 | `ls design-kit/skills/*/templates/` |
 | SK-02 | `grep -l "{{" design-kit/skills/*/templates/*` |
 | SK-03 | `grep "templates/" design-kit/skills/*/SKILL.md` — Process 섹션에 존재 확인 |
