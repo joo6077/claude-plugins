@@ -269,7 +269,8 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
 - **상대 경로 사용** (`'../../../shared/...'`) → ⚠️ 경고
   - grep_pattern: `^import .* from ['"]\.\./\.\./\.\./`
 - **`export default` 사용** → ⚠️ 경고
-  - grep_pattern: `^export default ` <!-- markdownlint-disable-line MD038 -->
+  <!-- markdownlint-disable-next-line MD038 -->
+  - grep_pattern: `^export default `
   - ast_check: `@typescript-eslint/no-default-export` 또는 `import/no-default-export`
 
 #### Strict TypeScript
@@ -278,7 +279,8 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
   - grep_pattern: `: any\b|<any>|as any\b`
   - ast_check: `@typescript-eslint/no-explicit-any` (error level)
 - **`as` 타입 단언** (일반) → ⚠️ 경고 (Zod parse 권고)
-  - grep_pattern: ` as [A-Z][a-zA-Z]+\b` (타입 단언), exclude `as const` <!-- markdownlint-disable-line MD038 -->
+  <!-- markdownlint-disable-next-line MD038 -->
+  - grep_pattern: ` as [A-Z][a-zA-Z]+\b` (타입 단언), exclude `as const`
   - ast_check: `@typescript-eslint/consistent-type-assertions`
 - **`!` non-null 단언** → ❌ 실패
   - grep_pattern: `\w+!\.\w+|\w+!\[|\w+!\s*,|\w+!\s*\)`
@@ -308,7 +310,8 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
 
 - **하드코딩된 i18n 문자열** (매크로 미경유 한국어/영어) → ⚠️ 경고 (G4)
   - grep_pattern: `>[^<{]*[가-힣A-Za-z][^<{]*<|["'][^"']*[가-힣][^"']*["']` (in .tsx)
-  - exclude: `<Trans>`, `t\`...\``, `msg\`...\`` 내부 <!-- markdownlint-disable-line MD038 -->
+    <!-- markdownlint-disable-next-line MD038 -->
+  - exclude: `<Trans>`, `t\`...\``, `msg\`...\`` 내부
 - **`aria-*` 누락** (인터랙티브 요소) → ⚠️ 경고
   - ast_check: `eslint-plugin-jsx-a11y/accessible-name`
 - **keyboard 경로 누락** (드래그앤드롭) → ⚠️ 경고 (G5b §5)
