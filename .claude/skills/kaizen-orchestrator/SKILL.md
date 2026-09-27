@@ -610,8 +610,7 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 
    ```bash
    # 사이클 끝 감사 기록
-   python3 scripts/append-audit-log.py --cycle-id "$CYCLE_ID" --failures post-kaizen-failures.json \
-     --watch "<교차 진단 · 계약 밖 결함 한 줄>"
+   python3 scripts/append-audit-log.py --cycle-id "$CYCLE_ID" --failures post-kaizen-failures.json --watch "<교차 진단 · 계약 밖 결함 한 줄>"
    ```
 
 5. **판 번호 원본 목록 뽑기:** 판 번호(머리 설정 `version`)를 바꾼 원본 문서를 손으로 모으면 빠진다. 사이클 시작 판을 `BASE`, 끝 판을 `END` 에 넣고 저장소 폴더에서 돌린다. 나온 목록이 문서 쪽 판 번호 대조의 입력이다.
