@@ -167,7 +167,7 @@ guide_gate() {
 
 iOS Firebase SDK 설치 방식도 스택마다 갈린다.
 
-- 네이티브 Apple 가이드는 Swift Package Manager 로 안내한다 — 공식 문서가 새 프로젝트에 SPM 을 쓰라 하고, CocoaPods 는 폐기 예정이며 Firebase 12 가 CocoaPods 로 나오는 마지막 major 라고 적었다. 폐기 날짜는 원문에 없다 (https://firebase.google.com/docs/ios/setup , 조회 2026-09-26)
+- 네이티브 Apple 가이드는 Swift Package Manager 로 안내한다 — 공식 문서가 새 프로젝트에 SPM 을 쓰라 하고, CocoaPods 는 폐기 예정이며 Firebase 12 가 CocoaPods 로 나오는 마지막 major 라고 적었다. 폐기 날짜는 원문에 없다 (<https://firebase.google.com/docs/ios/setup>, 조회 2026-09-26)
 - Flutter 가이드는 FlutterFire 절차를 따르고, 위 문서를 근거로 그 절차의 CocoaPods 단계를 SPM 으로 바꾸지 않는다 — 위 문서는 Apple 네이티브 범위라 FlutterFire 가 무엇으로 설치하는지 말하지 않는다
 
 ### Gotcha 2: 콘솔 UI 라벨은 학습 데이터 추측 금지 — 그리고 **로그인 뒤 화면은 애초에 검증 불가다**

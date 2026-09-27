@@ -5,7 +5,7 @@
 | 요구 | 출처 | 막히는 것 | 우회 |
 | --- | --- | --- | --- |
 | 실기기 | [Firebase Apple 셋업](https://firebase.google.com/docs/ios/setup) | 원격 메시지 수신 확인 | `우회 없음(출처 확인)` |
-| 유료 개발자 계정 | [Apple 지원 기능 표](https://developer.apple.com/help/account/reference/supported-capabilities-ios) | APNs 키 구성 |  |
+| 유료 개발자 계정 | [Apple 지원 기능 표](https://developer.apple.com/help/account/reference/supported-capabilities-ios) | APNs 키 구성 | |
 
 ## Step 1: FlutterFire CLI 설치
 
