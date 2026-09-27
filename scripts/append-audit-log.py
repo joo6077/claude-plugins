@@ -2,7 +2,7 @@
 """
 append-audit-log.py — orchestrator-audit-log.md 자동 append
 
-카이젠 사이클 완료 시 Step 11 Final 에서 실행된다. 이번 사이클의 meta-issue
+카이젠 사이클 완료 시 Final Step F1 끝에서 실행된다. 이번 사이클의 meta-issue
 (수동 개입, Post-Kaizen Checklist 실패 항목, orchestrator SKILL.md 수동 edit) 를
 `.harness/.meta/orchestrator-audit-log.md` 에 append-only 로 기록한다.
 
@@ -127,16 +127,25 @@ def load_json(path: Path | None) -> list[dict]:
         sys.exit(2)
 
 
+def next_entry_tag(current: str, cycle_id: str) -> str:
+    """같은 날 같은 사이클 항목이 이미 있으면 차례 번호를 붙인다 — 시작 빈 항목과 Final 항목이 한 날에 겹친다."""
+    base = f"{datetime.date.today().isoformat()} — {cycle_id}"
+    tag, seq = base, 1
+    while f"## {tag}\n" in current:
+        seq += 1
+        tag = f"{base} ({seq})"
+    return tag
+
+
 def render_entry(
+    entry_tag: str,
     cycle_id: str,
     failures: list[dict],
     manual_edits: list[dict],
     notes: str,
     watch: list[str],
 ) -> str:
-    today = datetime.date.today().isoformat()
     # 소제목이 고정이면 항목마다 겹쳐 같은 제목 경고(MD024)가 쌓인다
-    entry_tag = f"{today} — {cycle_id}"
     lines: list[str] = []
     lines.append(f"## {entry_tag}")
     lines.append("")
@@ -271,7 +280,11 @@ def main() -> int:
     failures = load_json(args.failures)
     manual_edits = load_json(args.manual_edits)
 
-    entry = render_entry(cycle_id, failures, manual_edits, args.notes, args.watch or [])
+    current = AUDIT_LOG.read_text(encoding="utf-8")
+    entry_tag = next_entry_tag(current, cycle_id)
+    entry = render_entry(
+        entry_tag, cycle_id, failures, manual_edits, args.notes, args.watch or []
+    )
 
     if args.dry_run:
         print("=== DRY RUN (append 안 됨) ===")
@@ -279,7 +292,6 @@ def main() -> int:
         return 0
 
     # Append-only
-    current = AUDIT_LOG.read_text(encoding="utf-8")
     # 새 `## ` 머리 앞에 빈 줄이 있어야 앞 항목과 갈린다 (MD022 · MD032). 옛 내용은 한 글자도 지우지 않는다
     if not current.endswith("\n"):
         current += "\n"

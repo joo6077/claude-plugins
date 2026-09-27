@@ -24,10 +24,14 @@ Phase 5: Flutter-toolkit 카이젠 (flutter-kaizen)
   flutter-toolkit/references/project-detection.md
   flutter-toolkit/skills/*/SKILL.md
   flutter-toolkit/evals/evals.json
+  flutter-toolkit/scripts/
+  flutter-toolkit/templates/
       ↓ Flutter 스킬 완료 후 Design-kit으로
 Phase 6: Design-kit 카이젠 (design-kaizen)
   design-kit/skills/*/SKILL.md
   design-kit/references/
+  design-kit/scripts/
+  design-kit/templates/
       ↓ UI/UX 원칙 완료 후 Backend-kit으로
 Phase 7: Backend-kit 카이젠 (backend-kaizen)
   backend-kit/skills/*/SKILL.md
@@ -43,12 +47,15 @@ Phase 9: Rust-kit 카이젠 (rust-kaizen)
   rust-kit/skills/*/SKILL.md
   rust-kit/references/
   docs/rust/ (리서치 문서)
+  rust-kit/templates/
       ↓ Rust 백엔드 완료 후 React-kit으로
 Phase 10: React-kit 카이젠 (react-kaizen)
   react-kit/skills/*/SKILL.md
   react-kit/agents/*.md
   react-kit/references/
   docs/react/ (리서치 문서)
+  react-kit/scripts/
+  react-kit/templates/
       ↓ React + Tauri + WASM 완료 후 Planning-kit으로
 Phase 11: Planning-kit 카이젠 (planning-kaizen)
   planning-kit/skills/*/SKILL.md
@@ -59,10 +66,12 @@ Phase 12: Reflect-kit 카이젠 (reflect-kaizen)
   reflect-kit/skills/*/SKILL.md
   reflect-kit/hooks/
   reflect-kit/docs/ (SCHEMA.md ↔ DESIGN.md 동시 갱신 규칙)
+  reflect-kit/scripts/
       ↓ 피드백 파이프라인 완료 후 Bambu-kit으로
 Phase 13: Bambu-kit 카이젠 (bambu-kaizen)
   bambu-kit/skills/bambu-print-profile/SKILL.md
   bambu-kit/skills/bambu-print-profile/references/ (SSOT)
+  bambu-kit/scripts/
       ↓ 프로파일 생성 완료 후 Onboarding-kit으로
 Phase 14: Onboarding-kit 카이젠 (onboarding-kaizen)
   onboarding-kit/skills/*/SKILL.md
@@ -72,6 +81,7 @@ Phase 15: Tone-kit 카이젠 (tone-kaizen)
   tone-kit/skills/*/SKILL.md
   tone-kit/references/
   docs/tone/ (리서치 문서)
+  tone-kit/templates/
       ↓ 톤 게이트 완료 후 Api-kit으로
 Phase 16: Api-kit 카이젠 (api-kaizen)
   api-kit/skills/*/SKILL.md
@@ -84,6 +94,7 @@ Phase 17: Howto-kit 카이젠 (howto-kaizen)
   howto-kit/agents/howto-reviewer.md
   howto-kit/references/
   docs/howto/ (리서치 문서)
+  howto-kit/scripts/
 ```
 
 ## Phase 간 의존성 상세
