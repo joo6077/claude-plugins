@@ -80,7 +80,8 @@ Clean Architecture 레이어 경계 위반을 검출한다. domain 이 data/pres
 - [ ] **상대 경로 3단계 이상** (`'../../../'`) → ⚠️ 경고
   - grep: `^import .* from ['"]\.\./\.\./\.\./`
 - [ ] **`export default` 사용** → ⚠️ 경고
-  - grep: `^export default`
+  <!-- markdownlint-disable-next-line MD038 -->
+  - grep: `^export default `
 
 ### 2. Strict TypeScript
 
@@ -93,7 +94,8 @@ Clean Architecture 레이어 경계 위반을 검출한다. domain 이 data/pres
   - grep: `\w+!\.\w+|\w+!\[|\w+!\s*[,)]`
   - ESLint rule: `@typescript-eslint/no-non-null-assertion`
 - [ ] **`as` 타입 단언** (`as const` 제외) → ⚠️ 경고
-  - grep: `as [A-Z][a-zA-Z]+\b` (exclude `as const`)
+  <!-- markdownlint-disable-next-line MD038 -->
+  - grep: ` as [A-Z][a-zA-Z]+\b` (exclude `as const`)
   - ESLint rule: `@typescript-eslint/consistent-type-assertions`
 - [ ] **`React.FC` 사용** → ⚠️ 경고
   - grep: `React\.FC<|: FC<`
