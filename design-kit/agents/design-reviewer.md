@@ -67,7 +67,8 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
       (4 분기: FAIL / `UNVERIFIED_ENV` / 4 요건 미충족 / 증거 무효).
       마커 어간은 `[미검증]` 하나이며 접미 `:ENV` / `:INVALID` 는 분류다. **접미 없는 레거시
       `[미검증]` 은 `INVALID` 로 해석한다.**
-   3. **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
+
+      **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
       **1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT**.
       "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며 2 건 이상에는
       쓸 수 없다. **`UNVERIFIED_ENV` 는 이 카운터에 합산하지 않고** `env_gaps` 로 따로 세어
@@ -113,7 +114,7 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
 
 11. **L3 Coverage Honesty** — 감사 완료 시 Report 말미에 `L3 커버리지: N/10 카테고리` 를 명시한다. 시간 제약으로 샘플링 했으면 샘플링 사실과 남은 카테고리 리스트를 기록한다. 모든 카테고리 PASS 를 선언하려면 10/10 L3 도달이 필수이며, 미도달 시 APPROVE 가 아닌 "CONDITIONAL APPROVE (L3 부분 커버리지)" 로 판정한다.
 
-12. **Decision Propagation Coverage — 10 카테고리에 앞서는 전제 조건 검사** — `.design/decisions.yaml` 이 존재하면 카테고리 평가 **전에** 커버리지를 판정한다. 이것은 11 번째 카테고리가 아니다 — `N/10` 표기와 L3 커버리지 계산에 포함하지 마라. `decision_id` 마다 `required_surfaces[]` 를 순회해 (a) golden 도 user-visible assertion 도 없으면 FAIL (b) **golden 만 있고 visible/count/height assertion 이 없으면 FAIL** (c) `excluded_surfaces` 에 이유 없이 빠진 표면은 커버리지 공백이므로 FAIL 이다. manifest 가 없으면 FAIL 이 아니라 `NO_MANIFEST` 로 보고하고 이 검사를 건너뛴다 — 대상 0 건과 통과는 다르다 (규칙 9 의 "공허한 0" 과 같은 구분). 정본: `../references/visual-change-protocol.md` §6 Decision Propagation Manifest.
+12. **Decision Propagation Coverage — 10 카테고리에 앞서는 전제 조건 검사** — `.design/decisions.yaml` 이 존재하면 카테고리 평가 **전에** 커버리지를 판정한다. 이것은 11 번째 카테고리가 아니다 — `N/10` 표기와 L3 커버리지 계산에 포함하지 마라. `status: approved` 인 `decision_id` 마다 `required_surfaces[]` 를 순회해 (a) golden 도 user-visible assertion 도 없으면 FAIL (b) **golden 만 있고 visible/count/height assertion 이 없으면 FAIL** (c) `excluded_surfaces` 에 이유 없이 빠진 표면은 커버리지 공백이므로 FAIL 이다. `status: superseded`(대체됨) 결정은 화면 자리를 판정하지 않고, `superseded_by` 가 같은 목록의 다른 `approved` 결정을 가리키는지만 본다. manifest 가 없으면 FAIL 이 아니라 `NO_MANIFEST` 로 보고하고 이 검사를 건너뛴다 — 대상 0 건과 통과는 다르다 (규칙 9 의 "공허한 0" 과 같은 구분). 정본: `../references/visual-change-protocol.md` §6 Decision Propagation Manifest.
 
 13. **증거 채널 구분 — 스냅샷이 있다고 사용자가 본다는 뜻은 아니다** — 인용하는 모든 증거에 채널 이름을 붙인다: `artifact_snapshot`(산출물 파일 상태) · `dom_snapshot`(DOM·a11y 트리) · `browser_user_visible`(지정 route·state·viewport 에서 얻은 visible locator + count/height) · `device_user_visible`(실기기). **`artifact_snapshot` 만으로 "사용자가 보는 화면이 정상" 이라고 판정하지 마라.** PASS 문장에는 viewport · route/state · visible locator · count/height · screenshot/golden id 5 요소가 있어야 하고, 하나라도 없으면 PASS 가 아니라 `[미검증]` 이다 (규칙 9 검사 3 반증 가능성과 같은 뿌리). 채널 정의: `../references/visual-change-protocol.md` §7 Evidence Channels. 사용자 실패 보고와 자기 증거가 충돌할 때의 **평가자 규약 정본은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical User-Reported Failure Protocol** 이다 (각 kit reviewer 복제용 정본). `agent-design-guide.md` §10(평가 측 상위 짝) · `skill-design-guide.md` §3.8(생성 측)은 같은 규약의 다른 표면이다. 여기서 재정의하지 않는다.
 

@@ -22,7 +22,7 @@ user-invocable: true
 - description 을 사람용 요약으로 쓰면 위임 정확도가 떨어진다 — "언제 위임할지" + 트리거 키워드 + negative trigger (비트리거 조건) 명시
 - 도구를 전체 상속(tools 생략) 하면 에이전트의 격리 의미가 없다 — 역할에 필요한 도구만 명시적으로 나열
 - 플러그인 에이전트는 hooks, mcpServers, permissionMode, initialPrompt 를 지원하지 않는다 — 필요하면 `.claude/agents/` 에 생성
-- **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** 공식 subagent frontmatter 는 18 종이고 **필수는 `name` 과 `description` 둘뿐**이다 (`../../docs/guides/agent-design-guide.md` §frontmatter 전체 필드 — 그 표가 SSOT). `tools` 를 생략하면 전체 상속, `model` 을 생략하면 `inherit` 이며 **에이전트가 invisible 처리되지는 않는다**. 다만 **이 레포는 `tools` · `model` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 agents 에 `name`/`description`/`tools`/`model` 4 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다. 생성 직후 `python3 scripts/validate-plugin.py <plugin-name>` 으로 확인해라.
+- **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** 공식 subagent frontmatter 는 18 종이고 **필수는 `name` 과 `description` 둘뿐**이다 (`../../docs/guides/agent-design-guide.md` §frontmatter 전체 필드 — 그 표가 SSOT). `tools` 를 생략하면 전체 상속이고, `model` 을 생략하면 호출별 `model` 인자 → 환경 변수 `CLAUDE_CODE_SUBAGENT_MODEL` → 메인 대화 모델 순으로 정한다. 어느 쪽을 생략해도 **에이전트가 invisible 처리되지는 않는다**. 다만 **이 레포는 `tools` · `model` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 agents 에 `name`/`description`/`tools`/`model` 4 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다. 생성 직후 `python3 scripts/validate-plugin.py <plugin-name>` 으로 확인해라.
 - **실제 launch 실패는 다른 원인에서 온다** — `tools` 목록의 어느 항목도 실제 도구로 해석되지 않으면 에이전트가 launch 자체에 실패한다. "필드를 안 썼다" 가 아니라 "쓴 값이 전부 무효다" 가 위험한 경우다.
 - description 관점 일관성 (3 인칭 또는 명령형) — create-skill Gotchas 와 동일한 Anthropic best practice 규칙을 따른다
 - `model: sonnet` 을 기본으로 쓰되, 판단/평가/합성이 필요한 에이전트는 `model: opus` 를 지정해라. 모델 선택 없이 기본 상속하면 호출 시점의 모델에 의존하여 품질이 불안정해진다

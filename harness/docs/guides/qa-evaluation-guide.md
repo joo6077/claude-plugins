@@ -1,7 +1,7 @@
 ---
 title: QA Evaluation Guide
 version: v5.1
-last_updated: 2026-09-24
+last_updated: 2026-09-26
 ---
 
 # QA Evaluation Guide
@@ -140,7 +140,7 @@ LLM이 판정자 역할을 할 때 발생하는 알려진 편향:
 > CheckEval 이므로 인용을 교체했다. 이 논문은 "편향이 무엇인가" 의 출처이지 "그래서 이진으로
 > 채점하라" 의 출처가 아니다.
 >
-> **종합 편향 survey**: [A Survey on LLM-as-a-Judge — arxiv 2411.15594](https://arxiv.org/html/2411.15594v6), [Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge — arxiv 2410.02736](https://arxiv.org/html/2410.02736v1) 에서 12 개 이상의 편향을 분류. 본 가이드는 계약 기반 검증 맥락에서 영향이 큰 6 개에 집중한다.
+> **종합 편향 survey**: [A Survey on LLM-as-a-Judge — arxiv 2411.15594](https://arxiv.org/html/2411.15594v6), [Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge — arxiv 2410.02736](https://arxiv.org/html/2410.02736v1). Survey 는 편향을 두 상위 분류 `task-agnostic` · `judgment-specific` 로 나누고, Justice or Prejudice 는 정확히 12 개 편향을 잰다. 본 가이드는 계약 기반 검증 맥락에서 영향이 큰 6 개에 집중한다.
 >
 > **구현 추종 편향 경고**: LLM은 코드를 읽을 때 구현된 로직을 "의도된 행동"으로 추종하는 경향이 있다
 > ([Understanding LLM-Driven Test Oracle Generation](https://arxiv.org/abs/2601.05542)).
@@ -1209,6 +1209,23 @@ CWE-20 · CWE-754 와 [CheckEval](https://arxiv.org/abs/2403.18771) 의 판별�
 생성 측 · 계약 측 짝은 ⑤ 에만 있다(skill-design-guide §3.7 · contract-schema §양성 대조 · §알려진 답 대조) —
 ①~④ 의 짝은 다음 사이클 Phase 1 · 2 로 넘긴다.
 
+### 문서 산출물일 때 — 문장 하나를 지운 사본으로 돌린다 (2026-09-26 추가)
+
+이번 스프린트가 고친 것이 문서(가이드 · 스킬 본문 · 규약)이고 조건이 「이 문장이 있다」 를 낱말이 든 줄 수로 재면,
+그 측정이 원본에서 1 이상을 냈다는 것만으로는 조건이 요구한 문장을 판별했다는 증거가 아니다. 다른 줄에 같은 낱말이
+있으면 문장을 틀리게 남겨도 통과한다. 실측(2026-09-24): Phase 1 계약 검토가 모의 편집본으로 「틀리게 남겨도 통과하는
+문장」 을 찾는 방법을 두 번 썼고, 두 번 모두 막는 결함을 찾았다(`.harness/.meta/kaizen-0924/phase1-notes.md`).
+
+문서 조건마다 아래 셋을 한다.
+
+1. 조건이 요구하는 문장 하나를 지운(또는 옛 문장으로 되돌린) 임시 사본을 만든다. 원본은 건드리지 않는다
+2. 그 사본에서 조건의 측정을 다시 돌려 값이 떨어지는지(1 이상 → 0, 통과 → 실패) 본다
+3. 사본 경로 · 지운 문장 · 측정 명령 · 두 값(원본 · 사본)을 리포트 `Check Artifacts` 블록에 남긴다
+
+**판정.** 값이 떨어지지 않으면 그 측정은 문장을 판별하지 못한다. 그 측정에 기댄 PASS 는 `[미검증:INVALID]` 로 센다.
+같은 의도를 판별하는 측정을 찾으면 그것으로 판정하고 `측정-방식-불일치` 를 Improvement 로 남긴다(위 §0 매치 판정 규칙과
+같다). 조건마다 한 문장이면 된다 — 측정이 문장을 가려내는지 보는 절차이지 문장 전부를 지워 보는 절차가 아니다.
+
 ### 보고 형식
 
 Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께 집계한다:
@@ -1238,11 +1255,9 @@ Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께
 > 이 절을 인용 앵커로 삼는다: `harness/docs/guides/qa-evaluation-guide.md`
 > §Canonical Unverified-Evidence Protocol.
 >
-> **현재 drift (2026-07-27 실측 · 각 kit Phase 가 해소할 것):**
-> `design-reviewer` 는 임계 **3 건**("미검증 3항 프로토콜"), `backend-reviewer` ·
-> `infra-reviewer` · `rust-reviewer` 는 2 건 + CONDITIONAL APPROVE, `planning-reviewer` 는
-> 미검증 0 건 요구, `react-reviewer` 는 조항 없음. 킷마다 다른 임계는 같은 상태를 다른 verdict 로
-> 바꾼다.
+> **사본 검사:** reviewer 일곱의 사본이 아래 조항과 글자까지 같은지는 CI 가
+> `scripts/check-reviewer-protocol-copies.py` 로 잰다. 이 절을 고치면 같은 작업에서 사본 일곱도 고친다 —
+> 한쪽만 고치면 그 검사가 실패한다. 2026-07-27 에 적어 둔 킷별 임계 차이는 그 검사가 생긴 뒤 0 건이다.
 
 1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
    `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
@@ -1282,7 +1297,8 @@ Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께
    (4 분기: FAIL / `UNVERIFIED_ENV` / 4 요건 미충족 / 증거 무효).
    마커 어간은 `[미검증]` 하나이며 접미 `:ENV` / `:INVALID` 는 분류다. **접미 없는 레거시
    `[미검증]` 은 `INVALID` 로 해석한다.**
-3. **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
+
+   **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
    **1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT**.
    "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며 2 건 이상에는
    쓸 수 없다. **`UNVERIFIED_ENV` 는 이 카운터에 합산하지 않고** `env_gaps` 로 따로 세어

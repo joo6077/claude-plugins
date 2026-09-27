@@ -112,9 +112,9 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 2. APPROVE:
    - `kaizen-phase-3-pre` git tag 생성
    - 파일에 적용 + 커밋
-   - Regression Smoke Test (`harness/evals/kaizen/evaluator-kaizen/` 활용)
-   - Regression PASS → 완료
-   - Regression FAIL → `git revert` + BLOCKED
+   - Regression Smoke Test — `python3 scripts/run-kaizen-assertions.py` 를 돌린다(CI 와 같은 실행기. `harness/evals/kaizen/*/assertions.json` 을 모두 잰다)
+   - 종료 코드로 가른다: 0 → Regression PASS → 완료 · 1(패턴이 사라짐) → Regression FAIL → `git revert` + BLOCKED ·
+     2(입력을 못 읽음) → 판정하지 않고 `UNREADABLE` 줄을 고친 뒤 다시 돌린다
 3. REJECT: 피드백 반영 → 재QA (최대 3회) → 3회 시 에스컬레이션
 
 ### Step 8: 기록
