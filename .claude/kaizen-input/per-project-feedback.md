@@ -3,6 +3,7 @@
 ## apps
 
 ### sprint-contract.md (excerpt)
+
 ```markdown
 ---
 feature: "위젯 리팩토링 — 터치 효과 추출, 셀렉트 통합, 캐러셀 분리"
@@ -44,6 +45,7 @@ conditions: 14
 ```
 
 ### sprint-feedback.md (last 3000 chars)
+
 ```markdown
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -118,6 +120,7 @@ import 'package:app_kiosk/ui/admin/theme/styles/sizes.dart';
 ```
 
 **round_rect_button_widget.dart:**
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -129,9 +132,11 @@ import 'package:app_kiosk/ui/ui_defs.dart';
 import 'package:app_kiosk/ui/widgets/pressable_widget.dart';
 ```
 
+<!-- markdownlint-disable MD022 MD024 MD031 -->
+
 (drop_down_list_button_widget, image_button_widget, date_range_field_widget도 동일 패턴 적용)
 
-```
+```text
 
 ## claude-plugins
 
@@ -376,3 +381,5 @@ te.ts`가 `canvas-engine/src/` 하위 존재, react/tanstack/zustand import 0건
 ⚠️ 런타임 검증 미수행 — MCP 서버 미설정
 
 ```
+
+<!-- markdownlint-enable MD022 MD024 MD031 -->

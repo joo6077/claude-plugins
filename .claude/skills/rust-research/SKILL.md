@@ -16,12 +16,16 @@ user-invocable: true
 4. **크레이트 버전 명시 필수** — 크레이트를 언급할 때 검증한 버전을 `[crate@version]` 형태로 명시하라. 버전 없는 크레이트 추천은 6개월 후 outdated 될 수 있다.
 5. **nightly-only 기능과 stable 구분** — nightly에서만 동작하는 기능을 stable처럼 서술하지 마라. `[nightly]` 태그 필수.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 대상 카테고리 결정
 
 | 인자 | 대상 |
-|------|------|
+| ------ | ------ |
 | `fundamentals` | docs/rust/fundamentals/ (6개 문서) |
 | `web` | docs/rust/web/ (4개 문서) |
 | `data` | docs/rust/data/ (3개 문서) |
@@ -32,6 +36,7 @@ user-invocable: true
 ## Step 2: 리서치 실행
 
 Codex 에이전트에 해당 카테고리의 최신 정보를 리서치 위임한다:
+
 - 공식 문서 (docs.rs, Rust Book)
 - 크레이트 최신 버전 및 변경사항
 - 커뮤니티 추천 사항 (Rust subreddit, This Week in Rust)
@@ -39,6 +44,7 @@ Codex 에이전트에 해당 카테고리의 최신 정보를 리서치 위임�
 ## Step 3: 문서 갱신
 
 리서치 결과를 기존 문서에 반영한다:
+
 - `last_updated` 날짜 갱신
 - 새 원칙/안티패턴 추가
 - deprecated 내용 제거 또는 대체
@@ -49,6 +55,10 @@ Codex 에이전트에 해당 카테고리의 최신 정보를 리서치 위임�
 
 갱신된 문서를 커밋한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - docs/rust/ — 갱신 대상 문서

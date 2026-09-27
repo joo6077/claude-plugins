@@ -15,7 +15,11 @@ user-invocable: true
 
 `howto-kit` 스킬·에이전트·references·게이트를 리서치 문서 기준으로 개선한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Gotchas
+
+<!-- markdownlint-enable MD025 -->
 
 1. **게이트를 고쳤으면 양성 케이스로 실행해 증명하라.** 서술 존재는 증거가 아니다.
    `sh howto-kit/evals/run-evals.sh` 를 돌리고 `EVALS_PASS` 출력을 인용한다.
@@ -42,7 +46,11 @@ user-invocable: true
    확인 실패를 조용히 삭제하는 것은 이 킷이 막으려는 결함 그 자체다. 확정으로 옮길 때만 지운다.
 10. **온보딩 킷을 건드리지 마라.** `onboarding-kit` 은 별도 킷이고 별도 결함 목록을 갖는다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0. 트리거 선별
 
@@ -83,7 +91,11 @@ python3 scripts/sync-docs.py --check-only
 
 세 명령이 모두 통과해야 완료다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `howto-kit/references/step-contract.md` — Step Contract 스키마 정본
 - `howto-kit/references/provenance-notes.md` — 미확정 근거 원장

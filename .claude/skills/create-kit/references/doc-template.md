@@ -73,6 +73,7 @@ last_updated: YYYY-MM-DD
 ## 기존 문서 참고
 
 좋은 예시:
+
 - `docs/backend/fundamentals/api-design.md` — RFC 기반 출처, 구체 수치
 - `docs/backend/patterns/event-driven.md` — 공식 문서 + 엔지니어링 블로그 혼합
 - `docs/infra/platform/kubernetes.md` — CNCF 공식 문서 기반

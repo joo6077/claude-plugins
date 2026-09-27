@@ -21,7 +21,7 @@ user-invocable: true
 6. **Cross-Surface Parity Checklist (skill-design-guide §11 · agent-design-guide §12 대응)** — 스킬 개선 시 아래 sibling group 간 공통 원칙(Gotcha · Process Step · 예시) 의 누락을 **1:1 Grep 대조** 로 확인한다. 누락된 sibling 이 있으면 즉시 동일 표현을 복제하여 비대칭 지식 상태를 제거한다 (2026-04 rust-kit Phase 9 에서 backend-kit Phase 7 · infra-kit Phase 8 패턴 계승 드리프트 차단).
 
    | Sibling Group | 공통 원칙 검증 항목 |
-   |---------------|---------------------|
+   | --------------- | --------------------- |
    | rust-init · rust-feature · rust-service · rust-api | **Composition Root 단일화 + Consumer-Owned Port + Domain Event + Outbox + 포트에서 인프라 타입 제거** 4 항목 일관 존재 |
    | rust-audit · rust-reviewer (agent) | **Binary Decidability Pre-Check · Rule-by-Rule Audit · 미검증 마커 · L3 Coverage Honesty** 4 항목 동시 존재 |
    | rust-audit · backend-audit | **10+ row Rule-by-Rule 표 + CONDITIONAL APPROVE 규칙 + Rust 고유 카테고리(Ownership / Async / unsafe / SQLx offline)** |
@@ -47,17 +47,23 @@ user-invocable: true
    - **Axum 0.8 path 예시 드리프트**: `grep -rn '"/[a-z_/]*:[a-z_]\+"' rust-kit/skills/*/SKILL.md` 결과가 **negative example(금지 예시) 문맥 밖**에 있으면 FAIL
 10. **16 스킬 + 1 에이전트 전수 모드** — 다른 kit 과 달리 rust-kit 은 16 개 SKILL.md + rust-reviewer 총 17 surface 로 대규모다. 한 세션에서 17 개 전체를 깊게 고칠 수 없으므로 **우선순위 3 계층** (1) REJECT 직접 대상 (rust-init · rust-feature · rust-api) → (2) Phase 1~8 원칙 핵심 surface (rust-audit · rust-reviewer · rust-test · rust-service) → (3) 잔여 10 스킬 경량 audit 으로 단계 분할하고 각 단계 완료 후 `validate-plugin.py` 를 실행한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 현재 상태 읽기
 
 rust-kit 스킬 16 개 + rust-reviewer 에이전트:
+
 - rust-kit/skills/{rust-init,rust-feature,rust-api,rust-model,rust-service,rust-auth,rust-middleware,rust-grpc,rust-test,rust-docker,rust-error,rust-l10n,rust-run,rust-build,rust-preflight,rust-audit}/SKILL.md
 - rust-kit/agents/rust-reviewer.md
 
 ## Step 2: 격차 분석
 
 docs/rust/ 원칙 vs 스킬 반영 상태:
+
 - fundamentals/{ownership-borrowing,error-handling,async-concurrency,testing,project-structure,performance,hexagonal-architecture}.md
 - web/{axum-patterns,authentication,middleware,openapi}.md
 - data/{sqlx-patterns,migrations,caching}.md
@@ -91,7 +97,11 @@ chore(kaizen-phase<N>): [개선 내용 요약]
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - rust-kit/skills/ — 개선 대상 스킬 (16 개)
 - rust-kit/agents/rust-reviewer.md — 독립 평가 에이전트

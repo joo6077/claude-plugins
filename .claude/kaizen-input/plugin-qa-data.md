@@ -221,4 +221,3 @@ Generated: automated aggregation from 138 evaluator feedbacks + 34 contract feed
 - SC-05 DEFERRED 조건 설명에 로컬 태그 생성 여부를 별도 체크포인트로 명시 — DEFERRED는 원격 push만 해당함을 계약에 명확히
 - AP-01: README 버전을 plugin.json에서 동적으로 읽거나, sync-docs.py가 버전 동기화 체크 항목 추가 검토
 - SK-04 조건의 ULID/UUID 표현을 구현 의도에 맞게 통일할 것을 계약 수정 권장
-

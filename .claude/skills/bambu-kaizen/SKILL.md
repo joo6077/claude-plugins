@@ -19,11 +19,16 @@ user-invocable: true
 5. **silent skip 회피 체크리스트는 변경 금지** — Phase 4 끝의 "Gotcha 체크리스트 (생성 직후 자기 검증)" 7개 항목은 검증된 silent skip 회피 규칙(Codex run `a2a01770a87626167`)이다. 추가는 OK, 삭제 금지.
 6. **카이젠 스킬은 .claude/skills/에만** — bambu-research, bambu-kaizen 자체를 bambu-kit 플러그인 안으로 옮기지 마라. 외부 사용자에게 노출되면 안 되는 레포 개발용 스킬이다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 현재 상태 읽기
 
 대상 surface (단일 스킬 + references 7종):
+
 - `bambu-kit/skills/bambu-print-profile/SKILL.md`
 - `bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md` — JSON schema / 필수 필드
 - `bambu-kit/skills/bambu-print-profile/references/materials.md` — 필라멘트 카탈로그 + 수축률
@@ -35,6 +40,7 @@ user-invocable: true
 - `bambu-kit/skills/bambu-print-profile/BACKLOG.md` (v2 큐)
 
 추가 입력:
+
 - `~/Hub/60_3D Print/Settings/<modelname>/notes.md` — 실측 케이스별 detail
 - 메모리: `bambu_print_profile_skill.md`, `bambu_studio_json_import.md`, `3d_printing_setup.md`
 - 사용자 피드백 (~/.harness/feedback/ 글로벌 + 세션 내 직접 피드백)
@@ -44,7 +50,7 @@ user-invocable: true
 다음 축으로 SKILL vs references vs 실측 정합성 점검:
 
 | 축 | 점검 항목 |
-|----|----------|
+| ---- | ---------- |
 | **JSON 필드 정확성** | bambu-fields-baseline 변경분이 SKILL Phase 3 표/체크리스트에 반영됐는지 |
 | **소재 매칭** | materials.md 신규/단종 SKU가 SKILL Phase 2 매핑 표에 반영됐는지 |
 | **seam 전략** | seam-recipes.md Real-world findings가 SKILL Phase 3 결정 트리에 반영됐는지 |
@@ -56,6 +62,7 @@ user-invocable: true
 ## Step 3: 개선 적용
 
 격차 항목별로 SKILL.md 또는 references 패치:
+
 - Gotchas 추가 (실측 회귀 case → 한 줄 규칙)
 - Phase 표/결정 트리 갱신
 - v2 TODO에 새 큐 추가 (구현은 별도 사이클)
@@ -105,7 +112,11 @@ user-invocable: true
 chore(bambu-kaizen-cycle<N>): [개선 내용 요약]
 ```
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `bambu-kit/skills/bambu-print-profile/SKILL.md` — 개선 대상 단일 스킬
 - `bambu-kit/skills/bambu-print-profile/references/` — references 7종 (SSOT)

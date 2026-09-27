@@ -20,14 +20,18 @@ user-invocable: true
 5. **accent 컬러 충돌 확인** — docs-site 페이지 생성 시 css-tokens.md의 기존 accent와 겹치지 않는 컬러를 선택해야 한다.
 6. **병렬화 가능한 단계를 직렬로 실행하지 마라** — P1/P2 문서 작성, 스킬/에이전트 생성은 서브에이전트로 병렬 처리한다. 직렬 실행하면 시간이 3-4배 늘어난다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Phase 0: 요구사항 확인
 
 사용자에게 확인:
 
 | 항목 | 질문 | 예시 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 킷 이름 | `{name}-kit` | backend-kit, infra-kit |
 | 도메인 | 어떤 영역을 다루는가 | 백엔드 개발, 인프라/DevOps |
 | 스택 무관 여부 | 특정 프레임워크에 종속되는가 | 스택 무관 (design-kit 패턴) |
@@ -38,6 +42,7 @@ user-invocable: true
 ### Step 1.1: 영역 분석
 
 Codex에 위임:
+
 - 해당 도메인에서 자동화 효과가 큰 작업 Top 10
 - skills.sh 마켓플레이스 기존 스킬 분석
 - 커뮤니티 니즈 (GitHub issues, Reddit)
@@ -46,6 +51,7 @@ Codex에 위임:
 ### Step 1.2: 리서치 문서 주제 선정
 
 영역 분석 결과를 기반으로:
+
 - P1 (필수): 8개 주제
 - P2 (확장): 4개 주제
 
@@ -54,6 +60,7 @@ Codex에 위임:
 ### Step 1.3: 심화 리서치
 
 P1/P2 각각 Codex에 위임 (병렬):
+
 - 공식 문서, RFC, 학술 논문, 신뢰할 수 있는 엔지니어링 블로그
 - 일반 블로그는 교차 검증 필수
 
@@ -61,7 +68,7 @@ P1/P2 각각 Codex에 위임 (병렬):
 
 ### Step 2.1: 디렉토리 구조
 
-```
+```text
 docs/{kit-name}/
 ├── {category-1}/
 │   ├── topic-a.md
@@ -76,6 +83,7 @@ docs/{kit-name}/
 references/doc-template.md 포맷을 따라 서브에이전트로 병렬 생성.
 
 각 문서:
+
 - frontmatter (title, version 0.1.0, last_updated)
 - 1-2줄 요약
 - 원칙 (### 번호. 제목 → 설명 → `> **출처:** [이름](URL)`)
@@ -93,7 +101,7 @@ references/doc-template.md 포맷을 따라 서브에이전트로 병렬 생성.
 
 ### Step 3.1: 디렉토리 구조
 
-```
+```text
 {kit-name}/
 ├── .claude-plugin/plugin.json
 ├── skills/
@@ -119,16 +127,19 @@ references/plugin-template.json 참조.
 ### Step 3.3: 스킬 3종 생성 (병렬)
 
 **guide**: references/skill-patterns.md의 guide 패턴 참조
+
 - 카테고리별 키워드 테이블
 - principle-index.md로 문서 매핑
 - 피드백 포맷: 원칙 → 근거 → 권장 → 출처
 
 **audit**: references/skill-patterns.md의 audit 패턴 참조
+
 - reviewer 에이전트 호출
 - audit-criteria.md 체크리스트
 - PASS/FAIL → APPROVE/REJECT
 
 **system/init**: references/skill-patterns.md의 system 패턴 참조
+
 - 프로젝트 감지
 - 카테고리별 세팅/초기화
 - 현재 상태 → 권장 → 개선
@@ -136,6 +147,7 @@ references/plugin-template.json 참조.
 ### Step 3.4: 에이전트 생성
 
 references/skill-patterns.md의 reviewer 패턴 참조:
+
 - tools: Read, Grep, Glob (읽기 전용)
 - model: sonnet
 - 핵심 규칙 5-6개
@@ -151,6 +163,7 @@ references/readme-template.md 참조.
 ### Step 4.1: 카이젠 스킬 생성
 
 `.claude/skills/`에 2개 생성:
+
 - `{kit-name}-research/SKILL.md` — 외부 소스 크롤링 → docs 갱신
 - `{kit-name}-kaizen/SKILL.md` — docs 기준 스킬 격차 분석 → 개선
 
@@ -177,6 +190,7 @@ kaizen-orchestrator 스킬에 새 Phase 추가가 필요한지 사용자에게 �
 harness:qa-evaluator 에이전트를 spawn하여 전체 결과물 평가.
 
 평가 기준:
+
 - 구조 일관성 (기존 플러그인과 동일 레이아웃)
 - 리서치 문서 품질 (frontmatter, 출처, 수치)
 - 스킬 품질 (Gotchas, Process, References)
@@ -217,7 +231,11 @@ categories 배열과 getIcon() 함수에 새 킷의 모든 페이지(N개) 추�
 - [ ] qa-evaluator APPROVE
 - [ ] docs/{kit-name}/ HTML 페이지 N개 존재 (리서치 문서 수와 동일) + index.html에 전체 등록
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - references/doc-template.md — 리서치 문서 포맷
 - references/skill-patterns.md — 3종 스킬 + 에이전트 패턴

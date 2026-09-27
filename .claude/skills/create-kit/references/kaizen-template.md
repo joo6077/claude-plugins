@@ -5,10 +5,11 @@
 ## 위치
 
 카이젠 스킬은 **플러그인이 아닌 `.claude/skills/`**에 생성한다. 이유:
+
 - 이 레포 개발용 스킬이라 외부 사용자에게 노출되면 안 됨
 - 플러그인 카이젠은 레포 상태(git history, 다른 스킬)에 의존
 
-```
+```text
 .claude/skills/
 ├── {kit-name}-research/SKILL.md
 └── {kit-name}-kaizen/SKILL.md
@@ -68,8 +69,10 @@ Codex(codex:rescue)에 리서치 태스크를 위임한다:
 ## Step 5: 변경 커밋
 
 ```
+
 research({kit-name}): [카테고리] 문서 갱신
-```
+
+```text
 ```
 
 ## 템플릿 2: kaizen 스킬
@@ -129,8 +132,10 @@ docs/{kit-name}/ 문서의 원칙 중 스킬에 반영되지 않은 항목 식�
 ## Step 5: 커밋
 
 ```
+
 kaizen({kit-name}): [개선 내용 요약]
-```
+
+```text
 
 # References
 
@@ -146,6 +151,7 @@ kaizen({kit-name}): [개선 내용 요약]
 `.claude/skills/kaizen-orchestrator/SKILL.md`의 Phase 목록에 새 kit의 카이젠을 추가할지 사용자에게 확인한다.
 
 현재 Phase 순서:
+
 1. 설계 가이드 (harness)
 2. contract-kaizen
 3. evaluator-kaizen
