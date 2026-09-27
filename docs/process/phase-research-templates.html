@@ -153,7 +153,7 @@
   <p class="subtitle">카이젠 오케스트레이터의 각 Phase 서브에이전트가 리서치 단계에서 <strong>반드시 조회해야 하는 소스</strong>를 Phase 마다 고정한 목록이다. 소스를 에이전트 판단에 맡기던 때 리서치 품질이 들쭉날쭉했던 것을 막는다.</p>
   <div class="meta">
     <span class="badge">원본 <code>.claude/skills/kaizen-orchestrator/references/phase-research-templates.md</code></span>
-    <span class="badge">판 1.2.0</span>
+    <span class="badge">판 1.2.0 · 2026-09-05</span>
     <span class="badge">Phase 1 ~ 17</span>
     <span class="badge">출처 주소 93</span>
   </div>
@@ -482,7 +482,7 @@
 </tr>
 <tr>
   <td><div class="c">6</div></td>
-  <td><div class="c">Hub <code>fit-pal/</code> + <code>apps/</code> sprint-feedback</div></td>
+  <td><div class="c">Hub 외부 프로젝트(Flutter 앱) sprint-feedback</div></td>
   <td><div class="c">ground truth</div></td>
   <td><div class="c">실무 피드백</div></td>
   <td><div class="c">내부 파일 Read</div></td>
@@ -718,7 +718,7 @@
 </tr>
 <tr>
   <td><div class="c">7</div></td>
-  <td><div class="c">fit-pal server ground truth</div></td>
+  <td><div class="c">Hub 외부 프로젝트(Rust 서버) ground truth</div></td>
   <td><div class="c">내부</div></td>
   <td><div class="c">실무 패턴</div></td>
   <td><div class="c">파일 Read</div></td>
@@ -1248,7 +1248,7 @@
 <p><strong>주의 3건</strong></p>
 <ul class="md-list">
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>pin</code> 의 의미를 되돌리지 마라.</strong> 2026-09-04 리서치에서 '값 고정' → '경로별 명시 assertion' 으로 재정의됐다. 외부 도구(버전 pin · snapshot pin)의 용례를 근거로 되돌리려면 설계문서 §9.2 와 <code>/api-ui</code> 아이콘 어휘를 함께 고쳐야 한다.</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>경로 간 불변식은 Hurl 로 표현할 수 없다.</strong> <code>$.meta.total &gt;= len($.data)</code> 류는 계약 YAML 에 기록하고 <code>/api-verify</code> 후처리에서 검사한다. Hurl assert 문법이 늘었다는 주장은 실측으로 확인한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>경로 간 불변식은 <code>.hurl</code> 에도 적을 수 있지만 판정 불가를 표현할 곳이 없다.</strong> <code>$.meta.total &gt;= len($.data)</code> 류에서 한쪽 경로가 없으면 Hurl 이 종료 코드 <code>3</code> 으로 끝나 실패와 판정 불가가 갈리지 않는다 (정본 <code>api-kit/skills/api-verify/SKILL.md</code>). 그래서 계약 YAML 에 기록하고 <code>/api-verify</code> 후처리에서 검사한다.</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>확정 결정 5 건을 리서치로 뒤집지 마라</strong> — <code>exact</code> 는 본문만 · enum 승격 3 샘플 이상 · prod 기본 GET/HEAD/OPTIONS · 기준선 RFC 8785 JCS · 계약 실패와 환경 실패는 exit code 로 분리. 근거는 설계문서 §12 의 사용자 확정이다.</div></li>
 </ul>
   </div>

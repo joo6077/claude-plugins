@@ -216,7 +216,7 @@ pre code{white-space:pre}
   <div class="meta">
     <span>version v5.1</span>
     <span>last_updated 2026-09-24</span>
-    <span>Schema v5.5</span>
+    <span>Schema v5.7</span>
     <span>Parity with skill 1.6.0 · agent 1.7.0</span>
   </div>
   <nav class="toc" aria-label="절 목차">
@@ -250,7 +250,7 @@ pre code{white-space:pre}
     <div class="stat"><div class="stat-num">4 → 5</div><div class="stat-label">Diff-Scope Oracle 표준형 요소 — 다섯째 <strong>상한 ref</strong> 가 들어왔다</div></div>
     <div class="stat"><div class="stat-num">19 → 21</div><div class="stat-label">구조화 진단 항목 — <code>measure_premise_unrun</code> · <code>known_answer_missing</code></div></div>
     <div class="stat"><div class="stat-num">7 → 9</div><div class="stat-label">계약 설계에 전수된 parity items — 15 양성 대조 · 16 알려진 답 대조</div></div>
-    <div class="stat"><div class="stat-num">v5.5</div><div class="stat-label">Schema version (옛 판 기록 v5.3). Parity with skill 1.6.0 · agent 1.7.0</div></div>
+    <div class="stat"><div class="stat-num">v5.7</div><div class="stat-label">Schema version (옛 판 기록 v5.3). Parity with skill 1.6.0 · agent 1.7.0</div></div>
   </div>
   <h3 class="sub">원본 본문의 날짜 표시로 본 v5.0 판 이후 흐름</h3>
   <ul class="tl">
@@ -1010,7 +1010,7 @@ Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approv
   <div class="note good">
     <div class="note-title">따라서 0 기대 조건에는 <code>양성 대조:</code> 절을 쓰고 봉인 전에 실측한다</div>
     <p>포맷 정의는 <a href="contract-schema.html"><code>harness/references/contract-schema.md</code> §양성 대조</a> 가 SSOT 이며 여기서 재정의하지 않는다. 평가자 쪽 대응 규칙은 <a href="qa-evaluation-guide.html"><code>qa-evaluation-guide.md</code> §0 매치 판정 규칙</a> 이다.</p>
-    <p><strong>기계 자동 경보는 두지 않았다.</strong> 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(<code>grep -c</code> 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 5 종)과 평가자 규칙으로 막는다.</p>
+    <p><strong>기계 자동 경보는 두지 않았다.</strong> 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(<code>grep -c</code> 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 8 종)과 평가자 규칙으로 막는다.</p>
   </div>
 
   <div class="grid-2">
@@ -1075,7 +1075,7 @@ Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approv
     <div class="card">
       <div class="card-title"><span class="dot"></span>규칙</div>
       <ul>
-        <li>사용자 승인 직후 계약을 <strong>봉인</strong>한다: 조건 체크박스 줄만 정규화 해시해 frontmatter <code>conditions_digest</code> 와 <code>locked_at</code> 에 기록한다 (계산식은 스키마 §계약 봉인)</li>
+        <li>사용자 승인 직후 계약을 <strong>봉인</strong>한다: 조건 체크박스 줄만 정규화 해시해 frontmatter <code>conditions_digest</code> 와 <code>locked_at</code> 에 기록한다 (계산식은 스키마 §계약 봉인). 조건 아래 들여쓴 측정 · 음성 대조 · 픽스처 줄은 <code>measurement_digest</code> 로 함께 잠근다 (v5.6) — 측정 줄은 들여써 적어야 잠긴다.</li>
         <li><strong>봉인 이후 조건 줄을 편집하지 마라.</strong> 자신이 만든 산출물을 사후에 허용하려고 조건 문구를 넓히는 것이 실측된 위반 형태다</li>
         <li>체크박스 토글과 서술 섹션 보강은 봉인을 깨지 않는다 — <strong>일부러 그렇게 설계했다.</strong> 정상 작업을 막는 게이트는 우회되고, 우회된 게이트는 통과 기록으로 안전을 오해하게 만든다</li>
         <li><code>SEAL_BROKEN</code> 을 만나면 <strong>조용히 다시 봉인하지 마라.</strong> 그것은 위반을 지우는 행위다. <code>recorded</code> / <code>actual</code> 두 값과 함께 보고하고, 변경 의도가 정당하면 사이드카로 기록한다</li>
@@ -1534,7 +1534,7 @@ Good: - [ ] ER-02: 낙관적 동시성 가드가 conflict 경로를 실제로 �
       <thead><tr><th>항목</th><th>값</th><th>원본</th></tr></thead>
       <tbody>
         <tr><td>Guide version</td><td>2026-09-24 (Phase 2 kaizen · v5.1)</td><td>이 파일 YAML frontmatter 의 <code>version</code>(= <code>v5.1</code>)이 SSOT — 날짜·사유만 이 행에 적는다. 상위 surface(<code>qa-evaluation-guide.md</code> §버전 정보 Parity)가 그 필드를 추출하므로 <strong>둘을 같이 올린다</strong></td></tr>
-        <tr><td>Schema version</td><td>v5.5</td><td><code>harness/references/contract-schema.md</code> §스키마 버전 &gt; <code>현재:</code></td></tr>
+        <tr><td>Schema version</td><td>v5.7</td><td><code>harness/references/contract-schema.md</code> §스키마 버전 &gt; <code>현재:</code></td></tr>
         <tr><td>Parity with</td><td>skill-design-guide 1.6.0 · agent-design-guide 1.7.0</td><td>두 가이드 frontmatter <code>version</code></td></tr>
       </tbody>
     </table>

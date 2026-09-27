@@ -846,7 +846,9 @@ printf '&lt;script src="x"&gt;&lt;/script&gt;' | grep -c '&lt;script src'   <spa
 grep -c '&lt;script src' "$UI"                  <span class="cm"># 기대 0</span>
 grep -c '&lt;link rel=&quot;stylesheet&quot;' "$UI"       <span class="cm"># 기대 0</span>
 grep -c 'fetch(' "$UI"                        <span class="cm"># 기대 0</span>
+grep -c 'http-equiv="Content-Security-Policy"' "$UI"  <span class="cm"># 기대 1</span>
 grep -c 'XMLHttpRequest' "$UI"                <span class="cm"># 기대 0</span></code></pre>
+        <p class="desc">확정 시안에는 CSP <code>&lt;meta&gt;</code> 가 없다. 시안만 옮기면 CSP 가 빠지므로 <code>references/viewer-spec.md</code> §1 의 CSP <code>&lt;meta&gt;</code> 문자열을 <code>&lt;head&gt;</code> 에 그대로 넣고, 자기 검증에서 그 줄이 1 줄인지 잰다 — 예시 <code>ui.html</code> 실측 1 · 확정 시안 실측 0 (2026-09-27).</p>
         <p class="desc" style="margin-bottom:0">경로 오타나 빈 파일로 생긴 0 은 통과 근거가 아니다. 그래서 걸려야 할 입력에서 1 이 나오는 것을 먼저 본다. 브라우저 화면이 멀쩡해도 이 검사를 건너뛰지 않는다.</p>
       </div>
       <div class="sources">
@@ -854,6 +856,12 @@ grep -c 'XMLHttpRequest' "$UI"                <span class="cm"># 기대 0</span>
       </div>
     </div>
   </div>
+
+  <h3 style="margin:28px 0 12px">판정 불가 줄 — 엔드포인트 id 로 나눠 옮긴다</h3>
+  <p class="desc">판정 불가는 <code>/api-verify</code> 의 판정 조건을 그대로 따른다 — 한쪽 경로라도 없으면 <code>판정 불가</code> 다. 판정 줄은 <code>&lt;엔드포인트 id&gt;:</code> 앞머리(뒤에 빈칸 하나) 다음에 양쪽 값과 결과를 한 줄에 적은 것이다(<code>/api-verify</code> §6). <code>→ 판정 불가</code> 로 끝나는 줄만 골라, 앞머리가 가리키는 엔드포인트 id 의 <code>unjudged</code> 배열에 앞머리를 뗀 나머지를 글자 그대로 옮긴다. FAIL 로 정한 엔드포인트에 이런 줄이 있어도 버리지 않는다.</p>
+  <pre><code>리포트    products.list: $.meta.total=(없음) · len($.data)=3 → 판정 불가
+unjudged  $.meta.total=(없음) · len($.data)=3 → 판정 불가</code></pre>
+  <p class="caption">완료 보고의 브라우저 확인에는 연 방법 · 콘솔 error 수와 뺀 <code>favicon.ico</code> 건수 · <code>ep</code> · <code>shown</code> · <code>under24</code> · <code>under44</code> 에 더해, 상태 네 가지의 칩 숫자 <code>chips</code> 와 트리 줄 수 <code>rows</code> 를 적는다. 못 했으면 <code>[미검증]</code> 과 네 칸이다.</p>
 
   <h3 style="margin:28px 0 12px">콘솔 오류 한 건 — <code>favicon.ico</code> 404</h3>
   <p class="desc">웹 서버로 열면 <code>favicon.ico</code> 404 콘솔 오류가 한 건 생길 수 있다. 아이콘 링크가 없어 브라우저가 기본 경로를 부른 것이지 뷰어 결함이 아니다. 헤드리스 셸은 아이콘을 아예 부르지 않아 이 한 건도 안 나온다(실측 2026-09-24).</p>

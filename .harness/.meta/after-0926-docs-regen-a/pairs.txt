@@ -1,0 +1,17 @@
+.claude/skills/kaizen-orchestrator/SKILL.md docs/process/kaizen-flow.html
+.claude/skills/kaizen-orchestrator/references/phase-research-templates.md docs/process/phase-research-templates.html
+api-kit/skills/api-ui/SKILL.md docs/api-kit/static-evidence-viewer-contract.html
+docs/api/verification/static-evidence-viewer-contract.md docs/api-kit/static-evidence-viewer-contract.html
+docs/superpowers/specs/2026-09-02-api-kit-design.md docs/api-kit/multi-sample-pagination-variance.html
+docs/superpowers/specs/2026-09-02-api-kit-design.md docs/api-kit/contract-extraction-modes.html
+docs/backend/fundamentals/api-design.md docs/backend-kit/api-design.html
+bambu-kit/skills/bambu-print-profile/SKILL.md docs/bambu-kit/bambu-print-profile.html
+bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md docs/bambu-kit/bambu-fields-baseline.html
+bambu-kit/skills/bambu-print-profile/references/failure-recipes.md docs/bambu-kit/failure-recipes.html
+bambu-kit/skills/bambu-print-profile/references/materials.md docs/bambu-kit/materials.html
+harness/docs/guides/agent-design-guide.md docs/harness/agent-design-guide.html
+harness/docs/guides/contract-design-guide.md docs/harness/contract-design-guide.html
+harness/docs/guides/plugin-validation-guide.md docs/harness/plugin-validation.html
+harness/docs/guides/qa-evaluation-guide.md docs/harness/qa-evaluation-guide.html
+harness/docs/guides/skill-design-guide.md docs/harness/skill-design-guide.html
+harness/references/contract-schema.md docs/harness/contract-schema.html
