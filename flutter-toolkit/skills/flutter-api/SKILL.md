@@ -334,3 +334,5 @@ class UserService {
 1. 생성/수정된 파일 목록 출력.
 2. `HAS_BUILD_RUNNER`이면 codegen 실행 안내:
    > `$DART run build_runner build --delete-conflicting-outputs`
+
+   직접 돌릴 때는 `flutter-run` 스킬 `### codegen [feature]` 절처럼 전후 삭제 수를 세어 늘어난 삭제가 없는지 본다 — 이 플래그는 삭제를 막지 않는다.

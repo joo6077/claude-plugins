@@ -1,7 +1,7 @@
 # G2 — State & Data Skills
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 group: G2
 scope: react-kit 상태 관리 + 데이터 계층 스킬 4종
 skills: [/react-store, /react-api, /react-query, /react-form]
@@ -28,6 +28,8 @@ react-kit **G2 그룹** 은 프로젝트의 상태 계층을 담당하는 4개 �
 - **Zod 경계 검증 필수**: 외부 데이터 (API 응답, 폼 입력, localStorage 읽기, WASM 결과) 는 **첫 진입 시점에** `Schema.parse()` 로 검증한 뒤 도메인 타입으로 변환. 내부 레이어에선 재검증 없이 타입을 신뢰.
 - **Strict TypeScript 정책**: G1 에서 정의한 strict 규칙 (no `any`, no `!`, no `as`) 을 모든 생성 코드가 준수. `z.infer` 로 파생된 타입만 사용, 수동 중복 정의 금지.
 - **project-detection 공유**: G1 의 `react-kit/references/project-detection.md` 를 재사용. 설치된 패키지 버전을 감지해 v5+ / v4+ 등 메이저 범위에 맞게 코드 생성.
+- **생성 전 전수 스캔 · 요청 범위만**: 네 스킬 모두 만들기 전에 비슷한 이름 · 재사용할 자산을 열거하고 합의한 뒤 생성한다. 요청하지 않은 CRUD · 레이어를 덧붙이지 않는다.
+- **소비면 열거**: `/react-api` 는 바꾸는 계약을 부르는 호출부를, `/react-query` 는 queryKey 앞부분이 같은 쿼리(무효화가 닿는 범위)를 생성 전에 열거한다.
 - **G1 `/react-feature` 협력**: G2 스킬은 `/react-feature` 가 이미 생성한 skeleton (features/<name>/) 위에서 동작. feature 가 없으면 먼저 `/react-feature` 실행을 안내.
 
 ## 의존성 설치 (G1 `/react-init` 미사용 시 수동 설치)
@@ -45,7 +47,7 @@ pnpm add react-hook-form @hookform/resolvers zod
 pnpm add neverthrow
 ```
 
-**메이저 버전 범위**: Zustand v5+, TanStack Query v5+, React Hook Form v7+, Zod v3+ (또는 v4, 단 RHF resolver 의 v4 TypeScript 이슈 주의 — 섹션 4.6 Gotchas 참조), neverthrow v7+. 특정 패치 버전 고정 없이 최신 메이저 태그 설치.
+**메이저 버전 범위**: Zustand v5+, TanStack Query v5+, React Hook Form v7+, Zod v4+ (`@hookform/resolvers` 5.1 미만을 쓸 때만 v4 타입 충돌 주의 — 섹션 4.6 Gotchas 참조), neverthrow v7+. 특정 패치 버전 고정 없이 최신 메이저 태그 설치.
 
 **출처**:
 - Zustand: https://github.com/pmndrs/zustand
@@ -56,6 +58,7 @@ pnpm add neverthrow
 ## 상태 분리 원칙 — Zustand vs TanStack Query
 
 이 원칙은 G2 전체의 **핵심 아키텍처 결정**이다. 두 상태의 경계가 흐릿하면 버그와 중복이 폭증한다.
+폼 입력 중인 값은 셋째 주인인 React Hook Form 이 갖는다 — 제출 전 값을 Zustand 나 TanStack Query 에 복사하지 않는다 (`/react-form` Gotcha 9).
 
 ### 역할 분리
 
@@ -572,7 +575,7 @@ export function LoginForm({ onSubmit }: Props) {
 
 ### 4.6 Gotchas
 
-- **Zod v4 TypeScript 이슈**: React Hook Form + Zod v4 조합에서 `z.infer` 가 `unknown` 으로 잡히는 제네릭 타입 이슈가 있음 (react-hook-form/resolvers#781, #813 참조). `/react-form` 스킬은 Zod 스키마를 직접 `z.object(...)` 로 정의하고 `z.infer<typeof Schema>` 로 타입 파생하는 **직접 패턴** 만 생성. 제네릭 래퍼 (`type FormValues<T extends z.ZodType> = z.infer<T>`) 는 만들지 않음 (출처: https://github.com/react-hook-form/resolvers/issues/781).
+- **Zod v4 TypeScript 이슈 (`@hookform/resolvers` 5.1 미만 전용)**: resolvers 5.1 이상은 Zod 4 를 지원해 이 이슈가 없다. 5.1 미만 React Hook Form + Zod v4 조합에서 `z.infer` 가 `unknown` 으로 잡히는 제네릭 타입 이슈가 있음 (react-hook-form/resolvers#781, #813 참조). `/react-form` 스킬은 Zod 스키마를 직접 `z.object(...)` 로 정의하고 `z.infer<typeof Schema>` 로 타입 파생하는 **직접 패턴** 만 생성. 제네릭 래퍼 (`type FormValues<T extends z.ZodType> = z.infer<T>`) 는 만들지 않음 (출처: https://github.com/react-hook-form/resolvers/issues/781).
 - **resolver 와 수동 validate 병용 주의**: `zodResolver` 를 쓰면 resolver 쪽 검증이 우선. 필드별 `validate` 옵션은 resolver 통과 후에만 동작. 중복 검증 피할 것 (출처: https://github.com/orgs/react-hook-form/discussions/10153).
 - **controlled 컴포넌트 (shadcn Select 등) 는 `Controller`**: `register()` 는 uncontrolled input 전용. shadcn 의 Select, Checkbox 같은 컨트롤드 컴포넌트에는 `Controller` 로 래핑 필수.
 - **defaultValues 필수**: 초기값 없이 시작하면 uncontrolled → controlled 전환 경고. 빈 문자열이라도 명시.
@@ -648,6 +651,21 @@ export function LoginForm({ onSubmit }: Props) {
 13. neverthrow GitHub: https://github.com/supermacro/neverthrow
 14. neverthrow README: https://github.com/supermacro/neverthrow/blob/master/README.md
 
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(머리 블록 `skills` 넷)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `001c900` | 2026-09-25 | 설계 영향 없음 — react-form 의 낡은 버전 문장 갱신뿐이다 |
+| `e7b9508` | 2026-08-13 | 고친 절: 의존성 설치 버전 범위 줄 · §4.6 Zod v4 줄 — 타입 충돌 우회는 `@hookform/resolvers` 5.1 미만 전용 |
+| `928fd30` | 2026-07-27 | 고친 절: 공통 설계 원칙 — `/react-api` · `/react-query` 소비면 열거 |
+| `644e2df` | 2026-06-05 | 고친 절: 공통 설계 원칙 — 생성 전 전수 스캔 · 요청 범위만 (store · api · query · form) |
+| `3b98054` | 2026-04-24 | 고친 절: 상태 분리 원칙 — 폼 입력 값은 React Hook Form 이 갖는다. react-api 설명의 상호 배타 문구는 설계 영향 없음 |
+| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — react-store(slices · devtools · persist) · react-query(낙관적 갱신 · ensureQueryData) · react-form(RHF v8 beta 경고) Gotcha 추가뿐이다. 생성 산출물 · 계층은 그대로 |
+| `d0010b2` | 2026-04-11 | 설계 영향 없음 — react-store `useShallow` · react-query 객체형 시그니처 · `queryOptions()` Gotcha 추가뿐이다. 생성 산출물 · 계층은 그대로 |
+
 ## 8. 변경 이력
 
 - **2026-04-10** — 초판. G2 4개 스킬 (`/react-store`, `/react-api`, `/react-query`, `/react-form`) 상세 설계. WebSearch fallback 으로 Zustand v5, TanStack Query v5, React Hook Form + Zod resolver, neverthrow 공식 문서 및 알려진 이슈 (#781, #813) 검증.
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.

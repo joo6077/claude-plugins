@@ -52,6 +52,7 @@ model: sonnet
 - Tailwind v4 + `tailwindcss-animate` 플러그인
 - CSS `@keyframes` 직접 선언 (`src/presentation/styles/globals.css`)
 - View Transitions API (`document.startViewTransition`)
+- React 19.3 `<ViewTransition>` (`react` 에서 가져온다 — 안정 API). T2 안에서 Transition 으로 표시된 업데이트(`startTransition` · Suspense reveal · `useDeferredValue`)에만 권하고, 그 밖의 DOM 갱신은 `withViewTransition` 래퍼를 권한다. 판정 근거는 `react-kit/skills/react-animation/SKILL.md` Gotcha 15 다
 - Pointer Events API (`setPointerCapture`, `pointercancel`)
 - `requestAnimationFrame` / Web Animations API (`element.animate()`)
 - Zustand (전역 drag store)

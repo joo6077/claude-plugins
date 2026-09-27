@@ -1,7 +1,7 @@
 # react-kit Final Integration Spec
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 scope: react-kit 플러그인의 최종 산출물 통합 명세
 covers:
   - harness .harness/project.yaml 스키마
@@ -214,6 +214,8 @@ react-kit/
 │
 ├── references/                              # 공유 레퍼런스 문서
 │   ├── project-detection.md                 # 모든 스킬이 공유 (flutter-toolkit 패턴 모방)
+│   ├── common-gotchas.md                    # 스킬 공통 Gotcha 모음
+│   ├── render-evidence-protocol.md          # 화면 · 모션 렌더 증거 규약 (UI 다섯 스킬)
 │   ├── clean-arch-layout.md                 # 레이어 배치 규칙
 │   ├── result-patterns.md                   # neverthrow Result 사용 패턴
 │   ├── wasm-catalog.md                      # 이 레포 docs/react/wasm-catalog.md 의 링크
@@ -232,6 +234,7 @@ react-kit/
 │
 ├── evals/                                   # 스킬 테스트 픽스처
 │   ├── evals.json                           # 각 스킬별 assertion
+│   ├── scripts/project-detect-test.sh       # project-detect.sh 의 tanstackRouter 값만 재는 알려진 답 시험
 │   └── test-fixtures/
 │       ├── empty-project/                   # /react-init 대상
 │       ├── clean-arch-project/              # /react-api, /react-feature 대상
@@ -242,6 +245,8 @@ react-kit/
 └── scripts/                                 # 유틸리티
     └── project-detect.sh                    # project-detection 로직의 bash 구현
 ```
+
+`scripts/project-detect.sh` 는 `references/project-detection.md` 가 부르는 감지 스크립트다 — 참조 문서의 JSON 예시 키 11 개와 스크립트 출력 키가 같다.
 
 ### 2.2 plugin.json 템플릿
 
@@ -344,7 +349,7 @@ neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 | `/react-init` | Vite + Tauri + WASM + shadcn + TanStack Router + Zustand 풀 스캐폴딩 |
 | `/react-screen` | 화면 + TanStack Router 파일 기반 라우트 등록 |
 | `/react-feature` | 복합 (화면 + 스토어 + UseCase + API) 4계층 skeleton |
-| `/react-widget` | shadcn/ui 기반 cva + forwardRef 재사용 컴포넌트 |
+| `/react-widget` | shadcn/ui 기반 cva + ref-as-prop 재사용 컴포넌트 |
 
 ### G2 — 상태 & 데이터
 | 스킬 | 용도 |
@@ -401,23 +406,20 @@ neverthrow, Lingui v5, Vitest + Testing Library + Playwright, wasm-pack.
 ## Quickstart
 
 ```bash
-# 1. 새 프로젝트 초기화
+# 1. 새 프로젝트 초기화 (13 단계에서 harness 설정까지 끝난다)
 /react-init my-app
 
-# 2. harness 세팅
+# 2. 첫 feature 생성
 cd my-app
-/harness init
-
-# 3. 첫 feature 생성
 /react-feature user-profile
 
-# 4. API 연동
+# 3. API 연동
 /react-api User
 
-# 5. 고성능 이미지 처리 (WASM)
+# 4. 고성능 이미지 처리 (WASM)
 /react-wasm "이미지 리사이즈"
 
-# 6. 커밋 전 검증
+# 5. 커밋 전 검증
 /react-preflight
 ```
 
@@ -483,8 +485,23 @@ src-tauri/               # Tauri 백엔드
 
 ## 7. 스캐폴딩 시 생성되는 .harness/project.yaml 의 커스터마이징
 
-`/react-init` 이 `/harness init` 을 함께 호출할 때, `templates/harness-project.yaml.template` (§1.1 전체) 를 사용자 프로젝트의 `.harness/project.yaml` 로 복사. 사용자는 필요 시 수정 가능 (예: `runtime_inspection.vm_port` 를 다른 포트로, 특정 anti_pattern 을 disable).
+`/react-init` 13 단계가 `/harness init` 을 먼저 부른 뒤, `templates/harness-project.yaml.template` (§1.1 전체) 로 사용자 프로젝트의 `.harness/project.yaml` 을 덮어 쓴다. 화면 · 모션 증거 규약은 `react-kit/references/render-evidence-protocol.md` 다. 사용자는 필요 시 수정 가능 (예: `runtime_inspection.vm_port` 를 다른 포트로, 특정 anti_pattern 을 disable).
+
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(`react-kit/references` · `templates` · `scripts`)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `001c900` | 2026-09-25 | 고친 절: §2.1 트리 — `evals/scripts/project-detect-test.sh`, `scripts/project-detect.sh` 와 `references/project-detection.md` 관계 문장. `vite.config.template.ts` 의 `strictPort` 는 §1.1 `vm_port: 5173` 과 맞아 설계 영향 없음 |
+| `e7b9508` | 2026-08-13 | 설계 영향 없음 — `package.json.template` 버전 값 · `project-detection.md` 한 줄이다. 이 문서는 템플릿 이름만 적는다 |
+| `928fd30` | 2026-07-27 | 고친 절: §2.1 트리 · §7 — `references/render-evidence-protocol.md` 추가 |
+| `3b98054` | 2026-04-24 | 설계 영향 없음 — `common-gotchas.md` 에 G7~G10 을 더한 내용 변경이다. 파일 자리는 d0010b2 줄에서 트리에 넣었다 |
+| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — `common-gotchas.md` 한 줄이다 |
+| `d0010b2` | 2026-04-11 | 고친 절: §2.1 트리 — 빠져 있던 `references/common-gotchas.md` 를 넣었다. 같은 커밋의 react-widget 틀 변경에 맞춰 §4 README 표 `/react-widget` 줄을 ref-as-prop 로 |
+| `9a7c914` | 2026-09-26 | (맡은 경로 밖, README 구조 확인) 고친 절: §4 Quickstart 의 따로 부르던 `/harness init` 을 뺐다 · §7 문장 — init 뒤 덮어 쓴다 |
 
 ## 8. 변경 이력
 
 - **2026-04-10** — 초판. react-kit 의 harness 통합, 플러그인 파일 구조, marketplace 등록, plugin.json, README 구조를 통합 명세. flutter-toolkit / rust-kit / harness 의 기존 플러그인 레이아웃과 100% 일관성 유지. 21 스킬 + 3 에이전트 모두 파일 경로 확정. scripts/release.sh 는 기존 패턴 재사용 (수정 불필요). 레포 docs/react/ vs react-kit/ 디렉토리 역할 구분 명시.
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.

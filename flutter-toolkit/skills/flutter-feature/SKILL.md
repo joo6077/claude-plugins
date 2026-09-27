@@ -150,6 +150,8 @@ lib/src/$ARGUMENTS/
 > "`.g.dart`와 `.freezed.dart` 파일을 생성하려면 codegen을 실행하세요:
 > `$DART run build_runner build --delete-conflicting-outputs`"
 
+직접 돌릴 때는 `flutter-run` 스킬 `### codegen [feature]` 절처럼 전후 삭제 수를 세어 늘어난 삭제가 없는지 본다 — 이 플래그는 삭제를 막지 않는다.
+
 ## Code Style
 
 - import는 `package:$PACKAGE/...`만 사용 (상대경로 금지)

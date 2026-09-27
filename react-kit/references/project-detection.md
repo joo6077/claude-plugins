@@ -18,6 +18,14 @@ All react-kit skills read this file to determine the current project environment
 
 ## Detection Outputs
 
+Run the kit's detector from the project root instead of re-reading each file by hand. It prints the JSON object below, one key per detection step:
+
+```bash
+bash "$REACT_KIT/scripts/project-detect.sh"   # REACT_KIT = ${CLAUDE_PLUGIN_ROOT} when installed, react-kit/ in the plugin repo
+```
+
+`react-kit/evals/scripts/project-detect-test.sh` checks only the `tanstackRouter` value (three known inputs, jq and python3 paths). No test checks that the output keeps the other keys of the object below. If the script is unavailable, read the files in the order above and build the same object.
+
 A detection result is a JSON object shaped like:
 
 ```json

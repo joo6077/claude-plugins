@@ -76,6 +76,36 @@ React 프로젝트의 커밋 전 종합 품질 게이트.
 | wasm-build | Rust 컴파일 에러 | `cargo check --target wasm32-unknown-unknown -p core` 로 진단 |
 | vite-build | resolve/ESBuild 에러 | `vite.config.ts` alias 설정 확인 |
 
+## 실패 원인 가르기
+
+사본 출처: `harness/skills/sprint/SKILL.md` Step 3 의 원인 가르기 조각과 판정 표 (2026-09-25 추가분). 판정 표는 글자 그대로 옮긴 사본이고, 조각은 임시 워크트리 준비 명령 `pnpm install --frozen-lockfile` 만 붙였다. 원문이 바뀌면 이 절도 같은 문구로 맞춘다.
+
+단계가 빨가면 고치기 전에 원인을 셋으로 가른다 — 이번 변경 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패.
+같은 명령을 깨끗한 임시 워크트리에서 다시 돌려 가른다. `<기준 가지>` 는 합칠 대상 가지, `<실패한 검사 명령>` 은 빨간 단계의 명령이다.
+임시 워크트리에는 추적하지 않는 파일(`node_modules/` · 빌드 산출물)이 없으니 준비 명령을 먼저 돌린다 — 안 돌리면 준비가 안 된 탓의 실패를 기준 커밋 탓으로 읽는다. 생성 파일(`routeTree.gen.ts` · Lingui 카탈로그)을 git 에 올리지 않는 프로젝트에서 tsc · test 가 빨가면 준비 명령 뒤에 2 단계 codegen 명령도 붙인다.
+
+```bash
+FORK_BASE=$(git merge-base HEAD origin/<기준 가지>)
+for ref in HEAD "$FORK_BASE" origin/<기준 가지>; do
+  t=$(mktemp -d)
+  git worktree add -q --detach "$t" "$ref"
+  ( cd "$t" && pnpm install --frozen-lockfile >/dev/null 2>&1 && <실패한 검사 명령> ) >/dev/null 2>&1
+  rc=$?
+  echo "$ref $(git rev-parse --short "$ref") exit=$rc"
+  git worktree remove --force "$t"
+done
+```
+
+| 공용 작업 폴더 | `HEAD` 임시 | `FORK_BASE` 임시 | 판정 |
+| --- | --- | --- | --- |
+| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 내가 쓴 목록 밖이면 남의 미커밋이다 |
+| 실패 | 실패 | 실패 | 기준 커밋에서 이미 실패 — 내 변경 전부터다 |
+| 실패 | 실패 | 통과 | 이번 커밋 탓일 가능성이 크다 |
+
+`FORK_BASE` 는 분기점이지 기준 가지의 지금 상태가 아니다 (<https://git-scm.com/docs/git-merge-base>).
+`origin/<기준 가지>` 줄은 분기 뒤 기준 가지가 깨졌는지를 본다 — 여기서 실패하면 합친 뒤에도 빨갈 수 있다.
+명령 · 커밋 · 종료 코드를 Report 에 인용한다.
+
 ## 부분 실행 (--files 플래그)
 
 변경 파일만 대상으로 실행할 수 있다:

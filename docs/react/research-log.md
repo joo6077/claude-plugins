@@ -434,7 +434,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | 상태 |
 | --------- | -------- | ---- | -------- | ---- |
 | `react-migrate` | 런북 | React 18→19 ref-as-prop, Zustand v4→v5, wasm-pack→wasm-bindgen-cli | 중간 | backlog |
-| `react-view-transitions` | 코드 스캐폴딩 | Browser View Transitions API + React canary 통합 | 낮음 | backlog (canary 대기) |
+| `react-view-transitions` | 코드 스캐폴딩 | Browser View Transitions API + React canary 통합 | 낮음 | 새 스킬 없이 해소 — React 19.3 에서 `<ViewTransition>` 안정, react-animation Gotcha 15 가 Tier 2 를 가른다 (2026-09-26) |
 | `react-compiler` | 가이드 | React Compiler v1.0 설정, 점진적 도입, Rules of React lint | 중간 | backlog |
 
 ### 폐기 사유
@@ -493,7 +493,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | 상태 |
 | --------- | -------- | ---- | -------- | ---- |
 | `react-migrate` | 런북 | React 18 → 19 ref-as-prop 마이그레이션, Zustand v4 → v5 | 중간 | backlog |
-| `react-view-transitions` | 코드 스캐폴딩 | Browser View Transitions API + React 통합 | 낮음 | backlog |
+| `react-view-transitions` | 코드 스캐폴딩 | Browser View Transitions API + React 통합 | 낮음 | 새 스킬 없이 해소 — React 19.3 `<ViewTransition>` 은 react-animation Gotcha 15 가 맡는다 (2026-09-26) |
 
 ### 폐기 사유
 
