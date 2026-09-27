@@ -189,3 +189,5 @@
   ER-01 `doc_ok=177 clip_ok=177 esc_ok=177 wide_worse=0`, ER-02 같은 값 · 375 `doc_ok=177`, AR-08 `extra=0 missing=0 png=0 docs_not_modify=0 seal_broken=0`, AR-11 `cap_need=132 cap_have=132 cap_badname=0`.
 - 검사기 단추 id: `scripts/check-docs-a11y.js:133` 이 `#theme-btn` 만 찾아 틀(`themeToggle`)로 만든 쪽의 단추 크기를 못 잰다. 검사 도구를 고치는 일이라 vs 묶음에 넘긴다.
 - KD-2(디자인 감사 기준의 행간 1.2~1.6)와 VS-18(오케스트레이터의 「standalone」)은 각각 design-kit 묶음 · vs 묶음 몫이다. 이 묶음이 `SKILL.md` 쪽 두 표기를 고쳤으니 두 곳만 남았다.
+- 독립 검토(가지 끝 `5930b59` 기준)의 결함은 1280 폭 낱말 쪼개짐 한 건뿐이었고, `fd8bb0f` 에서 줄바꿈 규칙을 600px 이하로 좁혀 고쳤다. QA 3 회차(`fd8bb0f` 뒤)가 다시 재서 APPROVE 했다. 그 밖에 검토가 적은 결함은 없다.
+- QA 3 회차의 개선 제안 둘은 다음 계약을 쓸 때 반영할 몫이다(contract-kaizen 쪽). AR-02: 봉인 도우미의 `exact` 가 한 줄 변경을 전제로 짜여 개정으로 바뀐 줄이 늘면 늘 0 이 된다 — 「허용한 줄 안에 옛 글이 남았나」(`old_left`)를 따로 재는 칸으로 나눠라. DG-05: QA 가 APPROVE 뒤 계약 `status` 를 바꾸면 「작업 폴더 == 가지 끝」 전제가 깨져 다음 회차가 매번 우회해야 한다 — 계약 파일 머리의 `status` 변경은 그 판정에서 빼라.
