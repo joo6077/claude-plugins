@@ -917,7 +917,7 @@ done
 | 사용자가 슬라이서를 명시했다 | 그대로 채택. **추측으로 덮어쓰지 마라** |
 | 한쪽만 설치돼 있다 | 그쪽으로 확정하고 사용자에게 한 줄로 알린다 |
 | 둘 다 설치돼 있고 사용자 미지정 | **묻는다.** 임의로 고르지 마라 — 키 차이 때문에 산출물이 조용히 무시된다 |
-| 둘 다 미설치 | **`[미검증]` 으로 표시하고 Bambu Studio 키셋으로 생성한다.** 설치본 버전을 알 수 없어 옵션 목록을 고를 수 없으므로 Phase 4.3 이 키 존재·종류·enum 검사를 `[미검증]` 으로 보고한다 |
+| 둘 다 미설치 | **`[미검증]` 으로 표시하고 Bambu Studio 키셋으로 생성한다.** 설치본 버전을 알 수 없어 옵션 목록을 고를 수 없으므로 Phase 4.3 이 키 존재·종류·enum 검사를 `[미검증]` 으로 보고한다 — 4.3 통과 규칙의 네 칸을 붙인다 |
 
 확정값을 `TARGET_SLICER` (`bambu` | `orca`) 로 두고 Phase 3·4.3 이 그대로 쓴다. process JSON 에는
 `_target_slicer` 로 기록해 나중에 어느 슬라이서용인지 추적할 수 있게 한다 (`_` 접두라 import 시 버려진다).
@@ -1183,7 +1183,7 @@ sys.exit(1 if errs else 0)
 ENVPY
 ```
 
-**ER-01 — 버전 조회에 실패하면**: 추측값을 쓰지 마라. `[미검증]` 으로 표시하고 references 의
+**ER-01 — 버전 조회에 실패하면**: 추측값을 쓰지 마라. `[미검증]` 으로 표시하고 4.3 통과 규칙의 네 칸을 붙인 뒤 references 의
 수치를 "확인되지 않은 기준" 으로 명시한 뒤 사용자에게 Studio 설치 상태를 확인받는다.
 설치 경로가 다르면 경로를 물어서 다시 조회한다.
 
@@ -1320,7 +1320,7 @@ for k in sorted(d):
 underlying default 열은 **소재 override 가 없을 때의 값**이므로 그것을 소재값으로 쓰면 안 된다.
 
 조회에 실패하면(시스템 프로파일 경로 없음 등) **추측값을 쓰지 말고** 해당 filament 키를 아예
-생략하고 `[미검증]` 으로 보고한다 — 부모에 위임하는 쪽이 틀린 숫자보다 안전하다.
+생략하고 `[미검증]` 으로 보고한다 — 부모에 위임하는 쪽이 틀린 숫자보다 안전하다. 보고에는 4.3 통과 규칙의 네 칸을 붙인다.
 
 **Surface-first 모드 (적용 여부는 Phase 1.8 Surface Intent Gate 판정을 따른다 — 여기서 다시 추측하지 마라):**
 
@@ -1605,7 +1605,7 @@ if SYS is not None:
             skipped = "키 존재 · 종류 · enum 값 검사 미실행"
         else:
             skipped = " · ".join(note for present, note in ((ENUM, "enum 값 검사 미실행"),
-                                                            (TYPES, "종류 줄이 없어 키 스코프 불일치 FAIL 은 믿지 마라")) if not present)
+                                                            (TYPES, "종류 검사 미실행")) if not present)
         if skipped:
             unverified.append(f"{OPTION_KEY_DIR}/{SLICER}-{installed}.tsv 을 읽었지만 canonical {len(CANONICAL)} · 종류 {len(TYPES)} · enum {len(ENUM)} 줄 — "
                               f"목록이 비었거나 깨졌다. {skipped}")
@@ -1698,7 +1698,8 @@ for p in sys.argv[1:]:
                     print(f"WARN {f}: 옛 값 {key}={before!r} — {SLICER} 가 {after!r} 로 바꿔 읽는다. 새 값으로 써라")
             if option not in CANONICAL:
                 errs.append(f"모르는 키 {key}: {SLICER} {installed} 옵션 목록에 없다 — 불러올 때 오류 없이 버려진다")
-            elif t not in TYPES.get(option, set()):
+            # 종류 줄이 없으면 종류 판정을 건너뛴다 — 돌리면 적힌 키마다 거짓 「키 스코프 불일치」 가 나고 enum 판정이 가려진다 (2026-09-27 재현: 9 건)
+            elif TYPES and t not in TYPES.get(option, set()):
                 kinds = "/".join(sorted(TYPES.get(option, set()))) or "어느 종류에도 없음"
                 errs.append(f"키 스코프 불일치 {key}: 이 파일은 type={t} 인데 {SLICER} 는 {kinds} 프리셋에서만 받는다 — 설정 가져오기가 지운다")
             elif option in ENUM:
@@ -1828,7 +1829,7 @@ PY
 
 - `RESULT: PASS` **이면서 exit 0** 이어야 다음 단계(zip 번들링 · 완료 보고)로 진행한다. `FAIL` 이면 JSON 을 고치고 재실행하라 — 사용자에게 넘기지 마라.
 - **출력이 비어 있으면 PASS 가 아니다.** 파일 glob 이 아무것도 매칭 못 한 것이므로 경로부터 고쳐라 (`skill-design-guide.md` §3.7).
-- 위 명령을 실행하지 않았거나 실행할 수 없었다면 완료를 선언하지 말고 `[미검증]` 으로 명시하라. 마커는 `[미검증]` 하나로 통일하며 동의어(`미확인`, `N/A`, `TBD`, `unverified`)를 새로 만들지 않는다 — 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
+- 위 명령을 실행하지 않았거나 실행할 수 없었다면 완료를 선언하지 말고 `[미검증]` 으로 명시하고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워라 — 정의는 `harness/docs/guides/skill-design-guide.md` §3.7 「스킬이 지켜야 할 5 조항」 3 항이다. 마커는 `[미검증]` 하나로 통일하며 동의어(`미확인`, `N/A`, `TBD`, `unverified`)를 새로 만들지 않는다 — 정본: `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
 
 #### 음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신규 · 2026-09-15 옵션 목록 기준으로 갱신 · 2026-09-25 시험 파일 전수)
 
@@ -1843,7 +1844,8 @@ PY
 유량비 5x(인접 속도 4 키) · 벽 예산(`_wall_budget_short_share`) · 허공 위 속도(`bridge_speed` 30 초과) ·
 scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) · 소재 부모값 1.5 배(`GUARDED` 키).
 이 목록 밖의 숫자 키는 값이 무엇이든 통과한다. 일곱 모두 아래 표에 FAIL 이 나야 하는 시험 파일이 하나 이상 있다 (2026-09-25).
-금지 키 · `compatible_printers` · 메타필드 · 숫자 타입 검사는 아직 FAIL 시험 파일이 없다.
+`compatible_printers` · 메타필드 · 숫자 타입 검사는 아직 FAIL 시험 파일이 없다.
+이 표와 아래 (2) 실행 줄은 `bambu-kit/evals/run-gate-fixtures.sh` 가 그대로 읽어 CI 에서 돌린다 — 칸 순서나 실행 줄 모양을 바꾸면 그 스크립트가 `STOP` 이나 불일치를 낸다.
 
 | 주입 | 대상 슬라이서 | 기대 | 지운 사본 | 안 잡히면 |
 | --- | --- | --- | --- | --- |
@@ -1868,6 +1870,7 @@ scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) �
 | `evals/gate-fixtures/process-scarf-ratio-over.json` | bambu | scarf 길이 비율 **FAIL 1 건** (20 %) | `scarf 길이 .L.mm 가 루프` 줄을 `pass` 로 | scarf 가 루프 둘레의 15 % 를 넘어도 통과한다 |
 | `evals/gate-fixtures/filament-retraction-over-parent.json` | bambu | 소재 부모값 **FAIL 1 건** (`filament_retraction_length` 슬롯 1) | `.k. 슬롯` 줄을 `pass` 로 | 소재 부모값의 1.5 배를 넘긴 되감기가 통과한다 |
 | `evals/gate-fixtures/process-elefant-foot-negative.json` | bambu | 공차 보정 음수 **FAIL 1 건** (`-0.1`) | `if float(eff)<0:` 줄을 `pass` 로 | 음수 공차 보정이 통과한다 |
+| `evals/gate-fixtures/process-forbidden-key.json` | bambu | 금지 키 **FAIL 1 건** (`elephant_foot_compensation`) | `if bad in d:` 줄을 `pass` 로 | 오타 키가 조용히 버려진다 |
 | `evals/gate-fixtures/filament-lattice-fanfix.json` | bambu | **PASS** · `[미검증]` 0 줄 — 냉각 키를 소재 설정에 둔 정상 설정 | — | 정상 설정이 FAIL 로 막힌다 |
 | `evals/gate-fixtures/process-thin-baseline.json` | bambu | **PASS** (+ 벽 예산 `[미검증]` 1 줄) — thin 인데 외벽을 안 낮춘 정상 설정 | — | 정상 설정이 FAIL 로 막힌다 |
 
@@ -1887,6 +1890,8 @@ scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) �
 # macOS mktemp 은 X 가 **맨 끝**이어야 치환한다. `/tmp/gate-XXXX.py` 로 쓰면 그 이름 그대로 만들어져
 # 2 회차부터 "File exists" 로 죽는다 — 다시 돌려 확인하라는 절차가 다시 못 돌게 된다 (실측 2026-09-14).
 GATE=$(mktemp -t gate)
+# 끝나면 이 블록이 만든 임시 파일 · 폴더를 모두 지운다 — 안 지우면 돌릴 때마다 사용자 임시 폴더에 18 개씩 쌓였다 (2026-09-27 실측)
+trap 'find "$(dirname "$GATE")" -maxdepth 1 -name "${GATE##*/}*" -exec rm -rf {} +; rm -rf "${EMPTY:-}" "${NOENUM:-}" "${NOTYPES:-}"' EXIT
 S=bambu-kit/skills/bambu-print-profile/SKILL.md
 A=$(grep -n '^TARGET_SLICER=.* python3 - ' "$S" | head -1 | cut -d: -f1)
 B=$(awk -v s="$A" 'NR>s && $(0)=="PY" {print NR; exit}' "$S")
@@ -1937,6 +1942,7 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-flow-ratio-over.json; echo "exit
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-scarf-ratio-over.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/filament-retraction-over-parent.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-elefant-foot-negative.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-forbidden-key.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/filament-lattice-fanfix.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-baseline.json; echo "exit=$?"
 
@@ -1978,6 +1984,10 @@ TARGET_SLICER=bambu python3 "$GATE.guarded" $FX/filament-retraction-over-parent.
 sed -E 's/^( *)if float\(eff\)<0: errs\.append.*$/\1pass/' "$GATE" > "$GATE.negcomp"
 diff "$GATE" "$GATE.negcomp" | grep -c '^>'   # 1 이어야 변이가 먹은 것
 TARGET_SLICER=bambu python3 "$GATE.negcomp" $FX/process-elefant-foot-negative.json; echo "exit=$?"
+# 금지 키 검사도 if 와 한 줄이다
+sed -E 's/^( *)if bad in d: errs\.append\(f"금지 키 .*$/\1pass/' "$GATE" > "$GATE.forbid"
+diff "$GATE" "$GATE.forbid" | grep -c '^>'   # 1 이어야 변이가 먹은 것
+TARGET_SLICER=bambu python3 "$GATE.forbid" $FX/process-forbidden-key.json; echo "exit=$?"
 
 # 못 읽은 칸 알림은 errs 가 아니라 unverified 로 나가서 drop() 이 못 바꾼다 — 소재 쪽 알림 줄만 지운 사본은 [미검증] 줄이 1 → 0 이 된다
 sed -E 's/^( *)unverified\.append\(f"\{f\}: \{k\} 슬롯 .*$/\1pass/' "$GATE" > "$GATE.slotnote"
@@ -2016,6 +2026,11 @@ NOENUM=$(mktemp -d -t noenum); mkdir -p "$NOENUM/references/option-keys"
 BV=$(defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVersionString)
 grep -v "^enum$(printf '\t')" "$SKILL_DIR/references/option-keys/bambu-$BV.tsv" > "$NOENUM/references/option-keys/bambu-$BV.tsv"
 SKILL_DIR="$NOENUM" TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
+
+# 종류 줄만 빠진 목록 — 종류 판정을 건너뛰고 [미검증] 에 「종류 검사 미실행」 을 남기며, enum 판정은 그대로 돌아 받지 않는 값 FAIL 1 건이 나와야 한다
+NOTYPES=$(mktemp -d -t notypes); mkdir -p "$NOTYPES/references/option-keys"
+grep -v -E "^(process|filament|machine)$(printf '\t')" "$SKILL_DIR/references/option-keys/bambu-$BV.tsv" > "$NOTYPES/references/option-keys/bambu-$BV.tsv"
+SKILL_DIR="$NOTYPES" TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-type-invalid.json; echo "exit=$?"
 ```
 
 실측 2026-09-15 (zsh · 변이 적용 확인 값은 전부 1):
@@ -2039,6 +2054,7 @@ SKILL_DIR="$NOENUM" TARGET_SLICER=bambu python3 "$GATE" $FX/process-seam-slope-t
 목록 파일이 있기만 하고 비었을 때도 같다 — `[미검증] … 목록이 비었거나 깨졌다` 가 남는다 (2026-09-25 추가. 그전에는 아무 줄 없이 `RESULT: PASS` 였다).
 enum 줄만 빠진 목록도 같다 — `받지 않는 값` FAIL 이 사라지는 대신 `[미검증] … enum 0 줄` 이 남는다 (2026-09-25 추가. 그전에는 `RESULT: PASS` 였다).
 이 줄은 실제로 안 돈 검사만 적는다 — enum 줄만 빠지면 `enum 값 검사 미실행` 이고, 키 존재 · 종류 검사는 그대로 돌아 `키 스코프 불일치` FAIL 을 낸다 (2026-09-26 수정. 그전에는 같은 출력에 종류 FAIL 과 「종류 검사 미실행」 이 함께 나왔다).
+종류 줄만 빠진 목록은 반대다 — 종류 판정을 건너뛰고 `[미검증] … 종류 검사 미실행` 을 남기며, enum 판정은 돌아 `받지 않는 값` FAIL 을 낸다 (2026-09-27 수정. 그전에는 적힌 키마다 거짓 `키 스코프 불일치` FAIL 이 나고 enum FAIL 은 0 건이었다).
 
 **왜 enum 을 따로 보는가.** 슬라이서는 유효하지 않은 enum 값을 **오류 없이 조용히 기본값으로
 강등**한다. 실측 2026-09-14: `seam_slope_type` 에 `hole` 을 넣으면 exit 0 · 경고 0 으로 슬라이스되고
@@ -2466,7 +2482,7 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 | --- | --- |
 | `https://makerworld.com/api/v1/design-service/design/<번호>` | `title` · 설명 HTML `summary` · `designCreator` · 소재별 프로파일 `instances` · `commentCount` · `license` |
 | `https://api.bambulab.com/v1/design-service/design/<번호>/instances` | 프로파일 목록 `hits` 와 `total` |
-| `https://api.bambulab.com/v1/comment-service/commentandrating?designId=<번호>&offset=<N>&limit=100` | 댓글 · 평점 `hits` 와 `total` |
+| `https://api.bambulab.com/v1/comment-service/commentandrating?designId=<번호>&offset=<N>&limit=100` | 댓글 · 평점 `hits` 와 `total`. 댓글 hit 의 답글 배열은 `comment.commentReply`, 답글 수는 `comment.replyCount` (`[관측 2026-09-27]` 배열이 수보다 짧은 댓글이 있다) |
 
 댓글은 `offset` 을 받은 `hits` 수만큼 늘려 가며 받고, `hits` 가 비거나 받은 수가 `total` 에 닿으면 멈춘다
 (`[관측 2026-09-24]` `total` 159 → offset 0 에서 100 개, 100 에서 59 개). 마지막 줄들이 받은 수를 센다 — `WARN` 이 나오면 페이지를 끝까지 넘겼는지부터 본다.
@@ -2508,8 +2524,11 @@ hits = [hit for body in bodies for hit in (body.get("hits") or [])]
 total = bodies[0].get("total") if bodies else None
 comments = sum(1 for hit in hits if hit.get("comment"))
 ratings = sum(1 for hit in hits if hit.get("ratingItem"))
+reply_count = sum(int(hit["comment"].get("replyCount") or 0) for hit in hits if hit.get("comment"))
+reply_got = sum(len(hit["comment"].get("commentReply") or []) for hit in hits if hit.get("comment"))
 print(f"design {design.get('title')!r} · commentCount {design.get('commentCount')} · instances {len(design.get('instances') or [])}")
 print(f"comments total {total} · 받은 hits {len(hits)} (페이지 {len(pages)}) · comment {comments} · ratingItem {ratings}")
+print(f"답글 replyCount {reply_count} · 받은 commentReply {reply_got}" + ("" if reply_count == reply_got else " — 답글 배열이 답글 수보다 짧은 댓글이 있다. 둘 다 notes 에 적는다"))
 if not hits and design.get("commentCount"):
     sys.exit("FAIL 댓글을 하나도 못 받았는데 commentCount 가 0 이 아니다 — 위 상태 코드가 200 이 아니면 2 번으로, 200 이면 응답 모양이 바뀌었는지 본다")
 if total is not None and len(hits) != total:
@@ -2545,7 +2564,7 @@ defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVer
 | `02.05.x.xx` 이하 (구버전) | ⚠️ JSON `"version": "2.6.0.2"`이 reject될 수 있음. 사용자에게 업그레이드 권장. |
 | 명령 실패 (`not installed`) | Studio 미설치. JSON은 만들되 import 검증 셸 명령 부분 skip. |
 
-> **릴리스 현황 (2026-07-27 조회):** 최신은 **2.8.1** (`v02.08.01.55`, 2026-07-14 · Public Beta), 최신 정식 릴리스는 **2.7.1** (`v02.07.01.62`, 2026-06-16). 로컬 설치본은 `02.06.00.51` 로 references baseline 과 일치한다. 출처: <https://api.github.com/repos/bambulab/BambuStudio/releases>. references 를 2.7/2.8 기준으로 올리는 것은 `/bambu-research` 소관이다.
+> **릴리스 현황 (2026-09-27 조회):** 최신은 **2.8.4** (`v02.08.04.57`, 2026-09-22 · Public Beta), 최신 정식 릴리스는 **2.8.2** (`v02.08.02.61`, 2026-08-21). 이 맥 설치본은 `02.08.02.61` 이다. 출처: <https://api.github.com/repos/bambulab/BambuStudio/releases>. references 를 새 판 기준으로 올리는 것은 `/bambu-research` 소관이다.
 
 ### 2. Memory 자동 로드
 
