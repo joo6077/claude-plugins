@@ -57,7 +57,7 @@ react-kit 의 애니메이션은 **외부 라이브러리를 일절 쓰지 않�
 애니메이션 요구는 **티어** 로 분류된다. 낮은 티어로 해결되는 건 높은 티어를 쓰지 않는다.
 
 | Tier | 도구 | 적용 시나리오 | 구현 난이도 |
-|------|------|--------------|----------|
+| ------ | ------ | -------------- | ---------- |
 | **T1** | Tailwind `animate-*` + `transition-*` + CSS `@keyframes` | 상태 변화 (fade/slide/scale/rotate/opacity), hover 효과, 단순 loop 애니메이션 | 낮음 |
 | **T2** | View Transitions API (`document.startViewTransition` + `view-transition-name`) | 그리드 ↔ 보드 뷰 전환, shared element, 라우트 전환, DOM 구조 변경 시 부드러운 FLIP | 중 |
 | **T3** | 커스텀 pointer primitives + FSM + requestAnimationFrame | 드래그앤드롭, 제스처, 드래그 momentum, SVG 연결선, 복잡 시퀀스 | 높음 |
@@ -71,7 +71,7 @@ react-kit 의 애니메이션은 **외부 라이브러리를 일절 쓰지 않�
 ### 1.1 Tailwind 내장 유틸리티
 
 | 카테고리 | 유틸 | 예시 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | **Transition** | `transition-all`, `transition-colors`, `transition-transform`, `transition-opacity` | `hover:scale-105 transition-transform duration-200` |
 | **Duration** | `duration-75`~`duration-1000` | — |
 | **Easing** | `ease-linear`, `ease-in`, `ease-out`, `ease-in-out` | — |
@@ -81,6 +81,7 @@ react-kit 의 애니메이션은 **외부 라이브러리를 일절 쓰지 않�
 ### 1.2 tailwindcss-animate 플러그인 (shadcn 기본)
 
 shadcn/ui 설치 시 함께 들어오는 `tailwindcss-animate` 가 추가 유틸리티 제공:
+
 - `animate-in` / `animate-out` — enter/exit 애니메이션
 - `fade-in-*`, `fade-out-*` — 페이드
 - `slide-in-from-top/bottom/left/right-*`, `slide-out-to-*` — 슬라이드
@@ -552,6 +553,7 @@ export function Column({ columnId, items }: { columnId: string; items: Card[] })
 ```
 
 **핵심**:
+
 - `useDrop` 은 **자체 pointer capture 를 하지 않는다** — 드래그 상태는 `useDrag` 쪽이 소유. `useDrop` 은 단지 "지금 내 영역에 들어왔는가" 만 판단
 - `onPointerEnter` / `onPointerLeave` 는 pointer capture 상태에서도 target 을 가로채지 않고 정상 발화
 - `canAccept` 로 validation — 같은 컬럼 내 드롭 금지, 타입 제한 등
@@ -580,6 +582,7 @@ export function useSortable<T>(
 ### 3.4 Pointer cancel 처리
 
 드래그 중에 발생할 수 있는 cancel 시나리오:
+
 - 브라우저 탭 전환 (`visibilitychange`)
 - 다른 앱으로 포커스 전환
 - ESC 키 (사용자가 명시적으로 취소)
@@ -795,6 +798,7 @@ function KanbanCard({ card }: { card: Card }) {
 ```
 
 **동작 흐름**:
+
 1. 사용자가 카드를 pointerdown → `useDrag` 이 로컬 FSM 에 dragging 등록 + `useDragStore.start(cardId, sourceColumnId)` 로 전역 등록
 2. pointermove → 카드 transform 업데이트 (로컬), 각 컬럼의 `useDrop` 이 pointerenter 로 `useDragStore.hover(columnId)` 호출, 해당 컬럼만 isOver 로 하이라이트
 3. pointerup 이 드롭 타겟 컬럼 위에서 발생 → `useDrop.onDrop` 콜백이 mutation 호출 (`useMoveCard` = G2 `/react-query` mutation), `useDragStore.end()` 로 전역 리셋
@@ -811,6 +815,7 @@ function KanbanCard({ card }: { card: Card }) {
 **라이브러리 0개 접근의 가장 큰 약점**: 드래그앤드롭의 키보드 / ARIA / 스크린리더 접근성이 사용자 책임이다.
 
 `@dnd-kit` 같은 라이브러리는 기본적으로:
+
 - Tab 으로 포커스, Space/Enter 로 pickup
 - 화살표 키로 이동
 - Space/Enter 로 drop, Esc 로 cancel
@@ -830,9 +835,9 @@ react-kit 은 이걸 **자동 제공하지 않는다**. 대신 W3C ARIA Authorin
 
 ### 출처
 
-- W3C ARIA Authoring Practices Guide (APG): https://www.w3.org/WAI/ARIA/apg/
-- W3C Keyboard Interface 가이드: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/
-- MDN WAI-ARIA basics: https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Accessibility/WAI-ARIA_basics
+- W3C ARIA Authoring Practices Guide (APG): <https://www.w3.org/WAI/ARIA/apg/>
+- W3C Keyboard Interface 가이드: <https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/>
+- MDN WAI-ARIA basics: <https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Accessibility/WAI-ARIA_basics>
 
 **솔직한 경고**: 완전한 스크린리더 접근성을 원하면 `@dnd-kit` 같은 라이브러리가 더 빠르게 문제를 푼다. react-kit 의 "no-library" 선택은 **번들 / 커스텀 / 성능** 을 얻는 대신 **접근성 구현 책임** 을 사용자가 진다는 트레이드오프다. 이 문서는 패턴을 제공하지만 완벽한 a11y 를 보장하지 않는다.
 
@@ -840,7 +845,7 @@ react-kit 은 이걸 **자동 제공하지 않는다**. 대신 W3C ARIA Authorin
 
 사용자 요청을 분석해 가장 낮은 티어로 해결 가능한 방안을 선택:
 
-```
+```text
 /react-animation "버튼 hover 시 살짝 커지게"
   → 분석: 단순 scale 변화, 단일 요소, 상태 없음
   → T1 (Tailwind): hover:scale-105 transition-transform duration-200
@@ -862,6 +867,7 @@ react-kit 은 이걸 **자동 제공하지 않는다**. 대신 W3C ARIA Authorin
 ```
 
 **판정 규칙**:
+
 - 상태 변화 / transition 키워드 → T1
 - "shared element", "뷰 전환", "라우트 전환", "DOM 구조 변경" 키워드 → T2
 - "드래그", "드롭", "정렬", "gesture", "화살표", "연결선", "커스텀 제어" 키워드 → T3
@@ -898,6 +904,7 @@ react-kit 은 이걸 **자동 제공하지 않는다**. 대신 W3C ARIA Authorin
 ### 8.3 도구 스코프
 
 **읽기 전용**:
+
 - `Read` — 기존 코드 확인
 - `Grep` — 패턴 검색
 - `Glob` — 파일 찾기
@@ -931,7 +938,7 @@ react-kit 은 이걸 **자동 제공하지 않는다**. 대신 W3C ARIA Authorin
 
 ### 8.5 에이전트 ↔ 스킬 흐름
 
-```
+```text
 사용자 요청
      │
      ▼
@@ -972,21 +979,21 @@ animation-architect-react  (분석 + 자문)
 
 ## 11. 출처 요약
 
-1. MDN View Transition API: https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API
-2. MDN Document.startViewTransition(): https://developer.mozilla.org/en-US/docs/Web/API/Document/startViewTransition
-3. MDN ViewTransition interface: https://developer.mozilla.org/en-US/docs/Web/API/ViewTransition
-4. MDN view-transition-name CSS: https://developer.mozilla.org/en-US/docs/Web/CSS/view-transition-name
-5. MDN :active-view-transition pseudo-class: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:active-view-transition
-6. MDN :active-view-transition-type() pseudo-class: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:active-view-transition-type
-7. Chrome Developers — View Transitions 2025 update: https://developer.chrome.com/blog/view-transitions-in-2025
-8. MDN Pointer events: https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events
-9. MDN Element.setPointerCapture(): https://developer.mozilla.org/en-US/docs/Web/API/Element/setPointerCapture
-10. MDN touch-action CSS: https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action
-11. W3C Pointer Events Level 3: https://www.w3.org/TR/pointerevents3/
-12. W3C ARIA Authoring Practices Guide: https://www.w3.org/WAI/ARIA/apg/
-13. W3C Keyboard Interface 가이드: https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/
-14. Tailwind CSS Animation utilities: https://tailwindcss.com/docs/animation
-15. tailwindcss-animate 플러그인: https://github.com/jamiebuilds/tailwindcss-animate
+1. MDN View Transition API: <https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API>
+2. MDN Document.startViewTransition(): <https://developer.mozilla.org/en-US/docs/Web/API/Document/startViewTransition>
+3. MDN ViewTransition interface: <https://developer.mozilla.org/en-US/docs/Web/API/ViewTransition>
+4. MDN view-transition-name CSS: <https://developer.mozilla.org/en-US/docs/Web/CSS/view-transition-name>
+5. MDN :active-view-transition pseudo-class: <https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:active-view-transition>
+6. MDN :active-view-transition-type() pseudo-class: <https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:active-view-transition-type>
+7. Chrome Developers — View Transitions 2025 update: <https://developer.chrome.com/blog/view-transitions-in-2025>
+8. MDN Pointer events: <https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events>
+9. MDN Element.setPointerCapture(): <https://developer.mozilla.org/en-US/docs/Web/API/Element/setPointerCapture>
+10. MDN touch-action CSS: <https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action>
+11. W3C Pointer Events Level 3: <https://www.w3.org/TR/pointerevents3/>
+12. W3C ARIA Authoring Practices Guide: <https://www.w3.org/WAI/ARIA/apg/>
+13. W3C Keyboard Interface 가이드: <https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/>
+14. Tailwind CSS Animation utilities: <https://tailwindcss.com/docs/animation>
+15. tailwindcss-animate 플러그인: <https://github.com/jamiebuilds/tailwindcss-animate>
 
 ## 현행화 기록
 

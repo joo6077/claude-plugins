@@ -5,6 +5,7 @@ created: 2026-09-07
 purpose: 다른 세션이 이 문서만 읽고 킷을 만들 수 있게 하는 설계 정본
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # howto-kit 설계 브리프
 
 **한 줄**: 사람이 손으로 해야 하는 절차를 **어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인**까지 끊지 않고 알려주는 스택·도메인 무관 킷. 기본은 대화창 즉답, 요청 시 MD 문서화.
@@ -119,10 +120,12 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 > **2026-09-09 교정.** 이 항목은 원래 "방향어 **대신**" 이라고 적혀 근거보다 강했다. 실제 규칙은
 > **단독 사용 금지**이며 완화 조건의 출처는 Google 이 아니라 Microsoft 다. 확정 정본은
 > `docs/howto/ui-anchoring.md`.
+<!-- markdownlint-disable-next-line MD028 -->
 
 > *"Don't use directional terms as the only clue to location."* /
 > *"It's OK to use a directional term if another indication of location … is also included."*
 > — Microsoft, [learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities]
+<!-- markdownlint-disable-next-line MD028 -->
 
 > *"Don't use directional language to orient the reader"* — Google,
 > [developers.google.com/style/ui-elements] (완화 조건 없음)
@@ -147,6 +150,7 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 > *"If you don't see a Campaigns tab or add button…"* — Apple
 > *"If you can't see the filter's sharing configuration, you'll need your Jira administrator to give you the Create Shared Object global permission."* — Atlassian
 > *"Organizations that you are a member of will not appear if the organization has blocked…"* — GitHub
+<!-- markdownlint-disable-next-line MD028 -->
 
 > **2026-09-10 교정.** 이 목록은 5 종을 주장했지만 인용이 있던 것은 권한 계열뿐이었고, Apple
 > 인용은 권한이 아니라 **기능 선행조건** 분기였다. 확정 정본은 `docs/howto/branch-catalog.md`.
@@ -235,6 +239,7 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 ```
 
 > *"before starting the current task"* — DITA `<prereq>` / 콘텐츠 모델은 `<prereq>?, <context>?, (<steps>|<steps-unordered>)?` 순서 — [docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/contentmodels/cmtct.html]
+<!-- markdownlint-disable-next-line MD028 -->
 
 > **2026-09-10 보강.** 이 고정 순서는 DITA 의 **strict task model** 이다. DITA 1.2 부터 OASIS
 > 배포본에는 모델이 둘이고(*"two task models"*) general 모델은 순서가 자유롭다. 모델명을 밝히지

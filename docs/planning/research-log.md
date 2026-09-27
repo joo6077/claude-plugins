@@ -4,6 +4,7 @@ version: 1.1.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Planning Kaizen Research Log
 
 ## [2026-09-24] — Phase 11 kaizen (폐기한 결정 기록 자리)
@@ -57,8 +58,8 @@ GitHub.com classic projects 는 2024-08-23 · classic REST API 는 2025-04-01 su
 `gh project` 유지**, GraphQL 과 REST 는 fallback 병기로 결정했다 (evidence §4 열린 질문 1 의 결론).
 
 - 반영: `planning-kit/skills/plan-sync-github/SKILL.md` Gotcha 4 · Step 3 6번 · References
-- 출처: https://docs.github.com/en/rest/projects/items?apiVersion=2022-11-28 ·
-  https://cli.github.com/manual/gh_project_item-add
+- 출처: <https://docs.github.com/en/rest/projects/items?apiVersion=2022-11-28> ·
+  <https://cli.github.com/manual/gh_project_item-add>
 
 ### 정정 2 — "한 시나리오 = one When-Then pair" 는 Cucumber 원문 근거가 아니다
 
@@ -68,7 +69,7 @@ Gherkin Reference 는 오히려 "as many steps as you like" 를 허용하고 suc
 `Then` 두 가지뿐이다 (과잉 인용 제거이지 규칙 완화가 아니다).
 
 - 반영: `planning-kit/skills/plan-stories/SKILL.md` Gotcha 5
-- 출처: https://cucumber.io/docs/gherkin/reference
+- 출처: <https://cucumber.io/docs/gherkin/reference>
 
 ### 정정 3 — HBR premortem 의 "개별 기록 → 공유" 절차는 [미확인]
 
@@ -77,11 +78,11 @@ HBR URL(2007-09 · Gary Klein)과 premortem 기법 자체는 확인된다. 그�
 팁으로 강등했다. 절차 자체는 그대로 유지한다.
 
 - 반영: `planning-kit/skills/plan-risks/SKILL.md` Gotcha 8 · Step 1 · `docs/planning/risks.md` §Pre-mortem
-- 출처: https://hbr.org/2007/09/performing-a-project-premortem
+- 출처: <https://hbr.org/2007/09/performing-a-project-premortem>
 
 ### 부수 정정 2 건
 
-- **Betting Table 정본 URL** = https://basecamp.com/shapeup/2.2-chapter-08 (cool-down 중 다음 cycle 을
+- **Betting Table 정본 URL** = <https://basecamp.com/shapeup/2.2-chapter-08> (cool-down 중 다음 cycle 을
   결정하는 회의). 현재 킷 안에 Betting Table 을 URL 과 함께 인용하는 곳이 0 건이라 스킬 본문은
   건드리지 않고 여기에만 선제 기록한다. Pitch 5 요소(Problem/Appetite/Solution/Rabbit Holes/No-gos)의
   Chapter 6 URL 은 그대로 유효하다.
@@ -147,6 +148,7 @@ research-only 모드로 조회했고 **외부 방법론 drift 는 발견되지 �
 - `.claude/skills/planning-kaizen/SKILL.md`: validate-plugin "7 카테고리" → 8 (V1~V8) 정정,
   임계값 SSOT 재정의 금지 규칙 추가
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 명시적 비범위
 
 - 스테일 핸드오프 git 재검증(insights Friction #5) 은 insights-report 가 Phase 4 Harness 로 배정 — 중복 승격 회피
@@ -161,7 +163,6 @@ research-only 모드로 조회했고 **외부 방법론 drift 는 발견되지 �
 생성형 8스킬에 scope-discipline 가드 추가(요청 안 한 섹션/스토리/엔티티 임의 추가 금지). plan-sync-github 는 기존 보유로 SKIP.
 
 출처: basecamp.com/shapeup Ch.6, agilealliance.org/glossary/invest, skill-design-guide §5.5.
-
 
 planning-kit 카이젠 사이클별 리서치 인용 + Phase 별 변경 근거 기록.
 

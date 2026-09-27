@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 베이스라인 거버넌스와 승격
 
 실제 응답을 SSOT 로 삼을 때 그 응답을 무엇으로 저장하고, 언제 새 truth 로 승격할지 결정하는 규칙. 보관 형식, 승격 리뷰, 환경 lineage, 만료를 다룬다.
@@ -77,7 +78,7 @@ override 는 이유와 행위자가 남는 감사 이벤트여야 한다. GitHub
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | 승인본/산출물 커밋 정책 | 승인본은 소스 컨트롤 포함, 실행 산출물(`.received.*`)은 `0건` 커밋 | [ApprovalTests — Approval files](https://approvaltestscpp.readthedocs.io/en/latest/generated_docs/Tutorial.html#approval-files) |
 | CI 자동 baseline 갱신 | `0회` — 명시적 update/promote 플래그가 있을 때만 | [Jest Snapshot Testing](https://github.com/jestjs/jest/blob/main/docs/SnapshotTesting.md) |
 | accepted 전환 기준 | 동일 contract content 가 해당 branch 에서 `첫 성공 verification` 을 기록하면 pending 해제, 이후 실패는 빌드 실패 | [Pact Pending Pacts](https://docs.pact.io/pact_broker/advanced_topics/pending_pacts) |
@@ -93,7 +94,7 @@ override 는 이유와 행위자가 남는 감사 이벤트여야 한다. GitHub
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | prod raw 스냅샷을 저장소에 커밋 | 실제 고객 데이터와 자격증명이 영구 이력에 남는다 — 나중에 지워도 히스토리에서 사라지지 않는다 |
 | diff 실패 시 baseline 을 자동 승격 | 회귀가 새 truth 가 되어 다음 실행부터 green 이 된다 |
 | staging/prod/local 이 하나의 baseline 파일 공유 | 환경 차이가 회귀로, 회귀가 환경 차이로 오판된다 |

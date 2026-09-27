@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-05
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Flutter Hooks
 
 ## 요약
@@ -13,19 +14,19 @@ last_updated: 2026-04-05
 ## 원칙
 
 1. **Hook은 `HookWidget` / `StatefulHookWidget` / `HookConsumerWidget`의 `build` 메서드 안에서만, 항상 같은 순서로 호출한다.** 조건문/반복문 안에서 호출 금지.
-   - 출처: https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/use.html
+   - 출처: <https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/use.html>
 
 2. **`HookWidget`은 별도 lifecycle 메서드 없이 local state와 disposable 객체를 선언적으로 관리한다.** `StatefulWidget`의 보일러플레이트(`initState`/`dispose`)를 대체하는 용도.
-   - 출처: https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/HookWidget-class.html
+   - 출처: <https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/HookWidget-class.html>
 
 3. **목적별로 훅을 구분해 쓴다.** side effect는 `useEffect`, 비싼 계산 캐싱은 `useMemoized`, 순수 local ephemeral 값은 `useState`.
-   - 출처: https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/useEffect.html
+   - 출처: <https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/useEffect.html>
 
 4. **`AnimationController`는 `useAnimationController`로 생성한다.** 수동 `dispose` 없이도 위젯 제거 시 자동 해제된다.
-   - 출처: https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/
+   - 출처: <https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/>
 
 5. **Riverpod과 함께 쓸 때는 `HookConsumerWidget`을 사용한다.** `HookWidget` + `Consumer` 중첩은 피한다.
-   - 출처: https://pub.dev/documentation/hooks_riverpod/latest/hooks_riverpod/HookConsumerWidget-class.html
+   - 출처: <https://pub.dev/documentation/hooks_riverpod/latest/hooks_riverpod/HookConsumerWidget-class.html>
 
 ## 수치 기준
 
@@ -55,12 +56,12 @@ ValueNotifier<String> useDebouncedSearch(String input, {Duration delay = const D
 }
 ```
 
-- 출처: https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html
+- 출처: <https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html>
 
 ### useEffect keys 규칙
 
 | keys 값 | 동작 |
-|---------|------|
+| --------- | ------ |
 | `[]` (빈 리스트) | mount 시 1회만 실행, unmount 시 cleanup |
 | `[dep1, dep2]` | dep1 또는 dep2 변경 시 재실행 |
 | 생략 (null) | **매 build마다** 재실행 — 거의 항상 버그 |

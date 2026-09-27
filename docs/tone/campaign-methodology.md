@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-02
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 코드 정리 캠페인 운영 방법론
 
 ## 이 문서가 잡는 것

@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 배포 전략
 
 Rolling, Blue-Green, Canary, A/B, feature flag, GitOps(ArgoCD/Flux), 롤백, SLI/SLO 기반 자동 롤백을 다룬다.

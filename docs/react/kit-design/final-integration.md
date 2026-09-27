@@ -172,7 +172,7 @@ react-kit 은 **6개 카테고리** 를 사용 — flutter-toolkit 의 4개 (UI/
 
 ### 2.1 react-kit/ 폴더 트리
 
-```
+```text
 react-kit/
 ├── .claude-plugin/
 │   └── plugin.json
@@ -281,7 +281,7 @@ react-kit/
 ### 2.3 에이전트 파일 경로 및 모델
 
 | 에이전트 | 파일 | 기본 모델 | 도구 스코프 |
-|---------|------|---------|----------|
+| --------- | ------ | --------- | ---------- |
 | `react-reviewer` | `react-kit/agents/react-reviewer.md` | Sonnet (deep 모드 Performance 축은 Opus 옵션) | Read / Grep / Glob |
 | `widget-inspector-react` | `react-kit/agents/widget-inspector-react.md` | Sonnet | Read / Grep / Glob |
 | `animation-architect-react` | `react-kit/agents/animation-architect-react.md` | Sonnet | Read / Grep / Glob |
@@ -427,7 +427,7 @@ cd my-app
 
 이 플러그인이 생성하는 프로젝트는 Clean Architecture 를 따른다:
 
-```
+```text
 src/
 ├── domain/              # entities, usecases, failures (순수)
 ├── data/                # datasources, models, repositories
@@ -448,7 +448,8 @@ src-tauri/               # Tauri 백엔드
 4. **Strict TypeScript**: any/as/! 금지, Zod 경계 검증 필수
 5. **Result 타입**: throw 금지, neverthrow Result<T, Failure> 로 타입 안전 에러
 6. **WASM 결정은 카탈로그 기반**: 측정 없이도 research-backed 판정 (G0 wasm-catalog.md)
-```
+
+```text
 
 ### 4.1 문서 위치 구분
 

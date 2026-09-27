@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # CI/CD 원칙
 
 GitHub Actions에서 Rust 프로젝트의 빌드, 테스트, 보안 감사를 자동화한다. `cargo-nextest`로 빠른 테스트, `cargo-deny`로 의존성 보안 감사, `sccache`로 컴파일 캐시를 구성한다.
@@ -127,7 +128,7 @@ multiple-versions = "warn"
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | Rust toolchain action | `dtolnay/rust-toolchain@stable` | 고정 버전보다 `stable` 권장 |
 | 캐시 action | `Swatinem/rust-cache@v2` | `actions/cache` 직접 사용보다 간편 |
 | `RUSTFLAGS` | `-D warnings` | 경고를 에러로 처리 |

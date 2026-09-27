@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 보안
 
 OWASP Top 10, 주요 공격 벡터(SQLi, XSS, SSRF), 의존성 스캔, rate limiting, 보안 헤더, 시크릿 관리, PII 마스킹을 다룬다.
@@ -64,7 +65,7 @@ XSS는 3종이 있다: **Stored**(DB에 저장된 악성 스크립트), **Reflec
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | HSTS max-age | 최소 31536000초 (1년) | `includeSubDomains` 권장 |
 | CSP | `default-src 'self'` 시작 | `report-uri`로 위반 모니터링 |
 | Rate limiting — 일반 API | 100 req/min/IP | 비인증 엔드포인트 기준 |

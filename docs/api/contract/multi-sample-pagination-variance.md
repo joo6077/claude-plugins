@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 다중 샘플과 페이지네이션 변동성
 
 계약을 승격하기 전에 샘플을 몇 개, 어디까지 모아야 하는지에 대한 규칙.
@@ -87,7 +88,7 @@ envelope schema, item schema, pagination marker semantics 를 각각 따로 계�
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | Stripe list `limit` | default `10`, 허용 `1..100` | [Stripe pagination](https://docs.stripe.com/api/pagination) |
 | Microsoft Graph `/users` 서버 기본 page size | `100` | [Microsoft Graph paging](https://learn.microsoft.com/en-us/graph/paging) |
 | Azure REST `nextLink` 등장 시점 | 결과가 클 때 반환, 문서상 보통 `>1000` items | [Azure REST API](https://learn.microsoft.com/en-us/rest/api/azure/) |
@@ -102,7 +103,7 @@ envelope schema, item schema, pagination marker semantics 를 각각 따로 계�
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 첫 페이지의 item 개수를 전체 컬렉션 길이로 봉인 | 서버 page size 를 컬렉션 크기로 착각한다. 데이터가 늘어도 줄어도 감지 못한다 |
 | offset/skip 기반 페이지를 live-changing 컬렉션의 exact diff 기준으로 사용 | 항목이 삽입/삭제되면 페이지 경계가 밀려 매번 diff 가 난다 |
 | `nextLink` 에서 token 만 뜯어 다른 query 에 붙임 | cursor 는 opaque 다. 내부 구조가 바뀌면 조용히 잘못된 페이지를 읽는다 |

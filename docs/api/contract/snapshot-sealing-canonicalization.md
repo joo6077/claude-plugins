@@ -4,6 +4,7 @@ version: 0.1.2
 last_updated: 2026-09-26
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 스냅샷 봉인과 정규화
 
 응답을 baseline 으로 봉인할 때 무엇을 원본 증거로 남기고 무엇을 비교 기준선으로 파생시킬지 가르는 규칙.
@@ -73,7 +74,7 @@ HTTP digest fields 가 content digest 와 representation digest 를 분리하고
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | 중복 JSON object member 허용치 | `0` | 중복 이름은 I-JSON/JCS 위반 ([RFC 7493](https://www.rfc-editor.org/rfc/rfc7493.html)) |
 | 안전 정수 범위 | `-9007199254740991 ~ 9007199254740991` | 범위 밖 정수는 exact interchange 를 기대할 수 없음 ([RFC 7493](https://www.rfc-editor.org/rfc/rfc7493.html)) |
 | JCS 토큰 사이 추가 공백 | `0 byte` | JCS 정의 ([RFC 8785](https://www.rfc-editor.org/rfc/rfc8785.html)) |
@@ -87,7 +88,7 @@ HTTP digest fields 가 content digest 와 representation digest 를 분리하고
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | pretty-print JSON, 키 삽입 순서, diff UI 문자열을 해싱해 기준선으로 사용 | 표시 포매터가 바뀌면 계약이 통째로 깨진다. 기준선은 JCS 결과여야 한다 |
 | 파서가 "last key wins" 로 삼킨 뒤 중복 키를 검사 | 이미 값이 소실된 상태라 검사 자체가 무의미하다. 검문은 파싱 게이트에서 |
 | 배열을 안정화한다며 정렬 | JCS 는 object property 만 정렬하고 array order 는 보존한다. 정렬은 실제 순서 회귀를 은폐한다 |

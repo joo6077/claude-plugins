@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # API 인벤토리 정규화
 
 OpenAPI 스펙 / 사람이 쓴 md / curl·Talend 덤프를 하나의 operation 인벤토리로 합칠 때 적용하는 판단 규칙. 키 표준화, 출처 신뢰도, 충돌 처리, 커버리지 집계를 다룬다.
@@ -71,7 +72,7 @@ canonical key 가 같은 후보만 collapse 한다. method, path template, param
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | operation/path item 내 `(name, in)` 중복 허용치 | `0` | [OpenAPI Operation Object](https://spec.openapis.org/oas/v3.1.0#operation-object) |
 | 같은 hierarchy 내 path template ambiguity 허용치 | `0` | [OpenAPI Paths Object](https://spec.openapis.org/oas/v3.1.0#paths-object) |
 | header name case 구분 | `0` (case-insensitive 비교) | [RFC 9110 Field Names](https://www.rfc-editor.org/rfc/rfc9110.html#name-field-names) |
@@ -85,7 +86,7 @@ canonical key 가 같은 후보만 collapse 한다. method, path template, param
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | `operationId` 만으로 dedupe | 선택 필드라 외부 덤프에는 대부분 없어 dedupe 자체가 동작하지 않는다 |
 | raw path 문자열만 비교 | `/users/me` 와 `/users/{id}` 의 우선순위를 놓쳐 잘못된 operation 에 probe 를 붙인다 |
 | path/query/header/cookie 를 한 namespace 에 병합 | 이름이 같고 위치가 다른 파라미터가 서로를 덮어써 사라진다 |

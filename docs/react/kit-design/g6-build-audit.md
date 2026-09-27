@@ -48,7 +48,7 @@ react-kit **G6 그룹** 은 다른 그룹이 생성한 산출물을 **실행 가
 ### 1.2 서브커맨드 목록
 
 | 서브커맨드 | 명령 | 용도 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | **dev** | `pnpm vite dev` | Vite dev 서버 시작 (포트 5173 고정 — `strictPort: true` 라 차 있으면 옮기지 않고 멈춘다) |
 | **build** | `pnpm vite build` | 프로덕션 빌드 → `dist/` |
 | **preview** | `pnpm vite preview` | 프로덕션 빌드 결과 로컬 서빙 |
@@ -98,7 +98,7 @@ react-kit **G6 그룹** 은 다른 그룹이 생성한 산출물을 **실행 가
 
 ### 2.2 빌드 순서
 
-```
+```text
 [1. WASM 빌드]   crates/core → wasm-pack build → src/wasm/core/
         │ (실패 시 중단)
         ▼
@@ -153,7 +153,7 @@ react-kit **G6 그룹** 은 다른 그룹이 생성한 산출물을 **실행 가
 
 ### 3.2 실행 순서
 
-```
+```text
 1. fix               prettier --write . && eslint . --fix
         ↓ 자동 수정 후에도 해결 안 된 포맷/린트 → 다음 단계에서 검출
 2. codegen           tsr generate + lingui extract/compile
@@ -222,7 +222,7 @@ Quick 모드 (단일 에이전트, 빠른 로컬 검토) 와 Deep 모드 (최대
 ### 4.2 모드 자동 선택 규칙
 
 | 변경 파일 수 | 모드 | 실행 시간 (대략) |
-|--------------|------|----------|
+| -------------- | ------ | ---------- |
 | 1~5 | Quick | 10~30초 |
 | 6~20 | Quick | 30초~2분 |
 | 21~50 | **Deep 권장** (사용자 확인) | 3~8분 |
@@ -238,7 +238,7 @@ Quick 모드 (단일 에이전트, 빠른 로컬 검토) 와 Deep 모드 (최대
 
 Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 각 에이전트는 특정 관점만 책임:
 
-```
+```text
 [Deep Audit]
      │
      ├──► architecture-reviewer   (Clean Arch 경계 위반, Feature 간 직접 import)
@@ -269,6 +269,7 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
 - **상대 경로 사용** (`'../../../shared/...'`) → ⚠️ 경고
   - grep_pattern: `^import .* from ['"]\.\./\.\./\.\./`
 - **`export default` 사용** → ⚠️ 경고
+  <!-- markdownlint-disable-next-line MD038 -->
   - grep_pattern: `^export default `
   - ast_check: `@typescript-eslint/no-default-export` 또는 `import/no-default-export`
 
@@ -278,6 +279,7 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
   - grep_pattern: `: any\b|<any>|as any\b`
   - ast_check: `@typescript-eslint/no-explicit-any` (error level)
 - **`as` 타입 단언** (일반) → ⚠️ 경고 (Zod parse 권고)
+  <!-- markdownlint-disable-next-line MD038 -->
   - grep_pattern: ` as [A-Z][a-zA-Z]+\b` (타입 단언), exclude `as const`
   - ast_check: `@typescript-eslint/consistent-type-assertions`
 - **`!` non-null 단언** → ❌ 실패
@@ -308,6 +310,7 @@ Claude `Agent` 도구로 **4개의 독립 서브에이전트를 병렬 spawn**. 
 
 - **하드코딩된 i18n 문자열** (매크로 미경유 한국어/영어) → ⚠️ 경고 (G4)
   - grep_pattern: `>[^<{]*[가-힣A-Za-z][^<{]*<|["'][^"']*[가-힣][^"']*["']` (in .tsx)
+    <!-- markdownlint-disable-next-line MD038 -->
   - exclude: `<Trans>`, `t\`...\``, `msg\`...\`` 내부
 - **`aria-*` 누락** (인터랙티브 요소) → ⚠️ 경고
   - ast_check: `eslint-plugin-jsx-a11y/accessible-name`
@@ -410,12 +413,14 @@ react-kit 이 강제하는 **라이브러리 허용/금지** 정책. 위반 시 
 **트리거**: `/react-audit` 스킬이 Agent 도구로 호출. 사용자가 직접 호출 금지 (독립성 보장).
 
 **입력**:
+
 - 변경 파일 경로 리스트
 - 감사 카테고리 (Architecture / Strict TS / Performance / Accessibility / Anti-patterns)
 - 프로젝트 루트 경로
 - G0 `wasm-catalog.md` 및 G5b 금지 라이브러리 목록 참조
 
 **출력**:
+
 ```yaml
 verdict: APPROVE | REJECT | BLOCKED
 invalid_evidence: <n>
@@ -491,7 +496,7 @@ G6 스킬들은 내부적으로 이 npm scripts 를 호출 (`pnpm run <script>`)
 
 ## 8. 다른 그룹과 G6 의 관계도
 
-```
+```text
 G0 wasm-catalog.md         ─┐
 G1 Scaffolding             ─┤
 G2 State & Data            ─┤   ─► 생성물 생성 ─►  /react-audit  ─► 품질 리포트
@@ -505,25 +510,25 @@ G5b Animation              ─┘
 
 ## 9. 출처 요약
 
-1. Vitest CLI: https://vitest.dev/guide/cli
-2. Vitest Coverage: https://vitest.dev/guide/coverage
-3. Vite build: https://vitejs.dev/guide/build
-4. wasm-pack build command: https://rustwasm.github.io/docs/wasm-pack/commands/build.html
-5. wasm-pack GitHub: https://github.com/rustwasm/wasm-pack
-6. Playwright test CLI: https://playwright.dev/docs/test-cli
-7. ESLint v9 flat config: https://eslint.org/docs/latest/use/configure/configuration-files
-8. TypeScript compiler options (tsc --noEmit): https://www.typescriptlang.org/docs/handbook/compiler-options.html
-9. Prettier CLI: https://prettier.io/docs/en/cli
-10. Tauri 2 CLI: https://v2.tauri.app/reference/cli/
-11. TanStack Router codegen: https://tanstack.com/router/latest/docs/api/file-based-routing
-12. Lingui CLI: https://lingui.dev/ref/cli
+1. Vitest CLI: <https://vitest.dev/guide/cli>
+2. Vitest Coverage: <https://vitest.dev/guide/coverage>
+3. Vite build: <https://vitejs.dev/guide/build>
+4. wasm-pack build command: <https://rustwasm.github.io/docs/wasm-pack/commands/build.html>
+5. wasm-pack GitHub: <https://github.com/rustwasm/wasm-pack>
+6. Playwright test CLI: <https://playwright.dev/docs/test-cli>
+7. ESLint v9 flat config: <https://eslint.org/docs/latest/use/configure/configuration-files>
+8. TypeScript compiler options (tsc --noEmit): <https://www.typescriptlang.org/docs/handbook/compiler-options.html>
+9. Prettier CLI: <https://prettier.io/docs/en/cli>
+10. Tauri 2 CLI: <https://v2.tauri.app/reference/cli/>
+11. TanStack Router codegen: <https://tanstack.com/router/latest/docs/api/file-based-routing>
+12. Lingui CLI: <https://lingui.dev/ref/cli>
 
 ## 10. 감사 규칙 중요도 레벨
 
 각 카테고리의 규칙은 **중요도** 가 있다. 기본 규칙은 아래 3 레벨:
 
 | 레벨 | 기호 | 의미 | CI 행동 |
-|------|------|------|---------|
+| ------ | ------ | ------ | --------- |
 | **error** | ❌ | 반드시 고쳐야 함. 빌드 게이트 | exit 1 (preflight 실패) |
 | **warn** | ⚠️ | 권장 사항. 고치지 않아도 빌드는 통과 | exit 0 + 경고 리포트 |
 | **info** | ℹ️ | 참고용. 설계 개선 힌트 | 리포트에 섹션으로 추가 |

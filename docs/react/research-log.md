@@ -63,7 +63,7 @@ stale 지점만 정정했다.
 ### 확인한 현행 stable
 
 | 항목 | 현행 stable | 우리 반영 | 출처 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Vite | `vite@8.2.0` (major 8, Rolldown 단일 번들러) | 템플릿 `vite: ^6.0.0` → `^8.0.0`. 스킬 본문의 Vite 8 서술은 이미 최신이었고 템플릿만 뒤처져 있었다 | <https://www.npmjs.com/package/vite?activeTab=versions> · <https://vite.dev/blog/announcing-vite8> |
 | @hookform/resolvers | `5.5.7` (Zod 4 지원은 v5.1.0 부터) | 템플릿 `^3.0.0` → `^5.1.0`. 구 v3 alias workaround 를 **legacy resolver 전용**으로 강등 | <https://www.npmjs.com/package/%40hookform/resolvers?activeTab=versions> · <https://github.com/react-hook-form/resolvers/releases/tag/v5.1.0> |
 | Zod | major **v4** stable (patch 번호는 evidence 에서 미확인) | 템플릿 `^3.0.0` → `^4.0.0`. 미확인 patch 는 적지 않는다 | <https://zod.dev/v4> |
@@ -115,7 +115,7 @@ stale 지점만 정정했다.
 Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문서 직접 조회.
 
 | # | URL | 확인한 사실 | 반영 위치 |
-|---|-----|------------|----------|
+| --- | ----- | ------------ | ---------- |
 | 1 | <https://testing-library.com/docs/queries/about/> | `queryBy*` 는 매치 없을 때 `null`, `queryAllBy*` 는 빈 배열 `[]` 반환하고 throw 하지 않음. 문서가 `queryBy` 를 "asserting an element that is not present" 용도로 권장 | `render-evidence-protocol.md` §3 (a) · `react-test` Gotcha 11 · `react-skeleton` Gotcha 9 |
 | 2 | <https://vitest.dev/guide/cli.html> | `--passWithNoTests` = "Pass when no tests are found", 기본 `false`. `allowOnly` 기본값 `!process.env.CI`. `bail` 기본 `0` | `render-evidence-protocol.md` §3 (b)(c) · `react-test` Gotcha 12 |
 | 3a | <https://vitest.dev/config/passwithnotests> | `passWithNoTests` — Type `boolean` · **Default `false`** · CLI `--passWithNoTests` · "Vitest will not fail, if no tests will be found." | 위와 동일 (기본값 1차 확인) |
@@ -166,7 +166,6 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 
 출처: skill-design-guide §5.5, insights 2026-06-04 Friction #1·#3.
 
-
 > react-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
 
 ## [2026-05-07] — Phase 10 kaizen (react, /insights 흡수)
@@ -187,7 +186,6 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.
 
 ---
-
 
 ---
 
@@ -447,6 +445,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 
 **트리거:** kaizen-orchestrator Phase 10 (research-mode rerun)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
@@ -474,6 +473,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 | 21 | RHF resolvers Zod v4 issue #813 | <https://github.com/react-hook-form/resolvers/issues/813> | github | 중간 | 채택 → **[정정 2026-08-13]** resolvers v5.1.0 에서 해소, zod/v3 는 legacy 전용 |
 | 22 | WCAG 2.2 TR | <https://www.w3.org/TR/WCAG22/> | 공식 | 높음 | 채택 (SC 2.5.8 24x24) |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 - **React 19 stable (2024-12-05)**: `useActionState`, `useOptimistic`, `useFormStatus`, `use()` hook 이 production stable. 2026-04 현재 19.2 가 표준. Actions 패러다임으로 폼 제출 / mutation 재정의. `forwardRef` deprecation 예고 — 새 코드는 **ref-as-prop** 패턴 (`ref?: Ref<X>`). 기존 `forwardRef` 컴포넌트는 하위호환 유지. 적용: react-init, react-widget Gotchas + 템플릿.
@@ -488,6 +488,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 - **WCAG 2.2 SC 2.5.8 (24×24 CSS px)**: Target Size Minimum AA 기준. Phase 6 design-kit 정합성. 적용: react-widget / react-responsive / react-audit.
 - **라이브러리 0개 원칙 강화**: Motion / framer-motion / dnd-kit / react-spring / react-transition-group **+ animate.css** 추가 금지. 기존 금지 목록 완화 없음. 적용: common-gotchas G2, react-audit Library Policy.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 신규 스킬 갭 분석
 
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | 상태 |
@@ -495,6 +496,7 @@ Context7 MCP 가 OAuth 미인증으로 호출 불가 → WebFetch 로 공식 문
 | `react-migrate` | 런북 | React 18 → 19 ref-as-prop 마이그레이션, Zustand v4 → v5 | 중간 | backlog |
 | `react-view-transitions` | 코드 스캐폴딩 | Browser View Transitions API + React 통합 | 낮음 | 새 스킬 없이 해소 — React 19.3 `<ViewTransition>` 은 react-animation Gotcha 15 가 맡는다 (2026-09-26) |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 - Context7 monthly quota 소진 → WebSearch fallback. 공식 URL 은 모두 확보.

@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 비동기와 동시성 원칙
 
 Rust async는 Zero-cost abstraction이다 — async fn은 상태 머신으로 컴파일되며 런타임 스레드 비용이 없다. Tokio는 멀티 스레드 work-stealing 런타임으로 I/O 집약 서버 애플리케이션의 사실상 표준이다. async와 동기 코드의 경계를 명확히 하는 것이 핵심이다.
@@ -66,7 +67,7 @@ let guard = cache.lock().unwrap();
 공유 상태 대신 메시지 전달이 데이터 경쟁을 구조적으로 방지한다. Tokio는 용도별 채널을 제공한다.
 
 | 채널 | 용도 | 비고 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `tokio::sync::mpsc` | 단방향 다대일 | 가장 일반적. 작업 큐, 이벤트 수집 |
 | `tokio::sync::oneshot` | 단발 응답 | 요청-응답 패턴 |
 | `tokio::sync::broadcast` | 일대다 방송 | 이벤트 팬아웃 |
@@ -115,7 +116,7 @@ while let Some(result) = set.join_next().await {
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | tokio::spawn 태스크 생성 비용 | ~300ns | 스레드 생성(~10µs)보다 30배 저렴 |
 | tokio::sync::Mutex lock (비경쟁) | ~50ns | std::sync::Mutex(~10ns)보다 느림 |
 | mpsc channel send (비경쟁) | ~50ns | 버퍼 있는 경우 |

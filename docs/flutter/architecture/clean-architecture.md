@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-05
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Clean Architecture
 
 Flutter Clean Architecture 레이어 분리, Repository 패턴, UseCase의 적절한 사용, DI 전략, 디렉토리 구조를 다룬다.
@@ -47,7 +48,7 @@ Widget에서 repository/service를 직접 new하지 않는다. get_it은 service
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | get_it 조회 복잡도 | O(1) |
 | Flutter 공식 구조 예시 | lib/ui, lib/domain, lib/data, lib/routing, test/, testing/ |
 
@@ -56,7 +57,7 @@ Widget에서 repository/service를 직접 new하지 않는다. get_it은 service
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | Repository가 DTO/DioException/JSON Map을 UI로 노출 | transport 세부사항이 UI까지 전파 |
 | 모든 액션마다 UseCase 클래스 강제 | 파일 수 폭발, 변경 비용 증가 |
 | feature-first와 layer-first 혼합 규칙 없음 | 탐색성 붕괴 |
@@ -95,12 +96,12 @@ lib/
     └── di.dart                    # Provider 조합
 ```
 
-- 출처: https://docs.flutter.dev/app-architecture/guide
+- 출처: <https://docs.flutter.dev/app-architecture/guide>
 
 ### UseCase 생략 기준
 
 | 조건 | UseCase 필요? |
-|------|--------------|
+| ------ | -------------- |
 | 단순 CRUD (repository 위임만) | X — Repository 직접 호출 |
 | 2+ repository 조합 | O |
 | 비즈니스 규칙 (validation, 권한 확인) | O |
@@ -123,7 +124,7 @@ AuthRepository authRepository(Ref ref) =>
     AuthRepositoryImpl(client: ref.read(httpClientProvider));
 ```
 
-- 출처: https://docs-v2.riverpod.dev/docs/concepts/combining_providers
+- 출처: <https://docs-v2.riverpod.dev/docs/concepts/combining_providers>
 
 ### 계층 간 데이터 흐름
 

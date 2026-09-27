@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Axum 패턴
 
 Axum은 tokio와 tower 생태계 위에 구축된 ergonomic Rust 웹 프레임워크다. 0.8.x부터 Router, State, Extractor 구성 방식이 확립되었다. 매크로 없이 타입 시스템으로 라우팅과 미들웨어를 표현하는 것이 핵심이다.
@@ -127,7 +128,7 @@ where
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | Axum 최소 버전 | 0.8.x | `Router` API 안정화 |
 | 핸들러당 Extractor 수 | 5개 이하 | 그 이상이면 커스텀 Extractor 묶음 고려 |
 | `State` 클론 비용 | O(1) | `Arc`, `PgPool` 등 경량 핸들 사용 |

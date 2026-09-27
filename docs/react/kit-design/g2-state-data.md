@@ -30,7 +30,7 @@ react-kit **G2 그룹** 은 프로젝트의 상태 계층을 담당하는 4개 �
 - **project-detection 공유**: G1 의 `react-kit/references/project-detection.md` 를 재사용. 설치된 패키지 버전을 감지해 v5+ / v4+ 등 메이저 범위에 맞게 코드 생성.
 - **생성 전 전수 스캔 · 요청 범위만**: 네 스킬 모두 만들기 전에 비슷한 이름 · 재사용할 자산을 열거하고 합의한 뒤 생성한다. 요청하지 않은 CRUD · 레이어를 덧붙이지 않는다.
 - **소비면 열거**: `/react-api` 는 바꾸는 계약을 부르는 호출부를, `/react-query` 는 queryKey 앞부분이 같은 쿼리(무효화가 닿는 범위)를 생성 전에 열거한다.
-- **G1 `/react-feature` 협력**: G2 스킬은 `/react-feature` 가 이미 생성한 skeleton (features/<name>/) 위에서 동작. feature 가 없으면 먼저 `/react-feature` 실행을 안내.
+- **G1 `/react-feature` 협력**: G2 스킬은 `/react-feature` 가 이미 생성한 skeleton (`features/<name>/`) 위에서 동작. feature 가 없으면 먼저 `/react-feature` 실행을 안내.
 
 ## 의존성 설치 (G1 `/react-init` 미사용 시 수동 설치)
 
@@ -50,10 +50,11 @@ pnpm add neverthrow
 **메이저 버전 범위**: Zustand v5+, TanStack Query v5+, React Hook Form v7+, Zod v4+ (`@hookform/resolvers` 5.1 미만을 쓸 때만 v4 타입 충돌 주의 — 섹션 4.6 Gotchas 참조), neverthrow v7+. 특정 패치 버전 고정 없이 최신 메이저 태그 설치.
 
 **출처**:
-- Zustand: https://github.com/pmndrs/zustand
-- TanStack Query v5: https://tanstack.com/query/v5/docs/framework/react/installation
-- React Hook Form + resolvers: https://react-hook-form.com/get-started , https://github.com/react-hook-form/resolvers
-- neverthrow: https://github.com/supermacro/neverthrow
+
+- Zustand: <https://github.com/pmndrs/zustand>
+- TanStack Query v5: <https://tanstack.com/query/v5/docs/framework/react/installation>
+- React Hook Form + resolvers: <https://react-hook-form.com/get-started> , <https://github.com/react-hook-form/resolvers>
+- neverthrow: <https://github.com/supermacro/neverthrow>
 
 ## 상태 분리 원칙 — Zustand vs TanStack Query
 
@@ -63,7 +64,7 @@ pnpm add neverthrow
 ### 역할 분리
 
 | 축 | Zustand | TanStack Query |
-|----|---------|----------------|
+| ---- | --------- | ---------------- |
 | **도메인** | 클라이언트 상태 (UI, 로컬 선호도, feature toggle, 편집 중 임시 데이터) | 서버 상태 (REST/GraphQL 응답, 캐시, 동기화) |
 | **수명** | 세션 또는 persist 설정에 따름 | staleTime/gcTime 에 따라 자동 만료 |
 | **변경** | `setState` 로 직접 | mutation → invalidation → 자동 refetch |
@@ -74,7 +75,7 @@ pnpm add neverthrow
 
 **Mutation 성공 후 로컬 상태 갱신**이 가장 흔한 교차 지점이다. 패턴은 하나:
 
-```
+```ts
 useMutation({
   mutationFn: ...,
   onSuccess: (data) => {
@@ -87,6 +88,7 @@ useMutation({
 ```
 
 **절대 하지 말 것**:
+
 - 서버 응답을 **Zustand 에 복사 저장** → 두 소스가 동기화 안 돼 버그 유발. 서버 상태는 TanStack Query 가 단일 진실 공급원
 - Zustand store 안에 `async fetchUser()` 함수 → TanStack Query 의 역할. store 는 순수 상태만
 - TanStack Query 로 UI 토글 관리 → Zustand 의 역할
@@ -209,7 +211,7 @@ REST/GraphQL 엔드포인트를 **datasource → model → repository → usecas
 
 G1 `/react-feature` 의 의존성 그래프와 동일. 안쪽 (도메인) 부터 바깥쪽 (presentation) 으로:
 
-```
+```text
 1. domain/entities/<resource>.ts        (Zod 스키마 + z.infer 타입)
 2. domain/failures/<resource>-failures.ts  (Failure discriminated union)
 3. domain/usecases/<resource>-usecases.ts  (함수 시그니처, 인터페이스)
@@ -397,6 +399,7 @@ queryKey 는 TanStack Query 의 캐시 기본 단위다. 일관된 규칙이 없
 - **2번째 (params)**: 파라미터 객체. 없으면 생략 가능
 
 **invalidation 경로**:
+
 - `queryClient.invalidateQueries({ queryKey: ['user'] })` → 모든 user 관련 쿼리
 - `queryClient.invalidateQueries({ queryKey: ['user', 'detail', { id }] })` → 특정 detail 만
 
@@ -459,6 +462,7 @@ export function useUpdateUser() {
 3. **removeQueries** — 캐시에서 완전 제거. 로그아웃 같은 상황에 전역 리셋용
 
 **권장 조합**:
+
 - 업데이트: `setQueryData(detail) + invalidateQueries(list)` — detail 즉시 반영 + list 는 서버 기준으로 다시
 - 생성: `invalidateQueries(list)` — 새 데이터는 서버에서
 - 삭제: `removeQueries(detail) + invalidateQueries(list)` — detail 제거 + list 재조회
@@ -575,8 +579,8 @@ export function LoginForm({ onSubmit }: Props) {
 
 ### 4.6 Gotchas
 
-- **Zod v4 TypeScript 이슈 (`@hookform/resolvers` 5.1 미만 전용)**: resolvers 5.1 이상은 Zod 4 를 지원해 이 이슈가 없다. 5.1 미만 React Hook Form + Zod v4 조합에서 `z.infer` 가 `unknown` 으로 잡히는 제네릭 타입 이슈가 있음 (react-hook-form/resolvers#781, #813 참조). `/react-form` 스킬은 Zod 스키마를 직접 `z.object(...)` 로 정의하고 `z.infer<typeof Schema>` 로 타입 파생하는 **직접 패턴** 만 생성. 제네릭 래퍼 (`type FormValues<T extends z.ZodType> = z.infer<T>`) 는 만들지 않음 (출처: https://github.com/react-hook-form/resolvers/issues/781).
-- **resolver 와 수동 validate 병용 주의**: `zodResolver` 를 쓰면 resolver 쪽 검증이 우선. 필드별 `validate` 옵션은 resolver 통과 후에만 동작. 중복 검증 피할 것 (출처: https://github.com/orgs/react-hook-form/discussions/10153).
+- **Zod v4 TypeScript 이슈 (`@hookform/resolvers` 5.1 미만 전용)**: resolvers 5.1 이상은 Zod 4 를 지원해 이 이슈가 없다. 5.1 미만 React Hook Form + Zod v4 조합에서 `z.infer` 가 `unknown` 으로 잡히는 제네릭 타입 이슈가 있음 (react-hook-form/resolvers#781, #813 참조). `/react-form` 스킬은 Zod 스키마를 직접 `z.object(...)` 로 정의하고 `z.infer<typeof Schema>` 로 타입 파생하는 **직접 패턴** 만 생성. 제네릭 래퍼 (`type FormValues<T extends z.ZodType> = z.infer<T>`) 는 만들지 않음 (출처: <https://github.com/react-hook-form/resolvers/issues/781>).
+- **resolver 와 수동 validate 병용 주의**: `zodResolver` 를 쓰면 resolver 쪽 검증이 우선. 필드별 `validate` 옵션은 resolver 통과 후에만 동작. 중복 검증 피할 것 (출처: <https://github.com/orgs/react-hook-form/discussions/10153>).
 - **controlled 컴포넌트 (shadcn Select 등) 는 `Controller`**: `register()` 는 uncontrolled input 전용. shadcn 의 Select, Checkbox 같은 컨트롤드 컴포넌트에는 `Controller` 로 래핑 필수.
 - **defaultValues 필수**: 초기값 없이 시작하면 uncontrolled → controlled 전환 경고. 빈 문자열이라도 명시.
 - **`mode` 옵션**: 기본은 `onSubmit` (제출 시 검증). `onBlur`, `onChange`, `onTouched` 로 조절 가능. UX 요구에 따라 선택.
@@ -591,7 +595,7 @@ export function LoginForm({ onSubmit }: Props) {
 
 ## 5. 4개 스킬의 협력 흐름
 
-```
+```text
 사용자가 "사용자 프로필 편집 기능" 요청
          │
          ▼
@@ -629,6 +633,7 @@ export function LoginForm({ onSubmit }: Props) {
 - **Result 헬퍼**: `react-kit/references/result-patterns.md` 공용 레퍼런스 (G2 에서 신규 작성)
 
 **Cross-group 관계**:
+
 - G2 출력물은 **G3 `/react-wasm`** 이 WASM 호출을 data/datasources/wasm/ 로 추가할 때 확장됨
 - **G4 `/react-test`** 가 G2 의 repository, hook, store 에 대한 Vitest + Testing Library 테스트 생성
 - **G5 `/react-skeleton`** 이 useQuery 의 `isPending` 상태를 shimmer 로 표시
@@ -636,20 +641,20 @@ export function LoginForm({ onSubmit }: Props) {
 
 ## 7. 출처 요약
 
-1. Zustand 공식 문서: https://zustand.docs.pmnd.rs/
-2. Zustand GitHub README: https://github.com/pmndrs/zustand
-3. Zustand Auto Generating Selectors: https://zustand.docs.pmnd.rs/guides/auto-generating-selectors
-4. TanStack Query v5 Query Invalidation: https://tanstack.com/query/v5/docs/react/guides/query-invalidation
-5. TanStack Query v5 Invalidations from Mutations: https://tanstack.com/query/v5/docs/react/guides/invalidations-from-mutations
-6. TanStack Query v5 useQuery Reference: https://tanstack.com/query/v5/docs/framework/react/reference/useQuery
-7. TanStack Query v5 Mutations: https://tanstack.com/query/v5/docs/react/guides/mutations
-8. TanStack Query v5 Migration Guide: https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5
-9. React Hook Form useForm: https://react-hook-form.com/docs/useform
-10. React Hook Form Resolvers: https://github.com/react-hook-form/resolvers
-11. React Hook Form Resolvers Issue #781 (Zod v4 coerce TypeScript): https://github.com/react-hook-form/resolvers/issues/781
-12. React Hook Form Resolvers Issue #813 (Zod v4 Type error): https://github.com/react-hook-form/resolvers/issues/813
-13. neverthrow GitHub: https://github.com/supermacro/neverthrow
-14. neverthrow README: https://github.com/supermacro/neverthrow/blob/master/README.md
+1. Zustand 공식 문서: <https://zustand.docs.pmnd.rs/>
+2. Zustand GitHub README: <https://github.com/pmndrs/zustand>
+3. Zustand Auto Generating Selectors: <https://zustand.docs.pmnd.rs/guides/auto-generating-selectors>
+4. TanStack Query v5 Query Invalidation: <https://tanstack.com/query/v5/docs/react/guides/query-invalidation>
+5. TanStack Query v5 Invalidations from Mutations: <https://tanstack.com/query/v5/docs/react/guides/invalidations-from-mutations>
+6. TanStack Query v5 useQuery Reference: <https://tanstack.com/query/v5/docs/framework/react/reference/useQuery>
+7. TanStack Query v5 Mutations: <https://tanstack.com/query/v5/docs/react/guides/mutations>
+8. TanStack Query v5 Migration Guide: <https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5>
+9. React Hook Form useForm: <https://react-hook-form.com/docs/useform>
+10. React Hook Form Resolvers: <https://github.com/react-hook-form/resolvers>
+11. React Hook Form Resolvers Issue #781 (Zod v4 coerce TypeScript): <https://github.com/react-hook-form/resolvers/issues/781>
+12. React Hook Form Resolvers Issue #813 (Zod v4 Type error): <https://github.com/react-hook-form/resolvers/issues/813>
+13. neverthrow GitHub: <https://github.com/supermacro/neverthrow>
+14. neverthrow README: <https://github.com/supermacro/neverthrow/blob/master/README.md>
 
 ## 현행화 기록
 

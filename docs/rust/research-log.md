@@ -163,7 +163,6 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 
 출처: skill-design-guide §5.5, fit-pal server/CLAUDE.md.
 
-
 > rust-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
 
 ## [2026-05-07] — Phase 9 kaizen (rust, /insights 흡수)
@@ -184,7 +183,6 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.
 
 ---
-
 
 ---
 
@@ -242,6 +240,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 | 56 | Modern Rust Best Practices 2026 | <https://onehorizon.ai/blog/modern-rust-best-practices-in-2026-beyond-the-borrow-checker> | [blog] [dated: 2026-01] | 중간 | 참고 |
 | 57 | Rust ORMs in 2026: Diesel vs SQLx vs SeaORM | <https://aarambhdevhub.medium.com/rust-orms-in-2026-diesel-vs-sqlx-vs-seaorm-vs-rusqlite-which-one-should-you-actually-use-706d0fe912f3> | [blog] [dated: 2026-02] | 중간 | 참고 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 #### Rust 2024 Edition 심화
@@ -345,6 +344,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 | `rust-bench` | 가이드 | criterion + flamegraph + DHAT 벤치마킹 워크플로우 | 중간 | backlog |
 | `rust-serialize` | 가이드 | serde vs bitcode vs rkyv 선택 가이드 | 낮음 | backlog |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 - 없음 — WebSearch + WebFetch + docs.rs 검증으로 전체 URL 확인 완료.
@@ -355,6 +355,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 
 **트리거:** kaizen-orchestrator Phase 9 (research-mode rerun)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
@@ -372,6 +373,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 | 11 | fit-pal server/ (Rust 백엔드 ground truth) | (internal) | ground truth | 높음 | 채택 |
 | 12 | fit-pal sprint-feedback iter2 (33/33) | (internal) | ground truth | 높음 | 채택 (Makefile monorepo 인사이트) |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 - **Rust 2024 edition 기본값**: 신규 프로젝트는 `edition = "2024"` + `resolver = "3"` 로 생성. Rust 1.85+ (2025-02-20) 에서 stable 편입. RPIT capture 규칙 변경, `unsafe extern`, `let` chain, `if let` temporary scope 변경 포함. 마이그레이션 시 `cargo fix --edition` 사용. 적용: rust-init Gotcha #2.
@@ -385,6 +387,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 - **cargo-deny v2**: advisories / licenses / bans / sources 4 섹션 v2 형식. `multiple-versions = "warn"`, `unknown-registry = "deny"` 가 2026 실무 기본값. 적용: rust-init §4c, rust-run.
 - **Consumer-Owned Port + Composition Root 단일화 + Domain event/outbox**: fit-pal server 의 헥사고날 패턴 3개 원칙이 rust-init / rust-feature / rust-api Gotchas 에 전파됨. 적용: rust-init #5, #6, #8, rust-feature #5~#7, rust-api Composition Root.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 신규 스킬 갭 분석
 
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | 상태 |
@@ -392,6 +395,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 | `rust-migrate` | 런북 | 2021 → 2024 edition, Axum 0.7 → 0.8 마이그레이션 가이드 | 중간 | backlog |
 | `rust-observability` | 런북 | tracing-opentelemetry 실무 설정 | 중간 | backlog |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 - Context7 monthly quota 소진으로 resolve 실패. fit-pal server ground truth + 공식 CHANGELOG 로 대체.
@@ -406,6 +410,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 
 **트리거:** research-mode 수동 확장 (13개 토픽 backfill)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 태그 | 신뢰도 | 결과 |
@@ -451,6 +456,7 @@ rust-model 에 §5.5 Enumerate-before-Act 가드 추가 — 생성형 형제 스
 | 96 | Bevy ECS quick start | <https://bevy.org/learn/quick-start/getting-started/ecs/> | [official] | 높음 | 채택 |
 | 97 | cargo-mutants iterate mode | <https://mutants.rs/iterate.html> | [official] | 높음 | 채택 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 #### Rust 2024 edition adoption / tooling updates

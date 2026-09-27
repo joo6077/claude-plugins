@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 서비스 메시
 
 Data plane/control plane 분리, sidecar vs ambient, mTLS, 트래픽 관리, 관측성 자동 수집, workload identity 기반 정책, 도입 판단 기준을 다룬다.

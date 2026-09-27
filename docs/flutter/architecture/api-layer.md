@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-05
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # API 레이어
 
 Dio/Retrofit API 클라이언트, 인터셉터, Failure 변환, Freezed 모델, JsonSerializable, 응답 매핑을 다룬다.
@@ -47,7 +48,7 @@ API 스키마 변경이 UI까지 전파되지 않도록 DTO와 Domain 모델을 
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | Dio 예시 connectTimeout | 5s |
 | Dio 예시 receiveTimeout | 3-5s |
 | dio 최신 버전 | 5.9.2 |
@@ -61,7 +62,7 @@ API 스키마 변경이 UI까지 전파되지 않도록 DTO와 Domain 모델을 
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | Notifier/Widget에서 dio.get 직접 호출 | 레이어 경계 붕괴, 테스트 불가 |
 | DTO에 비즈니스 로직 포함 | 스키마 변경 시 비즈니스 로직까지 영향 |
 | 모든 에러를 단일 Exception으로 뭉갬 | 네트워크/파싱/서버 에러 구분 불가 |
@@ -92,7 +93,7 @@ abstract class ProductApi {
 }
 ```
 
-- 출처: https://pub.dev/packages/retrofit
+- 출처: <https://pub.dev/packages/retrofit>
 
 ### DTO → Entity 변환 (Repository에서)
 
@@ -122,7 +123,7 @@ Dio
 └── CacheInterceptor — GET 요청 ETag/304 캐싱 (선택)
 ```
 
-- 출처: https://pub.dev/documentation/dio/latest/dio/Interceptor-class.html
+- 출처: <https://pub.dev/documentation/dio/latest/dio/Interceptor-class.html>
 
 ### 에러 변환 Extension
 
@@ -141,7 +142,7 @@ extension DioExceptionX on DioException {
 ### Pagination 패턴
 
 | 패턴 | 사용 시점 |
-|------|----------|
+| ------ | ---------- |
 | Offset-based (`?page=2&limit=20`) | 총 개수가 필요하거나, 특정 페이지 점프가 필요할 때 |
 | Cursor-based (`?after=abc123`) | 실시간 데이터, 무한 스크롤, 일관된 결과 필요 시 |
 

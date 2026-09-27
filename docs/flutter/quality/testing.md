@@ -8,6 +8,7 @@ last_updated: 2026-08-13
      닫는 펜스를 백틱 3 개 단독 줄로 되돌리지 마라 — bare-fence 검사 오라클이
      닫는 펜스를 언어 힌트 없는 여는 펜스로 오탐한다 (Phase 5 AP-03). -->
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 테스트
 
 ## 요약
@@ -20,36 +21,36 @@ Flutter 테스트는 Unit / Widget / Integration 3계층 피라미드를 따른�
 
 빠르고 안정적인 unit 테스트가 바닥, 느리고 깨지기 쉬운 integration 테스트가 꼭대기에 있는 피라미드 형태를 유지한다. 느리고 flaky한 검증을 위로 밀어 올리지 말고, 가능한 한 아래 층에서 원인을 국소화한다.
 
-출처: https://docs.flutter.dev/testing/overview
+출처: <https://docs.flutter.dev/testing/overview>
 
 ### 2. widget test의 기본 단위
 
 `testWidgets`, `WidgetTester`, `pumpWidget`, `Finder`, `Matcher`가 widget test의 기본 구성 요소다. `pumpWidget`으로 트리를 렌더링하고 `find.byType` / `find.text` / `find.byKey`로 대상을 잡은 뒤 `expect`로 Matcher를 통해 검증한다.
 
-출처: https://docs.flutter.dev/cookbook/testing/widget/introduction
+출처: <https://docs.flutter.dev/cookbook/testing/widget/introduction>
 
 ### 3. Finder는 명확히, pump는 명시적으로
 
 Finder는 text / type / key 기준으로 모호하지 않게 잡아야 한다. 스크롤, 애니메이션, 비동기 상태 갱신은 `pump(Duration)` 또는 `pumpAndSettle`로 명시적으로 프레임을 진행시킨다. 단, `pumpAndSettle`을 만능 대기 함수처럼 쓰면 무한 애니메이션에서 타임아웃이 난다.
 
-출처: https://docs.flutter.dev/cookbook/testing/widget/finders
+출처: <https://docs.flutter.dev/cookbook/testing/widget/finders>
 
 ### 4. Golden test는 환경 고정이 전제
 
 Golden(스크린샷) 테스트는 UI 회귀 방지에 강력하지만 theme, font, platform, device pixel ratio에 민감하다. 렌더 환경을 고정(폰트 로더, 테마 강제 지정, 고정 크기)하지 않으면 CI/로컬 간 깨짐이 반복된다. 모든 화면에 일괄 적용하지 말고 회귀 비용이 큰 화면에만 적용한다.
 
-출처: https://docs.flutter.dev/cookbook/testing/widget/introduction
+출처: <https://docs.flutter.dev/cookbook/testing/widget/introduction>
 
 ### 5. Integration test는 `integration_test` 패키지로
 
 실제 디바이스·에뮬레이터에서 앱 전체 플로우를 검증할 때는 `integration_test` 패키지를 사용한다. `flutter_driver`는 더 이상 권장되지 않는다. 사용자 시나리오(로그인 → 목록 → 상세) 같은 end-to-end 검증에 적합하다.
 
-출처: https://docs.flutter.dev/cookbook/testing/integration/introduction
+출처: <https://docs.flutter.dev/cookbook/testing/integration/introduction>
 
 ## 수치
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | Unit / Widget 실행 속도 | Quick (ms 단위) |
 | Integration 실행 속도 | Slow (초~분 단위) |
 | 테스트 의존성 복잡도 | unit < widget < integration |
@@ -96,7 +97,7 @@ testWidgets('로그인 버튼 클릭 시 provider에 로그인 요청', (tester)
 });
 ````
 
-- 출처: https://docs.flutter.dev/cookbook/testing/widget/tap-drag
+- 출처: <https://docs.flutter.dev/cookbook/testing/widget/tap-drag>
 
 ### Riverpod widget test 하네스 — "화면이 provider 변화를 반영하는가"
 
@@ -128,7 +129,7 @@ testWidgets('설정 변경이 상세 화면에 반영된다', (tester) async {
 - **widget test 에서 `ProviderContainer` 단독 사용 금지** — 화면 렌더 검증에는 `ProviderScope`
   루트가 필요하다. override 는 `ProviderScope` / `ProviderContainer` 의 `overrides` 로만 준다
 - provider state 만 assert 하고 끝내면 "값은 바뀌었는데 화면은 캐시된 상태" 를 놓친다
-- 출처: https://riverpod.dev/docs/how_to/testing
+- 출처: <https://riverpod.dev/docs/how_to/testing>
 
 ### 매핑·조합 coverage — 대표 몇 종만 검증하지 않는다
 
@@ -158,12 +159,12 @@ testWidgets('ProductCard golden', (tester) async {
 
 CI에서 golden update: `flutter test --update-goldens`
 
-- 출처: https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html
+- 출처: <https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html>
 
 ### 테스트 피라미드 비율 권장
 
 | 레이어 | 비율 | 대상 |
-|--------|------|------|
+| -------- | ------ | ------ |
 | Unit | 70% | Repository, UseCase, Notifier 로직 |
 | Widget | 20% | 개별 위젯, 화면 단위 상호작용 |
 | Integration | 10% | 핵심 사용자 시나리오 E2E |

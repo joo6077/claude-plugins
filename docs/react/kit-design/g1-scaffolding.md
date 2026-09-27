@@ -228,13 +228,13 @@ my-app/
 ### 1.6 Gotchas
 
 - **pnpm workspace ↔ Cargo workspace 충돌** (커뮤니티 사례 기반, unverified 공식 문서): `pnpm-workspace.yaml` 의 `packages` 목록과 `Cargo.toml` 의 `workspace.members` 를 혼동하지 마라. 전자는 npm 패키지, 후자는 Rust crate. `crates/core` 는 두 파일 모두에 등재되어야 한다 (pnpm 은 Rust crate를 npm 패키지로 취급하지 않지만 경로 해석용). 공식 pitfall 문서는 찾지 못했으며 커뮤니티 사례를 기반으로 작성됨.
-- **Tailwind v4 설치**: v3 문서의 `npx tailwindcss init` 은 v4 에서 **없어짐**. `@tailwindcss/vite` 플러그인과 `@import "tailwindcss";` 만 쓴다 (출처: https://tailwindcss.com/docs/upgrade-guide).
-- **shadcn 패키지 리네임 (2024-08)**: 과거 `shadcn-ui` npm 패키지는 **2024년 8월부터 deprecated** 되고 `shadcn` 으로 리네임되었다. 과거 명령 `npx shadcn-ui@latest init` 은 더 이상 동작하지 않으며 현재는 `pnpm dlx shadcn@latest init --template vite` 를 사용한다 (출처: https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init).
-- **shadcn + Tailwind v4 + React 19 조합**: 2026-04 기준 shadcn 이 Tailwind v4 와 React 19 를 공식 지원하지만, 업스트림 shadcn 이슈 트래커 (shadcn-ui/ui#6585) 에 해당 조합 관련 논의가 진행 중이므로 마이너 이슈 가능성 있음. 초기 설치 직후 `pnpm tsc --noEmit` 으로 타입 오류 점검 필수 (출처: https://github.com/shadcn-ui/ui/issues/6585).
+- **Tailwind v4 설치**: v3 문서의 `npx tailwindcss init` 은 v4 에서 **없어짐**. `@tailwindcss/vite` 플러그인과 `@import "tailwindcss";` 만 쓴다 (출처: <https://tailwindcss.com/docs/upgrade-guide>).
+- **shadcn 패키지 리네임 (2024-08)**: 과거 `shadcn-ui` npm 패키지는 **2024년 8월부터 deprecated** 되고 `shadcn` 으로 리네임되었다. 과거 명령 `npx shadcn-ui@latest init` 은 더 이상 동작하지 않으며 현재는 `pnpm dlx shadcn@latest init --template vite` 를 사용한다 (출처: <https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init>).
+- **shadcn + Tailwind v4 + React 19 조합**: 2026-04 기준 shadcn 이 Tailwind v4 와 React 19 를 공식 지원하지만, 업스트림 shadcn 이슈 트래커 (shadcn-ui/ui#6585) 에 해당 조합 관련 논의가 진행 중이므로 마이너 이슈 가능성 있음. 초기 설치 직후 `pnpm tsc --noEmit` 으로 타입 오류 점검 필수 (출처: <https://github.com/shadcn-ui/ui/issues/6585>).
 - **next-themes + Vite**: next-themes 는 Next.js 중심 설계라 SSR 경고가 나올 수 있음. Vite 에선 client-only 모드로 쓰고 초기 테마를 `<html class="dark">` 로 SSR 없이 직접 설정하는 inline script 필요.
 - **TanStack Router codegen**: `routeTree.gen.ts` 는 플러그인이 자동 생성. **수동 수정 금지** 이며 `.gitignore` 에 올릴지 커밋할지 팀 컨벤션. 기본은 **커밋 대상 제외** 를 권장 (merge conflict 최소화).
 - **Strict TS 위반 거부**: 생성된 초기 파일에 `any`, `as`, `!` 가 포함되어 있으면 생성 실패로 간주하고 롤백. shadcn 일부 컴포넌트가 역사적으로 `any` 를 썼던 이력이 있으므로 설치 직후 `pnpm tsc --noEmit` 으로 검증 필수.
-- **`eslint-plugin-react-hooks` flat config 수동 와이어링**: 2026-04 기준 `eslint-plugin-react-hooks` 의 flat config 지원이 공식 문서에 완전히 반영되지 않아 (facebook/react#28313 참조), `eslint.config.js` 에서 수동으로 `plugins: { 'react-hooks': reactHooks }` + `rules: reactHooks.configs.recommended.rules` 형태로 와이어링해야 한다. `/react-init` 스캐폴딩 템플릿은 이 수동 구성을 기본 포함한다 (출처: https://github.com/facebook/react/issues/28313).
+- **`eslint-plugin-react-hooks` flat config 수동 와이어링**: 2026-04 기준 `eslint-plugin-react-hooks` 의 flat config 지원이 공식 문서에 완전히 반영되지 않아 (facebook/react#28313 참조), `eslint.config.js` 에서 수동으로 `plugins: { 'react-hooks': reactHooks }` + `rules: reactHooks.configs.recommended.rules` 형태로 와이어링해야 한다. `/react-init` 스캐폴딩 템플릿은 이 수동 구성을 기본 포함한다 (출처: <https://github.com/facebook/react/issues/28313>).
 - **Rust WASM crate-type**: `crates/core/Cargo.toml` 에 `crate-type = ["cdylib", "rlib"]` 둘 다 있어야 WASM 빌드와 네이티브 (Tauri) 재사용이 동시에 가능하다. `cdylib` 만 있으면 Tauri 쪽에서 import 불가.
 
 ### 1.7 Clean Architecture 배치
@@ -490,6 +490,7 @@ export function PrimaryButton({
 4개 스킬이 모두 공유하는 프로젝트 감지 규칙. `react-kit/references/project-detection.md` 에 별도 문서로 작성 (G1 스킬 구현 시 생성 대상).
 
 이 문서는 아래 항목을 감지한다:
+
 - Node 버전 (`.nvmrc` 또는 `package.json` `engines.node`)
 - pnpm 버전 (`packageManager` 필드)
 - React 버전 (`package.json` `dependencies.react`)
@@ -509,27 +510,28 @@ export function PrimaryButton({
 - **G6 (빌드 & 감사)** 의 `/react-audit` 은 `/react-init` 설정 (strict TS, eslint flat, Tailwind v4) 을 기준선으로 위반을 검출.
 
 공용 helpers:
+
 - `react-kit/references/project-detection.md` (4개 스킬 공유)
 - `react-kit/references/clean-arch-layout.md` (레이어 배치 규칙)
 - `react-kit/templates/tsconfig.template.json`, `eslint.config.template.js`, `vite.config.template.ts`
 
 ## 7. 출처 요약
 
-1. Tailwind CSS v4 Vite 설치 가이드: https://tailwindcss.com/docs/guides/vite
-2. Tailwind CSS v4 릴리스 노트: https://tailwindcss.com/blog/tailwindcss-v4
-3. Tailwind CSS v3 → v4 업그레이드 가이드: https://tailwindcss.com/docs/upgrade-guide
-4. shadcn/ui Vite 설치 가이드: https://ui.shadcn.com/docs/installation/vite
-5. shadcn/ui CLI 문서: https://ui.shadcn.com/docs/cli
-6. TanStack Router Vite 설치 가이드: https://tanstack.com/router/latest/docs/installation/with-vite
-7. Tauri 2 프로젝트 생성 가이드: https://v2.tauri.app/start/create-project/
-8. Tauri 2 + Vite 통합 문서: https://v2.tauri.app/start/frontend/vite/
-9. Menci/vite-plugin-wasm (Vite 2~7 지원): https://github.com/Menci/vite-plugin-wasm
-10. shadcn/ui 2024-08 CLI 리네임 changelog: https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init
-11. shadcn/ui Tailwind v4 + React 19 호환 이슈: https://github.com/shadcn-ui/ui/issues/6585
-12. ESLint v9 플랫 컨피그 retrospective: https://eslint.org/blog/2025/05/eslint-v9.0.0-retrospective/
-13. typescript-eslint 플랫 컨피그 getting-started: https://typescript-eslint.io/getting-started/
-14. eslint-plugin-react-hooks 플랫 컨피그 이슈: https://github.com/facebook/react/issues/28313
-15. 대안 Vite WASM 플러그인 비교: https://github.com/nshen/vite-plugin-wasm-pack , https://github.com/rwasm/vite-plugin-rsw
+1. Tailwind CSS v4 Vite 설치 가이드: <https://tailwindcss.com/docs/guides/vite>
+2. Tailwind CSS v4 릴리스 노트: <https://tailwindcss.com/blog/tailwindcss-v4>
+3. Tailwind CSS v3 → v4 업그레이드 가이드: <https://tailwindcss.com/docs/upgrade-guide>
+4. shadcn/ui Vite 설치 가이드: <https://ui.shadcn.com/docs/installation/vite>
+5. shadcn/ui CLI 문서: <https://ui.shadcn.com/docs/cli>
+6. TanStack Router Vite 설치 가이드: <https://tanstack.com/router/latest/docs/installation/with-vite>
+7. Tauri 2 프로젝트 생성 가이드: <https://v2.tauri.app/start/create-project/>
+8. Tauri 2 + Vite 통합 문서: <https://v2.tauri.app/start/frontend/vite/>
+9. Menci/vite-plugin-wasm (Vite 2~7 지원): <https://github.com/Menci/vite-plugin-wasm>
+10. shadcn/ui 2024-08 CLI 리네임 changelog: <https://ui.shadcn.com/docs/changelog/2024-08-npx-shadcn-init>
+11. shadcn/ui Tailwind v4 + React 19 호환 이슈: <https://github.com/shadcn-ui/ui/issues/6585>
+12. ESLint v9 플랫 컨피그 retrospective: <https://eslint.org/blog/2025/05/eslint-v9.0.0-retrospective/>
+13. typescript-eslint 플랫 컨피그 getting-started: <https://typescript-eslint.io/getting-started/>
+14. eslint-plugin-react-hooks 플랫 컨피그 이슈: <https://github.com/facebook/react/issues/28313>
+15. 대안 Vite WASM 플러그인 비교: <https://github.com/nshen/vite-plugin-wasm-pack> , <https://github.com/rwasm/vite-plugin-rsw>
 
 ## 현행화 기록
 

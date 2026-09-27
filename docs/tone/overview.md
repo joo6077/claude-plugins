@@ -4,9 +4,10 @@ version: 0.1.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # tone-kit 개요 — 무엇을 잡는 킷인가
 
-**이 문서가 잡는 것**
+## 이 문서가 잡는 것
 
 - 코드를 다시 읽어 준 주석 — 이름 번역, 템플릿 마커, 구분선, 프레임워크 기본 설명
 - 역할이 아니라 외형·계산 과정을 담은 이름 — `BlueDeviceRow`, `effectiveGradient`, `BoolCallback`
@@ -44,7 +45,7 @@ class {widget_prefix}DeviceItemWidget extends StatelessWidget {
 ## 스킬 3종 — 언제 쓰는가
 
 | 스킬 | 쓰는 때 | 하는 일 |
-|---|---|---|
+| --- | --- | --- |
 | `tone-guide` | 코드를 쓰기 직전 · 리뷰할 때 | 규칙을 로드하고 완료 선언 전에 전수 대조한다. 요청 범위 밖으로 번지지 않는다 |
 | `tone-scaffold` | 새 파일을 만들 때 | 파일 헤더 · doc 주석 · 시맨틱 typedef 를 프로젝트 파라미터로 채워 생성하고 자기 감사한다 |
 | `tone-campaign` | 기존 코드 수십~수백 파일을 정리할 때 | 의존순 배치, 파일당 승인 게이트, 재개용 원장으로 굴린다. 일괄 편집하지 않는다 |
@@ -206,7 +207,7 @@ grep -rnE '\b_build[A-Z][A-Za-z0-9]*\(' "$SRC" "${INC[@]}"           # 위젯 �
 ## 다음에 읽을 것
 
 | 무엇이 궁금한가 | 문서 |
-|---|---|
+| --- | --- |
 | 주석 하나를 지울지 남길지 판정하고 싶다 | [comment-economy.md](comment-economy.md) |
 | 위반을 카테고리로 나누고 grep 후보를 뽑고 싶다 | [antipattern-catalog.md](antipattern-catalog.md) |
 | 컴포넌트 이름의 접미사를 못 고르겠다 | [naming-taxonomy.md](naming-taxonomy.md) |

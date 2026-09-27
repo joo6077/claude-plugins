@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 에러 처리 원칙
 
 Rust의 에러 처리는 `Result<T, E>`로 표현된다. panic은 복구 불가능한 프로그래밍 오류에만 사용하고, 예상 가능한 실패는 모두 `Result`로 전파한다. 라이브러리 크레이트와 애플리케이션 크레이트는 에러 전략이 다르다.
@@ -139,7 +140,7 @@ tracing::error!(error = ?err, "요청 처리 실패");       // Debug (cause cha
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | `Result<T, E>` 반환 오버헤드 | ~0ns | 값 크기만큼 스택 이동 |
 | `Box<dyn Error>` (anyhow) | ~1 힙 할당 | 에러 경로에서만 발생 |
 | `unwrap()` panic 비용 | 프로세스 종료 | 에러 경로에서 사용 금지 |

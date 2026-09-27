@@ -4,6 +4,7 @@ version: 0.2.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # CI/CD
 
 GitHub Actions/GitLab CI 파이프라인 설계, OIDC 인증, 최소 권한 원칙, 캐싱 전략, 매트릭스 빌드, self-hosted runner 보안, 아티팩트 관리, 빨간 검사의 원인 가르기를 다룬다.
@@ -100,7 +101,7 @@ GitHub Actions 라면 기준 커밋의 실행 기록은 `gh run list --commit <s
 ## 수치/기준값
 
 | 항목 | 값 | 비고 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | GitHub Actions 매트릭스 최대 jobs | 256 | 워크플로우 실행당 |
 | 아티팩트 보존 기본 기간 | 90일 | 리포지토리 설정에서 변경 가능 |
 | GITHUB_TOKEN 최대 수명 | 24시간 | 작업 종료 시 자동 만료 |
