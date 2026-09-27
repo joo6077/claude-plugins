@@ -4,7 +4,8 @@
 #
 # 동작:
 #   (fast path) stdin을 tmp 파일로 저장 → nohup 백그라운드로 자기 자신 재호출 → 즉시 exit 0.
-#               Stop 훅 체감 지연 0. plugin spec의 async 필드에 의존하지 않는다.
+#               Stop 훅 체감 지연 0. command 훅에도 async 필드가 있지만(https://code.claude.com/docs/en/hooks)
+#               hooks.json 의 timeout 과 어떻게 맞물리는지 문서에 없어 nohup 을 그대로 쓴다.
 #   (bg path)   tmp 파일에서 stdin 복원 → codex 분석 실행 → reflections-YYYY-MM.md 에 append.
 #               실패 시 .errors.log 에 사유 기록 후 조용히 종료.
 
@@ -56,6 +57,8 @@ fi
 cwd=$(echo "$input" | jq -r '.cwd // empty' 2>/dev/null)
 transcript_path=$(echo "$input" | jq -r '.transcript_path // empty' 2>/dev/null)
 session_id=$(echo "$input" | jq -r '.session_id // empty' 2>/dev/null)
+# Stop 이 불릴 때 마지막 응답이 transcript 에 아직 안 적혔을 수 있어 입력에서 따로 받는다
+last_message=$(echo "$input" | jq -r '.last_assistant_message // empty' 2>/dev/null)
 
 [ -z "$cwd" ] && cwd="$PWD"
 
@@ -91,6 +94,9 @@ fi
 
 # 민감 패턴 redaction (transcript에 포함될 수 있는 API 키/토큰/JWT 등)
 transcript_content=$(redact_sensitive "$transcript_content")
+# 필드가 없으면 빈 값이라 프롬프트가 전과 바이트까지 같다
+last_message_block=""
+[ -n "$last_message" ] && last_message_block=$(printf '\n\n<last_assistant_message>\n%s\n</last_assistant_message>' "$(redact_sensitive "$last_message" | head -c 20000)")
 
 out_file="$log_dir/reflections-$(date '+%Y-%m').md"
 
@@ -231,7 +237,7 @@ $known_tags_block
 
 <transcript>
 $transcript_content
-</transcript>
+</transcript>$last_message_block
 PROMPT_EOF
 )
 
@@ -247,7 +253,7 @@ err_line() {
 }
 
 # ── Claude CLI fallback 함수 ────────────────────────────────────────────
-# codex exec 실패(exit != 0 또는 empty output) 시 `claude -p --model haiku`로 재시도.
+# codex exec 실패(exit != 0 또는 empty output) 시 `claude -p --safe-mode --model haiku`로 재시도.
 # 성공 시 전역 변수 `summary`에 결과를 세팅하고 return 0. 실패 시 사유 태그 기록 후 return 1.
 # 모델은 별칭 `haiku` 다. 전에 쓰던 `haiku-4.5` 는 CLI 가 모르는 이름이라 대체 경로가 한 번도
 # 성공하지 못했다 (2026-09-25 실측: fallback:claude-used 0 건, CLI 는 종료 코드 1).
