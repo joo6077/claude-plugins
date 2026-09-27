@@ -36,7 +36,7 @@
 
 ## 좁힌 끄기
 
-대부분 `<!-- markdownlint-disable-next-line 규칙 -->` 한 줄이고, 걸린 줄 바로 앞에 넣었다. 예외는 아래 MD033 · MD038 두 줄이다. 파일 전체를 끄는 주석은 없다.
+모두 `<!-- markdownlint-disable-next-line 규칙 -->` 한 줄이고, 걸린 줄 바로 앞에 넣었다. 파일 전체를 끄는 주석은 없다. 단 하나 남은 예외는 표 아래 「표 안 줄바꿈 태그」 에 적었다.
 
 | 규칙 | 수 | 이유 |
 | --- | --- | --- |
@@ -45,10 +45,13 @@
 | MD036 | 12 | 규칙마다 되풀이하는 표지(판정 세부 6 곳, 강도 5 곳)와, 형제 항목 1)~5) 가 굵은 글로 남은 목록의 6) 한 곳이다. 제목으로 바꾸면 같은 이름 제목이 새로 겹치거나 형제와 모양이 갈린다 |
 | MD028 | 4 | `docs/howto/design-brief.md` 에서 출처가 다른 인용을 일부러 떼어 둔 자리다. 빈 줄을 인용 표시로 채우면 두 인용이 하나로 합쳐진다 |
 | MD041 | 1 | `docs/howto/drafts/SKILL.md` 는 스킬 초안이라 머리 설정 바로 뒤에 설명 글이 오는 스킬 형식을 따른다. 제목을 새로 쓰면 글이 늘어난다 |
-| MD033 | 1 | `docs/bambu-calibration/calibration-reference.md` 표 칸 안의 줄바꿈 태그다. 지우면 한 칸 안의 두 선택지가 한 줄로 붙는다. 주석을 표 줄 사이에 넣으면 표가 끊기므로 표 앞뒤를 `disable MD033` / `enable MD033` 로 감쌌다(표 5 줄 범위) |
-| MD038 | 5 | 코드 표시 안 앞뒤 공백에 뜻이 있는 자리다. `docs/react/kit-design/g6-build-audit.md` 의 검사 패턴 3 곳(`^export default ` · ` as [A-Z]…` · exclude 줄)과 `docs/api/execution/auth-secret-lifecycle.md` 의 `Bearer ` 2 곳. 공백을 지우면 패턴이 더 넓게 걸리거나 react-audit 스킬과 어긋난다. 목록 줄 사이에 주석 줄을 넣지 않으려고 그 줄 끝에 `disable-line MD038` 을 붙였다 |
+| MD038 | 5 | 코드 표시 안 앞뒤 공백에 뜻이 있는 자리다. `docs/react/kit-design/g6-build-audit.md` 의 검사 패턴 3 곳과 `docs/api/execution/auth-secret-lifecycle.md` 의 Bearer 접두 2 곳이다. 공백을 지우면 패턴이 더 넓게 걸리거나 react-audit 스킬과 어긋난다. 목록 안에서는 주석 줄을 앞 항목 들여쓰기에 맞춰 넣어 목록이 끊기지 않게 했고, 문단 둘째 줄이던 자리는 앞 줄과 한 줄로 이어 붙여 문단이 갈라지지 않게 했다 |
 
 MD036 12 곳의 자리: `docs/tone/dart-flutter-idioms.md` 의 「판정 세부」 6 곳, `docs/tone/korean-technical-writing.md` 의 「강도: …」 5 곳과 「6) 과한 수동태 → 주체 + 능동」 1 곳.
+
+### 표 안 줄바꿈 태그
+
+`docs/bambu-calibration/calibration-reference.md` 4.2 절 표의 한 칸에 줄바꿈 태그 1 개가 있다(MD033). 지우면 한 칸 안의 두 선택지가 한 줄로 붙는다. 걸린 줄은 표의 셋째 줄이라, 바로 앞에 끄는 주석 줄을 넣으면 표가 거기서 끊겨 그려진다. 그래서 지금은 표 앞뒤를 MD033 끄기 · 켜기 두 줄로 감싸 두었다. 이 두 줄은 계약의 한 줄짜리만 허용 조건(ER-01 · AR-03)을 어기므로 계약 개정 판단을 부모에게 넘겼다.
 
 ## 제목 단계를 바꾼 자리
 
