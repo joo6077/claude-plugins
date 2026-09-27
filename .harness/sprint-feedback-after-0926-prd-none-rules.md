@@ -1,117 +1,103 @@
 # Sprint Feedback
 Feature: PRD 없음 · 폐기 결정 규칙 남은 일 (PD-1 ~ PD-4)
-Evaluated: 2026-09-27 02:28
+Evaluated: 2026-09-27 09:50
 Verdict: APPROVE
-Iteration: 3
+Iteration: 4
 
 ## Contract Fingerprint
 - path: /Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak2-pd/.harness/sprint-contract-after-0926-prd-none-rules.md
 - sha256: b44cf568c623d2a00601c0129bf517d60630e59a4d759d5d3f25f3616b590caf
-- status: done (frontmatter 원문은 iteration 1 evaluator 가 전환했고 커밋 전 상태로 W 에 남아 있다. HEAD 커밋 원문은 active)
+- status: done (iteration 1 평가자가 전환. 재확인해도 그대로)
 - slug: after-0926-prd-none-rules
 - contract_root: /Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak2-pd
 - contract_root_unconfigured: false
 - 선택 근거: ladder 1 명시경로 (워크플로 지시 경로, test -f 존재 확인 완료)
 - legacy_contract_used: false
-- seal_status: SEAL_OK (`m AR-03` → `this=SEAL_OK MEASURE_OK`, 재확인)
+- seal_status: SEAL_OK (`m AR-03` → `seal_commit_files=1 seal_before_impl=1 seal_same_as_tip=1 measure_same_as_tip=1 this=SEAL_OK MEASURE_OK`)
 - contract_seal_broken: n/a
 - 재확인(Step 5): 일치
-- status_transition: skipped (status 가 이미 done — iteration 1 에서 전환, 재전환 불필요)
+- status_transition: skipped (status 이미 done — 이전 iteration 에서 전환됨, 재전환 불필요)
 
 ## Amendments
-- amendments: 3 (A-01, A-02, A-03)
-- A-01 — SK-04/SK-05/SK-06 검색 모양이 놓치던 코드 표시 기호·마침표 종결 `PRD 없음` 모양을 재는 측정 추가.
-  - direction: `amend_direction_oracle` = narrowing (measured_removed=0, measured_added=2)
-  - consent: unanchored — narrowing 이므로 PASS 근거 가능
-  - 재실행: `a01` = `cmds=2 sprint: bash=form6/rule0/err0 zsh=form6/rule0/err0 prd=form6/rule0/dup0/err0` (기대값과 일치). 음성 대조 `A01_DROP=1 a01` = `cmds=1 sprint: bash=form2/rule0/err0 zsh=form2/rule0/err0 prd=form2/rule0/dup0/err0` (기대값과 일치)
-- A-02 — 계약 `범위 경계`의 Step 2 서술 정정(산문만). direction: unchanged. PASS 근거 해당 없음(판정 불변).
-- A-03 — 둘째 검색(A-01)이 이 레포의 요약 문단 줄(`.harness/sprint-contract-after-0924-discard-decisions.md:115`)을 폐기 결정으로 오판하던 결함을 고쳤다. 둘째 검색 앞에 줄 머리 조건(목록 항목·표 행만)을 붙였다.
-  - direction: `amend_direction_oracle` = narrowing (measured_removed=0, measured_added=2)
-  - consent: unanchored — narrowing 이므로 PASS 근거 가능
-  - 재실행: `a03` = `sprint: bash=form6/rule0/err0 zsh=form6/rule0/err0 prd=form6/rule0/dup0/err0 tree: prd=0 sprint=0` (기대값과 완전 일치)
-  - 음성 대조: `A03_OLD=1 a03`(줄 머리 조건을 뗀 A-01 모양) = `sprint: bash=form6/rule1/err0 zsh=form6/rule1/err0 prd=form6/rule0/dup0/err0(rule1) tree: prd=1 sprint=1` — 옛 모양이면 결함이 재현됨을 직접 확인
-- PASS 근거 가능: 3/3 (A-02 는 판정 불변이라 영향 없음)
+- amendments: 3 (A-01, A-02, A-03) — 3 회차 평가에서 이미 반영. 이번 회차는 재실행으로 확인만 한다.
+- A-01: direction `amend_direction_oracle`=narrowing(added=2,removed=0), consent=unanchored → narrowing 이라 PASS 근거 가능. 재실행 `a01` = `cmds=2 sprint: bash=form6/rule0/err0 zsh=form6/rule0/err0 prd=form6/rule0/dup0/err0` (기대값 일치, 음성 대조 `A01_DROP=1` = `cmds=1 …form2…` 일치)
+- A-02: direction=unchanged(산문 정정) — 판정 불변
+- A-03: direction=narrowing(added=2,removed=0), consent=unanchored → PASS 근거 가능. 재실행 `a03` = `sprint: bash=form6/rule0/err0 zsh=form6/rule0/err0 prd=form6/rule0/dup0/err0 tree: prd=0 sprint=0` (기대값 일치)
+- PASS 근거 가능: 3/3 (A-02 는 영향 없음)
 - PASS 근거 불가: 0
 
 ## User Correction Audit
-- correction_log_status: available (세션 jsonl 9741605 bytes, 3740 줄)
-- unreflected_corrections: 0 (2차 독립 검토 지적은 A-03 으로 반영 완료, notes 「둘째 독립 검토 반영」 절에 기록됨)
-- 위임 근거 문자열 세션 로그 직접 대조: 「123다실행해 그러면끝나?…」 46 건 매치, 「나한테 물어보지 말고 자동으로 끝까지」 13 건 매치 — 계약이 인용한 위임이 세션 로그에 실재
+- correction_log_status: available (세션 jsonl 재대조)
+- 위임 문자열 세션 로그 직접 매치: 「123다실행해 그러면끝나?…」 49 건, 「나한테 물어보지 말고 자동으로 끝까지」 14 건 — 계약이 인용한 위임이 세션 로그에 실재
+- unreflected_corrections: 0 — 독립 검토 3회(1·2·3번)의 지적이 모두 A-01/A-02/A-03 및 notes 「셋째 독립 검토」 절로 반영됨
 - verdict 영향: 없음 (표면화 전용)
 
 ## Deletions
-- deletions_range: 6378948..a1d4a1d
+- deletions_range: 6378948..9481d61 (가지 끝, 이전 QA APPROVE 커밋 cd5e5d7 + notes 커밋 9481d61 포함)
 - 커밋 구간 삭제: 0
-- 커밋하지 않은 삭제: 0
+- 커밋하지 않은 삭제: 0 (`git status --porcelain --no-renames` 빈 출력)
 - 선언 밖 삭제: 0
 
 ## Cross-Diagnosis Handoff
 - 상태: pending-parent
 - 부모가 띄울 때 넘길 것: 계약 절대경로 `/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak2-pd/.harness/sprint-contract-after-0926-prd-none-rules.md` · 본 판정 결과 전문
 - 부모가 물을 두 가지:
-  1. SK-03/SK-04/SK-05/SK-06/SC-01/SC-02/ER-01 조건의 원래 의도(PRD 없음 기록 원문 단일화·재검증 좁힘)와 다르게 해석해 PASS 를 오판한 조건이 있는가?
-  2. A-03 의 줄 머리 조건(`^[[:space:]]*([-*+][[:space:]]|[0-9]+[.)][[:space:]]|[|])`)이 놓치는 다른 폐기 결정 표기 변형(예: 코드 표시 기호로 감싼 문단 줄)이 있는가?
+  1. 이미 3 차례 독립 검토(A-01/A-02/A-03)를 거친 뒤에도, SK-03~06/SC-01~02/ER-01 의 검색 모양이 놓치는 폐기 결정 표기 변형이 남아있는가?
+  2. DG-05 가 요구하는 추적 안 된 도구(`ci-local.sh`, 지문 `59fe55125c0dbc77`)가 이 워크트리에 없다 — 로컬 CI 전체 통과를 다른 방식으로 확인할 방법이 있는가?
 - 끝내 띄우지 못했으면 `none` 으로 내리고 사유를 `cross_diagnosis_notes` 에 적는다
 
 ## Results
 
 ### Skill (6/6)
-- [x] SK-01 — PASS. `m SK-01` = `numstat=1/1 prose=1 feat=1 scope=1 tail=1 ptr=1 follow=1 cols=1 nocreate=1 vcp=1 old=00 d1=1 check=1 outside=0` (기대값과 완전 일치). 근거: `design-kit/skills/design-mockup/SKILL.md` Step 6 절 [exact, L3]
-- [x] SK-02 — PASS. `m SK-02` = `numstat=1/1 in_fmt=1 first=1 feat=1 here=1 tail=1 cols=1 ptr=1 old=0 argsub=0` (기대값과 완전 일치). 근거: `harness/skills/sprint-contract/SKILL.md` 포맷 규칙 [exact, L3]
-- [x] SK-03 — PASS. `m SK-03` = `src=1 feat=1 scope=1 tail=1 ptr=1 wt=1 why=1 narrow=1 old=0 keep_out=1` (기대값과 완전 일치). 근거: `harness/skills/sprint/SKILL.md` Step 0.5 문단 [exact, L3]
-- [x] SK-04 — PASS. `m SK-04` = `tline=1 tl_tail=1 tl_miss=1 tl_none=1 wt=1 top=1 miss=1 find=1 pat=1 broad=0 sortu=1 order=1 old=111111 outside=0` (기대값과 완전 일치). 근거: 같은 파일 Step 0.5 bash/text 블록 [exact, L3]
-- [x] SK-05 — PASS. `m SK-05` = `numstat=1/0 in_s0=1 item=1 pat=1 table=1 nogos=1 arrow=1 gotcha=1 other=1 keep=111` (기대값과 완전 일치). 근거: `planning-kit/skills/plan-prd/SKILL.md` Step 0 [exact, L3]
-- [x] SK-06 — PASS. `m SK-06` = `prod=111 cons=11 broad=0 vcp=10` (기대값과 완전 일치, 5 파일 enumerated 전수 확인). 근거: 쓰는 쪽 3 · 읽는 쪽 2 · 대조 파일 1 [exact, enumerated, L3]
+- [x] SK-01 — PASS. `m SK-01` = `numstat=1/1 prose=1 feat=1 scope=1 tail=1 ptr=1 follow=1 cols=1 nocreate=1 vcp=1 old=00 d1=1 check=1 outside=0` (기대값 일치) [exact, L3]
+- [x] SK-02 — PASS. `m SK-02` = `numstat=1/1 in_fmt=1 first=1 feat=1 here=1 tail=1 cols=1 ptr=1 old=0 argsub=0` (기대값 일치) [exact, L3]
+- [x] SK-03 — PASS. `m SK-03` = `src=1 feat=1 scope=1 tail=1 ptr=1 wt=1 why=1 narrow=1 old=0 keep_out=1` (기대값 일치) [exact, L3]
+- [x] SK-04 — PASS. `m SK-04` = `tline=1 tl_tail=1 tl_miss=1 tl_none=1 wt=1 top=1 miss=1 find=1 pat=1 broad=0 sortu=1 order=1 old=111111 outside=0` (기대값 일치) [exact, L3]
+- [x] SK-05 — PASS. `m SK-05` = `numstat=1/0 in_s0=1 item=1 pat=1 table=1 nogos=1 arrow=1 gotcha=1 other=1 keep=111` (기대값 일치) [exact, L3]
+- [x] SK-06 — PASS. `m SK-06` = `prod=111 cons=11 broad=0 vcp=10` (기대값 일치) [exact, enumerated, L3]
 
 ### Script (2/2)
-- [x] SC-01 — PASS. `m SC-01` = `wt: bash=out8/prd1/tag4/rule0/miss3/err0 zsh=out8/prd1/tag4/rule0/miss3/err0` (기대값과 완전 일치, 두 셸 동일) [exact, L3]
-- [x] SC-02 — PASS. `m SC-02` = `main: bash=out5/prd1/tag4/rule0/miss0/err0 zsh=out5/prd1/tag4/rule0/miss0/err0` (기대값과 완전 일치) [exact, L3]
+- [x] SC-01 — PASS. `wt: bash=out8/prd1/tag4/rule0/miss3/err0 zsh=out8/prd1/tag4/rule0/miss3/err0`, `lines=7`(1 이상) (기대값 일치) [exact, L3]
+- [x] SC-02 — PASS. `main: bash=out5/prd1/tag4/rule0/miss0/err0 zsh=out5/prd1/tag4/rule0/miss0/err0` (기대값 일치) [exact, L3]
 
 ### Error (1/1)
-- [x] ER-01 — PASS. `m ER-01` = `empty: bash=out3/prd0/tag0/rule0/miss3/err0 zsh=out3/prd0/tag0/rule0/miss3/err0` (기대값과 완전 일치) [exact, L3]
+- [x] ER-01 — PASS. `empty: bash=out3/prd0/tag0/rule0/miss3/err0 zsh=out3/prd0/tag0/rule0/miss3/err0` (기대값 일치) [exact, L3]
 
 ### Architecture (3/3)
-- [x] AR-01 — PASS. `m AR-01` = `base=6378948 tip=a1d4a1d changed=7 extra=0 req=1111 multi_top=0`. extra=0(허용 경로 안), req=1111(대상 4 파일 전부), multi_top=0(커밋마다 맨 위 폴더 하나). changed=7(good 시점 6 + A-03 반영 notes 커밋 1 — 정상 증가) [exact, collective, L3]
-- [x] AR-02 — PASS. `m AR-02` = `committed=1 2 1 1 1 2 2 1 5 1` — committed=1, 아홉 토큰 전부 1 이상(PD-1~4, docs html, DC-15, 계약이 아직 없, Step 2, tone-guide) [exact, enumerated, L3]
-- [x] AR-03 — PASS. `m AR-03` = `seal_commit_files=1 seal_before_impl=1 seal_same_as_tip=1 measure_same_as_tip=1 this=SEAL_OK MEASURE_OK` (기대값과 완전 일치) [exact, L3]
+- [x] AR-01 — PASS. `extra=0 req=1111 multi_top=0` (`changed=8` — 이전 QA 커밋 cd5e5d7 · notes 커밋 9481d61 이 더해져 시작 판 대비 늘었으나 둘 다 `ALLOWED` 안이라 `extra=0` 유지, 필수 넷 모두 존재, 커밋마다 최상위 폴더 하나) [exact, collective, L3]
+- [x] AR-02 — PASS. `committed=1` + 아홉 토큰 각 1 이상(`2 1 1 1 2 2 1 5 1`) — notes 파일이 셋째 독립 검토 내용까지 포함해 커밋됨 [exact, enumerated, L3]
+- [x] AR-03 — PASS. `this=SEAL_OK MEASURE_OK`, 봉인 커밋이 계약 파일 1개, 구현 커밋의 조상, 조건/측정 지문 모두 일치 [exact, L3]
 
 ### Anti-patterns (2/2)
-- [x] AP-03 — PASS. `m AP-03` = `v6_rc=0 fail=0`
-- [x] AP-04 — PASS. `m AP-04` = `v1_rc=0 fail=0`
+- [x] AP-03 — PASS. `v6_rc=0 fail=0` (bare code fence 없음)
+- [x] AP-04 — PASS. `v1_rc=0 fail=0` (frontmatter name 누락 없음)
 
-### Reusability (2/2, N/A 0)
-- [x] RE-01 — PASS. `m RE-01` = `added=0`
-- [x] RE-02 — PASS. `m RE-02` = `hdr=3 g14=1 cols=111 newfmt=0`
+### Reusability (2/2)
+- [x] RE-01 — PASS. `added=0` (N/A 사유대로 새 파일 없음, 사유 검증 완료)
+- [x] RE-02 — PASS. `hdr=3 g14=1 cols=111 newfmt=0` (네 칸 이름 재사용, 새 형식 없음)
 
-### Diagnostics (2/2, N/A 3)
-- [x] DG-01 — N/A (사유 검증됨: `release_sh=0`, 바뀐 파일과 교집합 없음)
-- [x] DG-02 — PASS. `m DG-02` = `md_new=0` (5 파일 각 0)
-- [x] DG-03 — N/A (사유 검증됨: `release_sh=0`)
-- [x] DG-04 — N/A (사유 검증됨: `non_md=0`)
-- [x] DG-05 — PASS. 도구 지문 `shasum -a 256` 앞 16자리 = `59fe55125c0dbc77`(계약 기재값과 일치, 본 레포 절대경로에서 확인). 사전조건 확보를 위해 iteration 1 이 남긴 미커밋 `status:` 변경을 `git stash push -- <계약경로>` 로 임시 격리 → `git status --porcelain --untracked-files=no` 빈 출력 확인 → HEAD=TIP(a1d4a1d) 확인 → 스크립트 백그라운드 실행(완주 대기, 약 3분) → 완료 뒤 `git stash pop` 으로 원복. 결과: `grep -c 'rc=0' summary.txt` = 25, `grep -v 'rc=0' summary.txt` = `feedback-agg-test SKIP (yq 없음)` 한 줄뿐(기대값과 완전 일치) [exact, L3, 실행 산출물 직접 수집]
+### Diagnostics (3/4, N/A 3)
+- [ ] DG-01 — N/A. `release_sh=0` (교집합 없음, 사유 검증 완료)
+- [x] DG-02 — PASS. `md_new=0` (더한 md 5개 파일 각 0 경고)
+- [ ] DG-03 — N/A. `release_sh=0` (DG-01 과 동일 사유, 검증 완료)
+- [ ] DG-04 — N/A. `non_md=0` (실행 진입점 없음, 검증 완료)
+- [~] DG-05 — `[미검증:ENV]`. 추적 안 된 도구 `.harness/handoff/2026-09-26-tools/ci-local.sh` 가 이 워크트리에 없음(find 로 전체 확인, 결과 0). 계약 자신이 "대체 수단 없음, 평가자가 그 사실을 적는다" 로 명시한 한계다.
+  - 4 요건: (1) 1차 시도 — `ls`/`find` 로 경로 확인, 파일 없음(위 Bash 출력) (2) fallback 시도 — 계약이 fallback 부재를 스스로 명시(`.harness/handoff` 아래 도구는 이 묶음 커밋 대상 밖) → 계약 결함이 아니라 계약이 인지한 한계 (3) 실패 로그 — `find` 빈 출력 (4) 통제 불가 사유 — 도구가 다른 세션의 handoff 산출물이라 이 워크트리에 커밋되지 않음 + 재검증 명령: `bash .harness/handoff/2026-09-26-tools/ci-local.sh <W>` (도구가 지문 `59fe55125c0dbc77` 로 존재할 때)
 
 ## Unverifiable Summary
 - invalid_evidence: 0
-- env_gaps: 0
-- verified_coverage: (21 - 0) / 21 = 1.00 (임계 0.60 충족)
-- 연속 ENV 승급: 없음
-- Verdict 영향: 통상
+- env_gaps: 1 [DG-05 — 추적 안 된 도구 부재, 4 요건 충족]
+- verified_coverage: (21 - 1) / 21 = 0.95 (임계 0.60 이상 — 통과)
+- Verdict 영향: 통상 (env_gaps 는 자동 REJECT 카운터에 미합산, 커버리지 임계 충족)
 
-## Discrimination (규칙 12 적용 조건만)
-- 적용 조건: 없음 — 21개 조건 전부 문서/스킬 파일 문구·구조 변경 및 셸 명령 출력을 재는 조건이며 규칙 12 의 9 항(동시성/인증/멱등성/입력검증/데이터유실/마이그레이션/재시도/보안경계/사용자보고충돌) 어디에도 해당하지 않는다
-
-## Check Artifacts (산출물이 검사인 조건만)
-- 대상: SC-01/SC-02/ER-01/A-01/A-03 — 측정 helper 자체가 `/sprint` Step 0.5 bash 블록에서 뗀 코드를 그대로 두 셸에서 실행하는 구조이며, 계약의 `runs()` 함수가 알려진 답 입력(fixture/forms)에 대해 손으로 센 기대 줄 수와 대조한다
-- ① 첫 칸만: 해당 없음(표 구조 아님, 목록/문단 텍스트 검색)
-- ② 실행 목록: 해당 없음(신규 시험 파일 없음 — 계약 내장 fixture 사용)
-- ③ 못 읽는 칸: ER-01(empty 레포, `.planning`/`.design`/`.harness` 없음)에서 `못 읽음:` 3줄이 정확히 잡힘 — 확인됨
-- ④ zsh·bash: 전 조건(SC-01/SC-02/ER-01/A-01/A-03)에서 bash·zsh 두 셸 모두 실행, 값 동일 확인 — 확인됨
-- ⑤ 효과 증명: A-01 음성 대조(`A01_DROP=1`) → `form2`로 감소(알려진 결함 재현). A-03 음성 대조(`A03_OLD=1`) → `rule1` 및 `tree: prd=1 sprint=1`로 결함 재현(요약 문단 오탐 재현) — 확인됨
+## Evidence Validity
+- 검사 대상 증거: 21건 (조건별 측정 도우미 `m <ID>` 재실행 + 3건 N/A 사유 검증)
+- 무효 판정: 0건
+- 양성 대조: 계약이 각 조건에 이미 bad/bad3/bad4 사본 실측을 명시 — 이번 회차는 good 기대값과 실측 재실행 결과의 완전 일치로 대체 확인(직접 봉인 전 bad 사본을 재구성하지 않음, 계약 명시 실측 인용)
 
 ## Summary
-- Total: 21/21 conditions passed (N/A 3: DG-01·DG-03·DG-04, 사유 검증됨)
+- Total: 21/21 conditions passed (N/A 3건 별도 집계, DG-05 env_gaps 1건)
 - Verdict: APPROVE
-- 3 회차: 2차 독립 검토가 지적한 결함(A-01 둘째 검색이 요약 문단을 오판)이 A-03 으로 고쳐졌고, 재실행 결과가 계약·개정 기재값과 완전히 일치한다. 봉인 지문(SEAL_OK) 및 AR-01(경로 집합·커밋 구조) 모두 이상 없음.
 
 ## Improvement Suggestions
-- [DG-05] 검증경로-미기재 — DG-05 사전조건(`git status --porcelain --untracked-files=no` 빈 출력)이 evaluator 자신의 Step 5.5 status 전환과 구조적으로 충돌한다. 매 iteration 마다 `git stash`로 우회해야 했다(iteration 2, 3 공통). 계약에 "평가자의 status 전환으로 인한 diff 는 stash 로 격리 후 측정, 종료 후 원복"을 명시적 절차로 적어 두면 다음 회차도 같은 우회를 반복하지 않는다
+- [DG-05] 측정-환경-오염 — 추적 안 된 도구(`.harness/handoff/`)에 의존하는 로컬 CI 조건은 도구를 계약이 통제하는 경로(예: 커밋되는 `scripts/`)로 옮기거나, 작업 폴더 clean 전제와 `status:` frontmatter 전환이 매 회차 `git stash` 를 요구하는 충돌을 harness 계약 작성 가이드에 명시할 것 (notes 「QA 3 회차 개선 제안」 반영 권고)
