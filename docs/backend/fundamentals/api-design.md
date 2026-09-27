@@ -77,7 +77,7 @@ Offset은 데이터 변경이 드문 정적 목록(관리자 대시보드 등)�
 
 ### 5. OpenAPI 스펙은 코드와 항상 동기화한다
 
-OpenAPI 3.2.1 스펙을 단일 소스로 유지한다. 코드에서 스펙을 생성하거나(code-first), 스펙에서 코드를 생성하는(spec-first) 방식 중 하나를 선택하되 혼용하지 않는다. CI에서 스펙과 실제 응답의 불일치를 검증하는 계약 테스트를 실행한다.
+OpenAPI 스펙(3.1 이상이 최소 지원선이고, 2026-09-26 기준 최신판은 3.2.1 이다)을 단일 소스로 유지한다. 코드에서 스펙을 생성하거나(code-first), 스펙에서 코드를 생성하는(spec-first) 방식 중 하나를 선택하되 혼용하지 않는다. CI에서 스펙과 실제 응답의 불일치를 검증하는 계약 테스트를 실행한다.
 
 > **출처:** [OpenAPI Specification 최신판 3.2.1](https://spec.openapis.org/oas/latest.html), [OpenAPI 3.2.1 release](https://github.com/OAI/OpenAPI-Specification/releases/tag/3.2.1)
 
