@@ -35,6 +35,8 @@
 - DC-2 의 공통 수단: 공통 파일 `docs/assets/site.css` 에 `body{overflow-wrap:anywhere}` 한 줄을 더했더니 넓힌 글자 간격에서 모자라던 44 쪽이 15 쪽으로 줄었다.
   긴 주소 · 코드 · 파일 이름이 낱말 중간에서 줄을 바꾸게 되어 표 칸 · 카드 안에서 글이 상자 밖으로 나가던 것이 한꺼번에 풀렸다.
 - 이 규칙의 눈에 띄는 부작용: 320 폭의 좁은 표 칸에서 긴 식별자가 두세 줄로 쪼개진다(예: `docs/flutter-toolkit/theming.html` 표의 `useMaterial3`). 글이 잘리거나 사라지지는 않는다.
+- 처음에는 이 규칙을 모든 폭에 걸었다. 그랬더니 표 칸이 줄어들 수 있는 최소 폭이 글자 하나로 낮아져 1280 폭에서도 영어 낱말이 쪼개졌다(독립 검토가 찾음: `bambu-print-profile` 의 `bam / bu` 22 행, `seam-recipes` 머리 칸 등 다섯 쪽).
+  그래서 `@media (max-width: 600px)` 안으로 옮겼다. 1280 폭에서 낱말 가운데 줄바꿈 수는 시작 판과 같아졌다(나빠진 쪽 0).
 - DC-2 의 쪽 고침(`7d02ffe`) 열넷: 격자 최소 폭을 `min(Npx,100%)` 로(`ethical-design` · `widget-composition` · `research` · `color-palette` 인라인 폭과 캔버스), 격자 자식에 최소 폭 0(`animation`),
   좁은 폭에서 한 줄 표본을 줄바꿈 허용(`typography-scale` · `information-density` · `ratio-proportion`), 막대 글이 막대 폭보다 길면 막대를 늘림(`microinteraction` · `motion`),
   숨김 대신 가로 스크롤(`grid-alignment` 격자 표본 · `codex-kaizen` 흐름 그림), 목록 줄을 블록으로(`visual-change-protocol`), 주석 딱지 위치를 폭에 맞춤(`visual-hierarchy`),
