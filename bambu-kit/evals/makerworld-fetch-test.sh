@@ -34,10 +34,10 @@ EOF
 chmod 755 "$W/bin/curl"
 
 run_block() {  # run_block <모델 주소 상태 코드> — 블록 출력 뒤에 exit=N
-  local d=$W/run-$1
-  mkdir -p "$d/out"
-  sed -e "s#<모델 번호>#1186414#" -e "s#<output_dir>#$d/out#" "$W/block.sh" > "$d/block.sh"
-  ( cd "$d" && PATH="$W/bin:$PATH" MW_CODE="$1" bash "$d/block.sh" 2>&1; echo "exit=$?" )
+  local run_dir=$W/run-$1
+  mkdir -p "$run_dir/out"
+  sed -e "s#<모델 번호>#1186414#" -e "s#<output_dir>#$run_dir/out#" "$W/block.sh" > "$run_dir/block.sh"
+  ( cd "$run_dir" && PATH="$W/bin:$PATH" MW_CODE="$1" bash "$run_dir/block.sh" 2>&1; echo "exit=$?" )
 }
 
 n=0; bad=0
