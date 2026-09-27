@@ -163,7 +163,7 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
 - 원문 근거: {사용자 발화 인용}
 ```
 
-PRD 가 없는 프로젝트(`.planning/prd-*.md` 가 0 개)는 그 결정을 폐기 칸에 plan-prd 비범위 표와 같은 네 칸(하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적)으로 이어 적고 끝에 `PRD 없음` 을 붙인다 — 폐기 기록만 담으려고 PRD 를 만들지 않는다 (plan-prd Gotcha 1).
+그 기능의 PRD(`.planning/prd-<slug>.md`)가 없으면 결정 원문은 작업 계약 `범위 경계` 한 곳에 plan-prd 비범위 표와 같은 네 칸(하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적)으로 적고 줄 끝에 `PRD 없음` 을 붙인다. 폐기 칸에는 그 계약 경로만 적는다 — 결정 원문이 두 곳에 있으면 한쪽만 고쳐진다 (`../../references/visual-change-protocol.md` §4). 다음 시안 전에는 그 경로에서 줄 끝이 `PRD 없음` 인 줄을 읽어 Step 2 의 폐기 항목으로 쓴다. 폐기 기록만 담으려고 PRD 를 만들지 않는다 (plan-prd Gotcha 1).
 
 생성 직후 확인한다:
 
