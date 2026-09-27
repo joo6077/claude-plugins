@@ -2,7 +2,7 @@
 """
 append-audit-log.py — orchestrator-audit-log.md 자동 append
 
-카이젠 사이클 완료 시 Final Step F1 끝에서 실행된다. 이번 사이클의 meta-issue
+카이젠 사이클 끝 Step F4 7 번(Post-Kaizen Checklist 뒤 · PR 전)에서 실행된다. 이번 사이클의 meta-issue
 (수동 개입, Post-Kaizen Checklist 실패 항목, orchestrator SKILL.md 수동 edit) 를
 `.harness/.meta/orchestrator-audit-log.md` 에 append-only 로 기록한다.
 
