@@ -1,185 +1,393 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Performance — React Kit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G3 · Performance (WASM / Tauri) — React Kit</title>
 <link rel="stylesheet" href="../assets/site.css">
 <style>
-:root{
-  --bg:#0d0d14;--bg2:#12121c;
-  --surface:#181825;--surface2:#1e1e30;
-  --border:#2a2a40;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
-  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
-  --accent:#38BDF8;--accent2:#7DD3FC;
-  --accent-dim:rgba(56,189,248,0.12);
-  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
-  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  background-color:var(--bg);color:var(--text);
-  background-image:
-    radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
-  min-height:100vh;
-}
-header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
-.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
-.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
-.logo-link:hover{color:var(--accent)}
-.sep{color:var(--text3)}
-.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
-main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
-h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
-.subtitle{color:var(--text2);font-size:1.05rem;max-width:640px;line-height:1.7}
-.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(56,189,248,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
-section{margin-bottom:56px}
-.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
-h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
-h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:16px;margin-bottom:24px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
-.card:hover{border-color:rgba(56,189,248,0.25);box-shadow:0 4px 20px rgba(56,189,248,0.06)}
-.card-icon{font-size:1.4rem;margin-bottom:10px}
-.card h3{font-size:0.95rem;margin-bottom:8px}
-.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
-.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition)}
-.card-source:hover{opacity:1}
-pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0}
-code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
-.table-wrap{overflow-x:auto;margin:16px 0}
-table{width:100%;border-collapse:collapse;font-size:0.88rem}
-th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);vertical-align:top}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(56,189,248,0.025)}
-.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
-.callout.warn{border-left-color:var(--yellow)}
-.callout.error{border-left-color:var(--red)}
-.step-list{display:flex;flex-direction:column;gap:12px;margin:16px 0}
-.step{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.step-num{min-width:28px;height:28px;border-radius:50%;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0}
-.step-body{flex:1}
-.step-title{font-weight:600;font-size:0.92rem;margin-bottom:4px}
-.step-desc{color:var(--text2);font-size:0.85rem}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0}
-@media(max-width:640px){.two-col{grid-template-columns:1fr}}
-.tag-wasm{display:inline-block;padding:2px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;background:rgba(56,189,248,0.15);color:var(--accent)}
-.tag-tauri{display:inline-block;padding:2px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;background:rgba(167,139,250,0.15);color:#c4b5fd}
-.bad-good-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
-@media(max-width:640px){.bad-good-grid{grid-template-columns:1fr}}
-.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:20px}
-.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:20px}
-.compare-header{font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px}
-.compare-bad .compare-header{color:var(--red)}
-.compare-good .compare-header{color:var(--green)}
-.compare-note{font-size:0.82rem;color:var(--text2);margin-top:10px;line-height:1.6}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+    --accent-line:rgba(56,189,248,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#0369A1;--accent2:#075985;--accent-dim:rgba(3,105,161,0.10);
+    --accent-line:rgba(3,105,161,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 
-/* ── 가로 오버플로 방지 (정본 규칙 · 제거·완화 금지) ──────────────────
-   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
-/* (1) grid 자식의 기본 min-width 는 auto(= min-content) 라 긴 코드·표의 최소폭이 트랙으로 전파된다 */
-.cards>*,.two-col>*,.bad-good-grid>*{min-width:0}
-/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너로 감싼다 */
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-.table-wrap>table{min-width:max-content}
-/* (3) white-space:pre 인 코드 블록은 컨테이너에서 스크롤시킨다 */
-pre{overflow-x:auto;max-width:100%}
-pre code{white-space:pre}
-:not(pre)>code{overflow-wrap:anywhere}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
 </style>
 </head>
 <body>
-<header>
-  <div class="header-inner">
-    <a href="../index.html" class="logo-link">Claude Plugins</a>
-    <span class="sep">/</span>
-    <a href="../index.html" class="logo-link">React Kit</a>
-    <span class="sep">/</span>
-    <span class="page-title">Performance</span>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; React Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">React Kit · 설계 문서</span>
+  <h1>G3 · Performance (WASM / Tauri)</h1>
+  <p class="orig-title">원본 제목: <strong>G3 — Performance Layer Skills</strong></p>
+  <p class="subtitle">react-kit <strong>G3 그룹 스킬 둘</strong>(<code>/react-wasm</code> · <code>/react-tauri</code>)의 설계 문서다. 무거운 계산을 브라우저 WASM 에 둘지 데스크톱 Tauri command 에 둘지 나누는 규칙부터 정한다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>docs/react/kit-design/g3-performance.md</code></span>
+    <span class="badge">그룹 G3</span>
+    <span class="badge">스킬 둘</span>
+    <span class="badge">갱신 2026-09-26</span>
   </div>
 </header>
-<main>
-  <div style="margin-bottom:56px">
-    <h1>G3 · Performance Layer</h1>
-    <p class="subtitle">
-      <code>/react-wasm</code>과 <code>/react-tauri</code> — 느린 곳을 풀어내는 두 스킬.
-      웹 + Tauri 양쪽에서 동작하는 고성능 Rust 코드와 데스크탑 전용 IPC 브릿지를 자동 생성한다.
-    </p>
-    <div class="badge">G3 — Performance Layer</div>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>경계 규칙</h3>
+      <p>WASM 카탈로그(G0)로 이식 여부를 먼저 판정하고, 파일 시스템 · OS 기능이 필요하면 Tauri 로 보낸다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>/react-wasm</h3>
+      <p>wasm-pack 으로 빌드하고 Comlink Worker 로 메인 스레드 밖에서 부른다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>/react-tauri</h3>
+      <p>command · event 를 만들고 capabilities 로 권한을 좁힌다. <code>isTauri()</code> 가드와 <code>infrastructure/tauri/</code> 경계를 지킨다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>웹과 데스크톱 함께</h3>
+      <p>한 코드로 웹과 데스크톱을 모두 배포하는 전략을 따로 절로 정리했다.</p>
+    </div>
   </div>
+</section>
 
-  <!-- 결정 규칙 -->
-  <section id="decision">
-    <div class="section-label">선택 기준</div>
-    <h2>/react-wasm vs /react-tauri — 경계 결정 규칙</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>시나리오</th><th>선택</th><th>이유</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>CPU 바운드 순수 계산 (이미지 처리, 압축, ML 추론)</td><td><span class="tag-wasm">/react-wasm</span></td><td>웹 배포에서도 동작 필요. WASM이 양쪽 타겟 지원</td></tr>
-          <tr><td>파일시스템 접근 (로컬 파일 읽기/쓰기)</td><td><span class="tag-tauri">/react-tauri</span></td><td>브라우저는 File System Access API로 제한적, Tauri 네이티브 호출로 완전 지원</td></tr>
-          <tr><td>OS 기능 (네이티브 메뉴, 트레이, 알림, 다이얼로그)</td><td><span class="tag-tauri">/react-tauri</span></td><td>브라우저 불가</td></tr>
-          <tr><td>시스템 쉘 / 서브프로세스</td><td><span class="tag-tauri">/react-tauri</span></td><td>브라우저 불가</td></tr>
-          <tr><td>암호화, 압축, 파서 (브라우저 지원 필요)</td><td><span class="tag-wasm">/react-wasm</span></td><td>양 플랫폼 공통 고성능 코드</td></tr>
-          <tr><td>네트워크 요청 (특수 프로토콜, 커스텀 TLS)</td><td><span class="tag-tauri">/react-tauri</span></td><td>브라우저 fetch 제약 우회</td></tr>
-          <tr><td>대용량 데이터 분석 (SQL, columnar)</td><td><span class="tag-wasm">/react-wasm</span></td><td>DuckDB-Wasm 등. 웹에서도 동작</td></tr>
-          <tr><td>공통 Rust 로직을 네이티브 + WASM 양쪽에 재사용</td><td><span class="tag-wasm">/react-wasm</span> + <span class="tag-tauri">/react-tauri</span></td><td>crates/core가 공통 crate, 호출 경로만 다름</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <a href="wasm-catalog.html" class="card-source">↗ WASM 결정 카탈로그 전체</a>
-  </section>
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>문서 목적</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>공통 설계 원칙</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>/react-wasm vs /react-tauri — 경계 결정 규칙</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>1. /react-wasm — Rust WASM 바인딩 생성</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>2. /react-tauri — Tauri command/event 바인딩</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>3. 웹/데스크탑 통합 배포 전략</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>4. 공유 helpers 및 Cross-group 관계</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>5. 출처 요약</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>현행화 기록</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>6. 변경 이력</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
 
-  <!-- /react-wasm -->
-  <section id="react-wasm">
-    <div class="section-label">스킬 01</div>
-    <h2>/react-wasm — Rust WASM 바인딩 5단계 파이프라인</h2>
-    <div class="step-list">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <div class="step-title">Rust 함수 추가 — <code>crates/core/src/&lt;module&gt;.rs</code></div>
-          <div class="step-desc"><code>#[wasm_bindgen]</code> 어노테이션 + <code>Result&lt;T, JsError&gt;</code> 반환</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <div class="step-title">wasm-pack 빌드</div>
-          <div class="step-desc"><code>pnpm wasm:build</code> → 산출물을 <code>src/wasm/core/</code>에 저장 (.gitignore 대상)</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <div class="step-title">Worker 래퍼 — <code>src/data/datasources/wasm/&lt;module&gt;-worker.ts</code></div>
-          <div class="step-desc">Comlink <code>expose</code> + <code>ensureInit()</code> 싱글톤 패턴으로 WASM 재로드 방지</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body">
-          <div class="step-title">Clean Arch 어댑터 — <code>src/data/datasources/wasm/&lt;module&gt;-client.ts</code></div>
-          <div class="step-desc">Comlink <code>wrap</code> + Worker 싱글톤 생성. <code>presentation/</code>와 <code>domain/</code>은 이 파일을 모른다</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">5</div>
-        <div class="step-body">
-          <div class="step-title">UseCase 바인딩 — <code>src/domain/usecases/&lt;feature&gt;-usecases.ts</code></div>
-          <div class="step-desc"><code>ResultAsync.fromPromise(...)</code>로 모든 throw (Rust panic 포함) 를 <code>Failure</code>로 변환</div>
-        </div>
-      </div>
-    </div>
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="code"><span class="code-lang">yaml</span><pre><code>last_updated: 2026-09-26
+group: G3
+scope: react-kit 고성능 레이어 스킬 2종
+skills: [/react-wasm, /react-tauri]
+depends_on: [G0 wasm-catalog.md, G1 /react-init]
+research_sources:
+  - docs/react/wasm-catalog.md (G0 결정 카탈로그)
+  - wasm-bindgen Guide (rustwasm.github.io/docs/wasm-bindgen)
+  - GoogleChromeLabs/comlink README
+  - vite-plugin-comlink (mathe42/vite-plugin-comlink)
+  - Tauri 2 Calling Rust from the Frontend (v2.tauri.app)
+  - Tauri 2 Capabilities &amp; Permissions (v2.tauri.app/security)
+  - Tauri 2 isTauri core API (v2.tauri.app/reference/javascript/api/namespacecore)
+  - 2026-04 WebSearch 검증</code></pre></div>
+</section>
 
-    <h3>Worker 래퍼 패턴</h3>
-    <pre>// src/data/datasources/wasm/image-worker.ts
-import { expose } from 'comlink'
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>문서 목적</h2>
+  <div class="doc-body">
+<p>react-kit <strong>G3 그룹</strong> 은 앱의 "느린 곳"을 풀어내는 두 개 스킬을 다룬다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>/react-wasm</code></strong> — Rust 함수를 WebAssembly 로 컴파일하여 <strong>웹 + Tauri 양쪽 모두</strong> 에서 동작하는 고성능 모듈 생성. G0 <code>docs/react/wasm-catalog.md</code> 가 "이 카테고리는 WASM 이득 있음/없음" 을 이미 판정하므로 이 스킬은 카탈로그를 소비 (consume) 하는 자동화 레이어.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>/react-tauri</code></strong> — Tauri 2 의 Rust 백엔드 command/event 를 정의하고 React 에서 invoke 하는 브릿지 생성. 데스크탑 전용 기능 (파일시스템, 네이티브 메뉴, 쉘, 트레이 등) 을 React 코드에서 호출 가능하게 만든다.</div></li>
+</ul>
+<p><strong>핵심 제약</strong>: react-kit 의 R eact 코드는 <strong>웹 배포 + Tauri 데스크탑 배포</strong> 양쪽에서 동일하게 동작해야 한다. 따라서 두 스킬 모두 "데스크탑 전용" 코드를 만들지 않고, <strong>feature detection 기반 분기</strong> 로 웹/데스크탑 모두 지원하거나 그럴 수 없는 경우 명시적인 fallback 을 요구한다.</p>
+<p><strong>의존</strong>: G0 <code>wasm-catalog.md</code> + G1 <code>/react-init</code> 이 생성한 <code>crates/core/</code> (Rust workspace) + <code>src-tauri/</code> (Tauri Rust backend).</p>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>공통 설계 원칙</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Result 경계 불변</strong>: 모든 고성능 호출은 경계를 넘을 때 <code>neverthrow</code> 의 <code>Result&lt;T, Failure&gt;</code> 로 감싼다. Rust panic, JS throw, Tauri 에러, WASM 부재, 모두 타입 안전한 Failure 로 변환.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Clean Architecture 준수</strong>: WASM 호출은 <code>data/datasources/wasm/</code> 레이어, Tauri 호출은 <code>infrastructure/tauri/</code> 레이어에만 배치. <code>domain/</code> 과 <code>presentation/</code> 는 하위 런타임을 모른다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Feature detection 우선</strong>: 환경 분기는 런타임 감지로만. 빌드 타임 define 플래그 (예: <code>if (import.meta.env.TAURI)</code>) 는 웹 빌드와 데스크탑 빌드가 같은 dist 를 공유하는 시나리오에서 혼란을 유발하므로 보조로만 사용.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TypeScript</strong>: WASM 바인딩의 자동 생성 <code>.d.ts</code> 를 신뢰하되, 경계 (데이터 진입 시점) 에서 Zod 재검증. Tauri invoke 의 반환값도 마찬가지.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>생성 전 전수 스캔 · 요청 범위만</strong>: <code>/react-wasm</code> · <code>/react-tauri</code> 는 만들기 전에 기존 바인딩 · command · capability 를 열거하고 합의한 뒤 생성한다. 요청하지 않은 permission 을 덧붙이지 않는다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G0 카탈로그 불변</strong>: <code>/react-wasm</code> 이 Rust 이식 제안 시 반드시 <code>docs/react/wasm-catalog.md</code> 의 판정 로직을 1차 기준으로 사용. 카탈로그를 무시하고 사용자 요청만으로 이식 결정 금지.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>/react-wasm vs /react-tauri — 경계 결정 규칙</h2>
+  <div class="doc-body">
+<p>두 스킬이 기술적으로 유사한 문제 ("느린 부분 네이티브로 보내기") 를 풀지만 <strong>서로 다른 레이어에 배치된다</strong>. 결정 규칙:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">시나리오</div></th>
+  <th><div class="c">선택</div></th>
+  <th><div class="c">이유</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">CPU 바운드 순수 계산 (이미지 처리, 압축, ML 추론)</div></td>
+  <td><div class="c"><strong><code>/react-wasm</code></strong></div></td>
+  <td><div class="c">웹 배포에서도 동작 필요. WASM 이 양쪽 타겟 지원</div></td>
+</tr>
+<tr>
+  <td><div class="c">파일시스템 접근 (로컬 파일 읽기/쓰기)</div></td>
+  <td><div class="c"><strong><code>/react-tauri</code></strong></div></td>
+  <td><div class="c">브라우저는 File System Access API 로 제한적, Tauri 네이티브 호출로 완전 지원</div></td>
+</tr>
+<tr>
+  <td><div class="c">OS 기능 (네이티브 메뉴, 트레이, 알림, 다이얼로그)</div></td>
+  <td><div class="c"><strong><code>/react-tauri</code></strong></div></td>
+  <td><div class="c">브라우저 불가</div></td>
+</tr>
+<tr>
+  <td><div class="c">시스템 쉘 / 서브프로세스</div></td>
+  <td><div class="c"><strong><code>/react-tauri</code></strong></div></td>
+  <td><div class="c">브라우저 불가</div></td>
+</tr>
+<tr>
+  <td><div class="c">암호화, 압축, 파서 (브라우저 지원 필요)</div></td>
+  <td><div class="c"><strong><code>/react-wasm</code></strong></div></td>
+  <td><div class="c">양 플랫폼 공통 고성능 코드</div></td>
+</tr>
+<tr>
+  <td><div class="c">네트워크 요청 (특수 프로토콜, 커스텀 TLS)</div></td>
+  <td><div class="c"><strong><code>/react-tauri</code></strong></div></td>
+  <td><div class="c">브라우저 fetch 제약 우회</div></td>
+</tr>
+<tr>
+  <td><div class="c">앱 내부 업데이터, 자동 실행</div></td>
+  <td><div class="c"><strong><code>/react-tauri</code></strong></div></td>
+  <td><div class="c">Tauri updater plugin 전용</div></td>
+</tr>
+<tr>
+  <td><div class="c">대용량 데이터 분석 (SQL, columnar)</div></td>
+  <td><div class="c"><strong><code>/react-wasm</code></strong> (DuckDB-Wasm 등)</div></td>
+  <td><div class="c">웹에서도 동작, 메모리 모델 통일</div></td>
+</tr>
+<tr>
+  <td><div class="c">공통 Rust 로직을 네이티브 + WASM 양쪽에 재사용</div></td>
+  <td><div class="c"><strong><code>/react-wasm</code></strong> (Rust crate 공유) + <strong><code>/react-tauri</code></strong> (필요 시 네이티브 command)</div></td>
+  <td><div class="c"><code>crates/core</code> 가 공통 crate, 호출 경로만 다름</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>공존 시나리오</strong>: 한 feature 가 WASM 계산 + Tauri 파일시스템 둘 다 필요하면 두 스킬을 <strong>순차 호출</strong>. <code>crates/core/</code> 의 같은 Rust 함수를 WASM 으로 빌드해 Worker 에서 쓰고, Tauri command 로 감싸 파일 I/O 와 묶을 수도 있다.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>1. /react-wasm — Rust WASM 바인딩 생성</h2>
+  <div class="doc-body">
+<p><code>crates/core/</code> 의 Rust 함수를 WebAssembly 로 빌드하고, Comlink 래핑된 Web Worker 와 Clean Arch 데이터 레이어 바인딩까지 자동 생성한다.</p>
+<h3 class="sub">1.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "WASM 만들어줘", "Rust 함수 WASM으로", "react-wasm", "고성능 계산 이식"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">조건: G1 <code>/react-init --with-wasm</code> 으로 초기화된 프로젝트 (<code>crates/core/</code> 존재). 없으면 에러로 안내</div></li>
+</ul>
+<h3 class="sub">1.2 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>task_description</code> (필수): 이식 대상 작업의 자연어 설명 (예: "이미지 리사이즈", "CSV 파싱 10MB", "폼 검증 빠르게")</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>function_name</code> (선택): Rust 함수명. 없으면 task 기반 자동 생성</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--force</code> (기본 false): 카탈로그가 JS 권장 판정 내려도 강행</div></li>
+</ul>
+<h3 class="sub">1.3 자동 판정 로직 (G0 카탈로그 참조)</h3>
+<p>스킬의 1단계는 <strong><code>docs/react/wasm-catalog.md</code> 의 판정 플로우를 실행</strong> 하는 것이다. 판정은 3단계로 진행:</p>
+<p><strong>Step 1 — 카테고리 키워드 매칭</strong></p>
+<p>카탈로그 §1 (WASM 권장) / §2 (비권장) 테이블과 task_description 을 매칭. 예시 규칙:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"이미지", "리사이즈", "썸네일", "필터" → §1 이미지 처리 (WASM ✅)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"압축", "해제", "gzip", "brotli", "lz4", "zstd" → §1 압축 (WASM ✅)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"폼 검증", "form validation" → §2 폼 검증 (JS ❌)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"JSON 파싱", "JSON parse" → §2 (JS ❌)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"이벤트 버스", "state update" → §2 (JS ❌)</div></li>
+</ul>
+<p>카탈로그에 정확히 일치하면 즉시 결정 (권장 또는 거부).</p>
+<p><strong>Step 2 — 휴리스틱 fallback (카탈로그 미스 시)</strong></p>
+<p>카테고리 매칭이 실패하면 G0 카탈로그 §5 의 5개 휴리스틱으로 판정. 스킬이 사용자에게 각 축에 대한 단순 질문 또는 코드 정적 분석으로 자동 채점:</p>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>데이터 크기</strong> — 입출력이 바이너리 버퍼 (Uint8Array, Float32Array, ArrayBuffer) + KB~MB 단위?</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>호출 빈도</strong> — 초당 &lt;100 + 호출당 본 작업 무거움?</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>내부 연산</strong> — 반복 루프 중심 (for/while), 문자열/객체 조작 없음?</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>외부 접근</strong> — 순수 함수 (fetch/DOM/timer 없음)?</div></li>
+  <li class="lv0"><span class="li-mark">5.</span><div class="li-body"><strong>알고리즘 특성</strong> — SIMD/threads 활용 가능 (픽셀, 해시, 행렬, 정렬)?</div></li>
+</ul>
+<p>각 축 YES = 1점. <strong>3/5 이상 → WASM 제안</strong>, 미만 → JS 유지 권고.</p>
+<p><strong>Step 3 — 최종 사용자 확인</strong></p>
+<p>판정 결과를 사용자에게 요약 제시. 거부 판정이어도 <code>--force</code> 플래그가 있으면 사용자 의지 우선으로 진행 (단, 경고 표시).</p>
+<div class="code"><pre><code>&gt; /react-wasm "이미지 리사이즈"
+카탈로그 매칭: §1 이미지 처리 ✅
+프로덕션 사례: Figma (29s → 8s), Squoosh
+권장 Rust crate: image + fast_image_resize
+진행합니다.
+
+&gt; /react-wasm "폼 검증 빠르게"
+카탈로그 매칭: §2 폼 검증 ❌
+이유: V8 JIT 이 hot small code path 를 이미 공격적으로 최적화. WASM 마샬링 비용 초과.
+대안: Zod 스키마 유지. 정말 느리다면 먼저 React Profiler 로 병목 측정.
+--force 플래그 없이는 진행하지 않습니다.</code></pre></div>
+<h3 class="sub">1.4 End-to-End 파이프라인 (WASM 판정 통과 후)</h3>
+<p>5 단계 자동화:</p>
+<div class="code"><pre><code>[1. Rust 함수 추가]   crates/core/src/&lt;module&gt;.rs  에 wasm-bindgen 어노테이션 함수 삽입
+         ↓
+[2. wasm-pack 빌드]   pnpm wasm:build   (wasm-pack build --target web --release)
+         ↓
+[3. Worker 래퍼]      src/data/datasources/wasm/&lt;module&gt;-worker.ts   Comlink expose
+         ↓
+[4. Clean Arch 어댑터]   src/data/datasources/wasm/&lt;module&gt;-client.ts  Worker 생성 + Comlink wrap
+         ↓
+[5. UseCase 바인딩]    src/domain/usecases/&lt;feature&gt;-usecases.ts    Result 반환 추가</code></pre></div>
+<p><strong>[1] Rust 함수 추가</strong> — <code>crates/core/src/&lt;module&gt;.rs</code>:</p>
+<div class="code"><span class="code-lang">rust</span><pre><code>use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn resize_thumbnail(input: &amp;[u8], width: u32, height: u32) -&gt; Result&lt;Vec&lt;u8&gt;, JsError&gt; {
+    let img = image::load_from_memory(input)
+        .map_err(|e| JsError::new(&amp;format!("decode failed: {e}")))?;
+    let resized = img.thumbnail(width, height);
+    let mut out = Vec::new();
+    resized
+        .write_to(&amp;mut std::io::Cursor::new(&amp;mut out), image::ImageFormat::Png)
+        .map_err(|e| JsError::new(&amp;format!("encode failed: {e}")))?;
+    Ok(out)
+}</code></pre></div>
+<p><strong>핵심</strong>: <code>Result&lt;T, JsError&gt;</code> 를 사용. <code>JsError::new(...)</code> 는 JS 측에서 <code>Error</code> 객체로 변환되어 catch 가능. <code>?</code> 연산자로 Rust 에러 전파 가능 (<code>From</code> 구현).</p>
+<p><strong>[2] wasm-pack 빌드</strong> — G1 이 세팅한 npm 스크립트:</p>
+<div class="code"><span class="code-lang">sh</span><pre><code>pnpm wasm:build     # wasm-pack build crates/core --target web --release --out-dir ../../src/wasm/core</code></pre></div>
+<p>산출물은 <code>src/wasm/core/</code> 에 저장. <code>.gitignore</code> 대상 (G1 스캐폴딩 기본값).</p>
+<p><strong>[3] Worker 래퍼</strong> — <code>src/data/datasources/wasm/image-worker.ts</code>:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import { expose } from 'comlink'
 import init, { resize_thumbnail } from '@/wasm/core'
 
 let ready: Promise&lt;void&gt; | null = null
@@ -189,148 +397,19 @@ function ensureInit(): Promise&lt;void&gt; {
 }
 
 export const imageWorkerApi = {
-  async resizeThumbnail(input: Uint8Array, width: number, height: number): Promise&lt;Uint8Array&gt; {
+  async resizeThumbnail(
+    input: Uint8Array,
+    width: number,
+    height: number,
+  ): Promise&lt;Uint8Array&gt; {
     await ensureInit()
     return resize_thumbnail(input, width, height)
   },
 }
 
-expose(imageWorkerApi)</pre>
-
-    <h3>UseCase — neverthrow ResultAsync 래핑</h3>
-    <pre>// src/domain/usecases/image-usecases.ts
-import { ResultAsync } from 'neverthrow'
-import { resizeImageViaWasm } from '@/data/datasources/wasm/image-client'
-
-export type ImageFailure =
-  | { kind: 'image/wasm-not-ready'; cause: string }
-  | { kind: 'image/resize-failed'; cause: string }
-
-export function resizeImage(
-  input: Uint8Array,
-  size: { width: number; height: number },
-): ResultAsync&lt;Uint8Array, ImageFailure&gt; {
-  return ResultAsync.fromPromise(
-    resizeImageViaWasm(input, size),
-    (e) =&gt; ({
-      kind: 'image/resize-failed' as const,
-      cause: e instanceof Error ? e.message : String(e),
-    }),
-  )
-}</pre>
-    <a href="https://rustwasm.github.io/docs/wasm-bindgen" class="card-source" target="_blank" rel="noopener">↗ wasm-bindgen Guide</a>
-    <a href="https://github.com/Menci/vite-plugin-wasm" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ vite-plugin-wasm</a>
-    <a href="https://github.com/GoogleChromeLabs/comlink" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ Comlink</a>
-  </section>
-
-  <!-- /react-tauri -->
-  <section id="react-tauri">
-    <div class="section-label">스킬 02</div>
-    <h2>/react-tauri — Tauri command/event 브릿지</h2>
-    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
-      Tauri 2 Rust 백엔드 command를 정의하고 React에서 <code>invoke</code>하는 브릿지를 자동 생성. 반드시 <code>isTauri()</code> feature detection 가드를 포함한다.
-    </p>
-
-    <h3>[1] Rust command 정의 — <code>src-tauri/src/commands/config.rs</code></h3>
-    <pre>#[tauri::command]
-pub fn read_config_file(path: String) -&gt; Result&lt;AppConfig, String&gt; {
-    let content = fs::read_to_string(&amp;path)
-        .map_err(|e| format!("failed to read {}: {}", path, e))?;
-    serde_json::from_str::&lt;AppConfig&gt;(&amp;content)
-        .map_err(|e| format!("invalid config format: {}", e))
-}</pre>
-
-    <h3>[2] Builder 등록 — <code>src-tauri/src/lib.rs</code></h3>
-    <pre>pub fn run() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            commands::config::read_config_file,
-        ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
-}</pre>
-
-    <h3>[3] Capabilities — <code>src-tauri/capabilities/default.json</code></h3>
-    <pre>{
-  "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "default",
-  "windows": ["main"],
-  "permissions": [
-    "core:default",
-    "fs:allow-read-text-file",
-    { "identifier": "fs:scope", "allow": [{ "path": "$APPCONFIG/*.json" }] }
-  ]
-}</pre>
-
-    <h3>[4] TS 래퍼 — <code>src/infrastructure/tauri/config.ts</code></h3>
-    <pre>import { invoke, isTauri } from '@tauri-apps/api/core'
-import { z } from 'zod'
-import { ok, err, type Result } from 'neverthrow'
-
-const AppConfigSchema = z.object({ theme: z.string(), language: z.string() })
-export type AppConfig = z.infer&lt;typeof AppConfigSchema&gt;
-
-export type ReadConfigFailure =
-  | { kind: 'config/not-in-tauri' }
-  | { kind: 'config/read-failed'; cause: string }
-  | { kind: 'config/invalid-format'; issues: string[] }
-
-export async function readConfigFile(path: string): Promise&lt;Result&lt;AppConfig, ReadConfigFailure&gt;&gt; {
-  if (!isTauri()) return err({ kind: 'config/not-in-tauri' })
-  try {
-    const raw = await invoke&lt;unknown&gt;('read_config_file', { path })
-    const parsed = AppConfigSchema.safeParse(raw)
-    if (!parsed.success) return err({ kind: 'config/invalid-format', issues: parsed.error.issues.map(i =&gt; i.message) })
-    return ok(parsed.data)
-  } catch (e) {
-    return err({ kind: 'config/read-failed', cause: e instanceof Error ? e.message : String(e) })
-  }
-}</pre>
-    <div class="callout warn">
-      <code>isTauri()</code> 가드 없이 Tauri API를 직접 import하면 웹 빌드에서 런타임 오류. 모든 Tauri 호출은 <code>infrastructure/tauri/</code> 래퍼를 경유해야 하며, <code>presentation/</code>이나 <code>domain/</code>에서 직접 import 금지.
-    </div>
-    <a href="https://v2.tauri.app/reference/cli/" class="card-source" target="_blank" rel="noopener">↗ Tauri 2 CLI</a>
-    <a href="https://v2.tauri.app/security/" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ Tauri 2 Capabilities</a>
-  </section>
-
-  <!-- Rust panic 변환 -->
-  <section id="panic-handling">
-    <div class="section-label">에러 처리</div>
-    <h2>Rust panic → Result 변환 경로</h2>
-    <div class="cards">
-      <div class="card">
-        <div class="card-icon">1️⃣</div>
-        <h3>Rust 쪽 — panic 대신 Result</h3>
-        <p>가능하면 <code>Result&lt;T, JsError&gt;</code> 반환으로 panic 대신 에러 값 반환 우선. <code>?</code> 연산자 적극 활용.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">2️⃣</div>
-        <h3>console_error_panic_hook</h3>
-        <p>어쩔 수 없는 panic (무한 재귀, 배열 OOB): <code>console_error_panic_hook</code> 크레이트로 JS 콘솔에 메시지 출력.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">3️⃣</div>
-        <h3>Worker 경계 포획</h3>
-        <p>Comlink는 throw를 Promise reject로 전달. <code>ResultAsync.fromPromise(..., (e) =&gt; Failure)</code>로 모든 throw를 Failure로 포획.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">4️⃣</div>
-        <h3>최종 보장</h3>
-        <p>UseCase 레벨에서는 panic 포함 항상 <code>Result&lt;T, Failure&gt;</code>를 반환. domain 레이어는 throw를 절대 보지 않는다.</p>
-      </div>
-    </div>
-    <a href="https://rustwasm.github.io/docs/wasm-bindgen" class="card-source" target="_blank" rel="noopener">↗ wasm-bindgen — JsError</a>
-  </section>
-
-  <!-- WASM 5단계 Client 코드 -->
-  <section id="wasm-client">
-    <div class="section-label">WASM 클라이언트</div>
-    <h2>Worker 클라이언트 싱글톤 패턴</h2>
-    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
-      Comlink <code>wrap</code>으로 Worker를 감싸고, 싱글톤으로 관리한다. 매 호출마다 Worker를 생성하면 Spawn 비용 누적 + 메모리 누수가 발생한다.
-    </p>
-    <pre>// src/data/datasources/wasm/image-client.ts
-import { wrap, type Remote } from 'comlink'
+expose(imageWorkerApi)</code></pre></div>
+<p><strong>[4] Clean Arch 어댑터</strong> — <code>src/data/datasources/wasm/image-client.ts</code>:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import { wrap, type Remote } from 'comlink'
 import type { imageWorkerApi } from './image-worker'
 
 let workerInstance: Remote&lt;typeof imageWorkerApi&gt; | null = null
@@ -350,213 +429,369 @@ export async function resizeImageViaWasm(
 ): Promise&lt;Uint8Array&gt; {
   const client = getClient()
   return client.resizeThumbnail(input, size.width, size.height)
-}</pre>
-    <a href="https://github.com/GoogleChromeLabs/comlink" class="card-source" target="_blank" rel="noopener">↗ Comlink README</a>
-  </section>
+}</code></pre></div>
+<p><strong>[5] UseCase 바인딩</strong> — <code>src/domain/usecases/image-usecases.ts</code>:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import { ok, err, ResultAsync } from 'neverthrow'
+import { resizeImageViaWasm } from '@/data/datasources/wasm/image-client'
 
-  <!-- Tauri feature detection -->
-  <section id="tauri-feature-detection">
-    <div class="section-label">Feature Detection</div>
-    <h2>isTauri() 가드 — 웹/데스크탑 분기</h2>
-    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
-      React 코드는 웹 배포 + Tauri 데스크탑 배포 양쪽에서 동일하게 동작해야 한다. 런타임 feature detection으로 분기한다.
-    </p>
-    <pre>// isTauri() 가드 패턴 — 항상 이 방식으로
-import { isTauri } from '@tauri-apps/api/core'
+export type ImageFailure =
+  | { kind: 'image/wasm-not-ready'; cause: string }
+  | { kind: 'image/resize-failed'; cause: string }
 
-export async function loadConfig(path: string) {
+export function resizeImage(
+  input: Uint8Array,
+  size: { width: number; height: number },
+): ResultAsync&lt;Uint8Array, ImageFailure&gt; {
+  return ResultAsync.fromPromise(
+    resizeImageViaWasm(input, size),
+    (e) =&gt; ({
+      kind: 'image/resize-failed' as const,
+      cause: e instanceof Error ? e.message : String(e),
+    }),
+  )
+}</code></pre></div>
+<h3 class="sub">1.5 Rust panic → Result 변환 경로</h3>
+<p>Rust 코드가 <strong>패닉</strong>을 일으키면 기본적으로 WASM 런타임이 <code>RuntimeError</code> 를 throw 한다. 이건 <code>JsError</code> 가 아니라 런타임 에러라서 Result 로 자동 변환되지 않는다.</p>
+<p><strong>처리 흐름</strong>:</p>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body">Rust 쪽: 가능하면 <code>Result&lt;T, JsError&gt;</code> 반환으로 <strong>panic 대신 에러 값 반환</strong> 을 우선. <code>?</code> 연산자 적극 활용</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body">어쩔 수 없는 panic (무한 재귀, 배열 OOB 등): <code>console_error_panic_hook</code> 크레이트 설정으로 panic 메시지를 JS 콘솔에 표시</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body">Worker 경계: Comlink 는 throw 된 에러를 Promise reject 로 전달. <code>ResultAsync.fromPromise(..., (e) =&gt; Failure)</code> 로 모든 throw 를 Failure 로 포획</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body">최종: <code>resizeImage(...)</code> 는 panic 까지 포함해 항상 <code>Result&lt;T, Failure&gt;</code> 를 반환</div></li>
+</ul>
+<p><strong>G1 <code>/react-init</code> 기본 포함</strong>: <code>crates/core/Cargo.toml</code> 에 <code>console_error_panic_hook</code> 을 <code>dev-dependencies</code> 로 추가하고 <code>lib.rs</code> 에 <code>#[wasm_bindgen(start)]</code> 함수에서 <code>set_panic_hook()</code> 호출.</p>
+<h3 class="sub">1.6 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>wasm-pack 타겟 선택</strong>: <code>--target web</code> 은 ESM 브라우저 로딩용, <code>--target bundler</code> 는 번들러 (Vite, Webpack) 용. Vite 에서는 <code>vite-plugin-wasm</code> + <code>--target bundler</code> 가 가장 매끄럽지만 Tauri 와 섞을 땐 <code>--target web</code> 도 가능. G1 기본은 <code>--target web</code> + <code>vite-plugin-wasm</code> 조합</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>init()</code> 중복 호출</strong>: <code>init()</code> 을 매 함수 호출마다 부르면 매번 WASM 모듈을 재로드. <code>ensureInit()</code> 싱글톤 패턴 필수</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Worker 싱글톤 누수</strong>: Worker 인스턴스를 매 호출마다 생성하면 Spawn 비용 누적 + 메모리 누수. <code>getClient()</code> 싱글톤 + HMR 시 cleanup 고려</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>문자열 마샬링 함정</strong>: G0 카탈로그 §6 오해 2 참조. WASM 함수 인자/반환값이 String 이면 UTF-16↔UTF-8 복사 비용 지속. <code>Uint8Array</code> 로 바꾸는 게 거의 항상 빠름</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>render 안에서 호출 금지</strong>: <code>useMemo</code> 없이 렌더마다 WASM 호출하면 경계 비용 누적. G0 §8 감사 항목. <code>/react-audit</code> 이 검출</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>SIMD 의존 코드의 feature detection</strong>: SIMD 를 쓰면 구형 환경에서 런타임 에러. <code>WebAssembly.validate</code> 로 SIMD opcode 지원 확인 후 로드, 미지원 시 fallback 경로 (JS 또는 non-SIMD WASM)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>번들 크기</strong>: <code>wasm-opt -O3</code> 로 최적화. gzip 500KB 이상이면 큼. <code>/react-audit</code> 이 경고</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS</strong>: <code>wasm-pack</code> 이 생성한 <code>.d.ts</code> 를 신뢰하지만, WASM 결과 값이 Struct 타입이면 Zod 스키마로 한 번 더 parse 하는 게 안전 (<code>serde-wasm-bindgen</code> 으로 교환된 객체는 런타임 타입이 정확히 매칭 안 될 수 있음)</div></li>
+</ul>
+<h3 class="sub">1.7 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>WASM Rust 함수</strong>: <code>crates/core/src/&lt;module&gt;.rs</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Worker 래퍼</strong>: <code>src/data/datasources/wasm/&lt;module&gt;-worker.ts</code> (Comlink <code>expose</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Worker 클라이언트</strong>: <code>src/data/datasources/wasm/&lt;module&gt;-client.ts</code> (Comlink <code>wrap</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>UseCase</strong>: <code>src/domain/usecases/&lt;feature&gt;-usecases.ts</code> (Result 반환 공개 API)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>절대 금지</strong>: <code>domain/</code> 또는 <code>presentation/</code> 에 WASM 모듈 직접 import. domain 은 WASM 을 모른다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>2. /react-tauri — Tauri command/event 바인딩</h2>
+  <div class="doc-body">
+<p>Tauri 2 의 Rust 백엔드 command 를 정의하고 React 에서 invoke 하는 브릿지를 자동 생성한다. 데스크탑 전용 기능 + <strong>브라우저 fallback</strong> 까지 자동으로.</p>
+<h3 class="sub">2.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "Tauri command 추가", "네이티브 기능", "파일시스템 접근", "react-tauri"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">조건: G1 <code>/react-init --with-tauri</code> 로 초기화된 프로젝트 (<code>src-tauri/</code> 존재)</div></li>
+</ul>
+<h3 class="sub">2.2 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>command_name</code> (필수): snake_case (예: <code>read_config_file</code>, <code>open_save_dialog</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>feature</code> (필수): 어느 feature 에 속하는지 (<code>presentation/features/&lt;feature&gt;/</code> + <code>infrastructure/tauri/</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>capabilities</code> (선택): 필요한 Tauri permission 목록 (예: <code>fs:read</code>, <code>dialog:allow-save</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--web-fallback</code>: 브라우저 환경에서의 fallback 전략 (<code>throw</code> 기본, <code>noop</code>, <code>stub</code>, <code>prompt-user</code>)</div></li>
+</ul>
+<h3 class="sub">2.3 생성 흐름 — Rust command + TS invoke + capabilities</h3>
+<p><strong>[1] Rust command 정의</strong> — <code>src-tauri/src/commands/config.rs</code>:</p>
+<div class="code"><span class="code-lang">rust</span><pre><code>use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::PathBuf;
+
+#[derive(Serialize, Deserialize)]
+pub struct AppConfig {
+    pub theme: String,
+    pub language: String,
+}
+
+#[tauri::command]
+pub fn read_config_file(path: String) -&gt; Result&lt;AppConfig, String&gt; {
+    let buf = PathBuf::from(&amp;path);
+    let content = fs::read_to_string(&amp;buf)
+        .map_err(|e| format!("failed to read {}: {}", path, e))?;
+    serde_json::from_str::&lt;AppConfig&gt;(&amp;content)
+        .map_err(|e| format!("invalid config format: {}", e))
+}</code></pre></div>
+<p><strong>[2] Builder 등록</strong> — <code>src-tauri/src/lib.rs</code>:</p>
+<div class="code"><span class="code-lang">rust</span><pre><code>mod commands;
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![
+            commands::config::read_config_file,
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}</code></pre></div>
+<p><strong>[3] capabilities 선언</strong> — <code>src-tauri/capabilities/default.json</code>:</p>
+<div class="code"><span class="code-lang">json</span><pre><code>{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default app capability",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "fs:allow-read-text-file",
+    {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "$APPCONFIG/*.json" }]
+    }
+  ]
+}</code></pre></div>
+<p><strong>[4] TS 래퍼</strong> — <code>src/infrastructure/tauri/config.ts</code>:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import { invoke, isTauri } from '@tauri-apps/api/core'
+import { z } from 'zod'
+import { ok, err, type Result } from 'neverthrow'
+
+const AppConfigSchema = z.object({
+  theme: z.string(),
+  language: z.string(),
+})
+export type AppConfig = z.infer&lt;typeof AppConfigSchema&gt;
+
+export type ReadConfigFailure =
+  | { kind: 'config/not-in-tauri' }
+  | { kind: 'config/read-failed'; cause: string }
+  | { kind: 'config/invalid-format'; issues: string[] }
+
+export async function readConfigFile(path: string): Promise&lt;Result&lt;AppConfig, ReadConfigFailure&gt;&gt; {
   if (!isTauri()) {
-    // 웹 환경 — localStorage 또는 fetch fallback
     return err({ kind: 'config/not-in-tauri' })
   }
-  // Tauri 환경 — 네이티브 파일 접근
-  return readConfigFile(path)
-}</pre>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>환경</th><th><code>isTauri()</code></th><th>동작</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>브라우저 (웹 배포)</td><td><code>false</code></td><td>fallback 로직 실행 (localStorage, fetch, noop 등)</td></tr>
-          <tr><td>Tauri 데스크탑 앱</td><td><code>true</code></td><td>네이티브 Rust command invoke</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="callout warn">
-      <code>import.meta.env.TAURI</code> 같은 빌드 타임 define 플래그는 웹/데스크탑 dist를 공유하는 시나리오에서 혼란을 유발한다. 항상 <code>isTauri()</code> 런타임 감지 우선.
-    </div>
-    <a href="https://v2.tauri.app/reference/javascript/api/namespacecore/" class="card-source" target="_blank" rel="noopener">↗ Tauri 2 isTauri API</a>
-  </section>
+  try {
+    const raw = await invoke&lt;unknown&gt;('read_config_file', { path })
+    const parsed = AppConfigSchema.safeParse(raw)
+    if (!parsed.success) {
+      return err({
+        kind: 'config/invalid-format',
+        issues: parsed.error.issues.map((i) =&gt; i.message),
+      })
+    }
+    return ok(parsed.data)
+  } catch (e) {
+    return err({
+      kind: 'config/read-failed',
+      cause: e instanceof Error ? e.message : String(e),
+    })
+  }
+}</code></pre></div>
+<p><strong>[5] UseCase 공개</strong> — <code>src/domain/usecases/config-usecases.ts</code>:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import type { ResultAsync } from 'neverthrow'
+import type { AppConfig, ReadConfigFailure } from '@/infrastructure/tauri/config'
+import { readConfigFile } from '@/infrastructure/tauri/config'
 
-  <!-- Tauri capabilities 상세 -->
-  <section id="tauri-capabilities">
-    <div class="section-label">Tauri 권한</div>
-    <h2>Capabilities &amp; Permissions 최소 권한 원칙</h2>
-    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
-      Tauri 2는 기능별로 명시적 permission을 선언해야 한다. <code>/react-tauri</code>는 필요한 capability만 자동 추가한다.
-    </p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>기능</th><th>Permission</th><th>설명</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>파일 읽기</td><td><code>fs:allow-read-text-file</code></td><td>텍스트 파일 읽기. scope로 경로 제한 권장</td></tr>
-          <tr><td>파일 쓰기</td><td><code>fs:allow-write-text-file</code></td><td>텍스트 파일 쓰기</td></tr>
-          <tr><td>저장 대화상자</td><td><code>dialog:allow-save</code></td><td>네이티브 저장 다이얼로그</td></tr>
-          <tr><td>열기 대화상자</td><td><code>dialog:allow-open</code></td><td>네이티브 열기 다이얼로그</td></tr>
-          <tr><td>클립보드 읽기</td><td><code>clipboard-manager:allow-read-text</code></td><td>클립보드 텍스트 읽기</td></tr>
-          <tr><td>클립보드 쓰기</td><td><code>clipboard-manager:allow-write-text</code></td><td>클립보드에 텍스트 복사</td></tr>
-          <tr><td>쉘 실행</td><td><code>shell:allow-execute</code></td><td>외부 프로세스 실행. sidecar 패턴 권장</td></tr>
-          <tr><td>기본 기능 세트</td><td><code>core:default</code></td><td>window/app/event 기본 API 포함</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <a href="https://v2.tauri.app/security/" class="card-source" target="_blank" rel="noopener">↗ Tauri 2 Capabilities &amp; Security</a>
-  </section>
+export function loadAppConfig(path: string) {
+  return readConfigFile(path)  // 이미 Promise&lt;Result&lt;...&gt;&gt; 반환
+}</code></pre></div>
+<h3 class="sub">2.4 Feature detection gating</h3>
+<p><strong>공식 권장 API</strong> (Tauri 2): <code>@tauri-apps/api/core</code> 의 <code>isTauri()</code> 함수 또는 <code>window.isTauri()</code> 전역.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import { isTauri } from '@tauri-apps/api/core'
 
-  <!-- 안티패턴 비교 -->
-  <section id="antipatterns">
-    <div class="section-label">안티패턴 비교</div>
-    <h2>Bad vs Good — G3 핵심 실수 패턴</h2>
-    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">g3-performance.md §1.5 / §1.6 / §2.6 Gotchas 기반. WASM·Tauri 통합에서 반복 관찰된 오류를 코드 수준으로 비교한다.</p>
+if (isTauri()) {
+  // 데스크탑 경로
+} else {
+  // 브라우저 경로 (fallback)
+}</code></pre></div>
+<p><strong>사용 규칙</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>infrastructure 경계에서만 분기</strong>: <code>infrastructure/tauri/*.ts</code> 함수 첫 줄에 <code>if (!isTauri())</code> 체크. 그 위 레이어 (domain, presentation) 는 환경을 모른다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>fallback 전략 4가지</strong> (<code>--web-fallback</code> 플래그):</div></li>
+  <li class="lv1"><span class="li-mark">1.</span><div class="li-body"><strong>throw</strong> (기본): <code>Failure</code> 로 반환. 호출부가 UI 로 "데스크탑 앱에서만 지원" 표시</div></li>
+  <li class="lv1"><span class="li-mark">2.</span><div class="li-body"><strong>noop</strong>: 조용히 성공 (<code>ok(undefined)</code>). 데스크탑 기능이 없어도 앱이 동작하는 optional feature</div></li>
+  <li class="lv1"><span class="li-mark">3.</span><div class="li-body"><strong>stub</strong>: 미리 준비된 stub 값 반환. 개발 중 UI 만 확인하고 싶을 때</div></li>
+  <li class="lv1"><span class="li-mark">4.</span><div class="li-body"><strong>prompt-user</strong>: 사용자에게 "데스크탑 앱 설치하시겠어요?" 안내 (presentation 쪽에서 처리)</div></li>
+</ul>
+<p><strong>빌드 타임 분기는 보조</strong>: Vite 환경 변수 <code>import.meta.env.TAURI</code> 를 직접 분기 조건으로 쓰지 말 것. 런타임 <code>isTauri()</code> 가 단일 진실 공급원. 이유: 같은 dist 를 웹과 데스크탑 모두에 배포할 수 있음 (Tauri 는 내부 WebView 에서 dist 를 그대로 로드).</p>
+<h3 class="sub">2.5 Tauri API 실패 + 브라우저 미지원 처리</h3>
+<p><strong>실패 케이스 3가지</strong>:</p>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>Tauri 미탑재 (브라우저 환경)</strong>: <code>isTauri()</code> 가 false → <code>kind: '&lt;feature&gt;/not-in-tauri'</code> Failure 즉시 반환</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>invoke 실패 (command 에러)</strong>: Rust command 가 <code>Err(String)</code> 반환 → JS 측에서 throw → catch 후 <code>kind: '&lt;feature&gt;/read-failed'</code> 로 변환</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>invoke 성공했지만 타입 불일치</strong>: Rust 가 예상과 다른 shape 반환 → Zod parse 실패 → <code>kind: '&lt;feature&gt;/invalid-format'</code></div></li>
+</ul>
+<p><strong>모든 경로가 Result 로 수렴</strong>: 호출부는 하나의 <code>isErr()</code> 체크와 <code>switch (error.kind)</code> 로 분기.</p>
+<h3 class="sub">2.6 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>window.isTauri</code> vs <code>isTauri()</code> import</strong>: 둘 다 동작하지만 타입 안전한 import 방식 권장 (<code>@tauri-apps/api/core</code>). 전역 <code>window.isTauri</code> 는 <code>withGlobalTauri</code> 설정이 필요</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>capabilities 누락 에러</strong>: 새 command 를 Rust 에 추가하고 Builder 에 등록해도 <code>capabilities/*.json</code> 에 권한이 없으면 런타임에 "not allowed" 에러. 이 스킬은 capabilities 자동 수정 포함</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>권한 식별자 최소화</strong>: <code>fs:allow-read-text-file</code> 처럼 구체적 권한만 부여. <code>fs:default</code> 같은 광범위 권한은 감사에서 경고</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>invoke&lt;T&gt;</code> 제네릭의 unknown 처리</strong>: Tauri 2 의 <code>invoke</code> 반환 타입이 <code>T</code> 로 유추되지만, 실제 런타임 값은 검증 안 됨. <code>invoke&lt;unknown&gt;('...')</code> 후 Zod parse 로 강제. Strict TS 정책</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>데스크탑 전용 command 를 웹 빌드에서 참조</strong>: TypeScript 컴파일은 통과하지만 런타임 분기 안 하면 브라우저에서 crash. 반드시 <code>isTauri()</code> 가드</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>이벤트 리스너 cleanup</strong>: <code>listen('event', ...)</code> 사용 시 unmount 에서 unsubscribe 필수. React <code>useEffect</code> cleanup 에서 반환</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Rust command 의 <code>tauri::State</code> 공유</strong>: 복수 command 가 상태 공유하려면 <code>app.manage(...)</code> 로 등록 + <code>State&lt;'_, T&gt;</code> 인자. 이 스킬은 stateless command 가 기본, stateful 은 옵션</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>mobile 대응</strong>: Tauri 2 의 iOS/Android 는 별도 permission 스키마가 필요할 수 있음. react-kit 기본은 desktop 만 다루고 mobile 은 별도 확장 스킬 여지</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS</strong>: Rust command 시그니처와 TS invoke 제네릭을 수동으로 맞추는 대신, <code>tauri-bindgen</code> 같은 codegen 도구를 고려. react-kit 기본은 수동 + Zod 검증 (추가 의존성 최소화)</div></li>
+</ul>
+<h3 class="sub">2.7 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Rust command</strong>: <code>src-tauri/src/commands/&lt;module&gt;.rs</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>TS 래퍼</strong>: <code>src/infrastructure/tauri/&lt;module&gt;.ts</code> — invoke + isTauri 가드 + Zod parse + Result 반환</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>UseCase</strong>: <code>src/domain/usecases/&lt;feature&gt;-usecases.ts</code> — infrastructure/tauri 의 함수를 재노출 (얇은 래퍼)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>presentation 훅</strong>: <code>src/presentation/features/&lt;feature&gt;/hooks/use-&lt;action&gt;.ts</code> — UseCase 를 TanStack Query mutation 으로 감쌈</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>절대 금지</strong>: <code>domain/</code>, <code>data/</code>, <code>presentation/</code> 에서 <code>@tauri-apps/api/*</code> 직접 import. 모든 Tauri 호출은 <code>infrastructure/tauri/</code> 경유</div></li>
+</ul>
+  </div>
+</section>
 
-    <div class="bad-good-grid">
-      <div class="compare-bad">
-        <div class="compare-header">❌ 안티패턴 — render 안에서 WASM 직접 호출</div>
-        <pre><code>function ImageProcessor({ file }: Props) {
-  // 매 렌더마다 WASM 경계 비용 발생
-  const resized = wasmResize(file.buffer, 800, 600)
-  return &lt;img src={URL.createObjectURL(resized)} /&gt;
-}</code></pre>
-        <p class="compare-note">렌더마다 JS→WASM 경계를 넘는다. /react-audit §8 감사 항목에서 error로 감지된다.</p>
-      </div>
-      <div class="compare-good">
-        <div class="compare-header">✅ 권장 — useMemo / useMutation으로 분리</div>
-        <pre><code>function ImageProcessor({ file }: Props) {
-  const { mutate, data } = useMutation({
-    mutationFn: (buf: ArrayBuffer) =&gt;
-      wasmClient.resize(buf, 800, 600), // Comlink Worker
-  })
-  useEffect(() =&gt; { mutate(file.buffer) }, [file])
-  return data ? &lt;img src={URL.createObjectURL(data)} /&gt; : &lt;Spinner /&gt;
-}</code></pre>
-        <p class="compare-note">WASM 호출은 Comlink Worker + useMutation으로 메인 스레드 블로킹 없이 실행한다.</p>
-      </div>
-    </div>
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>3. 웹/데스크탑 통합 배포 전략</h2>
+  <div class="doc-body">
+<p>react-kit 의 핵심 약속: <strong>같은 React 소스가 양쪽 타겟 모두에서 동작한다</strong>.</p>
+<h3 class="sub">빌드 흐름</h3>
+<div class="code"><pre><code>src/  ────────┬── pnpm build  ────► dist/        ────► 웹 호스팅 (S3, CDN, Vercel 등)
+              │                                          (브라우저에서 실행, isTauri() = false)
+              │
+              └── pnpm tauri build ──► src-tauri/target/release/  ────► 데스크탑 바이너리
+                                                                        (Tauri WebView 에서 dist/ 로드, isTauri() = true)</code></pre></div>
+<p><strong>동일한 <code>dist/</code></strong> 가 두 경로에 사용된다. 브라우저에서는 직접 hosting, Tauri 는 로컬 파일시스템에서 로드.</p>
+<h3 class="sub">조건부 기능 활성화</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>isTauri()</code> 로 런타임 체크</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">presentation 컴포넌트는 "데스크탑 전용 기능" 을 conditionally render</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">fallback 전략 (throw / noop / stub / prompt-user) 이 명시적으로 선언되어야 UX 일관성 유지</div></li>
+</ul>
+<h3 class="sub">데스크탑 우위 활용</h3>
+<p>Tauri 빌드에서만 쓸 수 있는 것:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">WASM SIMD + threads (COOP/COEP 헤더 걱정 없음, 내부 WebView 설정 제어 가능)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">네이티브 파일 I/O, OS 다이얼로그, 트레이</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">더 긴 CPU 작업 허용 (브라우저 탭처럼 백그라운드 throttling 없음)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">원한다면 동일 Rust 코드를 WASM 이 아니라 <strong>네이티브로 직접 호출</strong> (Tauri command 경로) — 경계 비용 더 낮음</div></li>
+</ul>
+<h3 class="sub">공유 Rust 코어</h3>
+<p><code>crates/core/</code> 의 함수는:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>웹 + Tauri 양쪽</strong> 모두에서 WASM 으로 호출 가능 (<code>/react-wasm</code> 경로)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Tauri 에서만</strong> 네이티브로 직접 호출 가능 (<code>src-tauri/</code> 가 <code>crates/core</code> 를 dependency 로 import → Tauri command 로 노출)</div></li>
+</ul>
+<p>이 구조가 고성능 코드 중복을 완전히 제거. 이게 react-kit 이 Electron 이 아니라 Tauri 를 선택한 가장 큰 이유.</p>
+  </div>
+</section>
 
-    <div class="bad-good-grid">
-      <div class="compare-bad">
-        <div class="compare-header">❌ 안티패턴 — Tauri API 직접 import</div>
-        <pre><code>// presentation/ 또는 domain/ 에서 직접 사용
-import { readTextFile } from '@tauri-apps/plugin-fs'
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>4. 공유 helpers 및 Cross-group 관계</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G0 카탈로그</strong>: <code>/react-wasm</code> 자동 판정의 1차 소스</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G1 <code>/react-init</code></strong>: <code>crates/core/</code>, <code>src-tauri/</code>, <code>vite-plugin-wasm</code>, <code>vite-plugin-top-level-await</code>, <code>console_error_panic_hook</code> 전부 기본 세팅</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G2 <code>/react-api</code></strong> 와 공존: Tauri command 도 Clean Arch 데이터 레이어의 한 datasource 로 취급 (infrastructure/tauri → data/repositories 에서 consume 가능)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G4 <code>/react-test</code></strong>: WASM 함수는 Vitest + jsdom 환경에서 테스트 (node 타겟이 아닌 browser), Tauri command 는 Playwright e2e 로 실행 가능 (Tauri webdriver)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G6 <code>/react-audit</code></strong>: WASM render-in-loop 검출, SIMD feature detection 가드 누락 검출, Tauri command 의 capabilities 누락 검출, <code>isTauri()</code> 가드 누락 검출</div></li>
+</ul>
+  </div>
+</section>
 
-async function loadConfig(path: string) {
-  return readTextFile(path) // 웹 빌드에서 런타임 오류
-}</code></pre>
-        <p class="compare-note">웹 빌드(브라우저)에서 실행 시 런타임 오류. /react-audit AP-02 규칙이 error 레벨로 감지한다.</p>
-      </div>
-      <div class="compare-good">
-        <div class="compare-header">✅ 권장 — infrastructure/tauri/ 래퍼 + isTauri() 가드</div>
-        <pre><code>// src/infrastructure/tauri/fs.ts
-import { isTauri } from '@tauri-apps/api/core'
-import { readTextFile } from '@tauri-apps/plugin-fs'
-import { ok, err } from 'neverthrow'
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>5. 출처 요약</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body">wasm-bindgen Guide — Result 타입: <a class="ext" href="https://rustwasm.github.io/docs/wasm-bindgen/reference/types/result.html" target="_blank" rel="noopener">https://rustwasm.github.io/docs/wasm-bindgen/reference/types/result.html</a></div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body">wasm-bindgen JsError 문서: <a class="ext" href="https://docs.rs/wasm-bindgen/latest/wasm_bindgen/struct.JsError.html" target="_blank" rel="noopener">https://docs.rs/wasm-bindgen/latest/wasm_bindgen/struct.JsError.html</a></div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body">wasm-bindgen 전체 가이드: <a class="ext" href="https://rustwasm.github.io/docs/wasm-bindgen/" target="_blank" rel="noopener">https://rustwasm.github.io/docs/wasm-bindgen/</a></div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body">serde-wasm-bindgen: <a class="ext" href="https://docs.rs/serde-wasm-bindgen" target="_blank" rel="noopener">https://docs.rs/serde-wasm-bindgen</a></div></li>
+  <li class="lv0"><span class="li-mark">5.</span><div class="li-body">Comlink GitHub: <a class="ext" href="https://github.com/GoogleChromeLabs/comlink" target="_blank" rel="noopener">https://github.com/GoogleChromeLabs/comlink</a></div></li>
+  <li class="lv0"><span class="li-mark">6.</span><div class="li-body">vite-plugin-comlink: <a class="ext" href="https://github.com/mathe42/vite-plugin-comlink" target="_blank" rel="noopener">https://github.com/mathe42/vite-plugin-comlink</a></div></li>
+  <li class="lv0"><span class="li-mark">7.</span><div class="li-body">Tauri 2 — Calling Rust from Frontend: <a class="ext" href="https://v2.tauri.app/develop/calling-rust/" target="_blank" rel="noopener">https://v2.tauri.app/develop/calling-rust/</a></div></li>
+  <li class="lv0"><span class="li-mark">8.</span><div class="li-body">Tauri 2 — Capabilities: <a class="ext" href="https://v2.tauri.app/security/capabilities/" target="_blank" rel="noopener">https://v2.tauri.app/security/capabilities/</a></div></li>
+  <li class="lv0"><span class="li-mark">9.</span><div class="li-body">Tauri 2 — Permissions: <a class="ext" href="https://v2.tauri.app/security/permissions/" target="_blank" rel="noopener">https://v2.tauri.app/security/permissions/</a></div></li>
+  <li class="lv0"><span class="li-mark">10.</span><div class="li-body">Tauri 2 — core namespace (isTauri): <a class="ext" href="https://v2.tauri.app/reference/javascript/api/namespacecore/" target="_blank" rel="noopener">https://v2.tauri.app/reference/javascript/api/namespacecore/</a></div></li>
+  <li class="lv0"><span class="li-mark">11.</span><div class="li-body">Tauri 2 discussion — browser detection: <a class="ext" href="https://github.com/tauri-apps/tauri/discussions/6119" target="_blank" rel="noopener">https://github.com/tauri-apps/tauri/discussions/6119</a></div></li>
+  <li class="lv0"><span class="li-mark">12.</span><div class="li-body">Tauri 2 Stable Release: <a class="ext" href="https://v2.tauri.app/blog/tauri-20/" target="_blank" rel="noopener">https://v2.tauri.app/blog/tauri-20/</a></div></li>
+  <li class="lv0"><span class="li-mark">13.</span><div class="li-body">Menci/vite-plugin-wasm: <a class="ext" href="https://github.com/Menci/vite-plugin-wasm" target="_blank" rel="noopener">https://github.com/Menci/vite-plugin-wasm</a></div></li>
+  <li class="lv0"><span class="li-mark">14.</span><div class="li-body">docs/react/wasm-catalog.md (G0, 이 레포 내부 문서)</div></li>
+</ul>
+  </div>
+</section>
 
-export async function readConfig(path: string) {
-  if (!isTauri()) return err({ kind: 'NotSupported' })
-  const text = await readTextFile(path)
-  return ok(text)
-}</code></pre>
-        <p class="compare-note">isTauri() 런타임 가드로 웹/데스크탑 양쪽 dist를 단일 번들로 공유할 수 있다.</p>
-      </div>
-    </div>
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>현행화 기록</h2>
+  <div class="doc-body">
+<p>2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 <code>6378948</code> 에서 이 문서가 맡은 경로(머리 블록 <code>skills</code> 둘)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">커밋</div></th>
+  <th><div class="c">날짜</div></th>
+  <th><div class="c">이 문서에 준 영향</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>644e2df</code></div></td>
+  <td><div class="c">2026-06-05</div></td>
+  <td><div class="c">고친 절: 공통 설계 원칙 — 생성 전 전수 스캔 · 요청 범위만 (wasm · tauri)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>d59cc5e</code></div></td>
+  <td><div class="c">2026-04-12</div></td>
+  <td><div class="c">설계 영향 없음 — react-wasm(rustwasm 조직 보관 · SIMD) · react-tauri(Raw Payload · Stronghold · Updater · Deep Link) Gotcha 추가뿐이다. 경계 결정 규칙 · 생성 산출물은 그대로</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
 
-    <div class="bad-good-grid">
-      <div class="compare-bad">
-        <div class="compare-header">❌ 안티패턴 — Rust에서 panic! 전파</div>
-        <pre><code>#[wasm_bindgen]
-pub fn parse_csv(data: &amp;[u8]) -&gt; Vec&lt;Row&gt; {
-    let text = std::str::from_utf8(data).unwrap(); // panic!
-    csv::Reader::from_reader(text.as_bytes())
-        .records()
-        .map(|r| r.unwrap()) // panic!
-        .collect()
-}</code></pre>
-        <p class="compare-note">WASM panic은 JS 쪽에서 unhandled exception으로 나타나 에러 경로 추적이 불가능하다.</p>
-      </div>
-      <div class="compare-good">
-        <div class="compare-header">✅ 권장 — Result&lt;T, JsError&gt; 반환</div>
-        <pre><code">use wasm_bindgen::JsError;
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
+  <h2>6. 변경 이력</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-04-10</strong> — 초판. G3 2개 스킬 (<code>/react-wasm</code>, <code>/react-tauri</code>) 상세 설계. WebSearch fallback 으로 wasm-bindgen Result, Comlink + Vite 통합, Tauri 2 invoke/capabilities/isTauri 공식 문서 검증. G0 wasm-catalog.md 의 판정 로직 참조 흐름 통합.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-09-26</strong> — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.</div></li>
+</ul>
+  </div>
+</section>
 
-#[wasm_bindgen]
-pub fn parse_csv(data: &amp;[u8]) -&gt; Result&lt;JsValue, JsError&gt; {
-    let text = std::str::from_utf8(data)
-        .map_err(|e| JsError::new(&amp;e.to_string()))?;
-    let rows: Vec&lt;Row&gt; = csv::Reader::from_reader(text.as_bytes())
-        .records()
-        .collect::&lt;Result&lt;_, _&gt;&gt;()
-        .map_err(|e| JsError::new(&amp;e.to_string()))?;
-    Ok(serde_wasm_bindgen::to_value(&amp;rows)?)
-}</code></pre>
-        <p class="compare-note">Result 반환으로 JS 쪽이 정상 try/catch 또는 neverthrow Result로 처리 가능해진다.</p>
-      </div>
-    </div>
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 13 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://rustwasm.github.io/docs/wasm-bindgen/reference/types/result.html" target="_blank" rel="noopener">&#8599; https://rustwasm.github.io/docs/wasm-bindgen/reference/types/result.html</a></li>
+    <li><a class="card-source" href="https://docs.rs/wasm-bindgen/latest/wasm_bindgen/struct.JsError.html" target="_blank" rel="noopener">&#8599; https://docs.rs/wasm-bindgen/latest/wasm_bindgen/struct.JsError.html</a></li>
+    <li><a class="card-source" href="https://rustwasm.github.io/docs/wasm-bindgen/" target="_blank" rel="noopener">&#8599; https://rustwasm.github.io/docs/wasm-bindgen/</a></li>
+    <li><a class="card-source" href="https://docs.rs/serde-wasm-bindgen" target="_blank" rel="noopener">&#8599; https://docs.rs/serde-wasm-bindgen</a></li>
+    <li><a class="card-source" href="https://github.com/GoogleChromeLabs/comlink" target="_blank" rel="noopener">&#8599; https://github.com/GoogleChromeLabs/comlink</a></li>
+    <li><a class="card-source" href="https://github.com/mathe42/vite-plugin-comlink" target="_blank" rel="noopener">&#8599; https://github.com/mathe42/vite-plugin-comlink</a></li>
+    <li><a class="card-source" href="https://v2.tauri.app/develop/calling-rust/" target="_blank" rel="noopener">&#8599; https://v2.tauri.app/develop/calling-rust/</a></li>
+    <li><a class="card-source" href="https://v2.tauri.app/security/capabilities/" target="_blank" rel="noopener">&#8599; https://v2.tauri.app/security/capabilities/</a></li>
+    <li><a class="card-source" href="https://v2.tauri.app/security/permissions/" target="_blank" rel="noopener">&#8599; https://v2.tauri.app/security/permissions/</a></li>
+    <li><a class="card-source" href="https://v2.tauri.app/reference/javascript/api/namespacecore/" target="_blank" rel="noopener">&#8599; https://v2.tauri.app/reference/javascript/api/namespacecore/</a></li>
+    <li><a class="card-source" href="https://github.com/tauri-apps/tauri/discussions/6119" target="_blank" rel="noopener">&#8599; https://github.com/tauri-apps/tauri/discussions/6119</a></li>
+    <li><a class="card-source" href="https://v2.tauri.app/blog/tauri-20/" target="_blank" rel="noopener">&#8599; https://v2.tauri.app/blog/tauri-20/</a></li>
+    <li><a class="card-source" href="https://github.com/Menci/vite-plugin-wasm" target="_blank" rel="noopener">&#8599; https://github.com/Menci/vite-plugin-wasm</a></li>
+  </ol>
+</section>
 
-    <a href="https://rustwasm.github.io/docs/wasm-bindgen/reference/types/result.html" class="card-source" target="_blank" rel="noopener">↗ wasm-bindgen Result 타입</a>
-    <a href="https://v2.tauri.app/develop/calling-rust/" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ Tauri 2 invoke 가이드</a>
-  </section>
+<footer class="foot">
+  <p>원본 <code>docs/react/kit-design/g3-performance.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
 
-  <!-- Gotchas -->
-  <section id="gotchas">
-    <div class="section-label">Gotchas</div>
-    <h2>자주 하는 실수</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>실수</th><th>결과</th><th>올바른 방법</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>init()</code>를 매 함수 호출마다 호출</td>
-            <td>매번 WASM 모듈 재로드</td>
-            <td><code>ensureInit()</code> 싱글톤 패턴 — 처음 한 번만 초기화</td>
-          </tr>
-          <tr>
-            <td>Worker 인스턴스를 매 호출마다 생성</td>
-            <td>Spawn 비용 누적 + 메모리 누수</td>
-            <td><code>getClient()</code> 싱글톤 + HMR 시 cleanup</td>
-          </tr>
-          <tr>
-            <td>WASM 함수 인자/반환값이 String</td>
-            <td>UTF-16↔UTF-8 복사 비용 지속 (600~2500 ns/call)</td>
-            <td><code>Uint8Array</code>로 바꾸는 게 거의 항상 빠름</td>
-          </tr>
-          <tr>
-            <td><code>render()</code> 안에서 WASM 호출</td>
-            <td>매 렌더마다 경계 비용 누적</td>
-            <td><code>useMemo</code> 또는 <code>useMutation</code>으로 분리</td>
-          </tr>
-          <tr>
-            <td><code>domain/</code> 또는 <code>presentation/</code>에 WASM 직접 import</td>
-            <td>Clean Arch 위반. 감사에서 <code>error</code> 레벨 감지</td>
-            <td><code>data/datasources/wasm/</code> 어댑터 경유 필수</td>
-          </tr>
-          <tr>
-            <td><code>isTauri()</code> 없이 Tauri API import</td>
-            <td>웹 빌드 런타임 오류</td>
-            <td><code>infrastructure/tauri/</code> 래퍼 + <code>isTauri()</code> 가드</td>
-          </tr>
-          <tr>
-            <td><code>--target bundler</code> vs <code>--target web</code> 혼동</td>
-            <td>Tauri와 웹 양쪽 지원 시 충돌 가능</td>
-            <td>G1 기본은 <code>--target web</code> + <code>vite-plugin-wasm</code> 조합</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-</main>
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

@@ -1,235 +1,480 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>UI Patterns — React Kit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G5 · UI 패턴 — React Kit</title>
 <link rel="stylesheet" href="../assets/site.css">
 <style>
-:root{
-  --bg:#0d0d14;--bg2:#12121c;
-  --surface:#181825;--surface2:#1e1e30;
-  --border:#2a2a40;
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
-  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
-  --accent:#38BDF8;--accent2:#7DD3FC;
-  --accent-dim:rgba(56,189,248,0.12);
-  --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
-  --mono:'SF Mono','Cascadia Code','Consolas',monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  background-color:var(--bg);color:var(--text);
-  background-image:
-    radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
-  min-height:100vh;
-}
-header{border-bottom:1px solid var(--border);background:rgba(18,18,28,0.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
-.header-inner{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px;height:60px}
-.logo-link{color:var(--text2);text-decoration:none;font-size:0.85rem;transition:color var(--transition)}
-.logo-link:hover{color:var(--accent)}
-.sep{color:var(--text3)}
-.page-title{font-size:0.95rem;font-weight:600;color:var(--text)}
-main{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
-h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
-.subtitle{color:var(--text2);font-size:1.05rem;max-width:640px;line-height:1.7}
-.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(56,189,248,0.25);border-radius:20px;padding:4px 12px;font-size:0.8rem;font-weight:600;margin-top:16px}
-section{margin-bottom:56px}
-.section-label{font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
-h2{font-size:1.35rem;font-weight:700;margin-bottom:20px;color:var(--text)}
-h3{font-size:1.05rem;font-weight:600;margin-bottom:14px;color:var(--text)}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:16px;margin-bottom:24px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;transition:border-color var(--transition),box-shadow var(--transition)}
-.card:hover{border-color:rgba(56,189,248,0.25);box-shadow:0 4px 20px rgba(56,189,248,0.06)}
-.card-icon{font-size:1.4rem;margin-bottom:10px}
-.card h3{font-size:0.95rem;margin-bottom:8px}
-.card p{color:var(--text2);font-size:0.88rem;line-height:1.6}
-.card-source{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-size:0.78rem;text-decoration:none;margin-top:12px;opacity:0.8;transition:opacity var(--transition)}
-.card-source:hover{opacity:1}
-pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:0.82rem;line-height:1.7;color:var(--text);margin:16px 0}
-code{font-family:var(--mono);font-size:0.85em;color:var(--accent2)}
-.table-wrap{overflow-x:auto;margin:16px 0}
-table{width:100%;border-collapse:collapse;font-size:0.88rem}
-th{background:var(--surface2);color:var(--text2);padding:10px 14px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:10px 14px;border-bottom:1px solid rgba(42,42,64,0.5);color:var(--text2);vertical-align:top}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(56,189,248,0.025)}
-.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:18px 20px;margin:16px 0;font-size:0.9rem;color:var(--text2);line-height:1.7}
-.callout.warn{border-left-color:var(--yellow)}
-.step-list{display:flex;flex-direction:column;gap:12px;margin:16px 0}
-.step{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
-.step-num{min-width:28px;height:28px;border-radius:50%;background:var(--accent-dim);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0}
-.step-body{flex:1}
-.step-title{font-weight:600;font-size:0.92rem;margin-bottom:4px}
-.step-desc{color:var(--text2);font-size:0.85rem}
-.before-after{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
-@media(max-width:640px){.before-after{grid-template-columns:1fr}}
-.ba-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
-.ba-before .ba-label{color:var(--red)}
-.ba-after .ba-label{color:var(--green)}
-.state-table{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
-@media(max-width:640px){.state-table{grid-template-columns:1fr 1fr}}
-.state-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
-.state-title{font-size:0.82rem;font-weight:600;margin-bottom:6px}
-.state-desc{font-size:0.78rem;color:var(--text3)}
-.bad-good-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
-@media(max-width:640px){.bad-good-grid{grid-template-columns:1fr}}
-.compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:20px}
-.compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:20px}
-.compare-header{font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px}
-.compare-bad .compare-header{color:var(--red)}
-.compare-good .compare-header{color:var(--green)}
-.compare-note{font-size:0.82rem;color:var(--text2);margin-top:10px;line-height:1.6}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+    --accent-line:rgba(56,189,248,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#0369A1;--accent2:#075985;--accent-dim:rgba(3,105,161,0.10);
+    --accent-line:rgba(3,105,161,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 
-/* ── 가로 오버플로 방지 (정본 규칙 · 제거·완화 금지) ────────────────────
-   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
-/* (1) grid 자식의 기본 min-width 는 auto(= min-content) 라 긴 코드·표의 최소폭이 트랙으로 전파된다 */
-.cards>*,.before-after>*,.state-table>*,.bad-good-grid>*{min-width:0}
-/* (2) 표는 컬럼 폭 합계가 전파된다. 자르지 말고 가로 스크롤 컨테이너로 감싼다 */
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-.table-wrap>table{min-width:max-content}
-/* (3) white-space:pre 인 코드 블록은 컨테이너에서 스크롤시킨다 */
-pre{overflow-x:auto;max-width:100%}
-pre code{white-space:pre}
-:not(pre)>code{overflow-wrap:anywhere}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
 </style>
 </head>
 <body>
-<header>
-  <div class="header-inner">
-    <a href="../index.html" class="logo-link">Claude Plugins</a>
-    <span class="sep">/</span>
-    <a href="../index.html" class="logo-link">React Kit</a>
-    <span class="sep">/</span>
-    <span class="page-title">UI Patterns</span>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; React Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">React Kit · 설계 문서</span>
+  <h1>G5 · UI 패턴</h1>
+  <p class="orig-title">원본 제목: <strong>G5 — UI Patterns Skills</strong></p>
+  <p class="subtitle">react-kit <strong>G5 그룹 스킬 셋</strong>(<code>/react-responsive</code> · <code>/react-skeleton</code> · <code>/react-extract</code>)의 설계 문서다. 이미 있는 컴포넌트 위에 반응형 · 로딩 상태 · 재사용 추출을 얹는다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>docs/react/kit-design/g5-ui-patterns.md</code></span>
+    <span class="badge">그룹 G5</span>
+    <span class="badge">스킬 셋</span>
+    <span class="badge">갱신 2026-09-26</span>
   </div>
 </header>
-<main>
-  <div style="margin-bottom:56px">
-    <h1>G5 · UI Patterns</h1>
-    <p class="subtitle">
-      <code>/react-responsive</code>, <code>/react-skeleton</code>, <code>/react-extract</code> —
-      기존 컴포넌트 위에 UI 품질 레이어를 얹는 세 스킬. 새로 만들지 않고 래핑하거나 변환한다.
-    </p>
-    <div class="badge">G5 — UI Quality Layer</div>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>/react-responsive</h3>
+      <p>Tailwind v4 breakpoint 와 Container Queries 가운데 무엇을 쓸지 페이지 크기인지 컨테이너 크기인지로 가른다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>/react-skeleton</h3>
+      <p>shadcn Skeleton 과 TanStack Query <code>isPending</code> 을 묶는다. 스피너 대신 실제 레이아웃과 같은 뼈대를 그린다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>/react-extract</h3>
+      <p>TypeScript AST 로 재사용 컴포넌트를 추출한다. <code>widget-inspector-react</code> 에이전트 보고를 받아 움직인다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>애니메이션은 따로</h3>
+      <p><code>/react-animation</code> 은 G5b 문서가 따로 설계한다.</p>
+    </div>
   </div>
+</section>
 
-  <!-- 공통 원칙 -->
-  <section>
-    <div class="section-label">공통 설계 원칙</div>
-    <div class="cards">
-      <div class="card">
-        <div class="card-icon">🔒</div>
-        <h3>기존 구조 비파괴</h3>
-        <p>3개 스킬 모두 기존 컴포넌트를 래핑하거나 변환하지, 처음부터 다시 만들지 않는다. 잘 동작하는 코드를 건드려서 회귀를 내지 않도록.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">📐</div>
-        <h3>Strict TS 유지</h3>
-        <p>추출된 공용 컴포넌트도 G1의 strict 규칙 (<code>any</code> 금지, <code>forwardRef</code>, Props 타입 명시)을 그대로 준수.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🎨</div>
-        <h3>디자인 시스템 호환</h3>
-        <p>design-kit 토큰을 그대로 쓰는 Tailwind 클래스만 사용. 하드코딩된 픽셀값 금지.</p>
-      </div>
-    </div>
-  </section>
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>문서 목적</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>공통 설계 원칙</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>1. /react-responsive — 반응형 레이아웃 적용</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>2. /react-skeleton — 로딩 상태 shimmer 구현</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>3. /react-extract — 재사용 컴포넌트 추출</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>4. 3개 스킬의 상호작용</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>5. 공유 helpers 및 Cross-group 관계</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>6. 출처 요약</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>현행화 기록</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>7. 변경 이력</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
 
-  <!-- /react-responsive -->
-  <section id="react-responsive">
-    <div class="section-label">스킬 01</div>
-    <h2>/react-responsive — 반응형 레이아웃 적용</h2>
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="code"><span class="code-lang">yaml</span><pre><code>last_updated: 2026-09-26
+group: G5
+scope: react-kit UI 패턴 스킬 3종
+skills: [/react-responsive, /react-skeleton, /react-extract]
+depends_on: [G1 /react-widget, G2 /react-query]
+agents: [widget-inspector-react]
+sibling_skill: "/react-animation 은 별도 전용 문서 docs/react/kit-design/g5b-animation.md 에서 설계"
+research_sources:
+  - Tailwind v4 공식 문서 (tailwindcss.com) — container queries 내장
+  - shadcn/ui Skeleton 컴포넌트 문서
+  - TanStack Query v5 isPending 상태
+  - 2026-04 WebSearch 검증</code></pre></div>
+</section>
 
-    <h3>페이지 쿼리 vs 컨테이너 쿼리 결정 규칙</h3>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>시나리오</th><th>선택</th><th>이유</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>앱 최상위 레이아웃 (사이드바 펼침/접힘, 상단 네비)</td><td><strong>페이지 (sm/md/lg)</strong></td><td>뷰포트 전체가 레퍼런스. 전체 앱 구조 결정</td></tr>
-          <tr><td>그리드 아이템 재배치 (카드 목록 1→2→3 컬럼)</td><td><strong>페이지 (sm/md/lg)</strong></td><td>유저가 "화면 크기"로 기대하는 경험</td></tr>
-          <tr><td>사이드바 안의 카드 (같은 카드가 전체 화면에도, 모달 안에도)</td><td><strong>컨테이너 (@container)</strong></td><td>부모 영역 크기에 따라 적응해야 재사용 가능</td></tr>
-          <tr><td>재사용 컴포넌트 내부 레이아웃 (Card 안의 header/meta)</td><td><strong>컨테이너 (@container)</strong></td><td>컴포넌트가 어디에 들어가도 올바르게 보임</td></tr>
-          <tr><td>모달/드로어 내부</td><td><strong>컨테이너 (@container)</strong></td><td>모달 너비 기준, 페이지 너비가 아니라</td></tr>
-        </tbody>
-      </table>
-    </div>
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>문서 목적</h2>
+  <div class="doc-body">
+<p>react-kit <strong>G5 그룹</strong> 은 기존 컴포넌트 위에 <strong>UI 품질 레이어</strong>를 얹는 세 스킬이다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>/react-responsive</code></strong> — 반응형 레이아웃 적용. Tailwind v4 의 페이지 breakpoint 와 container queries 를 상황에 맞게 혼용.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>/react-skeleton</code></strong> — 로딩 상태를 CircularProgressIndicator 대신 실 레이아웃 모양의 shimmer skeleton 으로 표시.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>/react-extract</code></strong> — feature 내부에 중복·사유화된 위젯을 감지하여 <code>presentation/shared/components/</code> 로 추출하고 import 경로 자동 정리.</div></li>
+</ul>
+<p><strong>의존</strong>: G1 <code>/react-widget</code> 이 만든 cva + ref-as-prop 구조를 전제. G2 <code>/react-query</code> 의 <code>isPending</code> / <code>isError</code> 상태를 skeleton 분기에 사용.</p>
+  </div>
+</section>
 
-    <h3>Tailwind v4 breakpoint 체계</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>키</th><th>min-width</th><th>용도</th></tr></thead>
-        <tbody>
-          <tr><td><code>sm:</code></td><td>640px</td><td>큰 모바일 / 세로 태블릿</td></tr>
-          <tr><td><code>md:</code></td><td>768px</td><td>세로 태블릿</td></tr>
-          <tr><td><code>lg:</code></td><td>1024px</td><td>가로 태블릿 / 작은 노트북</td></tr>
-          <tr><td><code>xl:</code></td><td>1280px</td><td>노트북</td></tr>
-          <tr><td><code>2xl:</code></td><td>1536px</td><td>큰 데스크탑</td></tr>
-        </tbody>
-      </table>
-    </div>
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>공통 설계 원칙</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>기존 구조 비파괴</strong>: 3개 스킬 모두 기존 컴포넌트를 <strong>래핑하거나 변환</strong>하지, 처음부터 다시 만들지 않는다. 이미 잘 동작하는 코드를 건드려서 회귀를 내지 않도록.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS 유지</strong>: 추출된 공용 컴포넌트도 G1 의 strict 규칙 (<code>any</code> 금지, ref-as-prop, Props 타입 명시) 을 그대로 준수.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>디자인 시스템 호환</strong>: <code>design-kit</code> 의 토큰 (컬러, 스페이싱, 라디우스) 을 그대로 쓰는 Tailwind 클래스만 사용. 하드코딩된 픽셀값 금지.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>렌더 증거</strong>: <code>/react-responsive</code> · <code>/react-skeleton</code> 은 <code>react-kit/references/render-evidence-protocol.md</code> 를 편집 전(기준 캡처)과 완료 직전 두 번 실행한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>project-detection 공유</strong>: Tailwind 메이저 버전 감지 — v4 면 <code>@container</code> 내장 사용, v3 이면 <code>@tailwindcss/container-queries</code> 플러그인 필요.</div></li>
+</ul>
+  </div>
+</section>
 
-    <h3>Container Queries — <code>@container</code> (Tailwind v4 내장)</h3>
-    <pre>&lt;div className="@container"&gt;
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>1. /react-responsive — 반응형 레이아웃 적용</h2>
+  <div class="doc-body">
+<p>기존 화면/컴포넌트를 반응형으로 전환하거나 새로 반응형 레이아웃을 적용한다.</p>
+<h3 class="sub">1.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "반응형", "responsive", "태블릿 대응", "2컬럼", "breakpoint", "container queries"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">조건: Tailwind v4 설치된 프로젝트</div></li>
+</ul>
+<h3 class="sub">1.2 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>target_path</code> (필수): 적용할 컴포넌트/화면 경로</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>breakpoints</code> (선택): 활성화할 breakpoint 목록 (기본 <code>['sm', 'md', 'lg', 'xl']</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--container-query</code>: 컨테이너 쿼리 우선 사용 (컴포넌트 단위)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--page-query</code>: 페이지 breakpoint 우선 사용 (화면 단위, 기본)</div></li>
+</ul>
+<h3 class="sub">1.3 Tailwind v4 breakpoint 체계</h3>
+<p>Tailwind v4 의 기본 페이지 breakpoint:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">키</div></th>
+  <th><div class="c">min-width</div></th>
+  <th><div class="c">용도</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>sm:</code></div></td>
+  <td><div class="c">640px</div></td>
+  <td><div class="c">큰 모바일 / 세로 태블릿</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>md:</code></div></td>
+  <td><div class="c">768px</div></td>
+  <td><div class="c">세로 태블릿</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>lg:</code></div></td>
+  <td><div class="c">1024px</div></td>
+  <td><div class="c">가로 태블릿 / 작은 노트북</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>xl:</code></div></td>
+  <td><div class="c">1280px</div></td>
+  <td><div class="c">노트북</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>2xl:</code></div></td>
+  <td><div class="c">1536px</div></td>
+  <td><div class="c">큰 데스크탑</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>적용 예시</strong> — 그리드 반응형:</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>&lt;div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"&gt;
+  {items.map((item) =&gt; &lt;Card key={item.id} {...item} /&gt;)}
+&lt;/div&gt;</code></pre></div>
+<h3 class="sub">1.4 Container Queries (<code>@container</code>)</h3>
+<p>Tailwind v4 는 <code>@container</code> 유틸리티가 <strong>내장</strong> — 별도 플러그인 불필요. 컴포넌트를 컨테이너로 선언하면 그 안의 자식들이 컨테이너 크기에 반응한다.</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>&lt;div className="@container"&gt;
   &lt;div className="grid grid-cols-1 @md:grid-cols-2 @xl:grid-cols-3"&gt;
-    {/* 부모 @container 의 너비가 @md (28rem) 이상이면 2컬럼 */}
+    &lt;!-- 부모 @container 의 너비가 @md (28rem) 이상이면 2컬럼 --&gt;
   &lt;/div&gt;
-&lt;/div&gt;
-
-{/* 네임드 컨테이너 — 중첩 시 타겟 지정 */}
-&lt;div className="@container/sidebar"&gt;
-  &lt;div className="@md/sidebar:text-lg"&gt;
-    {/* sidebar 컨테이너가 @md 이상일 때만 */}
-  &lt;/div&gt;
-&lt;/div&gt;</pre>
-
-    <h3>변환 예시</h3>
-    <div class="before-after">
-      <div class="ba-before">
-        <div class="ba-label">Before — 고정 레이아웃</div>
-        <pre>export function ProductGrid({ products }) {
+&lt;/div&gt;</code></pre></div>
+<p><strong>기본 컨테이너 크기</strong>:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">키</div></th>
+  <th><div class="c">min-width</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>@xs</code></div></td>
+  <td><div class="c">20rem (320px)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>@sm</code></div></td>
+  <td><div class="c">24rem (384px)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>@md</code></div></td>
+  <td><div class="c">28rem (448px)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>@lg</code></div></td>
+  <td><div class="c">32rem (512px)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>@xl</code></div></td>
+  <td><div class="c">36rem (576px)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>@2xl</code></div></td>
+  <td><div class="c">42rem (672px)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>@3xl</code> ~ <code>@7xl</code></div></td>
+  <td><div class="c">더 큼</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>네임드 컨테이너</strong> — 여러 컨테이너가 중첩될 때 이름으로 타겟:</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>&lt;div className="@container/sidebar"&gt;
+  &lt;aside&gt;
+    &lt;div className="@md/sidebar:text-lg"&gt;
+      &lt;!-- sidebar 컨테이너가 @md 이상일 때만 --&gt;
+    &lt;/div&gt;
+  &lt;/aside&gt;
+&lt;/div&gt;</code></pre></div>
+<h3 class="sub">1.5 "페이지 크기 기반" vs "컨테이너 크기 기반" 결정 규칙</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">시나리오</div></th>
+  <th><div class="c">선택</div></th>
+  <th><div class="c">이유</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><strong>앱 최상위 레이아웃</strong> (사이드바 펼침/접힘, 상단 네비 분기)</div></td>
+  <td><div class="c"><strong>페이지 (sm/md/lg)</strong></div></td>
+  <td><div class="c">뷰포트 전체가 레퍼런스. 전체 앱 구조 결정</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>그리드 아이템 재배치</strong> (카드 목록 1→2→3 컬럼)</div></td>
+  <td><div class="c"><strong>페이지 (sm/md/lg)</strong></div></td>
+  <td><div class="c">유저가 "화면 크기" 로 기대하는 경험</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>사이드바 안의 카드</strong> (같은 카드가 전체 화면에도, 모달 안에도)</div></td>
+  <td><div class="c"><strong>컨테이너 (<code>@container</code>)</strong></div></td>
+  <td><div class="c">부모 영역 크기에 따라 적응해야 재사용 가능</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>재사용 컴포넌트 내부 레이아웃</strong> (Card 안의 header/meta 배치)</div></td>
+  <td><div class="c"><strong>컨테이너 (<code>@container</code>)</strong></div></td>
+  <td><div class="c">컴포넌트가 어디에 들어가도 올바르게 보임</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>모달/드로어 내부</strong></div></td>
+  <td><div class="c"><strong>컨테이너 (<code>@container</code>)</strong></div></td>
+  <td><div class="c">모달 너비 기준, 페이지 너비가 아니라</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>인쇄/PDF 출력</strong></div></td>
+  <td><div class="c">페이지</div></td>
+  <td><div class="c">고정 폭 매체</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>원칙</strong>: 컴포넌트의 <strong>재사용 범위가 어디까지인가</strong> 가 판단 기준. 화면 전체에서만 쓰이면 페이지, 여러 컨텍스트에서 쓰이면 컨테이너.</p>
+<p><code>/react-responsive</code> 는 대상 파일 경로를 보고 자동 판단:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>routes/*.tsx</code> 또는 <code>features/&lt;feature&gt;/screens/*.tsx</code> → 페이지 쿼리</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>shared/components/**/*.tsx</code> 또는 <code>features/&lt;feature&gt;/components/**/*.tsx</code> → 컨테이너 쿼리 우선 (fallback 페이지)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">명시적 플래그 (<code>--container-query</code> / <code>--page-query</code>) 로 override</div></li>
+</ul>
+<h3 class="sub">1.6 Fallback 규칙</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>breakpoint 미대응 상태</strong>: 가장 작은 너비에서 가장 안전한 레이아웃이 <strong>기본값</strong> — 즉 <code>grid-cols-1</code> 을 먼저 선언하고 <code>sm:grid-cols-2</code> 로 확장. 모바일 퍼스트 원칙</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>@container</code> 미지원 구형 브라우저</strong>: Tailwind v4 container queries 는 Chrome 105+, Safari 16+, Firefox 110+ 에서 동작. 구형 타겟이 필요하면 <code>--page-query</code> fallback</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>이미지/미디어 aspect-ratio</strong>: <code>aspect-video</code>, <code>aspect-square</code> 같은 Tailwind 유틸로 breakpoint 독립적으로 비율 유지</div></li>
+</ul>
+<h3 class="sub">1.7 변환 예시 — 기존 컴포넌트에 적용</h3>
+<p><strong>Before</strong> (고정 레이아웃):</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>export function ProductGrid({ products }: { products: Product[] }) {
   return (
     &lt;div className="grid grid-cols-3 gap-4"&gt;
-      {products.map((p) =&gt; (
-        &lt;ProductCard key={p.id} {...p} /&gt;
-      ))}
+      {products.map((p) =&gt; &lt;ProductCard key={p.id} {...p} /&gt;)}
     &lt;/div&gt;
   )
-}</pre>
-      </div>
-      <div class="ba-after">
-        <div class="ba-label">After — 페이지 쿼리 반응형</div>
-        <pre>export function ProductGrid({ products }) {
+}</code></pre></div>
+<p><strong>After</strong> (<code>/react-responsive</code> 실행 후):</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>export function ProductGrid({ products }: { products: Product[] }) {
   return (
     &lt;div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"&gt;
-      {products.map((p) =&gt; (
-        &lt;ProductCard key={p.id} {...p} /&gt;
-      ))}
+      {products.map((p) =&gt; &lt;ProductCard key={p.id} {...p} /&gt;)}
     &lt;/div&gt;
   )
-}</pre>
-      </div>
-    </div>
-    <div class="callout warn">
-      <strong>컨테이너 쿼리가 페이지 쿼리를 대체하지 않는다.</strong> 둘은 서로 다른 문제를 푼다. Tailwind v3 프로젝트는 <code>@tailwindcss/container-queries</code> 플러그인 설치 필요.
-    </div>
-    <a href="https://tailwindcss.com/docs/guides/vite" class="card-source" target="_blank" rel="noopener">↗ Tailwind v4 공식 문서</a>
-  </section>
+}</code></pre></div>
+<p>재사용 컴포넌트 (예: 사이드바 안에도 쓰이는 카드 목록) 라면 <code>@container</code> 로 변환:</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>export function ProductList({ products }: { products: Product[] }) {
+  return (
+    &lt;div className="@container"&gt;
+      &lt;div className="grid grid-cols-1 gap-3 @md:grid-cols-2 @xl:grid-cols-3"&gt;
+        {products.map((p) =&gt; &lt;ProductCard key={p.id} {...p} /&gt;)}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+<h3 class="sub">1.8 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>컨테이너 쿼리가 페이지 쿼리를 대체하지 않음</strong>: 둘은 서로 다른 문제를 푼다. 앱 최상위 구조 결정에는 페이지 쿼리가 맞다. 모든 것을 <code>@container</code> 로 감쌀 필요 없음</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>@container</code> 컨텍스트 손실</strong>: <code>display: contents</code> 같은 스타일이 중간에 끼면 컨테이너 선언이 자식에게 전달 안 될 수 있음</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Tailwind v3 에서 container queries</strong>: v3 프로젝트는 <code>@tailwindcss/container-queries</code> 플러그인 설치 + <code>tailwind.config.ts</code> 에 등록 필요. <code>/react-responsive</code> 가 감지해서 안내</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>텍스트 크기 반응형 과용</strong>: <code>text-sm md:text-base lg:text-lg</code> 같은 다단 변경은 타이포 리듬 깨짐. 디자인 시스템의 정해진 scale 만 사용</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS 영향 없음</strong>: Tailwind 클래스는 문자열이라 TS 영향 밖. 하지만 <code>cn()</code> 유틸 경유로 조건부 클래스 합성 권장</div></li>
+</ul>
+<h3 class="sub">1.9 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">변경 대상: <code>src/presentation/features/**/*.tsx</code>, <code>src/presentation/shared/components/**/*.tsx</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">새 파일 생성 없음 — 기존 파일의 className 을 수정하는 스킬</div></li>
+</ul>
+  </div>
+</section>
 
-  <!-- /react-skeleton -->
-  <section id="react-skeleton">
-    <div class="section-label">스킬 02</div>
-    <h2>/react-skeleton — 로딩 상태 shimmer 구현</h2>
-    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
-      TanStack Query <code>isPending</code> 중에 실 레이아웃 모양의 shadcn Skeleton 조각을 표시. 스피너 대신 "곧 이런 콘텐츠가 나올 거예요"라는 구조 예고.
-    </p>
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>2. /react-skeleton — 로딩 상태 shimmer 구현</h2>
+  <div class="doc-body">
+<p>TanStack Query <code>isPending</code> 중에 실 레이아웃 모양의 shadcn Skeleton 조각을 표시한다. 스피너 대신 "곧 이런 콘텐츠가 나올 거예요" 라는 <strong>구조 예고</strong>를 한다.</p>
+<h3 class="sub">2.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "로딩 화면", "스켈레톤", "shimmer", "loading UI", "스피너 교체"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">조건: shadcn Skeleton 컴포넌트 설치됨 (<code>pnpm dlx shadcn@latest add skeleton</code>). 없으면 먼저 설치 안내</div></li>
+</ul>
+<h3 class="sub">2.2 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>target_path</code> (필수): 로딩 상태를 추가할 컴포넌트 경로</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>query_hook</code> (선택): 매칭되는 TanStack Query 훅 이름 (예: <code>useUser</code>). 없으면 자동 탐지</div></li>
+</ul>
+<h3 class="sub">2.3 shadcn Skeleton 컴포넌트 기본</h3>
+<p>shadcn Skeleton 은 <code>animate-pulse</code> 기반의 단순 <code>&lt;div&gt;</code> 래퍼:</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>// src/presentation/shared/components/ui/skeleton.tsx (shadcn 원본)
+import { cn } from '@/presentation/shared/lib/utils'
 
-    <h3>isPending 연동 패턴</h3>
-    <pre>// src/presentation/features/user/components/user-profile-card.tsx
+type SkeletonProps = React.HTMLAttributes&lt;HTMLDivElement&gt;
+
+export function Skeleton({ className, ...props }: SkeletonProps) {
+  return (
+    &lt;div
+      className={cn('animate-pulse rounded-md bg-muted', className)}
+      {...props}
+    /&gt;
+  )
+}</code></pre></div>
+<p><strong>핵심</strong>: <code>bg-muted</code> 가 필수 (배경색 없으면 안 보임), <code>animate-pulse</code> 가 Tailwind 내장 애니메이션.</p>
+<h3 class="sub">2.4 TanStack Query isPending 연동 패턴</h3>
+<p><code>/react-skeleton</code> 이 생성하는 로딩 분기 패턴:</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>// src/presentation/features/user/components/user-profile-card.tsx
 import { Skeleton } from '@/presentation/shared/components/ui/skeleton'
 import { useUser } from '../hooks/use-user'
 
@@ -251,347 +496,290 @@ export function UserProfileCard({ userId }: { userId: string }) {
 function UserProfileCardSkeleton() {
   return (
     &lt;div className="rounded-lg border p-6 space-y-4"&gt;
-      &lt;Skeleton className="h-7 w-48" /&gt;   {/* 제목 자리 */}
-      &lt;Skeleton className="h-5 w-64" /&gt;   {/* 부제목 자리 */}
-    &lt;/div&gt;
-  )
-}</pre>
-
-    <h3>4가지 상태 구분 — 명확히 분기</h3>
-    <div class="state-table">
-      <div class="state-card">
-        <div class="state-title" style="color:var(--accent)">Loading</div>
-        <div class="state-desc"><code>isPending === true</code></div>
-        <div style="margin-top:8px;font-size:0.8rem;color:var(--text2)">Skeleton 표시</div>
-      </div>
-      <div class="state-card">
-        <div class="state-title" style="color:var(--red)">Error</div>
-        <div class="state-desc"><code>isError === true</code></div>
-        <div style="margin-top:8px;font-size:0.8rem;color:var(--text2)">에러 메시지 + 재시도</div>
-      </div>
-      <div class="state-card">
-        <div class="state-title" style="color:var(--yellow)">Empty</div>
-        <div class="state-desc"><code>data === undefined</code></div>
-        <div style="margin-top:8px;font-size:0.8rem;color:var(--text2)">"데이터 없음" + CTA</div>
-      </div>
-      <div class="state-card">
-        <div class="state-title" style="color:var(--green)">Success</div>
-        <div class="state-desc">data 있음</div>
-        <div style="margin-top:8px;font-size:0.8rem;color:var(--text2)">실제 콘텐츠</div>
-      </div>
-    </div>
-    <div class="callout">
-      Skeleton이 쓰이는 건 오직 Loading뿐. Empty 상태에 Skeleton을 써서 "곧 뭐가 나올 것 같다"는 오해를 주지 말 것.
-      <br><br>
-      <strong>Skeleton 크기 가이드:</strong> 텍스트는 <code>h-4~h-7</code>, 버튼은 <code>h-9~h-10</code>, 이미지는 <code>aspect-square/aspect-video</code>. 항상 <code>bg-muted</code> 필수 (없으면 투명해서 안 보임).
-    </div>
-    <a href="https://ui.shadcn.com/docs/components/skeleton" class="card-source" target="_blank" rel="noopener">↗ shadcn Skeleton 문서</a>
-    <a href="https://tanstack.com/query/latest/docs/framework/react/guides/queries" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ TanStack Query isPending</a>
-  </section>
-
-  <!-- /react-extract -->
-  <section id="react-extract">
-    <div class="section-label">스킬 03</div>
-    <h2>/react-extract — 재사용 컴포넌트 추출</h2>
-    <p style="color:var(--text2);margin-bottom:20px;font-size:0.92rem;">
-      feature 내부에 사유화된 위젯 또는 중복된 위젯을 <code>presentation/shared/components/</code>로 추출하고 import 경로를 자동 정리.
-    </p>
-
-    <h3>추출 8단계 흐름</h3>
-    <div class="step-list">
-      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Import 참조 스캔</div><div class="step-desc">전체 프로젝트에서 대상 컴포넌트를 import하는 파일 목록 수집 (TypeScript AST 또는 grep 기반)</div></div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">파일 이동</div><div class="step-desc"><code>source_path</code> → <code>destination</code>으로 물리 이동</div></div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">컴포넌트 이름 확인</div><div class="step-desc">kebab-case 파일명 ↔ PascalCase 컴포넌트명 일관성 검증</div></div></div>
-      <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Props 타입 노출 확인</div><div class="step-desc">이동 대상이 <code>export type SomethingProps</code>를 함께 export하는지 (없으면 추가)</div></div></div>
-      <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Import 경로 일괄 수정</div><div class="step-desc">참조하는 모든 파일의 import 구문을 <code>@/presentation/shared/components/...</code> absolute import로 업데이트</div></div></div>
-      <div class="step"><div class="step-num">6</div><div class="step-body"><div class="step-title">Unused import 정리</div><div class="step-desc">원본 feature에 남아있던 import 중 안 쓰는 것 제거</div></div></div>
-      <div class="step"><div class="step-num">7</div><div class="step-body"><div class="step-title">tsc + eslint 검증</div><div class="step-desc">이동 후 타입 에러/린트 에러 없는지 확인. 에러가 생기면 전체 롤백 후 에러 보고</div></div></div>
-      <div class="step"><div class="step-num">8</div><div class="step-body"><div class="step-title">결과 리포트</div><div class="step-desc">변경된 파일 수, 이동된 경로, 업데이트된 import 개수 요약</div></div></div>
-    </div>
-
-    <h3>Import 경로 변환 규칙</h3>
-    <div class="before-after">
-      <div class="ba-before">
-        <div class="ba-label">Before</div>
-        <pre>import { LogoBanner } from './logo-banner'
-// feature 내부 상대 경로</pre>
-      </div>
-      <div class="ba-after">
-        <div class="ba-label">After</div>
-        <pre>import { LogoBanner } from '@/presentation/shared/components/logo-banner'
-// absolute import</pre>
-      </div>
-    </div>
-
-    <h3>widget-inspector-react 에이전트 연동</h3>
-    <div class="cards">
-      <div class="card">
-        <div class="card-icon">🔍</div>
-        <h3>중복 위젯 감지</h3>
-        <p>다른 feature에 같은 이름/구조의 컴포넌트 발견 시 리포트.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">📦</div>
-        <h3>과도한 사유화 감지</h3>
-        <p>private이지만 재사용 가능해 보이는 컴포넌트 표시.</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">📏</div>
-        <h3>복잡도 임계값 초과</h3>
-        <p>컴포넌트 하나가 300줄+ 초과 시 분할 권고.</p>
-      </div>
-    </div>
-    <div class="callout">
-      사용자가 리포트 중 일부를 승인하면 <code>/react-extract</code>가 자동 트리거되어 실제 이동 + import 정리 수행. <code>--dry-run</code> 플래그로 실제 파일 이동 없이 변경 내역만 미리 확인 가능.
-    </div>
-    <div class="callout warn">
-      <strong>추출 전제 조건:</strong> named export만 지원 (<code>export default</code>는 먼저 named export로 리팩터 후 이동). Type-only import는 <code>import type</code>으로 분리 (<code>verbatimModuleSyntax: true</code> 정책).
-    </div>
-    <a href="https://tanstack.com/query/latest/docs/framework/react/guides/queries" class="card-source" target="_blank" rel="noopener">↗ TanStack Query Guides</a>
-  </section>
-
-  <!-- Container queries 심화 -->
-  <section id="container-queries-advanced">
-    <div class="section-label">컨테이너 쿼리 심화</div>
-    <h2>@container 기본 사이즈 테이블</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>키</th><th>min-width</th><th>주요 용도</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>@xs</code></td><td>20rem (320px)</td><td>초소형 컨테이너, 단일 아이콘/숫자</td></tr>
-          <tr><td><code>@sm</code></td><td>24rem (384px)</td><td>소형 카드, 좁은 사이드바</td></tr>
-          <tr><td><code>@md</code></td><td>28rem (448px)</td><td>2컬럼 전환 기준점</td></tr>
-          <tr><td><code>@lg</code></td><td>32rem (512px)</td><td>중형 컨테이너, 3컬럼 시작</td></tr>
-          <tr><td><code>@xl</code></td><td>36rem (576px)</td><td>대형 카드, 4컬럼 그리드</td></tr>
-          <tr><td><code>@2xl</code></td><td>42rem (672px)</td><td>넓은 컨테이너, 멀티 섹션</td></tr>
-          <tr><td><code>@3xl</code></td><td>48rem (768px)</td><td>전체 너비에 가까운 컨테이너</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3>재사용 컴포넌트에서 @container 사용 예시</h3>
-    <pre>// 재사용 ProductCard — 어디에 놓여도 컨테이너 크기에 반응
-export function ProductList({ products }: { products: Product[] }) {
-  return (
-    &lt;div className="@container"&gt;
-      &lt;div className="grid grid-cols-1 gap-3 @md:grid-cols-2 @xl:grid-cols-3"&gt;
-        {products.map((p) =&gt; &lt;ProductCard key={p.id} {...p} /&gt;)}
-      &lt;/div&gt;
+      &lt;Skeleton className="h-7 w-48" /&gt;          {/* 제목 자리 */}
+      &lt;Skeleton className="h-5 w-64" /&gt;          {/* 부제목 자리 */}
     &lt;/div&gt;
   )
 }
 
-// 네임드 컨테이너 — 중첩 컨테이너 구분
-export function DashboardLayout() {
+function UserProfileCardError({ error }: { error: unknown }) {
   return (
-    &lt;div className="@container/dashboard"&gt;
-      &lt;aside className="@container/sidebar"&gt;
-        &lt;nav className="@sm/sidebar:space-y-2 @md/sidebar:space-y-4"&gt;
-          {/* sidebar 너비가 @sm 이상일 때 spacing 증가 */}
-        &lt;/nav&gt;
-      &lt;/aside&gt;
+    &lt;div className="rounded-lg border border-destructive/50 p-6"&gt;
+      &lt;p className="text-sm text-destructive"&gt;불러오는 중 오류가 발생했습니다.&lt;/p&gt;
     &lt;/div&gt;
   )
-}</pre>
-    <a href="https://tailwindcss.com/docs/responsive-design" class="card-source" target="_blank" rel="noopener">↗ Tailwind v4 반응형 문서</a>
-  </section>
-
-  <!-- Skeleton 설계 심화 -->
-  <section id="skeleton-advanced">
-    <div class="section-label">Skeleton 심화</div>
-    <h2>실 레이아웃 1:1 매핑 전략</h2>
-    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">
-      Skeleton과 실제 콘텐츠의 크기가 다르면 전환 시 레이아웃 시프트(CLS)가 발생한다. 동일한 구조로 매핑해야 한다.
-    </p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>콘텐츠 타입</th><th>Skeleton 클래스</th><th>비고</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>h1/h2 제목</td><td><code>h-7 w-48 rounded-md</code></td><td>너비는 예상 텍스트 길이에 맞게</td></tr>
-          <tr><td>부제목/설명 텍스트</td><td><code>h-5 w-64 rounded-md</code></td><td>여러 줄이면 <code>space-y-2</code>로 쌓기</td></tr>
-          <tr><td>본문 단락 (3줄)</td><td><code>h-4 w-full rounded-md</code> × 3</td><td>마지막 줄은 <code>w-3/4</code>로 자연스럽게</td></tr>
-          <tr><td>버튼</td><td><code>h-9 w-24 rounded-md</code></td><td>버튼 크기 (sm: h-9, md: h-10, lg: h-11)</td></tr>
-          <tr><td>이미지/썸네일 (정사각)</td><td><code>aspect-square rounded-md</code></td><td>부모 너비 기준 자동 높이</td></tr>
-          <tr><td>이미지/썸네일 (16:9)</td><td><code>aspect-video rounded-md</code></td><td>동영상 플레이스홀더</td></tr>
-          <tr><td>아바타 (원형)</td><td><code>h-10 w-10 rounded-full</code></td><td>원형은 <code>rounded-full</code></td></tr>
-          <tr><td>배지/태그</td><td><code>h-5 w-16 rounded-full</code></td><td>인라인 뱃지</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3>리스트 Skeleton — 5개 반복</h3>
-    <pre>function UserListSkeleton() {
-  return (
-    &lt;ul className="space-y-3"&gt;
-      {Array.from({ length: 5 }).map((_, i) =&gt; (
-        &lt;li key={i} className="flex items-center gap-3 rounded-lg border p-4"&gt;
-          &lt;Skeleton className="h-10 w-10 rounded-full" /&gt;  {/* 아바타 */}
-          &lt;div className="flex-1 space-y-2"&gt;
-            &lt;Skeleton className="h-4 w-32" /&gt;             {/* 이름 */}
-            &lt;Skeleton className="h-3 w-48" /&gt;             {/* 이메일 */}
-          &lt;/div&gt;
-          &lt;Skeleton className="h-8 w-16 rounded-md" /&gt;    {/* 버튼 */}
-        &lt;/li&gt;
-      ))}
-    &lt;/ul&gt;
-  )
-}</pre>
-    <a href="https://ui.shadcn.com/docs/components/skeleton" class="card-source" target="_blank" rel="noopener">↗ shadcn Skeleton 컴포넌트</a>
-  </section>
-
-  <!-- 안티패턴 비교 -->
-  <section id="antipatterns">
-    <div class="section-label">안티패턴 비교</div>
-    <h2>Bad vs Good — G5 핵심 실수 패턴</h2>
-    <p style="color:var(--text2);margin-bottom:16px;font-size:0.92rem;">g5-ui-patterns.md §1.8 / §2.7 / §3.7 Gotchas 기반. 반응형·Skeleton·Extract에서 반복 관찰된 실수를 코드 수준으로 비교한다.</p>
-
-    <div class="bad-good-grid">
-      <div class="compare-bad">
-        <div class="compare-header">❌ 안티패턴 — 픽셀값 하드코딩 반응형</div>
-        <pre><code>/* globals.css — 하드코딩 브레이크포인트 */
-@media (min-width: 768px) {
-  .product-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 1200px) {
-  .product-grid { grid-template-columns: repeat(3, 1fr); }
-}</code></pre>
-        <p class="compare-note">Tailwind 토큰을 우회하고 뷰포트 너비에 의존한다. 컴포넌트를 사이드바 안에 넣으면 레이아웃이 깨진다.</p>
-      </div>
-      <div class="compare-good">
-        <div class="compare-header">✅ 권장 — Tailwind md: 토큰 + @container</div>
-        <pre><code>// 재사용 컴포넌트 — 컨테이너 쿼리로 자체 크기에 반응
-export function ProductGrid({ products }: Props) {
+
+function UserProfileCardEmpty() {
   return (
-    &lt;div className="@container"&gt;
-      &lt;div className="grid grid-cols-1 gap-3 @md:grid-cols-2 @xl:grid-cols-3"&gt;
-        {products.map(p =&gt; &lt;ProductCard key={p.id} {...p} /&gt;)}
-      &lt;/div&gt;
+    &lt;div className="rounded-lg border border-dashed p-6 text-center text-muted-foreground"&gt;
+      표시할 사용자 정보가 없습니다.
     &lt;/div&gt;
   )
-}</code></pre>
-        <p class="compare-note">컨테이너 쿼리는 뷰포트가 아니라 부모 컨테이너 크기에 반응. 사이드바·모달 어디에 놓아도 올바르게 동작한다.</p>
-      </div>
-    </div>
+}</code></pre></div>
+<h3 class="sub">2.5 Skeleton 설계 원칙</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>실 레이아웃과 1:1 매핑</strong>: skeleton 조각의 크기·위치가 실제 콘텐츠와 거의 같아야 "깜빡임" 없는 전환</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>개수 제한</strong>: 너무 많은 skeleton 은 산만. 카드 하나 당 2~4 개 블록이 적당</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>텍스트는 <code>h-4</code>~<code>h-7</code>, 버튼은 <code>h-9</code>~<code>h-10</code>, 이미지는 <code>aspect-square</code>/<code>aspect-video</code></strong> — Tailwind 유틸로 높이 고정</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>rounded-md</code> 기본</strong>: 사각형 skeleton 은 아이콘이나 이미지 영역에만. 텍스트 skeleton 은 rounded</div></li>
+</ul>
+<h3 class="sub">2.6 로딩 / 에러 / 빈 상태 구분</h3>
+<p>3가지 상태를 <strong>명확히 구분해서 분기</strong>한다. 혼동하면 UX 가 나빠진다:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">상태</div></th>
+  <th><div class="c">조건</div></th>
+  <th><div class="c">표시</div></th>
+  <th><div class="c">사용자 액션</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><strong>Loading</strong></div></td>
+  <td><div class="c"><code>isPending === true</code></div></td>
+  <td><div class="c">Skeleton</div></td>
+  <td><div class="c">기다림 (자동)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>Error</strong></div></td>
+  <td><div class="c"><code>isError === true</code></div></td>
+  <td><div class="c">Error 메시지 + "다시 시도" 버튼</div></td>
+  <td><div class="c">재시도</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>Empty</strong></div></td>
+  <td><div class="c"><code>data === undefined</code> 또는 빈 배열</div></td>
+  <td><div class="c">"표시할 데이터 없음" + 주요 액션 안내</div></td>
+  <td><div class="c">CTA 클릭</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>Success</strong></div></td>
+  <td><div class="c">data 있음</div></td>
+  <td><div class="c">실제 콘텐츠</div></td>
+  <td><div class="c">—</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>Skeleton 이 쓰이는 건 오직 Loading 뿐</strong>. Empty 상태에 Skeleton 을 써서 "곧 뭐가 나올 것 같다" 는 오해를 주지 말 것. Error 도 마찬가지 — Error 는 Error UI, Empty 는 Empty UI.</p>
+<h3 class="sub">2.7 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>animate-pulse</code> 미동작</strong>: shadcn Skeleton 이 <code>bg-muted</code> 또는 명시적 배경색이 없으면 투명해서 애니메이션이 안 보임 (shadcn-ui/ui#5809 참조). 생성 템플릿은 항상 배경색 포함</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Layout shift</strong>: skeleton 과 실제 콘텐츠의 크기가 다르면 전환 시 깜빡. 정확한 width/height 매칭 필요</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>&lt;Suspense&gt;</code> vs 조건 분기</strong>: React Suspense 로 TanStack Query 를 래핑할 수도 있지만 기본 패턴은 <strong>조건 분기</strong> — suspense 는 옵션</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Empty state 를 loading state 로 혼동</strong>: 네트워크 성공인데 배열이 비었으면 loading 이 아니라 empty. <code>isPending === false &amp;&amp; data.length === 0</code> 체크</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>반응형 skeleton</strong>: 실제 레이아웃이 반응형이면 skeleton 도 동일 breakpoint 로 변환. <code>/react-responsive</code> 와 병용 가능</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS</strong>: <code>data</code> 의 <code>undefined</code> 체크 잊지 말 것 (<code>isPending === false</code> 라도 TanStack Query 타입상 <code>data</code> 는 <code>T | undefined</code>). TS 가 엄격히 강제</div></li>
+</ul>
+<h3 class="sub">2.8 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Skeleton 컴포넌트</strong>: 대상 컴포넌트와 <strong>같은 파일 하단</strong> 에 private 으로 정의 (예: <code>UserProfileCardSkeleton</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>여러 화면이 공유하는 skeleton</strong>: <code>src/presentation/shared/components/skeletons/&lt;name&gt;-skeleton.tsx</code> 로 승격</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>shadcn Skeleton 원본</strong>: <code>src/presentation/shared/components/ui/skeleton.tsx</code></div></li>
+</ul>
+  </div>
+</section>
 
-    <div class="bad-good-grid">
-      <div class="compare-bad">
-        <div class="compare-header">❌ 안티패턴 — 스피너 로딩 UI</div>
-        <pre><code>function UserProfile({ userId }: Props) {
-  const { data, isPending } = useQuery(userQuery(userId))
-  if (isPending) return &lt;CircularProgress /&gt; // 레이아웃 시프트 발생
-  return (
-    &lt;div className="flex gap-3"&gt;
-      &lt;Avatar src={data.avatar} /&gt;
-      &lt;h2&gt;{data.name}&lt;/h2&gt;
-    &lt;/div&gt;
-  )
-}</code></pre>
-        <p class="compare-note">스피너는 로딩 후 콘텐츠 크기와 다르므로 레이아웃 시프트(CLS)가 발생하고 UX가 불안정하다.</p>
-      </div>
-      <div class="compare-good">
-        <div class="compare-header">✅ 권장 — 실 레이아웃 1:1 Skeleton</div>
-        <pre><code">function UserProfile({ userId }: Props) {
-  const { data, isPending } = useQuery(userQuery(userId))
-  if (isPending) return (
-    &lt;div className="flex gap-3"&gt;
-      &lt;Skeleton className="h-10 w-10 rounded-full bg-muted" /&gt;
-      &lt;Skeleton className="h-6 w-32 rounded-md bg-muted" /&gt;
-    &lt;/div&gt;
-  )
-  return (
-    &lt;div className="flex gap-3"&gt;
-      &lt;Avatar src={data.avatar} /&gt;
-      &lt;h2&gt;{data.name}&lt;/h2&gt;
-    &lt;/div&gt;
-  )
-}</code></pre>
-        <p class="compare-note">Skeleton이 실제 콘텐츠와 동일한 크기·위치를 가지므로 전환 시 레이아웃 시프트 없음. bg-muted 필수.</p>
-      </div>
-    </div>
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>3. /react-extract — 재사용 컴포넌트 추출</h2>
+  <div class="doc-body">
+<p>feature 내부에 사유화된 위젯 (private component) 또는 여러 feature 에 중복된 유사 위젯을 <code>presentation/shared/components/</code> 로 추출하고 기존 import 경로를 자동 정리한다.</p>
+<h3 class="sub">3.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "위젯 추출", "공통으로 빼줘", "shared 로 이동", "extract widget", "중복 위젯 정리"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">또는: <strong><code>widget-inspector-react</code> 에이전트 리포트 승인 후 자동 트리거</strong></div></li>
+</ul>
+<h3 class="sub">3.2 widget-inspector-react 에이전트 연동</h3>
+<p>react-kit 은 에이전트 <code>widget-inspector-react</code> 를 제공. 이 에이전트는 주기적 또는 수동 실행으로 프로젝트 전체 컴포넌트를 스캔하여:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>중복 위젯 감지</strong>: 다른 feature 에 같은 이름/구조의 컴포넌트 발견</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>과도한 사유화 감지</strong>: private 이지만 재사용 가능해 보이는 컴포넌트</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>복잡도 임계값 초과</strong>: 컴포넌트 하나가 너무 커진 경우 (300줄+)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">결과를 리포트로 사용자에게 제시</div></li>
+</ul>
+<p>사용자가 리포트 중 일부를 "추출하자" 고 승인하면 <code>/react-extract</code> 가 자동 트리거되어 실제 이동 + import 정리 수행.</p>
+<h3 class="sub">3.3 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>source_path</code> (필수): 추출할 컴포넌트 현재 경로 (예: <code>src/presentation/features/auth/components/logo-banner.tsx</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>destination</code> (선택): 이동 경로 (기본: <code>src/presentation/shared/components/&lt;kebab-name&gt;.tsx</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--dry-run</code>: 실제 파일 이동 없이 변경 내역만 보고</div></li>
+</ul>
+<h3 class="sub">3.4 추출 흐름</h3>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>Import 참조 스캔</strong>: 전체 프로젝트에서 대상 컴포넌트를 import 하는 파일 목록 수집 (TypeScript AST 또는 grep 기반)</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>파일 이동</strong>: <code>source_path</code> → <code>destination</code> 으로 물리 이동</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>컴포넌트 이름 확인</strong>: kebab-case 파일명 ↔ PascalCase 컴포넌트명 일관성 검증</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>Props 타입 노출 확인</strong>: 이동 대상이 <code>export type SomethingProps</code> 를 함께 export 하는지 (없으면 추가)</div></li>
+  <li class="lv0"><span class="li-mark">5.</span><div class="li-body"><strong>Import 경로 일괄 수정</strong>: 참조하는 모든 파일의 import 구문을 새 경로로 업데이트. <code>@/presentation/shared/components/...</code> 형태</div></li>
+  <li class="lv0"><span class="li-mark">6.</span><div class="li-body"><strong>Unused import 정리</strong>: 원본 feature 에 남아있던 import 중 안 쓰는 것 제거</div></li>
+  <li class="lv0"><span class="li-mark">7.</span><div class="li-body"><strong>tsc --noEmit + eslint 검증</strong>: 이동 후 타입 에러 / 린트 에러 없는지 확인. 에러가 생기면 <strong>전체 롤백</strong> 후 에러 보고</div></li>
+  <li class="lv0"><span class="li-mark">8.</span><div class="li-body"><strong>결과 리포트</strong>: 변경된 파일 수, 이동된 경로, 업데이트된 import 개수 요약</div></li>
+</ul>
+<h3 class="sub">3.5 Import 경로 자동 업데이트 규칙</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Before</strong>: <code>import { LogoBanner } from './logo-banner'</code> (feature 내부 상대 경로)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>After</strong>: <code>import { LogoBanner } from '@/presentation/shared/components/logo-banner'</code> (absolute)</div></li>
+</ul>
+<p><strong>규칙</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">항상 <strong>absolute import</strong> (<code>@/...</code>) 로 업데이트. 상대 경로 유지 금지</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>named export 만 지원</strong>: <code>export default</code> 인 컴포넌트는 먼저 named export 로 리팩터 후 이동</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Type-only import 는 <code>import type</code></strong> 으로 분리 (strict TS <code>verbatimModuleSyntax: true</code> 정책)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">이동 후 원본 파일은 삭제. "re-export 남기기" 금지 (간접 경로 누적)</div></li>
+</ul>
+<h3 class="sub">3.6 TypeScript AST 기반 안전 변환</h3>
+<p>단순 grep + sed 로는 "함수 내부 문자열에 같은 패턴" 이 있으면 오염될 수 있다. <code>/react-extract</code> 는 <code>ts-morph</code> 또는 TypeScript Compiler API 기반으로 AST 수준에서 import 노드를 식별하여 변환.</p>
+<p><strong>최소 요구사항</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Import 경로 변환은 반드시 AST 노드 기반</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Rename 시 <code>export</code> / <code>import</code> / <code>type</code> 모두 일관 업데이트</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">순환 참조 감지 — 이동으로 새 순환이 생기면 경고 + 롤백</div></li>
+</ul>
+<h3 class="sub">3.7 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>상대 경로 ↔ absolute 혼용</strong>: 기존 코드가 상대 경로면 이동 후 경로 계산 실패. <code>/react-extract</code> 는 무조건 <code>@/...</code> 로 통일</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>default export 추출</strong>: <code>export default function ...</code> 인 컴포넌트는 이름이 없어서 import 시 임의 이름 지정 가능 — 일관성 깨짐. named export 로 먼저 리팩터 권장</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>동일 이름 충돌</strong>: 다른 feature 에도 <code>LogoBanner</code> 가 있으면 shared 로 이동 시 이름 충돌. 이 스킬은 더 구체적 이름으로 rename 을 제안 (예: <code>AuthLogoBanner</code>, <code>HeaderLogoBanner</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>테스트 파일 동반</strong>: 이동 대상에 해당하는 <code>tests/component/LogoBanner.test.tsx</code> 가 있으면 테스트도 같이 이동하고 import 경로 업데이트</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Storybook 이 있다면</strong>: <code>.stories.tsx</code> 파일도 동반 이동</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>widget-inspector 리포트 신뢰하되 검증</strong>: 에이전트 판단이 100% 정확하지 않을 수 있음. 사용자 승인 단계 필수</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS 재검증</strong>: 이동 후 <code>tsc --noEmit</code> 통과 실패 시 즉시 롤백. 부분 적용 상태 방치 금지</div></li>
+</ul>
+<h3 class="sub">3.8 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>이동 대상</strong>: <code>src/presentation/features/**/*.tsx</code> → <code>src/presentation/shared/components/*.tsx</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>추출 후 규칙</strong>: 공용 위젯은 feature 를 몰라야 함. 특정 feature 의 domain 타입을 import 하면 그 자체로 "잘못 추출됨" 신호 — 추출 불가능, 혹은 Props generic 으로 느슨하게 분리 필요</div></li>
+</ul>
+  </div>
+</section>
 
-    <div class="bad-good-grid">
-      <div class="compare-bad">
-        <div class="compare-header">❌ 안티패턴 — regex/grep으로 import 치환</div>
-        <pre><code"># 정규식으로 import 경로 일괄 치환 (위험)
-sed -i 's|from "../logo-banner"|from "@/presentation/shared/components/logo-banner"|g' src/**/*.tsx
-# 또는
-grep -rl 'logo-banner' src/ | xargs sed -i '...'</code></pre>
-        <p class="compare-note">문자열 치환은 타입 import / re-export / 동명 다른 모듈을 구분하지 못해 오염이 발생한다.</p>
-      </div>
-      <div class="compare-good">
-        <div class="compare-header">✅ 권장 — AST 기반 ts-morph 안전 변환</div>
-        <pre><code>// /react-extract 내부 — ts-morph로 AST 직접 조작
-import { Project } from 'ts-morph'
-const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>4. 3개 스킬의 상호작용</h2>
+  <div class="doc-body">
+<div class="code"><pre><code>[컴포넌트 작성] (G1 /react-widget, /react-screen)
+         │
+         ▼
+/react-responsive    ←── breakpoint 또는 @container 쿼리 추가
+         │
+         ▼
+/react-skeleton      ←── TanStack Query isPending 분기로 로딩 UI 삽입
+         │
+         ▼
+widget-inspector-react 에이전트   ←── 주기 실행 또는 수동
+         │
+         ▼
+/react-extract       ←── 에이전트 리포트 승인 후 사유화 컴포넌트 공용으로 이동
+         │
+         ▼
+(/react-test 가 변경된 컴포넌트에 대해 테스트 재생성)</code></pre></div>
+  </div>
+</section>
 
-project.getSourceFiles().forEach(sf => {
-  sf.getImportDeclarations().forEach(decl => {
-    if (decl.getModuleSpecifierValue().includes('logo-banner')) {
-      decl.setModuleSpecifier('@/presentation/shared/components/logo-banner')
-    }
-  })
-})
-await project.save()</code></pre>
-        <p class="compare-note">AST 변환은 타입 import·named export·순환 참조를 정확히 처리한다. 이동 후 tsc --noEmit로 재검증 필수.</p>
-      </div>
-    </div>
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>5. 공유 helpers 및 Cross-group 관계</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G1 <code>/react-widget</code></strong>: cva + ref-as-prop 패턴은 G5 의 모든 스킬이 전제. 추출된 공용 컴포넌트도 같은 형식 유지</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G2 <code>/react-query</code></strong>: <code>/react-skeleton</code> 이 <code>isPending/isError/empty</code> 분기의 기반으로 사용</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G4 <code>/react-test</code></strong>: G5 변경 후 테스트 자동 갱신. 특히 skeleton 분기는 "loading state" 테스트 케이스 자동 추가</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G6 <code>/react-audit</code></strong>: G5 출력물 감사 — 하드코딩된 breakpoint 값, Skeleton 없는 loading 경로, shared 로 승격되지 않은 중복 위젯 검출</div></li>
+</ul>
+  </div>
+</section>
 
-    <a href="https://tailwindcss.com/docs/responsive-design" class="card-source" target="_blank" rel="noopener">↗ Tailwind v4 반응형 문서</a>
-    <a href="https://ui.shadcn.com/docs/components/skeleton" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ shadcn Skeleton</a>
-    <a href="https://ts-morph.com/" class="card-source" target="_blank" rel="noopener" style="margin-left:16px">↗ ts-morph AST 라이브러리</a>
-  </section>
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>6. 출처 요약</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body">Tailwind v4 container queries (내장): <a class="ext" href="https://tailwindcss.com/docs/hover-focus-and-other-states#container-queries" target="_blank" rel="noopener">https://tailwindcss.com/docs/hover-focus-and-other-states#container-queries</a></div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body">Tailwind v4.0 릴리스 노트: <a class="ext" href="https://tailwindcss.com/blog/tailwindcss-v4" target="_blank" rel="noopener">https://tailwindcss.com/blog/tailwindcss-v4</a></div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body">Tailwind v4 container 논의 (v4 에서 container plugin 통합): <a class="ext" href="https://github.com/tailwindlabs/tailwindcss/discussions/14801" target="_blank" rel="noopener">https://github.com/tailwindlabs/tailwindcss/discussions/14801</a></div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body">tailwindcss-container-queries (v3 플러그인, v4 에서는 불필요): <a class="ext" href="https://github.com/tailwindlabs/tailwindcss-container-queries" target="_blank" rel="noopener">https://github.com/tailwindlabs/tailwindcss-container-queries</a></div></li>
+  <li class="lv0"><span class="li-mark">5.</span><div class="li-body">shadcn/ui Skeleton 컴포넌트: <a class="ext" href="https://ui.shadcn.com/docs/components/skeleton" target="_blank" rel="noopener">https://ui.shadcn.com/docs/components/skeleton</a></div></li>
+  <li class="lv0"><span class="li-mark">6.</span><div class="li-body">shadcn Skeleton animate-pulse 이슈: <a class="ext" href="https://github.com/shadcn-ui/ui/issues/5809" target="_blank" rel="noopener">https://github.com/shadcn-ui/ui/issues/5809</a></div></li>
+  <li class="lv0"><span class="li-mark">7.</span><div class="li-body">TanStack Query v5 useQuery 반환 (isPending, isError 등): <a class="ext" href="https://tanstack.com/query/v5/docs/framework/react/reference/useQuery" target="_blank" rel="noopener">https://tanstack.com/query/v5/docs/framework/react/reference/useQuery</a></div></li>
+</ul>
+  </div>
+</section>
 
-  <!-- G5 공통 Gotchas -->
-  <section id="gotchas">
-    <div class="section-label">Gotchas</div>
-    <h2>G5 스킬 공통 주의사항</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>스킬</th><th>실수</th><th>올바른 방법</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>/react-responsive</td>
-            <td>모든 컴포넌트를 <code>@container</code>로 감쌈</td>
-            <td>앱 최상위 레이아웃은 페이지 쿼리. 재사용 컴포넌트만 컨테이너 쿼리</td>
-          </tr>
-          <tr>
-            <td>/react-responsive</td>
-            <td>텍스트 크기 반응형 다단 변경 (<code>text-sm md:text-base lg:text-lg</code>)</td>
-            <td>타이포 리듬 깨짐. 디자인 시스템의 정해진 scale만 사용</td>
-          </tr>
-          <tr>
-            <td>/react-skeleton</td>
-            <td><code>bg-muted</code> 없는 Skeleton</td>
-            <td>투명해서 animate-pulse가 안 보임. 항상 배경색 포함 필수</td>
-          </tr>
-          <tr>
-            <td>/react-skeleton</td>
-            <td>Empty 상태에 Skeleton 표시</td>
-            <td>Skeleton은 오직 <code>isPending === true</code>일 때만. Empty는 별도 EmptyState UI</td>
-          </tr>
-          <tr>
-            <td>/react-skeleton</td>
-            <td>Skeleton 크기가 실제 콘텐츠와 다름</td>
-            <td>1:1 크기 매핑 필수 — 레이아웃 시프트(CLS) 방지</td>
-          </tr>
-          <tr>
-            <td>/react-extract</td>
-            <td><code>export default</code> 컴포넌트 이동</td>
-            <td>먼저 named export로 리팩터 후 추출. <code>import type</code> 분리 필수</td>
-          </tr>
-          <tr>
-            <td>/react-extract</td>
-            <td>이동 후 tsc 검증 없이 완료 보고</td>
-            <td>스킬은 이동 후 반드시 <code>tsc --noEmit</code> + <code>eslint</code> 실행. 에러 시 전체 롤백</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-</main>
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>현행화 기록</h2>
+  <div class="doc-body">
+<p>2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 <code>6378948</code> 에서 이 문서가 맡은 경로(머리 블록 <code>skills</code> · <code>agents</code>)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">커밋</div></th>
+  <th><div class="c">날짜</div></th>
+  <th><div class="c">이 문서에 준 영향</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>001c900</code></div></td>
+  <td><div class="c">2026-09-25</div></td>
+  <td><div class="c">고친 절: 공통 설계 원칙 — 렌더 증거를 편집 전 · 완료 직전 두 번 (responsive · skeleton)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>928fd30</code></div></td>
+  <td><div class="c">2026-07-27</div></td>
+  <td><div class="c">고친 절: 공통 설계 원칙 — <code>/react-responsive</code> · <code>/react-skeleton</code> 이 <code>react-kit/references/render-evidence-protocol.md</code> 를 따른다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>d0010b2</code></div></td>
+  <td><div class="c">2026-04-11</div></td>
+  <td><div class="c">고친 절: 문서 목적 · 공통 설계 원칙 · §5 의 <code>forwardRef</code> 언급 셋 — 같은 커밋이 react-widget 틀을 ref-as-prop 로 바꿨다. react-responsive 의 터치 대상 24×24 Gotcha 는 설계 영향 없음 — §1 산출물은 그대로</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
+  <h2>7. 변경 이력</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-04-10</strong> — 초판. G5 3개 스킬 (<code>/react-responsive</code>, <code>/react-skeleton</code>, <code>/react-extract</code>) 상세 설계. WebSearch fallback 으로 Tailwind v4 container queries 내장 전환, shadcn Skeleton bg-muted 요구사항, TanStack Query isPending 상태 검증.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-09-26</strong> — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 7 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://tailwindcss.com/docs/hover-focus-and-other-states#container-queries" target="_blank" rel="noopener">&#8599; https://tailwindcss.com/docs/hover-focus-and-other-states#container-queries</a></li>
+    <li><a class="card-source" href="https://tailwindcss.com/blog/tailwindcss-v4" target="_blank" rel="noopener">&#8599; https://tailwindcss.com/blog/tailwindcss-v4</a></li>
+    <li><a class="card-source" href="https://github.com/tailwindlabs/tailwindcss/discussions/14801" target="_blank" rel="noopener">&#8599; https://github.com/tailwindlabs/tailwindcss/discussions/14801</a></li>
+    <li><a class="card-source" href="https://github.com/tailwindlabs/tailwindcss-container-queries" target="_blank" rel="noopener">&#8599; https://github.com/tailwindlabs/tailwindcss-container-queries</a></li>
+    <li><a class="card-source" href="https://ui.shadcn.com/docs/components/skeleton" target="_blank" rel="noopener">&#8599; https://ui.shadcn.com/docs/components/skeleton</a></li>
+    <li><a class="card-source" href="https://github.com/shadcn-ui/ui/issues/5809" target="_blank" rel="noopener">&#8599; https://github.com/shadcn-ui/ui/issues/5809</a></li>
+    <li><a class="card-source" href="https://tanstack.com/query/v5/docs/framework/react/reference/useQuery" target="_blank" rel="noopener">&#8599; https://tanstack.com/query/v5/docs/framework/react/reference/useQuery</a></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>docs/react/kit-design/g5-ui-patterns.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

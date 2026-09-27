@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>React Kit — G2 상태 &amp; 데이터</title>
+<title>G2 · 상태 &amp; 데이터 — React Kit</title>
 <link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -11,190 +11,340 @@
     --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
     --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
     --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+    --accent-line:rgba(56,189,248,0.35);
     --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
   }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#0369A1;--accent2:#075985;--accent-dim:rgba(3,105,161,0.10);
+    --accent-line:rgba(3,105,161,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
   html{font-size:16px;scroll-behavior:smooth}
   body{
     font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
-    background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
-    background-image:radial-gradient(ellipse at 20% 0%,rgba(56,189,248,0.06) 0%,transparent 50%),
-                     radial-gradient(ellipse at 80% 100%,rgba(56,189,248,0.03) 0%,transparent 50%);
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
   }
-  .page{max-width:1280px;margin:0 auto;padding:clamp(20px,4vw,56px)}
-  h1{font-size:clamp(26px,3.5vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.15;
-    background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .subtitle{color:var(--text2);font-size:clamp(14px,1.3vw,16px);margin-top:8px;margin-bottom:clamp(32px,5vw,56px);max-width:720px;line-height:1.7}
-  h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:6px}
-  .section{margin-bottom:clamp(48px,6vw,80px)}
-  .section-label{font-size:clamp(11px,1vw,13px);font-weight:700;text-transform:uppercase;letter-spacing:2px;
-    color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
-  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent) 0%,transparent 80%)}
-  .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.7;max-width:680px;margin-bottom:24px}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,28px);transition:border-color var(--transition)}
-  .card:hover{border-color:rgba(56,189,248,0.25)}
-  .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
-  .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:10px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);font-size:12px;letter-spacing:0.5px;text-transform:uppercase}
-  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
-  tr:hover td{background:rgba(56,189,248,0.03)}
-  td code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
-  .checklist{list-style:none;display:flex;flex-direction:column;gap:8px}
-  .checklist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
-  .checklist .check{width:18px;height:18px;border-radius:4px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;
-    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
-  .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-  @media(max-width:640px){.compare{grid-template-columns:1fr}}
-  .compare-bad,.compare-good{border-radius:12px;padding:20px}
-  .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
-  .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
-  .compare-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
-  .compare-bad .compare-label{color:var(--red)}
-  .compare-good .compare-label{color:var(--green)}
-  .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;
-    background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:800;flex-shrink:0}
-  pre{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--text2);margin:12px 0}
-  code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px}
-  .nav-back{display:inline-flex;align-items:center;gap:6px;color:var(--text3);font-size:13px;text-decoration:none;margin-bottom:32px}
-  .nav-back:hover{color:var(--text)}
-  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;margin-bottom:32px}
-  .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;
-    padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
-  .card-source{display:inline-flex;align-items:center;gap:6px;color:var(--accent2);font-size:12px;text-decoration:none;margin-top:12px;opacity:0.8;border-top:1px solid var(--border);padding-top:10px;width:100%}
-  .card-source:hover{opacity:1}
-  .footer-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
-  .footer-link{color:var(--accent2);font-size:13px;text-decoration:none;opacity:0.8}
-  .footer-link:hover{opacity:1}
-  .layer-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-family:var(--mono);font-size:12px;color:var(--text2);margin:4px 0}
-  .layer-box.domain{border-color:var(--accent);color:var(--accent2);background:var(--accent-dim)}
-  .arrow{color:var(--accent);font-weight:700;text-align:center;padding:4px 0}
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 
-/* ── 가로 오버플로 방지 (정본 규칙 · 제거·완화 금지) ──────────────────
-   내용을 자르지(overflow:hidden) 말고 스크롤 가능하게 두는 것이 원칙이다. */
-/* (1) grid 자식의 기본 min-width 는 auto(= min-content) 라 긴 코드·표의 최소폭이 트랙으로 전파된다 */
-.grid-2>*,.grid-3>*,.compare>*{min-width:0}
-/* (3) white-space:pre 인 코드 블록은 컨테이너에서 스크롤시킨다 */
-pre{overflow-x:auto;max-width:100%}
-pre code{white-space:pre}
-:not(pre)>code{overflow-wrap:anywhere}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
 </style>
 </head>
 <body>
 <div class="page">
 
-<a href="../index.html" class="nav-back">&#8592; 문서 허브</a>
-
-<h1>G2 — 상태 &amp; 데이터</h1>
-<p class="subtitle">Zustand (클라이언트 상태) · TanStack Query v5 (서버 상태) · Clean Architecture 4계층 API · React Hook Form + Zod (폼). 네 스킬이 유기적으로 맞물려 동작한다.</p>
-
-<div class="meta-row">
-  <span class="tag">G2</span>
-  <span class="tag">/react-store</span>
-  <span class="tag">/react-api</span>
-  <span class="tag">/react-query</span>
-  <span class="tag">/react-form</span>
-  <span class="tag">Zustand v5</span>
-  <span class="tag">TanStack Query v5</span>
-  <span class="tag">neverthrow</span>
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; React Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
 </div>
 
-<!-- ── 공통 원칙 ── -->
-<div class="section">
-  <div class="section-label">G2 공통 설계 원칙</div>
-  <div class="grid-2">
-    <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">1</span><h3>Result 기반 에러 경로</h3></div>
-      <p class="card-body">모든 경계(datasource, repository, usecase, form submit)에서 <code>throw</code> 대신 <code>neverthrow</code>의 <code>Result&#60;T, Failure&#62;</code>를 반환한다.</p>
-      <a class="card-source" href="https://github.com/supermacro/neverthrow">출처: neverthrow GitHub</a>
+<header class="hero">
+  <span class="eyebrow">React Kit · 설계 문서</span>
+  <h1>G2 · 상태 &amp; 데이터</h1>
+  <p class="orig-title">원본 제목: <strong>G2 — State &amp; Data Skills</strong></p>
+  <p class="subtitle">react-kit <strong>G2 그룹 스킬 넷</strong>(<code>/react-store</code> · <code>/react-api</code> · <code>/react-query</code> · <code>/react-form</code>)이 클라이언트 상태 · 서버 상태 · 데이터 층 · 폼을 어떻게 나눠 맡는지 정한 설계 문서다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>docs/react/kit-design/g2-state-data.md</code></span>
+    <span class="badge">그룹 G2</span>
+    <span class="badge">스킬 넷</span>
+    <span class="badge">갱신 2026-09-26</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>상태 나누기</h3>
+      <p>클라이언트 상태는 Zustand, 서버 상태는 TanStack Query 가 맡는다. 서버에서 온 값을 Zustand 에 복사하지 않는다.</p>
     </div>
-    <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">2</span><h3>Zod 경계 검증 필수</h3></div>
-      <p class="card-body">외부 데이터(API 응답, 폼 입력, localStorage, WASM 결과)는 첫 진입 시점에 <code>Schema.parse()</code>로 검증. 이후 레이어는 재검증 없이 타입 신뢰.</p>
-      <a class="card-source" href="https://zod.dev">출처: Zod 공식 문서</a>
+    <div class="card glance-card">
+      <h3>/react-api</h3>
+      <p>datasource → model → repository → usecase 네 층을 만들고 실패를 neverthrow <code>Result</code> 로 돌려준다.</p>
     </div>
-    <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">3</span><h3>Strict TypeScript</h3></div>
-      <p class="card-body"><code>any</code>, <code>!</code>, <code>as</code> 금지. <code>z.infer</code>로 파생된 타입만 사용, 수동 중복 정의 금지.</p>
-      <a class="card-source" href="../react/kit-design/g2-state-data.md#공통-설계-원칙">출처: g2-state-data.md §공통설계원칙</a>
+    <div class="card glance-card">
+      <h3>/react-query</h3>
+      <p>queryKey 팩토리와 무효화 전략을 함께 만든다.</p>
     </div>
-    <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:12px"><span class="num">4</span><h3>의존성 설치</h3></div>
-      <pre><code class="language-sh">pnpm add zustand @tanstack/react-query
+    <div class="card glance-card">
+      <h3>/react-form</h3>
+      <p>React Hook Form + Zod resolver 를 쓰고 서버 오류는 <code>setError('root.serverError')</code> 로 보인다.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>문서 목적</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>공통 설계 원칙 (4개 스킬 공통)</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>의존성 설치 (G1 <code>/react-init</code> 미사용 시 수동 설치)</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>상태 분리 원칙 — Zustand vs TanStack Query</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>1. /react-store — Zustand 스토어 생성</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>2. /react-api — Clean Architecture 4계층 생성</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>3. /react-query — TanStack Query v5 훅 생성</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>4. /react-form — React Hook Form + Zod</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>5. 4개 스킬의 협력 흐름</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>6. 공유 Helpers 및 Cross-group 관계</a></li>
+    <li><a href="#s11"><span class="toc-n">11</span>7. 출처 요약</a></li>
+    <li><a href="#s12"><span class="toc-n">12</span>현행화 기록</a></li>
+    <li><a href="#s13"><span class="toc-n">13</span>8. 변경 이력</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="code"><span class="code-lang">yaml</span><pre><code>last_updated: 2026-09-26
+group: G2
+scope: react-kit 상태 관리 + 데이터 계층 스킬 4종
+skills: [/react-store, /react-api, /react-query, /react-form]
+depends_on: [G1 /react-init, G1 /react-feature]
+research_sources:
+  - Zustand 공식 문서 (zustand.docs.pmnd.rs, pmndrs/zustand README)
+  - TanStack Query v5 공식 문서 (tanstack.com/query/v5/docs)
+  - React Hook Form 공식 문서 (react-hook-form.com)
+  - "@hookform/resolvers (react-hook-form/resolvers GitHub)"
+  - neverthrow 공식 문서 (supermacro/neverthrow)
+  - 2026-04 WebSearch 검증</code></pre></div>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>문서 목적</h2>
+  <div class="doc-body">
+<p>react-kit <strong>G2 그룹</strong> 은 프로젝트의 상태 계층을 담당하는 4개 스킬의 설계 스펙이다. <strong>Zustand (클라이언트 상태)</strong>, <strong>TanStack Query (서버 상태)</strong>, <strong>Clean Architecture 기반 데이터 레이어</strong>, <strong>React Hook Form + Zod (폼)</strong> 가 유기적으로 맞물려 있다. 이 문서는 네 스킬이 서로 어떻게 협력하며 어디까지 생성을 자동화하는지 규정한다.</p>
+<p><strong>스킬</strong>: <code>/react-store</code>, <code>/react-api</code>, <code>/react-query</code>, <code>/react-form</code> <strong>전제</strong>: G1 <code>/react-init</code> 으로 초기화된 프로젝트 (Zustand, TanStack Query, RHF, Zod, neverthrow 모두 설치됨)</p>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>공통 설계 원칙 (4개 스킬 공통)</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Result 타입 기반 에러 경로</strong>: 모든 경계 (datasource, repository, usecase, form submit) 에서 <code>throw</code> 대신 <code>neverthrow</code> 의 <code>Result&lt;T, Failure&gt;</code> 를 반환한다. React 경계에 도달한 에러만 UI 가 <code>isErr()</code> 체크로 분기 처리.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Zod 경계 검증 필수</strong>: 외부 데이터 (API 응답, 폼 입력, localStorage 읽기, WASM 결과) 는 <strong>첫 진입 시점에</strong> <code>Schema.parse()</code> 로 검증한 뒤 도메인 타입으로 변환. 내부 레이어에선 재검증 없이 타입을 신뢰.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TypeScript 정책</strong>: G1 에서 정의한 strict 규칙 (no <code>any</code>, no <code>!</code>, no <code>as</code>) 을 모든 생성 코드가 준수. <code>z.infer</code> 로 파생된 타입만 사용, 수동 중복 정의 금지.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>project-detection 공유</strong>: G1 의 <code>react-kit/references/project-detection.md</code> 를 재사용. 설치된 패키지 버전을 감지해 v5+ / v4+ 등 메이저 범위에 맞게 코드 생성.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>생성 전 전수 스캔 · 요청 범위만</strong>: 네 스킬 모두 만들기 전에 비슷한 이름 · 재사용할 자산을 열거하고 합의한 뒤 생성한다. 요청하지 않은 CRUD · 레이어를 덧붙이지 않는다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>소비면 열거</strong>: <code>/react-api</code> 는 바꾸는 계약을 부르는 호출부를, <code>/react-query</code> 는 queryKey 앞부분이 같은 쿼리(무효화가 닿는 범위)를 생성 전에 열거한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G1 <code>/react-feature</code> 협력</strong>: G2 스킬은 <code>/react-feature</code> 가 이미 생성한 skeleton (features/&lt;name&gt;/) 위에서 동작. feature 가 없으면 먼저 <code>/react-feature</code> 실행을 안내.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>의존성 설치 (G1 <code>/react-init</code> 미사용 시 수동 설치)</h2>
+  <div class="doc-body">
+<p>G1 <code>/react-init</code> 스캐폴딩이 모든 의존성을 자동 설치하지만, 기존 프로젝트에 수동 추가하려면 아래 명령을 사용한다. 모든 명령은 2026-04 기준 공식 문서 준수:</p>
+<div class="code"><span class="code-lang">sh</span><pre><code># 상태 관리 + 서버 상태
+pnpm add zustand @tanstack/react-query
+
+# 폼 + 런타임 검증
 pnpm add react-hook-form @hookform/resolvers zod
-pnpm add neverthrow</code></pre>
-      <p style="font-size:12px;color:var(--text3);margin-top:8px">Zustand v5+ · TanStack Query v5+ · RHF v7+ · Zod v3+</p>
-      <a class="card-source" href="https://tanstack.com/query/v5/docs/framework/react/installation">출처: TanStack Query v5 설치 가이드</a>
-    </div>
+
+# 타입 안전 에러 처리
+pnpm add neverthrow</code></pre></div>
+<p><strong>메이저 버전 범위</strong>: Zustand v5+, TanStack Query v5+, React Hook Form v7+, Zod v4+ (<code>@hookform/resolvers</code> 5.1 미만을 쓸 때만 v4 타입 충돌 주의 — 섹션 4.6 Gotchas 참조), neverthrow v7+. 특정 패치 버전 고정 없이 최신 메이저 태그 설치.</p>
+<p><strong>출처</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Zustand: <a class="ext" href="https://github.com/pmndrs/zustand" target="_blank" rel="noopener">https://github.com/pmndrs/zustand</a></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">TanStack Query v5: <a class="ext" href="https://tanstack.com/query/v5/docs/framework/react/installation" target="_blank" rel="noopener">https://tanstack.com/query/v5/docs/framework/react/installation</a></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">React Hook Form + resolvers: <a class="ext" href="https://react-hook-form.com/get-started" target="_blank" rel="noopener">https://react-hook-form.com/get-started</a> , <a class="ext" href="https://github.com/react-hook-form/resolvers" target="_blank" rel="noopener">https://github.com/react-hook-form/resolvers</a></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">neverthrow: <a class="ext" href="https://github.com/supermacro/neverthrow" target="_blank" rel="noopener">https://github.com/supermacro/neverthrow</a></div></li>
+</ul>
   </div>
-</div>
+</section>
 
-<!-- ── 상태 분리 원칙 ── -->
-<div class="section">
-  <div class="section-label">핵심 — Zustand vs TanStack Query 역할 분리</div>
-  <p class="desc">두 상태의 경계가 흐릿하면 버그와 중복이 폭증한다. 이 원칙은 G2 전체의 핵심 아키텍처 결정이다.</p>
-  <div style="overflow-x:auto;margin-bottom:24px">
-    <table>
-      <thead>
-        <tr><th>축</th><th>Zustand</th><th>TanStack Query</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>도메인</td><td>클라이언트 상태 (UI, 로컬 선호도, feature toggle, 편집 중 임시 데이터)</td><td>서버 상태 (REST/GraphQL 응답, 캐시, 동기화)</td></tr>
-        <tr><td>수명</td><td>세션 또는 persist 설정</td><td>staleTime/gcTime에 따라 자동 만료</td></tr>
-        <tr><td>변경</td><td><code>setState</code>로 직접</td><td>mutation → invalidation → 자동 refetch</td></tr>
-        <tr><td>직렬화</td><td>persist 미들웨어로 localStorage</td><td>persistQueryClient로 offline 캐시</td></tr>
-        <tr><td>React 외부 접근</td><td>가능 (<code>getState()</code>, <code>setState()</code>)</td><td>QueryClient 직접 조작 (비권장)</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="compare">
-    <div class="compare-bad">
-      <div class="compare-label">절대 금지</div>
-      <pre><code class="language-ts">// ❌ 서버 응답을 Zustand에 복사
-userStore.setState({ users: apiResponse })
-
-// ❌ Zustand 안에 async fetch
-const useUserStore = create((set) => ({
-  fetchUser: async () => {  // TanStack Query 역할
-    const data = await fetch('/api/user')
-    set({ user: data })
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>상태 분리 원칙 — Zustand vs TanStack Query</h2>
+  <div class="doc-body">
+<p>이 원칙은 G2 전체의 <strong>핵심 아키텍처 결정</strong>이다. 두 상태의 경계가 흐릿하면 버그와 중복이 폭증한다. 폼 입력 중인 값은 셋째 주인인 React Hook Form 이 갖는다 — 제출 전 값을 Zustand 나 TanStack Query 에 복사하지 않는다 (<code>/react-form</code> Gotcha 9).</p>
+<h3 class="sub">역할 분리</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">축</div></th>
+  <th><div class="c">Zustand</div></th>
+  <th><div class="c">TanStack Query</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><strong>도메인</strong></div></td>
+  <td><div class="c">클라이언트 상태 (UI, 로컬 선호도, feature toggle, 편집 중 임시 데이터)</div></td>
+  <td><div class="c">서버 상태 (REST/GraphQL 응답, 캐시, 동기화)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>수명</strong></div></td>
+  <td><div class="c">세션 또는 persist 설정에 따름</div></td>
+  <td><div class="c">staleTime/gcTime 에 따라 자동 만료</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>변경</strong></div></td>
+  <td><div class="c"><code>setState</code> 로 직접</div></td>
+  <td><div class="c">mutation → invalidation → 자동 refetch</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>직렬화</strong></div></td>
+  <td><div class="c"><code>persist</code> 미들웨어로 localStorage 연동 가능</div></td>
+  <td><div class="c"><code>persistQueryClient</code> 로 offline 캐시</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>React 외부 접근</strong></div></td>
+  <td><div class="c">가능 (<code>useStore.getState()</code>, <code>useStore.setState()</code>)</div></td>
+  <td><div class="c">QueryClient 직접 조작 가능하지만 권장 안 됨</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">교차 지점 패턴</h3>
+<p><strong>Mutation 성공 후 로컬 상태 갱신</strong>이 가장 흔한 교차 지점이다. 패턴은 하나:</p>
+<div class="code"><pre><code>useMutation({
+  mutationFn: ...,
+  onSuccess: (data) =&gt; {
+    // 1. 서버 쿼리 무효화 (TanStack Query 쪽)
+    queryClient.invalidateQueries({ queryKey: ['user', userId] })
+    // 2. 필요하면 Zustand 쪽도 갱신
+    useUserStore.setState({ lastMutatedAt: Date.now() })
   },
-}))
-
-// ❌ TanStack Query로 UI 토글 관리
-useQuery({ queryKey: ['isSidebarOpen'], ... })</code></pre>
-    </div>
-    <div class="compare-good">
-      <div class="compare-label">권장 패턴</div>
-      <pre><code class="language-ts">// ✅ mutation 성공 후 교차 갱신
-useMutation({
-  mutationFn: updateUser,
-  onSuccess: (data) => {
-    // 서버 쿼리 무효화 (TanStack Query)
-    queryClient.invalidateQueries({
-      queryKey: ['user', userId],
-    })
-    // 로컬 상태 갱신 (Zustand)
-    useUserStore.setState({
-      lastMutatedAt: Date.now(),
-    })
-  },
-})</code></pre>
-    </div>
+})</code></pre></div>
+<p><strong>절대 하지 말 것</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">서버 응답을 <strong>Zustand 에 복사 저장</strong> → 두 소스가 동기화 안 돼 버그 유발. 서버 상태는 TanStack Query 가 단일 진실 공급원</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Zustand store 안에 <code>async fetchUser()</code> 함수 → TanStack Query 의 역할. store 는 순수 상태만</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">TanStack Query 로 UI 토글 관리 → Zustand 의 역할</div></li>
+</ul>
   </div>
-</div>
+</section>
 
-<!-- ── /react-store ── -->
-<div class="section">
-  <div class="section-label">/react-store — Zustand 스토어 생성</div>
-
-  <div class="grid-2" style="margin-bottom:24px">
-    <div class="card">
-      <h3>스토어 기본 구조 (v5+)</h3>
-      <pre><code class="language-ts">// src/presentation/features/auth/store.ts
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>1. /react-store — Zustand 스토어 생성</h2>
+  <div class="doc-body">
+<p>feature 별 또는 전역 Zustand 스토어를 생성하고 selector hook 까지 자동 생성한다.</p>
+<h3 class="sub">1.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "스토어 만들어줘", "react-store", "zustand store", "state management"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">조건: G1 초기화 완료 (<code>zustand</code> dependency 존재)</div></li>
+</ul>
+<h3 class="sub">1.2 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>store_name</code> (필수): kebab-case (예: <code>auth-store</code>, <code>cart-store</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>scope</code>: <code>feature</code> (기본) 또는 <code>shared</code>. feature 면 <code>presentation/features/&lt;feature&gt;/store.ts</code>, shared 면 <code>presentation/shared/stores/&lt;name&gt;.ts</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--with-persist</code> (기본 false): persist 미들웨어 포함</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>state_shape</code> (선택): 초기 상태 shape (예: <code>{ user: User | null; isLoading: boolean }</code>)</div></li>
+</ul>
+<h3 class="sub">1.3 생성 파일 구조</h3>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/presentation/features/auth/store.ts
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'  // --with-persist 옵션 시만
 import type { User } from '@/domain/entities/user'
 
 type AuthState = {
@@ -202,82 +352,99 @@ type AuthState = {
   accessToken: string | null
   isAuthenticated: boolean
 }
+
 type AuthActions = {
-  setUser: (user: User | null) => void
-  setToken: (token: string | null) => void
-  clear: () => void
+  setUser: (user: User | null) =&gt; void
+  setToken: (token: string | null) =&gt; void
+  clear: () =&gt; void
 }
-type AuthStore = AuthState & AuthActions
+
+type AuthStore = AuthState &amp; AuthActions
 
 const initialState: AuthState = {
-  user: null, accessToken: null, isAuthenticated: false,
+  user: null,
+  accessToken: null,
+  isAuthenticated: false,
 }
 
-export const useAuthStore = create&#60;AuthStore&#62;()((set) => ({
+export const useAuthStore = create&lt;AuthStore&gt;()((set) =&gt; ({
   ...initialState,
-  setUser: (user) => set({ user, isAuthenticated: user !== null }),
-  setToken: (accessToken) => set({ accessToken }),
-  clear: () => set(initialState),
+  setUser: (user) =&gt; set({ user, isAuthenticated: user !== null }),
+  setToken: (accessToken) =&gt; set({ accessToken }),
+  clear: () =&gt; set(initialState),
 }))
 
-// Selector hooks — 전체 구독 금지
-export const useAuthUser = () => useAuthStore((s) => s.user)
-export const useIsAuthenticated = () =>
-  useAuthStore((s) => s.isAuthenticated)</code></pre>
-      <a class="card-source" href="https://github.com/pmndrs/zustand">출처: Zustand GitHub</a>
-    </div>
-    <div class="card">
-      <h3>React 외부 접근 (WASM 콜백용)</h3>
-      <p class="card-body" style="margin-bottom:12px">Zustand를 선택한 핵심 이유. WASM 비동기 콜백이나 Worker 메시지가 React 트리 밖에서 상태를 갱신해야 할 때.</p>
-      <pre><code class="language-ts">// Worker 메시지 리스너
-// React 컴포넌트 트리 밖에서 직접 setState
-wasmWorker.addEventListener('message', (event) => {
+// Selector hooks (렌더 최적화 + 타입 안전)
+export const useAuthUser = () =&gt; useAuthStore((s) =&gt; s.user)
+export const useIsAuthenticated = () =&gt; useAuthStore((s) =&gt; s.isAuthenticated)</code></pre></div>
+<h3 class="sub">1.4 Zustand TypeScript 패턴 (v5+)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>create&lt;State&gt;()(...)</code> — 제네릭 파라미터를 먼저 적용한 뒤 <strong>괄호를 한 번 더</strong> 열어 store creator 를 전달. 이게 v4+ 이후 권장 형태</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>State 와 Actions 분리</strong>: 타입 두 개로 분할하면 state shape 만 별도 타입 추출 (예: <code>initialState: AuthState</code>) 이 쉬워짐</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Selector hooks 자동 생성</strong>: <code>useAuthStore((s) =&gt; s.user)</code> 같은 selector 를 래핑한 커스텀 훅을 기본 제공. 직접 <code>useAuthStore()</code> 호출 금지 — 전체 스토어 구독으로 불필요한 리렌더 발생</div></li>
+</ul>
+<h3 class="sub">1.5 React 외부 접근 (WASM 콜백용)</h3>
+<p>이게 Jotai 대신 Zustand 를 선택한 핵심 이유. WASM 비동기 콜백이나 Worker 메시지가 React 트리 바깥에서 상태를 갱신해야 할 때:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/data/datasources/wasm/image-worker-setup.ts
+import { useUploadStore } from '@/presentation/features/upload/store'
+
+// Worker 메시지 리스너. React 컴포넌트 트리 밖에서 직접 setState 호출
+wasmWorker.addEventListener('message', (event) =&gt; {
   if (event.data.type === 'progress') {
-    useUploadStore.setState({
-      progress: event.data.value,
-    })
+    useUploadStore.setState({ progress: event.data.value })
   }
 })
 
 // 현재 상태 읽기 (구독 없이 스냅샷)
-const current = useUploadStore.getState().progress</code></pre>
-      <a class="card-source" href="https://zustand.docs.pmnd.rs/learn/guides/flux-inspired-practice.html">출처: Zustand 공식 가이드</a>
-    </div>
+const currentProgress = useUploadStore.getState().progress</code></pre></div>
+<p><code>useUploadStore.getState()</code> 와 <code>useUploadStore.setState()</code> 는 React 훅 규칙 밖에서 자유롭게 호출 가능. 이 점은 Zustand 의 구조적 이점이며 <code>/react-wasm</code> 스킬이 생성하는 Worker 래퍼와 자연스럽게 연동된다.</p>
+<h3 class="sub">1.6 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>create()</code> vs <code>createStore()</code> 혼동</strong>: 글로벌 훅 기반 사용은 <code>create</code>. React Context 로 여러 인스턴스 제공하거나 SSR 시에는 <code>createStore</code>. react-kit 기본은 <code>create</code> (대부분 client-only + Tauri).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>selector 없이 전체 구독 금지</strong>: <code>const store = useAuthStore()</code> 처럼 인자 없이 호출하면 state 모든 키에 구독되어 리렌더 폭탄. 반드시 selector 경유.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Actions 안에서 <code>get()</code> 사용 주의</strong>: 이전 상태 읽어서 다음 상태 계산할 땐 <code>set((state) =&gt; ({ ... }))</code> 형태가 안전. <code>get()</code> 은 race condition 위험.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>immer 는 선택</strong>: 단순 상태면 안 쓰는 게 번들 이득. 중첩 깊이가 2+ 이면 <code>zustand/middleware/immer</code> 추가 고려.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS</strong>: <code>create&lt;Store&gt;()</code> 제네릭을 생략하면 타입이 <code>unknown</code> 으로 추론. 항상 명시.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>persist 직렬화 실패</strong>: <code>Map</code>, <code>Set</code>, Date 객체는 기본 JSON 직렬화 안 됨. persist 사용 시 <code>storage: createJSONStorage(...)</code> 로 커스터마이즈하거나 primitive 만 저장.</div></li>
+</ul>
+<h3 class="sub">1.7 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>feature store</strong>: <code>src/presentation/features/&lt;feature&gt;/store.ts</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>shared store</strong>: <code>src/presentation/shared/stores/&lt;name&gt;.ts</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>절대 금지</strong>: <code>domain/</code> 이나 <code>data/</code> 에 Zustand import. 도메인/데이터 레이어는 상태 관리 라이브러리를 몰라야 함</div></li>
+</ul>
   </div>
+</section>
 
-  <div class="section-label" style="margin-top:0">Zustand 주의사항</div>
-  <ul class="checklist">
-    <li><span class="check">!</span><strong>create() 제네릭 필수</strong> — <code>create&#60;Store&#62;()()</code> 생략 시 타입 <code>unknown</code> 추론. 항상 명시.</li>
-    <li><span class="check">!</span><strong>selector 없이 전체 구독 금지</strong> — <code>const store = useAuthStore()</code>는 모든 키에 구독. 반드시 selector 경유.</li>
-    <li><span class="check">!</span><strong>persist + Map/Set/Date</strong> — 기본 JSON 직렬화 불가. <code>createJSONStorage()</code>로 커스터마이즈하거나 primitive만 저장.</li>
-  </ul>
-</div>
-
-<!-- ── /react-api ── -->
-<div class="section">
-  <div class="section-label">/react-api — Clean Architecture 4계층</div>
-  <p class="desc">REST/GraphQL 엔드포인트를 datasource → model → repository → usecase 4단계로 생성. 안쪽(도메인)부터 바깥쪽(presentation)으로 의존성 역순 생성.</p>
-
-  <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:24px;max-width:480px">
-    <div class="layer-box domain">domain/entities — Zod 스키마 + z.infer 타입</div>
-    <div class="arrow">↓</div>
-    <div class="layer-box domain">domain/failures — Failure discriminated union</div>
-    <div class="arrow">↓</div>
-    <div class="layer-box domain">domain/usecases — 함수 시그니처 (인터페이스)</div>
-    <div class="arrow">↓</div>
-    <div class="layer-box">data/models — DTO 스키마 + 도메인 변환</div>
-    <div class="arrow">↓</div>
-    <div class="layer-box">data/datasources/remote — fetch + Zod parse + Result</div>
-    <div class="arrow">↓</div>
-    <div class="layer-box">data/repositories — UseCase 구현</div>
-    <div class="arrow">↓</div>
-    <div class="layer-box">presentation/features/hooks — TanStack Query 훅</div>
-  </div>
-
-  <div class="grid-2" style="margin-bottom:20px">
-    <div class="card">
-      <h3>domain/entities — Zod 스키마</h3>
-      <pre><code class="language-ts">// src/domain/entities/user.ts
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>2. /react-api — Clean Architecture 4계층 생성</h2>
+  <div class="doc-body">
+<p>REST/GraphQL 엔드포인트를 <strong>datasource → model → repository → usecase</strong> 4 단계로 일괄 또는 개별 생성한다. flutter-toolkit 의 <code>/flutter-api</code> 와 동일 철학.</p>
+<h3 class="sub">2.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "API 연동", "엔드포인트 추가", "react-api", "API 만들어줘"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">서브커맨드: <code>--only model</code>, <code>--only repository</code>, <code>--only usecase</code> 로 개별 레이어만</div></li>
+</ul>
+<h3 class="sub">2.2 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>resource_name</code> (필수): PascalCase 단수 (예: <code>User</code>, <code>Product</code>, <code>Order</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>operations</code> (선택): <code>list</code>, <code>get</code>, <code>create</code>, <code>update</code>, <code>delete</code> 중 택 (복수 허용, 기본 <code>list + get</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--base-url</code> (선택): API base URL (프로젝트 <code>.env</code> 의 <code>VITE_API_URL</code> 감지해 자동 채움)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>--schema</code> (선택): Zod 스키마 파일 경로 (없으면 인터랙티브로 shape 물어봄)</div></li>
+</ul>
+<h3 class="sub">2.3 4계층 생성 순서</h3>
+<p>G1 <code>/react-feature</code> 의 의존성 그래프와 동일. 안쪽 (도메인) 부터 바깥쪽 (presentation) 으로:</p>
+<div class="code"><pre><code>1. domain/entities/&lt;resource&gt;.ts        (Zod 스키마 + z.infer 타입)
+2. domain/failures/&lt;resource&gt;-failures.ts  (Failure discriminated union)
+3. domain/usecases/&lt;resource&gt;-usecases.ts  (함수 시그니처, 인터페이스)
+4. data/models/&lt;resource&gt;-dto.ts          (API DTO 스키마 + 변환)
+5. data/datasources/remote/&lt;resource&gt;-api.ts  (fetch + Zod parse)
+6. data/repositories/&lt;resource&gt;-repository.ts  (UseCase 구현)
+7. (선택) presentation/features/&lt;feature&gt;/hooks/use-&lt;resource&gt;.ts  (TanStack Query 훅)</code></pre></div>
+<h3 class="sub">2.4 각 레이어의 역할</h3>
+<p><strong>domain/entities</strong> — 순수 도메인 모델. Zod 스키마 + <code>z.infer</code> 로 타입 파생. 외부 의존성 0개. 예:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/domain/entities/user.ts
 import { z } from 'zod'
 
 export const UserSchema = z.object({
@@ -287,211 +454,517 @@ export const UserSchema = z.object({
   createdAt: z.coerce.date(),
 })
 
-export type User = z.infer&#60;typeof UserSchema&#62;</code></pre>
-      <a class="card-source" href="https://zod.dev">출처: Zod 공식 문서</a>
-    </div>
-    <div class="card">
-      <h3>domain/failures — Discriminated Union</h3>
-      <pre><code class="language-ts">// src/domain/failures/user-failures.ts
+export type User = z.infer&lt;typeof UserSchema&gt;</code></pre></div>
+<p><strong>domain/failures</strong> — Result 의 에러 채널을 타입 안전하게. discriminated union:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/domain/failures/user-failures.ts
 export type UserFailure =
   | { kind: 'user/not-found'; userId: string }
   | { kind: 'user/network-error'; cause: string }
   | { kind: 'user/validation-failed'; issues: string[] }
-  | { kind: 'user/unauthorized' }</code></pre>
-      <a class="card-source" href="../react/kit-design/g2-state-data.md#24-각-레이어의-역할">출처: g2-state-data.md §2.4</a>
-    </div>
-  </div>
+  | { kind: 'user/unauthorized' }</code></pre></div>
+<p><strong>domain/usecases</strong> — 함수 시그니처만. 구현은 data 레이어가 담당. neverthrow Result 반환:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/domain/usecases/user-usecases.ts
+import type { Result } from 'neverthrow'
+import type { User } from '@/domain/entities/user'
+import type { UserFailure } from '@/domain/failures/user-failures'
 
-  <div class="card" style="margin-bottom:20px">
-    <h3>data/datasources/remote — fetch + Result 변환</h3>
-    <pre><code class="language-ts">// src/data/datasources/remote/user-api.ts
-import { ResultAsync } from 'neverthrow'
+export type UserUseCases = {
+  fetchUser: (id: string) =&gt; Promise&lt;Result&lt;User, UserFailure&gt;&gt;
+  listUsers: () =&gt; Promise&lt;Result&lt;User[], UserFailure&gt;&gt;
+  updateUser: (user: User) =&gt; Promise&lt;Result&lt;User, UserFailure&gt;&gt;
+}</code></pre></div>
+<p><strong>data/models</strong> — API 의 raw DTO 스키마 + 도메인 변환. API 스키마가 도메인과 달라지면 여기서 흡수:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/data/models/user-dto.ts
+import { z } from 'zod'
+import { UserSchema, type User } from '@/domain/entities/user'
+
+export const UserDtoSchema = z.object({
+  id: z.string(),
+  email_address: z.string(),  // API 는 snake_case
+  display_name: z.string(),
+  created_at: z.string(),
+})
+
+export type UserDto = z.infer&lt;typeof UserDtoSchema&gt;
+
+export function toUserDomain(dto: UserDto): User {
+  return UserSchema.parse({
+    id: dto.id,
+    email: dto.email_address,
+    name: dto.display_name,
+    createdAt: dto.created_at,
+  })
+}</code></pre></div>
+<p><strong>data/datasources/remote</strong> — fetch 실행 + Zod parse + Result 변환. 첫 경계 검증:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/data/datasources/remote/user-api.ts
+import { ok, err, ResultAsync } from 'neverthrow'
 import { UserDtoSchema } from '@/data/models/user-dto'
 import type { UserFailure } from '@/domain/failures/user-failures'
 
 const BASE = import.meta.env.VITE_API_URL
 
-export function fetchUserDto(id: string): ResultAsync&#60;unknown, UserFailure&#62; {
+export function fetchUserDto(id: string): ResultAsync&lt;unknown, UserFailure&gt; {
   return ResultAsync.fromPromise(
-    fetch(`${BASE}/users/${id}`).then(async (r) => {
+    fetch(`${BASE}/users/${id}`).then(async (r) =&gt; {
       if (r.status === 404) throw { kind: 'user/not-found', userId: id }
       if (r.status === 401) throw { kind: 'user/unauthorized' }
       if (!r.ok) throw { kind: 'user/network-error', cause: r.statusText }
       return r.json()
     }),
-    (e) =>
-      typeof e === 'object' && e !== null && 'kind' in e
-        ? (e as UserFailure)
-        : { kind: 'user/network-error', cause: String(e) },
+    (e) =&gt; (typeof e === 'object' &amp;&amp; e !== null &amp;&amp; 'kind' in e
+      ? (e as UserFailure)
+      : { kind: 'user/network-error', cause: String(e) }),
   )
-}</code></pre>
-    <a class="card-source" href="https://github.com/supermacro/neverthrow">출처: neverthrow GitHub</a>
-  </div>
+}</code></pre></div>
+<p><strong>data/repositories</strong> — UseCase 를 구현. datasource 호출 → DTO parse → 도메인 변환 → Result 반환:</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/data/repositories/user-repository.ts
+import { fetchUserDto } from '@/data/datasources/remote/user-api'
+import { UserDtoSchema, toUserDomain } from '@/data/models/user-dto'
+import type { UserUseCases } from '@/domain/usecases/user-usecases'
 
-  <div class="card">
-    <h3>data/repositories — UseCase 구현</h3>
-    <pre><code class="language-ts">// src/data/repositories/user-repository.ts
 export const userRepository: UserUseCases = {
-  fetchUser: async (id) => {
+  fetchUser: async (id) =&gt; {
     const result = await fetchUserDto(id)
-    return result.andThen((raw) => {
+    return result.andThen((raw) =&gt; {
       const parsed = UserDtoSchema.safeParse(raw)
       if (!parsed.success) {
         return err({
           kind: 'user/validation-failed' as const,
-          issues: parsed.error.issues.map((i) => i.message),
+          issues: parsed.error.issues.map((i) =&gt; i.message),
         })
       }
       return ok(toUserDomain(parsed.data))
     })
   },
-}</code></pre>
-    <a class="card-source" href="../react/kit-design/g2-state-data.md#24-각-레이어의-역할">출처: g2-state-data.md §2.4</a>
+  listUsers: async () =&gt; { /* ... */ },
+  updateUser: async (user) =&gt; { /* ... */ },
+}</code></pre></div>
+<h3 class="sub">2.5 Zod parse 실패 처리 흐름</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>첫 검증 시점</strong>: <code>data/datasources/remote/</code> 가 fetch 응답의 raw JSON 을 받는 순간</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>실패 시 변환</strong>: <code>z.safeParse()</code> 가 <code>success: false</code> 면 <code>UserFailure</code> 의 <code>kind: 'user/validation-failed'</code> 로 감싸서 Result 로 반환</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>이후 레이어는 재검증 안 함</strong>: repository, usecase, hook, component 모두 이미 검증된 도메인 타입을 신뢰</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>절대 금지</strong>: <code>as</code> 단언으로 Zod 우회, 여러 레이어에서 중복 parse, try/catch 로 Zod 에러 감추기</div></li>
+</ul>
+<h3 class="sub">2.6 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>z.infer</code> 단일 소스</strong>: 수동 interface 재정의 금지. 스키마와 타입이 어긋나면 strict TS 위반.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>fetch</code> 직접 사용은 datasource 안에서만</strong>: infrastructure/http/client.ts 에 공용 wrapper 를 두고 통일하는 것도 허용. repository 에서 직접 fetch 금지.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>DTO 와 Domain 분리</strong>: API 스키마가 도메인과 같아 보여도 반드시 DTO 를 따로 정의. 나중에 API 가 바뀌면 domain 재작성 없이 DTO 만 수정.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>HTTP 상태 코드 → Failure kind 매핑</strong>: 404 → not-found, 401 → unauthorized, 기타 → network-error. 스킬 템플릿에 매핑 표 내장.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS</strong>: <code>ResultAsync.fromPromise</code> 의 두 번째 인자 (에러 변환) 에서 <code>as</code> 사용 금지, 타입 가드로 처리.</div></li>
+</ul>
+<h3 class="sub">2.7 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">domain: <code>src/domain/entities/</code>, <code>src/domain/failures/</code>, <code>src/domain/usecases/</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">data: <code>src/data/models/</code>, <code>src/data/datasources/remote/</code>, <code>src/data/repositories/</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">presentation hook: <code>src/presentation/features/&lt;feature&gt;/hooks/</code> (선택, <code>/react-query</code> 가 담당)</div></li>
+</ul>
   </div>
-</div>
+</section>
 
-<!-- ── /react-query ── -->
-<div class="section">
-  <div class="section-label">/react-query — TanStack Query v5 훅</div>
-
-  <div class="grid-2" style="margin-bottom:24px">
-    <div class="card">
-      <h3>queryKey 3-레벨 네이밍 규칙</h3>
-      <pre><code class="language-ts">// [domain, subject, params]
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>3. /react-query — TanStack Query v5 훅 생성</h2>
+  <div class="doc-body">
+<p><code>/react-api</code> 가 생성한 repository 를 감싸는 TanStack Query v5 훅을 생성한다.</p>
+<h3 class="sub">3.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "TanStack Query 훅", "useQuery 만들어줘", "react-query", "서버 상태 훅"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">조건: <code>/react-api</code> 가 생성한 repository 가 존재 (없으면 먼저 <code>/react-api</code> 실행 안내)</div></li>
+</ul>
+<h3 class="sub">3.2 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>resource_name</code> (필수): PascalCase</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>operations</code>: <code>list</code>, <code>get</code>, <code>create</code>, <code>update</code>, <code>delete</code> — repository 의 것과 매칭</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>feature</code> (선택): feature 디렉토리 이름. 없으면 <code>presentation/shared/hooks/</code> 에 생성</div></li>
+</ul>
+<h3 class="sub">3.3 queryKey 네이밍 규칙</h3>
+<p>queryKey 는 TanStack Query 의 캐시 기본 단위다. 일관된 규칙이 없으면 invalidation 이 꼬인다.</p>
+<p><strong>3-레벨 배열 규칙</strong>: <code>[domain, subject, params]</code></p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// 단건
 ['user', 'detail', { id: userId }]
-['user', 'list',   { page, pageSize }]
-['user', 'posts',  { userId }]
+// 목록
+['user', 'list', { page, pageSize }]
+// 관계
+['user', 'posts', { userId }]</code></pre></div>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>0번째 (domain)</strong>: 리소스 이름 단수형. 'user', 'product', 'order'</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>1번째 (subject)</strong>: 쿼리의 서브젝트. 'detail', 'list', 'stats', 'children'</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2번째 (params)</strong>: 파라미터 객체. 없으면 생략 가능</div></li>
+</ul>
+<p><strong>invalidation 경로</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>queryClient.invalidateQueries({ queryKey: ['user'] })</code> → 모든 user 관련 쿼리</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>queryClient.invalidateQueries({ queryKey: ['user', 'detail', { id }] })</code> → 특정 detail 만</div></li>
+</ul>
+<h3 class="sub">3.4 useQuery 패턴</h3>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/presentation/features/user/hooks/use-user.ts
+import { useQuery } from '@tanstack/react-query'
+import { userRepository } from '@/data/repositories/user-repository'
+import type { User } from '@/domain/entities/user'
+import type { UserFailure } from '@/domain/failures/user-failures'
 
-// invalidation 경로
-queryClient.invalidateQueries({
-  queryKey: ['user'],               // 모든 user 쿼리
-})
-queryClient.invalidateQueries({
-  queryKey: ['user', 'detail', { id }],  // 특정 detail
-})</code></pre>
-      <a class="card-source" href="https://tanstack.com/query/v5/docs/framework/react/guides/query-keys">출처: TanStack Query v5 Query Keys</a>
-    </div>
-    <div class="card">
-      <h3>useQuery 패턴</h3>
-      <pre><code class="language-ts">export function useUser(userId: string) {
-  return useQuery({
+export function useUser(userId: string) {
+  return useQuery&lt;User, UserFailure&gt;({
     queryKey: ['user', 'detail', { id: userId }],
-    queryFn: async () => {
+    queryFn: async () =&gt; {
       const result = await userRepository.fetchUser(userId)
-      if (result.isErr()) throw result.error
+      if (result.isErr()) throw result.error  // TanStack Query 가 error 로 잡음
       return result.value
     },
-    staleTime: 5 * 60 * 1000,  // 5분
+    staleTime: 1000 * 60,  // 1분
+    enabled: userId !== '',
   })
-}
+}</code></pre></div>
+<p><strong>중요</strong>: queryFn 은 Promise 를 반환해야 하므로 Result 를 여기서만 throw 로 언래핑. TanStack Query 의 <code>error</code> 가 <code>UserFailure</code> 타입이 됨.</p>
+<h3 class="sub">3.5 useMutation + invalidation 패턴</h3>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/presentation/features/user/hooks/use-update-user.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { userRepository } from '@/data/repositories/user-repository'
+import type { User } from '@/domain/entities/user'
 
-// 컴포넌트에서
-const { data, isPending, isError } = useUser(userId)
-if (isPending) return &#60;Skeleton /&#62;
-if (isError)   return &#60;ErrorMessage /&#62;</code></pre>
-      <a class="card-source" href="https://tanstack.com/query/v5/docs/framework/react/guides/queries">출처: TanStack Query v5 Queries</a>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:20px">
-    <h3>useMutation + invalidation</h3>
-    <pre><code class="language-ts">export function useUpdateUser() {
+export function useUpdateUser() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (user: User) => {
+    mutationFn: async (user: User) =&gt; {
       const result = await userRepository.updateUser(user)
       if (result.isErr()) throw result.error
       return result.value
     },
-    onSuccess: (updatedUser) => {
-      queryClient.invalidateQueries({
-        queryKey: ['user', 'detail', { id: updatedUser.id }],
-      })
+    onSuccess: (updated) =&gt; {
+      // 세밀한 무효화 — detail 캐시 직접 교체 + list 재조회
+      queryClient.setQueryData(['user', 'detail', { id: updated.id }], updated)
       queryClient.invalidateQueries({ queryKey: ['user', 'list'] })
     },
   })
-}</code></pre>
-    <a class="card-source" href="https://tanstack.com/query/v5/docs/framework/react/guides/mutations">출처: TanStack Query v5 Mutations</a>
+}</code></pre></div>
+<h3 class="sub">3.6 Cache invalidation 전략</h3>
+<p><strong>세 가지 레벨</strong>:</p>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>setQueryData</strong> — 서버 응답 그대로 캐시에 주입. 추가 네트워크 호출 없음. 리소스가 작을 때 사용</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>invalidateQueries</strong> — 캐시를 stale 마킹 + 활성 쿼리 자동 refetch. 기본 전략</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>removeQueries</strong> — 캐시에서 완전 제거. 로그아웃 같은 상황에 전역 리셋용</div></li>
+</ul>
+<p><strong>권장 조합</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">업데이트: <code>setQueryData(detail) + invalidateQueries(list)</code> — detail 즉시 반영 + list 는 서버 기준으로 다시</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">생성: <code>invalidateQueries(list)</code> — 새 데이터는 서버에서</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">삭제: <code>removeQueries(detail) + invalidateQueries(list)</code> — detail 제거 + list 재조회</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">로그아웃: <code>queryClient.clear()</code> — 전체 초기화</div></li>
+</ul>
+<h3 class="sub">3.7 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>queryFn 안에서 Result throw</strong>: TanStack Query 는 throw 를 기대. Result 를 반환하면 TS 타입이 <code>Result&lt;T, E&gt;</code> 가 되어 <code>data</code> 가 Result 로 꼬임. throw 로 풀어주는 게 정답.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>queryKey 에 객체 직접 삽입 시 주의</strong>: 객체 참조 동등성이 아니라 값 동등성을 본다. 인자로 받은 객체를 그대로 넣으면 렌더마다 새 객체가 되어도 내용이 같으면 같은 쿼리로 인식 — 안전.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>enabled 로 조건부 실행</strong>: userId 가 빈 문자열인 초기 상태에 fetch 되면 안 됨. <code>enabled: userId !== ''</code> 같은 가드 필수.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>staleTime vs gcTime</strong>: staleTime (기본 0) 은 "신선함" 기준, gcTime (기본 5분) 은 캐시 유지. 자주 바뀌지 않는 데이터는 staleTime 을 길게.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Optimistic update</strong>: <code>onMutate</code> 에서 이전 캐시 백업 + 낙관적 업데이트, <code>onError</code> 에서 롤백. 생성 템플릿은 보수적 기본 (non-optimistic) — optimistic 은 옵션 플래그.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS</strong>: useQuery 제네릭은 <code>useQuery&lt;TData, TError&gt;</code> 로 명시. v5 는 TError 를 <code>Error</code> 기본값으로 잡는데 우리는 Failure union 이 필요해서 명시 필수.</div></li>
+</ul>
+<h3 class="sub">3.8 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>feature 훅</strong>: <code>src/presentation/features/&lt;feature&gt;/hooks/use-&lt;resource&gt;.ts</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>공용 훅</strong>: <code>src/presentation/shared/hooks/</code> (여러 feature 가 공유할 때)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>절대 금지</strong>: <code>domain/</code> 이나 <code>data/</code> 에 TanStack Query import. 데이터/도메인은 TanStack Query 를 모름. 훅은 presentation 레이어의 얇은 래퍼.</div></li>
+</ul>
   </div>
+</section>
 
-  <div class="section-label" style="margin-top:0">TanStack Query 주의사항</div>
-  <ul class="checklist">
-    <li><span class="check">!</span><strong>queryFn throw 규칙</strong> — TanStack Query는 throw가 없으면 성공으로 판단. Result.isErr()일 때 반드시 <code>throw result.error</code>.</li>
-    <li><span class="check">!</span><strong>staleTime 0 남용</strong> — staleTime 미설정 시 기본 0 → 매 마운트마다 refetch. /react-audit이 경고.</li>
-    <li><span class="check">!</span><strong>서버 상태를 Zustand에 복사 금지</strong> — TanStack Query가 단일 진실 공급원.</li>
-  </ul>
-</div>
-
-<!-- ── /react-form ── -->
-<div class="section">
-  <div class="section-label">/react-form — RHF + Zod</div>
-
-  <div class="card" style="margin-bottom:20px">
-    <h3>useForm + Zod resolver 패턴</h3>
-    <pre><code class="language-tsx">// src/presentation/features/auth/components/login-form.tsx
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>4. /react-form — React Hook Form + Zod</h2>
+  <div class="doc-body">
+<h3 class="sub">4.1 트리거</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">키워드: "폼 만들어줘", "form 생성", "react-form", "useForm"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">조건: G1 초기화 완료 (<code>react-hook-form</code>, <code>@hookform/resolvers</code>, <code>zod</code> 설치됨)</div></li>
+</ul>
+<h3 class="sub">4.2 입력</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>form_name</code> (필수): PascalCase (예: <code>LoginForm</code>, <code>UserEditForm</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>schema_ref</code> (선택): 이미 있는 domain entity Zod 스키마 경로. 없으면 인라인 정의</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>submit_action</code>: submit 시 호출할 usecase 함수 경로 또는 mutation 훅</div></li>
+</ul>
+<h3 class="sub">4.3 useForm + zodResolver 통합</h3>
+<div class="code"><span class="code-lang">tsx</span><pre><code>// src/presentation/features/auth/components/login-form.tsx
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { ok, err, type Result } from 'neverthrow'
 
 const LoginSchema = z.object({
-  email:    z.string().email('올바른 이메일을 입력하세요'),
-  password: z.string().min(8, '비밀번호는 8자 이상'),
+  email: z.string().email('올바른 이메일을 입력하세요'),
+  password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다'),
 })
-type LoginInput = z.infer&#60;typeof LoginSchema&#62;
 
-export function LoginForm({
-  onSubmit,
-}: {
-  onSubmit: (values: LoginInput) => Promise&#60;Result&#60;void, UserFailure&#62;&#62;
-}) {
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm&#60;LoginInput&#62;({ resolver: zodResolver(LoginSchema) })
+type LoginFormValues = z.infer&lt;typeof LoginSchema&gt;
 
-  const handleFormSubmit = handleSubmit(async (values) => {
+type LoginFailure =
+  | { kind: 'login/invalid-credentials' }
+  | { kind: 'login/network-error'; cause: string }
+
+type Props = {
+  onSubmit: (values: LoginFormValues) =&gt; Promise&lt;Result&lt;void, LoginFailure&gt;&gt;
+}
+
+export function LoginForm({ onSubmit }: Props) {
+  const form = useForm&lt;LoginFormValues&gt;({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: { email: '', password: '' },
+  })
+
+  const handleSubmit = form.handleSubmit(async (values) =&gt; {
     const result = await onSubmit(values)
     if (result.isErr()) {
-      setError('root', { message: toUserMessage(result.error) })
+      if (result.error.kind === 'login/invalid-credentials') {
+        form.setError('root', { message: '이메일 또는 비밀번호가 올바르지 않습니다' })
+      } else {
+        form.setError('root', { message: '네트워크 오류. 다시 시도해주세요' })
+      }
     }
   })
 
   return (
-    &#60;form onSubmit={handleFormSubmit}&#62;
-      &#60;input {...register('email')} /&#62;
-      {errors.email && &#60;p&#62;{errors.email.message}&#60;/p&#62;}
-      &#60;input type="password" {...register('password')} /&#62;
-      {errors.root && &#60;p&#62;{errors.root.message}&#60;/p&#62;}
-      &#60;button type="submit" disabled={isSubmitting}&#62;로그인&#60;/button&#62;
-    &#60;/form&#62;
+    &lt;form onSubmit={handleSubmit} className="space-y-4"&gt;
+      &lt;div&gt;
+        &lt;label htmlFor="email"&gt;이메일&lt;/label&gt;
+        &lt;input id="email" type="email" {...form.register('email')} /&gt;
+        {form.formState.errors.email &amp;&amp; (
+          &lt;p className="text-sm text-destructive"&gt;{form.formState.errors.email.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;label htmlFor="password"&gt;비밀번호&lt;/label&gt;
+        &lt;input id="password" type="password" {...form.register('password')} /&gt;
+        {form.formState.errors.password &amp;&amp; (
+          &lt;p className="text-sm text-destructive"&gt;{form.formState.errors.password.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+      {form.formState.errors.root &amp;&amp; (
+        &lt;p className="text-sm text-destructive"&gt;{form.formState.errors.root.message}&lt;/p&gt;
+      )}
+      &lt;button type="submit" disabled={form.formState.isSubmitting}&gt;
+        {form.formState.isSubmitting ? '로그인 중…' : '로그인'}
+      &lt;/button&gt;
+    &lt;/form&gt;
   )
-}</code></pre>
-    <a class="card-source" href="https://react-hook-form.com/get-started">출처: React Hook Form 공식 문서</a>
+}</code></pre></div>
+<h3 class="sub">4.4 에러 표시 규칙</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>필드별 에러</strong>: <code>form.formState.errors.&lt;field&gt;?.message</code> 를 바로 아래 <code>&lt;p&gt;</code> 에 표시</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>root 에러</strong>: 제출 실패 (서버 에러, 네트워크 에러 등) 는 <code>form.setError('root', { message })</code> 로 폼 최상단에 표시</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>disabled 상태</strong>: <code>form.formState.isSubmitting</code> 으로 submit 중 중복 제출 차단</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>접근성</strong>: label 의 <code>htmlFor</code> ↔ input 의 <code>id</code> 매칭 필수. 에러 메시지는 <code>aria-describedby</code> 로 연결 권장</div></li>
+</ul>
+<h3 class="sub">4.5 Submit 은 Result 반환</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">submit 핸들러는 <code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code> 를 반환받아 성공/실패 분기</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>절대 throw 금지</strong>: 폼 제출 로직은 try/catch 대신 Result 체인. 상위 useCase 에서 이미 Result 로 변환되어 있어야 함</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>성공 후 처리</strong>: 라우팅 (<code>navigate('/dashboard')</code>), 토스트, store 갱신 등은 <code>if (result.isOk()) { ... }</code> 블록에서</div></li>
+</ul>
+<h3 class="sub">4.6 Gotchas</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Zod v4 TypeScript 이슈 (<code>@hookform/resolvers</code> 5.1 미만 전용)</strong>: resolvers 5.1 이상은 Zod 4 를 지원해 이 이슈가 없다. 5.1 미만 React Hook Form + Zod v4 조합에서 <code>z.infer</code> 가 <code>unknown</code> 으로 잡히는 제네릭 타입 이슈가 있음 (react-hook-form/resolvers#781, #813 참조). <code>/react-form</code> 스킬은 Zod 스키마를 직접 <code>z.object(...)</code> 로 정의하고 <code>z.infer&lt;typeof Schema&gt;</code> 로 타입 파생하는 <strong>직접 패턴</strong> 만 생성. 제네릭 래퍼 (<code>type FormValues&lt;T extends z.ZodType&gt; = z.infer&lt;T&gt;</code>) 는 만들지 않음 (출처: <a class="ext" href="https://github.com/react-hook-form/resolvers/issues/781" target="_blank" rel="noopener">https://github.com/react-hook-form/resolvers/issues/781</a>).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>resolver 와 수동 validate 병용 주의</strong>: <code>zodResolver</code> 를 쓰면 resolver 쪽 검증이 우선. 필드별 <code>validate</code> 옵션은 resolver 통과 후에만 동작. 중복 검증 피할 것 (출처: <a class="ext" href="https://github.com/orgs/react-hook-form/discussions/10153" target="_blank" rel="noopener">https://github.com/orgs/react-hook-form/discussions/10153</a>).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>controlled 컴포넌트 (shadcn Select 등) 는 <code>Controller</code></strong>: <code>register()</code> 는 uncontrolled input 전용. shadcn 의 Select, Checkbox 같은 컨트롤드 컴포넌트에는 <code>Controller</code> 로 래핑 필수.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>defaultValues 필수</strong>: 초기값 없이 시작하면 uncontrolled → controlled 전환 경고. 빈 문자열이라도 명시.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>mode</code> 옵션</strong>: 기본은 <code>onSubmit</code> (제출 시 검증). <code>onBlur</code>, <code>onChange</code>, <code>onTouched</code> 로 조절 가능. UX 요구에 따라 선택.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Strict TS</strong>: <code>useForm&lt;Values&gt;()</code> 제네릭 명시 필수. <code>register('&lt;field&gt;')</code> 의 필드명은 Values 의 키로 타입 체크됨.</div></li>
+</ul>
+<h3 class="sub">4.7 Clean Architecture 배치</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>폼 컴포넌트</strong>: <code>src/presentation/features/&lt;feature&gt;/components/&lt;name&gt;-form.tsx</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>스키마</strong>: 폼 전용이면 같은 파일 인라인. 도메인 엔티티와 공유하면 <code>src/domain/entities/</code> 에서 import</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>submit 로직</strong>: 컴포넌트 안에서 직접 호출하지 말고 <code>hooks/use-&lt;action&gt;.ts</code> (mutation 훅) 를 props 로 주입</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>절대 금지</strong>: 폼 컴포넌트 안에서 직접 fetch, direct repository 호출. 반드시 hook 또는 UseCase 경유</div></li>
+</ul>
   </div>
+</section>
 
-  <div class="section-label" style="margin-top:0">RHF + Zod 주의사항</div>
-  <ul class="checklist">
-    <li><span class="check">!</span><strong>Zod v4 + RHF resolver TypeScript 이슈</strong> — @hookform/resolvers의 Zod v4 지원 TypeScript 이슈가 보고됨. 설치 전 버전 호환성 확인 필수.</li>
-    <li><span class="check">!</span><strong>서버 에러는 setError('root')</strong> — 서버 반환 에러를 <code>setError('root')</code>로 폼 수준에서 표시. toast와 이중 표시 방지.</li>
-    <li><span class="check">!</span><strong>z.infer 단일 소스</strong> — 폼 타입을 별도 interface로 재정의 금지. 스키마와 어긋나면 Strict TS 위반.</li>
-  </ul>
-</div>
-
-<!-- ── 푸터 ── -->
-<div class="section">
-  <div class="section-label">관련 문서</div>
-  <div class="footer-links">
-    <a href="scaffolding.html" class="footer-link">→ G1 스캐폴딩</a>
-    <a href="performance.html" class="footer-link">→ G3 성능 (WASM·Tauri)</a>
-    <a href="quality.html" class="footer-link">→ G4 품질</a>
-    <a href="build-audit.html" class="footer-link">→ G6 빌드 &amp; 감사</a>
-    <a href="integration.html" class="footer-link">→ 전체 통합</a>
-    <a href="../index.html" class="footer-link">→ 문서 허브</a>
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>5. 4개 스킬의 협력 흐름</h2>
+  <div class="doc-body">
+<div class="code"><pre><code>사용자가 "사용자 프로필 편집 기능" 요청
+         │
+         ▼
+/react-feature user-profile  (G1) — skeleton 생성
+         │
+         ▼
+/react-api User                  (G2.2) — 4계층 생성
+  └─ domain/entities/user.ts, failures, usecases
+  └─ data/models/user-dto.ts, datasources, repository
+         │
+         ▼
+/react-query User                (G2.3) — useQuery + useUpdateUserMutation 생성
+  └─ presentation/features/user-profile/hooks/use-user.ts
+  └─                           /hooks/use-update-user.ts
+         │
+         ▼
+/react-store user-profile        (G2.1) — 클라이언트 상태 store 생성 (편집 중 dirty flag 등)
+  └─ presentation/features/user-profile/store.ts
+         │
+         ▼
+/react-form UserEditForm         (G2.4) — RHF 폼 컴포넌트 생성
+  └─ presentation/features/user-profile/components/user-edit-form.tsx
+  └─ submit 은 useUpdateUserMutation 의 mutationFn 을 props 로 주입
+         │
+         ▼
+/react-screen UserProfile        (G1) — 화면에 폼 배치 + 라우트 등록</code></pre></div>
+<p>4개 스킬이 같은 feature 이름을 공유하며 순차적으로 호출되면 파일이 서로 맞물려 바로 동작한다. 각 스킬은 <strong>G1 <code>/react-feature</code> 가 만든 skeleton 이 존재한다고 가정</strong> 하므로, 없으면 먼저 실행을 안내한다.</p>
   </div>
-</div>
+</section>
+
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
+  <h2>6. 공유 Helpers 및 Cross-group 관계</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Project detection</strong>: G1 의 <code>react-kit/references/project-detection.md</code> 재사용</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Clean Arch 레이아웃</strong>: G1 의 <code>react-kit/references/clean-arch-layout.md</code> 재사용</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Result 헬퍼</strong>: <code>react-kit/references/result-patterns.md</code> 공용 레퍼런스 (G2 에서 신규 작성)</div></li>
+</ul>
+<p><strong>Cross-group 관계</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">G2 출력물은 <strong>G3 <code>/react-wasm</code></strong> 이 WASM 호출을 data/datasources/wasm/ 로 추가할 때 확장됨</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G4 <code>/react-test</code></strong> 가 G2 의 repository, hook, store 에 대한 Vitest + Testing Library 테스트 생성</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G5 <code>/react-skeleton</code></strong> 이 useQuery 의 <code>isPending</code> 상태를 shimmer 로 표시</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G6 <code>/react-audit</code></strong> 가 G2 산출물에서 Zod parse 누락, Result throw 대체 누락, Zustand 전체 구독 같은 안티패턴 검출</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s11">
+  <div class="section-label">§ 11</div>
+  <h2>7. 출처 요약</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body">Zustand 공식 문서: <a class="ext" href="https://zustand.docs.pmnd.rs/" target="_blank" rel="noopener">https://zustand.docs.pmnd.rs/</a></div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body">Zustand GitHub README: <a class="ext" href="https://github.com/pmndrs/zustand" target="_blank" rel="noopener">https://github.com/pmndrs/zustand</a></div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body">Zustand Auto Generating Selectors: <a class="ext" href="https://zustand.docs.pmnd.rs/guides/auto-generating-selectors" target="_blank" rel="noopener">https://zustand.docs.pmnd.rs/guides/auto-generating-selectors</a></div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body">TanStack Query v5 Query Invalidation: <a class="ext" href="https://tanstack.com/query/v5/docs/react/guides/query-invalidation" target="_blank" rel="noopener">https://tanstack.com/query/v5/docs/react/guides/query-invalidation</a></div></li>
+  <li class="lv0"><span class="li-mark">5.</span><div class="li-body">TanStack Query v5 Invalidations from Mutations: <a class="ext" href="https://tanstack.com/query/v5/docs/react/guides/invalidations-from-mutations" target="_blank" rel="noopener">https://tanstack.com/query/v5/docs/react/guides/invalidations-from-mutations</a></div></li>
+  <li class="lv0"><span class="li-mark">6.</span><div class="li-body">TanStack Query v5 useQuery Reference: <a class="ext" href="https://tanstack.com/query/v5/docs/framework/react/reference/useQuery" target="_blank" rel="noopener">https://tanstack.com/query/v5/docs/framework/react/reference/useQuery</a></div></li>
+  <li class="lv0"><span class="li-mark">7.</span><div class="li-body">TanStack Query v5 Mutations: <a class="ext" href="https://tanstack.com/query/v5/docs/react/guides/mutations" target="_blank" rel="noopener">https://tanstack.com/query/v5/docs/react/guides/mutations</a></div></li>
+  <li class="lv0"><span class="li-mark">8.</span><div class="li-body">TanStack Query v5 Migration Guide: <a class="ext" href="https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5" target="_blank" rel="noopener">https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5</a></div></li>
+  <li class="lv0"><span class="li-mark">9.</span><div class="li-body">React Hook Form useForm: <a class="ext" href="https://react-hook-form.com/docs/useform" target="_blank" rel="noopener">https://react-hook-form.com/docs/useform</a></div></li>
+  <li class="lv0"><span class="li-mark">10.</span><div class="li-body">React Hook Form Resolvers: <a class="ext" href="https://github.com/react-hook-form/resolvers" target="_blank" rel="noopener">https://github.com/react-hook-form/resolvers</a></div></li>
+  <li class="lv0"><span class="li-mark">11.</span><div class="li-body">React Hook Form Resolvers Issue #781 (Zod v4 coerce TypeScript): <a class="ext" href="https://github.com/react-hook-form/resolvers/issues/781" target="_blank" rel="noopener">https://github.com/react-hook-form/resolvers/issues/781</a></div></li>
+  <li class="lv0"><span class="li-mark">12.</span><div class="li-body">React Hook Form Resolvers Issue #813 (Zod v4 Type error): <a class="ext" href="https://github.com/react-hook-form/resolvers/issues/813" target="_blank" rel="noopener">https://github.com/react-hook-form/resolvers/issues/813</a></div></li>
+  <li class="lv0"><span class="li-mark">13.</span><div class="li-body">neverthrow GitHub: <a class="ext" href="https://github.com/supermacro/neverthrow" target="_blank" rel="noopener">https://github.com/supermacro/neverthrow</a></div></li>
+  <li class="lv0"><span class="li-mark">14.</span><div class="li-body">neverthrow README: <a class="ext" href="https://github.com/supermacro/neverthrow/blob/master/README.md" target="_blank" rel="noopener">https://github.com/supermacro/neverthrow/blob/master/README.md</a></div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s12">
+  <div class="section-label">§ 12</div>
+  <h2>현행화 기록</h2>
+  <div class="doc-body">
+<p>2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 <code>6378948</code> 에서 이 문서가 맡은 경로(머리 블록 <code>skills</code> 넷)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">커밋</div></th>
+  <th><div class="c">날짜</div></th>
+  <th><div class="c">이 문서에 준 영향</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>001c900</code></div></td>
+  <td><div class="c">2026-09-25</div></td>
+  <td><div class="c">설계 영향 없음 — react-form 의 낡은 버전 문장 갱신뿐이다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>e7b9508</code></div></td>
+  <td><div class="c">2026-08-13</div></td>
+  <td><div class="c">고친 절: 의존성 설치 버전 범위 줄 · §4.6 Zod v4 줄 — 타입 충돌 우회는 <code>@hookform/resolvers</code> 5.1 미만 전용</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>928fd30</code></div></td>
+  <td><div class="c">2026-07-27</div></td>
+  <td><div class="c">고친 절: 공통 설계 원칙 — <code>/react-api</code> · <code>/react-query</code> 소비면 열거</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>644e2df</code></div></td>
+  <td><div class="c">2026-06-05</div></td>
+  <td><div class="c">고친 절: 공통 설계 원칙 — 생성 전 전수 스캔 · 요청 범위만 (store · api · query · form)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>3b98054</code></div></td>
+  <td><div class="c">2026-04-24</div></td>
+  <td><div class="c">고친 절: 상태 분리 원칙 — 폼 입력 값은 React Hook Form 이 갖는다. react-api 설명의 상호 배타 문구는 설계 영향 없음</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>d59cc5e</code></div></td>
+  <td><div class="c">2026-04-12</div></td>
+  <td><div class="c">설계 영향 없음 — react-store(slices · devtools · persist) · react-query(낙관적 갱신 · ensureQueryData) · react-form(RHF v8 beta 경고) Gotcha 추가뿐이다. 생성 산출물 · 계층은 그대로</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>d0010b2</code></div></td>
+  <td><div class="c">2026-04-11</div></td>
+  <td><div class="c">설계 영향 없음 — react-store <code>useShallow</code> · react-query 객체형 시그니처 · <code>queryOptions()</code> Gotcha 추가뿐이다. 생성 산출물 · 계층은 그대로</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s13">
+  <div class="section-label">§ 13</div>
+  <h2>8. 변경 이력</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-04-10</strong> — 초판. G2 4개 스킬 (<code>/react-store</code>, <code>/react-api</code>, <code>/react-query</code>, <code>/react-form</code>) 상세 설계. WebSearch fallback 으로 Zustand v5, TanStack Query v5, React Hook Form + Zod resolver, neverthrow 공식 문서 및 알려진 이슈 (#781, #813) 검증.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-09-26</strong> — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 17 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://github.com/pmndrs/zustand" target="_blank" rel="noopener">&#8599; https://github.com/pmndrs/zustand</a></li>
+    <li><a class="card-source" href="https://tanstack.com/query/v5/docs/framework/react/installation" target="_blank" rel="noopener">&#8599; https://tanstack.com/query/v5/docs/framework/react/installation</a></li>
+    <li><a class="card-source" href="https://react-hook-form.com/get-started" target="_blank" rel="noopener">&#8599; https://react-hook-form.com/get-started</a></li>
+    <li><a class="card-source" href="https://github.com/react-hook-form/resolvers" target="_blank" rel="noopener">&#8599; https://github.com/react-hook-form/resolvers</a></li>
+    <li><a class="card-source" href="https://github.com/supermacro/neverthrow" target="_blank" rel="noopener">&#8599; https://github.com/supermacro/neverthrow</a></li>
+    <li><a class="card-source" href="https://github.com/react-hook-form/resolvers/issues/781" target="_blank" rel="noopener">&#8599; https://github.com/react-hook-form/resolvers/issues/781</a></li>
+    <li><a class="card-source" href="https://github.com/orgs/react-hook-form/discussions/10153" target="_blank" rel="noopener">&#8599; https://github.com/orgs/react-hook-form/discussions/10153</a></li>
+    <li><a class="card-source" href="https://zustand.docs.pmnd.rs/" target="_blank" rel="noopener">&#8599; https://zustand.docs.pmnd.rs/</a></li>
+    <li><a class="card-source" href="https://zustand.docs.pmnd.rs/guides/auto-generating-selectors" target="_blank" rel="noopener">&#8599; https://zustand.docs.pmnd.rs/guides/auto-generating-selectors</a></li>
+    <li><a class="card-source" href="https://tanstack.com/query/v5/docs/react/guides/query-invalidation" target="_blank" rel="noopener">&#8599; https://tanstack.com/query/v5/docs/react/guides/query-invalidation</a></li>
+    <li><a class="card-source" href="https://tanstack.com/query/v5/docs/react/guides/invalidations-from-mutations" target="_blank" rel="noopener">&#8599; https://tanstack.com/query/v5/docs/react/guides/invalidations-from-mutations</a></li>
+    <li><a class="card-source" href="https://tanstack.com/query/v5/docs/framework/react/reference/useQuery" target="_blank" rel="noopener">&#8599; https://tanstack.com/query/v5/docs/framework/react/reference/useQuery</a></li>
+    <li><a class="card-source" href="https://tanstack.com/query/v5/docs/react/guides/mutations" target="_blank" rel="noopener">&#8599; https://tanstack.com/query/v5/docs/react/guides/mutations</a></li>
+    <li><a class="card-source" href="https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5" target="_blank" rel="noopener">&#8599; https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5</a></li>
+    <li><a class="card-source" href="https://react-hook-form.com/docs/useform" target="_blank" rel="noopener">&#8599; https://react-hook-form.com/docs/useform</a></li>
+    <li><a class="card-source" href="https://github.com/react-hook-form/resolvers/issues/813" target="_blank" rel="noopener">&#8599; https://github.com/react-hook-form/resolvers/issues/813</a></li>
+    <li><a class="card-source" href="https://github.com/supermacro/neverthrow/blob/master/README.md" target="_blank" rel="noopener">&#8599; https://github.com/supermacro/neverthrow/blob/master/README.md</a></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>docs/react/kit-design/g2-state-data.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
 
 </div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>
