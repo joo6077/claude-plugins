@@ -55,3 +55,13 @@ coverage.py(기준 `38cccd1`)와 fence2.py(기준만 `38cccd1` 로 바꾼 사본
 - 검토에서 onboarding 두 쪽이 한 쪽 안에서 게이트 숫자가 어긋난다고 짚었다. setup-guide 의 수치 표 두 줄과 끝 점검 목록, format-checklist 의 제목 · 보고 규약 · 통과 예시 출력 · 끝 점검 목록을 원본대로 G1~G5 · 6 줄 · 5 가지로 고쳤다. format-checklist 에는 G5 설명 줄을 더했다.
 - 두 쪽에서 `G1~G4` · `5 줄` · `5줄` · `4 가지` 를 다시 찾으면 0 건이다. 담김 값은 고치기 전과 같다(setup-guide 0.65, format-checklist 0.88).
 - 범위 밖 쪽 search-strategy 에도 `guide_gate G1~G4` 가 남아 있다. 짝 목록에 없는 쪽이라 이번에는 두고 다음 묶음에 넘긴다.
+
+## 남은 것
+
+독립 검토가 막지 않는 것으로 본 결함이다. 이번 묶음에서는 고치지 않았다.
+
+- setup-guide 가 원본 인라인 코드 82 개 가운데 8 개를 옮기지 못했다(`harness/docs/guides/skill-design-guide.md` · `.env.local` · `.env.production` · `com.<앱이름>.app` · `references/project-detection.md` · `/insights` 등). 원본 254 줄 「지금 만들 수 없다고 결론 내릴 때도 §3.7 조항 3 의 네 칸을 적는다」 규칙과 40 · 42 줄의 §3.7 연결도 쪽에 없다. 옛 판에도 없던 것이라 계약 위반은 아니다. 다음 다시 맞추기 때 옮긴다.
+- 원본 오류를 그대로 옮긴 것이 하나 있다. `design-kit/references/visual-change-protocol.md:223` 과 그 쪽 687 줄이 「PRD 없음」 규칙을 design-mockup Step 6 이라고 가리킨다. design-mockup SKILL.md 에서 Step 6 은 Figma 전송이고 이 규칙은 Step 5(171 줄)에 있다. 원본부터 고친 뒤 쪽을 따라 맞춘다.
+- 범위 밖 쪽 `docs/onboarding-kit/search-strategy.html:513` 에 `guide_gate G1~G4` 옛 값이 남아 있다(위 「검토 뒤 고친 것」과 같은 건).
+- `design-test.html` 에서 쪽 안 움직임 줄이기 규칙을 지우면서 `.feat-card:hover{transform:none}` 도 사라졌다. 움직임을 줄인 설정이어도 카드에 올리면 순간 이동한다. 공통 파일이 전환 시간은 줄여 주므로 사소하다.
+- DG-05 재는 명령의 전제(`W==TIP && clean`)가 QA 가 스스로 바꾸는 계약 status 한 줄과 부딪혔다. 다음 계약은 비교 범위에서 `.harness/` 를 빼거나 status 줄을 전제에서 뺀다.
