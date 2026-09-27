@@ -98,4 +98,8 @@
 - SC-01 출력의 `wrong=0` 뒤 빈칸이 둘이다(`ext_cases.py` 가 틀린 사례 목록이 비면 끝에 빈칸을 남긴다). 계약 측정 줄은 빈칸 하나로 적혀 있어 글자 그대로 대조하면 어긋난다 — 값은 모두 같다. 측정 묶음은 봉인돼 고치지 않았다.
 - `ci-local.sh` 는 CI 에 새로 넣은 `check-api-kit-docs.py` 단계를 자기 목록 밖으로 알린다. 그 단계는 SC-03 이 따로 잰다.
 - 교차 진단 권고 `layout.js` 상대 경로 문제는 회귀 게이트에 「`REPO` 는 절대 경로로」 한 줄로만 남겼다(측정 묶음 지문을 바꾸지 않으려고).
-- QA(qa-evaluator) 판정 전. 계약 `status` 는 `active` 그대로다.
+- QA(qa-evaluator) APPROVE — 25/25. 계약 `status` 는 `done`, 리포트는 `.harness/sprint-feedback-after-0926-docs-regen-a.md`. 교차 진단은 부모 몫(`cross_diagnosis_by: pending-parent`)으로 두 가지를 본다 — SC-01 빈칸 차이를 PASS 로 친 판단, 0 건 · 빈 출력으로 통과한 조건이 헛통과인지.
+- 독립 검토에서 나온 결함 두 건(막지 않음, 계약 조건이 재지 않는 범위):
+  - `docs/bambu-kit/bambu-fields-baseline.html` · `failure-recipes.html` · `materials.html` 머리에 원본의 판 번호 설명이 빠졌다 — 「Studio 판은 실행 때 조회한다, 하드코딩 금지」 · 「두 값은 따로 갱신된다」 · 앱 `02.06.00.51` / 번들 `02.06.00.05` → 2026-09-05 확인 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 기준값 10/10 동일. 원본에 들어간 것이 `07573ee`(2026-09-06)로 기준 판보다 앞이라 SK-04 에 안 걸렸다. `surface-recipes.html` 에는 같은 줄이 있으니 그 모양을 옮기면 된다.
+  - 쪽 머리가 원본과 다른 사실을 적는다. `materials.html` 부제 「Bambu Studio 2.6.0 (v02.06.00.51) 기준」이 `377a5be` 에서 넣은 「Studio 버전은 실행 때 조회한다」 표지와 한 머리 안에서 부딪히고, `failure-recipes.html` 머리 표지 「Bambu Studio 2.6.0 (v02.06.00.51)」은 원본의 「버전을 하드코딩하지 마라」와 반대다.
+- 참고: `docs/process/kaizen-flow.html` 은 본문의 `assets/site.css` 언급을 `site&#46;css` 로 적어 SK-07(글자 수 1)을 비켜 간다. 담긴 뜻은 맞다. 다음 계약은 링크 태그만 세도록 조건을 바꿔야 한다.
