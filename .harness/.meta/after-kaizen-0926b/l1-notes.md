@@ -182,7 +182,7 @@
 - `python3 scripts/detect-docs-drift.py --since 90d0716` 가 `docs/design-kit/*.html` 28 쪽을 다시 만들 후보로 낸다. 원본 모양만 바뀌어 페이지 내용은 같으니 다시 만들지 않는다(계약 범위 경계)
 - `design-kit/references/visual-change-protocol.md` 는 시험 입력이라 손대지 않았다. 이 파일의 경고는 그대로 남아 있다
 - 좁힌 끄기 120 곳 가운데 MD025 37 곳(문서 머리 `title:` 과 본문 `#` 제목의 겹침, SKILL.md 의 `# Process` 관례)은 레포 전체 관례를 정하면 한꺼번에 풀 수 있다
-- 독립 검토의 막는 결함 하나(design-concept Gotchas 11번이 자동 고침으로 1 로 바뀌어 Step 7 의 「Gotcha #11」 참조가 끊김)는 d35a192 에서 번호를 11 로 되돌리고 그 줄만 MD029 를 좁혀 껐다. 검토는 이 커밋 전 판을 읽었다. 가지 끝 판 88 줄은 `11.` 이다
+- 독립 검토의 막는 결함 하나(design-concept Gotchas 11번이 자동 고침으로 1 로 바뀌어 Step 7 의 「Gotcha #11」 참조가 끊김)는 d35a192 에서 번호를 11 로 되돌리고 그 줄만 MD029 를 좁혀 껐다. 검토는 이 커밋 전 판을 읽었다. 가지 끝 판은 88 줄이 끄기 주석, 89 줄이 `11.` 이다
 - 독립 검토가 짚은 글자 차이 둘(`color.md` 표 안 주소를 `<...>` 자동 링크로 · `ethical-design.md` 굵은 소제목을 제목으로 바꾸며 문단이 나뉨)은 링크와 뜻이 그대로라 두었다
 
 ## QA
