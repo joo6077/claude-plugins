@@ -340,4 +340,7 @@
 - 목록 밖 경고: 고치지 않는 파일 7 개의 경고 75 건은 이 묶음 밖이라 그대로다
 - 울타리 짝이 깨진 7 파일(`.claude/kaizen-input/per-project-feedback.md` · `.claude/skills/react-kaizen/SKILL.md` · `harness/skills/sprint-contract/SKILL.md` · `docs/superpowers/plans/` 넷)은 편집기와 뜻 검사가 코드 블록 경계를 달리 읽는다. 울타리를 바로잡으려면(바깥 울타리를 백틱 네 개로) 코드 블록 속 줄이 바뀌어 이 계약의 뜻 검사가 막는다. 경고는 구간 끄기로 0 이 됐지만 화면에 보이는 모양은 깨진 그대로다
 - 바꾼 md 에 짝이 있는 docs html 페이지는 다시 만들지 않았다. 바뀐 것은 모양뿐이다
-- QA 판정은 아직이다
+- QA 판정: APPROVE(조건 21 개 전부 통과, 리포트 `.harness/sprint-feedback-after-0926-mdlint-l4.md`). 독립 검토도 막는 결함 0 건
+- 줄 번호가 밀린 참조 521 곳: 빈 줄과 주석이 들어가 `파일:줄번호` 로 가리키던 자리가 다른 줄을 가리킨다. 520 곳은 `.harness` 안의 지난 계약·피드백 기록(봉인돼 고치지 않는다), 1 곳은 `docs/superpowers/followup-2026-04-11-plugin-validation-findings.md` 의 `qa-evaluator.md:42`. 모두 지난 기록이라 지금 도는 도구에는 영향 없다
+- `.claude/skills/react-kaizen/SKILL.md` 4 번 항목: 코드 블록 뒤에 빈 줄이 들어가 그 목록의 항목 사이가 화면에서 조금 벌어져 보인다. 내용과 순서는 그대로다
+- 끄기 구간이 넓은 자리: `per-project-feedback.md` 는 짝 없는 끄기로 250 줄을 파일 끝까지 끈다. 100 줄 넘는 구간은 계획 문서의 깨진 울타리 자리 넷(`harness-kaizen.md` 210 · `kaizen-self-improvement.md` 161 · `design-kit.md` 131 · `design-kit-new-skills.md` 123). 울타리를 바로잡을 때 같이 좁힌다
