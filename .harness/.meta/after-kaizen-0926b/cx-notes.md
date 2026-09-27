@@ -175,3 +175,16 @@ AR-02 는 이 notes 커밋 뒤에 잰다.
 - 문서 페이지 다시 만들기 다섯(위 검사 결과) — 부모 다음 차례
 - `scripts/check-api-kit-docs.py` CI 등록 — 문서 페이지 차례에 같이
 - 위 「이 묶음 밖으로 넘긴 것」 넷 그대로
+
+### 끝 판 독립 검토가 찾은 것 (막지 않음 · QA APPROVE 뒤)
+
+- `scripts/check-api-kit-docs.py:36-39` — `url(` 쪽 판정이 `https?://` 만 봐서 `url(//cdn.x/a.png)` 를 외부로 못 잡는다.
+  `<link>` 쪽은 `//` 를 잡는다. `<img src="https://…">` · `@import"https://…"`(빈칸 없음)도 못 잡는데, 이 둘은 이번 변경 전부터 있던
+  구멍이다. SC-01 의 18 사례에 이 모양이 없어 통과했다 — 다음에 이 검사를 CI 에 넣을 때 사례와 함께 고친다
+- `scripts/check-cause-table-copies.py:26` — 원문 덩어리가 첫 `- **미확정**` 줄에서 끝나, 원문에서 그 줄 뒤에 더한 경우는 사본이
+  안 따라가도 통과한다(scratch 사본에 한 줄 넣어 `checked=2 violations=0` 확인). SC-02 가 덩어리를 그렇게 정의했으므로 계약
+  위반은 아니고 설계 한계다. 끝 표시를 덩어리 뒤 빈 줄이나 다음 절 머리로 옮길지 판단이 필요하다
+- `harness/docs/guides/contract-design-guide.md:759` — 「작성 시점 패턴(조건 패턴 5 종)」 이 옛 수로 남았다. 같은 가지가
+  `harness/skills/sprint-contract/SKILL.md:471` 을 「조건 패턴 8 종 (v5.7)」 로 올렸다. 옮겨 간 문장
+  `docs/harness/contract-design-guide.html:1013` 에도 같은 말이 있어 문서 페이지 다시 만들 때 같이 맞춘다
+- `docs/harness/contract-schema.html` 은 목차(`docs/index.html`)만 v5.7 이고 페이지는 아직 옛 판 — 위 문서 페이지 차례에 포함
