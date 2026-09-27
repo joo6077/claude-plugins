@@ -254,10 +254,6 @@
     .dist-row{grid-template-columns:1fr;gap:4px}
     .dist-val{text-align:left}
   }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
-  }
 </style>
 </head>
 <body>
@@ -357,7 +353,7 @@
 <!-- ══════════ 제스처 콜백 표 — 이번 개정의 핵심 자산 ══════════ -->
 <div class="section">
   <div class="section-label">제스처 콜백 어휘 &mdash; 원칙 0 의 원본</div>
-  <p class="desc">Flutter SDK <code>packages/flutter/lib/src/widgets/gesture_detector.dart</code> (3.38.4 · 3.47.5) 에서 <strong>콜백 58개</strong>를 확인했다. 단계 축은 제스처마다 일관되게 붙는다. <strong>이 표가 있는 자리에서는 이름을 새로 만들지 않는다.</strong></p>
+  <p class="desc">Flutter SDK <code>packages/flutter/lib/src/widgets/gesture_detector.dart</code> (3.38.4 · 3.47.5) 에서 <strong>콜백 58개를</strong> 확인했다. 단계 축은 <code>Down → Start → Update/MoveUpdate → End/Up → Cancel</code> 이고 제스처마다 일관되게 붙는다. <strong>이 표가 있는 자리에서는 이름을 새로 만들지 않는다.</strong></p>
 
   <div class="spotlight">
     <h3 style="margin-bottom:14px">단계 축 &mdash; 제스처마다 같은 순서로 붙는다</h3>
@@ -591,7 +587,7 @@ void onServerSelected(Server server) { ... }</code></pre>
       <div class="sources-head">출처</div>
       <span class="source-badge">Flutter SDK <code style="background:none;padding:0">packages/flutter/lib/src/widgets/gesture_detector.dart</code> (3.38.4 · 3.47.5 실측 &mdash; 콜백 58개)</span>
       <span class="source-badge">프로젝트 실측 &mdash; handlePressStart 7건 · handlePressEnd 8건, …SelectTap / …Selected 혼재</span>
-      <span class="source-badge">코어 규칙 ID <code style="background:none;padding:0">core-naming.md</code> N-12 · 어댑터 판정 <code style="background:none;padding:0">adapter-dart-flutter.md</code> D-15 · §3.11 (슬롯 event_vocabulary)</span>
+      <span class="source-badge">코어 규칙 ID <code style="background:none;padding:0">core-naming.md</code> N-12 · 어댑터 판정은 <code style="background:none;padding:0">adapter-dart-flutter.md</code> D-15 · §3.11 (슬롯 event_vocabulary)</span>
     </div>
   </div>
 

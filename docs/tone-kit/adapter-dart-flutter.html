@@ -247,7 +247,7 @@
 </tr>
 <tr>
   <td><div class="c"><code>fallback_identifier_pattern</code></div></td>
-  <td><div class="c"><code>effective</code> · <code>resolved</code> 뒤에 대문자가 이어지는 식별자 — 금지 접두사. 정규식은 §4 완료 게이트 G-04 줄이 정본이다(표 칸에 옮기면 대안 기호가 깨진다). 처리는 삭제가 아니라 도메인·역할명으로 개명</div></td>
+  <td><div class="c"><code>effective</code> · <code>resolved</code> 뒤에 대문자가 이어지는 식별자 — 금지 접두사. 정규식은 §4 완료 게이트 첫 <code>text</code> 코드 블록의 넷째 줄에 있다(표 칸에 옮기면 대안 기호가 깨진다). 처리는 삭제가 아니라 도메인·역할명으로 개명</div></td>
 </tr>
 <tr>
   <td><div class="c"><code>naming_suffix</code></div></td>
@@ -587,7 +587,7 @@ useEffect(() {
 <p>Flutter 는 제스처 생명주기에 <code>on&lt;제스처&gt;&lt;단계&gt;</code> 어휘를 이미 정의해 뒀다. 자체 어휘를 만들면 공식 어휘가 갈라 놓은 단계를 도로 합치게 된다.</p>
 <p><strong>단계 축</strong> — 프레임워크가 쓰는 순서다.</p>
 <div class="code"><span class="code-lang">text</span><pre><code>Down  →  Start  →  Update / MoveUpdate  →  End / Up  →  Cancel</code></pre></div>
-<p><strong>제스처별 공식 콜백</strong> (<code>gesture_detector.dart</code> 실측, Flutter 3.38.4 기준 <strong>58개</strong>)</p>
+<p><strong>제스처별 공식 콜백</strong> (<code>gesture_detector.dart</code> 실측, Flutter 3.38.4 · 3.47.5 기준 <strong>58개</strong>)</p>
 <p>세는 기준: 제스처 접두사(<code>Tap</code> · <code>SecondaryTap</code> · <code>TertiaryTap</code> · <code>DoubleTap</code> · <code>LongPress</code> · <code>SecondaryLongPress</code> · <code>TertiaryLongPress</code> · <code>VerticalDrag</code> · <code>HorizontalDrag</code> · <code>Pan</code> · <code>Scale</code> · <code>ForcePress</code>)를 가진 <code>on*</code> 고유 이름만 센다. 재현 명령은 아래와 같다.</p>
 <div class="code"><span class="code-lang">bash</span><pre><code>grep -v '^\s*///' "$FLUTTER_SDK/packages/flutter/lib/src/widgets/gesture_detector.dart" \
   | grep -oE 'on(Tap|SecondaryTap|TertiaryTap|DoubleTap|LongPress|SecondaryLongPress|TertiaryLongPress|VerticalDrag|HorizontalDrag|Pan|Scale|ForcePress)[A-Za-z]*' \
@@ -650,7 +650,7 @@ typedef {widget_prefix}PressableTap = void Function();
 typedef {widget_prefix}PressableTapDown = void Function(TapDownDetails details);</code></pre></div>
 <p><strong>예외</strong> — 공식 어휘에 대응이 없는 도메인 이벤트는 프로젝트가 이름 짓는다. <code>onPairingModeEntered</code> · <code>onLightStickMounted</code> 는 정당하다. 판정식은 "이 이벤트를 프레임워크가 이미 알고 있는가" 다.</p>
 <p><strong>주의</strong> — 같은 개념에 두 어휘를 섞지 마라. 코퍼스에 <code>…SelectTap</code> 과 <code>…Selected</code> 가 공존한 사례가 있다. 하나로 고정한다.</p>
-<blockquote class="quote"><p><strong>출처:</strong> Flutter SDK <code>packages/flutter/lib/src/widgets/gesture_detector.dart</code> (3.38.4 실측 — 콜백 58개). 코어 원칙은 <code>core-naming.md</code> N-12.</p></blockquote>
+<blockquote class="quote"><p><strong>출처:</strong> Flutter SDK <code>packages/flutter/lib/src/widgets/gesture_detector.dart</code> (3.38.4 · 3.47.5 실측 — 콜백 58개). 코어 원칙은 <code>core-naming.md</code> N-12.</p></blockquote>
   </div>
 </section>
 

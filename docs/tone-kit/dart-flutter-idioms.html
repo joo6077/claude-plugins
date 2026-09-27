@@ -253,10 +253,6 @@
     .grid-2,.grid-3{grid-template-columns:1fr}
     .flow-step,.ladder-step{flex:1 1 100%}
   }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
-  }
 </style>
 </head>
 <body>
@@ -1086,7 +1082,7 @@ class {widget_prefix}DeviceListWidgetProps {
     <p class="desc">길게 누르기였다면 핸들러는 <code>handleLongPressStart</code> / <code>handleLongPressEnd</code> 이고 콜백은 <code>onLongPressStart</code> / <code>onLongPressEnd</code> 다. <strong>어느 제스처인지가 이름에서 갈린다.</strong> 전체 어휘 목록은 바로 아래 §3.11 절에 있다.</p>
     <div class="sources">
       <div class="sources-head">출처</div>
-      <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart — design</a>
+      <a class="card-source" href="https://dart.dev/effective-dart/design" target="_blank" rel="noopener">&rarr; Effective Dart — design (https://dart.dev/effective-dart/design)</a>
       <span class="source-badge">Flutter SDK 소스 실측 — packages/flutter/lib/src/widgets/gesture_detector.dart 콜백 58개 (3.38.4 · 3.47.5)</span>
       <span class="source-badge">프로젝트 실측 — handlePressStart 7건 · handlePressEnd 8건</span>
     </div>
@@ -1568,7 +1564,7 @@ grep -rnE '^[[:space:]]*//[[:space:]]*[-=]{5,}' --include='*.dart' &lt;src&gt;</
     </table>
   </div>
 
-  <p class="caption">문서 버전 <code>0.2.0</code> · 최종 갱신 2026-09-27 · 원칙 13 · 어댑터 슬롯 11 · 완료 게이트 grep 10 · 안티패턴 17 · 축 <code>[어댑터:dart-flutter]</code> · 부분 <code>[한국어]</code></p>
+  <p class="caption">문서 버전 <code>version: 0.2.0</code> · 최종 갱신 <code>last_updated: 2026-09-27</code> · 원칙 13 · 어댑터 슬롯 11 · 완료 게이트 grep 10 · 안티패턴 17 · 축 <code>[어댑터:dart-flutter]</code> · 부분 <code>[한국어]</code></p>
 </div>
 
 </div>
