@@ -166,3 +166,16 @@ H 보존: 옛 주석은 지우지 않았다. 범위 밖 파일은 건드리지 �
 - 1 회차 「남은 것」 첫 줄(A-01 동의)은 2 회차 계약으로 대신했다. A-01 은 동의 없는 1 회차 기록으로 남는다
 - 1 회차 계약의 `status: superseded` 는 스키마 밖 값이다. 다음 평가에서 경고로 나올 수 있다 — 스키마에 대체 상태를 넣을지는 harness 카이젠 몫
 - 문서 페이지 넷 다시 맞추기 · 기존 마크다운 경고 전체 정리(VS-26) · `DG-02` 측정기 정렬 차이 · 뷰어 보류 · flaky 표지 화면 확인은 위 「남은 것」 그대로
+
+### QA 판정과 독립 검토 (2 회차)
+
+- QA: APPROVE 33/33. 리포트 `.harness/sprint-feedback-after-0926-kits-api-onboarding-howto-r2.md`, 계약 status `done`. 평가자 피드백 `~/.harness/feedback/evaluator/1a3bcba6-2026-09-27T124044-bda55d45-27240.yaml`(`verify-feedback.sh` PASS). 교차 진단은 `pending-parent`
+- 독립 검토: 막는 결함 0. 막지 않는 결함 둘은 아래 「남은 것」으로 옮겼다
+
+### 남은 것 (QA 뒤)
+
+- onboarding-kit G5(막는 요구 표 검사, `onboarding-kit/skills/setup-guide/SKILL.md` 124~139 줄 awk): 줄 끝이 CRLF(윈도 줄바꿈)인 가이드는 표 머리 마지막 칸이 `우회\r` 로 남아 표를 못 찾고 `G5_BLOCKING PASS rows=0` 으로 통과한다. LF 원본은 `G5_BLOCKING FAIL rows=2 empty=1 nourl=0`. G1~G4 는 CRLF 사본에서도 정상. 줄마다 `\r` 을 떼면 된다
+- 같은 awk 130 줄: 표 머리를 네 낱말 글자 그대로일 때만 알아본다. 굵게 쓴 머리(`| **요구** | ...`)나 인용 블록 속 표(`> | 요구 | ...`)는 빈 칸이 있어도 `rows=0` 으로 통과한다. `format-checklist.md:43` 이 「표 머리는 네 칸 그대로」라 정해 둔 경계지만, 알아보지 못한 표와 표 없음이 구분되지 않는다
+- 두 건 재현 사본: scratchpad `rv/gate.sh` · `crlf.md` · `bold.md` · `bq.md`(세션 임시 폴더라 사라질 수 있다)
+- QA 가 넘긴 사용자 확인: 1 회차 개정 A-01(조건을 느슨하게 하는 쪽)을 동의 없이 2 회차 계약으로 대신한 것. 1 회차 계약 `status: superseded` 스키마 밖 값 경고
+- 1 회차 · 2 회차 「남은 것」 나머지(문서 페이지 넷 · VS-26 · DG-02 정렬 · 뷰어 표지 화면 확인)는 그대로
