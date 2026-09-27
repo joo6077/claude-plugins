@@ -65,7 +65,7 @@ design-component 스킬이 출력하는 컴포넌트 카탈로그의 포맷.
 ## 컴포넌트 카테고리별 필수 상태
 
 | 카테고리 | 필수 상태 |
-|----------|-----------|
+| ---------- | ----------- |
 | 버튼 | default, hover, active, disabled, loading, focused |
 | 입력 필드 | default, hover, focused, error, disabled, filled |
 | 카드 | default, hover (인터랙티브인 경우) |

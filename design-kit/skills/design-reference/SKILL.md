@@ -26,17 +26,20 @@ user-invocable: true
 9. **인사이트 도출 필수** — 레퍼런스 나열에 그치지 말고, 수집된 사례에서 공통 패턴과 차별 포인트를 3~5개 인사이트로 정리하라. 패턴 발견 없는 카탈로그는 불완전하다.
 10. **Context7 / 공식 문서 출처 기재 형식 통일** — 레퍼런스 · DS 컴포넌트 설명에 Tailwind, shadcn/ui, Radix, Ant Design 등 공식 문서를 인용할 때 `출처: [이름](URL)` 형식으로 Gotcha · 카탈로그 표 공통 사용한다. Phase 5 원칙 4 (Context7 리서치 출처 Gotcha 기재 형식 통일) 의 design-kit 측 sibling parity 이며, design-system · design-component · design-audit Gotchas 의 출처 표기와 동일한 규칙을 따른다. 인라인 URL 만 있고 `출처:` 접두사가 없으면 스캔 도구가 근거 유무를 판별하기 어렵다.
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Process
 
 ## Step 0: 자동 감지 및 로드
 
 `.design/concept.md`가 존재하는지 확인한다:
+
 - 존재 → 컨셉의 무드 키워드, 컬러 방향, UI 패턴을 검색 키워드로 활용
 - 미존재 → 사용자가 직접 키워드를 제공
 
 ## Step 1: 검색 키워드 구성
 
 수집 대상을 결정한다:
+
 - 사용자 입력 키워드 (예: "미니멀 SaaS 대시보드")
 - 컨셉 문서에서 추출한 무드 키워드
 - 수량: 기본 30개, `--count N`으로 사용자 조절 가능
@@ -46,21 +49,25 @@ user-invocable: true
 references/crawl-sources.md를 참조하여 3개 소스 채널에서 크롤링한다:
 
 ### 2-1: 디자인 갤러리 (~10개)
+
 - Dribbble, Awwwards, siteinspire에서 키워드 검색
 - WebSearch로 관련 작품 URL 수집 → WebFetch로 시각 정보 분석
 - 수집 항목: 레이아웃 구조, 컬러 조합, 타이포 사용, 전체 분위기
 
 ### 2-2: 실제 프로덕트 사이트 (~12개)
+
 - 해당 도메인의 실제 서비스 사이트 크롤링
 - WebFetch로 HTML 구조, 사용된 컬러, 간격, 컴포넌트 패턴 분석
 - 수집 항목: 네비게이션 패턴, 정보 구조, 인터랙션 패턴
 
 ### 2-3: 오픈소스 DS 컴포넌트 비주얼 (~8개)
+
 - Ant Design, Chakra UI, Radix, shadcn/ui 등의 컴포넌트 쇼케이스 페이지
 - 렌더링된 컴포넌트의 시각적 형태만 수집 (API/구조 분석 안 함)
 - 수집 항목: 버튼/카드/입력 필드 등의 시각 스타일, variant, 상태 표현
 
 ### 접근 불가 시 처리
+
 - WebFetch 실패 → 해당 사이트 건너뛰기
 - 같은 소스 채널 내 다른 사이트로 대체
 - 최종 수집 수가 목표의 80% 미만이면 사용자에게 알림
@@ -93,6 +100,7 @@ templates/references.md 포맷으로 `.design/references.md`를 생성한다:
 ## Step 4: 비주얼 카탈로그 HTML 생성
 
 ../../templates/catalog.html 포맷으로 `.design/reference-catalog.html`을 생성한다:
+
 - 소스 채널별로 분류된 시각 카탈로그
 - 각 레퍼런스의 핵심 시각 요소를 CSS로 재현 (컬러 팔레트, 레이아웃 스케치, 컴포넌트 형태)
 - 필터링 가능 (소스 채널별, 참고 포인트별)
@@ -104,6 +112,7 @@ templates/references.md 포맷으로 `.design/references.md`를 생성한다:
 - 추가 크롤링 요청이나 특정 레퍼런스 삭제 요청 반영
 - 확정 시 다음 단계 안내: `/design-mockup`으로 시안 생성 또는 `/design-component`로 컴포넌트 정의
 
+<!-- markdownlint-disable-next-line MD025 -->
 # References
 
 - `references/crawl-sources.md` — 소스 채널별 크롤링 대상 상세

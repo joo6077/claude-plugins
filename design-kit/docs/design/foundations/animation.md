@@ -4,6 +4,7 @@ version: 0.2.0
 last_updated: 2026-03-30
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 애니메이션 디자인 가이드
 
 모션(duration/easing/transitions)과 마이크로인터랙션(button states/toggles/gestures)은 별도 문서에서 다룬다. 이 문서는 **애니메이션을 디자인 규율(discipline)로서** 체계적으로 접근하는 방법을 다룬다. Disney 12원칙의 UI 적용, 코레오그래피, 스크롤 기반 애니메이션, 페이지 전환, 로딩 전략, 스프링 물리학, Lottie/Rive, 토큰 시스템, 성능 최적화, 접근성을 포함한다.
@@ -92,7 +93,7 @@ Pose to Pose는 핵심 포즈(keyframe)를 먼저 잡고 사이를 채우는 방
 ### 시퀀싱 패턴
 
 | 패턴 | 설명 | 용도 |
-|------|------|------|
+| ------ | ------ | ------ |
 | **Cascade (폭포식)** | 위→아래로 순차 등장, 가장 자연스러운 읽기 방향 | 리스트, 카드 피드 |
 | **Radial (방사형)** | 중심점에서 바깥으로 퍼져나감 | 그리드 레이아웃, 대시보드 |
 | **Random** | 무작위 순서로 등장, 유기적 느낌 | 갤러리, 마소닉 레이아웃 |
@@ -132,6 +133,7 @@ Intersection Observer API를 사용하여 요소가 뷰포트에 진입할 때 �
 ```
 
 **threshold 설정 가이드:**
+
 - `0.1` (10%): 요소가 살짝 보이면 즉시 — 긴 콘텐츠 카드에 적합
 - `0.3` (30%): 기본 권장값 — 충분히 보일 때 트리거
 - `0.5` (50%): 절반 노출 시 — 중요한 CTA나 히어로 섹션
@@ -161,6 +163,7 @@ JavaScript 없이 CSS만으로 스크롤 연동 애니메이션을 구현하는 
 배경과 전경이 서로 다른 속도로 스크롤되어 깊이감을 만든다.
 
 **구현 방식:**
+
 - CSS `perspective` + `translateZ`: 순수 CSS, 성능 최적 — 권장
 - `transform: translateY(calc(var(--scroll) * 0.5))`: JS 기반 — Intersection Observer와 조합
 - `background-attachment: fixed`: 가장 단순하지만 모바일 성능 문제
@@ -195,6 +198,7 @@ JavaScript 없이 CSS만으로 스크롤 연동 애니메이션을 구현하는 
 두 화면이 공유하는 요소(이미지, 제목 등)가 시작 위치에서 끝 위치로 자연스럽게 변환되는 패턴이다. 카드 → 상세 화면, 썸네일 → 전체 이미지, 리스트 → 상세 등에서 사용한다.
 
 **핵심 원리:**
+
 1. 공유 요소에 고유 식별자 부여 (`view-transition-name`)
 2. 시작과 끝 상태의 위치/크기/형태를 캡처
 3. 두 상태 사이를 보간(interpolate)
@@ -227,7 +231,7 @@ document.startViewTransition(() => {
 ### 라우트 기반 전환 패턴
 
 | 패턴 | 설명 | 용도 |
-|------|------|------|
+| ------ | ------ | ------ |
 | **Fade** | 단순 크로스페이드 | 관계 없는 페이지 간 이동 |
 | **Slide** | 좌우/상하 슬라이드 | 순서가 있는 네비게이션 (탭, 스텝퍼) |
 | **Scale** | 축소/확대 전환 | 깊이 이동 (부모 → 자식) |
@@ -252,6 +256,7 @@ document.startViewTransition(() => {
 > **출처:** [Skeleton Loading Screen Design — How to Improve Perceived Performance — LogRocket](https://blog.logrocket.com/ux-design/skeleton-loading-screen-design/)
 
 **구현 가이드:**
+
 - shimmer 속도: 1.5-2초 주기 — 너무 빠르면 주의를 빼앗고, 너무 느리면 정지해 보인다
 - 색상: 배경보다 약간 밝은 회색 (dark theme: `#1a1c2e` → `#252840`)
 - 0.5초 미만의 로딩에는 스켈레톤을 표시하지 않는다 — 깜빡임만 유발
@@ -280,7 +285,7 @@ document.startViewTransition(() => {
 ### 체감 성능 전략
 
 | 기법 | 효과 | 구현 난이도 |
-|------|------|-----------|
+| ------ | ------ | ----------- |
 | 스켈레톤 shimmer | 체감 20-30% 단축 | 중 |
 | 낙관적 업데이트 (Optimistic UI) | 즉각 반응 | 높 |
 | 점진적 로딩 (Progressive) | 빠른 첫 인상 | 중 |
@@ -296,7 +301,7 @@ document.startViewTransition(() => {
 ### 핵심 파라미터
 
 | 파라미터 | 설명 | 효과 |
-|---------|------|------|
+| --------- | ------ | ------ |
 | **Tension (Stiffness)** | 스프링의 강성 — 얼마나 세게 당기는가 | 높을수록 빠르고 급격한 움직임 |
 | **Friction (Damping)** | 마찰력 — 얼마나 빨리 안정되는가 | 높을수록 오버슈트 감소, 낮으면 탄성적 |
 | **Mass** | 오브젝트의 질량 | 높을수록 느리게 시작, 관성이 큼 |
@@ -306,17 +311,21 @@ document.startViewTransition(() => {
 ### 프레임워크별 구현
 
 **Framer Motion (React):**
+
 ```jsx
 <motion.div animate={{ x: 100 }} transition={{ type: "spring", stiffness: 100, damping: 10, mass: 1 }} />
 ```
+
 - 기본값: stiffness=100, damping=10, mass=1
 
 **React Spring:**
+
 ```jsx
 useSpring({ to: { x: 100 }, config: { tension: 170, friction: 26, mass: 1 } })
 ```
 
 **iOS UIKit:**
+
 ```swift
 UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: [], animations: { ... })
 ```
@@ -326,7 +335,7 @@ UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initial
 ### Spring vs Ease 비교
 
 | 특성 | Ease (cubic-bezier) | Spring |
-|------|-------------------|--------|
+| ------ | ------------------- | -------- |
 | 중단 시 전환 | 부자연스러운 점프 | 현재 속도 유지하며 자연 전환 |
 | 오버슈트 | 불가 | friction에 따라 조절 |
 | 동적 목표 변경 | 어려움 | 자연스러움 |
@@ -336,7 +345,7 @@ UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initial
 ### UI별 권장 Spring 설정
 
 | 용도 | Stiffness | Damping | Mass | 특성 |
-|------|----------|---------|------|------|
+| ------ | ---------- | --------- | ------ | ------ |
 | 버튼 프레스 | 300 | 15 | 0.5 | 빠르고 스냅 |
 | 모달 진입 | 200 | 20 | 1 | 부드럽고 안정 |
 | 드래그 릴리즈 | 150 | 12 | 1 | 탄성적, 약간의 바운스 |
@@ -351,7 +360,7 @@ UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initial
 ### 도구 선택 기준
 
 | 기준 | CSS Animation | Lottie | Rive |
-|------|--------------|--------|------|
+| ------ | -------------- | -------- | ------ |
 | **최적 용도** | 간단한 상태 전환, hover/focus | 재생 전용 일러스트 애니메이션 | 인터랙티브, 상태 기반 UI 애니메이션 |
 | **파일 크기** | 0 (코드 내장) | 10-100KB (JSON) | 1-20KB (바이너리) |
 | **렌더링** | CPU (composited) | CPU (Lottie-web), GPU (lottie-light) | GPU (WebGL/Metal) |
@@ -374,7 +383,7 @@ UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initial
 
 ### 선택 의사결정 트리
 
-```
+```text
 애니메이션이 필요한가?
 ├─ CSS로 구현 가능한가? (단순 전환, hover, 스피너)
 │   └─ Yes → CSS 사용
@@ -406,7 +415,7 @@ UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initial
 ### 듀레이션 토큰
 
 | 토큰 | 값 | 용도 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | `duration-instant` | 50ms | 체크박스, 토글 스위치 |
 | `duration-fast` | 100ms | 버튼 피드백, 리플 |
 | `duration-normal` | 200ms | 카드 호버, 드롭다운 |
@@ -417,7 +426,7 @@ UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initial
 ### 이징 토큰
 
 | 토큰 | 값 | 용도 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | `ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` | 화면 내 요소 이동 |
 | `ease-enter` | `cubic-bezier(0, 0, 0, 1)` | 요소 진입 (감속) |
 | `ease-exit` | `cubic-bezier(0.3, 0, 1, 1)` | 요소 퇴장 (가속) |
@@ -428,7 +437,7 @@ UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initial
 ### 딜레이 토큰
 
 | 토큰 | 값 | 용도 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | `delay-none` | 0ms | 즉시 반응이 필요한 피드백 |
 | `delay-stagger` | 30ms | 리스트/그리드 스태거 간격 |
 | `delay-sequence` | 80ms | 코레오그래피 시퀀스 간격 |
@@ -467,7 +476,7 @@ UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initial
 
 ### 렌더링 파이프라인과 애니메이션
 
-```
+```text
 JavaScript → Style → Layout → Paint → Composite
 ```
 
@@ -491,6 +500,7 @@ JavaScript → Style → Layout → Paint → Composite
 ```
 
 **규칙:**
+
 - 페이지당 1-2개 요소에만 적용
 - 애니메이션 직전에 추가, 완료 후 제거
 - `transform: translateZ(0)` 해킹 대신 `will-change` 사용
@@ -521,6 +531,7 @@ requestAnimationFrame(animate);
 ### Jank 감지
 
 DevTools의 Performance 패널에서:
+
 1. **Long Frame**: 16.67ms를 초과하는 프레임 (빨간 바)
 2. **Layout Shift**: 예상치 못한 레이아웃 이동 (CLS)
 3. **Forced Synchronous Layout**: JS에서 `.offsetHeight` 등을 읽은 직후 스타일 변경
@@ -565,7 +576,7 @@ DevTools의 Performance 패널에서:
 **위험 등급별 대응:**
 
 | 위험도 | 모션 유형 | 대응 |
-|--------|----------|------|
+| -------- | ---------- | ------ |
 | 높음 | 시차 스크롤, 대규모 줌, 3D 회전 | 완전 제거 |
 | 중간 | 흔들림(shake), 자동재생 비디오 | 크로스페이드로 대체 |
 | 낮음 | 부드러운 스크롤, 앵커 링크 | 유지 가능 |

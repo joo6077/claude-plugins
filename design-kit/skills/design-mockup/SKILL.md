@@ -32,6 +32,7 @@ user-invocable: true
 16. **산출 전에 Variant Contract Matrix 를 합의하라 (개수 계약 + 구별성 게이트)** — 시안을 하나라도 만들기 전에 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 6 열을 채워 사용자와 합의한다. 개수는 **사용자가 말하면 정확히 그 수**, 미지정이면 3, 자체 판단으로 그 이상 늘리지 않으며 승인 시 최대 5 다. 개수 상한·primary axis 개수·부대 산출물(토큰 파일·디자인 시스템·서페이스 레인·카탈로그) 금지의 정본은 `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이며 여기서 재정의하지 않는다. "몇 개 목업" 요청에 수십 타일과 토큰 파일을 함께 만들면 사용자가 전부 지우게 된다 — 실제로 그랬다.
 17. **시안 캡처는 `artifact_snapshot` 이다 — 앱 화면 정상을 주장하지 마라** — 목업 HTML 이 잘 열리는 것과 사용자가 실제 앱에서 그 화면을 보는 것은 다른 명제다. 증거를 인용할 때 채널 이름을 함께 적고, PASS 문장에 viewport · route/state · visible locator · count/height · screenshot id 5 요소를 넣어라. 채널 정의: `../../references/visual-change-protocol.md` §7 Evidence Channels. 사용자가 "아직 깨져 있다" 고 보고하면 반박하지 말고 재현하라 — 규약 정본은 `harness/docs/guides/skill-design-guide.md` §3.8 User-Reported Failure Gate 다.
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Process
 
 ## Step 0: 자동 감지 및 로드
@@ -79,7 +80,7 @@ user-invocable: true
 정본 규칙(상한·축 개수·부대 산출물 금지)은 `harness/docs/guides/skill-design-guide.md` §5.6 이다.
 
 | 상황 | 산출 개수 |
-|------|----------|
+| ------ | ---------- |
 | 사용자가 개수를 말함 | **정확히 그 수** — 초과도 미달도 위반 |
 | 미지정 | **3** |
 | 자체 판단으로 늘리기 | 금지. 승인받으면 **최대 5**, 6 개 이상은 배치를 나눠 제안 |
@@ -97,6 +98,7 @@ user-invocable: true
 references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포맷으로 시안을 생성한다:
 
 각 시안은 standalone HTML 파일로 생성:
+
 - `.design/mockups/{페이지명}-{특징}.html` (예: `dashboard-sidebar.html`)
 - 실제 컬러, 타이포, 간격이 반영된 하이파이 수준
 - 모든 UI 요소에 `{컴포넌트명}-{4자리해시}` ID 부여
@@ -116,6 +118,7 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
 ## Step 3: 디자인 의도 설명
 
 각 시안에 대해 설명한다:
+
 - 시안이 반영한 전략적 우선순위 (전환, 탐색, 브랜드 등)
 - 레이아웃 선택 이유와 정보 구조
 - 시각적 강조 포인트 — 어디서 시선이 머무는가
@@ -180,11 +183,13 @@ grep -cE '^- (확정 구성|폐기한 대안·이유):' .design/approvals/{파�
 ## Step 6: Figma 전송 (선택)
 
 사용자가 Figma 전송을 요청하면:
+
 - Figma MCP 설정 확인
 - 설정됨 → 선택한 시안 또는 개별 컴포넌트(ID 기준)를 Figma로 전송
 - 미설정 → "Figma 전송을 원하면 Figma MCP 설정이 필요합니다" 안내 + HTML 파일 경로 재안내
 - 전송 실패 → 에러 메시지 + HTML 파일 경로 안내
 
+<!-- markdownlint-disable-next-line MD025 -->
 # References
 
 - `references/mockup-guidelines.md` — 시안 생성 기준 상세

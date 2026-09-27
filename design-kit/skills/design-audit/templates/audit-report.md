@@ -9,7 +9,7 @@
 ## 요약
 
 | 카테고리 | 판정 | Critical | Major | Minor | 미검증 |
-|----------|------|----------|-------|-------|--------|
+| ---------- | ------ | ---------- | ------- | ------- | -------- |
 | Typography | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
 | Color | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
 | Spacing | {{PASS/FAIL}} | {{n}} | {{n}} | {{n}} | {{n}} |
@@ -34,6 +34,7 @@
 
 ## Major FAIL (다음 스프린트 전)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### [카테고리] 항목 제목
 
 - **심각도:** Major
@@ -45,6 +46,7 @@
 
 ## Minor FAIL (개선 권장)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### [카테고리] 항목 제목
 
 - **심각도:** Minor
