@@ -5,6 +5,7 @@ created: "2026-09-27 13:50"
 complexity: "중간"
 conditions: 16
 status: superseded
+superseded_by: after-0926-mdlint-l2-r2
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:34186f5b898b3c86
 measurement_digest: sha256:bc5ff4cff8c6c32a
