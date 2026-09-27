@@ -86,10 +86,11 @@ Screen/Widget: failure 감지 → 에러 표시 인프라에 전달
 
 ## 핵심 원칙: 책임 분리
 
+<!-- markdownlint-disable MD028 -->
 > **Provider/State는 failure를 저장만 한다. 에러 표시 인프라를 직접 호출하지 않는다.**
 
-<!-- markdownlint-disable-next-line MD028 -->
 > **Screen/Widget이 failure를 감지하고, 에러 표시를 담당한다.**
+<!-- markdownlint-enable MD028 -->
 
 이 분리가 필요한 이유:
 
