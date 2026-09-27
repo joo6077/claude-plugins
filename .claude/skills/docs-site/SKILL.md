@@ -61,7 +61,7 @@ user-invocable: true
 | tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
 | api-kit | `docs/api/`, `api-kit/skills/api-ui/SKILL.md`, `docs/superpowers/specs/2026-09-02-api-kit-design.md` | `docs/api-kit/` |
 | howto-kit | `docs/howto/` | `docs/howto-kit/` |
-| process (공유) | `.claude/skills/kaizen-orchestrator/SKILL.md` (그 밖은 내부 문서) | `docs/process/` |
+| process (공유) | `.claude/skills/kaizen-orchestrator/SKILL.md` · `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md` (그 밖은 내부 문서) | `docs/process/` |
 
 `docs/howto/drafts/` 는 초안 폴더라 매핑 밖이다 — 페이지를 만들지 않고 `scripts/detect-docs-drift.py` 도 건너뛴다.
 

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>reflect-digest — 반복 실수 집계 — Reflect Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#F43F5E;--accent2:#FDA4AF;--accent-dim:rgba(244,63,94,0.12);
+    --accent-line:rgba(244,63,94,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#BE123C;--accent2:#9F1239;--accent-dim:rgba(190,18,60,0.10);
+    --accent-line:rgba(190,18,60,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Reflect Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Reflect Kit · 스킬</span>
+  <h1>reflect-digest — 반복 실수 집계</h1>
+  <p class="orig-title">원본 제목: <strong>Reflect Digest</strong></p>
+  <p class="subtitle">대화에서 쌓인 반성 기록을 읽어 <strong>자주 되풀이되는 실수</strong>를 모으고, 규칙으로 올릴 후보를 4 축 우선순위 표로 고르는 스킬이다. 후보만 내고 반영은 <code>/reflect-promote</code> 가 한다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>reflect-kit/skills/reflect-digest/SKILL.md</code></span>
+    <span class="badge">스킬 이름 reflect-digest</span>
+    <span class="badge">Gotchas 14</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>리포트만 낸다</h3>
+      <p>digest 는 후보 목록을 낼 뿐 <code>CLAUDE.md</code> · memory · skill · hook 에 직접 쓰지 않는다. 직접 쓰면 ledger 가 깨지고 되돌릴 수 없다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>묶은 뒤에 센다</h3>
+      <p>원시 태그 빈도로 판정하지 않는다. lemma 규약으로 먼저 묶어야 같은 원인의 실수가 임계에 닿는다 — 실측 71 건이 묶으면 110 건이었다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>4 축 우선순위</h3>
+      <p>scope · risk_class · procedurality · enforcement_need 를 조합해 surface 를 계산한다. 단일 후보 필드를 다시 만들지 않는다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>0 건을 믿지 않는다</h3>
+      <p>엔트리가 없으면 수집기가 멈췄을 수 있다. 요약 첫 줄에 수집 상태를 내고, 멈췄으면 규칙으로 올릴 후보를 비운다.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>Gotchas</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>입력</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>프로젝트 ID (v0.3.0 Hybrid)</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>데이터 소스</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>YAML 스키마 (reflection 엔트리)</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>Process</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>Cross-project 집계 (v0.2.0: <code>project=all</code>)</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>Surface Precedence Table</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>출력 포맷</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>Ledger 스키마 (후속 /reflect-promote 가 관리)</a></li>
+    <li><a href="#s11"><span class="toc-n">11</span>안티패턴 (하지 말 것)</a></li>
+    <li><a href="#s12"><span class="toc-n">12</span>예시 사용</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="table-wrap"><table class="fm">
+<thead><tr><th>머리 설정 키</th><th>값</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td class="fm-val">reflect-digest</td></tr>
+<tr><td><code>description</code></td><td class="fm-val">&gt;
+  ~/.claude/logs/&lt;project_id&gt;/reflections-*.md 에 쌓인 구조화 YAML 블록을 읽어
+  카테고리/태그별 빈도를 집계하고, 반복 실수·오해·잘못된 접근 패턴을 리포트한다.
+  scope × risk_class × procedurality × enforcement_need 4축과 빈도를 조합해
+  승격 후보(project_claude_md / memory / skill / hook / path_scoped_rule)를 precedence table로 계산한다.
+  "피드백 정리", "내가 자주 뭘 틀려", "오해 패턴", "reflect digest", "digest",
+  "지난주 실수 정리", "대화 피드백 집계" 같은 요청 시 트리거.
+  harness 카이젠(계약/평가자/하네스 개선)이나 release 워크플로우에는 트리거하지 않는다.</td></tr>
+<tr><td><code>argument-hint</code></td><td class="fm-val">"[project=&lt;id&gt;] [period=&lt;7d|30d|all&gt;]"</td></tr>
+<tr><td><code>user-invocable</code></td><td class="fm-val">true</td></tr>
+</tbody></table></div>
+<p>대화 중 발생한 오해/반복 실수/잘못된 접근을 집계하고 Claude 행동 개선 surface에 반영할 승격 후보를 도출하는 스킬.</p>
+<p><strong>주의</strong>: 이 시스템은 <code>harness-kaizen</code>과 도메인이 다르다. harness 카이젠은 QA/Contract/Evaluator 인프라 자체의 개선이고, 이 스킬은 <strong>사용자-Claude 의사소통 품질과 Claude의 일상적 실수 패턴</strong>을 개선한다. 혼동 금지.</p>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>Gotchas</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>리포트만 — 실제 승격 반영은 금지</strong>. digest 는 후보 리스트를 내는 역할이다. <code>CLAUDE.md</code> / memory / skill / hook 에 규칙을 직접 쓰지 마라. 반영은 <code>/reflect-promote</code> 가 담당한다. digest가 "써두는 게 더 편하다"며 직접 쓰면 ledger 가 깨지고 rollback 이 불가능해진다.</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>project_id 쿼리는 <code>normalize_project_query</code> 헬퍼로 확장하라</strong> (v0.3.0+). Hybrid 포맷에서 basename 만으로도 정상 id 이지만, 같은 basename 의 기존 <code>&lt;basename&gt;-&lt;hash6&gt;</code> 디렉토리도 read 에 포함해야 한다. <code>compute_project_id</code> 는 쓰기 id 계산, <code>normalize_project_query</code> 는 읽기 glob 확장용.</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>period 범위 밖 엔트리를 섞지 마라</strong>. 사용자가 <code>period=7d</code> 로 요청했으면 <code>promoted_at</code> / 타임스탬프 헤더 기준으로 엄격히 필터링한다. "최근과 가까우니까" 임의로 포함 금지 — 재발률 계산이 왜곡된다.</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>단일 <code>surface_candidate</code> 필드를 재도입하지 마라</strong>. scope × risk × procedurality × enforcement 4축 precedence 로만 계산한다. digest 가 편의상 단일 필드를 만들면 promote 단계가 precedence 를 재판정하지 않고 그대로 믿어 surface 판정 품질이 떨어진다.</div></li>
+  <li class="lv0"><span class="li-mark">5.</span><div class="li-body"><strong>CLAUDE.md 200줄 한도 계산을 누락하지 마라</strong>. 규칙 #4(project CLAUDE.md 승격) 후보로 판정한 경우, 현재 CLAUDE.md 라인 수를 측정하고 180줄 이상이면 리포트에 <strong>path_scoped_rule 로 fallback 검토 필요</strong> 플래그를 달아라.</div></li>
+  <li class="lv0"><span class="li-mark">6.</span><div class="li-body"><strong>harness-kaizen 의 이슈를 이 리포트에 섞지 마라</strong> — 도메인 다름. <code>.harness/feedback-draft.yaml</code>, sprint-contract 결과 등은 digest 입력이 아니다.</div></li>
+  <li class="lv0"><span class="li-mark">7.</span><div class="li-body"><strong><code>actionability: user_environment</code> 엔트리를 승격 파이프라인에 넣지 마라.</strong> 사용자 환경/설정만 고치면 해소되는 사건(없는 훅 스크립트 참조, 실행 권한 없음, CLI 미설치, 포트 점유)은 <strong>Claude 행동 개선 대상이 아니다.</strong> precedence table 에 넣지 말고 별도 <code>## 환경 액션 아이템</code> 섹션으로 라우팅하라. 2026-07 실측: 760 엔트리 중 351건(40%)이 단일 환경 오설정의 반복 로깅이었고, 이것이 <code>tool_failure</code> 로 집계되어 진짜 행동 신호를 삼켰다.</div></li>
+  <li class="lv0"><span class="li-mark">8.</span><div class="li-body"><strong>원시 <code>mistake_tag</code> 빈도로 precedence 를 적용하지 마라 — 반드시 클러스터링 먼저.</strong> 분석기가 같은 근본원인에 다른 태그를 붙이면 개별 빈도가 임계 미달로 떨어져 <strong>최상위 이슈가 아무것도 승격되지 않는다.</strong> 클러스터링은 <strong>눈대중이 아니라 결정론적 pass</strong> 로 한다 — 규약은 <code>${CLAUDE_PLUGIN_ROOT}/references/tag-canonicalization.md</code>, 데이터는 <code>references/tag-lemma-map.tsv</code>, 실행은 <code>hooks/_lib-tag-canon.sh</code> 의 <code>tag_canon_groups</code> 다. 2026-08-13 실측: <code>skipped-required-api-doc-check</code> 는 원시 단독 71 건인데 같은 lemma 클러스터 합산은 <strong>110 건</strong> — 원시 집계는 39 건(55%)을 잃고 있었다.</div></li>
+  <li class="lv0"><span class="li-mark">9.</span><div class="li-body"><strong>파싱 실패를 조용히 넘기지 마라.</strong> YAML 블록 파싱 실패 건수를 리포트 헤더에 반드시 노출한다 (0 이어도 <code>0</code> 으로 명시). 2026-07-27 실측 실행에서 760 엔트리 중 6 블록이 파싱 실패했는데 리포트에 드러나지 않으면 집계 신뢰도를 판단할 수 없다.</div></li>
+  <li class="lv0"><span class="li-mark">10.</span><div class="li-body"><strong><code>fold_ratio</code>(원시/클러스터) 로 파편화를 판정하지 마라.</strong> 클러스터링이 아무것도 못 묶으면 이 값은 <strong>1.00 이 되어 "정상" 으로 읽힌다</strong> — 파편화 탐지기로 쓸 수 없다. 2026-08-13 전량 실측이 정확히 그 상태였다: <code>fold_ratio 1.02</code> 인데 <code>singleton_share 0.884</code> (클러스터 2,578 개 중 2,279 개가 1 회짜리). 판정은 <strong><code>singleton_share</code></strong> 로 한다.</div></li>
+  <li class="lv0"><span class="li-mark">11.</span><div class="li-body"><strong>표기가 닮았다고 합치지 마라 — <code>undesired_behavior</code> 와 <code>desired_behavior</code> 가 둘 다 같을 때만 alias 다.</strong> <code>stale ...</code> 계열이 대표 사례다: 대상마다 필요한 조치가 위젯 재조회 / MCP 재연결 / 인스펙터 재바인딩 / 진단 오라클 재실행 / VM 재부착으로 전부 다르다. 이런 묶음은 alias 가 아니라 <strong>family</strong> 로만 보고하고 <code>cluster_freq</code> 에 합산하지 않는다 (SSOT §4).</div></li>
+  <li class="lv0"><span class="li-mark">12.</span><div class="li-body"><strong>메모리 엔트리의 <code>grounding</code> 을 근거 등급으로 읽어라 — 정의는 복제하지 마라.</strong> <code>~/.claude/projects/*/memory/</code> 의 <code>type: feedback</code> 엔트리는 frontmatter 에 <strong><code>grounding</code> 필드</strong>를 갖는다. 값의 정의·판정 절차·경계 사례는 <code>reflect-kit/references/memory-grounding.md</code> 가 <strong>SSOT</strong> 다 — 이 문서에서 값을 나열하거나 재정의하지 마라 (재정의하면 digest 와 promote 의 기준이 갈라진다). 이 중 <strong><code>grounding: self_inference</code></strong> 는 외부 검증이 없는 자기추론이므로 <strong>승격 근거로 쓰지 마라.</strong> <code>source_evidence</code> 에 넣지 말고 배경 참고로만 읽는다 — 인용하면 이전 라운드의 자기 산출물이 다음 라운드 승격의 근거가 되는 <strong>자기검증 피드백 루프</strong>가 닫힌다. <code>grounding</code> 필드가 아예 없는 엔트리는 <code>self_inference</code> 가 아니라 <strong>미태깅</strong>이다. 그렇게 구분해 보고하되 둘 다 근거로는 쓰지 않는다.</div></li>
+  <li class="lv0"><span class="li-mark">13.</span><div class="li-body"><strong>엔트리 0 을 「문제 없음」 으로 읽지 마라 — 수집기가 멈췄을 수 있다.</strong> reflections 가 비는 경우는 둘이다: 그 기간에 실수가 없었거나, Stop 훅 분석이 실패해 아무것도 못 적었거나. 2026-09-14~23 실측은 뒤쪽이었다 — Stop 실패 시도 849 번(고유 세션 55), 기록된 세션 0, 마지막 기록 2026-08-28. 그래서 요약 머리 첫 줄은 Process 4 단계의 <code>collect_status</code> 출력이다. 엔트리가 있어도 마지막 기록과 마지막 정상 종료(<code>ok:no-issues</code> · <code>skip:env-dedup-all</code>) 가운데 늦은 쪽 뒤의 Stop 실패 시도가 3 회 이상이고 그 첫 실패가 1 일 이상 지났으면 기간 도중에 멈춘 것이라 같은 경고 줄이 나온다. 그보다 적거나 짧은 실패는 한도 초과 같은 일시 실패일 수 있어 경고하지 않는다 — 이 줄 하나에 승격 후보를 통째로 비우기 때문이다. <code>⚠ 수집 멈춤</code> 줄이 나오면 <code>## 승격 후보</code> 에는 <code>(수집 멈춤 — 산출하지 않는다)</code> 한 줄만 쓰고, <code>## 환경 액션 아이템</code> 에 수집 복구 한 줄을 <code>.errors.log</code> 의 가장 최근 <code>err=</code> 값과 함께 올린다.</div></li>
+  <li class="lv0"><span class="li-mark">14.</span><div class="li-body"><strong>facets 를 빈도에 더하지 마라 — 대조에만 쓴다.</strong> <code>~/.claude/usage-data/facets/</code> 는 <code>/insights</code> 가 다른 분석기 · 다른 분류로 낸 세션 요약이다. <code>cluster_freq</code> · <code>project_count</code> · 4 축 · precedence 에 더하면 같은 세션을 두 번 세고 척도가 섞인다. 쓰는 곳은 <code>## 인사이트 세션 분석과 대조</code> 절 하나다 — 마찰이 적혔는데 reflections 에 없는 세션을 원문과 함께 보여 수집기가 놓친 세션을 드러낸다. 폴더가 없으면 <code>facets 대조: (없음)</code> 한 줄로 넘어간다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>입력</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>project</code> (optional): 집계할 프로젝트 id. 다음 3 형태 모두 수용 (v0.3.0+):</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>&lt;basename&gt;</code> — Hybrid 기본 (예: <code>project=app_kiosk</code>)</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>&lt;basename&gt;-&lt;6자 hash&gt;</code> — 충돌 감지된 프로젝트 또는 v0.2.0 레거시 (예: <code>project=app_kiosk-a3b4f9</code>)</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>all</code> — cross-project 집계 (<code>~/.claude/logs/</code> 전 프로젝트 순회)</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">없으면 현재 cwd 로부터 계산. <code>normalize_project_query</code> 가 <code>&lt;basename&gt;</code> 입력을 <code>&lt;basename&gt;</code> + <code>&lt;basename&gt;-&lt;hash6&gt;</code> glob union 으로 확장하여 기존 해시 디렉토리도 함께 읽는다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>period</code> (optional): <code>7d</code> / <code>30d</code> / <code>all</code>. 기본 <code>7d</code>.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>프로젝트 ID (v0.3.0 Hybrid)</h2>
+  <div class="doc-body">
+<p>로그 경로는 <code>~/.claude/logs/&lt;project_id&gt;/</code>.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>기본</strong>: <code>&lt;basename(본 레포 root)&gt;</code> — 충돌 없는 경우 hash 없이 사용. 워크트리 안에서 불러도 워크트리 폴더 이름이 아니라 본 레포 이름이다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>충돌 fallback</strong>: <code>&lt;basename&gt;-&lt;6자 md5 hex&gt;</code> — 동일 basename + 다른 git root 감지 시 자동 전환 + stderr 1회 경고</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>backward-compat</strong>: 기존 <code>&lt;basename&gt;-&lt;hash6&gt;</code> 디렉토리는 read 에서 glob union 으로 그대로 포함 — 마이그레이션 불필요</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>워크트리 이름 폴더</strong>: 이 규칙 전에 워크트리 이름으로 생긴 폴더는 옮기지 않는다. 그 폴더들에는 reflections 가 없고 원시 로그와 <code>.errors.log</code> 만 있다 — <code>project=all</code> 이 그대로 순회한다</div></li>
+</ul>
+<p>헬퍼: <code>${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh</code></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>compute_project_id "$cwd"</code> — 쓰기용 id 계산 (basename 또는 hash fallback)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>project_root "$cwd"</code> — 본 레포 root (링크된 워크트리면 본 레포, git 밖이면 cwd)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>normalize_project_query "&lt;query&gt;"</code> — 읽기용 glob pattern union 확장</div></li>
+</ul>
+<h3 class="sub">정규화 쿼리 동작</h3>
+<p>입력이 어느 형태든 <strong>같은 basename 의 glob union</strong> 으로 확장되어 backward-compat 을 보장한다:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">입력</div></th>
+  <th><div class="c">확장 결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>app_kiosk</code></div></td>
+  <td><div class="c"><code>app_kiosk  app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>app_kiosk-a3b4f9</code></div></td>
+  <td><div class="c"><code>app_kiosk  app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]</code> (basename 추출 후 동일 union)</div></td>
+</tr>
+</tbody></table></div>
+<p>결과: <code>/reflect-digest project=app_kiosk</code> 와 <code>/reflect-digest project=app_kiosk-a3b4f9</code> 는 항상 동일한 스캔 대상 집합을 선택한다.</p>
+<p>Matching 디렉토리 0개이면 stderr 에 <code>no matching buckets for project=&lt;query&gt;</code> 출력 후 종료.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>데이터 소스</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>~/.claude/logs/&lt;project_id&gt;/YYYY-MM.md</code> — raw 프롬프트 / tool-failure 로그</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>~/.claude/logs/&lt;project_id&gt;/reflections-YYYY-MM.md</code> — Stop 훅 분석 결과 (구조화 YAML)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>~/.claude/logs/&lt;project_id&gt;/.errors.log</code> — 훅 자체 실패 로그 (CLI 미설치 / timeout 등) + <code>env-dedup:</code> / <code>skip:env-dedup-all</code> 억제 기록 + <code>vocab:</code> 어휘 지표 (Stop 훅이 매 실행 기록: <code>raw_distinct/clusters/entries/singletons/fold/singleton_share/epc</code>) + <code>warn:lemma-map-unreadable</code> (정규화 맵을 못 읽어 fail-open 한 실행) + <code>ok:no-issues</code> (분석 결과가 「no issues」 인 정상 종료 — 실패로 세지 않는다)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>~/.claude/logs/&lt;project_id&gt;/.env-issues.tsv</code> — 환경 오설정 롤업. <code>tag &lt;TAB&gt; first_seen &lt;TAB&gt; last_seen &lt;TAB&gt; count</code> (epoch 초). Stop 훅의 dedup 게이트가 억제한 사건이 여기 누적되므로, <strong>reflections 본문의 빈도만 보면 환경 이슈의 실제 규모를 과소평가한다.</strong> <code>## 환경 액션 아이템</code> 섹션은 이 파일을 근거로 쓴다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>~/.claude/usage-data/facets/*.json</code> + <code>session-meta/&lt;session_id&gt;.json</code> (선택) — <code>/insights</code> 의 세션 요약. <strong>대조 전용</strong>이다 (Gotcha #14). facets 에는 프로젝트 경로가 없어 session-meta 의 <code>project_path</code> 로 잇는다</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>YAML 스키마 (reflection 엔트리)</h2>
+  <div class="doc-body">
+<p>각 타임스탬프 헤더(<code>## &lt;ISO8601&gt;</code>) 아래 여러 YAML 블록이 있을 수 있다.</p>
+<div class="code"><span class="code-lang">yaml</span><pre><code>primary_category: misunderstanding | repeated_error | wrong_approach | tool_failure
+also_applies: []       # 추가로 해당하는 카테고리 (multi-label)
+mistake_tag: &lt;kebab-case&gt;
+new_tag_reason: &lt;str&gt;  # 새 태그를 만든 블록에만 존재. canonical 재사용 블록에는 없음 (선택 필드)
+trigger: &lt;str&gt;
+undesired_behavior: &lt;str&gt;
+desired_behavior: &lt;str&gt;
+severity: low | medium | high
+actionability: claude_behavior | user_environment   # Claude 행동으로 막을 수 있었나 / 사용자 환경 작업이어야 하나
+# Surface 결정 4축 (precedence table로 최종 surface 계산)
+scope: session | project | global
+risk_class: low | medium | high
+procedurality: single_rule | multi_step_procedure
+enforcement_need: soft_reminder | hard_gate
+user_stated_constraint: true | false   # 사용자가 명시적으로 금지/지시한 제약의 재위반 (omission-constraint-decay 신호)
+evidence_turns: &lt;int&gt;
+tools_used:
+  skills: []
+  agents: []
+  mcp_servers: []
+approach_note: &lt;str&gt;</code></pre></div>
+<p><strong>단일 <code>surface_candidate</code> 필드는 스키마에서 제거되었다.</strong> 4축을 precedence table에 넣어 digest가 최종 surface를 계산한다.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>Process</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>프로젝트·기간 결정</strong></div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>project</code> 인자 없으면 <code>compute_project_id "$PWD"</code> 로 basename (또는 hash fallback) 계산</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>project</code> 있으면 <code>normalize_project_query "$project"</code> 로 glob pattern union 확장</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>project=all</code> 이면 <code>~/.claude/logs/*/</code> 전체 순회 (단 <code>is_internal_logs_dir</code> 로 <code>_cron</code>, <code>.*</code>, <code>_*</code> 제외)</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>period</code> 기본 <code>7d</code></div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>로그 디렉토리 매칭</strong>: 확장된 glob 패턴으로 <code>~/.claude/logs/</code> 하위 매칭. 0개이면 <code>no matching buckets for project=&lt;query&gt;</code> 를 stderr 에 출력하고 종료.</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>로그 파일 나열</strong>: 매칭된 각 디렉토리의 <code>reflections-*.md</code> 전부 (union)</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>엔트리 파싱</strong>: 타임스탬프 헤더 기준 분할 → <code>yaml</code> 코드블록 추출 → period 범위 밖 제외</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>파싱 전에 수집 상태부터 잰다</strong> (Gotcha #13). 2 단계에서 매칭된 bucket 을 전부 넘기고 첫 인자는 period 일수다 — <code>7d</code> 면 <code>7</code>, <code>30d</code> 면 <code>30</code>, <code>all</code> 이면 <code>all</code> 을 아래 <code>&lt;일수&gt;</code> 자리에 넣는다(7 로 고정하면 30d 요청도 최근 7 일만 잰다). 출력 한두 줄을 요약 머리에 그대로 싣는다:</div></li>
+</ul>
+<div class="code"><span class="code-lang">bash</span><pre><code># bash 로 부른다 — 이 함수는 bash 가 아니면 멈춘다
+bash -c '. "${1}/hooks/_lib-project-id.sh"; shift; collect_status "$@"' _ "${CLAUDE_PLUGIN_ROOT}" &lt;일수&gt; ~/.claude/logs/&lt;bucket&gt;</code></pre></div>
+<ul class="md-list">
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>코드 블록 없는 옛 절도 엔트리다.</strong> 0.8.0 훅은 분석기가 코드 블록을 빼면 그대로 적었고 빈 줄까지 지워 여러 블록이 붙기도 했다. <code>## &lt;시각&gt;</code> 아래 yaml 코드 블록 밖에 있는 <code>primary_category:</code> 줄은 버리지도 파싱 실패로 세지도 말고, 그 줄부터 다음 <code>primary_category:</code> 줄 · 빈 줄 · <code>---</code> 앞까지를 블록 하나로 읽는다. <code>collect_status</code> 의 엔트리 수도 같은 규칙으로 센다.</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">파싱 실패 블록은 <strong>버리지 말고 센다</strong>. <code>파싱 실패: N 블록</code> 을 리포트 헤더에 출력 (Gotcha #9).</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>actionability</code> 필드가 없는 레거시 엔트리는 <code>claude_behavior</code> 로 간주한다 (fail-open — 행동 신호 유실 방지).</div></li>
+  <li class="lv0"><span class="li-mark">5.</span><div class="li-body"><strong>actionability 분리</strong> — 파싱된 엔트리를 두 갈래로 나눈다.</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>claude_behavior</code> → 6단계 클러스터링 → precedence 대상</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>user_environment</code> → precedence 에서 <strong>제외</strong>. <code>.env-issues.tsv</code> 와 합쳐 <code>## 환경 액션 아이템</code> 섹션에만 보고 (Gotcha #7)</div></li>
+  <li class="lv0"><span class="li-mark">6.</span><div class="li-body"><strong>태그 클러스터링</strong> — 원시 태그 빈도로 곧장 집계하지 않는다 (Gotcha #8). 순서를 지켜라: <strong>결정론 먼저, 판단은 그다음</strong>.</div></li>
+</ul>
+<p><strong>6-a. 결정론적 pass (기계)</strong> — 이 단계에서 눈대중을 섞지 마라.</p>
+<div class="code"><span class="code-lang">bash</span><pre><code># 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
+. "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
+tag_canon_selftest || echo "정규화 미작동 — 아래 수치를 집계 근거로 쓰지 마라"
+tag_canon_groups ~/.claude/logs/&lt;bucket&gt;/reflections-*.md   # cluster_freq \t canonical \t aliases
+tag_canon_fragmentation ~/.claude/logs/&lt;bucket&gt;/reflections-*.md</code></pre></div>
+<p><strong><code>tag_canon_selftest</code> 가 <code>SELFTEST_OK</code> 가 아니면 클러스터 수치를 집계 근거로 쓰지 마라</strong> (SSOT §6.1 규칙 6). lemma map 을 못 읽으면 라이브러리는 <strong>에러 없이</strong> 순수 kebab 정규화로 fail-open 하므로, 접힘이 0 인 출력이 정상 출력과 똑같은 모양으로 나온다. 그 상태의 빈도는 원시 태그 빈도와 같고 — 즉 Gotcha #8 이 금지한 그 집계다. 리포트에 <code>SELFTEST_FAIL</code> 사유를 적고 정규화를 복구한 뒤 다시 집계한다. 출력의 <code>canonical</code> 은 클러스터 안 <strong>최빈 원시 표기</strong>이고 <code>aliases</code> 는 나머지 멤버 전체다. 손으로 멤버를 고르지 마라 — 고르는 순간 <code>post_freq</code> 가 과소집계된다. 규약: SSOT §1~§2.</p>
+<p><strong>6-b. 판단 pass (LLM)</strong> — 결정론 pass 가 <strong>못 묶은 것만</strong> 검토한다.</p>
+<ul class="md-list">
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>묶는 기준은 근본원인이다.</strong> <code>undesired_behavior</code> <strong>와</strong> <code>desired_behavior</code> 가 <strong>둘 다</strong> 같을 때만 한 클러스터다. 표기 유사도(문자열 거리)만으로 묶지 마라 — <code>edit-before-read</code> 와 <code>edited-wrong-file</code> 은 철자가 비슷해도 다른 원인이다.</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">LLM 은 <strong>새 alias 후보와 그 근거를 제시할 뿐</strong>이고, 최종 병합은 <code>tag-lemma-map.tsv</code> 에 <code>alias</code> 행을 추가한 뒤 6-a 를 <strong>다시 실행해 출력으로 확인</strong>하는 것으로 확정한다 (SSOT §7 절차). 리포트 안에서만 합산하고 맵에 남기지 않으면 다음 주기에 같은 판단을 다시 해야 한다.</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>감사 흔적 필수</strong> — 클러스터마다 멤버 태그 전체와 개별 freq 를 리포트에 나열한다. 묶은 근거 없이 합산 숫자만 제시하면 승격 판단을 검증할 수 없다.</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>과잉 병합 금지.</strong> 서로 다른 근본원인을 한 태그로 합치면 승격 규칙 문구가 모호해져 아무 행동도 바뀌지 않는다. 확신이 없으면 묶지 말고 <code>## 병합 보류</code> 로 남겨라. 집계 키를 잘못 잡으면 신호 자체가 망가진다는 점은 Alertmanager <code>group_by</code> 설계가 보여준다 (<a class="ext" href="https://prometheus.io/docs/alerting/latest/configuration/" target="_blank" rel="noopener">https://prometheus.io/docs/alerting/latest/configuration/</a>). Sentry fingerprint 규칙도 같은 취지의 경고를 하지만, 2026-08-13 재확인 시 원문 직접 인용에 실패했으므로 <strong>직접 인용 없이</strong> 참고 링크로만 둔다 (<a class="ext" href="https://github.com/getsentry/sentry/issues/75567" target="_blank" rel="noopener">https://github.com/getsentry/sentry/issues/75567</a>).</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">클러스터가 3개 이상 멤버를 가지면 <code>## ⚠️ 태그 파편화</code> 섹션에 별도 보고한다.</div></li>
+</ul>
+<p><strong>6-c. family 분리 (병합하지 않음)</strong> — <code>undesired</code>/<code>desired</code> 중 하나라도 다르면 alias 가 아니다. 이때는 출력 포맷의 family 섹션으로만 보고하고 <strong><code>cluster_freq</code> 에 합산하지 않는다.</strong> family 판별은 결정론적 문자열 규칙이다 (예: 세그먼트에 <code>stale</code> 이 있으면 <code>stale-context-reference</code>). 2026-08 실측 10 개 멤버가 전부 remediation 이 달랐다 — SSOT §4.</p>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">7.</span><div class="li-body"><strong>집계</strong> (5·6 단계 결과 기준) — 아래 5 계층을 <strong>분리해서</strong> 보관한다. 하나로 뭉치면 효과 측정과 감사 중 하나가 반드시 깨진다.</div></li>
+</ul>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">계층</div></th>
+  <th><div class="c">쓰임</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>raw_tag</code></div></td>
+  <td><div class="c">감사·재현용. 절대 버리지 않는다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>lemma_key</code></div></td>
+  <td><div class="c">6-a 출력. <strong>집계·<code>post_freq</code> 의 유일한 키</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>canonical_tag</code></div></td>
+  <td><div class="c">클러스터 최빈 원시 표기. 사람이 읽는 대표 이름</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>aliases</code></div></td>
+  <td><div class="c">같은 <code>lemma_key</code> 의 나머지 멤버 + 개별 freq</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>family</code></div></td>
+  <td><div class="c">병합하지 않고 보고만. <strong>합산 금지</strong></div></td>
+</tr>
+</tbody></table></div>
+<ul class="md-list">
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>클러스터별 <code>cluster_freq</code></strong> (= <code>lemma_key</code> 단위 합산). 원시 <code>mistake_tag</code>별 count 도 함께 보관 (감사용)</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>primary_category</code>별 count (+ <code>also_applies</code> 가중치 0.5 반영)</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>severity</code> 분포</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>tools_used.skills / agents / mcp_servers</code> 교차 빈도 (특정 스킬 호출 시 반복되는 실수)</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">4축별 분포 (<code>scope</code>, <code>risk_class</code>, <code>procedurality</code>, <code>enforcement_need</code>)</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>new_tag_reason</code> 이 붙은 신규 태그 목록 — 어휘가 어디로 늘고 있는지의 유일한 단서다</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>파편화 지표</strong>: <code>tag_canon_fragmentation</code> 7 열을 그대로 싣되 판정은 <strong><code>singleton_share</code></strong> 로 한다. <code>&gt; 0.70</code>(<strong>hypothesis</strong> — 2026-08-13 baseline 0.884, <code>/reflect-kaizen</code> calibration 대상)이면 어휘 수렴이 작동하지 않는다는 신호 → 리포트 헤더에 표시하고 <code>/reflect-kaizen</code> 대상으로 넘긴다. <strong><code>fold_ratio</code> 로 판정하지 마라</strong> (Gotcha #10)</div></li>
+  <li class="lv0"><span class="li-mark">8.</span><div class="li-body"><strong>승격 후보 계산 (아래 Precedence Table)</strong> — <strong><code>freq</code> 는 항상 <code>cluster_freq</code></strong> 다. 원시 태그 빈도로 임계를 판정하지 마라.</div></li>
+  <li class="lv0"><span class="li-mark">9.</span><div class="li-body"><strong>리포트 출력</strong></div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">요약 머리는 4 단계 <code>collect_status</code> 출력이다. <code>## 인사이트 세션 분석과 대조 (합산 금지)</code> 절에는 아래 출력을 그대로 옮긴다. 첫 인자는 4 단계와 같은 <code>&lt;일수&gt;</code>, 둘째 인자는 hash 접미를 뗀 basename 이고 <code>project=all</code> 이면 <code>all</code> 이다:</div></li>
+</ul>
+<div class="code"><span class="code-lang">bash</span><pre><code>bash -c '. "${1}/hooks/_lib-project-id.sh"; shift; facets_unmatched "$@"' _ "${CLAUDE_PLUGIN_ROOT}" &lt;일수&gt; &lt;프로젝트 이름&gt;</code></pre></div>
+<ul class="md-list">
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">이 절의 수는 7 · 8 단계 어디에도 더하지 않는다 (Gotcha #14)</div></li>
+  <li class="lv0"><span class="li-mark">10.</span><div class="li-body"><strong>결과 저장 (옵션)</strong>: <code>~/.claude/logs/&lt;project_id&gt;/digest-YYYY-MM-DD.md</code> — <code>project</code> 인자로 쓴 id 그대로 사용. 반영 자체는 후속 <code>/reflect-promote</code> 가 맡음.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>Cross-project 집계 (v0.2.0: <code>project=all</code>)</h2>
+  <div class="doc-body">
+<p><code>project=all</code> 로 호출 시 단일 프로젝트가 아닌 <strong>전 프로젝트를 글로벌 순회</strong>한다. Precedence Table #3 (<code>scope == global</code> AND 복수 프로젝트 freq ≥ 3) 판정은 이 모드에서만 의미 있다.</p>
+<h3 class="sub">1. 글로벌 순회 규칙</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>~/.claude/logs/*/</code> 하위 모든 디렉토리를 project bucket 으로 취급</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>내부 디렉토리 제외</strong>: <code>is_internal_logs_dir</code> 로 <code>_cron</code>, dot-prefix, underscore-prefix 디렉토리는 순회에서 자동 제외 (예: <code>_cron/</code> 은 install-scheduler.sh 로그 — project 가 아님)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">v0.3.0 Hybrid 에서 <code>&lt;basename&gt;</code> 과 <code>&lt;basename&gt;-&lt;hash6&gt;</code> 는 동등 bucket. 두 형태가 공존하는 프로젝트는 <code>normalize_project_query</code> 로 자동 병합 집계</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">디렉토리별 <code>reflections-YYYY-MM.md</code> 와 <code>.errors.log</code> 둘 다 읽음. 읽기 실패는 해당 bucket 만 skip</div></li>
+</ul>
+<h3 class="sub">2. 이중 freq 계산 (프로젝트별 + 글로벌)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">계산 단위는 <strong>클러스터</strong> 다 (<code>canonical_tag</code>). 원시 태그가 아니다:</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>per_project_freq[canonical][pid]</code> — 각 프로젝트 안에서의 클러스터 빈도</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>global_freq[canonical]</code> — 모든 프로젝트 합산 빈도</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>project_count[canonical]</code> — 이 클러스터가 등장한 <strong>서로 다른 프로젝트 수</strong></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Precedence #3 판정: <code>global_freq[canonical] ≥ 3 AND project_count[canonical] ≥ 2</code> 일 때 global 승격 후보</div></li>
+</ul>
+<h3 class="sub">2-1. 단일 프로젝트 편중 경고 (필수)</h3>
+<p>한 프로젝트가 전체 엔트리를 지배하면 cross-project 집계가 사실상 single-project 집계가 되고, <code>scope == global</code> 판정(rule #3)이 그 프로젝트의 국소 습관을 전역 규칙으로 승격시킨다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">프로젝트별 엔트리 점유율을 계산하고 <strong>최대 점유율 ≥ 60%</strong> 이면 리포트 헤더에 경고 라인을 <strong>반드시</strong> 출력한다: <code>⚠️ 편중: &lt;pid&gt; 가 전체의 X% (N/M 엔트리) — 글로벌 판정(rule #3) 신뢰도 낮음</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">경고가 떴을 때 rule #3 후보는 <strong>지배 프로젝트를 제외한 잔여 freq 로 재확인</strong>한다. 잔여 <code>project_count ≥ 2</code> 가 유지되지 않으면 global 이 아니라 rule #4/#5(해당 프로젝트 국소)로 재할당하라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">60% 는 hypothesis 다 — <code>/reflect-kaizen</code> calibration 대상.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">2026-07-27 실측: <code>fit-pal</code> 747 / <code>purchase-bot</code> 13 (총 760) → 98% 편중이었는데 리포트에 경고가 없었다.</div></li>
+</ul>
+<h3 class="sub">3. Precedence Table 재적용</h3>
+<p>single-project 모드와 동일한 규칙이되 <code>freq</code> 해석이 달라진다. <strong>진입 전제 4가지(<code>user_environment</code> 제외 · <code>cluster_freq</code> 사용 · <code>grounding: self_inference</code> 단독 근거 제외 · ledger active 재발은 등급 상향)는 아래 "Surface Precedence Table" 과 동일하게 적용한다.</strong> 아래 <code>global_freq</code> / <code>project_count</code> 는 모두 클러스터 단위다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">조건 (project=all 기준)</div></th>
+  <th><div class="c">승격 surface</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">0</div></td>
+  <td><div class="c">어느 프로젝트든 <code>user_stated_constraint == true</code> (global_freq ≥ 1)</div></td>
+  <td><div class="c"><strong>fast-track</strong> — <code>project_count ≥ 2</code>면 글로벌 CLAUDE.md, 단일 프로젝트면 해당 project CLAUDE.md</div></td>
+</tr>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">어느 프로젝트든 <code>enforcement_need == hard_gate</code></div></td>
+  <td><div class="c"><strong>hook 검토</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><code>procedurality == multi_step_procedure</code> AND <code>global_freq ≥ 2</code></div></td>
+  <td><div class="c"><strong>skill</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><code>global_freq ≥ 3</code> AND <code>project_count ≥ 2</code></div></td>
+  <td><div class="c">risk=high → <strong>글로벌 CLAUDE.md</strong> / 나머지 → <strong>글로벌 memory</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">단일 프로젝트에 국한되고 <code>per_project_freq ≥ 3</code></div></td>
+  <td><div class="c"><strong>project CLAUDE.md</strong> (해당 프로젝트)</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">단일 프로젝트에 국한되고 <code>per_project_freq ≥ 2</code></div></td>
+  <td><div class="c"><strong>project memory</strong> (해당 프로젝트)</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><code>risk_class == low</code> AND 전체 freq == 1</div></td>
+  <td><div class="c"><strong>관망</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c">그 외</div></td>
+  <td><div class="c"><strong>수동 review</strong></div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">4. Given-When-Then 동작 계약</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Given</strong> <code>/reflect-digest project=all period=30d</code> 호출,</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>When</strong> digest가 <code>~/.claude/logs/*/reflections-*.md</code> 를 순회하고 (내부 디렉토리 제외),</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Then</strong> 리포트 상단에 아래 형태의 메타라인이 정확히 표시된다:</div></li>
+</ul>
+<div class="code"><span class="code-lang">text</span><pre><code># Reflect Digest — project=all (30d)
+대상 프로젝트: N개 (basename B개 / hash-fallback H개) / 총 엔트리: M개
+수집 상태: Stop 실패 시도 &lt;n&gt;회 (codex 실패 &lt;c&gt; · 대체 경로 실패 &lt;f&gt; · 대체 경로 성공 &lt;u&gt; · 분석 전 중단 &lt;p&gt;; 고유 세션 &lt;s&gt;) / 기록된 세션 &lt;k&gt; / 엔트리 &lt;e&gt; / 마지막 기록 &lt;ISO8601 | 없음&gt;
+⚠ 수집 멈춤 — 엔트리 0은 문제 없음이 아니다
+집계 실패 프로젝트: K개 (project_id 리스트)
+파싱 실패: P 블록
+원시 태그 J개 → 클러스터 C개 / singleton S개 (singleton_share 0.NNN · 임계 0.70) · fold_ratio F
+⚠️ 편중: &lt;pid&gt; 가 전체의 X% (N/M 엔트리) — 글로벌 판정(rule #3) 신뢰도 낮음</code></pre></div>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>basename B개</code> = hash suffix 없는 Hybrid 기본 포맷 bucket 수</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>hash-fallback H개</code> = <code>&lt;basename&gt;-&lt;6자 hex&gt;</code> 충돌 fallback + v0.2.0 레거시 bucket 수</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>집계 실패 프로젝트</code> / <code>파싱 실패</code> / 파편화 지표 라인은 값이 0 이어도 생략하지 않고 <code>0</code> 으로 명시한다 (검증 용이성).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">편중 경고 라인은 최대 점유율 &lt; 60% 일 때만 생략한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>수집 상태</code> 줄은 전 bucket 을 넘긴 <code>collect_status</code> 출력이며 값이 0 이어도 싣는다. <code>⚠ 수집 멈춤</code> 줄은 엔트리 0 이고 Stop 실패 시도가 1 이상일 때, 또는 마지막 기록 · 마지막 정상 종료 가운데 늦은 쪽 뒤의 Stop 실패 시도가 3 회 이상이고 첫 실패가 1 일 이상 지났을 때만 싣는다 (Gotcha #13).</div></li>
+</ul>
+<h3 class="sub">5. 출력 포맷 예시 (cross-project)</h3>
+<div class="code"><span class="code-lang">text</span><pre><code># Reflect Digest — project=all (30d)
+대상 프로젝트: 7개 (basename 4개 / hash-fallback 3개) / 총 엔트리: 142개
+수집 상태: Stop 실패 시도 0회 (codex 실패 3 · 대체 경로 실패 0 · 대체 경로 성공 3 · 분석 전 중단 0; 고유 세션 0) / 기록된 세션 41 / 엔트리 142 / 마지막 기록 2026-07-27T21:04:10+0900
+집계 실패 프로젝트: 0개
+
+## 글로벌 상위 패턴 (mistake_tag × project_count)
+| count | projects | mistake_tag | primary | risk | proc | enforce | 승격 후보 |
+|------:|---------:|-------------|---------|------|------|---------|-----------|
+|   12  |    3     | wrong-path-inference | misunderstanding | medium | single | soft | 글로벌 memory (rule #3) |
+|    8  |    2     | startup-env-check-hook-failure | tool_failure | high | single | hard | **hook 검토 (rule #1)** |
+
+## 프로젝트별 Top 3
+- `claude-plugins`: tag-a (5) · tag-b (3) · tag-c (2)
+- `fit-pal-aa2a00`: tag-d (4) · tag-e (3)
+- ...</code></pre></div>
+  </div>
+</section>
+
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>Surface Precedence Table</h2>
+  <div class="doc-body">
+<p><strong>진입 전제 4가지 (여기서 걸러진 후보는 아래 표를 적용하지 않는다):</strong></p>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><code>actionability == user_environment</code> → precedence 대상 아님. <code>## 환경 액션 아이템</code> 으로만 보고 (Gotcha #7).</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><code>freq</code> 는 <strong><code>cluster_freq</code></strong> 다 (canonical + aliases 합산). 원시 태그 빈도로 임계를 판정하지 마라 (Gotcha #8).</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body">근거가 <code>grounding: self_inference</code> 인 (또는 <code>grounding</code> 미보유인) 메모리 엔트리<strong>뿐</strong>인 후보는 표를 적용하지 않는다. 외부 신호(사용자 교정 또는 실행 증거)가 붙을 때까지 <strong>관망</strong>으로 보고한다 (rule #6 과 같은 취급). 판정 기준은 <code>reflect-kit/references/memory-grounding.md</code> — 여기서 재정의하지 마라.</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body">같은 <code>canonical_tag</code>(또는 그 alias)가 <code>promotions-ledger.md</code> 에 <code>status: active</code> 로 이미 있으면 <strong>재발</strong>이다. 표를 다시 적용해 같은 surface 로 재승격하지 말고 <code>## 재발 — 등급 상향 후보</code> 섹션으로 라우팅한다. digest 는 라우팅과 <code>post_freq</code> 제시까지만 하고, <strong>실제 등급 상향 판정(재발 2회 이상 E2 / 3회 이상 E3)과 반영은 <code>/reflect-promote</code> §B 가 수행한다.</strong></div></li>
+</ul>
+<p>아래 규칙을 <strong>위에서 아래로</strong> 적용. 먼저 맞는 규칙 하나만 선택.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">조건</div></th>
+  <th><div class="c">승격 surface</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">0</div></td>
+  <td><div class="c"><code>user_stated_constraint == true</code> (freq ≥ 1, 임계값 우회)</div></td>
+  <td><div class="c"><strong>매-세션 자동 로드 surface로 fast-track</strong> — <code>scope==global</code>이면 글로벌 CLAUDE.md, 아니면 project CLAUDE.md (200줄 초과 시 path-scoped rule). <code>enforcement_need==hard_gate</code>면 추가로 hook 후보 병기</div></td>
+</tr>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><code>enforcement_need == hard_gate</code> (빈도 무관)</div></td>
+  <td><div class="c"><strong>hook 검토</strong> (다른 축 무시)</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><code>procedurality == multi_step_procedure</code> AND freq ≥ 2</div></td>
+  <td><div class="c"><strong>skill</strong> 신설/보강</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><code>scope == global</code> AND 복수 프로젝트에서 freq ≥ 3</div></td>
+  <td><div class="c"><strong>글로벌 CLAUDE.md</strong> (risk_class=high) 또는 <strong>글로벌 memory</strong> (나머지)</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><code>scope == project</code> AND freq ≥ 3</div></td>
+  <td><div class="c"><strong>project CLAUDE.md</strong> — 단 CLAUDE.md 가 200줄 초과 예상 시 <strong><code>.claude/rules/&lt;tag&gt;.md</code></strong> path-scoped rule로 스필오버</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><code>scope == project</code> AND freq ≥ 2</div></td>
+  <td><div class="c"><strong>project memory (feedback 타입)</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><code>risk_class == low</code> AND freq == 1</div></td>
+  <td><div class="c"><strong>관망</strong> (no action, 다음 주 재평가)</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c">그 외</div></td>
+  <td><div class="c"><strong>review 후보 (수동)</strong></div></td>
+</tr>
+</tbody></table></div>
+<blockquote class="quote"><p><strong>규칙 #0 근거 (Friction #2 — insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응)</strong>: 사용자가 명시적으로 금지/지시한 제약(예: "ValueNotifier 쓰지 마")의 재위반은 일반 실수보다 <strong>사용자 좌절이 크고</strong>, 연구상 long-context에서 가장 먼저 잊히는 omission 제약이다 (Omission Constraints Decay While Commission Constraints Persist, <a class="ext" href="https://arxiv.org/html/2604.20911" target="_blank" rel="noopener">https://arxiv.org/html/2604.20911</a>). 따라서 freq 2/3회 누적을 기다리지 말고 <strong>첫 재위반부터</strong> 매-세션 자동 로드 surface(CLAUDE.md/hook)로 보낸다. memory(on-demand 로드)나 관망으로 보내면 재주입이 약해 friction이 해소되지 않는다. 단 surface 반영은 항상 <code>/reflect-promote</code>가 사용자 승인을 거쳐 수행한다 (digest는 후보 표시만).</p></blockquote>
+<h3 class="sub">임계값은 hypothesis</h3>
+<blockquote class="quote"><p>위 <code>freq == 2</code>, <code>freq == 3</code> 기준은 <strong>hypothesis</strong>이다. 30일 운영 후 pre/post 재발률을 보고 calibration 한다.</p><p>참고: Claude 공식 문서는 "같은 실수 2번째 → <code>CLAUDE.md</code>에 추가" 권고. 현재 표는 "2회는 memory, 3회는 CLAUDE.md"로 한 단 낮게 설정 — 과잉제약 부작용을 우선 배제하기 위함. 운영 데이터로 재조정.</p></blockquote>
+<h3 class="sub">CLAUDE.md 용량 예산</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">공식 권고: 200줄 이하</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">초과 예상 시 <code>.claude/rules/&lt;tag&gt;.md</code> (path-scoped) 또는 skill로 스필오버</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">digest가 현재 <code>CLAUDE.md</code> 줄 수를 측정해 스필오버 필요성 플래그</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>출력 포맷</h2>
+  <div class="doc-body">
+<p>아래 섹션은 <strong>전부 필수</strong>다. 해당 건수가 0이어도 섹션과 숫자를 생략하지 않는다. 제목 아래 <code>⚠ 수집 멈춤</code> 줄만은 엔트리 0 이고 Stop 실패 시도가 1 이상일 때, 또는 마지막 기록 · 마지막 정상 종료 가운데 늦은 쪽 뒤의 Stop 실패 시도가 3 회 이상이고 첫 실패가 1 일 이상 지났을 때만 싣는다 (Gotcha #13).</p>
+<div class="code"><span class="code-lang">markdown</span><pre><code># Reflect Digest — &lt;project_id&gt; (&lt;period&gt;)
+수집 상태: Stop 실패 시도 &lt;n&gt;회 (codex 실패 &lt;c&gt; · 대체 경로 실패 &lt;f&gt; · 대체 경로 성공 &lt;u&gt; · 분석 전 중단 &lt;p&gt;; 고유 세션 &lt;s&gt;) / 기록된 세션 &lt;k&gt; / 엔트리 &lt;e&gt; / 마지막 기록 &lt;ISO8601 | 없음&gt;
+⚠ 수집 멈춤 — 엔트리 0은 문제 없음이 아니다
+
+## 요약
+- 총 엔트리: N개 / 세션: M개 / 파싱 실패: P 블록
+- 원시 태그 J개 → 클러스터 C개 / singleton S개 (**singleton_share 0.NNN** · 임계 0.70) · fold_ratio F (판정 근거 아님)
+- actionability: claude_behavior A개 / user_environment B개
+- primary_category: misunderstanding X / repeated_error Y / wrong_approach Z / tool_failure W
+- severity: low L / medium M / high H
+- 4축 분포: scope(session S / project P / global G), risk_class(...), procedurality(...), enforcement_need(...)
+
+## ⚠️ 태그 파편화 (멤버 3개 이상 클러스터)
+`tag_canon_groups` 출력을 그대로 옮긴다. 아래는 2026-08-13 전량 실측 1행.
+
+| cluster_freq | canonical_tag (최다 멤버 freq) | aliases (개별 freq) |
+|------------:|-------------------------------|---------------------|
+| 110 | skipped-required-api-doc-check (71) | skipped-required-api-doc-lookup(7), ignored-required-api-doc-check(7), ignored-external-api-doc-check(4), skipped-external-api-doc-check(3), skipped-api-doc-check(2), +10more |
+
+## 원인 계열 (family) — 병합하지 않음 (합산 금지)
+`undesired_behavior` / `desired_behavior` 중 하나라도 다르면 alias 가 아니다. 계열만 보고한다.
+
+| family | 멤버 (개별 freq) | 왜 합치지 않는가 |
+|--------|------------------|------------------|
+| stale-context-reference | used-stale-widget-ref(4), used-stale-mcp-connection(1), used-stale-inspector-ref(1), used-stale-diagnostics-oracle(1), reused-stale-vm-attachment(1) | remediation 이 위젯 재조회 / MCP 재연결 / 인스펙터 재바인딩 / 진단 오라클 재실행 / VM 재부착으로 전부 다름 |
+
+## 새 태그 (new_tag_reason 동반)
+| raw_tag | new_tag_reason | 기존 canonical 과의 차이 |
+|---------|----------------|--------------------------|
+| ... | ... | ... |
+
+## 상위 반복 패턴 (클러스터별)
+| cluster_freq | primary | also_applies | canonical_tag | severity | scope | risk | proc | enforce |
+|------------:|---------|--------------|---------------|----------|-------|------|------|---------|
+| ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
+## 재발 — 등급 상향 후보 (ledger `status: active` 인데 재발)
+판정·반영은 `/reflect-promote` §B. digest 는 라우팅 + 수치 제시까지만 한다.
+
+| rule_id | canonical_tag | 현재 surface | enforcement_level | post_freq | 제안 |
+|---------|---------------|--------------|-------------------|----------:|------|
+| a1b2c3d4 | skipped-required-api-doc-check | project CLAUDE.md | E1 | 9 | E3 상향 검토 (재발 3회 이상) |
+
+## 승격 후보 (precedence 적용 — freq 는 cluster_freq)
+### 1. `&lt;canonical_tag&gt;` → `project CLAUDE.md` (규칙 #4)
+- 빈도: 3회 (세션 2개) / aliases: [...]
+- 4축: scope=project, risk=medium, proc=single, enforce=soft
+- 근거: undesired_behavior / desired_behavior 요약
+- 초안 규칙: "..."
+
+### 2. `&lt;canonical_tag&gt;` → `skill 신설` (규칙 #2)
+- ...
+
+## 환경 액션 아이템 (승격 대상 아님 — 사용자 환경 작업)
+`.env-issues.tsv` + `actionability: user_environment` 엔트리 기준. Claude 행동 개선이 아니므로
+precedence 를 적용하지 않는다. 각 항목은 **1줄** 로만 보고한다.
+
+| count | tag | first_seen | last_seen | 필요한 사용자 조치 |
+|------:|-----|------------|-----------|--------------------|
+| 351 | missing-hook-scripts | 2026-06-27 | 2026-07-27 | `.claude/settings.json` 이 참조하는 스크립트 생성 또는 훅 선언 제거 |
+
+## 인사이트 세션 분석과 대조 (합산 금지)
+`facets_unmatched` 출력을 그대로 옮긴다. facets 폴더가 없으면 `facets 대조: (없음)` 한 줄이다. 여기 수는 위 어느 표에도 더하지 않는다.
+
+facets 대조: facets &lt;t&gt;개 · 마찰 있는 세션 &lt;m&gt;개 · 그중 reflections 없음 &lt;x&gt;개 (facets 읽기 실패 &lt;a&gt; · session-meta 읽기 실패 &lt;b&gt;)
+- &lt;session_id&gt; · &lt;start_time&gt; · &lt;project_path&gt; — &lt;friction_detail 원문&gt;
+
+## 스킬/에이전트 교차 분석
+- `/&lt;skill-name&gt;` 호출 시 "&lt;canonical_tag&gt;" 실수가 N회 → 해당 스킬에 가드 추가 검토
+
+## 훅 실패 요약 (.errors.log)
+- skip:cli-missing: X건
+- fail:codex-exit-N: Y건 (가장 최근 `err=` 값)
+- fallback:claude-exit-N / fallback:claude-used: V건 / U건 (가장 최근 `err=` 값)
+- env-dedup (억제): Z건
+- warn:lemma-map-unreadable: W건 (0 이 아니면 그 기간 어휘 주입이 fail-open 상태였다 — 파편화 지표를 그 기간에 대해 신뢰하지 마라)
+- vocab (최근 값): raw_distinct/clusters/entries/singletons/fold/singleton_share/epc
+
+## 병합 보류 (근본원인 확신 부족)
+- `&lt;tag-a&gt;` / `&lt;tag-b&gt;` — 표기는 유사하나 원인이 같은지 불확실. 다음 주기 재평가
+
+## 미분류 원시 엔트리 (n건)
+- ...</code></pre></div>
+  </div>
+</section>
+
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
+  <h2>Ledger 스키마 (후속 /reflect-promote 가 관리)</h2>
+  <div class="doc-body">
+<p>현재 digest는 리포트만 수행한다. 실제 승격 반영은 <code>/reflect-promote</code> 스킬이 담당하며, 승격 이력은 다음 ledger 파일에 append 된다.</p>
+<p>경로: <code>~/.claude/logs/&lt;project_id&gt;/promotions-ledger.md</code></p>
+<div class="code"><span class="code-lang">yaml</span><pre><code>- rule_id: &lt;uuid&gt;                     # 고유 ID (uuidgen)
+  mistake_tag: &lt;canonical_tag&gt;        # 클러스터의 대표 태그 = lemma_key 안 최빈 원시 표기
+  lemma_key: &lt;lemma_key&gt;              # post_freq 집계의 실제 키 (tag_canon_groups 산출)
+  aliases: []                         # 같은 lemma_key 의 나머지 멤버 **전체**. 손으로 고르지 마라
+  promoted_to: project_claude_md | project_memory | global_claude_md | global_memory | skill | path_scoped_rule | hook
+  enforcement_level: E1 | E2 | E3     # skill-design-guide §3.7 등급. 재발 시 상향
+  target_path: &lt;실제 수정된 파일 경로&gt;
+  promoted_at: &lt;ISO8601 with TZ&gt;
+  source_evidence:                    # 이 규칙을 만든 로그 근거
+    - path: ~/.claude/logs/&lt;id&gt;/reflections-YYYY-MM.md
+      anchor: &lt;타임스탬프 헤더&gt;
+  initial_freq: &lt;int&gt;                 # 승격 시점 빈도 (cluster_freq)
+  calibration_window_days: 30
+  post_freq: &lt;int&gt;                    # 30일 뒤 digest가 자동 업데이트 (aliases 포함 합산)
+  status: active | demoted | removed
+  demotion_reason: &lt;str&gt;              # 강등된 경우만</code></pre></div>
+<p>이 ledger로 <strong>regression 측정</strong>이 가능하다. digest는 <code>promoted_at</code> 이후 같은 <code>lemma_key</code> 클러스터(= canonical + aliases 전체)의 재발 횟수를 <code>post_freq</code>에 기록하고, 30일 재발 0 + low risk 면 <code>status: demoted</code> 후보로 표시한다. 단 <code>singleton_share</code> 가 임계를 넘은 기간의 <code>post_freq</code> 는 과소집계이므로 그 상태에서 demotion 후보를 내지 않는다 (<code>/reflect-kaizen</code> §0).</p>
+  </div>
+</section>
+
+<section class="section doc" id="s11">
+  <div class="section-label">§ 11</div>
+  <h2>안티패턴 (하지 말 것)</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">harness-kaizen 규칙을 이 리포트에 섞지 마라 — 별개 시스템</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">승격을 이 스킬에서 실제로 반영하지 마라 — <strong>리포트만</strong>. 반영은 <code>/reflect-promote</code>가 담당.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>&lt;basename&gt;</code> 쿼리를 단일 디렉토리 매칭으로 처리하지 마라 — 반드시 <code>normalize_project_query</code> 로 glob union 확장 (기존 hash 디렉토리 누락 방지).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">내부 디렉토리(<code>_cron</code>, dot/underscore-prefix)를 project bucket 으로 집계하지 마라 — <code>is_internal_logs_dir</code> 필터 필수.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">단일 <code>surface_candidate</code> 필드를 재도입하지 마라 — 4축 precedence로만 계산.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">period 범위 밖 엔트리를 섞지 마라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>원시 <code>mistake_tag</code> 빈도를 그대로 precedence 임계에 넣지 마라</strong> — 반드시 클러스터링 후 <code>cluster_freq</code>.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>actionability: user_environment</code> 를 승격 후보로 올리지 마라.</strong> "훅 스크립트를 만들어야 했다" 는 Claude 의 행동 개선이 아니다. 이 항목을 CLAUDE.md/memory 로 승격하면 사용자 환경 작업 지시가 매 세션 컨텍스트를 먹는다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>파싱 실패 블록을 조용히 버리지 마라</strong> — 건수를 헤더에 노출.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>단일 프로젝트 편중을 경고 없이 글로벌 판정에 쓰지 마라</strong> — 점유율 ≥ 60% 면 rule #3 을 잔여 freq 로 재확인.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>클러스터를 합산 숫자만으로 제시하지 마라</strong> — 멤버 태그와 개별 freq 감사 흔적 필수.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">이미 <code>status: active</code> 인 규칙이 재발했는데 <strong>같은 surface 로 재승격 후보를 만들지 마라</strong> — 등급 상향 후보로 표시.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>클러스터를 눈대중으로 만들지 마라</strong> — <code>tag_canon_groups</code> 출력이 1차 근거다. 리포트 안에서만 합치고 <code>tag-lemma-map.tsv</code> 에 남기지 않으면 다음 주기에 같은 판단을 처음부터 다시 하게 된다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>fold_ratio</code> 를 파편화 판정에 쓰지 마라</strong> — 아무것도 못 묶으면 1.00 이라 항상 "정상" 이다. <code>singleton_share</code> 를 써라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>stale ...</code> 계열을 한 태그로 합치지 마라</strong> — remediation 이 다르면 family 로만 보고. 합산하면 승격 문구가 "stale 을 조심하라" 같은 무행동 규칙이 된다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>grounding: self_inference</code> 인 메모리 엔트리를 승격 근거로 인용하지 마라</strong> — 아무도 확인하지 않은 자기추론이 영속 규칙으로 증류되는 경로다. <code>grounding</code> 미보유(미태깅) 엔트리도 같다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>grounding</code> 값을 이 문서에서 재정의하거나 나열하지 마라</strong> — 정본은 <code>reflect-kit/references/memory-grounding.md</code> 하나다. 정의가 두 곳에 있으면 digest 와 promote 의 판정이 갈라진다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>닫힌 라벨 집합(hard enum)을 만들지 마라</strong> — 새 근본원인이 기존 라벨로 흡수되어 일관성 수치만 오른다. known canonical 우선 + 새 tag 허용 + <code>new_tag_reason</code> 요구가 정책이다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s12">
+  <div class="section-label">§ 12</div>
+  <h2>예시 사용</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>/reflect-digest</code> — 현재 프로젝트, 지난 7일</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>/reflect-digest project=app_kiosk period=30d</code> — basename 입력 (v0.3.0 Hybrid). <code>app_kiosk</code> 와 <code>app_kiosk-&lt;hash6&gt;</code> 모두 포함</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>/reflect-digest project=fit-pal-a3b4f9 period=30d</code> — 완전 id 입력 (backward-compat)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>/reflect-digest project=all period=30d</code> — cross-project 집계</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 3 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://prometheus.io/docs/alerting/latest/configuration/" target="_blank" rel="noopener">&#8599; https://prometheus.io/docs/alerting/latest/configuration/</a></li>
+    <li><a class="card-source" href="https://github.com/getsentry/sentry/issues/75567" target="_blank" rel="noopener">&#8599; https://github.com/getsentry/sentry/issues/75567</a></li>
+    <li><a class="card-source" href="https://arxiv.org/html/2604.20911" target="_blank" rel="noopener">&#8599; https://arxiv.org/html/2604.20911</a></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>reflect-kit/skills/reflect-digest/SKILL.md</code> 의 기준 판은 커밋 <code>6378948</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>
