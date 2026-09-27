@@ -551,6 +551,9 @@ PASS 를 적는다 — 설정 파일 · 문서만 내는 스프린트에서 `DG-
 - [ ] DG-01: N/A (commands.analyze 는 scripts/release.sh 만 잰다 — 이번 변경 파일과 교집합 0 개. 측정: git diff --name-only origin/main...feat/x | grep -c '^scripts/release.sh$' 이 0)
 ```
 
+편집기 경고 조건(`DG-02`)이 재는 파일에 `<!-- AUTO:* -->` 블록이 있으면 경고를 블록 안과 블록 밖으로 나눠 재고, 봉인 전에
+두 수를 적는다 — 블록 안은 생성기가 쓰는 줄이다. 규칙은 `harness/references/contract-schema.md` §4. Diagnostics 에 있다.
+
 N/A 로 뺀 자리에는 **실제로 성립하는 오라클**을 해당 카테고리의 조건으로 따로 둔다 (예: `python3 scripts/validate-plugin.py <kit>`).
 사유가 거짓이면 평가자가 FAIL 로 잡는다. 사유 없는 `N/A` 는 쓰지 않는다. N/A 줄도 조건 줄이라 Step 6.2 조건 수와
 Step 6.6 봉인에 그대로 들어간다.
