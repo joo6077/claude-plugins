@@ -13,7 +13,7 @@ H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ �
 ## 스킬
 
 | 스킬 | 용도 |
-|------|------|
+| --- | --- |
 | `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → 슬라이서 판별 → seam 전략 → 해당 슬라이서용 JSON 생성 → zip 번들 출력 |
 
 트리거 키워드: "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력".
@@ -23,7 +23,7 @@ H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ �
 `skills/bambu-print-profile/references/`에 9종이 있으며, 스킬이 SSOT로 참조한다.
 
 | 문서 | 내용 |
-|------|------|
+| ------ | ------ |
 | `bambu-fields-baseline.md` | 슬라이서 JSON schema — process/filament/machine 필수 필드, inherits 체인, silent skip 회피 메타필드, §11 슬라이서별 키 차이 |
 | `materials.md` | Bambu 필라멘트 카탈로그 40+ + 용도 매핑 (PLA/PETG/PA/PC/ASA/CF/TPU) + AMS 호환성 |
 | `seam-recipes.md` | 형상×소재 scarf 매트릭스 + Real-world findings (회전체 random vs aligned, PETG entire_loop stringing 등) |
@@ -54,7 +54,7 @@ bambu-kit는 자체 카이젠 스킬을 플러그인 외부 `.claude/skills/`에
 ## 검증된 실측 사례
 
 | 모델 | 소재 | 결과 |
-|------|------|------|
+| ------ | ------ | ------ |
 | Box opener knife (MakerWorld 583712) | PLA Basic dual-color | ✅ 정상 출력 |
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing (필라멘트 건조 부족 의심) |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 dogfood — v0.3.0 |
