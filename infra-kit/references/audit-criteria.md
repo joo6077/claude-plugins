@@ -16,7 +16,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## Container
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 멀티스테이지 빌드 | `COPY --from=builder` 패턴 사용 | 단일 스테이지로 빌드 도구 포함 |
 | non-root 실행 | `USER` 지시어로 비특권 사용자 지정 | root 실행 또는 USER 없음 |
 | .dockerignore | `.git`, `node_modules`, `.env` 제외 | .dockerignore 없음 또는 미설정 |
@@ -30,7 +30,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## CI/CD
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 파이프라인 단계 | build → test → deploy 순서 준수 | 테스트 없이 바로 배포 |
 | 시크릿 관리 — Secretless 우선 | Secrets/Vault 사용 + OIDC short-lived federation / Reusable workflow 신뢰 경계 / PyPI/npm Trusted Publishers | 소스코드 또는 로그에 시크릿 노출, 장기 정적 키 |
 | OIDC 인증 | OIDC로 클라우드 인증 (장기 키 없음) + reusable workflow 단위로 신뢰 조건 고정 | 장기 액세스 키 사용, workflow 전역 권한 |
@@ -68,7 +68,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## Kubernetes
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 리소스 제한 | `resources.requests` + `limits` 설정 | 미설정 |
 | 활성/준비 프로브 | `livenessProbe` + `readinessProbe` | 없음 |
 | RBAC | 최소 권한 ServiceAccount, ClusterRole 금지 | 와일드카드 권한 또는 cluster-admin |
@@ -96,7 +96,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## IaC
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 모듈 구조 | `main.tf`, `variables.tf`, `outputs.tf` 분리 | 단일 파일에 전부 |
 | Remote backend | S3+DynamoDB, GCS, Terraform Cloud 등 | local state |
 | State locking | DynamoDB lock 또는 동등 메커니즘 | locking 없음 |
@@ -119,7 +119,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## Security
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | TLS | 모든 외부 엔드포인트 TLS 1.2+ | HTTP 평문 또는 TLS 1.0/1.1 |
 | 시크릿 로테이션 | 자동 로테이션 설정 | 수동/무기한 유효 시크릿 |
 | 네트워크 격리 | private subnet, Security Group 최소 개방 | 0.0.0.0/0 인바운드 허용 |
@@ -132,7 +132,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## Observability
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 구조화 로그 | JSON 포맷, severity/trace_id 포함 | 평문 로그 |
 | 메트릭 노출 | `/metrics` 엔드포인트 또는 사이드카 | 없음 |
 | 알림 규칙 | SLO 기반 alerting rules 정의 | 없음 또는 임계값 없는 알림 |
@@ -153,7 +153,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## Deployment
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 배포 전략 | rolling/blue-green/canary 중 하나 | 단순 재시작 |
 | 롤백 절차 | 자동 롤백 또는 명확한 수동 절차 | 롤백 방법 없음 |
 | 헬스체크 연동 | 배포 완료 판정에 헬스체크 사용 | 시간 기반 대기 |
@@ -172,7 +172,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## Backup & DR
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 백업 주기 | 데이터 중요도에 맞는 RPO 정의 | 백업 없음 |
 | 복구 테스트 | 주기적 복구 드릴 실시 | 테스트 없음 |
 | RTO 문서화 | 허용 다운타임 문서화 | 미정의 |
@@ -186,7 +186,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## Cost Optimization / FinOps
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 리소스 태깅 전략 | 모든 클라우드 리소스에 일관된 태깅(team, env, service, cost-center) — 비용 귀속 가능 | 태그 없거나 비일관적 |
 | Shift-Left 비용 예측 | IaC plan/preview 단계에서 비용 변화 예측(Infracost 등) — PR 코멘트로 비용 영향 가시화 | 배포 후에만 비용 확인 |
 | FOCUS 표준 (권장) | 멀티 벤더 비용 데이터를 FOCUS(FinOps Open Cost and Usage Specification)로 정규화 | 벤더별 개별 비용 포맷 수동 비교 |
@@ -203,7 +203,7 @@ infra-audit 스킬과 infra-reviewer 에이전트가 카테고리별 PASS/FAIL �
 ## Supply Chain
 
 | 기준 | PASS | FAIL |
-|------|------|------|
+| ------ | ------ | ------ |
 | 이미지 서명(Cosign) | Sigstore Cosign으로 이미지 서명 + 배포 전 `cosign verify` (또는 Kyverno/Policy Controller로 미서명 이미지 차단) | 서명 없음 또는 검증 생략 |
 | SBOM 생성 | Trivy / Syft로 CycloneDX 또는 SPDX SBOM 생성 + 아티팩트 저장 + 취약점 스캔(Grype/Trivy) 연동 | SBOM 없음 |
 | SLSA provenance | 빌드 시스템이 in-toto attestation(provenance)을 생성 → L3 목표(격리된 빌드, 서명된 provenance) 진행 | provenance 미생성 |

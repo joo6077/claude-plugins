@@ -7,7 +7,7 @@
 ## Platform
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | Container | ../../../../docs/infra/platform/container.md |
 | CI/CD | ../../../../docs/infra/platform/cicd.md |
 | Kubernetes | ../../../../docs/infra/platform/kubernetes.md |
@@ -16,7 +16,7 @@
 ## Operations
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| ---------- | ----------- |
 | Networking | ../../../../docs/infra/operations/networking.md |
 | Backup & DR | ../../../../docs/infra/operations/backup-dr.md |
 | Deployment Strategies | ../../../../docs/infra/operations/deployment-strategies.md |
@@ -28,5 +28,5 @@
 ## Security
 
 | 카테고리 | 문서 경로 |
-|----------|-----------|
+| --- | --- |
 | TLS & Secrets Management | ../../../../docs/infra/security/tls-secrets.md |

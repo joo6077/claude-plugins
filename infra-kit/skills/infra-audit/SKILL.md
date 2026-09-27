@@ -26,11 +26,16 @@ user-invocable: true
 
 12. **도구·규칙 소스 부재를 "위반 0" 으로 집계하지 마라** — 인프라 감사는 검사 도구가 없는 환경이 흔하다(`hadolint` · `actionlint` · `kubeconform` · `conftest` · `cosign` · `trivy` 미설치, kubectl/레지스트리 접근 불가). **검사하지 못한 것과 검사해서 위반이 없는 것은 다르다.** 도구가 없어 돌리지 못한 rule 은 PASS 도 N/A 도 아니고 `[미검증]` 이다. 같은 원칙은 규칙 소스에도 해당한다 — `../../references/audit-criteria.md` 를 읽지 못했다면 그 카테고리는 검사하지 않은 것이므로 `[미검증] TOOL_OR_ENV_MISSING: audit-criteria.md 소스 부재 — 미검사` 로 명시하고 네 칸(Gotcha 11)을 채워라 — 위반 0 으로 보고하지 마라. 빈 결과를 통과로 읽는 것이 이 마찰의 실제 사고 형태다. 상태어 5 종과 머리말 4 카운터는 `../../references/gate-result-taxonomy.md` 가 SSOT 다 — Step 3a 가 그것을 소비한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 대상 범위 결정
 
 - 파일 경로 → 해당 파일만
+<!-- markdownlint-disable-next-line MD037 -->
 - 디렉토리 경로 → 하위 인프라 관련 파일 전체 (Dockerfile, *.yml, *.yaml, *.tf, *.hcl)
 - 미지정 → 최근 변경된 인프라 파일 (git diff 기준)
 
@@ -57,12 +62,13 @@ user-invocable: true
 
 ### Step 3b: Rule-by-Rule 표
 
+<!-- markdownlint-disable-next-line MD038 -->
 카테고리 순서는 `../../references/audit-criteria.md` 의 `^## ` 섹션 순서와 **정확히** 일치시킨다 (총 10 카테고리 · 스킬 디렉토리 기준 상대 경로를 쓰지 마라 — 그러면 stale 사본을 읽는다). 각 row 는 **하나의 체크항목(rule)** 에 대응하며, 카테고리 단위로 묶지 않고 개별 판정·근거·출처를 생성한다 (Gotcha 10 참조). 표 자리표시자(`...`) 금지.
 
 판정 열에는 `PASS` / `FAIL` / `N/A`(카테고리 미해당 · 사유 필수) / `[미검증:ENV]`(도구·접근 부재) 중 하나만 쓴다 — 분기 정의는 `../../references/gate-result-taxonomy.md`.
 
 | # | 카테고리 | 체크항목 | 판정 | 근거(파일:라인) | 출처 URL |
-|---|----------|---------|------|-----------------|----------|
+| --- | ---------- | --------- | ------ | ----------------- | ---------- |
 | 1 | Container | 멀티스테이지 빌드 | PASS/FAIL | `Dockerfile:1-30` 에 `COPY --from=builder` 확인 | [Docker best practices](https://docs.docker.com/build/building/best-practices/) |
 | 2 | Container | non-root 실행 | PASS/FAIL | `Dockerfile:25` `USER 1001:1001` | [Docker USER](https://docs.docker.com/reference/dockerfile/#user) |
 | 3 | Container | 이미지 태그 핀닝 | PASS/FAIL | `docker-compose.yml:12` `postgres:16-alpine` (digest 권장) | [OCI Image spec](https://github.com/opencontainers/image-spec) |
@@ -120,7 +126,11 @@ verdict 는 아래 순서로 확정하고 **위에서 성립하는 첫 항에서
 
 같은 체크항목이 **2 회 연속 감사에서 `env_gaps`** 면 그것은 환경 문제가 아니라 감사 기준의 검증 경로 미기재다 — `invalid_evidence` 쪽으로 이관하고 `audit-criteria.md` 개선 제안으로 올린다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - ../../references/audit-criteria.md — 카테고리별 PASS/FAIL 체크리스트 (10 카테고리 · 순서 SSOT)
 - ../../references/gate-result-taxonomy.md — 결과 상태 5 종 · 머리말 4 카운터 (SSOT)
