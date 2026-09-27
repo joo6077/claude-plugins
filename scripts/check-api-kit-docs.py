@@ -9,6 +9,8 @@ QA 최다 반려 사유(출처 링크 누락)를 커밋 전에 잡는 것이 목
 단방향으로만 보면 소스에 근거가 없는 URL 이 페이지에 새로 들어와도 영원히 안 걸린다
 (2026-09-05 QA 지적). 초과분은 출처를 사람이 한 번 확인하라는 신호다.
 
+exit 0 = 전부 통과, 1 = 소스→HTML 누락이 하나라도 있다. 종료 코드 의미: harness/evals/gate-exit-codes.md
+
 Usage:
     python3 scripts/check-api-kit-docs.py            # 전체 검사
     python3 scripts/check-api-kit-docs.py --json     # 기계 판독용

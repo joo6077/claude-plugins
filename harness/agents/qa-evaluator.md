@@ -260,6 +260,7 @@ EOF
 | ------ | ------ | ------ |
 | `status: active` 가 **명시됨** | 진행 중인 스프린트 | **포함** |
 | `status: done` | 종료된 스프린트 | 제외 |
+| `status: superseded` | 새 판(`superseded_by`)으로 바뀐 옛 판 — 레거시로도 세지 않는다 | 제외 |
 | `status:` 필드 **없음** | 레거시 계약 | **제외** |
 | frontmatter 자체가 없음 | 레거시 계약 | **제외** (파싱 실패로 중단하지 마라) |
 
@@ -297,7 +298,7 @@ while IFS= read -r f; do
 "
     [ -n "$CLAUDE_CODE_SESSION_ID" ] && [ "$own" = "$CLAUDE_CODE_SESSION_ID" ] && OWNED="$OWNED$f
 "
-  elif [ "$st" = "done" ]; then
+  elif [ "$st" = "done" ] || [ "$st" = "superseded" ]; then
     :
   else
     LEGACY="$LEGACY$f

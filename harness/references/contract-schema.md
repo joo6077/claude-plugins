@@ -212,7 +212,7 @@ created: "{YYYY-MM-DD HH:mm}"   # 저장하는 순간 date '+%Y-%m-%d %H:%M' 출
 complexity: "{simple|medium|complex}"
 conditions: {총 조건 수}
 slug: {slug}                # v5 — 접미형일 때 필수, plain 모드면 생략. 따옴표 없이
-status: active              # v5 — active | done. 따옴표 없이
+status: active              # v5 — active | done | superseded. 따옴표 없이
 owner_session: {세션 ID}    # v5 — $CLAUDE_CODE_SESSION_ID. 값이 없으면 필드 자체를 생략. 따옴표 없이
 conditions_digest: sha256:{16hex}   # v5.3 — 조건 봉인. 따옴표 없이
 measurement_digest: sha256:{16hex}  # v5.6 — 조건 아래 들여쓴 줄 봉인. 따옴표 없이
@@ -259,7 +259,8 @@ fm_get() { # fm_get <file> <key>
 | 필드 | 값 | 규칙 |
 | ------ | ------ | ------ |
 | `slug` | 슬러그 규칙을 만족하는 문자열 | 파일명 접미와 **동일**해야 한다. plain 모드면 필드 자체를 생략 |
-| `status` | `active` \| `done` | 작성 시 `active`. `done` 전환 주체·시점은 §`status: done` 전환 주체 참조 |
+| `status` | `active` \| `done` \| `superseded` | 작성 시 `active`. `done` 전환 주체·시점은 §`status: done` 전환 주체 참조. `superseded` 는 같은 일을 새 판 계약으로 다시 쓸 때 옛 판에 붙인다 |
+| `superseded_by` | 새 판 계약의 슬러그 | `status: superseded` 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(`sprint-contract-<슬러그>.md`)이 있어야 하고 그 계약이 다시 `superseded` 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다 |
 | `owner_session` | `$CLAUDE_CODE_SESSION_ID` 값 | 환경변수가 비어 있으면 **필드를 쓰지 마라.** 빈 문자열·`unknown` 같은 placeholder 금지 |
 
 ### 계약 봉인 — `conditions_digest` / `locked_at` (v5.3 신규 · E3)
@@ -397,6 +398,7 @@ amendment** 로 기록한다 (§Amendment 사이드카).
 - `status:` 필드가 **없으면 레거시**로 간주하고 **active 후보에서 제외**한다.
 - **frontmatter 자체가 없어도 동일하게 제외**한다. 파싱 실패로 중단하지 마라.
 - `status: done` 은 당연히 제외한다.
+- `status: superseded` 는 active 후보에서도 레거시에서도 뺀다. 새 판(`superseded_by`)이 평가 대상이다 — 레거시로 세면 superseded 계약 하나만 남았을 때 3.5b 가 그것을 고르고, 레거시 하나와 함께 있으면 레거시를 둘로 세어 BLOCKED 가 된다.
 
 **근거 (실측, 2026-07-27 기준)**: 배포본 fit-pal 계열 `.harness` 에 이미 존재하는 접미형 계약
 40 개 중 `status:` 필드를 가진 것은 **0 개**다. 이들을 active 로 세면 후보가 수십 개가 되어 그
@@ -456,7 +458,7 @@ while IFS= read -r f; do
          [ "$(fm_get "$f" owner_session)" = "$CLAUDE_CODE_SESSION_ID" ]; then
         n_own=$((n_own + 1)); pick_own="$f"
       fi ;;
-    "done") ;;
+    "done"|superseded) ;;
     *)
       n_leg=$((n_leg + 1)); pick_leg="$f"
       [ "$(basename "$f")" = "sprint-contract.md" ] && pick_plain="$f" ;;
