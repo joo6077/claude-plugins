@@ -1,5 +1,5 @@
 #!/bin/bash
-# 사용: bash m.sh <ID>   (ID: SC-01 SC-02 SC-03 SC-04 SC-05 AR-01 AR-02 AR-03 AP-03 AP-04)
+# 사용: bash m.sh <ID>   (ID: SK-01 SK-02 SK-03 SK-04 SC-01 ER-01 AR-01 AR-02 AR-03 AP-03 AP-04 DG-02)
 # 환경: R=작업 폴더(기본 ak2-l1) · HREF=재는 판(기본 가지 chore/ak2-l1 끝). 시작 판을 잴 때만 HREF 에 시작 커밋을 준다.
 R=${R:-/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak2-l1}
 S=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/mdlint
@@ -22,7 +22,7 @@ T=$(mktemp -d "${TMPDIR:-/tmp}/l1m.XXXXXX") || exit 2
 trap 'rm -rf "$T"' EXIT
 
 case "${1}" in
-SC-01)
+SK-01|DG-02)
   unpack "$H" "$T/h"
   n_list=$(grep -c . "$T/h/$L")
   list_diff=$(git -C "$R" diff --name-only "$B" "$H" -- "$L" | grep -c .)
@@ -30,7 +30,27 @@ SC-01)
   linted=$(cd "$T/h" && "$S/node_modules/.bin/markdownlint-cli2" --config "$S/cfg.jsonc" $(cat "$L") 2>&1 | sed -nE 's/^Linting: ([0-9]+) file.*/\1/p')
   echo "list=$n_list list_diff=$list_diff linted=$linted warn=$warn"
   ;;
-SC-02)
+ER-01)
+  unpack "$H" "$T/h"
+  : > "$T/want"; n=0
+  while IFS= read -r p; do
+    k=0
+    while IFS=: read -r ln rest; do
+      k=$((k+1)); n=$((n+1))
+      for r in $(printf '%s\n' "$rest" | grep -oE 'MD[0-9]{3}'); do echo "$p:$((ln+1-k)):$r" >> "$T/want"; done
+    done < <(grep -nE '^[[:space:]]*<!-- markdownlint-disable-next-line( MD[0-9]{3})+ -->[[:space:]]*$' "$T/h/$p")
+    [ "$k" -gt 0 ] && { grep -vE '^[[:space:]]*<!-- markdownlint-disable-next-line( MD[0-9]{3})+ -->[[:space:]]*$' "$T/h/$p" > "$T/tmp" && cp "$T/tmp" "$T/h/$p"; echo "$p" >> "$T/strip"; }
+  done < "$T/h/$L"
+  eff=0; pairs=$(grep -c . "$T/want")
+  if [ "$pairs" -gt 0 ]; then
+    bash "$S/run.sh" "$T/h" "$T/strip" > "$T/lint"
+    while IFS=: read -r p ln r; do
+      grep -qE "^${p}:${ln}(:[0-9]+)? error ${r}/" "$T/lint" && eff=$((eff+1))
+    done < "$T/want"
+  fi
+  echo "disables=$n rule_pairs=$pairs effective=$eff"
+  ;;
+AR-01)
   git -C "$R" ls-tree -r --name-only "$H" -- design-kit | grep '\.md$' | sort > "$T/all"
   git -C "$R" show "$H:$L" | sort > "$T/list"
   comm -23 "$T/all" "$T/list" > "$T/excl"
@@ -42,7 +62,7 @@ SC-02)
   hmod=$(git -C "$R" diff --name-status "$B" "$H" -- .harness | awk '$(1)!="A"' | grep -c .)
   echo "excluded=$ex excluded_touched=$touched harness_modified=$hmod"
   ;;
-SC-03)
+SK-02)
   unpack "$B" "$T/b"; unpack "$H" "$T/h"
   python3 "$HERE/norm.py" "$T/b" "$T/h" "$T/h/$L"
   echo "rc=$?"
@@ -50,7 +70,7 @@ SC-03)
   narrow=$(git -C "$R" diff -U0 "$B" "$H" -- $(git -C "$R" show "$H:$L") | grep -E '^\+[^+]' | grep -cE '^\+[[:space:]]*<!-- markdownlint-disable-next-line( MD[0-9]{3})+ -->[[:space:]]*$')
   echo "lint_comments_added=$added narrow_added=$narrow wide_added=$((added-narrow))"
   ;;
-SC-04)
+SK-03)
   unpack "$H" "$T/h"
   : > "$T/loc"
   while IFS= read -r p; do
@@ -68,7 +88,7 @@ SC-04)
   fi
   echo "disables=$n stated=${stated:-NONE} listed=$listed"
   ;;
-SC-05)
+SC-01)
   cd "$R" || exit 2
   [ "$(git rev-parse HEAD)" = "$H" ] || { echo "STOP HEAD 가 가지 끝이 아님"; exit 2; }
   [ -z "$(git status --porcelain -- . ':(exclude).harness')" ] || { echo "STOP 작업 폴더가 깨끗하지 않음"; exit 2; }
@@ -85,14 +105,14 @@ SC-05)
   bad=$(grep -v 'rc=0' "$T/ci/ci-local/summary.txt" | grep -vc 'feedback-agg-test SKIP (yq 없음)')
   echo "$out | ci_rc=$circ ci_steps=$steps ci_bad=$bad"
   ;;
-AR-01)
+AR-02)
   git -C "$R" show "$H:$L" | sort > "$T/list"
   git -C "$R" diff --name-only "$B" "$H" -- . ':(exclude).harness' | sort > "$T/chg"
   outside=$(comm -23 "$T/chg" "$T/list" | grep -c .)
   hx=$(git -C "$R" diff --name-only "$B" "$H" -- .harness | grep -vxE "\.harness/sprint-(contract|feedback|amendments)-$SLUG\.md|\.harness/\.meta/$SLUG/.+|\.harness/\.meta/after-kaizen-0926b/l1-notes\.md" | grep -c .)
   echo "changed=$(grep -c . "$T/chg") outside=$outside harness_outside=$hx"
   ;;
-AR-02)
+AR-03)
   multi=0; n=0
   for c in $(git -C "$R" rev-list --no-merges "$B..$H"); do
     n=$((n+1))
@@ -102,7 +122,7 @@ AR-02)
   merges=$(git -C "$R" rev-list --merges "$B..$H" | grep -c .)
   echo "commits=$n multi_top=$multi merges=$merges"
   ;;
-AR-03)
+SK-04)
   unpack "$B" "$T/b"; unpack "$H" "$T/h"
   hc=0; noted=0
   while IFS= read -r p; do
