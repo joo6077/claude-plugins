@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>infra-kit 연구 기록 — Infra Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#34D399;--accent2:#6EE7B7;--accent-dim:rgba(52,211,153,0.12);
+    --accent-line:rgba(52,211,153,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#047857;--accent2:#065F46;--accent-dim:rgba(4,120,87,0.10);
+    --accent-line:rgba(4,120,87,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Infra Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Infra Kit · 연구 기록</span>
+  <h1>infra-kit 연구 기록</h1>
+  <p class="orig-title">원본 제목: <strong>Infra Kit Research Log</strong></p>
+  <p class="subtitle">2026-04 첫 조사부터 카이젠 뒤 판 번호 정정까지, <strong>조회한 출처 · 실행해서 잡은 결함 · 바꾼 규칙</strong>을 사이클마다 남긴 기록이다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>docs/infra/research-log.md</code></span>
+    <span class="badge">판 1.4.1</span>
+    <span class="badge">마지막 갱신 2026-09-26</span>
+    <span class="badge">사이클 절 아홉</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>2026-09-26 · 판 번호 정정</h3>
+      <p>Kubernetes 최신 안정판은 1.37.0 이다. 앞 사이클 표에 적힌 「v1.37.1」 은 원문에 없어 여기서 고쳤다. Flux · Argo CD 판은 맞았다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-09-24 · Phase 8</h3>
+      <p>배정표 한 행과 앞 Phase 가 넘긴 셋을 세 관심사로 묶어 처리했다. 새 외부 조회는 하지 않았다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-08-13 · 핀닝 검사</h3>
+      <p>기존 grep 핀닝 검사가 이 레포 워크플로의 미핀닝 6 건을 0 건으로 보고했다. GitHub 소유 액션을 조용히 빼던 것이 원인이었다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-07-27 · 샘플 결함</h3>
+      <p>infra-test Step 5 샘플 스크립트의 결함 세 건을 실제로 재현한 뒤 고쳤다.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>[2026-09-26] - 카이젠 뒤 남은 것 (k2)</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>[2026-09-24] - Phase 8 kaizen</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>[2026-08-13] - Phase 8 kaizen</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>[2026-07-27] - Phase 8 kaizen</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>[2026-06-05] — Phase 8</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>[2026-05-07] — Phase 8 kaizen (infra, /insights 흡수)</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>2026-04-12</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>2026-04-11</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>2026-04-12</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="table-wrap"><table class="fm">
+<thead><tr><th>머리 설정 키</th><th>값</th></tr></thead><tbody>
+<tr><td><code>version</code></td><td class="fm-val">1.4.1</td></tr>
+<tr><td><code>last_updated</code></td><td class="fm-val">2026-09-26</td></tr>
+</tbody></table></div>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>[2026-09-26] - 카이젠 뒤 남은 것 (k2)</h2>
+  <div class="doc-body">
+<p>FIXED. 2026-09-24 사이클이 기록한 판 번호를 원문과 다시 맞췄다. 근거는 Codex 원문 대조 <code>.harness/.meta/after-kaizen-0926b/ex/EX-8.md</code>(2026-09-26 조회) 하나다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">대상</div></th>
+  <th><div class="c">원문</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">Kubernetes</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/releases/" target="_blank" rel="noopener">kubernetes.io/releases</a> — 「Latest Release: 1.37.0 (released: 2026-08-26)」, 유지하는 판은 1.37 · 1.36 · 1.35</div></td>
+  <td><div class="c"><strong>정정</strong> — 2026-09-24 사이클 표 6 행의 「v1.37.1 최신 안정판」 은 원문에 없다. 최신 안정판은 1.37.0 이다. 그 행이 바꾼 <code>kubeconform</code> 예시(대상 클러스터 버전 변수)는 판 번호와 무관해 그대로 둔다</div></td>
+</tr>
+<tr>
+  <td><div class="c">Flux</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/fluxcd/flux2/releases" target="_blank" rel="noopener">fluxcd/flux2 releases</a> — v2.9.5, 2026-08-31 게시</div></td>
+  <td><div class="c">맞음</div></td>
+</tr>
+<tr>
+  <td><div class="c">Argo CD</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/argoproj/argo-cd/releases" target="_blank" rel="noopener">argoproj/argo-cd releases</a> — v3.5.3, 2026-09-14 게시(v3.6.0-rc1 은 사전 릴리스)</div></td>
+  <td><div class="c">맞음</div></td>
+</tr>
+</tbody></table></div>
+<p>2026-09-24 항목의 이력 줄은 그대로 두고 여기서 정정한다. Flux v2.9 · Argo CD 3.5 에서 빠진 API 를 원칙으로 올리는 일은 EX-8 이 판 번호와 날짜만 대조해 근거가 없다 — 다음 사이클 후보에 그대로 남는다.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>[2026-09-24] - Phase 8 kaizen</h2>
+  <div class="doc-body">
+<p>CHANGED. 처리 배정표의 Phase 8 행 <code>backend-family:P3</code> 하나와 앞 Phase 가 넘긴 셋(Phase 1 — <code>infra-test</code> 의 <code>[미검증]</code> 네 칸, Phase 4 — harness <code>/sprint</code> Step 3 의 판정 세 줄, Phase 7 — README 검증 절 「7 카테고리 구조 감사」)을 세 관심사로 묶었다. 외부 근거는 <code>.harness/.meta/evidence/phase8.md</code> 하나이고 이 Phase 는 새로 조회하지 않았다.</p>
+<h3 class="sub">조회한 외부 소스 (근거 파일 <code>.harness/.meta/evidence/phase8.md</code>) — 2026-09-24 사이클</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">조회 결과</div></th>
+  <th><div class="c">채택</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://git-scm.com/docs/git-merge-base" target="_blank" rel="noopener">Git — git merge-base</a></div></td>
+  <td><div class="c">기준 가지의 지금 끝이 아니라 두 이력의 공통 조상. 이력이 복잡하면 둘 이상일 수 있다</div></td>
+  <td><div class="c"><strong>채택</strong> — <code>cicd.md</code> 원칙 7</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://cli.github.com/manual/gh_run_list" target="_blank" rel="noopener">GitHub CLI — gh run list</a></div></td>
+  <td><div class="c"><code>--commit</code> · <code>--branch</code> · <code>--status</code> · <code>--workflow</code> · <code>--limit</code> 필터와 <code>headSha</code> 같은 JSON 필드</div></td>
+  <td><div class="c"><strong>채택</strong> — 기준 커밋 기록 조회. <code>--workflow</code> 없는 성공 조회는 필수 검사 통과가 아니다</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs" target="_blank" rel="noopener">GitHub — Re-running workflows and jobs</a></div></td>
+  <td><div class="c">재실행은 원 실행과 같은 <code>GITHUB_SHA</code> · <code>GITHUB_REF</code>. 실패한 job 만 다시 돌리거나 디버그 로그를 켤 수 있다</div></td>
+  <td><div class="c"><strong>채택</strong> — 환경 · 비결정성 가르기</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/actions/reference/runners/github-hosted-runners" target="_blank" rel="noopener">GitHub-hosted runners</a></div></td>
+  <td><div class="c">job 마다 새 VM. <code>-latest</code> 는 GitHub 가 정한 최신 안정 이미지</div></td>
+  <td><div class="c"><strong>채택</strong> — runner 이미지도 원인 후보</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches" target="_blank" rel="noopener">GitHub — About protected branches</a></div></td>
+  <td><div class="c">필수 검사는 전부 성공 · skipped · neutral 이어야 한다</div></td>
+  <td><div class="c"><strong>채택</strong> — 성공 커밋에서 가지를 자를 때</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1" target="_blank" rel="noopener">Kubernetes v1.37.1</a></div></td>
+  <td><div class="c">최신 안정판</div></td>
+  <td><div class="c"><strong>채택</strong> — <code>kubeconform</code> 예시의 고정 <code>1.30.0</code> 을 대상 클러스터 버전 변수로</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/docs/v1.11/language/state/encryption/" target="_blank" rel="noopener">OpenTofu state encryption</a></div></td>
+  <td><div class="c">state · plan 암호화, <code>enforced</code> · <code>fallback</code>. 1.7 도입 연혁은 적혀 있지 않다</div></td>
+  <td><div class="c"><strong>채택</strong> — 남아 있던 「1.7+」 네 자리 제거</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><a class="ext" href="https://opentelemetry.io/docs/specs/status/" target="_blank" rel="noopener">OpenTelemetry spec status</a></div></td>
+  <td><div class="c">signal 별로 상태가 다르다</div></td>
+  <td><div class="c">README 2026-04-24 이력 줄에 정정 표시</div></td>
+</tr>
+</tbody></table></div>
+<p>공식 문서에서 「내 변경 / 기준 실패 / 환경」 세 분류를 규범으로 정한 곳은 찾지 못했다(근거 파일 §2). 그래서 원칙 7 은 이 분류가 킷의 규칙이라고 적는다. GitHub 밖 CI 의 같은 조회 명령도 근거 파일에 없다.</p>
+<h3 class="sub">변경 내역 — 2026-09-24 사이클</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>platform/cicd.md</code> (0.2.0) — 원칙 7 「빨간 검사는 고치기 전에 원인부터 가른다」. 판정 세 줄은 harness <code>/sprint</code> Step 3 과 같은 말이고, CI 에서만 보이는 「환경 · 비결정성」 과 「미확정」 을 더했다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-guide/SKILL.md</code> — Gotcha 14 (E1), Step 1 cicd 키워드 행에 「CI 실패 · 빨간 검사 · 재실행」. <code>references/principle-index.md</code> cicd 행도 같이 고쳤다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-test/SKILL.md</code> — Gotcha 12 · Step 8 · 보고 예시의 <code>[미검증]</code> 을 네 칸으로, Step 7 에 알려진 답 대조, Step 6 <code>kubeconform</code> 버전을 변수로</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-audit/SKILL.md</code> Gotcha 11 · 12 · Step 4, <code>agents/infra-reviewer.md</code> 출력 포맷, <code>references/gate-result-taxonomy.md</code> — <code>[미검증]</code> 네 칸</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>references/audit-criteria.md</code> · <code>references/init-checklist.md</code> · <code>skills/infra-init/SKILL.md</code> — 「OpenTofu 1.7+ native state encryption」 네 자리에서 버전을 뺐다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>evals/evals.json</code> — 사례 6 (공용 가지의 빨간 CI, infra-guide). <code>README.md</code> — 검증 절 두 줄 · cicd 요약 · 2026-04-24 이력 줄 정정 표시</div></li>
+</ul>
+<h3 class="sub">사실 정정</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>OpenTofu 1.7+ 가 남아 있었다</strong> — 2026-08-13 항목은 audit-criteria 의 「1.7+」 를 뺐다고 적었지만 네 자리(audit-criteria 1 · init-checklist 2 · infra-init 1)가 그대로였다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-07-27 항목의 OTel 판정</strong> — 「"3 신호 stable" 서술 유지 가능」 은 같은 행에 적은 metrics SDK mixed 와 어긋난다. 2026-08-13 항목이 이미 정정했고, 이력 줄은 그대로 둔다</div></li>
+</ul>
+<h3 class="sub">조회만 하고 규칙으로 올리지 않은 것 (근거 파일 §3)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Kubernetes v1.37.0 — <code>SELinuxMount</code> 기본 활성, <code>scheduling.k8s.io/v1alpha2</code> 제거, <code>eventRecordQPS=0</code> 의미 정정 (<a class="ext" href="https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md" target="_blank" rel="noopener">changelog</a>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Terraform v1.16.0 — provisioner 의 <code>bastion_host_key</code> 가 이제 실제로 쓰인다 (<a class="ext" href="https://github.com/hashicorp/terraform/releases/tag/v1.16.0" target="_blank" rel="noopener">release</a>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">OpenTofu v1.12.6 — OCI registry redirect 에 원 credential 이 다시 실리던 문제 · 악성 응답의 과다 사용 수정 (<a class="ext" href="https://github.com/opentofu/opentofu/releases/tag/v1.12.6" target="_blank" rel="noopener">release</a>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Flux v2.9 — <code>image.toolkit.fluxcd.io/v1beta2</code> · <code>notification.toolkit.fluxcd.io/v1beta2</code> 제거 (<a class="ext" href="https://github.com/fluxcd/flux2/releases/tag/v2.9.0" target="_blank" rel="noopener">v2.9.0 notes</a>). 「Flux v2.8+」 최소 조건은 거짓이 아니다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Argo CD 3.5 — Helm 4 전환 · <code>--repo-server-strict-tls</code> 폐기 예정 (<a class="ext" href="https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/" target="_blank" rel="noopener">업그레이드 가이드</a>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Crossplane v2.4.0 — CLI 위치 <code>cli.crossplane.io</code>, 바이너리 이름 <code>crossplane</code> (<a class="ext" href="https://github.com/crossplane/crossplane/releases/tag/v2.4.0" target="_blank" rel="noopener">release</a>)</div></li>
+</ul>
+<h3 class="sub">다음 사이클 후보</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Flux v2.9 · Argo CD 3.5 에서 빠진 API 를 <code>operations/deployment-strategies.md</code> 원칙에 먼저 올린 뒤 감사 기준 GitOps 행에 붙일지</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>Karpenter v1.11</code> · OpenTofu v1.11 출처 이름이 최소 조건인지 최신판인지 표기를 가를 것</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">도입 버전 표기 — 「Terraform 1.10+ ephemeral」 은 근거 파일이 확인하지 못했다(§5). 「1.7+ mocking」(audit-criteria · init-checklist · infra-test Gotcha 8) · 「OpenTofu 1.7+ write-only 인수」(infra-test Gotcha 10) 는 근거 파일이 다루지 않았다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>agents/infra-reviewer.md</code> §9 가 정본(<code>harness/docs/guides/qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol)의 2026-08-13 이후 판과 다르다 — 다른 킷 reviewer 들도 같다</div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>[2026-08-13] - Phase 8 kaizen</h2>
+  <div class="doc-body">
+<p>CHANGED. Step 0.6 선별에서 infra-kit 은 low-signal 제외 후보였으나 사용자가 전체 14 Phase 를 선택해 실행했다. 외부 근거는 codex 를 foreground 로 호출해 <code>.harness/.meta/evidence/phase8.md</code> 에 파일로 고정한 뒤 그 파일만 읽고 작업했다 (백그라운드 실행 중 네트워크 조회 금지). 커밋 <code>73ef4e7</code> — 11 파일.</p>
+<h3 class="sub">조회한 외부 소스 (근거 파일 <code>.harness/.meta/evidence/phase8.md</code>)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">조회 결과</div></th>
+  <th><div class="c">채택</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/actions/reference/security/secure-use" target="_blank" rel="noopener">GitHub Actions secure use</a></div></td>
+  <td><div class="c"><strong>full-length commit SHA 만 immutable release 로 취급</strong>. 태그는 이동·삭제 위험</div></td>
+  <td><div class="c"><strong>채택</strong> — 핀닝 rule 을 grep → YAML 파서 기반으로 재작성</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference" target="_blank" rel="noopener">Dependabot options reference</a></div></td>
+  <td><div class="c"><code>version: 2</code> · <code>updates</code> · <code>package-ecosystem</code> · <code>directory</code>/<code>directories</code> · <code>schedule</code>. GitHub Actions 도 업데이트 대상이며 로컬 액션과 <code>docker://</code> 참조는 제한</div></td>
+  <td><div class="c"><strong>채택</strong> — 탐지된 생태계만 등록하는 rule 을 3 표면에 신설</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/actions/concepts/security/openid-connect" target="_blank" rel="noopener">GitHub Actions OIDC 개념</a></div></td>
+  <td><div class="c">job 마다 토큰을 만들고 클라우드가 short-lived access token 을 발급하는 모델</div></td>
+  <td><div class="c"><strong>채택</strong> — audit-criteria·infra-init 의 OIDC 링크를 현행 경로로 갱신</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://www.brendangregg.com/usemethod.html" target="_blank" rel="noopener">USE Method — Brendan Gregg</a></div></td>
+  <td><div class="c">모든 리소스에 대해 utilization · saturation · errors 를 확인하는 초기 병목 배제 절차. CPU run queue, memory paging/swap, disk queue, network drops</div></td>
+  <td><div class="c"><strong>채택</strong> — <code>observability.md</code> §8 신설</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://opentelemetry.io/docs/specs/status/" target="_blank" rel="noopener">OpenTelemetry spec status</a></div></td>
+  <td><div class="c">signal 별로 성숙도가 다르다 — traces stable / metrics API·protocol stable + SDK mixed / logs stable / profiles protocol development</div></td>
+  <td><div class="c"><strong>채택</strong> — "3 신호 stable" 과잉 단정을 signal 별로 분해</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://www.conftest.dev/options/" target="_blank" rel="noopener">Conftest options</a></div></td>
+  <td><div class="c">기본은 정책 실패 시 exit 1, <code>--fail-on-warn</code> 에서는 0=없음 / 1=경고 / 2=실패</div></td>
+  <td><div class="c">참조 — 도구별 native exit 를 wrapper 가 내부 상태로 번역해야 한다는 근거</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/docs/concepts/security/pod-security-admission/" target="_blank" rel="noopener">Kubernetes PSA</a></div></td>
+  <td><div class="c">v1.25 stable, namespace 라벨로 <code>enforce</code>/<code>audit</code>/<code>warn</code> × <code>privileged</code>/<code>baseline</code>/<code>restricted</code></div></td>
+  <td><div class="c">재확인 — 변경 없음. Gateway API·Karpenter·DRA 는 이 출처로 확인한 사실이 아니므로 FAIL 규칙화하지 않음</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><a class="ext" href="https://developer.hashicorp.com/terraform/language/ephemeral" target="_blank" rel="noopener">Terraform ephemeral</a></div></td>
+  <td><div class="c">ephemeral / write-only 값은 state·plan 양쪽에 저장되지 않음. <strong>최소 버전 번호는 이번 조회에서 미확인</strong></div></td>
+  <td><div class="c">재확인 — 버전 서술을 추가하지 않음</div></td>
+</tr>
+<tr>
+  <td><div class="c">9</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/docs/v1.11/language/state/encryption/" target="_blank" rel="noopener">OpenTofu state encryption</a></div></td>
+  <td><div class="c"><code>state</code> · <code>plan</code> · <code>enforced</code> · <code>fallback</code> migration 문서화. <strong>"1.7+" 도입 버전은 이번 조회에서 미확인</strong></div></td>
+  <td><div class="c"><strong>채택</strong> — audit-criteria 의 "OpenTofu 1.7+ native encryption" 버전 단정을 제거</div></td>
+</tr>
+<tr>
+  <td><div class="c">10</div></td>
+  <td><div class="c"><a class="ext" href="https://slsa.dev/provenance" target="_blank" rel="noopener">SLSA provenance</a></div></td>
+  <td><div class="c">v1.2 Approved. 모든 레포에 L3 를 즉시 FAIL 로 강제할 근거는 아님</div></td>
+  <td><div class="c"><strong>채택</strong> — 릴리스 워크플로가 실재할 때만 게이트로 승격</div></td>
+</tr>
+<tr>
+  <td><div class="c">11</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.sigstore.dev/cosign/verifying/attestation/" target="_blank" rel="noopener">Sigstore Cosign attestation</a></div></td>
+  <td><div class="c"><code>cosign attest</code> / <code>verify-attestation</code> + CUE/Rego predicate validation. <strong>"v3 bundle/trusted-root" 는 이 URL 로 미확인</strong></div></td>
+  <td><div class="c">재확인 — v3 전용 서술을 강화하지 않음 (2026-07-27 판단 유지)</div></td>
+</tr>
+</tbody></table></div>
+<p>RED Method 1 차 출처와 SARIF <code>executionSuccessful</code> 원문은 이번 하드캡 안에서 확보하지 못해 <strong>미확인</strong>으로 남겼다.</p>
+<h3 class="sub">실행 증거 — 현행 핀닝 오라클이 이 레포에서 오탐 6 건</h3>
+<p>기존 <code>grep</code> 기반 핀닝 검사를 이 레포 워크플로에 그대로 돌린 결과 <strong>미핀닝 6 건을 전부 0 건으로 보고</strong>했다. 원인은 <code>grep -vE 'uses:[[:space:]]*actions/'</code> 가 GitHub-owned 액션을 정책 질문으로 남기지 않고 조용히 면제하는 것이다. <code>jobs.&lt;id&gt;.uses</code>(재사용 워크플로 호출)는 애초에 열거되지도 않았다.</p>
+<p>새 골격을 <code>infra-test/SKILL.md</code> 에서 그대로 추출해 fixture 8 종으로 전수 검증했다: A 실레포(미핀닝 6)=1 · B 대상 0=3 · C 혼합=1 · D YAML 파손=2 · E 전부 핀닝=0 · F 핵심 도구 부재=2 · G python3 부재=2 · H first-party 면제=0. <code>bash -n</code> 0 · <code>shellcheck</code> 0.</p>
+<p>음성 대조: 핵심 도구 사전 검사를 제거하면 <code>grep</code> 부재 환경에서 <code>grep -q</code> 가 비영 종료해 <strong>"checkout 스텝 없음" VIOLATION 을 오보</strong>한다 (실제 관측한 회귀).</p>
+<h3 class="sub">변경 내역</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>infra-kit/references/gate-result-taxonomy.md</code> <strong>신설</strong> — infra-kit 안에서 상태어 SSOT. 5 상태 (<code>PASS</code> / <code>VIOLATION</code> / <code>SKIP_NO_TARGET</code> / <code>TOOL_OR_ENV_MISSING</code> / <code>EXECUTION_ERROR</code>) + 검사 시작 <strong>전</strong> 출력하는 머리말 4 카운터(대상 수 · 규칙 소스 수 · 사용 가능 도구 수 · 미설치 도구 수) + 핵심 도구(<code>grep</code>·<code>python3</code>)와 선택 도구(<code>hadolint</code>·<code>actionlint</code>·<code>kubeconform</code>·<code>conftest</code>·<code>cosign</code>·<code>trivy</code>) 분리 + 재검증 명령 의무. exit 숫자는 <code>harness/evals/gate-exit-codes.md</code>, <code>[미검증]</code> 임계값은 <code>qa-evaluation-guide.md</code> 를 <strong>인용만</strong> 하고 재정의하지 않는다. 실행 불완전이 정책 위반을 이긴다 (한 run 에 둘 다 있으면 exit 2, 단 세 카운트를 모두 출력).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-test/SKILL.md</code> — Gotcha 11 을 taxonomy 위임형으로 정정, Gotcha 13(핵심/선택 도구 분리) · 14(YAML 파서 핀닝) · 15(Dependabot 생태계 정합) 신설. Step 5 샘플 스크립트를 머리말 4 카운터 + 5 상태 + YAML 파서 골격으로 교체하고 first-party 면제를 <code>PIN_ALLOW_FIRST_PARTY_TAGS</code> opt-in 으로 표면화.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-audit/SKILL.md</code> — Gotcha 11 을 <code>[미검증:ENV]</code> / <code>[미검증:INVALID]</code> 4 분기로 정합, Gotcha 12 를 taxonomy SSOT 위임으로 정정. Step 3a 머리말을 4 카운터 포맷으로 교체하고 대상 0 건은 표를 만들지 않고 <code>SKIP_NO_TARGET</code> 으로 종결. 예시 rule 표에 Dependabot 행 신설.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-init/SKILL.md</code> — Gotcha 13(Dependabot 은 탐지된 생태계만) · 14(핀닝 정책을 조용히 정하지 마라) · 15(게이트 스텝은 결과 상태를 구분해 exit 전파) 신설.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-guide/SKILL.md</code> — Gotcha 12(USE × RED 환경 선배제) · 13(OTel 성숙도를 한 문장으로 단정 금지) 신설. observability 라우팅 키워드에 "느려요 · 지연 · saturation · USE · RED" 추가.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>agents/infra-reviewer.md</code> — §9 를 Phase 3 canonical 2026-08-13 개정본으로 갱신 (4 분기 · <code>UNVERIFIED_ENV</code> / <code>UNVERIFIED_INVALID_EVIDENCE</code> 카운터 분리 · 남용 방지 4 요건 · <code>verified_coverage</code> 0.60 → BLOCKED · verdict 우선순위) + §9b User-Reported Failure Protocol 신설.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>references/audit-criteria.md</code> — <code>##</code> 섹션 순서가 리포트 카테고리 순서의 SSOT 임을 명시. 원격 <code>uses:</code> SHA 핀닝 rule 재작성 + Dependabot 생태계 정합 rule 신설. Observability 를 signal 별 판정으로 분해하고 USE 선배제 rule(권장) 추가. 판정 기준에 <code>[미검증]</code> 분기와 "도입 전 단계를 FAIL 로 강제하지 마라" 를 추가.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>references/init-checklist.md</code> · <code>references/principle-index.md</code> — 위 규칙에 맞춰 라우팅·체크리스트 정합.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/infra/operations/observability.md</code> (v0.2.0) — §8 "성능 조사는 환경 요인을 먼저 배제한다 (USE × RED)" 신설. 리소스별 saturation/error 지표 표 포함. RED 는 1 차 출처 미확인임을 문서에 명시. Gotchas 에 OTel signal 별 상태 항목 추가.</div></li>
+</ul>
+<h3 class="sub">사실 정정 4 종</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>카테고리 순서 드리프트</strong> — <code>infra-reviewer</code> 6~10 번이 <code>audit-criteria.md</code> SSOT 순서와 어긋나 있었다 (Supply Chain / Backup &amp; DR / Deployment / Observability / Cost → SSOT 순서로 정렬).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>stale 사본 참조</strong> — <code>infra-audit</code> 의 백틱 <code>references/audit-criteria.md</code> 2 건이 스킬 디렉토리 기준 상대 경로여서 Apr-04 7 카테고리 사본을 가리켰다 (SSOT 는 10 카테고리).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>OTel 과잉 단정</strong> — "3 신호 통합" 단일 문장을 signal 별 status 로 분해.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>OpenTofu 버전 단정</strong> — "1.7+ native encryption" 은 지정 출처로 확인되지 않아 버전 표기를 제거.</div></li>
+</ul>
+<h3 class="sub">경계 준수 — 넣지 않은 것</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>K8s · Gateway API · Karpenter · DRA · service mesh · IDP · FinOps 를 신호 없는 레포의 새 FAIL 규칙으로 만들지 않았다.</strong> 해당 인프라가 없으면 N/A 다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>SLSA provenance · Cosign 서명 · SBOM 은 릴리스·배포 워크플로가 실재할 때만 게이트로 승격</strong>하도록 두었다. 도입 전 단계를 FAIL 로 강제하지 않는다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>SARIF <code>executionSuccessful</code> 은 미반영으로 남겼다</strong> — OASIS SARIF 원문을 확보하지 못했다. 채택하려면 원문에서 <code>invocations[].executionSuccessful</code> 과 notification 정책을 먼저 확인해야 한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Cosign v3 전용 플래그와 Terraform ephemeral 최소 버전도 지정 출처로 확인되지 않아 서술을 강화하지 않았다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>pull_request_target</code> 을 일반 PR 검증 기본값으로 넣지 않았다.</div></li>
+</ul>
+<h3 class="sub">다음 사이클 후보 (이번에 미반영)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>SARIF 채택 여부</strong> — 산출 포맷으로 쓸지 결정하고, 쓴다면 OASIS SARIF 2.1.0 원문으로 <code>executionSuccessful</code> / notification 정책을 확정할 것.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>RED Method 1 차 출처 확보</strong> — <code>observability.md</code> §8 이 현재 RED 를 출처 없이 절차 이름으로만 쓴다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>docs 드리프트 게이트</strong> — <code>docs/infra/</code> 변경 시 대응 <code>docs/infra-kit/</code> HTML 의 존재·등록·갱신을 검사할 것. 현재 <code>validate-post-kaizen.py</code> 의 HTML 검사는 harness 전용이라 infra 산출물 누락을 막지 못한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>열린 정책 질문 2 건</strong> — (a) 필수 도구 부재를 즉시 exit 2 로 막을지, <code>[미검증]</code> 누적 임계로 막을지 (b) GitHub-owned <code>actions/*</code> 핀닝 면제를 조직 기본값으로 둘지.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>distroless-builder-glibc-mismatch</code> — 2026-07-27 부터 이월. 여전히 1 차 출처 미확보.</div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>[2026-07-27] - Phase 8 kaizen</h2>
+  <div class="doc-body">
+<p>CHANGED. Step 0.6 에서 infra-kit 은 LOW signal 이었으나, (a) Phase 3 이 <code>infra-reviewer</code> 를 canonical drift 대상으로 실명 지목했고 (b) digest 의 exit-code 캡처 3 회 반복 신호가 infra-test 샘플 스크립트의 실제 결함으로 재현되어 변경했다.</p>
+<h3 class="sub">조회한 외부 소스 (Context7 은 OAuth 미인증 — 전부 WebFetch 직접 조회)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">소스</div></th>
+  <th><div class="c">조회 결과</div></th>
+  <th><div class="c">채택</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/docs/concepts/security/pod-security-admission/" target="_blank" rel="noopener">Kubernetes PSA</a></div></td>
+  <td><div class="c">PSA <code>v1.25 [stable]</code>. 라벨 <code>pod-security.kubernetes.io/&lt;MODE&gt;: &lt;LEVEL&gt;</code>, MODE=enforce/audit/warn, LEVEL=privileged/baseline/restricted, <code>-version</code> 라벨은 선택</div></td>
+  <td><div class="c">현행 기준과 일치 — 변경 없음</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://developer.hashicorp.com/terraform/language/ephemeral" target="_blank" rel="noopener">Terraform ephemeral</a></div></td>
+  <td><div class="c">ephemeral 블록 · write-only 인수 · <code>ephemeral = true</code> 변수. state·plan 양쪽에서 완전 누락, <code>locals</code> 참조 시 재귀 적용. 문서 최신 표기 v1.15.x</div></td>
+  <td><div class="c">현행 기준과 일치 — 변경 없음</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/docs/v1.11/language/state/encryption/" target="_blank" rel="noopener">OpenTofu state encryption</a></div></td>
+  <td><div class="c">key provider 6 종(PBKDF2 · AWS KMS · GCP KMS · Azure Vault · OpenBao · External(experimental)). 프로덕션 method 는 AES-GCM 만. PBKDF2 기본 600,000 iteration(최소 200,000)</div></td>
+  <td><div class="c">현행 기준과 일치 — 변경 없음</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://slsa.dev/provenance" target="_blank" rel="noopener">SLSA provenance</a></div></td>
+  <td><div class="c">스펙 v1.2 Approved. build provenance / source provenance 2 종 분리</div></td>
+  <td><div class="c">현행 기준과 일치 — 변경 없음</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.sigstore.dev/cosign/verifying/attestation/" target="_blank" rel="noopener">Sigstore Cosign attestation</a></div></td>
+  <td><div class="c"><code>cosign verify-attestation</code> + CUE/Rego <code>--policy</code>. 검증 대상은 predicate 부분</div></td>
+  <td><div class="c"><strong>v3 전용 플래그 근거 없음</strong> → audit-criteria 의 Cosign 서술 강화하지 않음 (추측 금지)</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://opentelemetry.io/docs/specs/status/" target="_blank" rel="noopener">OpenTelemetry spec status</a></div></td>
+  <td><div class="c">traces API/SDK/protocol Stable · logs bridge API/SDK/protocol Stable · metrics API·protocol Stable / SDK Mixed · profiles protocol Development</div></td>
+  <td><div class="c">"3 신호 stable" 서술 유지 가능 — 변경 없음</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax" target="_blank" rel="noopener">GitHub Actions workflow syntax</a></div></td>
+  <td><div class="c">비-Windows 기본 셸은 <code>bash -e {0}</code> 로 <strong>pipefail 없음</strong>. <code>shell: bash</code> 명시 시에만 <code>bash --noprofile --norc -eo pipefail {0}</code></div></td>
+  <td><div class="c"><strong>채택</strong> — audit-criteria CI/CD 신규 rule 2 행, infra-test Gotcha 11, infra-init Gotcha 12</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.docker.com/build/building/best-practices/" target="_blank" rel="noopener">Docker build best practices</a></div></td>
+  <td><div class="c">파이프는 마지막 명령 exit code 만 평가 → <code>set -o pipefail &amp;&amp;</code> 선행 필요. digest 핀닝은 <code>FROM alpine:3.21@sha256:...</code> 권장하되 수동 유지보수·자동 보안패치 포기 트레이드오프 명시</div></td>
+  <td><div class="c">pipefail <strong>채택</strong>. digest 는 트레이드오프 근거로 "고정 태그 <strong>또는</strong> digest" 현행 표현 유지</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">실행 증거 — infra-test Step 5 샘플 스크립트 결함 3 건 (재현 완료)</h3>
+<p>기존 <code>tests/ci-validation.sh</code> 원문을 fixture 로 실행한 결과:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">서드파티 SHA 핀닝 검사가 <code>grep -v "actions/"</code> 앵커 부재로 <code>aws-actions/*</code> · <code>google-github-actions/*</code> 를 제외 → 미핀닝 3 건 중 1 건만 검출.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">WARN 출력 후에도 최종 <code>exit 0</code> → CI 게이트 무력화.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">매칭 없는 glob 이 리터럴 1 회로 순회 → 워크플로 없는 프로젝트에서 "YAML syntax error" 오보 + <code>exit 1</code>.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">반증: <code>set -e</code> 가 <code>A &amp;&amp; { ... }</code> 에서 A 실패 시 스크립트를 종료시킨다는 가설은 <strong>거짓</strong>으로 확인(<code>EXIT=0</code>). 해당 가설 기반 수정은 하지 않았다.</div></li>
+</ul>
+<p>수정본은 3 fixture(미핀닝 3 건 / 전부 핀닝 / 워크플로 없음)로 재검증하여 각각 <code>exit 1</code> · <code>exit 0</code> · <code>SKIP exit 0</code> 를 확인했다.</p>
+<h3 class="sub">변경 내역</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>agents/infra-reviewer.md</code> — §9 를 qa-evaluation-guide §Canonical Unverified-Evidence Protocol 5 조항 정본 복제로 교체. 핵심규칙 5 의 임계값 중복 서술 제거. 인프라 도메인 적용 노트(FAIL / N/A / <code>[미검증]</code> 3 분기 매핑) 추가.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-audit/SKILL.md</code> — Gotcha 11 을 SSOT 위임형으로 정정, Gotcha 12 신설(도구·규칙 소스 부재를 "위반 0" 으로 집계 금지). Step 3a 감사 범위 머리말 4 줄 신설. Step 4 를 canonical 조항 3 임계값으로 정합.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-test/SKILL.md</code> — Gotcha 11(셸 실패 전파 4 항목) · Gotcha 12(도구 미설치 = <code>[미검증]</code>, 증거 블록 의무) 신설. Step 5 샘플 스크립트 3 결함 수정 + "빼면 안 되는 것" 표. Step 7 도구 존재 확인 선행, Step 8 증거 블록 3 종 의무화.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>skills/infra-init/SKILL.md</code> — Gotcha 12 신설(반복 셸 명령을 스크립트/Makefile 로 코드화 + <code>set -euo pipefail</code> + <code>shell: bash</code> 병기).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>references/audit-criteria.md</code> — CI/CD 에 "셸 실패 전파" · "검증 스텝 exit code" rule 2 행 + 출처 2 건 추가.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>.claude/skills/infra-kaizen/SKILL.md</code> — validate-plugin "7 카테고리" → 8(V1~V8) 3 곳 정정. scope-creep 을 파일 수 → unit(관심사) 기준으로 재정의. Gotcha 7 에 <code>.harness/history/</code> 병렬 예외 추가. Gotcha 8 에 §3.7 / E1~E3 / Counterpart Enumeration + SSOT 인용 표 추가.</div></li>
+</ul>
+<h3 class="sub">다음 사이클 후보 (이번에 미반영)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>distroless-builder-glibc-mismatch</code> — builder 와 distroless 런타임의 glibc/ABI 불일치. 실재하는 결함 클래스이나 이번 사이클에 1 차 출처를 확보하지 못해 추측 서술을 피하고 보류. distroless 공식 저장소의 base variant 매트릭스를 확보한 뒤 <code>audit-criteria.md</code> Container 의 "베이스 이미지 거버넌스" 행에 붙일 것.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>port-already-in-use</code>, <code>wrong-infra-path-assumption</code> — 단발 태그이고 infra-kit 산출물과 인과가 연결되지 않아 미반영.</div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>[2026-06-05] — Phase 8</h2>
+  <div class="doc-body">
+<p>NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-test parity 3항목 대칭 확인. SKIP.</p>
+<blockquote class="quote"><p>infra-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.</p></blockquote>
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>[2026-05-07] — Phase 8 kaizen (infra, /insights 흡수)</h2>
+  <div class="doc-body">
+<h3 class="sub">데이터 소스</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">데이터 풀 §0 <code>/insights</code> 30 일 분석 (3 friction · 3 pattern · 3 feature)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>harness/references/cross-kit-principles.md</code> v1 매트릭스의 infra 열</div></li>
+</ul>
+<h3 class="sub">Phase 8 변경</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">infra/README.md 에 cross-kit-principles 매트릭스 cross-reference 섹션 추가</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">plugin.json patch bump (이번 사이클)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">매핑: infra-audit ANALYZE ↔ Pre-Edit Batch Audit, infra-reviewer self-check ↔ Self-Evaluator Audit, PostToolUse 정적 검증 ↔ Hook-Triggered Auto-Correction</div></li>
+</ul>
+<h3 class="sub">외부 리서치 인용 (이전 사이클 보존, 이번 사이클 추가 없음)</h3>
+<p>이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.</p>
+<hr class="rule">
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>2026-04-12</h2>
+  <div class="doc-body">
+<p><strong>트리거:</strong> infra-research 수동 실행 (12개 카테고리 확충)</p>
+<h3 class="sub">조사한 소스</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">제목</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">태그</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">23</div></td>
+  <td><div class="c">Kubernetes v1.35 Release (Timbernetes)</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/blog/2025/12/17/kubernetes-v1-35-release/" target="_blank" rel="noopener">https://kubernetes.io/blog/2025/12/17/kubernetes-v1-35-release/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-12]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">24</div></td>
+  <td><div class="c">Kubernetes v1.33 Sneak Peek</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/blog/2025/03/26/kubernetes-v1-33-upcoming-changes/" target="_blank" rel="noopener">https://kubernetes.io/blog/2025/03/26/kubernetes-v1-33-upcoming-changes/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">25</div></td>
+  <td><div class="c">Kubernetes Security: 2025 Stable Features and 2026 Preview</div></td>
+  <td><div class="c"><a class="ext" href="https://www.cncf.io/blog/2025/12/15/kubernetes-security-2025-stable-features-and-2026-preview/" target="_blank" rel="noopener">https://www.cncf.io/blog/2025/12/15/kubernetes-security-2025-stable-features-and-2026-preview/</a></div></td>
+  <td><div class="c">CNCF</div></td>
+  <td><div class="c">[blog] [dated: 2025-12]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">26</div></td>
+  <td><div class="c">Karpenter v1 GA — CNCF Blog</div></td>
+  <td><div class="c"><a class="ext" href="https://www.cncf.io/blog/2024/11/06/karpenter-v1-0-0-beta/" target="_blank" rel="noopener">https://www.cncf.io/blog/2024/11/06/karpenter-v1-0-0-beta/</a></div></td>
+  <td><div class="c">CNCF</div></td>
+  <td><div class="c">[blog] [dated: 2024-11]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">27</div></td>
+  <td><div class="c">Karpenter 공식 사이트 (v1.11)</div></td>
+  <td><div class="c"><a class="ext" href="https://karpenter.sh/" target="_blank" rel="noopener">https://karpenter.sh/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">28</div></td>
+  <td><div class="c">Gateway API v1.4 — BackendTLSPolicy GA</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/blog/2025/11/06/gateway-api-v1-4/" target="_blank" rel="noopener">https://kubernetes.io/blog/2025/11/06/gateway-api-v1-4/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-10]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">29</div></td>
+  <td><div class="c">OpenTofu 1.10.0 릴리스</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/blog/opentofu-1-10-0/" target="_blank" rel="noopener">https://opentofu.org/blog/opentofu-1-10-0/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-06]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">30</div></td>
+  <td><div class="c">OpenTofu 1.9.0 — provider for_each</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/blog/opentofu-1-9-0/" target="_blank" rel="noopener">https://opentofu.org/blog/opentofu-1-9-0/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-01]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">31</div></td>
+  <td><div class="c">Pulumi 2025 Product Launches (Neo, ESC, IDP)</div></td>
+  <td><div class="c"><a class="ext" href="https://www.pulumi.com/blog/2025-product-launches/" target="_blank" rel="noopener">https://www.pulumi.com/blog/2025-product-launches/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[blog] [dated: 2025-12]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">32</div></td>
+  <td><div class="c">Pulumi ESC Rotated Secrets</div></td>
+  <td><div class="c"><a class="ext" href="https://www.pulumi.com/blog/pulumi-release-notes-117/" target="_blank" rel="noopener">https://www.pulumi.com/blog/pulumi-release-notes-117/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[blog] [dated: 2025-10]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">33</div></td>
+  <td><div class="c">Pulumi ESC Open Approvals (JIT Access)</div></td>
+  <td><div class="c"><a class="ext" href="https://www.pulumi.com/blog/esc-open-approvals/" target="_blank" rel="noopener">https://www.pulumi.com/blog/esc-open-approvals/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[blog] [dated: 2025-08]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">34</div></td>
+  <td><div class="c">Dagger — Programmable CI/CD Engine</div></td>
+  <td><div class="c"><a class="ext" href="https://dagger.io/" target="_blank" rel="noopener">https://dagger.io/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">35</div></td>
+  <td><div class="c">Dagger Overview Docs</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.dagger.io/" target="_blank" rel="noopener">https://docs.dagger.io/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">36</div></td>
+  <td><div class="c">Argo CD v3.2 Stable Release</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/argoproj/argo-cd/releases" target="_blank" rel="noopener">https://github.com/argoproj/argo-cd/releases</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-11]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">37</div></td>
+  <td><div class="c">Argo CD v2.14 → 3.0 Upgrade Guide</div></td>
+  <td><div class="c"><a class="ext" href="https://argo-cd.readthedocs.io/en/latest/operator-manual/upgrading/2.14-3.0/" target="_blank" rel="noopener">https://argo-cd.readthedocs.io/en/latest/operator-manual/upgrading/2.14-3.0/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-06]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">38</div></td>
+  <td><div class="c">Flux v2.8 GA — Helm v4, Web UI</div></td>
+  <td><div class="c"><a class="ext" href="https://fluxcd.io/blog/2026/02/flux-v2.8.0/" target="_blank" rel="noopener">https://fluxcd.io/blog/2026/02/flux-v2.8.0/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-02]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">39</div></td>
+  <td><div class="c">Flux v2.5 — CEL Integration, GitHub App Auth</div></td>
+  <td><div class="c"><a class="ext" href="https://www.infoq.com/news/2025/03/flux-gitops-release/" target="_blank" rel="noopener">https://www.infoq.com/news/2025/03/flux-gitops-release/</a></div></td>
+  <td><div class="c">뉴스</div></td>
+  <td><div class="c">[blog] [dated: 2025-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">40</div></td>
+  <td><div class="c">Cosign v3 릴리스</div></td>
+  <td><div class="c"><a class="ext" href="https://blog.sigstore.dev/cosign-3-0-available/" target="_blank" rel="noopener">https://blog.sigstore.dev/cosign-3-0-available/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-06]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">41</div></td>
+  <td><div class="c">GitHub Actions SHA Pinning Policy</div></td>
+  <td><div class="c"><a class="ext" href="https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/" target="_blank" rel="noopener">https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-08]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">42</div></td>
+  <td><div class="c">GitHub Actions 2026 Security Roadmap</div></td>
+  <td><div class="c"><a class="ext" href="https://github.blog/news-insights/product-news/whats-coming-to-our-github-actions-2026-security-roadmap/" target="_blank" rel="noopener">https://github.blog/news-insights/product-news/whats-coming-to-our-github-actions-2026-security-roadmap/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-01]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">43</div></td>
+  <td><div class="c">GitHub Actions OIDC + Repository Custom Properties</div></td>
+  <td><div class="c"><a class="ext" href="https://github.blog/changelog/2026-03-12-actions-oidc-tokens-now-support-repository-custom-properties/" target="_blank" rel="noopener">https://github.blog/changelog/2026-03-12-actions-oidc-tokens-now-support-repository-custom-properties/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">44</div></td>
+  <td><div class="c">GitHub Actions Immutable Actions (publish-immutable-action)</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/actions/publish-immutable-action" target="_blank" rel="noopener">https://github.com/actions/publish-immutable-action</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">45</div></td>
+  <td><div class="c">Grafana Alloy — OTel Collector 배포판</div></td>
+  <td><div class="c"><a class="ext" href="https://grafana.com/oss/alloy-opentelemetry-collector/" target="_blank" rel="noopener">https://grafana.com/oss/alloy-opentelemetry-collector/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">46</div></td>
+  <td><div class="c">Grafana Alloy at 1: What's New</div></td>
+  <td><div class="c"><a class="ext" href="https://grafana.com/blog/alloy-one-year/" target="_blank" rel="noopener">https://grafana.com/blog/alloy-one-year/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[blog] [dated: 2025-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">47</div></td>
+  <td><div class="c">Grafana Observability Survey 2025</div></td>
+  <td><div class="c"><a class="ext" href="https://grafana.com/observability-survey/2025/" target="_blank" rel="noopener">https://grafana.com/observability-survey/2025/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[blog] [dated: 2025-06]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">48</div></td>
+  <td><div class="c">Cilium Service Mesh 공식 문서</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.cilium.io/en/stable/network/servicemesh/" target="_blank" rel="noopener">https://docs.cilium.io/en/stable/network/servicemesh/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">49</div></td>
+  <td><div class="c">Cilium eBPF Security — CNCF Blog</div></td>
+  <td><div class="c"><a class="ext" href="https://www.cncf.io/blog/2025/01/02/unlocking-cloud-native-security-with-cilium-and-ebpf/" target="_blank" rel="noopener">https://www.cncf.io/blog/2025/01/02/unlocking-cloud-native-security-with-cilium-and-ebpf/</a></div></td>
+  <td><div class="c">CNCF</div></td>
+  <td><div class="c">[blog] [dated: 2025-01]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">50</div></td>
+  <td><div class="c">Backstage Wrapped 2025</div></td>
+  <td><div class="c"><a class="ext" href="https://backstage.io/blog/2025/12/30/backstage-wrapped-2025/" target="_blank" rel="noopener">https://backstage.io/blog/2025/12/30/backstage-wrapped-2025/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-12]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">51</div></td>
+  <td><div class="c">Backstage 89% IDP Market Share</div></td>
+  <td><div class="c"><a class="ext" href="https://byteiota.com/backstage-hits-89-idp-market-share-what-it-means/" target="_blank" rel="noopener">https://byteiota.com/backstage-hits-89-idp-market-share-what-it-means/</a></div></td>
+  <td><div class="c">뉴스</div></td>
+  <td><div class="c">[blog] [dated: 2026-02]</div></td>
+  <td><div class="c">참조</div></td>
+</tr>
+<tr>
+  <td><div class="c">52</div></td>
+  <td><div class="c">Platform Engineering in 2026 — Roadie.io</div></td>
+  <td><div class="c"><a class="ext" href="https://roadie.io/blog/platform-engineering-in-2026-why-diy-is-dead/" target="_blank" rel="noopener">https://roadie.io/blog/platform-engineering-in-2026-why-diy-is-dead/</a></div></td>
+  <td><div class="c">블로그</div></td>
+  <td><div class="c">[blog] [dated: 2026-01]</div></td>
+  <td><div class="c">참조</div></td>
+</tr>
+<tr>
+  <td><div class="c">53</div></td>
+  <td><div class="c">State of FinOps 2026 Report</div></td>
+  <td><div class="c"><a class="ext" href="https://data.finops.org/" target="_blank" rel="noopener">https://data.finops.org/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">54</div></td>
+  <td><div class="c">FinOps X 2025 Cloud Announcements</div></td>
+  <td><div class="c"><a class="ext" href="https://www.finops.org/insights/finops-x-2025-cloud-announcements/" target="_blank" rel="noopener">https://www.finops.org/insights/finops-x-2025-cloud-announcements/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-06]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">55</div></td>
+  <td><div class="c">FOCUS (FinOps Open Cost and Usage Specification)</div></td>
+  <td><div class="c"><a class="ext" href="https://www.finops.org/insights/finops-x-2025-cloud-announcements/" target="_blank" rel="noopener">https://www.finops.org/insights/finops-x-2025-cloud-announcements/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[spec] [dated: 2025-06]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">56</div></td>
+  <td><div class="c">Velero 공식 사이트</div></td>
+  <td><div class="c"><a class="ext" href="https://velero.io/" target="_blank" rel="noopener">https://velero.io/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">57</div></td>
+  <td><div class="c">EU Cyber Resilience Act — SBOM Requirements</div></td>
+  <td><div class="c"><a class="ext" href="https://craevidence.com/blog/sbom-requirements-under-cra" target="_blank" rel="noopener">https://craevidence.com/blog/sbom-requirements-under-cra</a></div></td>
+  <td><div class="c">뉴스</div></td>
+  <td><div class="c">[blog] [dated: 2025-09]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">58</div></td>
+  <td><div class="c">OpenSSF — SBOMs in the Era of CRA</div></td>
+  <td><div class="c"><a class="ext" href="https://openssf.org/blog/2025/10/22/sboms-in-the-era-of-the-cra-toward-a-unified-and-actionable-framework/" target="_blank" rel="noopener">https://openssf.org/blog/2025/10/22/sboms-in-the-era-of-the-cra-toward-a-unified-and-actionable-framework/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-10]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">59</div></td>
+  <td><div class="c">CycloneDX ECMA-424 표준</div></td>
+  <td><div class="c"><a class="ext" href="https://cyclonedx.org/" target="_blank" rel="noopener">https://cyclonedx.org/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[spec] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">60</div></td>
+  <td><div class="c">CNCF State of Cloud Native Development 2025</div></td>
+  <td><div class="c"><a class="ext" href="https://www.cncf.io/announcements/2025/11/11/cncf-and-slashdata-survey-finds-cloud-native-ecosystem-surges-to-15-6m-developers/" target="_blank" rel="noopener">https://www.cncf.io/announcements/2025/11/11/cncf-and-slashdata-survey-finds-cloud-native-ecosystem-surges-to-15-6m-developers/</a></div></td>
+  <td><div class="c">CNCF</div></td>
+  <td><div class="c">[official] [dated: 2025-11]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">61</div></td>
+  <td><div class="c">KubeEdge — CNCF Graduated Edge Project</div></td>
+  <td><div class="c"><a class="ext" href="https://blog.easecloud.io/containers/kubernetes-edge-guide-kubeedge-edge-computing/" target="_blank" rel="noopener">https://blog.easecloud.io/containers/kubernetes-edge-guide-kubeedge-edge-computing/</a></div></td>
+  <td><div class="c">블로그</div></td>
+  <td><div class="c">[blog] [dated: 2025-08]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">62</div></td>
+  <td><div class="c">CNCF CTO 2026 Cloud Native Predictions</div></td>
+  <td><div class="c"><a class="ext" href="https://www.techedubyte.com/cncf-cto-2026-cloud-native-trends-insights/" target="_blank" rel="noopener">https://www.techedubyte.com/cncf-cto-2026-cloud-native-trends-insights/</a></div></td>
+  <td><div class="c">뉴스</div></td>
+  <td><div class="c">[blog] [dated: 2026-01]</div></td>
+  <td><div class="c">참조</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">채택한 인사이트</h3>
+<h4 class="sub">Container Orchestration — Kubernetes</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Kubernetes v1.35 (2025-12) In-Place Pod Resource Updates GA</strong>: CPU/메모리를 Pod 재시작 없이 동적 조정 가능 (KEP #1287). 수직 스케일링의 다운타임 제거. 적용: infra-audit Kubernetes 카테고리, init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Kubernetes v1.35 DRA (Dynamic Resource Allocation) Core APIs GA</strong>: GPU 등 특수 하드웨어를 표준화된 할당 인터페이스로 관리. 적용: infra-guide GPU/특수 워크로드 섹션.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Kubernetes v1.35 Pod Certificates for Workload Identity (Beta)</strong>: Kubelet이 자동으로 키를 생성하고 PodCertificateRequest로 인증서 요청. cert-manager 없이 네이티브 워크로드 ID 가능. 적용: infra-audit Security 카테고리 (watch).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Karpenter v1.11 (2026-03)</strong>: CNCF 산하 Kubernetes 노드 오토스케일러. NodePool + EC2NodeClass CRD로 선언적 프로비저닝. Cluster Autoscaler 대비 빠른 스케일업 + 비용 최적화 (underutilized 노드 자동 교체). Salesforce 1,000+ EKS 클러스터 마이그레이션 사례. 적용: infra-guide Kubernetes 노드 관리, cost-optimization.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Gateway API v1.4 (2025-10) Standard Channel</strong>: BackendTLSPolicy GA (게이트웨이→백엔드 TLS 암호화), supportedFeatures in GatewayClass (구현체 기능 선언), Named Rules for Routes. Mesh 리소스 실험적 도입. 4개월 릴리스 주기. 적용: infra-audit Networking, infra-guide.</div></li>
+</ul>
+<h4 class="sub">IaC Tools</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>OpenTofu 1.10.0 (2025-06)</strong>: OCI Registry 지원 (에어갭 환경), S3 네이티브 상태 잠금 (DynamoDB 불필요), OpenTelemetry 트레이싱, 외부 키 프로바이더 (state encryption 확장), deprecated 변수/출력 지원, CI/CD용 글로벌 프로바이더 캐시 잠금. 적용: infra-audit IaC 카테고리, init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>OpenTofu 1.9.0 (2025-01)</strong>: provider for_each — 멀티존 배포를 하나의 모듈에서 관리. 코드 중복 감소. 적용: infra-guide IaC 패턴.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Pulumi ESC (Environment, Secrets, Configuration)</strong>: Rotated Secrets (AWS IAM 자동 회전), Customer-Managed Keys (BYOK/KMS), Open Approvals (JIT 접근 제어), Versioning (불변 리비전 히스토리), ESC Connect (임의 시크릿 소스 연동). 적용: infra-guide IaC 카테고리 시크릿 관리 비교.</div></li>
+</ul>
+<h4 class="sub">CI/CD Patterns</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dagger — 프로그래머블 CI/CD 엔진</strong>: Go/Python/TypeScript SDK로 빌드 파이프라인을 코드로 작성. 컨테이너 내 실행으로 로컬-CI 동일 동작 보장. BuildKit 기반 DAG, 자동 캐싱, OpenTelemetry 스팬 내장. 적용: infra-guide CI/CD 카테고리 (YAML 대안).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GitHub Actions SHA Pinning 정책 (2025-08)</strong>: 조직 수준에서 SHA 고정을 강제하고 뮤터블 태그 사용을 차단하는 정책 지원. 적용: infra-audit CI/CD Security.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GitHub Actions 2026 Security Roadmap</strong>: Immutable Releases (발행 후 에셋/태그 변경 불가), <code>dependencies:</code> 섹션 (직접+전이 의존성 SHA 잠금), OIDC 토큰에 repository custom properties 클레임 추가. 적용: infra-audit CI/CD Security, init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GitHub Actions OIDC 확장 (2026-03)</strong>: repository custom properties를 OIDC 토큰 클레임에 포함 → 클라우드 제공자 신뢰 정책을 더 세밀하게 설정. 적용: infra-audit CI/CD Security.</div></li>
+</ul>
+<h4 class="sub">GitOps</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Argo CD 3.x (2025)</strong>: 3.0 — 아키텍처 개선, RBAC 정제, 리소스 제외 개선. 3.1 — 네이티브 OCI 레지스트리 지원, CLI 플러그인, Source Hydrator. 3.2 (2025-11) — 안정 릴리스. v2.14 EOL (2025-11-04). 적용: infra-guide GitOps 섹션, 마이그레이션 가이드 필요.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flux v2.8 (2026-02)</strong>: Helm v4 서버사이드 적용 + kstatus 헬스 체크, Cosign v3 OCI 검증, CEL 기반 헬스 체크, Flux Operator Web UI, PR/MR 코멘트 프리뷰 환경. K8s 1.33-1.35 지원. 적용: infra-guide GitOps 섹션, infra-audit Deployment.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flux v2.5 (2025-03)</strong>: CEL 통합 (커스텀 리소스 헬스 체크), GitHub App 인증, 이벤트 메타데이터 어노테이션 강화. 적용: infra-guide GitOps.</div></li>
+</ul>
+<h4 class="sub">Cloud-Native Security — Supply Chain</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Cosign v3</strong>: 새 번들 포맷 (서명 자료 + 오프라인 검증 정보 단일 파일), trusted-root (키 회전 시 클라이언트 업데이트 불필요), signing-config (투명성 로그 샤드 회전). v4 예고 — CLI 대폭 단순화, 플래그 50% 제거. 적용: infra-audit Supply Chain.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>EU Cyber Resilience Act (CRA) SBOM 의무화</strong>: 디지털 요소가 포함된 모든 EU 판매 제품에 SBOM 필수. CycloneDX 또는 SPDX 머신리더블 포맷. 직접+전이 의존성 전부 포함. <strong>2026-09 취약점 보고 마감 임박</strong>. 적용: infra-audit Supply Chain, init-checklist. [dated: 2026-09]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>CycloneDX ECMA-424 국제표준</strong>: SBOM/SaaSBOM/CBOM/HBOM/AI-ML BOM 지원. 260+ 도구 생태계. 20+ 프로그래밍 언어 지원. 적용: infra-audit Supply Chain.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>OpenSSF — CRA 시대 SBOM 통합 프레임워크 (2025-10)</strong>: SPDX + CycloneDX 공존 전략, EU 규정과 OpenSSF 사이 정합성 확보. 적용: infra-guide Security 참조.</div></li>
+</ul>
+<h4 class="sub">Observability Infrastructure</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Grafana Alloy — OTel Collector 배포판</strong>: 120+ 컴포넌트로 메트릭/로그/트레이스/프로파일 수집. Prometheus 파이프라인 내장. Grafana Agent/Operator 2025-11 EOL → Alloy 마이그레이션 필수. 적용: infra-audit Observability, init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Grafana 11 통합 쿼리 빌더</strong>: 모든 데이터소스에 걸친 단일 쿼리 빌더, 메트릭-트레이스-로그 자동 상관관계 엔진, AI 기반 이상 탐지. 적용: infra-guide Observability.</div></li>
+</ul>
+<h4 class="sub">Networking — Service Mesh / eBPF</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Cilium v1.19 (2026-03)</strong>: eBPF 기반 네트워킹 + 서비스 메시 + 보안 + 옵저버빌리티. 사이드카 없이 커널 레벨에서 mTLS (SPIFFE ID), L7 정책, 로드밸런싱, Hubble 옵저버빌리티. GKE Dataplane V2, AKS Azure CNI, EKS 기본 CNI 채택 확대. 적용: infra-audit Networking, infra-guide Service Mesh.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>eBPF vs 사이드카 전환</strong>: 2026년 핵심 질문은 "어떤 서비스 메시를 쓸까"가 아니라 "서비스 메시가 필요한가". eBPF 기반 CNI가 정책, 텔레메트리, 트래픽 관리를 커널에서 직접 처리. 적용: infra-guide Service Mesh 카테고리 관점 전환.</div></li>
+</ul>
+<h4 class="sub">Platform Engineering</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Backstage IDP 89% 시장 점유율</strong>: CNCF Graduated 프로젝트. 2025 New Frontend System adoption-ready, Actions Registry + MCP 서버 지원 (AI 에이전트 통합), Backstage UI 디자인 시스템 알파. 적용: infra-guide Platform Engineering.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Gartner: 2026년 대형 조직 80%가 플랫폼 팀 설립 예측</strong> (2022년 45%에서 증가). 2025년 55% 조직이 플랫폼 엔지니어링 도입. 적용: infra-guide Platform Engineering 원칙.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>AI 통합</strong>: CIO 92%가 플랫폼에 AI 통합 계획, DevOps 팀 76%가 2025 말까지 CI/CD에 AI 통합. IDP가 AI 에이전트 오케스트레이션 + LLMOps 워크플로우 제어 평면으로 진화. 적용: infra-guide Platform Engineering (향후 방향).</div></li>
+</ul>
+<h4 class="sub">Cost Optimization — FinOps</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>State of FinOps 2026</strong>: 범위 확장 — SaaS 90%, 라이선싱 64%, 프라이빗 클라우드 57%, 데이터센터 48% 관리. AI 관리 98% (2년 전 31%). 78% FinOps 팀이 CTO/CIO 직속. 적용: infra-guide Cost Optimization.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Shift-Left FinOps</strong>: 배포 후 최적화가 아닌 배포 전 비용 예측. 구조적 FinOps 프로그램은 월 클라우드 비용 25-30% 절감, 성숙 프로그램은 낭비를 40%→15-20%로 감소. 적용: infra-audit Cost Optimization.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>FOCUS 표준 (FinOps Open Cost and Usage Specification)</strong>: 멀티 벤더 비용 데이터 정규화. AI 워크로드, 데이터센터, PaaS/SaaS 확장 요청 증가. 적용: infra-guide Cost Optimization.</div></li>
+</ul>
+<h4 class="sub">Disaster Recovery &amp; Backup</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Velero 1.11</strong>: K8s 리소스 + PV 백업/복원. etcd + 퍼시스턴트 볼륨 이중 백업. 크로스 리전/크로스 클러스터 복구 지원. 스케줄 백업 + 보존 정책 + pre/post 훅. 적용: infra-guide Backup/DR, init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Velero + Restic 통합</strong>: CDC (Content-Defined Chunking)로 PVC 40-70% 스토리지 절감. 증분 백업으로 RPO 초 단위, RTO 75% 감소. 적용: infra-audit Backup/DR.</div></li>
+</ul>
+<h4 class="sub">Multi-Cloud &amp; Hybrid Cloud</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>CNCF State of Cloud Native 2025</strong>: 클라우드 네이티브 개발자 1,560만명. 하이브리드 클라우드 32%, 멀티클라우드 26%, 분산 클라우드 15%. 적용: infra-guide Multi-Cloud 원칙.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>전략적 전환</strong>: 임의적 멀티클라우드에서 의도적 인프라 전략으로 성숙. 워크로드 요구사항 + 비용 + 성능 + 회복력 기반 결정. 적용: infra-guide Multi-Cloud.</div></li>
+</ul>
+<h4 class="sub">Edge Computing &amp; CDN</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>KubeEdge CNCF Graduated (2024)</strong>: K8s 기반 엣지 배포 패턴 표준화. 중앙 컨트롤 플레인 → 분산 엣지 노드 아키텍처. 적용: infra-guide Edge Computing.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>엣지 아키텍처 4계층</strong>: 디바이스 엣지 (센서) → 게이트웨이 엣지 (로컬 처리) → 리전 엣지 (마이크로 DC/CDN PoP) → 클라우드 (장기 저장/분석). 하이브리드 접근: 엣지에서 레이턴시 민감 처리, 클라우드에서 오케스트레이션. 적용: infra-guide Edge Computing.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>엣지 컴퓨팅 시장</strong>: 2025년 $21.4B → 2026년 $28.5B (CAGR 28%). CDN 시장 2025년 $32.7B. CDN 제공자의 엣지 컴퓨팅 기능 통합 (PoP에서 코드 실행) 가속. 적용: infra-guide Edge Computing (시장 맥락).</div></li>
+</ul>
+<h3 class="sub">신규 스킬 갭 분석</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">제안 스킬</div></th>
+  <th><div class="c">아키타입</div></th>
+  <th><div class="c">근거</div></th>
+  <th><div class="c">우선순위</div></th>
+  <th><div class="c">상태</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>infra-supply-chain</code></div></td>
+  <td><div class="c">런북</div></td>
+  <td><div class="c">SLSA + Cosign v3 + CycloneDX SBOM + EU CRA 대응 파이프라인</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>infra-gitops</code></div></td>
+  <td><div class="c">코드 스캐폴딩</div></td>
+  <td><div class="c">Argo CD 3.x / Flux v2.8 부트스트랩</div></td>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>infra-finops</code></div></td>
+  <td><div class="c">가이드</div></td>
+  <td><div class="c">FOCUS 표준 + shift-left FinOps + 태깅 전략</div></td>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>infra-edge</code></div></td>
+  <td><div class="c">가이드</div></td>
+  <td><div class="c">KubeEdge + 4계층 엣지 아키텍처 + CDN 통합</div></td>
+  <td><div class="c">낮음</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>infra-platform</code></div></td>
+  <td><div class="c">코드 스캐폴딩</div></td>
+  <td><div class="c">Backstage IDP 부트스트랩 + golden path 템플릿</div></td>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">폐기 사유</h3>
+<p>없음.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>2026-04-11</h2>
+  <div class="doc-body">
+<p><strong>트리거:</strong> kaizen-orchestrator Phase 8 (research-mode rerun)</p>
+<h3 class="sub">조사한 소스</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">제목</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">신뢰도</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">Kubernetes Pod Security Admission</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/docs/concepts/security/pod-security-admission/" target="_blank" rel="noopener">https://kubernetes.io/docs/concepts/security/pod-security-admission/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c">Kubernetes Ingress / Gateway API</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/docs/concepts/services-networking/ingress/" target="_blank" rel="noopener">https://kubernetes.io/docs/concepts/services-networking/ingress/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c">Kubernetes Sidecar Containers (v1.33 GA)</div></td>
+  <td><div class="c"><a class="ext" href="https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers" target="_blank" rel="noopener">https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">Terraform 1.10+ ephemeral values</div></td>
+  <td><div class="c"><a class="ext" href="https://developer.hashicorp.com/terraform/language/ephemeral" target="_blank" rel="noopener">https://developer.hashicorp.com/terraform/language/ephemeral</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">Terraform test framework</div></td>
+  <td><div class="c"><a class="ext" href="https://developer.hashicorp.com/terraform/language/tests" target="_blank" rel="noopener">https://developer.hashicorp.com/terraform/language/tests</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c">OpenTofu 1.7+ state encryption</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/docs/v1.11/language/state/encryption/" target="_blank" rel="noopener">https://opentofu.org/docs/v1.11/language/state/encryption/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c">OpenTofu for_each meta-argument</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/docs/language/meta-arguments/for_each/" target="_blank" rel="noopener">https://opentofu.org/docs/language/meta-arguments/for_each/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c">SLSA provenance spec</div></td>
+  <td><div class="c"><a class="ext" href="https://slsa.dev/provenance" target="_blank" rel="noopener">https://slsa.dev/provenance</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">9</div></td>
+  <td><div class="c">SLSA v1.0 spec</div></td>
+  <td><div class="c"><a class="ext" href="https://slsa.dev/spec" target="_blank" rel="noopener">https://slsa.dev/spec</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">10</div></td>
+  <td><div class="c">Sigstore Cosign attestation</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.sigstore.dev/cosign/verifying/attestation/" target="_blank" rel="noopener">https://docs.sigstore.dev/cosign/verifying/attestation/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">11</div></td>
+  <td><div class="c">Trivy SBOM supply chain</div></td>
+  <td><div class="c"><a class="ext" href="https://trivy.dev/docs/dev/guide/supply-chain/sbom/" target="_blank" rel="noopener">https://trivy.dev/docs/dev/guide/supply-chain/sbom/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">12</div></td>
+  <td><div class="c">Anchore Syft SBOM generator</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/anchore/syft" target="_blank" rel="noopener">https://github.com/anchore/syft</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">13</div></td>
+  <td><div class="c">Falco runtime security</div></td>
+  <td><div class="c"><a class="ext" href="https://falco.org/" target="_blank" rel="noopener">https://falco.org/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">14</div></td>
+  <td><div class="c">Tetragon eBPF runtime security</div></td>
+  <td><div class="c"><a class="ext" href="https://tetragon.io/" target="_blank" rel="noopener">https://tetragon.io/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">15</div></td>
+  <td><div class="c">Chainguard images overview</div></td>
+  <td><div class="c"><a class="ext" href="https://edu.chainguard.dev/chainguard/chainguard-images/overview/" target="_blank" rel="noopener">https://edu.chainguard.dev/chainguard/chainguard-images/overview/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">16</div></td>
+  <td><div class="c">PyPI Trusted Publishers</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.pypi.org/trusted-publishers/" target="_blank" rel="noopener">https://docs.pypi.org/trusted-publishers/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">17</div></td>
+  <td><div class="c">GitHub OIDC hardening</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect" target="_blank" rel="noopener">https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">18</div></td>
+  <td><div class="c">GitHub OIDC reusable workflows</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/using-openid-connect-with-reusable-workflows" target="_blank" rel="noopener">https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/using-openid-connect-with-reusable-workflows</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">19</div></td>
+  <td><div class="c">OpenTelemetry signals status</div></td>
+  <td><div class="c"><a class="ext" href="https://opentelemetry.io/docs/specs/status/" target="_blank" rel="noopener">https://opentelemetry.io/docs/specs/status/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택 (logs/traces/metrics 3 stable)</div></td>
+</tr>
+<tr>
+  <td><div class="c">20</div></td>
+  <td><div class="c">OpenTelemetry semantic conventions</div></td>
+  <td><div class="c"><a class="ext" href="https://opentelemetry.io/docs/specs/semconv/" target="_blank" rel="noopener">https://opentelemetry.io/docs/specs/semconv/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">21</div></td>
+  <td><div class="c">Argo Rollouts</div></td>
+  <td><div class="c"><a class="ext" href="https://argoproj.github.io/argo-rollouts/" target="_blank" rel="noopener">https://argoproj.github.io/argo-rollouts/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">22</div></td>
+  <td><div class="c">Flux v2.6 release</div></td>
+  <td><div class="c"><a class="ext" href="https://fluxcd.io/blog/2025/05/flux-v2.6.0/" target="_blank" rel="noopener">https://fluxcd.io/blog/2025/05/flux-v2.6.0/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">채택한 인사이트</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Kubernetes Pod Security Admission (PSA) restricted</strong> 이 2026 표준. <code>pod-security.kubernetes.io/enforce: restricted</code> 라벨로 네임스페이스 단위 강제. 적용: infra-audit Kubernetes 카테고리, init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Gateway API 우선</strong> (Ingress deprecated 방향 전환 아님, 하지만 Gateway API 가 HTTPRoute / TCPRoute / GRPCRoute 분리로 훨씬 유연). 적용: infra-guide.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Sidecar containers v1.33 GA</strong>: init containers 중에 <code>restartPolicy: Always</code> 설정 시 sidecar 로 동작. istio proxy / log collector 패턴 표준화. 적용: init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Terraform 1.10+ ephemeral values</strong>: 민감 정보 (password, token) 를 state 파일에 저장하지 않음. <code>ephemeral = true</code> 선언으로 메모리에서만 존재. 적용: infra-audit IaC 카테고리, init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Terraform test framework</strong>: <code>terraform test</code> CLI 로 HCL 네이티브 단위 테스트. 적용: init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>OpenTofu 1.7+ state encryption</strong>: Terraform 이 제공하지 않는 네이티브 state encryption 기능. HashiCorp 라이선스 대안 경로. 적용: infra-audit IaC 카테고리, init-checklist.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Supply Chain 카테고리 신설</strong>: SLSA provenance (빌드 출처 증명) + Cosign attestation (서명 검증) + Syft SBOM (소프트웨어 자재 명세서) + Trusted Publishers (OIDC 기반 secretless 배포) + Falco/Tetragon (런타임 security). 2026 공급망 보안의 최소 기본값. 적용: audit-criteria 신규 섹션 5 rules + principle-index 신규 카테고리.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>OpenTelemetry 3 signals stable</strong>: Logs / Traces / Metrics 모두 stable 단계. 단일 Collector 파이프라인으로 통합 가능. 적용: infra-audit Observability.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GitOps 단일 소스 원천</strong>: Argo CD / Flux v2.6+ 을 통한 배포. <code>kubectl apply</code> 직접 금지. Progressive delivery (Argo Rollouts) 로 canary / blue-green. 적용: infra-audit Deployment 카테고리.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Platform Engineering 카테고리 신설</strong>: Internal Developer Platform (IDP), Backstage scaffolder, golden path. 적용: principle-index 신규 카테고리.</div></li>
+</ul>
+<h3 class="sub">신규 스킬 갭 분석</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">제안 스킬</div></th>
+  <th><div class="c">아키타입</div></th>
+  <th><div class="c">근거</div></th>
+  <th><div class="c">우선순위</div></th>
+  <th><div class="c">상태</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>infra-supply-chain</code></div></td>
+  <td><div class="c">런북</div></td>
+  <td><div class="c">SLSA + Cosign + Syft 스캐폴딩 파이프라인</div></td>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>infra-gitops</code></div></td>
+  <td><div class="c">코드 스캐폴딩</div></td>
+  <td><div class="c">Argo CD / Flux 부트스트랩</div></td>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">폐기 사유</h3>
+<p>없음.</p>
+<h3 class="sub">PR</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><a class="ext" href="https://github.com/joo6077/claude-plugins/pull/6" target="_blank" rel="noopener">https://github.com/joo6077/claude-plugins/pull/6</a></div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>2026-04-12</h2>
+  <div class="doc-body">
+<p><strong>트리거:</strong> infra-research 수동 실행 (12개 카테고리 추가 조사)</p>
+<h3 class="sub">조사한 소스</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">제목</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">태그</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">63</div></td>
+  <td><div class="c">TLSRoute - Kubernetes Gateway API</div></td>
+  <td><div class="c"><a class="ext" href="https://gateway-api.sigs.k8s.io/reference/api-types/tlsroute/" target="_blank" rel="noopener">https://gateway-api.sigs.k8s.io/reference/api-types/tlsroute/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[spec]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">64</div></td>
+  <td><div class="c">Terraform MCP server overview</div></td>
+  <td><div class="c"><a class="ext" href="https://developer.hashicorp.com/terraform/mcp-server" target="_blank" rel="noopener">https://developer.hashicorp.com/terraform/mcp-server</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">65</div></td>
+  <td><div class="c">OpenTofu Registry</div></td>
+  <td><div class="c"><a class="ext" href="https://opentofu.org/registry/" target="_blank" rel="noopener">https://opentofu.org/registry/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">66</div></td>
+  <td><div class="c">Infrastructure AI - Pulumi Docs</div></td>
+  <td><div class="c"><a class="ext" href="https://www.pulumi.com/docs/ai/" target="_blank" rel="noopener">https://www.pulumi.com/docs/ai/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">67</div></td>
+  <td><div class="c">GitHub-hosted runners reference</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/actions/reference/runners/github-hosted-runners" target="_blank" rel="noopener">https://docs.github.com/en/actions/reference/runners/github-hosted-runners</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">68</div></td>
+  <td><div class="c">Pricing changes for GitHub Actions</div></td>
+  <td><div class="c"><a class="ext" href="https://resources.github.com/actions/2026-pricing-changes-for-github-actions/" target="_blank" rel="noopener">https://resources.github.com/actions/2026-pricing-changes-for-github-actions/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-12]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">69</div></td>
+  <td><div class="c">Dagger Cloud - Observability for Delivery Workflows</div></td>
+  <td><div class="c"><a class="ext" href="https://dagger.io/cloud/" target="_blank" rel="noopener">https://dagger.io/cloud/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">70</div></td>
+  <td><div class="c">Introducing Module Catalog &amp; Insights</div></td>
+  <td><div class="c"><a class="ext" href="https://dagger.io/blog/module-catalog-insights/" target="_blank" rel="noopener">https://dagger.io/blog/module-catalog-insights/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[blog] [dated: 2025-05]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">71</div></td>
+  <td><div class="c">NixOS Reproducible Builds</div></td>
+  <td><div class="c"><a class="ext" href="https://reproducible.nixos.org/" target="_blank" rel="noopener">https://reproducible.nixos.org/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">72</div></td>
+  <td><div class="c">Dropping upstream Nix from Determinate Nix Installer</div></td>
+  <td><div class="c"><a class="ext" href="https://determinate.systems/blog/installer-dropping-upstream" target="_blank" rel="noopener">https://determinate.systems/blog/installer-dropping-upstream</a></div></td>
+  <td><div class="c">블로그</div></td>
+  <td><div class="c">[blog] [dated: 2025-09]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">73</div></td>
+  <td><div class="c">Releases - WebAssembly/WASI</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/WebAssembly/WASI/releases" target="_blank" rel="noopener">https://github.com/WebAssembly/WASI/releases</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">74</div></td>
+  <td><div class="c">Overview - SpinKube</div></td>
+  <td><div class="c"><a class="ext" href="https://www.spinkube.dev/docs/overview/" target="_blank" rel="noopener">https://www.spinkube.dev/docs/overview/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">75</div></td>
+  <td><div class="c">pyroscope.ebpf - Grafana Alloy documentation</div></td>
+  <td><div class="c"><a class="ext" href="https://grafana.com/docs/alloy/latest/reference/components/pyroscope/pyroscope.ebpf/" target="_blank" rel="noopener">https://grafana.com/docs/alloy/latest/reference/components/pyroscope/pyroscope.ebpf/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">76</div></td>
+  <td><div class="c">Operating System Integrity - Tetragon</div></td>
+  <td><div class="c"><a class="ext" href="https://tetragon.io/features/operating-system-integrity/" target="_blank" rel="noopener">https://tetragon.io/features/operating-system-integrity/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">77</div></td>
+  <td><div class="c">Support Matrix - Talos Linux</div></td>
+  <td><div class="c"><a class="ext" href="https://www.talos.dev/latest/introduction/support-matrix/" target="_blank" rel="noopener">https://www.talos.dev/latest/introduction/support-matrix/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">78</div></td>
+  <td><div class="c">What's New in v2? - Crossplane v2.2</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.crossplane.io/latest/whats-new/" target="_blank" rel="noopener">https://docs.crossplane.io/latest/whats-new/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">79</div></td>
+  <td><div class="c">Crossplane v2.2 - More Capable, More Reliable, More Observable</div></td>
+  <td><div class="c"><a class="ext" href="https://blog.crossplane.io/crossplane-v2-2-more-capable-more-reliable-more-observable/amp/" target="_blank" rel="noopener">https://blog.crossplane.io/crossplane-v2-2-more-capable-more-reliable-more-observable/amp/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[blog] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">80</div></td>
+  <td><div class="c">Supporting tools and services - Development Containers</div></td>
+  <td><div class="c"><a class="ext" href="https://containers.dev/supporting.html" target="_blank" rel="noopener">https://containers.dev/supporting.html</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[spec]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">81</div></td>
+  <td><div class="c">Setting a minimum specification for codespace machines</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/configuring-dev-containers/setting-a-minimum-specification-for-codespace-machines" target="_blank" rel="noopener">https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/configuring-dev-containers/setting-a-minimum-specification-for-codespace-machines</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">82</div></td>
+  <td><div class="c">From Standards to Adoption: Introducing the GSF 2025 Annual Report</div></td>
+  <td><div class="c"><a class="ext" href="https://greensoftware.foundation/articles/introducing-the-gsf-2025-annual-report/" target="_blank" rel="noopener">https://greensoftware.foundation/articles/introducing-the-gsf-2025-annual-report/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-01]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">83</div></td>
+  <td><div class="c">Real Time Cloud standard story</div></td>
+  <td><div class="c"><a class="ext" href="https://greensoftware.foundation/stories/real-time-cloud/" target="_blank" rel="noopener">https://greensoftware.foundation/stories/real-time-cloud/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">채택한 인사이트</h3>
+<h4 class="sub">Container Orchestration - Kubernetes / Gateway API</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Gateway API v1.5 성숙도 확장</strong>: 기존 <code>Gateway</code>/<code>HTTPRoute</code> 안정화에 더해 <code>TLSRoute</code> 가 Standard Channel since <code>v1.5.0</code> 로 승격. Gateway API 성숙도가 L7 HTTP 중심에서 TLS passthrough/종단 제어까지 확장되며, "Ingress 대체"가 아니라 범용 서비스 네트워킹 API 로 굳어지는 흐름. 적용: infra-guide Networking, infra-audit Kubernetes Networking.</div></li>
+</ul>
+<h4 class="sub">IaC Tools</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Terraform vs OpenTofu split 는 이제 도구 체인 레벨 분리</strong>: HashiCorp 는 Terraform Registry/HCP 에 붙는 <code>Terraform MCP server</code> 를 제공해 AI 생성 경로를 자사 생태계에 묶고, OpenTofu 는 별도 공개 Registry 를 운영하며 3,900+ providers / 23,600+ modules 규모를 전면에 내세움. 즉 분기는 라이선스 논쟁을 넘어 레지스트리, AI 보조도구, 배포 경로가 갈라진 상태. 적용: infra-guide IaC 비교, tool-selection 기준.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Pulumi AI 는 단순 코드 생성기를 넘는 운영형 IaC 에이전트로 진화</strong>: Pulumi Neo 는 자연어 요청에서 PR 생성, preview, 멀티스텝 운영 작업까지 연결하고 RBAC 범위 내에서 동작. "AI codegen" 보다는 승인 가능한 인프라 작업 자동화 계층으로 보는 편이 정확함. 적용: infra-guide IaC + Platform Engineering + AI automation.</div></li>
+</ul>
+<h4 class="sub">CI/CD Patterns</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GitHub Actions Arm runners 가 표준 러너 선택지로 확대</strong>: 공식 러너 레퍼런스에 <code>ubuntu-24.04-arm</code>, <code>ubuntu-22.04-arm</code>, <code>windows-11-arm</code> 이 명시됨. Arm 지원이 macOS 전용/실험 단계에서 Linux+Windows 전반으로 넓어져 멀티아키텍처 CI 를 표준 YAML 안에서 처리하기 쉬워짐. 적용: infra-guide CI/CD runner 전략.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GitHub Actions 성능 개선은 가격 정책까지 포함</strong>: 2026-01-01 부터 hosted runner 가격을 최대 39% 인하한다고 공지. 고성능/대형 runner 사용 장벽이 낮아져, 느린 self-hosted fleet 를 억지 유지하기보다 hosted large/arm runner 로 재평가할 근거가 생김. 적용: infra-audit CI/CD cost/performance.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dagger Cloud 는 "관측" 도구를 넘어 조직 단위 파이프라인 표준화 계층으로 확장</strong>: Cloud 가 워크플로 trace 를 통합 제공하고, Module Catalog &amp; Insights 가 GitHub 저장소를 스캔해 조직 내부 모듈 카탈로그와 사용 현황을 노출. 핵심은 YAML 템플릿 공유보다 "재사용 가능한 delivery module" 을 표준 자산으로 관리하는 모델. 적용: infra-guide CI/CD standardization, platform-team golden paths.</div></li>
+</ul>
+<h4 class="sub">Reproducible Builds / Developer Environments</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Nix/NixOS 채택 신호는 재현성 검증 + 상용 배포판 확장으로 강화</strong>: <code>reproducible.nixos.org</code> 는 NixOS 최소 설치 ISO 의 독립 재현 현황을 지속 공개하고, Determinate Nix Installer 는 2025-09 기준 월 거의 100만 설치를 언급하며 자체 배포판 중심 전략으로 전환 중. 커뮤니티 도구에서 공급망/엔터프라이즈 경로로 이동하는 신호. 적용: infra-guide Reproducibility, dev environment 전략.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dev Containers 는 사실상 공통 표준 계층이 되었고 Codespaces 가 이를 실행 계약으로 구체화</strong>: <code>containers.dev</code> 가 지원 도구 목록을 공식화했고, GitHub Codespaces 는 <code>hostRequirements</code> 로 CPU/메모리/스토리지를 <code>devcontainer.json</code> 에 명시하게 함. 개발환경 정의가 "에디터 설정"이 아니라 저장소 수준 실행 계약으로 이동. 적용: infra-guide Developer Experience, repo bootstrap.</div></li>
+</ul>
+<h4 class="sub">WebAssembly / Emerging Runtime</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>서버사이드 Wasm 은 "Preview 2 실험"에서 "WASI 0.2.x 릴리스 라인"으로 정착</strong>: WebAssembly/WASI 저장소는 <code>v0.2.x</code> 호환 릴리스를 계속 발행 중이며, Preview 2 가 사실상 유지보수되는 표준 인터페이스 계층으로 운영되고 있음. 즉 이제 논점은 "Preview 2 가 오나?"가 아니라 "어떤 런타임/플랫폼이 0.2 생태계를 안정적으로 구현하나?"에 가까움. 적용: infra-guide Runtime alternatives.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>SpinKube 는 Wasm on Kubernetes 의 운영 모델을 구체화</strong>: Spin Operator + runtime class manager + runwasi 기반으로 CRD, DNS, probes, autoscaling(HPA/KEDA), metrics 를 K8s 기본기와 연결. Wasm 이 컨테이너 대체물이 아니라 K8s 배포 표면에 편입되는 방식이 명확해짐. 적용: infra-guide Kubernetes workload options, edge/serverless 비교.</div></li>
+</ul>
+<h4 class="sub">Security / Observability</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>eBPF 의 무게중심이 네트워킹 밖으로 확실히 이동</strong>: Grafana Alloy 의 <code>pyroscope.ebpf</code> 는 호스트/컨테이너 연속 프로파일링을 제공하고, Tetragon 은 eBPF subsystem activity, kernel module load/unload, privilege/capability 사용을 감시함. eBPF 는 이제 CNI 가 아니라 profiling + runtime security + kernel debugging 기반 기술로 봐야 함. 적용: infra-guide Observability/Security, infra-audit Runtime detection.</div></li>
+</ul>
+<h4 class="sub">Kubernetes Platform / Node OS</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Talos Linux 는 immutable Kubernetes node OS 패턴을 Arm/SecureBoot 포함 운영 경로로 밀고 있음</strong>: 최신 support matrix 기준 Talos 1.11 은 Kubernetes 1.34/1.33 과 amd64/arm64 를 지원하고 bare metal 에서 SecureBoot 경로까지 제공. 범용 Linux hardening 보다 API-managed 전용 node OS 로의 전환 논의가 실전 레벨에 있음. 적용: infra-guide Kubernetes node OS, edge/bare-metal 운영.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Crossplane v2 는 인프라 합성을 넘어 control plane composition 으로 확장</strong>: v2 에서 XR/MR namespaced 기본값, 임의 Kubernetes resource composition, claims 제거가 이뤄졌고, v2.2 는 Operations 와 pipeline inspector 를 추가. Crossplane 을 "클라우드 리소스 프로비저너"로만 보면 부족하고, 플랫폼 팀의 선언적 API/운영 워크플로 엔진으로 봐야 함. 적용: infra-guide Platform Engineering, infra-guide IaC/Kubernetes control plane.</div></li>
+</ul>
+<h4 class="sub">Sustainability / FinOps Adjacent</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Green Software Foundation 흐름은 캠페인보다 표준화 단계</strong>: 2025 연차보고서 기준 Real Time Energy and Carbon Standard for Cloud Providers (RTC), SOFT, SCI for AI 등 5개 핵심 프로젝트가 ratified 되었고, RTC 는 AWS/Azure/GCP 가 공통 포맷의 실시간 에너지/탄소 데이터를 제공하도록 요구하는 규격으로 정리됨. 클라우드 탄소 추적은 "월별 대시보드"에서 "표준화된 실시간 데이터 계약"으로 넘어가는 중. 적용: infra-guide Sustainability, cost/carbon observability.</div></li>
+</ul>
+<h3 class="sub">신규 스킬 갭 분석</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">제안 스킬</div></th>
+  <th><div class="c">아키타입</div></th>
+  <th><div class="c">근거</div></th>
+  <th><div class="c">우선순위</div></th>
+  <th><div class="c">상태</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>infra-devenv</code></div></td>
+  <td><div class="c">코드 스캐폴딩</div></td>
+  <td><div class="c">Dev Containers + Codespaces + Nix 기반 재현 가능한 개발환경 부트스트랩</div></td>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>infra-runtime-alt</code></div></td>
+  <td><div class="c">가이드</div></td>
+  <td><div class="c">WASI 0.2 + SpinKube + Talos + eBPF 기반 런타임 대안 비교</div></td>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>infra-carbon</code></div></td>
+  <td><div class="c">가이드</div></td>
+  <td><div class="c">RTC + SOFT + SCI for AI 기반 탄소/비용 관측 프레임워크</div></td>
+  <td><div class="c">낮음</div></td>
+  <td><div class="c">backlog</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">폐기 사유</h3>
+<p>없음.</p>
+  </div>
+</section>
+
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 103 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://kubernetes.io/releases/" target="_blank" rel="noopener">&#8599; https://kubernetes.io/releases/</a></li>
+    <li><a class="card-source" href="https://github.com/fluxcd/flux2/releases" target="_blank" rel="noopener">&#8599; https://github.com/fluxcd/flux2/releases</a></li>
+    <li><a class="card-source" href="https://github.com/argoproj/argo-cd/releases" target="_blank" rel="noopener">&#8599; https://github.com/argoproj/argo-cd/releases</a></li>
+    <li><a class="card-source" href="https://git-scm.com/docs/git-merge-base" target="_blank" rel="noopener">&#8599; https://git-scm.com/docs/git-merge-base</a></li>
+    <li><a class="card-source" href="https://cli.github.com/manual/gh_run_list" target="_blank" rel="noopener">&#8599; https://cli.github.com/manual/gh_run_list</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/actions/reference/runners/github-hosted-runners" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/actions/reference/runners/github-hosted-runners</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches</a></li>
+    <li><a class="card-source" href="https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1" target="_blank" rel="noopener">&#8599; https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1</a></li>
+    <li><a class="card-source" href="https://opentofu.org/docs/v1.11/language/state/encryption/" target="_blank" rel="noopener">&#8599; https://opentofu.org/docs/v1.11/language/state/encryption/</a></li>
+    <li><a class="card-source" href="https://opentelemetry.io/docs/specs/status/" target="_blank" rel="noopener">&#8599; https://opentelemetry.io/docs/specs/status/</a></li>
+    <li><a class="card-source" href="https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md" target="_blank" rel="noopener">&#8599; https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md</a></li>
+    <li><a class="card-source" href="https://github.com/hashicorp/terraform/releases/tag/v1.16.0" target="_blank" rel="noopener">&#8599; https://github.com/hashicorp/terraform/releases/tag/v1.16.0</a></li>
+    <li><a class="card-source" href="https://github.com/opentofu/opentofu/releases/tag/v1.12.6" target="_blank" rel="noopener">&#8599; https://github.com/opentofu/opentofu/releases/tag/v1.12.6</a></li>
+    <li><a class="card-source" href="https://github.com/fluxcd/flux2/releases/tag/v2.9.0" target="_blank" rel="noopener">&#8599; https://github.com/fluxcd/flux2/releases/tag/v2.9.0</a></li>
+    <li><a class="card-source" href="https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/" target="_blank" rel="noopener">&#8599; https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/</a></li>
+    <li><a class="card-source" href="https://github.com/crossplane/crossplane/releases/tag/v2.4.0" target="_blank" rel="noopener">&#8599; https://github.com/crossplane/crossplane/releases/tag/v2.4.0</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/actions/reference/security/secure-use" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/actions/reference/security/secure-use</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/actions/concepts/security/openid-connect" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/actions/concepts/security/openid-connect</a></li>
+    <li><a class="card-source" href="https://www.brendangregg.com/usemethod.html" target="_blank" rel="noopener">&#8599; https://www.brendangregg.com/usemethod.html</a></li>
+    <li><a class="card-source" href="https://www.conftest.dev/options/" target="_blank" rel="noopener">&#8599; https://www.conftest.dev/options/</a></li>
+    <li><a class="card-source" href="https://kubernetes.io/docs/concepts/security/pod-security-admission/" target="_blank" rel="noopener">&#8599; https://kubernetes.io/docs/concepts/security/pod-security-admission/</a></li>
+    <li><a class="card-source" href="https://developer.hashicorp.com/terraform/language/ephemeral" target="_blank" rel="noopener">&#8599; https://developer.hashicorp.com/terraform/language/ephemeral</a></li>
+    <li><a class="card-source" href="https://slsa.dev/provenance" target="_blank" rel="noopener">&#8599; https://slsa.dev/provenance</a></li>
+    <li><a class="card-source" href="https://docs.sigstore.dev/cosign/verifying/attestation/" target="_blank" rel="noopener">&#8599; https://docs.sigstore.dev/cosign/verifying/attestation/</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax</a></li>
+    <li><a class="card-source" href="https://docs.docker.com/build/building/best-practices/" target="_blank" rel="noopener">&#8599; https://docs.docker.com/build/building/best-practices/</a></li>
+    <li><a class="card-source" href="https://kubernetes.io/blog/2025/12/17/kubernetes-v1-35-release/" target="_blank" rel="noopener">&#8599; https://kubernetes.io/blog/2025/12/17/kubernetes-v1-35-release/</a></li>
+    <li><a class="card-source" href="https://kubernetes.io/blog/2025/03/26/kubernetes-v1-33-upcoming-changes/" target="_blank" rel="noopener">&#8599; https://kubernetes.io/blog/2025/03/26/kubernetes-v1-33-upcoming-changes/</a></li>
+    <li><a class="card-source" href="https://www.cncf.io/blog/2025/12/15/kubernetes-security-2025-stable-features-and-2026-preview/" target="_blank" rel="noopener">&#8599; https://www.cncf.io/blog/2025/12/15/kubernetes-security-2025-stable-features-and-2026-preview/</a></li>
+    <li><a class="card-source" href="https://www.cncf.io/blog/2024/11/06/karpenter-v1-0-0-beta/" target="_blank" rel="noopener">&#8599; https://www.cncf.io/blog/2024/11/06/karpenter-v1-0-0-beta/</a></li>
+    <li><a class="card-source" href="https://karpenter.sh/" target="_blank" rel="noopener">&#8599; https://karpenter.sh/</a></li>
+    <li><a class="card-source" href="https://kubernetes.io/blog/2025/11/06/gateway-api-v1-4/" target="_blank" rel="noopener">&#8599; https://kubernetes.io/blog/2025/11/06/gateway-api-v1-4/</a></li>
+    <li><a class="card-source" href="https://opentofu.org/blog/opentofu-1-10-0/" target="_blank" rel="noopener">&#8599; https://opentofu.org/blog/opentofu-1-10-0/</a></li>
+    <li><a class="card-source" href="https://opentofu.org/blog/opentofu-1-9-0/" target="_blank" rel="noopener">&#8599; https://opentofu.org/blog/opentofu-1-9-0/</a></li>
+    <li><a class="card-source" href="https://www.pulumi.com/blog/2025-product-launches/" target="_blank" rel="noopener">&#8599; https://www.pulumi.com/blog/2025-product-launches/</a></li>
+    <li><a class="card-source" href="https://www.pulumi.com/blog/pulumi-release-notes-117/" target="_blank" rel="noopener">&#8599; https://www.pulumi.com/blog/pulumi-release-notes-117/</a></li>
+    <li><a class="card-source" href="https://www.pulumi.com/blog/esc-open-approvals/" target="_blank" rel="noopener">&#8599; https://www.pulumi.com/blog/esc-open-approvals/</a></li>
+    <li><a class="card-source" href="https://dagger.io/" target="_blank" rel="noopener">&#8599; https://dagger.io/</a></li>
+    <li><a class="card-source" href="https://docs.dagger.io/" target="_blank" rel="noopener">&#8599; https://docs.dagger.io/</a></li>
+    <li><a class="card-source" href="https://argo-cd.readthedocs.io/en/latest/operator-manual/upgrading/2.14-3.0/" target="_blank" rel="noopener">&#8599; https://argo-cd.readthedocs.io/en/latest/operator-manual/upgrading/2.14-3.0/</a></li>
+    <li><a class="card-source" href="https://fluxcd.io/blog/2026/02/flux-v2.8.0/" target="_blank" rel="noopener">&#8599; https://fluxcd.io/blog/2026/02/flux-v2.8.0/</a></li>
+    <li><a class="card-source" href="https://www.infoq.com/news/2025/03/flux-gitops-release/" target="_blank" rel="noopener">&#8599; https://www.infoq.com/news/2025/03/flux-gitops-release/</a></li>
+    <li><a class="card-source" href="https://blog.sigstore.dev/cosign-3-0-available/" target="_blank" rel="noopener">&#8599; https://blog.sigstore.dev/cosign-3-0-available/</a></li>
+    <li><a class="card-source" href="https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/" target="_blank" rel="noopener">&#8599; https://github.blog/changelog/2025-08-15-github-actions-policy-now-supports-blocking-and-sha-pinning-actions/</a></li>
+    <li><a class="card-source" href="https://github.blog/news-insights/product-news/whats-coming-to-our-github-actions-2026-security-roadmap/" target="_blank" rel="noopener">&#8599; https://github.blog/news-insights/product-news/whats-coming-to-our-github-actions-2026-security-roadmap/</a></li>
+    <li><a class="card-source" href="https://github.blog/changelog/2026-03-12-actions-oidc-tokens-now-support-repository-custom-properties/" target="_blank" rel="noopener">&#8599; https://github.blog/changelog/2026-03-12-actions-oidc-tokens-now-support-repository-custom-properties/</a></li>
+    <li><a class="card-source" href="https://github.com/actions/publish-immutable-action" target="_blank" rel="noopener">&#8599; https://github.com/actions/publish-immutable-action</a></li>
+    <li><a class="card-source" href="https://grafana.com/oss/alloy-opentelemetry-collector/" target="_blank" rel="noopener">&#8599; https://grafana.com/oss/alloy-opentelemetry-collector/</a></li>
+    <li><a class="card-source" href="https://grafana.com/blog/alloy-one-year/" target="_blank" rel="noopener">&#8599; https://grafana.com/blog/alloy-one-year/</a></li>
+    <li><a class="card-source" href="https://grafana.com/observability-survey/2025/" target="_blank" rel="noopener">&#8599; https://grafana.com/observability-survey/2025/</a></li>
+    <li><a class="card-source" href="https://docs.cilium.io/en/stable/network/servicemesh/" target="_blank" rel="noopener">&#8599; https://docs.cilium.io/en/stable/network/servicemesh/</a></li>
+    <li><a class="card-source" href="https://www.cncf.io/blog/2025/01/02/unlocking-cloud-native-security-with-cilium-and-ebpf/" target="_blank" rel="noopener">&#8599; https://www.cncf.io/blog/2025/01/02/unlocking-cloud-native-security-with-cilium-and-ebpf/</a></li>
+    <li><a class="card-source" href="https://backstage.io/blog/2025/12/30/backstage-wrapped-2025/" target="_blank" rel="noopener">&#8599; https://backstage.io/blog/2025/12/30/backstage-wrapped-2025/</a></li>
+    <li><a class="card-source" href="https://byteiota.com/backstage-hits-89-idp-market-share-what-it-means/" target="_blank" rel="noopener">&#8599; https://byteiota.com/backstage-hits-89-idp-market-share-what-it-means/</a></li>
+    <li><a class="card-source" href="https://roadie.io/blog/platform-engineering-in-2026-why-diy-is-dead/" target="_blank" rel="noopener">&#8599; https://roadie.io/blog/platform-engineering-in-2026-why-diy-is-dead/</a></li>
+    <li><a class="card-source" href="https://data.finops.org/" target="_blank" rel="noopener">&#8599; https://data.finops.org/</a></li>
+    <li><a class="card-source" href="https://www.finops.org/insights/finops-x-2025-cloud-announcements/" target="_blank" rel="noopener">&#8599; https://www.finops.org/insights/finops-x-2025-cloud-announcements/</a></li>
+    <li><a class="card-source" href="https://velero.io/" target="_blank" rel="noopener">&#8599; https://velero.io/</a></li>
+    <li><a class="card-source" href="https://craevidence.com/blog/sbom-requirements-under-cra" target="_blank" rel="noopener">&#8599; https://craevidence.com/blog/sbom-requirements-under-cra</a></li>
+    <li><a class="card-source" href="https://openssf.org/blog/2025/10/22/sboms-in-the-era-of-the-cra-toward-a-unified-and-actionable-framework/" target="_blank" rel="noopener">&#8599; https://openssf.org/blog/2025/10/22/sboms-in-the-era-of-the-cra-toward-a-unified-and-actionable-framework/</a></li>
+    <li><a class="card-source" href="https://cyclonedx.org/" target="_blank" rel="noopener">&#8599; https://cyclonedx.org/</a></li>
+    <li><a class="card-source" href="https://www.cncf.io/announcements/2025/11/11/cncf-and-slashdata-survey-finds-cloud-native-ecosystem-surges-to-15-6m-developers/" target="_blank" rel="noopener">&#8599; https://www.cncf.io/announcements/2025/11/11/cncf-and-slashdata-survey-finds-cloud-native-ecosystem-surges-to-15-6m-developers/</a></li>
+    <li><a class="card-source" href="https://blog.easecloud.io/containers/kubernetes-edge-guide-kubeedge-edge-computing/" target="_blank" rel="noopener">&#8599; https://blog.easecloud.io/containers/kubernetes-edge-guide-kubeedge-edge-computing/</a></li>
+    <li><a class="card-source" href="https://www.techedubyte.com/cncf-cto-2026-cloud-native-trends-insights/" target="_blank" rel="noopener">&#8599; https://www.techedubyte.com/cncf-cto-2026-cloud-native-trends-insights/</a></li>
+    <li><a class="card-source" href="https://kubernetes.io/docs/concepts/services-networking/ingress/" target="_blank" rel="noopener">&#8599; https://kubernetes.io/docs/concepts/services-networking/ingress/</a></li>
+    <li><a class="card-source" href="https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers" target="_blank" rel="noopener">&#8599; https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers</a></li>
+    <li><a class="card-source" href="https://developer.hashicorp.com/terraform/language/tests" target="_blank" rel="noopener">&#8599; https://developer.hashicorp.com/terraform/language/tests</a></li>
+    <li><a class="card-source" href="https://opentofu.org/docs/language/meta-arguments/for_each/" target="_blank" rel="noopener">&#8599; https://opentofu.org/docs/language/meta-arguments/for_each/</a></li>
+    <li><a class="card-source" href="https://slsa.dev/spec" target="_blank" rel="noopener">&#8599; https://slsa.dev/spec</a></li>
+    <li><a class="card-source" href="https://trivy.dev/docs/dev/guide/supply-chain/sbom/" target="_blank" rel="noopener">&#8599; https://trivy.dev/docs/dev/guide/supply-chain/sbom/</a></li>
+    <li><a class="card-source" href="https://github.com/anchore/syft" target="_blank" rel="noopener">&#8599; https://github.com/anchore/syft</a></li>
+    <li><a class="card-source" href="https://falco.org/" target="_blank" rel="noopener">&#8599; https://falco.org/</a></li>
+    <li><a class="card-source" href="https://tetragon.io/" target="_blank" rel="noopener">&#8599; https://tetragon.io/</a></li>
+    <li><a class="card-source" href="https://edu.chainguard.dev/chainguard/chainguard-images/overview/" target="_blank" rel="noopener">&#8599; https://edu.chainguard.dev/chainguard/chainguard-images/overview/</a></li>
+    <li><a class="card-source" href="https://docs.pypi.org/trusted-publishers/" target="_blank" rel="noopener">&#8599; https://docs.pypi.org/trusted-publishers/</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/using-openid-connect-with-reusable-workflows" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/using-openid-connect-with-reusable-workflows</a></li>
+    <li><a class="card-source" href="https://opentelemetry.io/docs/specs/semconv/" target="_blank" rel="noopener">&#8599; https://opentelemetry.io/docs/specs/semconv/</a></li>
+    <li><a class="card-source" href="https://argoproj.github.io/argo-rollouts/" target="_blank" rel="noopener">&#8599; https://argoproj.github.io/argo-rollouts/</a></li>
+    <li><a class="card-source" href="https://fluxcd.io/blog/2025/05/flux-v2.6.0/" target="_blank" rel="noopener">&#8599; https://fluxcd.io/blog/2025/05/flux-v2.6.0/</a></li>
+    <li><a class="card-source" href="https://github.com/joo6077/claude-plugins/pull/6" target="_blank" rel="noopener">&#8599; https://github.com/joo6077/claude-plugins/pull/6</a></li>
+    <li><a class="card-source" href="https://gateway-api.sigs.k8s.io/reference/api-types/tlsroute/" target="_blank" rel="noopener">&#8599; https://gateway-api.sigs.k8s.io/reference/api-types/tlsroute/</a></li>
+    <li><a class="card-source" href="https://developer.hashicorp.com/terraform/mcp-server" target="_blank" rel="noopener">&#8599; https://developer.hashicorp.com/terraform/mcp-server</a></li>
+    <li><a class="card-source" href="https://opentofu.org/registry/" target="_blank" rel="noopener">&#8599; https://opentofu.org/registry/</a></li>
+    <li><a class="card-source" href="https://www.pulumi.com/docs/ai/" target="_blank" rel="noopener">&#8599; https://www.pulumi.com/docs/ai/</a></li>
+    <li><a class="card-source" href="https://resources.github.com/actions/2026-pricing-changes-for-github-actions/" target="_blank" rel="noopener">&#8599; https://resources.github.com/actions/2026-pricing-changes-for-github-actions/</a></li>
+    <li><a class="card-source" href="https://dagger.io/cloud/" target="_blank" rel="noopener">&#8599; https://dagger.io/cloud/</a></li>
+    <li><a class="card-source" href="https://dagger.io/blog/module-catalog-insights/" target="_blank" rel="noopener">&#8599; https://dagger.io/blog/module-catalog-insights/</a></li>
+    <li><a class="card-source" href="https://reproducible.nixos.org/" target="_blank" rel="noopener">&#8599; https://reproducible.nixos.org/</a></li>
+    <li><a class="card-source" href="https://determinate.systems/blog/installer-dropping-upstream" target="_blank" rel="noopener">&#8599; https://determinate.systems/blog/installer-dropping-upstream</a></li>
+    <li><a class="card-source" href="https://github.com/WebAssembly/WASI/releases" target="_blank" rel="noopener">&#8599; https://github.com/WebAssembly/WASI/releases</a></li>
+    <li><a class="card-source" href="https://www.spinkube.dev/docs/overview/" target="_blank" rel="noopener">&#8599; https://www.spinkube.dev/docs/overview/</a></li>
+    <li><a class="card-source" href="https://grafana.com/docs/alloy/latest/reference/components/pyroscope/pyroscope.ebpf/" target="_blank" rel="noopener">&#8599; https://grafana.com/docs/alloy/latest/reference/components/pyroscope/pyroscope.ebpf/</a></li>
+    <li><a class="card-source" href="https://tetragon.io/features/operating-system-integrity/" target="_blank" rel="noopener">&#8599; https://tetragon.io/features/operating-system-integrity/</a></li>
+    <li><a class="card-source" href="https://www.talos.dev/latest/introduction/support-matrix/" target="_blank" rel="noopener">&#8599; https://www.talos.dev/latest/introduction/support-matrix/</a></li>
+    <li><a class="card-source" href="https://docs.crossplane.io/latest/whats-new/" target="_blank" rel="noopener">&#8599; https://docs.crossplane.io/latest/whats-new/</a></li>
+    <li><a class="card-source" href="https://blog.crossplane.io/crossplane-v2-2-more-capable-more-reliable-more-observable/amp/" target="_blank" rel="noopener">&#8599; https://blog.crossplane.io/crossplane-v2-2-more-capable-more-reliable-more-observable/amp/</a></li>
+    <li><a class="card-source" href="https://containers.dev/supporting.html" target="_blank" rel="noopener">&#8599; https://containers.dev/supporting.html</a></li>
+    <li><a class="card-source" href="https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/configuring-dev-containers/setting-a-minimum-specification-for-codespace-machines" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/configuring-dev-containers/setting-a-minimum-specification-for-codespace-machines</a></li>
+    <li><a class="card-source" href="https://greensoftware.foundation/articles/introducing-the-gsf-2025-annual-report/" target="_blank" rel="noopener">&#8599; https://greensoftware.foundation/articles/introducing-the-gsf-2025-annual-report/</a></li>
+    <li><a class="card-source" href="https://greensoftware.foundation/stories/real-time-cloud/" target="_blank" rel="noopener">&#8599; https://greensoftware.foundation/stories/real-time-cloud/</a></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>docs/infra/research-log.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>
