@@ -126,7 +126,8 @@ user-invocable: true
     └── telemetry/
 ```
 
-**참고** — 이 레이아웃은 실사용 프로젝트의 서버 구조(apps/api + apps/worker + modules/*+ shared/*)를 기반으로 한다. 기존 `crates/api + crates/domain + crates/infra` 레이아웃도 유효하나, 모듈 경계가 뚜렷한 중대규모 프로젝트에서는 `modules/*` 레이아웃이 의존 방향을 더 명확히 강제한다 (apps → modules ← shared).
+<!-- markdownlint-disable-next-line MD037 -->
+**참고** — 이 레이아웃은 실사용 프로젝트의 서버 구조(apps/api + apps/worker + modules/* + shared/*)를 기반으로 한다. 기존 `crates/api + crates/domain + crates/infra` 레이아웃도 유효하나, 모듈 경계가 뚜렷한 중대규모 프로젝트에서는 `modules/*` 레이아웃이 의존 방향을 더 명확히 강제한다 (apps → modules ← shared).
 
 ### modular 구조
 
