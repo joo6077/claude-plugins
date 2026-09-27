@@ -66,7 +66,7 @@ while read -r name slicer; do
     echo "일치 $name"
   elif [ "$expect" = fail ] && printf '%s\n' "$kind" | grep -qE "$NEEDS_SLICER" \
       && printf '%s\n' "$out" | grep -q '^\[미검증\] .*설치본 경로 없음'; then
-    skip=$((skip + 1)); echo "건너뜀 $name — $slicer 설치본이 없어 「$kind」 검사가 안 돈다"
+    skip=$((skip + 1)); echo "건너뜀 $name — $slicer 설치본이 없어 「${kind}」 검사가 안 돈다"
   else
     bad=$((bad + 1)); echo "불일치 $name — 기대 $expect · 결과 FAIL $fails 줄 · 종료 코드 $rc"
   fi
