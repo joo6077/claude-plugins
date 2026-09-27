@@ -1,0 +1,343 @@
+# l4 마크다운 경고 정리 기록
+
+계약: `.harness/sprint-contract-after-0926-mdlint-l4.md` (봉인 72cdc70fdb63b31c · 측정 지문 6de3290ef0c03e2a, 봉인 커밋 08cae4c, 기준 판 B = 275e4fb).
+대상은 목록 `.harness/.meta/after-kaizen-0926b/l4-files.txt` 의 109 개 파일이다. 고치지 않는 파일 7 개와 `.harness/` 의 다른 파일은 건드리지 않았다.
+
+## 경고 수
+
+- 시작 판(275e4fb, `.harness` 밖은 e5333b7 과 같다): 1661 건. 규칙별 MD060 764 · MD032 336 · MD031 164 · MD040 97 · MD022 84 · MD036 66 · MD025 63 · MD024 38 · MD034 12 · MD041 7 · MD058 5 · MD038 5 · MD029 5 · MD001 5 · MD056 2 · MD033 2 · MD012 2 · MD047 1 · MD037 1 · MD028 1 · MD003 1
+- 자동 고침(`--fix`, 목록 파일만) 뒤: 326 건. 이 가운데 뜻을 바꾼 바꿈(9 파일, 코드 블록 속 줄 · 코드 조각 속 공백)을 되돌린 뒤: 381 건. MD040 97 · MD060 66 · MD036 66 · MD025 63 · MD024 38 · MD031 11 · MD041 7 · MD038 5 · MD029 5 · MD022 5 · MD001 5 · MD032 4 · MD058 2 · MD056 2 · MD033 2 · MD037 1 · MD028 1 · MD003 1
+- 끝: 0 건 (`lint.sh` → `LINTED=109 WARNINGS=0`)
+
+## 규칙별로 한 일
+
+- 자동 고침이 뜻을 바꾼 자리: `.claude/kaizen-input/per-project-feedback.md` 와 `docs/superpowers/plans/` 의 계획 문서 다섯(코드 블록 안에 코드 블록을 넣어 울타리 짝이 깨진 파일)에서 빈 줄 · 목록 번호가 뜻 검사의 코드 블록 속 줄로 들어갔고, `contract-design-guide.md` · `qa-evaluation-guide.md` · `create-skill/SKILL.md` · `widget-inspector.md` 에서 코드 조각 속 공백 · 강조 옆 공백이 지워졌다. 바꿈 덩어리를 하나씩 얹어 보며 뜻 검사를 돌리는 임시 도구(scratch 의 `filter.py`, 봉인된 `meaning.py` 의 `check_file` 을 그대로 부른다)로 그 덩어리만 시작 판 글자로 되돌렸다
+- MD040 97 건: 여는 울타리에 언어를 달았다. 글 그림 · 폴더 나무 · 출력 예시라 모두 `text` 다(첫 줄 모양으로 `json` 이 붙은 5 곳도 JSON 이 아니라 `text` 로 되돌렸다)
+- MD060 66 건(표 9 개 + 울타리가 깨진 구간 표 4 개): 머리 줄 · 구분 줄과 본문 줄의 간격 꼴이 달랐다. 표 줄마다 칸 사이 공백을 한 칸으로, 구분 줄을 `| --- |` 꼴로 맞췄다. 칸 내용은 그대로다. 울타리가 깨진 구간의 표 4 개는 아래 구간 끄기로 다뤘다
+- MD036 66 건: 굵은 줄 34 곳을 바로 위 제목보다 한 단계 아래 제목으로 바꿨다(아래 「제목 단계를 바꾼 자리」). 같은 파일 안에서 글이 되풀이되는 표지 32 곳(`plugin-validation-guide.md` 의 「기준 · 검증 방법 · 예외 · FAIL 예시」 7 벌, 「주의 3건」 2 곳, 「V6 — bare code fence 1건 (ERROR)」 2 곳)은 제목으로 바꾸면 같은 이름 제목이 겹쳐 `disable-next-line MD036` 으로 좁혀 껐다
+- MD025 63 · MD024 38 · MD041 7: 규칙을 지키면 뜻이 바뀌는 자리라 그 제목(또는 첫 문단) 하나만 `disable` · `enable` 짝으로 감쌌다. `.claude/skills/*-kaizen` · `*-research` 등은 `# Gotchas` · `# Process` · `# References` 를 H1 절로 쓰고, 가이드 · 설계 스펙은 앞머리 `title:` 때문에 본문 첫 H1 이 둘째로 세어진다
+- MD038 5 · MD033 2 · MD056 2 · MD037 1 · MD028 1 · MD001 5 · MD003 1: 원문 글자(코드 조각 속 공백 · 표 칸 속 `|` · 자리표시자 · Dart 이름 · 따로 인용한 두 문장)나 문서 틀(계획 문서의 H3 과제 제목)을 지키려고 그 덩어리 하나만 짝으로 감쌌다
+- 울타리가 깨진 구간(MD029 5 · MD031 11 · MD022 5 · MD032 4 · MD058 2 와 그 안의 MD024 · MD025 · MD060): 편집기(CommonMark)와 뜻 검사가 코드 블록 경계를 달리 읽어, 어느 쪽으로 고쳐도 뜻 검사의 코드 블록 속 줄이 바뀐다. 두 쪽 다 코드 밖으로 읽는 빈 줄에서 구간을 여는 `disable` 과 닫는 `enable` 을 넣었다(6 구간). `per-project-feedback.md` 는 뒤쪽 절반이 끝까지 어긋나 파일 끝에서 닫았다
+- 나머지(MD032 · MD031 · MD022 · MD034 · MD058 · MD012 · MD047)는 자동 고침 그대로다. 빈 줄과 URL 꺾쇠만 바뀌었다
+
+## 끄기 주석
+
+끄기 주석 수: 266
+
+- .claude/kaizen-input/fit-pal-hook-diagnosis-2026-07-27.md:70 MD028 disable — 공식 문서의 떨어진 두 문장을 따로 인용했다. 사이 빈 줄을 `>` 로 채우면 두 인용이 하나로 합쳐진다
+- .claude/kaizen-input/fit-pal-hook-diagnosis-2026-07-27.md:77 MD028 enable — 바로 위 `disable MD028` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/kaizen-input/per-project-feedback.md:135 MD022 MD024 MD031 disable — 코드 블록 안에 코드 블록을 넣은 예시라 울타리 짝이 깨져, 편집기(CommonMark)와 뜻 검사가 코드 블록 경계를 달리 읽는 구간이다(136~384 줄). 편집기가 본문으로 읽는 자리에 빈 줄 · 언어를 넣으면 뜻 검사가 보는 코드 블록 속 줄이 바뀌고, 울타리를 고쳐도 코드 블록 속 줄이 바뀐다. 두 쪽 다 코드 밖으로 읽는 빈 줄에서 구간을 여닫았다
+- .claude/kaizen-input/per-project-feedback.md:385 MD022 MD024 MD031 enable — 바로 위 `disable MD022 MD024 MD031` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/projects/C--Users-khjoo-Desktop-Developments-01-Work-claude-plugins/memory/feedback_authentic_design.md:7 MD041 disable — 앞머리 바로 뒤 첫 줄이 본문 문장이다. 제목을 새로 넣으면 낱말이 는다
+- .claude/projects/C--Users-khjoo-Desktop-Developments-01-Work-claude-plugins/memory/feedback_authentic_design.md:11 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/projects/C--Users-khjoo-Desktop-Developments-01-Work-claude-plugins/memory/feedback_use_create_skill_agent.md:7 MD041 disable — 앞머리 바로 뒤 첫 줄이 본문 문장이다. 제목을 새로 넣으면 낱말이 는다
+- .claude/projects/C--Users-khjoo-Desktop-Developments-01-Work-claude-plugins/memory/feedback_use_create_skill_agent.md:11 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/api-kaizen/SKILL.md:27 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/api-kaizen/SKILL.md:31 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/api-kaizen/SKILL.md:85 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/api-kaizen/SKILL.md:89 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/api-research/SKILL.md:26 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/api-research/SKILL.md:30 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/api-research/SKILL.md:82 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/api-research/SKILL.md:86 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/backend-kaizen/SKILL.md:42 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/backend-kaizen/SKILL.md:46 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/backend-kaizen/SKILL.md:94 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/backend-kaizen/SKILL.md:98 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/backend-research/SKILL.md:20 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/backend-research/SKILL.md:24 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/bambu-kaizen/SKILL.md:22 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/bambu-kaizen/SKILL.md:26 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/bambu-kaizen/SKILL.md:115 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/bambu-kaizen/SKILL.md:119 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/bambu-research/SKILL.md:23 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/bambu-research/SKILL.md:27 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/bambu-research/SKILL.md:91 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/bambu-research/SKILL.md:95 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/create-kit/SKILL.md:23 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/create-kit/SKILL.md:27 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/create-kit/SKILL.md:234 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/create-kit/SKILL.md:238 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/design-kaizen/SKILL.md:42 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/design-kaizen/SKILL.md:46 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/design-kaizen/SKILL.md:97 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/design-kaizen/SKILL.md:101 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/design-research/SKILL.md:20 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/design-research/SKILL.md:24 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/design-research/SKILL.md:65 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/design-research/SKILL.md:69 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/docs-site/SKILL.md:41 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/docs-site/SKILL.md:45 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/docs-site/SKILL.md:179 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/docs-site/SKILL.md:183 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/howto-kaizen/SKILL.md:18 MD025 disable — `# Gotchas` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/howto-kaizen/SKILL.md:22 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/howto-kaizen/SKILL.md:49 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/howto-kaizen/SKILL.md:53 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/howto-kaizen/SKILL.md:94 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/howto-kaizen/SKILL.md:98 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/howto-research/SKILL.md:18 MD025 disable — `# Gotchas` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/howto-research/SKILL.md:22 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/howto-research/SKILL.md:48 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/howto-research/SKILL.md:52 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/howto-research/SKILL.md:85 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/howto-research/SKILL.md:89 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/infra-kaizen/SKILL.md:41 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/infra-kaizen/SKILL.md:45 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/infra-kaizen/SKILL.md:90 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/infra-kaizen/SKILL.md:94 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/infra-research/SKILL.md:20 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/infra-research/SKILL.md:24 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「Phase Research Templates」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:37 MD024 disable — 「필수 소스 (3 건 이상)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:41 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:66 MD024 disable — 「필수 소스 (3 건 이상)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:70 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:94 MD024 disable — 「필수 소스 (3 건 이상)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:98 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:110 MD024 disable — 「필수 소스 (3 건 이상)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:114 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:140 MD024 disable — 「필수 소스 (Context7 우선)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:144 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:173 MD024 disable — 「필수 소스 (3 건 이상)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:177 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:198 MD024 disable — 「필수 소스 (3 건 이상)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:202 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:219 MD024 disable — 「필수 소스 (3 건 이상)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:223 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:240 MD024 disable — 「필수 소스 (3 건 이상)」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:244 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:273 MD036 disable-next-line — 「주의 3건」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- .claude/skills/kaizen-orchestrator/references/phase-research-templates.md:297 MD036 disable-next-line — 「주의 3건」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- .claude/skills/meta-kaizen/SKILL.md:23 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/meta-kaizen/SKILL.md:27 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/meta-kaizen/SKILL.md:99 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/meta-kaizen/SKILL.md:103 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/onboarding-kaizen/SKILL.md:8 MD041 disable — 앞머리 바로 뒤 첫 줄이 본문 문장이다. 제목을 새로 넣으면 낱말이 는다
+- .claude/skills/onboarding-kaizen/SKILL.md:12 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/planning-kaizen/SKILL.md:27 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/planning-kaizen/SKILL.md:31 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/planning-kaizen/SKILL.md:70 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/planning-kaizen/SKILL.md:74 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/planning-research/SKILL.md:21 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/planning-research/SKILL.md:25 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/planning-research/SKILL.md:69 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/planning-research/SKILL.md:73 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/react-kaizen/SKILL.md:35 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/react-kaizen/SKILL.md:39 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/react-kaizen/SKILL.md:112 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/react-kaizen/SKILL.md:116 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/react-research/SKILL.md:19 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/react-research/SKILL.md:23 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/react-research/SKILL.md:67 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/react-research/SKILL.md:71 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/rust-kaizen/SKILL.md:50 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/rust-kaizen/SKILL.md:54 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/rust-kaizen/SKILL.md:100 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/rust-kaizen/SKILL.md:104 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/rust-research/SKILL.md:19 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/rust-research/SKILL.md:23 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/rust-research/SKILL.md:58 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/rust-research/SKILL.md:62 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/tone-kaizen/SKILL.md:17 MD025 disable — `# Gotchas` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/tone-kaizen/SKILL.md:21 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/tone-kaizen/SKILL.md:32 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/tone-kaizen/SKILL.md:36 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/tone-kaizen/SKILL.md:129 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/tone-kaizen/SKILL.md:133 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/tone-research/SKILL.md:17 MD025 disable — `# Gotchas` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/tone-research/SKILL.md:21 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/tone-research/SKILL.md:30 MD025 disable — `# Process` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/tone-research/SKILL.md:34 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- .claude/skills/tone-research/SKILL.md:91 MD025 disable — `# References` 은 이 스킬 본문의 절 제목(H1 `# Gotchas` · `# Process` · `# References` 짜임)이다. 낮추면 스킬 절 단계가 바뀐다
+- .claude/skills/tone-research/SKILL.md:95 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:123 MD036 disable-next-line — 「V6 — bare code fence 1건 (ERROR)」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:175 MD036 disable-next-line — 「V6 — bare code fence 1건 (ERROR)」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- docs/superpowers/plans/2026-03-29-harness-kaizen.md:424 MD029 MD031 MD058 MD060 disable — 코드 블록 안에 코드 블록을 넣은 예시라 울타리 짝이 깨져, 편집기(CommonMark)와 뜻 검사가 코드 블록 경계를 달리 읽는 구간이다(425~633 줄). 편집기가 본문으로 읽는 자리에 빈 줄 · 언어를 넣으면 뜻 검사가 보는 코드 블록 속 줄이 바뀌고, 울타리를 고쳐도 코드 블록 속 줄이 바뀐다. 두 쪽 다 코드 밖으로 읽는 빈 줄에서 구간을 여닫았다
+- docs/superpowers/plans/2026-03-29-harness-kaizen.md:634 MD029 MD031 MD058 MD060 enable — 바로 위 `disable MD029 MD031 MD058 MD060` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-03-30-design-kit.md:561 MD025 disable — 「탐색 패턴 (스택 무관)」 은 문서 안에 실은 스킬 본문 예시의 H1 절 제목이다. 낮추면 예시 스킬의 절 단계가 바뀐다
+- docs/superpowers/plans/2026-03-30-design-kit.md:565 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-03-30-design-kit.md:769 MD001 disable — 계획 문서가 H1 바로 아래 과제 제목 「Task 5: design-guide 스킬 작성」 을 H3 으로 쓴다. 단계를 바꾸면 이 파일의 과제 제목 전체 단계가 바뀐다
+- docs/superpowers/plans/2026-03-30-design-kit.md:773 MD001 enable — 바로 위 `disable MD001` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-03-30-design-kit.md:1189 MD003 disable — 원래 코드 블록 속 판정 템플릿 글인데 울타리 짝이 깨져 본문으로 읽히고, `---` 줄이 바로 위 줄과 붙어 setext 제목이 된다. 빈 줄을 넣으면 템플릿 글 모양이 바뀐다
+- docs/superpowers/plans/2026-03-30-design-kit.md:1195 MD003 enable — 바로 위 `disable MD003` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-03-30-design-kit.md:1445 MD024 MD025 MD031 MD032 disable — 코드 블록 안에 코드 블록을 넣은 예시라 울타리 짝이 깨져, 편집기(CommonMark)와 뜻 검사가 코드 블록 경계를 달리 읽는 구간이다(1446~1575 줄). 편집기가 본문으로 읽는 자리에 빈 줄 · 언어를 넣으면 뜻 검사가 보는 코드 블록 속 줄이 바뀌고, 울타리를 고쳐도 코드 블록 속 줄이 바뀐다. 두 쪽 다 코드 밖으로 읽는 빈 줄에서 구간을 여닫았다
+- docs/superpowers/plans/2026-03-30-design-kit.md:1576 MD024 MD025 MD031 MD032 enable — 바로 위 `disable MD024 MD025 MD031 MD032` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-03-30-kaizen-self-improvement.md:113 MD031 MD060 disable — 코드 블록 안에 코드 블록을 넣은 예시라 울타리 짝이 깨져, 편집기(CommonMark)와 뜻 검사가 코드 블록 경계를 달리 읽는 구간이다(114~273 줄). 편집기가 본문으로 읽는 자리에 빈 줄 · 언어를 넣으면 뜻 검사가 보는 코드 블록 속 줄이 바뀌고, 울타리를 고쳐도 코드 블록 속 줄이 바뀐다. 두 쪽 다 코드 밖으로 읽는 빈 줄에서 구간을 여닫았다
+- docs/superpowers/plans/2026-03-30-kaizen-self-improvement.md:274 MD031 MD060 enable — 바로 위 `disable MD031 MD060` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-03-30-widget-inspector.md:279 MD037 disable — 예시 출력의 `_SettingsHeader` 는 Dart private 클래스 이름이다. 밑줄을 이스케이프하면 글자가 바뀐다
+- docs/superpowers/plans/2026-03-30-widget-inspector.md:292 MD037 enable — 바로 위 `disable MD037` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-03-31-sync-docs.md:15 MD001 disable — 계획 문서가 H1 바로 아래 과제 제목 「Task 1: YAML frontmatter 파서 + 마커 치환 엔진」 을 H3 으로 쓴다. 단계를 바꾸면 이 파일의 과제 제목 전체 단계가 바뀐다
+- docs/superpowers/plans/2026-03-31-sync-docs.md:19 MD001 enable — 바로 위 `disable MD001` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:45 MD025 MD031 MD032 disable — 코드 블록 안에 코드 블록을 넣은 예시라 울타리 짝이 깨져, 편집기(CommonMark)와 뜻 검사가 코드 블록 경계를 달리 읽는 구간이다(46~167 줄). 편집기가 본문으로 읽는 자리에 빈 줄 · 언어를 넣으면 뜻 검사가 보는 코드 블록 속 줄이 바뀌고, 울타리를 고쳐도 코드 블록 속 줄이 바뀐다. 두 쪽 다 코드 밖으로 읽는 빈 줄에서 구간을 여닫았다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:168 MD025 MD031 MD032 enable — 바로 위 `disable MD025 MD031 MD032` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:172 MD001 disable — 계획 문서가 H1 바로 아래 과제 제목 「Task 2: design-concept references」 을 H3 으로 쓴다. 단계를 바꾸면 이 파일의 과제 제목 전체 단계가 바뀐다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:176 MD001 enable — 바로 위 `disable MD001` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:309 MD025 disable — 「감지 대상」 은 문서 안에 실은 스킬 본문 예시의 H1 절 제목이다. 낮추면 예시 스킬의 절 단계가 바뀐다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:313 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:385 MD001 disable — 계획 문서가 H1 바로 아래 과제 제목 「Task 4: design-mockup references」 을 H3 으로 쓴다. 단계를 바꾸면 이 파일의 과제 제목 전체 단계가 바뀐다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:389 MD001 enable — 바로 위 `disable MD001` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:527 MD024 MD025 disable — 「감지 대상」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이 파일 안에서 H1 으로도 되풀이된다(MD025). 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:531 MD024 MD025 enable — 바로 위 `disable MD024 MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:589 MD001 disable — 계획 문서가 H1 바로 아래 과제 제목 「Task 6: design-component references」 을 H3 으로 쓴다. 단계를 바꾸면 이 파일의 과제 제목 전체 단계가 바뀐다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:593 MD001 enable — 바로 위 `disable MD001` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:601 MD031 MD058 MD060 disable — 코드 블록 안에 코드 블록을 넣은 예시라 울타리 짝이 깨져, 편집기(CommonMark)와 뜻 검사가 코드 블록 경계를 달리 읽는 구간이다(602~693 줄). 편집기가 본문으로 읽는 자리에 빈 줄 · 언어를 넣으면 뜻 검사가 보는 코드 블록 속 줄이 바뀌고, 울타리를 고쳐도 코드 블록 속 줄이 바뀐다. 두 쪽 다 코드 밖으로 읽는 빈 줄에서 구간을 여닫았다
+- docs/superpowers/plans/2026-04-06-design-kit-new-skills.md:694 MD031 MD058 MD060 enable — 바로 위 `disable MD031 MD058 MD060` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-03-29-harness-kaizen-design.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「Harness Kaizen — 지속적 개선 스킬 설계 스펙」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- docs/superpowers/specs/2026-03-29-harness-kaizen-design.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-03-30-design-kit-design.md:8 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「design-kit 플러그인 설계 스펙」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- docs/superpowers/specs/2026-03-30-design-kit-design.md:12 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-03-30-widget-inspector-design.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「Widget Inspector 에이전트 + Flutter Extract 스킬 설계」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- docs/superpowers/specs/2026-03-30-widget-inspector-design.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-03-30-widget-inspector-design.md:92 MD024 disable — 「메타데이터」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-03-30-widget-inspector-design.md:96 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:67 MD024 disable — 「목적」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:71 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:75 MD024 disable — 「트리거 키워드」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:79 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:89 MD024 disable — 「프로세스」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:93 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:101 MD024 disable — 「아웃풋」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:105 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:122 MD024 disable — 「References」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:126 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:130 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:134 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:145 MD024 disable — 「목적」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:149 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:153 MD024 disable — 「트리거 키워드」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:157 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:161 MD024 disable — 「자동 감지」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:165 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:170 MD024 disable — 「프로세스」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:174 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:182 MD024 disable — 「아웃풋」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:186 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:195 MD024 disable — 「References」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:199 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:203 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- docs/superpowers/specs/2026-04-06-design-kit-new-skills-design.md:207 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/agent-design-guide.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「Claude Code 에이전트 설계 가이드」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- harness/docs/guides/agent-design-guide.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/agent-design-guide.md:504 MD024 disable — 「Bad」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/agent-design-guide.md:508 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/agent-design-guide.md:514 MD024 disable — 「Good」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/agent-design-guide.md:518 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/agent-design-guide.md:653 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/agent-design-guide.md:657 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/contract-design-guide.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「Contract Design Guide」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- harness/docs/guides/contract-design-guide.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/contract-design-guide.md:614 MD038 disable — 코드 조각 속 공백(정규식 끝 공백 · 불릿 표식 `- ` · 백틱 세 개를 담은 코드 조각)이 원문 글자다. 공백을 지우면 뜻이 바뀐다
+- harness/docs/guides/contract-design-guide.md:621 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/contract-design-guide.md:638 MD033 MD056 disable — 표 칸 속 명령 예시의 `|` 와 `<base>` · `<file>` 자리표시자가 원문 글자다. 이스케이프하면 글자가 바뀐다
+- harness/docs/guides/contract-design-guide.md:645 MD033 MD056 enable — 바로 위 `disable MD033 MD056` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/contract-design-guide.md:677 MD038 disable — 코드 조각 속 공백(정규식 끝 공백 · 불릿 표식 `- ` · 백틱 세 개를 담은 코드 조각)이 원문 글자다. 공백을 지우면 뜻이 바뀐다
+- harness/docs/guides/contract-design-guide.md:685 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/plugin-validation-guide.md:8 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「Claude Code 플러그인 검증 가이드」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- harness/docs/guides/plugin-validation-guide.md:12 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/plugin-validation-guide.md:67 MD036 disable-next-line — 「기준」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:74 MD036 disable-next-line — 「검증 방법」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:86 MD036 disable-next-line — 「예외」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:91 MD036 disable-next-line — 「FAIL 예시」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:117 MD036 disable-next-line — 「기준」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:123 MD036 disable-next-line — 「검증 방법」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:138 MD036 disable-next-line — 「예외」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:145 MD036 disable-next-line — 「FAIL 예시」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:165 MD036 disable-next-line — 「기준」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:177 MD036 disable-next-line — 「검증 방법」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:187 MD036 disable-next-line — 「예외」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:194 MD036 disable-next-line — 「FAIL 예시」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:213 MD036 disable-next-line — 「기준」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:221 MD036 disable-next-line — 「검증 방법」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:231 MD036 disable-next-line — 「예외」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:239 MD036 disable-next-line — 「FAIL 예시」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:274 MD036 disable-next-line — 「기준」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:283 MD036 disable-next-line — 「검증 방법」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:293 MD036 disable-next-line — 「예외」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:299 MD036 disable-next-line — 「FAIL 예시」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:321 MD036 disable-next-line — 「기준」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:329 MD036 disable-next-line — 「검증 방법」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:340 MD036 disable-next-line — 「예외」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:346 MD036 disable-next-line — 「FAIL 예시」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:375 MD036 disable-next-line — 「기준」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:384 MD036 disable-next-line — 「검증 방법」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:396 MD036 disable-next-line — 「예외」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/plugin-validation-guide.md:401 MD036 disable-next-line — 「FAIL 예시」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
+- harness/docs/guides/qa-evaluation-guide.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「QA Evaluation Guide」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- harness/docs/guides/qa-evaluation-guide.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:825 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:829 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:1037 MD024 disable — 「실패 사례」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:1041 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:1540 MD024 disable — 「실패 사례」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:1544 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:1735 MD038 disable — 코드 조각 속 공백(정규식 끝 공백 · 불릿 표식 `- ` · 백틱 세 개를 담은 코드 조각)이 원문 글자다. 공백을 지우면 뜻이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:1741 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:2015 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:2019 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/skill-design-guide.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「Claude Code 스킬 설계 가이드」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
+- harness/docs/guides/skill-design-guide.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/skill-design-guide.md:534 MD024 disable — 「이 프로젝트의 실제 예시」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/skill-design-guide.md:538 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/evals/env-harness.md:1 MD041 disable — 첫 줄 「EVAL DEFINITION: env-harness」 은 평가 정의 문서 틀의 H2 제목이다. H1 을 새로 넣으면 낱말이 늘고 단계를 바꾸면 틀이 바뀐다
+- harness/evals/env-harness.md:5 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/evals/orchestration.md:1 MD041 disable — 첫 줄 「EVAL DEFINITION: harness-orchestration」 은 평가 정의 문서 틀의 H2 제목이다. H1 을 새로 넣으면 낱말이 늘고 단계를 바꾸면 틀이 바뀐다
+- harness/evals/orchestration.md:5 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/evals/qa-accuracy.md:1 MD041 disable — 첫 줄 「EVAL DEFINITION: qa-accuracy」 은 평가 정의 문서 틀의 H2 제목이다. H1 을 새로 넣으면 낱말이 늘고 단계를 바꾸면 틀이 바뀐다
+- harness/evals/qa-accuracy.md:5 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/evals/skill-behavior.md:1 MD041 disable — 첫 줄 「EVAL DEFINITION: harness-skill-behavior」 은 평가 정의 문서 틀의 H2 제목이다. H1 을 새로 넣으면 낱말이 늘고 단계를 바꾸면 틀이 바뀐다
+- harness/evals/skill-behavior.md:5 MD041 enable — 바로 위 `disable MD041` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/skills/create-skill/SKILL.md:20 MD038 disable — 코드 블록 안에 코드 블록을 넣은 예시라 울타리 짝이 깨져, 편집기(CommonMark)와 뜻 검사가 코드 블록 경계를 달리 읽는 구간이다(21~41 줄). 편집기가 본문으로 읽는 자리에 빈 줄 · 언어를 넣으면 뜻 검사가 보는 코드 블록 속 줄이 바뀌고, 울타리를 고쳐도 코드 블록 속 줄이 바뀐다. 두 쪽 다 코드 밖으로 읽는 빈 줄에서 구간을 여닫았다
+- harness/skills/create-skill/SKILL.md:42 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+
+## 제목 단계를 바꾼 자리
+
+모두 굵은 줄(MD036)을 바로 위 제목보다 한 단계 아래 제목으로 바꾼 자리다. 읽는 도구 확인은 줄마다 적은 grep 명령(`.md` · `.html` · `.harness` 밖 추적 파일 전부)이다. `CLAUDE.md` 를 고치는 `scripts/sync-docs.py` 는 `<!-- AUTO:summary -->` 블록만 바꾸고, 바꾼 제목은 그 블록 밖이다.
+
+- CLAUDE.md:129 굵은 줄 → H4 「harness — QA 프레임워크」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'harness — QA 프레임워크' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:142 굵은 줄 → H4 「flutter-toolkit — Flutter 개발 워크플로우 (20종)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'flutter-toolkit — Flutter 개발 워크플로우 (20종)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:168 굵은 줄 → H4 「design-kit — UI/UX 디자인」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'design-kit — UI/UX 디자인' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:178 굵은 줄 → H4 「backend-kit — 스택 무관 백엔드 개발 가이드」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'backend-kit — 스택 무관 백엔드 개발 가이드' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:188 굵은 줄 → H4 「infra-kit — 스택 무관 인프라/DevOps 가이드」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'infra-kit — 스택 무관 인프라/DevOps 가이드' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:198 굵은 줄 → H4 「rust-kit — Rust 백엔드 개발 워크플로우 (17종)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'rust-kit — Rust 백엔드 개발 워크플로우 (17종)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:220 굵은 줄 → H4 「react-kit — React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 (21종 + 3 에이전트)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'react-kit — React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 (21종 + 3 에이전트)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:249 굵은 줄 → H4 「reflect-kit — 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'reflect-kit — 대화 피드백 → 학습 → 재주입 파이프라인 (Reflexion 방법론)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:259 굵은 줄 → H4 「bambu-kit — Bambu Lab H2S 자동 process+filament JSON 생성」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'bambu-kit — Bambu Lab H2S 자동 process+filament JSON 생성' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:267 굵은 줄 → H4 「onboarding-kit — 외부 서비스 셋업 가이드」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'onboarding-kit — 외부 서비스 셋업 가이드' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:273 굵은 줄 → H4 「api-kit — 블랙박스 API 계약 검증 (5종 + 1 에이전트)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'api-kit — 블랙박스 API 계약 검증 (5종 + 1 에이전트)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:286 굵은 줄 → H4 「tone-kit — 코딩 톤·유지보수성 게이트」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'tone-kit — 코딩 톤·유지보수성 게이트' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:296 굵은 줄 → H4 「howto-kit — 절차 안내 (3종 + 1 에이전트)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'howto-kit — 절차 안내 (3종 + 1 에이전트)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:307 굵은 줄 → H4 「이 레포 전용 스킬 (.claude/skills/)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- '이 레포 전용 스킬 (.claude/skills/)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:336 굵은 줄 → H4 「superpowers — 범용 워크플로우」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'superpowers — 범용 워크플로우' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- CLAUDE.md:354 굵은 줄 → H4 「기타 외부 스킬」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- '기타 외부 스킬' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:40 굵은 줄 → H4 「V5 — placeholder 1건 (ERROR)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V5 — placeholder 1건 (ERROR)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:54 굵은 줄 → H4 「V6 — bare code fence 8건 (ERROR)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V6 — bare code fence 8건 (ERROR)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:60 굵은 줄 → H4 「V4 — cross-kit WARN 2건 (WARNING)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V4 — cross-kit WARN 2건 (WARNING)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:69 굵은 줄 → H4 「V1 — frontmatter 누락 1건 (ERROR)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V1 — frontmatter 누락 1건 (ERROR)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:77 굵은 줄 → H4 「V6 — bare code fence 26건 (ERROR)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V6 — bare code fence 26건 (ERROR)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:97 굵은 줄 → H4 「V4 — cross-kit WARN 56건 (WARNING)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V4 — cross-kit WARN 56건 (WARNING)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:107 굵은 줄 → H4 「V6 — bare code fence 10건 (ERROR)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V6 — bare code fence 10건 (ERROR)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:136 굵은 줄 → H4 「V5 — placeholder 7건 (ERROR)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V5 — placeholder 7건 (ERROR)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:161 굵은 줄 → H4 「V6 — bare code fence 11건 (ERROR)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V6 — bare code fence 11건 (ERROR)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:167 굵은 줄 → H4 「V4 — cross-kit WARN 29건 (WARNING)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V4 — cross-kit WARN 29건 (WARNING)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/followup-2026-04-11-plugin-validation-findings.md:184 굵은 줄 → H4 「V4 — cross-kit WARN 50건 (WARNING)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'V4 — cross-kit WARN 50건 (WARNING)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/specs/2026-09-02-api-kit-design.md:30 굵은 줄 → H3 「In scope」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'In scope' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → `.claude/kaizen-input/harness-feedback-summary.json` 한 곳 — 피드백 요약 데이터 속 낱말이라 제목 단계를 읽지 않는다
+- docs/superpowers/specs/2026-09-02-api-kit-design.md:37 굵은 줄 → H3 「Out of scope (v0.1)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'Out of scope (v0.1)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/specs/2026-09-02-api-kit-design.md:519 굵은 줄 → H4 「P0 — v0.1에 넣는다」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'P0 — v0.1에 넣는다' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/specs/2026-09-02-api-kit-design.md:530 굵은 줄 → H4 「P1 — 여유 되면」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'P1 — 여유 되면' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/specs/2026-09-02-api-kit-design.md:535 굵은 줄 → H4 「P2 — v0.1에서 뺀다」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'P2 — v0.1에서 뺀다' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- docs/superpowers/specs/2026-09-02-api-kit-design.md:539 굵은 줄 → H4 「애초에 못 가져오는 것」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- '애초에 못 가져오는 것' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+- harness/docs/guides/plugin-validation-guide.md:252 굵은 줄 → H4 「PASS 예시 (context disambiguation 적용)」 — 강조로 쓴 제목을 한 단계 아래 제목으로 바꿨다. 읽는 도구 확인: `git grep -F -l -- 'PASS 예시 (context disambiguation 적용)' -- ':(exclude)*.md' ':(exclude).harness' ':(exclude)*.html'` → 없음
+
+## 측정
+
+- 뜻 검사(`meaning.py`)는 커밋 판끼리만 잰다. 구현 중에는 기준 판 대 작업 트리로 같은 `check_file` 을 부르는 임시 도구(scratch 의 `wt.py`)로 쟀고, 끝 측정은 계약대로 `B..U` 로 쟀다
+- 정본 덩어리(`canon.sh`)는 끝 판에서도 `CANON_LINES=157 CANON_SHA=c9e099aee5ca5df7` 로 시작 판과 같다
+
+## 남은 것
+
+- 목록 밖 경고: 고치지 않는 파일 7 개의 경고 75 건은 이 묶음 밖이라 그대로다
+- 울타리 짝이 깨진 7 파일(`.claude/kaizen-input/per-project-feedback.md` · `.claude/skills/react-kaizen/SKILL.md` · `harness/skills/sprint-contract/SKILL.md` · `docs/superpowers/plans/` 넷)은 편집기와 뜻 검사가 코드 블록 경계를 달리 읽는다. 울타리를 바로잡으려면(바깥 울타리를 백틱 네 개로) 코드 블록 속 줄이 바뀌어 이 계약의 뜻 검사가 막는다. 경고는 구간 끄기로 0 이 됐지만 화면에 보이는 모양은 깨진 그대로다
+- 바꾼 md 에 짝이 있는 docs html 페이지는 다시 만들지 않았다. 바뀐 것은 모양뿐이다
+- QA 판정은 아직이다
