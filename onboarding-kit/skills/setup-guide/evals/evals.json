@@ -296,6 +296,20 @@
       "note": "우회 칸이 빈 행이 있으면 G5 FAIL"
     },
     {
+      "id": "blocking-empty-crlf",
+      "fixture": "fixtures/gate-fail-blocking-empty-crlf.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "blocking-empty 와 같은 표를 줄 끝 CRLF 로 저장해도 G5 FAIL — 줄 끝 \\r 때문에 표 머리를 놓쳐 rows=0 으로 통과하던 결함의 음성 입력"
+    },
+    {
       "id": "blocking-nourl",
       "fixture": "fixtures/gate-fail-blocking-nourl.md",
       "stack": "flutter",
