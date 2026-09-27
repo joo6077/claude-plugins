@@ -76,6 +76,17 @@
 
 ## 남은 것
 
-- QA 판정 · 계약 `status: done` 전환은 하지 않았다 — qa-evaluator 몫
+- QA 판정: APPROVE (25 조건, N/A 3 은 사유 참 확인). 계약 `status: done` 과 QA 리포트는 커밋 fb5374b
+- 교차 진단 `cross_diagnosis_by: pending-parent` — 부모 세션이 이어받아야 한다. 전역 피드백은 `~/.harness/feedback/evaluator/1a3bcba6-2026-09-27T195402-bda55d45-12096.yaml`
 - qa-evaluator Step 1-e 봉인 대조의 `status: (active|done)` 거르기는 그대로 둔다(범위 경계). superseded 계약은 평가 대상이 아니라서다
 - 훅이 원래 못 잡는 모양(`git -c k=v commit` · 서브셸 · `bash -c` · 치환 안에서 도는 진짜 커밋 등)은 그대로다
+- AR-02 재는 명령(`git log --format=%B | tail -2`)이 틀렸다. `%B` 끝에 붙는 빈 줄 탓에 줄 순서가 뒤집혀 여덟 커밋 모두 헛 FAIL 이 난다. 끝 빈 줄을 지우고 재면 여덟 모두 통과. 다음 계약에서 이 모양을 쓰지 마라
+- 독립 검토(막는 결함 0)에서 나온 약점. 모두 이번 변경 전부터 있었거나 범위 밖이다
+  - 훅: 큰따옴표 안 역따옴표 치환(`` echo "`echo "it's"`"; git commit -m x ``)은 고친 판 · 백업 판 모두 경고 0. `$(` 만 고쳤고 역따옴표는 같은 방식으로 다루지 않는다
+  - 훅: 치환 안에서 도는 진짜 커밋(`x=$(git commit -m y)` · `echo "$(git commit -m y)"`)은 두 판 모두 0
+  - 계약 고르기: `status: superseded   # 새 판 있음` 처럼 줄 끝 주석이 붙으면 `fm_get` 이 주석까지 값으로 읽어 옛 계약을 도로 채점한다(`qa-evaluator.md` · `contract-schema.md` 3.5b 둘 다). `done` · `active` 에도 같은 한계다. 따옴표로 감싼 값은 제대로 빠진다
+  - `superseded` 계약만 있는 폴더는 `4 BLOCKED` 로 끝난다(`0 계약부재` 아님). `done` 만 있을 때와 같고 기대 출력에도 그렇게 적혀 있다
+  - `superseded_by` 가 가리킨 계약이 실제로 있는지, 그것도 `superseded` 는 아닌지 기계로 확인하는 곳이 없다. 문서 규칙뿐이다. 이번 셋은 `-r2` 파일이 있고 셋 다 `status: done` 임을 손으로 확인했다
+  - `harness/skills/sprint-contract/SKILL.md` 에 `superseded` 로 바꾸는 법이 없다. 같은 슬러그 기존 계약을 다루는 분기(약 320–329 줄)에도 없다. 형식은 `contract-schema.md` 에만 있다
+  - 참고: `qa-pending-check.sh` · `commit-guard.sh` 는 `active` 만 보므로 `superseded` 를 따로 고칠 필요 없다. `step-refs.py` 는 `refs=8 ok=8 bad=0 unclassified=0`
+- 버전 올리기 · 릴리스 · 푸시 · 통합 폴더 합치기는 하지 않았다
