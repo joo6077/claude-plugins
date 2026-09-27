@@ -166,8 +166,15 @@ jobs:
             echo "SKIP: yq not installed"
           fi
 
-      - name: Commit guard hook test (대량 삭제 · 되돌림 · 빈 개인 목록)
+      - name: Commit guard hook test (대량 삭제 · 되돌림 · 빈 개인 목록 · 계약 범위 목록)
         run: bash harness/evals/hooks/commit-guard-test.sh
+
+      # 공용 측정 파일은 bash · zsh 양쪽에서 읽혀야 한다 — ubuntu-latest 에는 zsh 가 없다
+      - name: Install zsh (공용 측정 파일 시험용)
+        run: command -v zsh >/dev/null || { sudo apt-get update && sudo apt-get install -y zsh; }
+
+      - name: Measure helpers test (도우미 떼기 · 공용 측정 파일)
+        run: bash harness/evals/measure/measure-helpers-test.sh
 
       - name: Dart format-on-edit hook test (편집한 파일 하나만)
         run: bash flutter-toolkit/evals/hooks/format-edited-dart-test.sh

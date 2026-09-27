@@ -4,6 +4,7 @@
 # ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) · ㉖~㉚ (kaizen-0924-f1-harness-followups 이름 바꾸기) ·
 # ㉛~㊴ (after-0924-harness-orch -a · 같은 명령 git add 이름 바꾸기와 -i 막힘 설명) ·
 # ㊵~㊿ (같은 계약 교차 진단 — 파일 ↔ 폴더 바뀜 · 경로를 좁힌 git add · 목록 사본에 못 얹음) 을 따른다.
+# HS3-* 는 SC-05, SCOPE-s01~s23 은 SC-06 · ER-02 (after-0926-harness-scripts) 를 따른다. NOADD-* 는 같은 계약 독립 검토 결함 1 이다.
 # COMMIT_GUARD_HOOK 으로 훅 경로를 바꿀 수 있다 — 판정 줄을 지운 사본으로 음성 대조를 돌릴 때 쓴다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -12,7 +13,7 @@ command -v jq >/dev/null 2>&1 || { echo "jq 가 없어 시험 입력을 만들 �
 [ -f "$hook" ] || { echo "훅이 없다: $hook" >&2; exit 1; }
 bash_bin=$(command -v bash)
 
-unset HARNESS_COMMIT_GUARD GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE
+unset HARNESS_COMMIT_GUARD GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE CLAUDE_CODE_SESSION_ID
 # 사용자 전역 설정의 서명 · 훅 경로가 끼면 시험 커밋이 깨진다
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.com GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@example.com
@@ -297,6 +298,102 @@ expect "ER-01 pre (d) jq 없음 · git status" 0 empty
 
 printf '%s' "$commit_in" | PATH=$nojq "$bash_bin" "$hook" post >"$work/out" 2>"$work/err"; rc=$?
 expect "ER-01 post (c) jq 없음 · git commit" 0 empty
+
+# ── HS3 같은 명령의 경로 git add · 하위 폴더의 -a · add -A ──
+mk_sub() { mk_repo "$1"; mkdir -p "$1/sub"; echo s >"$1/sub/s.txt"; git -C "$1" add sub; git -C "$1" commit -qm sub; }
+r=$work/h1; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git add d1 && git commit -m x' "$r"; expect HS3-a1 2 '' '삭제 60 개'
+r=$work/h2; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git add d1/ && git commit -m x' "$r"; expect HS3-a2 2 '' '삭제 60 개'
+r=$work/h3; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git commit -am x' "$r/sub"; expect HS3-b1 2 '' '삭제 60 개'
+r=$work/h4; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git add -A && git commit -m x' "$r/sub"; expect HS3-b2 2 '' '삭제 60 개'
+r=$work/h5; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git add . && git commit -m x' "$r/sub"; expect HS3-k1 0 empty
+r=$work/h6; mk_sub "$r"
+echo v1 >"$r/f2"; git -C "$r" add f2; git -C "$r" commit -qm f2-v1
+echo v2 >"$r/f2"; git -C "$r" commit -qam f2-v2
+git -C "$r" update-index --cacheinfo "100644,$(git -C "$r" rev-parse HEAD~1:f2),f2"; echo z >>"$r/a.txt"
+run pre 'git add a.txt && git commit -m x' "$r"; expect HS3-k2 2 '' '되돌리는 파일 1 개'
+r=$work/h7; mk_sub "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"
+run pre 'git add a.txt && git commit -m x' "$r"; expect HS3-k3 0 empty
+
+# ── SCOPE 계약 # sprint-scope 블록 ──
+contract() {  # contract <파일> <status> <owner> [블록 줄…] — 블록 줄이 없으면 블록 없는 계약
+  local f=$1 st=$2 ow=$3; shift 3
+  { printf -- '---\nfeature: "x"\nstatus: %s\nowner_session: %s\n---\n\n## 범위 경계\n\n- 설명\n' "$st" "$ow"
+    if [ $# -gt 0 ]; then printf '\n```text\n# sprint-scope\n'; printf '%s\n' "$@"; printf '```\n'; fi
+    printf '\n## Script\n\n- [ ] SC-01: x\n'; } >"$f"
+}
+mk_scope() {
+  local r=$1
+  mkdir -p "$r/d1" "$r/docs" "$r/sub" "$r/.harness"; git -C "$r" init -q -b main
+  echo 1 >"$r/d1/f001"; echo 2 >"$r/d1/f002"; echo a >"$r/a.txt"; echo x >"$r/docs/x.md"; echo s >"$r/sub/s.txt"
+  contract "$r/.harness/sprint-contract-s.md" active S d1/f001 'docs/*.md' sub/
+  contract "$r/.harness/sprint-contract-t.md" "done" S a.txt
+  contract "$r/.harness/sprint-contract-u.md" active OTHER a.txt
+  git -C "$r" add -A && git -C "$r" commit -qm init
+}
+run_s() {  # run_s <명령> <cwd> <세션|-> — 세션 - 이면 입력에 session_id 를 넣지 않는다
+  if [ "$3" = - ]; then payload pre "$1" "$2"
+  else payload pre "$1" "$2" | jq -c --arg s "$3" '. + {session_id: $s}'; fi | "$bash_bin" "$hook" pre >"$work/out" 2>"$work/err"
+  rc=$?
+}
+lacks() {  # lacks <번호> <막힘 설명에 없어야 할 글자>
+  if grep -qF -- "$2" "$work/err"; then report "$1" 0 "막힘 설명에 '$2' 없음" "있음"; else report "$1" 1 "막힘 설명에 '$2' 없음" "없음"; fi
+}
+fence=$(printf '\140\140\140')   # 코드 펜스 글자 — 작은따옴표 안에 두 번 쓰면 shellcheck 가 명령 치환으로 오인한다
+n=0; nr() { n=$((n + 1)); r=$work/s$n; mk_scope "$r"; }
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" S; expect SCOPE-s01-out 2 '' 'a.txt'
+nr; echo z >>"$r/d1/f001"; git -C "$r" add d1/f001; run_s 'git commit -m x' "$r" S; expect SCOPE-s02-in 0 empty
+nr; echo n >"$r/.harness/notes.md"; git -C "$r" add .harness; run_s 'git commit -m x' "$r" S; expect SCOPE-s03-harness 0 empty
+nr; echo y >"$r/docs/y.md"; git -C "$r" add docs; run_s 'git commit -m x' "$r" S; expect SCOPE-s04-glob 0 empty
+nr; echo z >>"$r/sub/s.txt"; git -C "$r" add sub; run_s 'git commit -m x' "$r" S; expect SCOPE-s05-dir 0 empty
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" Z; expect SCOPE-s06-other-session 0 empty
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+payload pre 'git commit -m x' "$r" | CLAUDE_CODE_SESSION_ID=S "$bash_bin" "$hook" pre >"$work/out" 2>"$work/err"; rc=$?
+expect SCOPE-s07-env-session 2 '' 'a.txt'
+nr; echo z >>"$r/a.txt"; run_s 'git commit -o a.txt -m x' "$r" S; expect SCOPE-s08-path-commit 2 '' 'a.txt'
+nr; echo z >>"$r/a.txt"; run_s 'git add a.txt && git commit -m x' "$r" S; expect SCOPE-s09-add-commit 2 '' 'a.txt'
+nr; echo z >>"$r/a.txt"; run_s 'git commit -am x' "$r" S; expect SCOPE-s10-commit-a 2 '' 'a.txt'
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'HARNESS_COMMIT_GUARD=off git commit -m x' "$r" S; expect SCOPE-s11-off 0 empty
+nr; contract "$r/.harness/sprint-contract-v.md" active S a.txt; git -C "$r" add .harness; git -C "$r" commit -qm v
+echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" S; expect SCOPE-s12-union 0 empty
+nr; git -C "$r" mv d1/f001 moved.txt; run_s 'git commit -m x' "$r" S; expect SCOPE-s13-rename-out 2 '' 'moved.txt'
+lacks SCOPE-s13-rename-out-옛경로 'd1/f001'
+nr; contract "$r/.harness/sprint-contract-s.md" active S; git -C "$r" add .harness; git -C "$r" commit -qm noblock
+echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" S; expect SCOPE-s14-no-block 0 empty
+nr; git -C "$r" rm -q d1/f001; run_s 'git commit -m x' "$r" S; expect SCOPE-s15-delete-in 0 empty
+nr; echo z >>"$r/a.txt"; echo z >>"$r/d1/f001"; git -C "$r" add a.txt d1/f001; run_s 'git commit -m x' "$r" S
+expect SCOPE-s16-mixed 2 '' 'a.txt'
+lacks SCOPE-s16-mixed-범위안 'd1/f001'
+nr; echo z >>"$r/sub/s.txt"; run_s 'git commit -am x' "$r/sub" S; expect SCOPE-s17-subdir-a 0 empty
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" -; expect SCOPE-s18-no-session 0 empty
+nr; echo z >>"$r/a.txt"; run_s 'git commit -am x' "$r/sub" S; expect SCOPE-s19-subdir-a-out 2 '' 'a.txt'
+nr; chmod 000 "$r/.harness/sprint-contract-s.md"; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s20-unreadable 0 empty; chmod 644 "$r/.harness/sprint-contract-s.md"
+nr; printf -- '---\nstatus: active\nowner_session: S\n---\n\n## 배경\n\n%stext\n# sprint-scope\nd1/f001\n%s\n\n## 범위 경계\n\n- 없음\n' "$fence" "$fence" >"$r/.harness/sprint-contract-s.md"
+git -C "$r" add .harness; git -C "$r" commit -qm moved; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s21-block-outside 0 empty
+nr; printf -- '---\nstatus: active\nowner_session: S\n---\n\n## 범위 경계\n\n%stext\n# sprint-scope\n%s\n' "$fence" "$fence" >"$r/.harness/sprint-contract-s.md"
+git -C "$r" add .harness; git -C "$r" commit -qm empty; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s22-empty-block 0 empty
+nr; printf -- '---\nstatus: active\n---\n\n## 범위 경계\n\n%stext\n# sprint-scope\nd1/f001\n%s\n' "$fence" "$fence" >"$r/.harness/sprint-contract-s.md"
+git -C "$r" add .harness; git -C "$r" commit -qm noowner; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s23-no-owner 0 empty
+
+# ── NOADD 목록을 바꾸지 않는 add · 삭제를 싣지 않는 add (독립 검토 결함 1) ──
+r=$work/n1; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --dry-run d1 && git commit -m x' "$r"; expect NOADD-d1-dry-run 0 empty
+r=$work/n2; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --ignore-removal d1 && git commit -m x' "$r"; expect NOADD-d2-ignore-removal 0 empty
+r=$work/n3; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --no-all d1 && git commit -m x' "$r"; expect NOADD-d3-no-all 0 empty
+nr; echo z >>"$r/d1/f001"; git -C "$r" add d1/f001; echo z >>"$r/a.txt"
+run_s 'git add -n a.txt && git commit -m x' "$r" S; expect NOADD-s1-dry-run 0 empty
+nr; echo z >>"$r/a.txt"; run_s 'git add --ignore-removal a.txt && git commit -m x' "$r" S
+expect NOADD-s2-ignore-removal-out 2 '' 'a.txt'
 
 echo "실패 $fails 건"
 [ "$fails" = 0 ]

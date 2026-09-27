@@ -632,6 +632,7 @@ locked_at: "{YYYY-MM-DD HH:mm}"
   - **서술 섹션 (non-parsed)** — `배경` · `리서치 소스` · `GAP 분석` · `범위 경계` · `회귀 게이트`.
     접두 일치면 되고 뒤에 부연을 붙여도 된다. **조건 체크박스 금지** (일반 불릿만)
   - 두 목록 밖의 헤더(`Notes`, `Appendix`, `메모` 등)는 금지 — 평가자 파서가 오작동한다
+  - `범위 경계` 에 이 스프린트가 고칠 경로를 `# sprint-scope` 로 시작하는 `text` 블록으로 적는다 — 커밋 직전 훅이 이 세션의 활성 계약 블록 밖 경로를 막는다. 형식은 `harness/references/contract-schema.md` §범위 목록 블록 이다
   - `범위 경계` 에 폐기한 결정(사용자가 기능·설정 항목을 없애기로 한 결정)을 적을 때는 결정을 다시 쓰지 말고 그 기능 PRD 비범위 표 경로와 항목 이름만 적는다 (planning-kit plan-prd Gotcha 14). PRD 가 없으면 plan-prd 와 같은 네 칸(하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적)으로 적고 끝에 `PRD 없음` 을 붙인다
 - 모든 체크박스는 unchecked `- [ ]` 상태로 저장
 - 모든 카테고리에 최소 1개 조건 필수. 해당 없으면 `- [ ] XX-00: N/A (사유)` — **사유를 괄호에 반드시 적는다.**
@@ -828,7 +829,8 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
 
 ### 9. 피드백 저장
 
-1. 자기진단 + 교차 진단 결과를 합쳐 피드백 YAML을 `.harness/feedback-draft.yaml`에 작성한다
+1. 자기진단 + 교차 진단 결과를 합쳐 피드백 YAML을 `.harness/feedback-draft-<slug>.yaml`에 작성한다 (plain 모드면 `.harness/feedback-draft.yaml`).
+   이름에 슬러그를 넣는 이유는 qa-evaluator 초안과 같다 — 고정 이름이면 같은 폴더의 다른 세션 초안을 덮는다
    - `harness/references/feedback-schema.yaml`의 스키마를 따른다
    - `skill: sprint-contract`
    - `skill_version`: `harness/.claude-plugin/plugin.json`의 `version` 필드 값
@@ -853,9 +855,11 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
    - `diagnosis.checklist`: Step 7의 결과
    - `diagnosis.cross_diagnosis_by: qa-evaluator`
    - `diagnosis.cross_diagnosis_notes`: Step 8의 결과
-2. `HARNESS_CONTRACT="$CF" bash harness/scripts/save-feedback.sh contract .harness/feedback-draft.yaml` 실행.
+2. `HARNESS_CONTRACT="$CF" bash harness/scripts/save-feedback.sh contract .harness/feedback-draft-<slug>.yaml` 실행.
    `HARNESS_CONTRACT` 를 빼면 스크립트가 계약 경로를 추측하거나 필드를 뺀다 — 실측(2026-09-26): 슬러그 계약인데
-   `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다
+   `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다.
+   셸 변수는 Bash 호출이 바뀌면 사라진다 — 같은 호출 안에서 `CF=<계약 파일 절대 경로>` 를 다시 적고 부른다.
+   빈 값으로 오면 스크립트는 초안 이름의 `<slug>` 로 계약을 찾는다
 3. 출력된 저장 경로를 기록한다
 
 ### 10. 피드백 검증

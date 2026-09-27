@@ -699,8 +699,8 @@ done | sort -u)
 > **대응:** qa-evaluator Step 2 「삭제 열거」 · 리포트 `Deletions` 블록 · 처리 배정표 `user-setup:P4` · `F31`
 >
 > **배경:** 잘못된 커밋 하나가 파일 3217 개를 지운 것으로 기록했다(2026-09-14). 커밋 훅
-> (`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제만 막는다. 그보다 작은 삭제는 계약에 범위 조건이
-> 없으면 아무도 보지 않는다.
+> (`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제와, 계약이 `# sprint-scope` 블록을 적었을 때 그 밖 경로를 막는다.
+> 블록이 없는 계약에서 50 개 이하 삭제는 계약에 범위 조건이 없으면 아무도 보지 않는다.
 
 - 계약의 범위 조건이 쓰는 커밋 구간에서 `git diff --no-renames --name-status --diff-filter=D <base>..<상한>` 으로 지운 파일을
   전부 뽑는다. `--name-status` 의 상태 문자 `D` 가 삭제다 ([git diff](https://git-scm.com/docs/git-diff)).
