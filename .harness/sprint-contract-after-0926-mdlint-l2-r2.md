@@ -4,7 +4,7 @@ slug: after-0926-mdlint-l2-r2
 created: "2026-09-27 15:58"
 complexity: "중간"
 conditions: 17
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:c16f3b07525aa783
 measurement_digest: sha256:d84bf8a11583d1ae
