@@ -31,8 +31,12 @@ MD_URL = re.compile(r"\]\((https?://[^)\s]+)\)")
 HTML_HREF = re.compile(r'href="(https?://[^"]+)"')
 
 # 외부 리소스 — standalone 위반. 같은 사이트 상대 경로 `<link>`(`../assets/site.css`)는 문서 사이트 공용 스타일이라
-# 세지 않는다 — 통째로 잡던 판은 12 쪽이 모두 그 한 줄로 떨어졌다. 주소 앞 `https:` · `//` 가 있는 `<link>` 만 외부다
-EXTERNAL = re.compile(r'<link\b[^>]*\bhref\s*=\s*["\']?(?:[a-z][a-z0-9+.-]*:|//)|<script[^>]+src=|@import\s|url\(\s*[\'"]?https?://')
+# 세지 않는다 — 통째로 잡던 판은 12 쪽이 모두 그 한 줄로 떨어졌다. 주소 앞 `https:` · `//` · `\\` 가 있는 `<link>` 만 외부다.
+# 대소문자를 가리지 않고 따옴표 뒤 빈칸도 넘긴다 — `HTTPS://` · `href=" https://` · `<LINK` 가 외부인데 통과하던 구멍이었다
+EXTERNAL = re.compile(
+    r'<link\b[^>]*\bhref\s*=\s*["\']?\s*(?:[a-z][a-z0-9+.-]*:|//|\\\\)|<script[^>]+src=|@import\s|url\(\s*[\'"]?\s*https?://',
+    re.IGNORECASE,
+)
 # 오버플로 억제 — 내용 손실이므로 금지 (overflow-x:auto 는 허용)
 SUPPRESS = re.compile(r"overflow\s*:\s*hidden|overflow-x\s*:\s*hidden")
 

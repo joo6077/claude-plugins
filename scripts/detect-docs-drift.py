@@ -5,7 +5,7 @@ detect-docs-drift.py — docs-site HTML 재생성 필요 manifest 생성
 `git diff --since <ref>..HEAD` 기준으로 변경된 `.md` / `.yaml` 소스 파일을 찾아
 대응하는 `docs/<plugin>/*.html` 경로를 매핑하여 stdout 에 출력한다.
 
-kaizen-orchestrator Step 11.5 (docs-site 재생성) 에서 서브에이전트에게
+kaizen-orchestrator Step F2 (docs-site 재생성) 에서 서브에이전트에게
 "어느 HTML 을 재생성해야 하는지" 를 정확히 알려주기 위한 manifest 역할이다.
 
 사용법:

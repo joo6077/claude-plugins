@@ -33,9 +33,7 @@ Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감�
 > 아래 사본은 정본을 **문구 변형 없이** 복제한 것이다. 이 문서에서 임계값이나 마커 의미를 다시
 > 정의하지 않는다. 원문이 바뀌면 이 절도 같은 문구로 맞춘다.
 
-사본 출처: `harness/docs/guides/qa-evaluation-guide.md` v5.1 (2026-09-24) — §Canonical Unverified-Evidence Protocol 의 번호 목록(원문 번호 그대로라 3 이 둘이다)과 §증거 분류 triage 의 `UNVERIFIED_ENV` 남용 방지 4 요건을 글자 그대로 옮겼다. 사본의 「계약」 은 이 스킬의 감사 체크리스트를, 「조건」 은 체크리스트 항목 하나를 뜻한다.
-
-<!-- markdownlint-disable MD029 -- 원문 번호를 그대로 옮겨 3 이 둘이다 -->
+사본 출처: `harness/docs/guides/qa-evaluation-guide.md` v5.1 (2026-09-24) — §Canonical Unverified-Evidence Protocol 의 번호 목록과 §증거 분류 triage 의 `UNVERIFIED_ENV` 남용 방지 4 요건을 글자 그대로 옮겼다. 사본의 「계약」 은 이 스킬의 감사 체크리스트를, 「조건」 은 체크리스트 항목 하나를 뜻한다. CI 가 `scripts/check-reviewer-protocol-copies.py` 로 원문과 대조한다.
 
 1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
    `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
@@ -75,7 +73,8 @@ Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감�
    (4 분기: FAIL / `UNVERIFIED_ENV` / 4 요건 미충족 / 증거 무효).
    마커 어간은 `[미검증]` 하나이며 접미 `:ENV` / `:INVALID` 는 분류다. **접미 없는 레거시
    `[미검증]` 은 `INVALID` 로 해석한다.**
-3. **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
+
+   **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
    **1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT**.
    "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며 2 건 이상에는
    쓸 수 없다. **`UNVERIFIED_ENV` 는 이 카운터에 합산하지 않고** `env_gaps` 로 따로 세어
@@ -89,8 +88,6 @@ Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감�
 5. **조용한 PASS 금지 + 집계 의무.** 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다.
    리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
    를 남긴다.
-
-<!-- markdownlint-enable MD029 -->
 
 ### `UNVERIFIED_ENV` 남용 방지 4 요건 (하나라도 없으면 `[미검증:INVALID]` · 정본 복제)
 

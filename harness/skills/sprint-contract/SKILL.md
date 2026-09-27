@@ -468,7 +468,7 @@ verify_measurement "$CF"
 
 기능 조건은 자동 포함 여섯 줄(`RE-01` · `RE-02` · `DG-01`~`DG-04`) · `## Anti-patterns` 절 · `N/A (사유)` 줄을 뺀 조건 줄이다. 수는 레포 내부 정책이며 정의와 근거는 `harness/references/contract-schema.md` §복잡도별 조건 수 가이드 가 SSOT 다. 저장 뒤 Step 6.2 의 두 번째 명령으로 센다.
 
-**조건 패턴 5 종 (v5.5)** — 해당하는 조건에만 적용한다. 전 조건에 강요하면 과잉 절차다.
+**조건 패턴 8 종 (v5.7)** — 해당하는 조건에만 적용한다. 전 조건에 강요하면 과잉 절차다.
 포맷 정의는 `harness/references/contract-schema.md` 가 SSOT 이며 여기서 재정의하지 않는다.
 
 | 패턴 | 적용 조건 | 요구 |
@@ -478,6 +478,9 @@ verify_measurement "$CF"
 | **음성 대조** | 조건이 **테스트 통과**로 판정될 때 | `음성 대조:` 절에 "어느 구현 지점을 무력화하면 이 측정이 FAIL 하는지" 를 적는다. `[structural]` 존재 조건에는 적용하지 않는다 |
 | **양성 대조** | 0 이 기대값인 측정 (매치 0 건 · 오류 0 건 · 빈 출력 · 차이 없음) | `양성 대조:` 절에 같은 측정이 **1 이상을 내는** 알려진 나쁜 예를 적고(기존 기록 경로 또는 만들 임시 사본), **봉인 전에 실제로 1 이상이 나오는지 실측**한다. 명령이 오류를 삼키지 않는지(종료 코드)도 함께 본다 |
 | **알려진 답 대조** | 조건의 측정이 새로 짠 스크립트이고 기대값이 0 이 아닌 수일 때 | `알려진 답:` 절에 손으로 답을 셀 수 있는 작은 입력 · 기대값 · 봉인 전 실제값 · 종료 코드를 적는다. 둘이 다르면 봉인하지 않는다 |
+| **산출물이 검사인 조건** | 이번 스프린트가 만든 파일이 입력을 읽어 통과 · 실패나 수를 낼 때 (검사 스크립트 · 막는 훅 · 검증기 · 새 시험 파일) | 평가 가이드 사본 대조 ①~④ 마다 사본과 기대 출력을 조건에 적는다. 해당 없는 항목은 `해당 없음 (사유)` |
+| **기존 동작 유지 조건** | 「A 는 풀되 B 는 그대로 막는다」 처럼 기존 동작을 지키라고 할 때 | 목표 문장을 하위 문장으로 나눠 조건을 하나씩 두고, 기준 판과 새 판을 손으로 고른 입력 + 시드를 적은 무작위 입력 3 개 이상으로 맞댄다 |
+| **페이지 맞추기 계약** | 원본 문서와 그것을 옮긴 페이지(문서 사이트 HTML · README 표)를 맞출 때 | 스키마의 다섯 가지 — 세는 식은 영어 꼴 · 쉼표 나열까지, 주소 검사는 모든 모양, 종료 코드와 검사한 파일 수를 함께, 출력 모양은 상세 줄까지, 0 기대에는 양성 대조 — 를 조건에 적는다 |
 
 **직전 사이클의 amendment 확정분을 원문에 반영한다 (v5.3).** 같은 슬러그를 이어받는
 스프린트라면 사이드카를 먼저 읽고, 확정된 `narrowing` 을 **새 계약 조건의 원문에** 녹여
@@ -846,17 +849,30 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
    - `project_hash`: **`save-feedback.sh` 가 `CONTRACT_ROOT` 기준으로 재계산해 덮어쓴다.**
      draft 에 적은 값은 참고용이며, 다르면 스크립트가 stderr 로 경고하고 원본을
      `draft_project_hash` 로 보존한다. 경고가 나오면 draft 계산이 틀린 것이니 원인을 확인하라.
-     draft 에 채워 넣을 때도 **`pwd` 가 아니라 `CONTRACT_ROOT` 를 해시한다** — cwd 를 해시하면
+     draft 에 채워 넣을 때도 cwd 가 아니라 **`CONTRACT_ROOT` 에서 구한 뿌리 폴더**를 해시한다 — cwd 를 해시하면
      같은 프로젝트인데도 세션마다 다른 해시가 나와 글로벌 피드백이 흩어진다 (실측: `claude-plugins`
-     하나에 `project_hash` 43 종).
+     하나에 `project_hash` 43 종). **워크트리면 공통 git 폴더의 부모(본 레포 폴더)가 뿌리다** — 스크립트의
+     `identity_root_of` 와 같은 규칙이다. 워크트리 경로를 그대로 해시하면 재계산 값과 늘 달라 경고가 난다
+     (실측 2026-09-26: 워크트리 `70da29df` · 재계산 `1a3bcba6`).
      ```bash
-     # sha256sum → python3 → openssl 순서 fallback (입력은 항상 CONTRACT_ROOT)
+     # 뿌리 폴더 — git 밖이면 CONTRACT_ROOT, git 안이면 최상위 폴더, 워크트리면 본 레포 폴더
+     ID_ROOT="$CONTRACT_ROOT"
+     GR=$(git -C "$CONTRACT_ROOT" rev-parse --show-toplevel 2>/dev/null)
+     if [ -n "$GR" ]; then
+       ID_ROOT="$GR"
+       GDIR=$(git -C "$CONTRACT_ROOT" rev-parse --path-format=absolute --git-dir 2>/dev/null)
+       COMMON=$(git -C "$CONTRACT_ROOT" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+       if [ -n "$COMMON" ] && [ "$GDIR" != "$COMMON" ] && [ "$(basename "$COMMON")" = ".git" ]; then
+         ID_ROOT=$(dirname "$COMMON")
+       fi
+     fi
+     # sha256sum → python3 → openssl 순서 fallback
      if command -v sha256sum &>/dev/null; then
-       printf '%s' "$CONTRACT_ROOT" | sha256sum | cut -c1-8
+       printf '%s' "$ID_ROOT" | sha256sum | cut -c1-8
      elif command -v python3 &>/dev/null; then
-       CONTRACT_ROOT="$CONTRACT_ROOT" python3 -c "import hashlib,os; print(hashlib.sha256(os.environ['CONTRACT_ROOT'].encode()).hexdigest()[:8])"
+       ID_ROOT="$ID_ROOT" python3 -c "import hashlib,os; print(hashlib.sha256(os.environ['ID_ROOT'].encode()).hexdigest()[:8])"
      elif command -v openssl &>/dev/null; then
-       printf '%s' "$CONTRACT_ROOT" | openssl dgst -sha256 | sed 's/.*= //' | cut -c1-8
+       printf '%s' "$ID_ROOT" | openssl dgst -sha256 | sed 's/.*= //' | cut -c1-8
      fi
      ```
    - `sprint_slug` · `contract_path` · `session_id` — `save-feedback.sh` 가 채운다.

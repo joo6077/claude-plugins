@@ -8,7 +8,7 @@ H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ �
 
 두 슬라이서는 키 이름·유효값·스코프가 갈라져 있다(뱀부 519 키 / 오르카 887 키, 실측 2026-09-14). 한쪽 프로파일을 다른 쪽에 넣으면 없는 키가 오류 없이 버려지므로, Phase 1.95 가 대상 슬라이서를 먼저 확정한다. 차이 정본은 `references/bambu-fields-baseline.md` §11.
 
-다른 플러그인(rust-kit, react-kit 등)과 달리 도구형 1스킬 킷이다. guide/audit/system 3종 패턴 대신 `bambu-print-profile` 단일 스킬이 references 4종을 토대로 풀 워크플로우(Phase 1~5)를 수행한다.
+다른 플러그인(rust-kit, react-kit 등)과 달리 도구형 1스킬 킷이다. guide/audit/system 3종 패턴 대신 `bambu-print-profile` 단일 스킬이 references 9종을 토대로 풀 워크플로우(Phase 1~5)를 수행한다.
 
 ## 스킬
 
@@ -20,7 +20,7 @@ H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ �
 
 ## 리서치 문서 (스킬 내부 references)
 
-`skills/bambu-print-profile/references/`에 4종이 있으며, 스킬이 SSOT로 참조한다.
+`skills/bambu-print-profile/references/`에 9종이 있으며, 스킬이 SSOT로 참조한다.
 
 | 문서 | 내용 |
 |------|------|
@@ -29,6 +29,8 @@ H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ �
 | `seam-recipes.md` | 형상×소재 scarf 매트릭스 + Real-world findings (회전체 random vs aligned, PETG entire_loop stringing 등) |
 | `surface-recipes.md` | Surface-first 정책 (Auto-select 결정 트리 + 외벽/Top·Bottom/Ironing 매트릭스 + 트레이드오프) |
 | `comment-analysis.md` | v0.4.0 신규 — 댓글 4 카테고리 추출 매뉴얼 + 한/영/중 키워드 사전 + Designer Constraint Override Rule |
+| `failure-recipes.md` | 실측 실패 모드 → 프로파일 키 레시피 (Bambu Studio H2S) |
+| `user-preferences.md` | 사용자 선호 지속값 — Phase 1.8 표면 의도를 다시 묻지 않게 한다 |
 | `tolerance.md` | v0.4.2 신규 — Bambu 공차 키 (elefant_foot/xy_hole/xy_contour) + 소재별 수축률 + fit-critical 결정 트리 + calibration coupon 가이드 |
 | `kaizen-sources.md` | 주 1회 갱신용 데이터 소스 Top 10 (GitHub releases / Bambu Blog / Discourse forum / Reddit / OrcaSlicer wiki) |
 

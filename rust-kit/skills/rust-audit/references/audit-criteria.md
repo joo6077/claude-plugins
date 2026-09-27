@@ -2,6 +2,8 @@
 
 rust-reviewer 에이전트가 사용하는 유일한 감사 기준. 카테고리별 PASS/FAIL 조건을 정의한다. 기준선은 Rust 2024 Edition · Axum 0.8 · Clippy pedantic 2026 lint 세트 (실사용 프로젝트의 workspace.lints 기준)이며, 크레이트 버전 값은 `rust-kit/references/project-detection.md` **Step 2c**(버전 현행성 표)를 인용한다 — 여기에 버전 표를 다시 만들지 않는다. **구버전 사용 자체를 FAIL 로 쓰지 마라**: FAIL 대상은 코드와 문법이 어긋난 경우다.
 
+설치본 플러그인에는 `docs/rust/` 가 없다 — 이 파일의 `docs/rust/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 **적용 범위:** 아래 기준은 **cargo 가 관리하는 `.rs` 소스**에만 적용된다. 셸 스크립트 · compose ·
 CI YAML · 클라이언트 코드에는 적용하지 마라 (`unwrap()`/`println!` 같은 기준이 그 스택에는 존재할 수
 없어 항상 공허하게 통과한다). 스택별 대응 기준은 `rust-kit/references/project-detection.md` Step 0 표를

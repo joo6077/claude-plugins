@@ -9,7 +9,7 @@ last_updated: 2026-09-26
 > qa-evaluator 에이전트가 참조하는 평가 방법론.
 > evaluator-kaizen이 리서치 기반으로 이 문서를 갱신한다.
 >
-> **참조 스키마**: `harness/references/contract-schema.md` (v5.5)
+> **참조 스키마**: `harness/references/contract-schema.md` (v5.7)
 >
 > **최근 갱신: 2026-09-24 (Phase 3 kaizen · v5.1)** — 입력은 인사이트 처리 배정표의 Phase 3 네 행(`harness:P04` ·
 > `user-setup:P4` · `F16` · `F31`)과 Phase 2 가 넘긴 스키마 v5.5 의 반대편이다.
@@ -1206,8 +1206,8 @@ UI·문서·차트처럼 렌더 결과를 캡처할 수 있는 산출물은 캡�
 
 **한계.** 사본 절차(첫 칸 밖 위반 · 못 읽는 칸 섞기 · 알려진 위반)를 그대로 규정한 외부 1 차 출처는 없다.
 CWE-20 · CWE-754 와 [CheckEval](https://arxiv.org/abs/2403.18771) 의 판별력 원칙을 레포 규칙으로 옮긴 것이다.
-생성 측 · 계약 측 짝은 ⑤ 에만 있다(skill-design-guide §3.7 · contract-schema §양성 대조 · §알려진 답 대조) —
-①~④ 의 짝은 다음 사이클 Phase 1 · 2 로 넘긴다.
+⑤ 의 짝은 skill-design-guide §3.7 · contract-schema §양성 대조 · §알려진 답 대조이고, ①~④ 의 짝은 생성 측이
+skill-design-guide §검사를 만드는 스킬 — 사본 네 가지로 먼저 돌린다, 계약 측이 contract-schema §산출물이 검사인 조건이다.
 
 ### 문서 산출물일 때 — 문장 하나를 지운 사본으로 돌린다 (2026-09-26 추가)
 
@@ -1255,8 +1255,8 @@ Sprint Feedback 의 `Unverifiable Summary` 블록에 무효 증거 건을 함께
 > 이 절을 인용 앵커로 삼는다: `harness/docs/guides/qa-evaluation-guide.md`
 > §Canonical Unverified-Evidence Protocol.
 >
-> **사본 검사:** reviewer 일곱의 사본이 아래 조항과 글자까지 같은지는 CI 가
-> `scripts/check-reviewer-protocol-copies.py` 로 잰다. 이 절을 고치면 같은 작업에서 사본 일곱도 고친다 —
+> **사본 검사:** reviewer 일곱과 `flutter-toolkit/skills/flutter-audit/SKILL.md` 의 사본 여덟이 아래 조항과 글자까지 같은지는 CI 가
+> `scripts/check-reviewer-protocol-copies.py` 로 잰다. 이 절을 고치면 같은 작업에서 사본 여덟도 고친다 —
 > 한쪽만 고치면 그 검사가 실패한다. 2026-07-27 에 적어 둔 킷별 임계 차이는 그 검사가 생긴 뒤 0 건이다.
 
 1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
@@ -1981,7 +1981,7 @@ LLM-as-a-Judge 2026 최신 연구 (Phase 3 kaizen 인용):
 
 관련 스키마:
 
-- `harness/references/contract-schema.md` — Sprint Contract v5.5 스키마 (허용 섹션 헤더 2 계층 + `CONTRACT_ROOT` + **계약 봉인** + **Amendment `direction` × `consent`** + Counterpart 조건 패턴 + Diff-Scope Oracle 표준형 + **측정 커버리지 표기** + **인자 매트릭스** + **음성 대조** + **알려진 답 대조** + specificity tag + aggregation mode + `[미검증]` 마커 + sibling enumerated)
+- `harness/references/contract-schema.md` — Sprint Contract v5.7 스키마 (허용 섹션 헤더 2 계층 + `CONTRACT_ROOT` + **계약 봉인** + **Amendment `direction` × `consent`** + Counterpart 조건 패턴 + Diff-Scope Oracle 표준형 + **측정 커버리지 표기** + **인자 매트릭스** + **음성 대조** + **알려진 답 대조** + specificity tag + aggregation mode + `[미검증]` 마커 + sibling enumerated)
 - `harness/references/feedback-schema.yaml` — 피드백 YAML 스키마
 
 ---
@@ -2060,7 +2060,7 @@ qa-evaluation-guide.md 편집 시:
   예외 파일은 없다 — 2026-08-13 이전에는 `contract-design-guide.md` 에만 frontmatter 가 없어
   이 값의 추출 경로가 달랐고, 그래서 이 절이 스테일해도 아무도 재지 못했다. 그 파일에
   frontmatter 를 신설해 세 값의 원본을 하나로 통일했다.
-- **Schema link**: contract-schema.md v5.5 §산출물 경로 · §계약 봉인 · §Amendment 사이드카 (경로·슬러그·frontmatter·봉인·amendment 축 SSOT — 본 가이드는 인용만 한다)
+- **Schema link**: contract-schema.md v5.7 §산출물 경로 · §계약 봉인 · §Amendment 사이드카 (경로·슬러그·frontmatter·봉인·amendment 축 SSOT — 본 가이드는 인용만 한다)
 - **추출 (값을 손으로 옮겨 적지 마라 · zsh · bash 동일)** — 출력 4 줄이 위 `Parity with` 3 값과
   `Schema link` 의 스키마 버전과 **문자 그대로** 같아야 한다. 한 줄이라도 다르면 이 절이 스테일한
   것이다:

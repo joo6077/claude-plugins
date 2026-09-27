@@ -259,8 +259,8 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 **bambu-kit — Bambu Lab H2S 자동 process+filament JSON 생성**
 
 | 스킬 | 용도 |
-|------|------|
-| `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 JSON 생성 → import용 zip 번들 출력. references 4종 SSOT (bambu-fields-baseline / materials / seam-recipes / kaizen-sources) |
+| --- | --- |
+| `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 JSON 생성 → import용 zip 번들 출력. references 9종 SSOT (bambu-fields-baseline / materials / seam-recipes / surface-recipes / failure-recipes / tolerance / comment-analysis / user-preferences / kaizen-sources) |
 
 도구형 1스킬 킷 (guide/audit/system 3종 패턴 비적용). H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 한정.
 
