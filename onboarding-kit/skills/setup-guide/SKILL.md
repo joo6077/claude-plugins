@@ -123,6 +123,7 @@ guide_gate() {
   #    표가 없으면 PASS rows=0 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9).
   blk=$(awk '
     function trim(text){ gsub(/^[ \t]+|[ \t]+$/, "", text); return text }
+    { sub(/\r$/, "") }   # CRLF 가이드는 마지막 칸이 "우회\r" 가 되어 표 머리를 못 찾는다
     /^\|/ {
       row=$(0); sub(/^\|/, "", row); sub(/\|[ \t]*$/, "", row)
       ncell=split(row, cell, "|")
