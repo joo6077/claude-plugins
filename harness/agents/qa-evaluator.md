@@ -1096,7 +1096,7 @@ fi
    - `contract_path`: Step 1-e 에서 고정한 계약 절대경로
    - `session_id`: `$CLAUDE_CODE_SESSION_ID` (비어 있으면 필드 자체를 생략)
    - `project_hash` / `project_name`: draft 에 적더라도 `save-feedback.sh` 가 `CONTRACT_ROOT`
-     기준으로 **다시 계산해 덮어쓴다.** 원본은 스크립트가 `draft_project_*` 로 보존하므로
+     기준으로 **다시 계산해 덮어쓴다** (워크트리면 본 레포 폴더를 해시한다). 원본은 스크립트가 `draft_project_*` 로 보존하므로
      평가자가 미리 맞추려 애쓰지 마라
    - `evaluation.verdict`: 이번 판정 결과
    - `evaluation.conditions_total`: 전체 조건 수

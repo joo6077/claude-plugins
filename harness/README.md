@@ -471,7 +471,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 
 ### 추적 규칙
 
-- 커밋: `kaizen:` prefix — `kaizen: sprint-contract few-shot 판단 로직 추가`
+- 커밋: 바꾼 종류 머리 + 본문 끝 서명 줄 `Kaizen-Phase: <phase 이름>` — `docs(harness): 설계 가이드 — 못 한다 전 네 칸 · 알려진 답 대조 … (카이젠 2026-09-24 Phase 1)` 에 서명 줄 `Kaizen-Phase: kaizen-0924-p01-guides`. 카이젠 커밋을 가리는 것은 머리가 아니라 서명 줄이다 (`harness/skills/harness-kaizen/SKILL.md` 추적 규칙 표)
 - 브랜치: `kaizen/{버전}-{날짜}` — `kaizen/0.4.0-2026-04-07`
 - PR 제목: `[bump유형]` prefix — `[minor] sprint-contract 복잡도 판단 개선`
 

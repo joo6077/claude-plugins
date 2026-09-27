@@ -678,7 +678,8 @@ find .harness -type f -name 'sprint-contract*.md' -print0 \
 **「미커밋 변경 0」 전제는 계약 자신의 status 줄을 빼고 잰다 (v5.7 추가).** 판정과 함께 QA 가 바꾸는 계약 자신의
 `status:` 줄이 그 전제에 들어가면, 1 회차 QA 뒤로는 전제가 늘 깨진다. 실측(2026-09-26, C3a 계약 DG-05): 「미커밋 변경 0건」
 전제가 2 회차부터 매번 깨졌다. 아래 `dirty_except_status` 가 그 수를 낸다 — 계약 밖 미커밋 · 추적 안 된 경로 수에,
-계약 파일의 미커밋 차이 가운데 `status:` 줄이 아닌 더한 줄 · 지운 줄 수를 더한다. 저장소 뿌리에서 부른다.
+계약 파일의 미커밋 차이 가운데 첫 앞머리 블록의 `status:` 줄이 아닌 더한 줄 · 지운 줄 수를 더한다 — 본문에 있는
+`status:` 줄의 변경은 센다(앞머리 밖 줄까지 빼던 첫 판은 본문 변경을 0 으로 읽었다). 저장소 뿌리에서 부른다.
 계약 파일이 없으면 표준 출력 없이 종료 코드 2 로 멈춘다 — 빈 값을 0 으로 읽지 않게 한다.
 
 ```bash
@@ -686,8 +687,17 @@ find .harness -type f -name 'sprint-contract*.md' -print0 \
 dirty_except_status() {  # dirty_except_status <계약파일>
   [ -f "${1}" ] || { echo "STOP 계약 파일 없음: ${1}" >&2; return 2; }
   _outside=$(git status --porcelain --untracked-files=all -- . ":(exclude)${1}" | grep -c .)
+  _fm_end='NR == 1 && /^---[[:space:]]*$/ { f = 1; next } f && /^---[[:space:]]*$/ { print NR; exit }'
+  _rel=$(git ls-files --full-name -- "${1}")
+  _fm_old=0; [ -n "$_rel" ] && _fm_old=$(git show "HEAD:$_rel" 2>/dev/null | awk "$_fm_end")
+  _fm_new=$(awk "$_fm_end" "${1}")
+  # -U0 조각 머리 `@@ -옛줄,수 +새줄,수 @@` 로 줄 번호를 따라가 앞머리 안의 status 줄만 뺀다
   _inside=$(git diff -U0 --no-color HEAD -- "${1}" \
-    | awk '/^@@/ { body = 1; next } body && /^[-+]/ && !/^[-+]status:/ { n++ } END { print n + 0 }')
+    | awk -v fo="${_fm_old:-0}" -v fn="${_fm_new:-0}" '
+        /^@@/ { split($(2), a, ","); o = -a[1]; split($(3), b, ","); nw = b[1] + 0; body = 1; next }
+        body && /^-/  { if (!(o <= fo && /^-status:/)) n++; o++; next }
+        body && /^\+/ { if (!(nw <= fn && /^\+status:/)) n++; nw++; next }
+        END { print n + 0 }')
   echo $((_outside + _inside))
 }
 ```

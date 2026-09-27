@@ -129,6 +129,8 @@ done
 - **환경 · 비결정성** — 같은 커밋을 CI 에서 다시 돌렸는데 결과가 달라진다. 러너 이미지 · 도구 판 · 시간 · 외부 서비스가 원인 후보다
 - **미확정** — 기록도 재현 환경도 없어 가를 수 없다. 억지로 세 줄 가운데 하나에 넣지 말고 「미확정 — 같은 커밋 재실행이 필요하다」 로 적는다
 
+판정 표와 두 경우는 `flutter-toolkit/skills/flutter-preflight/SKILL.md` · `react-kit/skills/react-preflight/SKILL.md` 에 글자 그대로 사본이 있고, CI 가 `scripts/check-cause-table-copies.py` 로 대조한다 — 여기를 고치면 두 사본도 같은 작업에서 고친다.
+
 `FORK_BASE` 는 분기점이지 기준 가지의 지금 상태가 아니다 (<https://git-scm.com/docs/git-merge-base>).
 `origin/<기준 가지>` 줄은 분기 뒤 기준 가지가 깨졌는지를 본다 — 여기서 실패하면 합친 뒤에도 빨갈 수 있다.
 명령 · 커밋 · 종료 코드를 보고에 인용한다. 실측(2026-09-18): 다른 세션들이 깬 공용 개발 가지의 자동 검사 실패 다섯
