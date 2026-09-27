@@ -133,4 +133,8 @@
 
 - 목록 밖 경고: 고치지 않는 파일 28 개의 경고 45 건은 이 묶음 밖이라 그대로다
 - 바꾼 md 에 짝이 있는 docs html 페이지(`docs/tone-kit/adapter-dart-flutter.html` · `docs/tone-kit/naming-taxonomy.html` 등)는 다시 만들지 않았다. 바뀐 것은 모양뿐이라 페이지 내용과 어긋나지 않는다
-- QA 판정은 아직이다
+- QA 판정: APPROVE (21 조건 전부 통과). 리포트는 `.harness/sprint-feedback-after-0926-mdlint-l3b.md`
+- 교차 진단: QA 리포트의 `Cross-Diagnosis Handoff` 는 `pending-parent` 그대로다. 묶음을 합치는 쪽이 교차 진단을 돌린 뒤 `cross_diagnosis_by` 를 고친다
+- 독립 검토(막는 결함 0 건)가 남긴 참고 둘
+  - `planning-kit/agents/planning-reviewer.md:243` 예시 문장 속 주소가 `<https://...>` 로 바뀌었다. 에이전트가 그 모양을 그대로 따라 쓸 수 있다. 이 모양을 검사하는 곳은 없다
+  - `tone-kit/references/core-naming.md:139` 는 H3 이 되어 뒤따르는 `### 우선순위` · `### 왜` 와 같은 단계다. 도구 영향은 없다

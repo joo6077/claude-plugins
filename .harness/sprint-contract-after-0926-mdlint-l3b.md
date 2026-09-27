@@ -4,7 +4,7 @@ slug: after-0926-mdlint-l3b
 created: "2026-09-27 14:49"
 complexity: "복잡"
 conditions: 21
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:a83801884f4bbe77
 measurement_digest: sha256:2dcf946ef53a46d5
