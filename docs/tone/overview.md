@@ -168,7 +168,7 @@ ListView.separated(itemCount: sections.length, separatorBuilder: (_, _) => divid
 
 종결어미만 `한다`체로 바꿔도 문장 구조가 그대로면 번역투는 남는다. 주체를 되살리고 원인과 결과를 구체로 잇는다. 둘째 줄은 번역투와 음역이 같이 걸린 사례다 — 공식 API 이름은 영어 원문(`surface tint`), 일반 명사는 한국어로 쓴다.
 
-**강도** SHOULD · **출처** [국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) · [Effective Dart: Documentation](https://dart.dev/effective-dart/documentation)
+**강도** SHOULD · **출처** [Effective Dart: Documentation](https://dart.dev/effective-dart/documentation)
 
 ### 10. doc 라벨은 자유 서술이 아니라 상수다
 
