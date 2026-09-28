@@ -97,6 +97,25 @@ want=$(bash -c '. "$1"; for f in $2; do declare -f "$f"; done' _ "$work/schema.s
 if [ "$got" = "$want" ]; then same=1; else same=0; fi
 check M3-규약과같음 "same_as_schema=1 copies=0" "same_as_schema=$same copies=$(grep -cE '^[[:space:]]*(fm_get|sha256_16|contract_digest|verify_seal|measurement_digest|verify_measurement|sprint_head|mine|unsigned_on)\(\)' "$common")"
 
+# 규약의 fm_get 은 따옴표와 줄 끝 주석을 벗긴다. 빈칸 없이 붙은 # 는 값이다 (계약 after-0928-harness-checks SC-03)
+fm_case() {  # fm_case <번호> <머리 줄> <키> <기대 값>
+  printf -- '---\n%s\n---\n\n본문\n' "$2" >"$work/fm-$1.md"
+  out=""
+  for sh in bash zsh; do
+    # shellcheck disable=SC2016  # 안쪽 셸이 풀 변수다
+    got=$(MEASURE_SCHEMA=$schema $sh -c '. "$1" >/dev/null 2>&1 || exit 2; fm_get "$2" "$3"' _ "$common" "$work/fm-$1.md" "$3")
+    out="$out$sh=[$got] "
+  done
+  check "F$1-줄끝주석" "bash=[$4] zsh=[$4]" "${out% }"
+}
+fm_case 1 'status: superseded   # 새 판 있음' status superseded
+fm_case 2 'status: "active" # 주석' status active
+fm_case 3 'status: active' status active
+fm_case 4 'owner_session: abc#def' owner_session 'abc#def'
+fm_case 5 'feature: "a # b"' feature 'a # b'
+fm_case 6 "$(printf "status: 'done'\t# 탭 앞 주석")" status 'done'
+fm_case 7 'status: active #' status active
+
 sed 's/^verify_seal() {/verify_sealx() {/' "$schema" >"$work/broken-schema.md"
 MEASURE_SCHEMA="$work/broken-schema.md" bash -c '. "$1"' _ "$common" >"$work/m4.out" 2>&1; rc=$?
 check M4-함수빠진규약 "rc=2 names_fn=1" "rc=$rc names_fn=$(grep -c 'verify_seal' "$work/m4.out")"

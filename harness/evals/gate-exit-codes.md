@@ -74,3 +74,5 @@
 | `scripts/finalize-phase.sh` | 0 · 1 · 2 |
 | `scripts/sync-orchestrator.py` | 0 · 1 · 2 |
 | `harness/scripts/extract-helpers.py` | 0 · 1 · 2 · 3 |
+| `harness/scripts/check-superseded.sh` | 0 · 1 · 2 |
+| `scripts/ci-local.sh` | 0 · 1 · 2 |
