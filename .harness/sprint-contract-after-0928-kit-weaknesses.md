@@ -4,7 +4,7 @@ slug: after-0928-kit-weaknesses
 created: "2026-09-28 10:55"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 conditions_digest: "sha256:f05433dec1131ccc"
 measurement_digest: "sha256:5c70a649404879e3"
 locked_at: "2026-09-28 11:03"
