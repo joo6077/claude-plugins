@@ -87,6 +87,11 @@ jobs:
       - name: Cause table copy check (실패 원인 판정 표 사본 대조)
         run: python3 scripts/check-cause-table-copies.py
 
+      # 설치본은 킷 폴더만 담아 레포 뿌리 docs/<칸>/ 를 못 연다. 그 경로를 쓰는 킷 파일에 raw 주소 안내가
+      # backend · rust · infra 에만 있고 나머지 60 개에는 없었다(2026-09-28 실측).
+      - name: Install docs guidance check (설치본에서 못 여는 docs/ 경로 안내)
+        run: python3 scripts/check-install-docs-guidance.py
+
       # 수집기가 옛 요약본을 오늘자 인사이트보다 먼저 집던 결함(2026-09-24 재현)을 다시 들이지 않게 한다.
       - name: Kaizen collector test (인사이트 입력 선택 · facets)
         run: python3 scripts/test-collect-kaizen-data.py
