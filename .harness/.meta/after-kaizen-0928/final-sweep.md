@@ -10,3 +10,10 @@
 | dz 검토 2 | `design-kit/templates/mockup.html:732` · `:809` 의 `repeat(5, 1fr)` 때문에 여섯째 투표 카드 · 메모 칸이 둘째 줄로 떨어진다 — 시안 수에 따라 칸이 늘게 |
 | dz 검토 3 | `design-kit/skills/design-mockup/SKILL.md:201` 「개수 상한」 옛 설명 |
 | dz 검토 4 | `harness/docs/guides/skill-design-guide.md:806` · `docs/harness/skill-design-guide.html:1143` 「4개 이상도 … 승인하면 정상」 이 새 조항 1 과 어긋남 — 시안 밖 산출물에만 걸리게 |
+| d1 남은 것 | 어두운 테마만 있는 쪽 118 개에 밝은 테마 (A3 는 일곱 쪽만 했다) |
+| d1 남은 것 | 쪽 안에 움직임 줄이기 규칙을 다시 적은 106 쪽 — 공통 CSS 로 모으고 쪽 안 규칙 지움 |
+| d1 검토 3 | `docs/design/research-log.md` 가 드리프트 연결표 밖 · 대응 쪽 없음 — 연결 · 쪽 · 목차 |
+| d1 남은 것 | 이 가지 합친 뒤 드리프트 다시 보기(다른 ak3 묶음이 원본을 바꿈) |
+| k1 남은 것 | api-kit 예시 계약 `contracts/users.me.yaml` 에 비교 기준값 블록이 없어 보류 상태가 글로만 남음 |
+| k1 남은 것 | bambu 시험 파일 `process-thin-unreadable-slot.json` 에 `_wall_budget_short_share` 가 없어 알림 하나가 더 남 |
+| k1 남은 것 | bambu 완료 검사 계약이 슬라이서 설치된 맥에서만 잰다 — 슬라이서 없는 사본 대조를 측정 관례로 |
