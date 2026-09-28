@@ -84,6 +84,11 @@ dialog.viewer button{position:fixed;top:16px;right:16px;min-width:44px;min-heigh
  .pre{flex-direction:column;gap:6px;margin:0 -16px;padding:12px 16px}
  .pre ul{align-self:stretch;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;font-size:13px}.pre ul::-webkit-scrollbar{display:none}
  .pre ul li{flex:none;white-space:nowrap}}
+/* 캡처가 셋 이상이면 옆에 두면 단계 글 칸이 0 으로 눌린다 — 위로 올리고 줄바꿈해 폭에 맞춘다 */
+.body:has(.shots figure:nth-child(3)){grid-template-columns:minmax(0,1fr);gap:24px}
+.body:has(.shots figure:nth-child(3)) .shots{flex-wrap:wrap}
+.body:has(.shots figure:nth-child(3)) .shots figure{flex:1 1 140px;min-width:0;max-width:280px}
+.body:has(.shots figure:nth-child(3)) .shots img{height:auto;width:100%}
 </style></head><body><main class="wrap"><!-- cases --></main><dialog class="viewer"><button type="button" autofocus>닫기</button><img alt=""></dialog>
 <script>(function(){var viewer=document.querySelector("dialog.viewer"),big=viewer.querySelector("img");
 document.querySelectorAll(".shots img,.zoom img").forEach(function(shot){shot.addEventListener("click",function(){big.src=shot.src;big.alt=shot.alt;viewer.showModal()})});
