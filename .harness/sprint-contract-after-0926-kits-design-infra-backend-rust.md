@@ -45,7 +45,7 @@ locked_at: "2026-09-26 21:33"
 
 | ID | 처리 | 조건 · 근거 |
 | --- | --- | --- |
-| KD-1 | 계약에 넣음 | SK-01 (자리: 목록은 `design-audit/SKILL.md:118 · :235` 라 적었지만 실제 자리는 `design-kit/agents/design-reviewer.md:114` · `:235` · `:248-249` · `:253` 과 design-audit Step 5) |
+| KD-1 | 계약에 넣음 | SK-01 (자리: 목록은 `design-audit/SKILL.md:118 · :235` 라 적었지만 실제 자리는 `design-kit/agents/design-reviewer.md:114` · `:247` · `:261-262` · `:266` 과 design-audit Step 5) |
 | KD-2 | 계약에 넣음 | SK-02 |
 | KD-3 | 계약에 넣음 | SK-03 — 숫자를 다시 적지 않고 harness `skill-design-guide.md` 의 공통 규칙 절을 가리킨다. 그 절은 GD-6(다른 묶음)이 만든다 |
 | KD-4 design:P2 | 넘김 — 사용자 결정 없음 | 규칙 방향(개수 계약 대 「여러 개 바로」)을 바꾸는 일이라 사용자 결정 몫인데 `decisions.md` 에 없다 |
@@ -165,7 +165,7 @@ AR-04: exists=0 ids=0 tone=0 pages=0 roots=0
 - AP-03 · AP-04 양성 대조 — 사본에서 design-guide 에 언어 표시 없는 펜스를 넣으면 `--check=code-fence` 종료 코드 2(`V6 … 1 bare — FAIL`), design-system 머리의 `name:` 을 지우면 `--check=frontmatter` 종료 코드 2. 손대지 않은 사본은 0
 - DG-02 양성 대조 — 같은 측정을 `7b4618c^..7b4618c`(design-kit Phase 6 커밋)에 MD013 을 켜고 돌리면 `TOTAL new=28`, 끄면 0. 측정이 살아 있다
 - AR-04 대조(교차 진단 반영 뒤) — 같은 판정 줄을 떼어 두 가짜 notes 에 돌렸다: 세 절(`## 톤 대조` · `## 다시 만들 문서 페이지` · `## 남은 것`)에 맞는 글이 든 쪽은 `tone=1 pages=1 roots=1`, 같은 낱말을 다른 절에 몰아 쓰고 톤 절에 「부르지 않음」 만 적은 쪽은 `tone=0 pages=0 roots=0`. SK-02 기준값 `old=3` 은 교차 진단이 찾은 세 줄(`design-reviewer.md:127` · `audit-criteria.md:10` · `design-audit/SKILL.md:74`)과 같다
-- 알려진 답 — SK-03 `global=5` 는 손으로 센 다섯 자리(`design-reviewer.md:187` · `audit-criteria.md:119` · `design-guide/SKILL.md:55` · `design-mockup/SKILL.md:70` · `:143`)와 같다.
+- 알려진 답 — SK-03 `global=5` 는 손으로 센 다섯 자리(`design-reviewer.md:187` · `audit-criteria.md:119` · `design-guide/SKILL.md:55` · `design-mockup/SKILL.md:70` · `:146`)와 같다.
   SC-01 `E3 copass=1` 은 픽스처 워크플로 한 개에 checkout 한 줄이라 1 이다. SK-11 `examples=2` 는 `rust-run/SKILL.md:22` · `:24` 두 줄이다. AR-01 `allow=28` 은 아래 목록을 손으로 적은 수다
 - 도구 준비 — `command -v bash` = `/opt/homebrew/bin/bash`(5.3.9), PyYAML 있는 python3 = `/Users/jackson/.pyenv/versions/3.14.3/bin/python3`(yaml 6.0.3), `/usr/bin/python3` 는 `import yaml` 실패,
   markdownlint-cli2 0.23.2 는 세션 스크래치 `k2/mdlint/`(c4c 묶음 것을 복사), 로컬 CI 도구 `ci-local.sh` 지문 `59fe55125c0dbc77`. SK-08 의 raw 주소는 `curl` 로 200

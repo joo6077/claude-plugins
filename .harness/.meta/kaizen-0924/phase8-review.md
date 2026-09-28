@@ -152,8 +152,8 @@ Then: 첫 줄 `notes_committed=1` · 둘째 줄 값 열일곱 개가 모두 1 �
 ## 권하는 것 (선택 — 판정에 영향 없음)
 
 1. **아직 남는 「1.7+」 자리를 다음 사이클 목록에 빠짐없이 적는다.** 계약 `## 범위 경계` 의 「그대로 둔 곳」 과 research-log 「다음 사이클 후보」 는 `audit-criteria.md:104` · `init-checklist.md:132` 의 「1.7+ mocking」 만 적는다.
-   같은 주장이 `infra-kit/skills/infra-test/SKILL.md:28`(Gotcha 8 「OpenTofu 1.7+는 `tofu test`에서 mocking 지원」)에 있고, 근거 파일이 다루지 않은 다른 주장
-   「OpenTofu 1.7+ write-only 인수」 가 `infra-test/SKILL.md:30`(Gotcha 10)에 있다. `mock.py` 의 research-log 치환에서
+   같은 주장이 `infra-kit/skills/infra-test/SKILL.md:24`(Gotcha 8 「OpenTofu 1.7+는 `tofu test`에서 mocking 지원」)에 있고, 근거 파일이 다루지 않은 다른 주장
+   「OpenTofu 1.7+ write-only 인수」 가 `infra-test/SKILL.md:26`(Gotcha 10)에 있다. `mock.py` 의 research-log 치환에서
    `- 「Terraform 1.10+ ephemeral」 · 「1.7+ mocking」 의 도입 버전 — 근거 파일이 확인하지 못했다(§5)` 를
    `- 「Terraform 1.10+ ephemeral」 · 「1.7+ mocking」(audit-criteria · init-checklist · infra-test Gotcha 8) · 「OpenTofu 1.7+ write-only 인수」(infra-test Gotcha 10) 의 도입 버전 — 근거 파일이 확인하지 못했다(§5)` 로 바꾸고,
    `## 범위 경계` 의 notes 줄에도 같은 두 자리를 더한다. 이 줄은 SK-11 토큰 · SK-09(infra-kit 만 본다) · ER-01(URL 없음)에 걸리지 않는다. 바꾸면 DG-02 · ER-02 를 다시 돌린다.

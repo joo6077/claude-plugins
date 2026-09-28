@@ -8,7 +8,7 @@
 
 | 계약 줄 | 옛 참조 | 새 참조 | 대상 파일 | 처리 |
 | --- | --- | --- | --- | --- |
-| 39 | `harness/agents/qa-evaluator.md:1089` | `harness/agents/qa-evaluator.md:1101` | harness/agents/qa-evaluator.md | 본문 — 직접 고침 |
+| 39 | `harness/agents/qa-evaluator.md:1089~:1097` | `harness/agents/qa-evaluator.md:1101~:1109` | harness/agents/qa-evaluator.md | 본문 — 직접 고침 |
 | 74 | `howto/SKILL.md:225` | `howto/SKILL.md:229` | howto-kit/skills/howto/SKILL.md | 본문 — 직접 고침 |
 | 75 | `howto-kaizen/SKILL.md:26` | `howto-kaizen/SKILL.md:30` | .claude/skills/howto-kaizen/SKILL.md | 본문 — 직접 고침 |
-| 76 | `qa-evaluator.md:1089` | `qa-evaluator.md:1101` | harness/agents/qa-evaluator.md | 본문 — 직접 고침 |
+| 76 | `qa-evaluator.md:1089~:1097` | `qa-evaluator.md:1101~:1109` | harness/agents/qa-evaluator.md | 본문 — 직접 고침 |

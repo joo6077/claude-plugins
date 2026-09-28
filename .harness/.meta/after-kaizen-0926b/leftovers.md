@@ -9,7 +9,7 @@
 
 | ID | 요지 | 고칠 파일:줄 | 출처 | 비고 |
 | --- | --- | --- | --- | --- |
-| HS-1 | 피드백 저장이 계약 폴더를 셸 위치로 잡고(`contract_root`), `sprint_slug` · `contract_path` · `session_id` 를 초안 값 위에 또 붙여 한 파일에 두 번 든다. 초안 파일 이름 `.harness/feedback-draft.yaml` 도 고정이라 여러 세션이 덮는다 | `harness/scripts/save-feedback.sh:112-136`(`resolve_contract_root` 가 `HARNESS_CONTRACT` 를 안 봄) · `:295-321`(sed 는 project 두 칸만 이름 바꿈) · `harness/skills/sprint-contract/SKILL.md:838` · `:856` · `harness/skills/init/SKILL.md:61` | FU-1 · c2 F1H-39 남은 칸 · F1H-39 · phase3/4 notes | 계약 경로에서 계약 폴더를 뽑는다. Bash 호출 사이 `$CF` 가 비는 문제도 같은 자리(MEM 3번) |
+| HS-1 | 피드백 저장이 계약 폴더를 셸 위치로 잡고(`contract_root`), `sprint_slug` · `contract_path` · `session_id` 를 초안 값 위에 또 붙여 한 파일에 두 번 든다. 초안 파일 이름 `.harness/feedback-draft.yaml` 도 고정이라 여러 세션이 덮는다 | `harness/scripts/save-feedback.sh:112-136`(`resolve_contract_root` 가 `HARNESS_CONTRACT` 를 안 봄) · `:295-321`(sed 는 project 두 칸만 이름 바꿈) · `harness/skills/sprint-contract/SKILL.md:838` · `:863` · `harness/skills/init/SKILL.md:61` | FU-1 · c2 F1H-39 남은 칸 · F1H-39 · phase3/4 notes | 계약 경로에서 계약 폴더를 뽑는다. Bash 호출 사이 `$CF` 가 비는 문제도 같은 자리(MEM 3번) |
 | HS-2 | 피드백 저장 시험이 고정 `/tmp/test-*.yaml` 을 써서 다른 워크트리와 동시에 돌면 서로 지운다 | `harness/evals/kaizen/feedback-system/save-test.sh:45` · `:74` · `:106` · `:113` · `:123` · `:127-128` · `:164` · `:182` | FU-11 · c4d R6 | `mktemp -d` 한 폴더 아래로. `:150` 은 이미 mktemp |
 | HS-3 | 커밋 안전 훅이 놓치는 두 모양 — (a) `git add <경로>` 가 싣는 그 경로의 삭제, (b) 하위 폴더에서 `commit -a` · `git add -A && git commit` 할 때 그 폴더 밖 삭제(60 개도 통과) | `harness/scripts/commit-guard.sh:234-245`(`:235` `ls-files --deleted` 가 지금 폴더 아래만 셈) | FU-8 · c1b N8 · c1b 메모 N8 | (a) 는 `add_all` 로 올리면 되돌림 검사가 꺼져 따로 설계 필요 |
 | HS-4 | 평가자 카이젠 회귀 패턴 `silent-check` 셋 가운데 둘이 제목 글자만 봐서 본문이 비어도 통과 | `harness/evals/kaizen/evaluator-kaizen/assertions.json` `silent-check` 키 | c1a 넘김 (FN-18 뒷부분) | |
@@ -36,7 +36,7 @@
 | VS-14 | `check-api-kit-docs` 가 같은 사이트 `assets/site.css` 링크까지 외부 리소스로 세어 api-kit 12 쪽이 실패 | `scripts/check-api-kit-docs.py:34` | d2 판단 · d2 넘김 | |
 | VS-15 | run-evals · sync-evals 킷 목록에 api-kit 없음 | `scripts/run-evals.py:32-35` · `scripts/sync-evals.py:32` | c4a 넘김 | 지금은 CI 단계로 대신 |
 | VS-16 | api 조사 지침에 바로잡힌 「경로 간 불변식은 Hurl 로 표현할 수 없다」 가 남음 | `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:303-304` | c3c 메모 2 | |
-| VS-17 | Phase 5 · 9 조사 입력이 「fit-pal」 을 적어 rust-kit 에 앱 이름이 다시 들어올 길. 「킷 안 앱 이름 0 건」 검사를 둘지 | `.claude/skills/kaizen-orchestrator/SKILL.md:303` · `:307` · `references/phase-research-templates.md:90` · `:130` | c4c 메모 3 | |
+| VS-17 | Phase 5 · 9 조사 입력이 「fit-pal」 을 적어 rust-kit 에 앱 이름이 다시 들어올 길. 「킷 안 앱 이름 0 건」 검사를 둘지 | `.claude/skills/kaizen-orchestrator/SKILL.md:303` · `:307` · `references/phase-research-templates.md:90` · `:154` | c4c 메모 3 | |
 | VS-18 | 오케스트레이터 F2 가 옛 원칙 「standalone」 을 적음 | `.claude/skills/kaizen-orchestrator/SKILL.md:620` | d2 넘김 | docs-site 쪽은 DC-5 |
 | VS-19 | design · backend · rust-kaizen Gotcha 6 형제 표에 새 행(시각 종류 · 실패 원인 셋 · 미검증 두 카운터 · 편집 전 확정 등) | `.claude/skills/design-kaizen/SKILL.md` · `.claude/skills/backend-kaizen/SKILL.md` · `.claude/skills/rust-kaizen/SKILL.md:21` (Gotcha 6) | F1H-44 · phase6/7/9 notes | |
 | VS-20 | bambu-kaizen 회귀 검증에 음성 대조 블록 실행 줄 · bambu-research 문구 | `.claude/skills/bambu-kaizen/SKILL.md:80` · `.claude/skills/bambu-research/SKILL.md` | F1H-59 · F1H-60 · phase13 notes 메모 | 문구 세부는 phase13-notes |
@@ -69,14 +69,14 @@
 
 | ID | 요지 | 고칠 파일:줄 | 출처 | 비고 |
 | --- | --- | --- | --- | --- |
-| GD-1 | 검증 가이드 — FAIL 예시 2 머리가 design-kit 인데 명령은 reflect-kit 것이고 출력이 한 줄, 수동 수정 표 V8 행에 따옴표 고치는 법 없음, 변경 이력에 V8 따옴표 줄 없음, 출력 예시 `Total: 2 plugins` 는 만들 수 없는 조합 | `harness/docs/guides/plugin-validation-guide.md:447-453` · `:590` · `:695` 뒤 · `:550` | c1a 메모 4 · c1a 넘김 여섯째 · MEM 5번 · PVS 5 | 고친 뒤 DC-4 |
-| GD-2 | 평가 가이드 미검증 정본 절이 두 번(`:1236` · `:1308`) — 조항 번호 겹침 · 머리 「5 조항」 · 「현재 drift」 문단 정리, 그리고 킷 쪽 「정본 조항 3」 표기 | `harness/docs/guides/qa-evaluation-guide.md:1249-1257` · `:1308` · `backend-kit/skills/backend-audit/SKILL.md:116` · `rust-kit/skills/rust-audit/SKILL.md:131` · `react-kit/references/render-evidence-protocol.md:209` | c4b 넘김 첫째 · phase9 넘김 | 킷 셋을 함께 고침 |
+| GD-1 | 검증 가이드 — FAIL 예시 2 머리가 design-kit 인데 명령은 reflect-kit 것이고 출력이 한 줄, 수동 수정 표 V8 행에 따옴표 고치는 법 없음, 변경 이력에 V8 따옴표 줄 없음, 출력 예시 `Total: 2 plugins` 는 만들 수 없는 조합 | `harness/docs/guides/plugin-validation-guide.md:447-453` · `:622` · `:727` 뒤 · `:550` | c1a 메모 4 · c1a 넘김 여섯째 · MEM 5번 · PVS 5 | 고친 뒤 DC-4 |
+| GD-2 | 평가 가이드 미검증 정본 절이 두 번(`:1236` · `:1308`) — 조항 번호 겹침 · 머리 「5 조항」 · 「현재 drift」 문단 정리, 그리고 킷 쪽 「정본 조항 3」 표기 | `harness/docs/guides/qa-evaluation-guide.md:1249-1257` · `:1321` · `backend-kit/skills/backend-audit/SKILL.md:116` · `rust-kit/skills/rust-audit/SKILL.md:131` · `react-kit/references/render-evidence-protocol.md:209` | c4b 넘김 첫째 · phase9 넘김 | 킷 셋을 함께 고침 |
 | GD-3 | `model` 생략 동작(지금 「inherit 기본값」) · 스킬 공식 필수 필드 · 다른 플랫폼 무시 문장 — 공식 문서로 다시 확인 뒤 가이드와 스킬을 같이 | `harness/docs/guides/agent-design-guide.md:84` · `harness/skills/create-agent/SKILL.md:25` · `harness/skills/create-skill/SKILL.md:29` · `harness/docs/guides/skill-design-guide.md` §frontmatter(`:393` · `:806` 근처) | c2 F1H-40 · F1H-40 · phase1/4 notes | 외부 EX-2 · EX-3 |
 | GD-4 | 같은 작업 폴더에서 `checkout -b` 하지 않는다는 문장을 Step 6.7 (a) 와 skill 가이드 §9 에 | `harness/skills/sprint-contract/SKILL.md:764` · `harness/docs/guides/skill-design-guide.md` §9 | c2 F1H-40 · F1H-40 · phase4 넘김 | |
 | GD-5 | `/sprint` Step 3 원인 가르기 판정 표 — CI 에서만 보이는 두 경우 · 첫 줄 「내가 쓴 목록 밖이면 남의 미커밋」 이 느슨함. 글자 사본 둘도 같이 | `harness/skills/sprint/SKILL.md:116-120` · `docs/infra/platform/cicd.md:77` · `rust-kit/skills/rust-preflight/SKILL.md:123` | c4d 넘김 첫째(F1H-41 앞절반) · F1H-41 · phase8/9 notes | |
 | GD-6 | 세 화면 규약(design · flutter · react)이 같이 쓰는 숫자(2 개 이상 · 3 회)의 원문 절을 skill 가이드에 두고 규약은 인용으로 | `harness/docs/guides/skill-design-guide.md` 새 절 → `design-kit/references/visual-change-protocol.md` · `flutter-toolkit/references/visual-evidence-protocol.md` · `react-kit/references/render-evidence-protocol.md` | c2 F1H-43 · F1H-43 · F1K-15 · phase6/10 notes | KD-3 가 뒤따름 |
 | GD-7 | §3.7 ①~④ 생성 측 짝 · 알려진 답은 흔한 실수를 넣은 사본에서 값이 떨어지는지 봉인 전에 | `harness/docs/guides/skill-design-guide.md` §3.7 | c2 F1H-38 · phase3 넘김 · phase13 메모 | |
-| GD-8 | 근거 다시 확인 뒤 고칠 것 — agent 가이드 §7 오류 문구 둘 짝 · `omitClaudeMd` · `experimental` 뜻 · 문장 삭제 사본 검토 절차 · 평가 가이드 「12 개 이상의 편향」 | `harness/docs/guides/agent-design-guide.md` §7 · `harness/docs/guides/qa-evaluation-guide.md:147` · `:1944` | c2 F1H-80 · F1H-80 · phase1/3 notes | 외부 EX-2 · EX-4 |
+| GD-8 | 근거 다시 확인 뒤 고칠 것 — agent 가이드 §7 오류 문구 둘 짝 · `omitClaudeMd` · `experimental` 뜻 · 문장 삭제 사본 검토 절차 · 평가 가이드 「12 개 이상의 편향」 | `harness/docs/guides/agent-design-guide.md` §7 · `harness/docs/guides/qa-evaluation-guide.md:147` · `:1965` | c2 F1H-80 · F1H-80 · phase1/3 notes | 외부 EX-2 · EX-4 |
 | GD-9 | contract-kaizen · evaluator-kaizen Step 7 회귀 검사가 새 실행기 `scripts/run-kaizen-assertions.py` 를 부르게 | `harness/skills/contract-kaizen/SKILL.md:112-120` · `harness/skills/evaluator-kaizen/SKILL.md:109~` | c1a 넘김 셋째 | |
 | GD-10 | 판정값을 바꾸는 계약은 `templates/` 리포트 틀까지 판정값 낱말로 검색해 범위를 잡는다 | `harness/skills/sprint-contract/SKILL.md` 복잡도 · 범위 절 | c4b 메모 2 | |
 | GD-11 | QA 를 다시 부르기 전 앞 회차 리포트를 커밋하거나 지운다 | `harness/skills/sprint/SKILL.md` QA 걸음 · `harness/agents/qa-evaluator.md` | c4b 메모 4 | |
@@ -148,7 +148,7 @@
 
 | ID | 요지 | 고칠 파일:줄 | 출처 | 비고 |
 | --- | --- | --- | --- | --- |
-| KRf-1 | 「엔트리 0 이고 Stop 실패 시도가 1 이상일 때」 가 코드와 다름 — 「마지막 기록 · 정상 종료 뒤의 실패 시도」 로 | `reflect-kit/skills/reflect-digest/SKILL.md:259` · `:315` | c3c 메모 4 | |
+| KRf-1 | 「엔트리 0 이고 Stop 실패 시도가 1 이상일 때」 가 코드와 다름 — 「마지막 기록 · 정상 종료 뒤의 실패 시도」 로 | `reflect-kit/skills/reflect-digest/SKILL.md:259` · `:319` | c3c 메모 4 | |
 | KRf-2 | 머리 주석이 아직 「`claude -p --model haiku`로 재시도」 — 실제는 `--safe-mode` | `reflect-kit/hooks/log-reflection.sh:250` | c3c 메모 5 | |
 | KRf-3 | README 예시 `bash ${CLAUDE_PLUGIN_ROOT}/scripts/install-scheduler.sh` 따옴표 없음 | `reflect-kit/README.md:156` · `:159` · `:162` | c1a 넘김 일곱째 | |
 | KRf-4 | F1K-39 남은 것 — hooks `async` · `last_assistant_message` · 지워진 워크트리 | `reflect-kit/hooks/` | F1K-39 · phase12 notes | 외부 EX-1(hooks 문서) |
@@ -183,7 +183,7 @@
 | ID | 요지 | 고칠 파일:줄 | 출처 | 비고 |
 | --- | --- | --- | --- | --- |
 | KA-1 | `/api-ui` 보고 목록 Step 7 줄에 칩 숫자 · 트리 줄 수(`chips` · `rows`)가 없다 | `api-kit/skills/api-ui/SKILL.md:241` (정한 곳 `:198`, 옮기라는 곳 `:186`) | c4a R1 | |
-| KA-2 | 판정 줄이 어느 항목 것인지 적는 모양을 `/api-verify` 가 정하지 않음 → 정하고 `/api-ui` 는 앞머리를 떼고 옮긴다고 | `api-kit/skills/api-verify/SKILL.md:144` · `:177` · `api-kit/skills/api-ui/SKILL.md:90` · 예시 `api-kit/evals/fixtures/unjudged/.api/reports/2026-09-02T1422-dev/report.md:23` · `ui.html:1509` | c4a R4 | |
+| KA-2 | 판정 줄이 어느 항목 것인지 적는 모양을 `/api-verify` 가 정하지 않음 → 정하고 `/api-ui` 는 앞머리를 떼고 옮긴다고 | `api-kit/skills/api-verify/SKILL.md:144` · `:185` · `api-kit/skills/api-ui/SKILL.md:90` · 예시 `api-kit/evals/fixtures/unjudged/.api/reports/2026-09-02T1422-dev/report.md:23` · `ui.html:1509` | c4a R4 | |
 | KA-3 | 보류 · flaky 를 화면이 어떻게 보일지 규칙이 없다 | `api-kit/skills/api-ui/references/viewer-spec.md` | c4a 넘김 첫째 | |
 | KA-4 | binary64 밖 숫자는 RFC 7493 이 SHOULD NOT 인데 킷은 실패로 막는다 — 표준보다 엄격하다는 걸 킷 문서에 밝힐지 | `api-kit/skills/api-contract/SKILL.md:72` · `api-verify/SKILL.md:125` · `api-probe/SKILL.md:191` | api0 「다음에」 | 근거 `.harness/.meta/evidence/rfc7493-ijson-2026-09-26.md` 있음 |
 | KA-5 | F1K-57 남은 것 — `/api-contract` §9 예시 · CSP(v7 · v8 시안엔 없음, 예시 ui.html 에만) | `api-kit/skills/api-contract/SKILL.md` §9 | F1K-57 · c4a 넘김 셋째 | |
@@ -203,12 +203,12 @@
 | DC-2 | 좁은 화면 기준 폭에 320 — typography-scale 9px 넘침, theming 코드 줄 잘림 | `docs/design-kit/typography-scale.html` CSS `:179` · 마크업 `:577` · `docs/flutter-toolkit/theming.html`(`ColorScheme.fromSeed(seedColor` 줄) · 문서 사이트 시험 · `.claude/skills/docs-site/SKILL.md` 기준 폭 | FU-10(C3b) · c3b 메모 3 · d2 넘김 | **부모 결정 (b)** |
 | DC-3 | 원본이 바뀌었는데 페이지가 옛 판 — contract-design-guide · qa-evaluation-guide 페이지는 v5.1 제목에 `measurement_digest` 0 건, static-evidence-viewer-contract 페이지는 「판정 불가」 0 건 | `docs/harness/contract-design-guide.html` · `docs/harness/qa-evaluation-guide.html` · `docs/api-kit/static-evidence-viewer-contract.html` | d2 N3 · 이번 확인 | 원본 `1922551` · `48618f6` 뒤 링크 한 줄 말고 안 바뀜 |
 | DC-4 | 검증 가이드 고친 뒤 페이지 다시 맞춤 | `docs/harness/plugin-validation.html` | c1a 넘김 · GD-1 | |
-| DC-5 | docs-site 스킬 안 어긋난 안내 — `:109` Motion 따로 대응 → 「공통 파일이 맡는다」, `:16` · `:5` standalone 과 공통 파일 링크, `:104` 행간 1.2~1.6 | `.claude/skills/docs-site/SKILL.md:5` · `:16` · `:104` · `:109` | d2 N2 · d2 넘김 셋째 · 넷째 | KD-2 · VS-18 과 같이 |
+| DC-5 | docs-site 스킬 안 어긋난 안내 — `:109` Motion 따로 대응 → 「공통 파일이 맡는다」, `:16` · `:5` standalone 과 공통 파일 링크, `:104` 행간 1.2~1.6 | `.claude/skills/docs-site/SKILL.md:5` · `:16` · `:112` · `:117` | d2 N2 · d2 넘김 셋째 · 넷째 | KD-2 · VS-18 과 같이 |
 | DC-6 | bambu 미검증 표에 「종류 줄만 빠진 목록」 행, 「비었거나 깨짐」 행은 canonical 0 줄일 때로 | `docs/bambu-kit/bambu-print-profile.html:1647` | d1 R1 | KBa-1 뒤 |
 | DC-7 | 「(표 칸에 옮기면 대안 기호가 깨진다)」 는 HTML 표에선 틀린 말 — 괄호 한 토막 빼기 | `docs/tone-kit/dart-flutter-idioms.html:1287` | d1 R2 | |
 | DC-8 | 「정본은」 → 「기준 기록은」 | `docs/api-kit/multi-sample-pagination-variance.html:430` | d1 R4 | |
 | DC-9 | 매핑 규칙 결정 — 짝 원본 없는 등록 페이지 21 쪽(`design-kit/references/visual-styles.md` 후보) · 없는 페이지를 가리키는 원본 43 개 이름 규칙 · howto `design-brief.md` ↔ `overview.html` 짝 · `process (공유)` 행 원본 칸을 오케스트레이터 SKILL.md 로 | `.claude/skills/docs-site/SKILL.md:68` 매핑 표 · `scripts/detect-docs-drift.py` | c1b 넘김 N1~N3 · c3b 넘김 넷째 | VS-13 과 같이 |
-| DC-10 | 원본 md 쪽 옛 시안 v7 기재 | `docs/api/verification/static-evidence-viewer-contract.md:10` · `:82` · `:86` · `docs/superpowers/specs/2026-09-02-api-kit-design.md:483` · `:595` · `docs/api-kit/static-evidence-viewer-contract.html`(v7 5 곳) | c4a 넘김 둘째 | 원문 수정 대상 |
+| DC-10 | 원본 md 쪽 옛 시안 v7 기재 | `docs/api/verification/static-evidence-viewer-contract.md:10` · `:83` · `:87` · `docs/superpowers/specs/2026-09-02-api-kit-design.md:483` · `:595` · `docs/api-kit/static-evidence-viewer-contract.html`(v7 5 곳) | c4a 넘김 둘째 | 원문 수정 대상 |
 | DC-11 | 스크립트가 직접 주는 움직임(smooth 스크롤 다섯 쪽 · `.animate(` 한 쪽)은 공통 CSS 로 못 끈다 | `docs/design-kit/design-template.html` · `grid-alignment.html` · `ratio-proportion.html` · `visual-hierarchy.html` · `docs/process/kaizen-flow.html` · `docs/flutter-toolkit/animation.html` | d2 넘김 둘째 | 이번 확인에서 smooth 스크롤 쪽이 더 있음(backend-kit 셋 등) — 전수 다시 |
 | DC-12 | 어두운 테마 전용 11 쪽의 밝은 테마 | c3b 가 손본 11 쪽 | c3b 넘김 셋째 | 공통 틀 변경 |
 | DC-13 | 긴 쪽 `contract-schema.html` 이 같은 판 픽셀 비교에서도 1118px 흔들림 — 원인 조사 | `docs/harness/contract-schema.html` | d2 넘김 끝 | |

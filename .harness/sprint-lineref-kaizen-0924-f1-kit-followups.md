@@ -9,6 +9,7 @@
 | 계약 줄 | 옛 참조 | 새 참조 | 대상 파일 | 처리 |
 | --- | --- | --- | --- | --- |
 | 86 | `DESIGN.md:172` | `DESIGN.md:179` | reflect-kit/docs/DESIGN.md | 본문 — 직접 고침 |
+| 86 | `:189` | `:197` | reflect-kit/docs/DESIGN.md | 본문 — 직접 고침 |
 | 93 | `docs/api/contract/error-status-contracts.md:25` | `docs/api/contract/error-status-contracts.md:26` | docs/api/contract/error-status-contracts.md | 본문 — 직접 고침 |
 | 138 | `api-contract/SKILL.md:67` | `api-contract/SKILL.md:71` | api-kit/skills/api-contract/SKILL.md | 본문 — 직접 고침 |
 | 285 | `visual-evidence-protocol.md:151-154` | `visual-evidence-protocol.md:155-158` | flutter-toolkit/references/visual-evidence-protocol.md | 본문 — 직접 고침 |
@@ -20,6 +21,8 @@
 | 340 | `docs/infra/platform/cicd.md:77` | `docs/infra/platform/cicd.md:78` | docs/infra/platform/cicd.md | 본문 — 직접 고침 |
 | 340 | `rust-preflight/SKILL.md:113` | `rust-preflight/SKILL.md:124` | rust-kit/skills/rust-preflight/SKILL.md | 본문 — 직접 고침 |
 | 340 | `render-evidence-protocol.md:54` | `render-evidence-protocol.md:58` | react-kit/references/render-evidence-protocol.md | 본문 — 직접 고침 |
+| 340 | `:59` | `:63` | react-kit/references/render-evidence-protocol.md | 본문 — 직접 고침 |
+| 340 | `:106` | `:110` | react-kit/references/render-evidence-protocol.md | 본문 — 직접 고침 |
 | 345 | `api-design.md:102` | `api-design.md:103` | docs/backend/fundamentals/api-design.md | 본문 — 직접 고침 |
 | 345 | `docs/api/contract/error-status-contracts.md:25` | `docs/api/contract/error-status-contracts.md:26` | docs/api/contract/error-status-contracts.md | 본문 — 직접 고침 |
 | 345 | `api-design.md:35` | `api-design.md:36` | docs/backend/fundamentals/api-design.md | 본문 — 직접 고침 |

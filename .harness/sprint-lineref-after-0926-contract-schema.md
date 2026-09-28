@@ -16,10 +16,20 @@
 | 82 | `qa-evaluation-guide.md:1210` | `qa-evaluation-guide.md:1223` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
 | 83 | `contract-design-guide.md:1311` | `contract-design-guide.md:1327` | harness/docs/guides/contract-design-guide.md | 본문 — 직접 고침 |
 | 83 | `qa-evaluation-guide.md:12` | `qa-evaluation-guide.md:16` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 83 | `:15` | `:19` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 83 | `:22` | `:26` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 83 | `:1968` | `:1989` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 83 | `:2038` | `:2063` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 83 | `:2047` | `:2072` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
 | 110 | `harness/docs/guides/qa-evaluation-guide.md:1210` | `harness/docs/guides/qa-evaluation-guide.md:1223` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
 | 110 | `harness/skills/sprint-contract/SKILL.md:471` | `harness/skills/sprint-contract/SKILL.md:477` | harness/skills/sprint-contract/SKILL.md | 본문 — 직접 고침 |
 | 110 | `harness/docs/guides/contract-design-guide.md:1311` | `harness/docs/guides/contract-design-guide.md:1327` | harness/docs/guides/contract-design-guide.md | 본문 — 직접 고침 |
 | 110 | `harness/docs/guides/qa-evaluation-guide.md:12` | `harness/docs/guides/qa-evaluation-guide.md:16` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 110 | `:15` | `:19` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 110 | `:22` | `:26` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 110 | `:1968` | `:1989` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 110 | `:2038` | `:2063` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
+| 110 | `:2047` | `:2072` | harness/docs/guides/qa-evaluation-guide.md | 본문 — 직접 고침 |
 | 206 | `harness/docs/guides/qa-evaluation-guide.md:1210` | `harness/docs/guides/qa-evaluation-guide.md:1223` | harness/docs/guides/qa-evaluation-guide.md | 측정 줄 — 그대로 둠 |
 | 206 | `harness/skills/sprint-contract/SKILL.md:471` | `harness/skills/sprint-contract/SKILL.md:477` | harness/skills/sprint-contract/SKILL.md | 측정 줄 — 그대로 둠 |
 | 206 | `harness/docs/guides/contract-design-guide.md:1311` | `harness/docs/guides/contract-design-guide.md:1327` | harness/docs/guides/contract-design-guide.md | 측정 줄 — 그대로 둠 |

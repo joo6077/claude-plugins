@@ -42,7 +42,7 @@ locked_at: "2026-09-25 06:16"
 2. **관례 대조 (F02).** `widget-inspector.md` 감지 기준 여섯에 관례 대조가 없다. 부르는 두 스킬(`flutter-widget/SKILL.md:266` · `flutter-screen/SKILL.md:286`)이 관례 표를 넘기지 않는다
 3. **시험 함정 (F24).** `flutter-test/SKILL.md` Gotchas(`:15-27`)에 로캘 고정 · 빌드 도중 provider 수정이 없다
 4. **카탈로그 타일 (F22).** `flutter-widget/SKILL.md:233-243` 카탈로그 등록 절에 타일 높이 이야기가 없다
-5. **특정 이름 (러닝북).** `fit-pal` 이 킷 파일 일곱 개 아홉 줄, `apps` 가 네 줄, 화면 조종 도구 이름이 `figma-parity-self-verify.md:50` · `:58` 에 있다
+5. **특정 이름 (러닝북).** `fit-pal` 이 킷 파일 일곱 개 아홉 줄, `apps` 가 네 줄, 화면 조종 도구 이름이 `figma-parity-self-verify.md:50` · `:62` 에 있다
 6. **`[미검증]` 사유 한 줄 (Phase 1 넘김).** 설계 가이드 §3.7 5 조항 3 항은 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 요구하는데
    규약 `:136` 과 스킬 일곱 줄 · 평가 사례 한 줄이 「마커와 사유」 로 남아 있다
 7. **틀린 버전 사실 (근거 §3).** Freezed 「최신 stable 3.2.5」 여섯 줄(지금 4.0.2), Flutter 「현재 stable 3.47.0」 세 줄(지금 3.47.5)

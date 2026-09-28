@@ -66,7 +66,7 @@ locked_at: "2026-09-26 21:02"
 | `flutter-toolkit/skills/flutter-audit/SKILL.md` | `:30-51` 「아래 5 조항은 정본을 문구 변형 없이 복제」 · `:41` 「임계값은 2 다」 · `:25` L3 Honesty · `:407-411` Unverifiable 틀 · `:425` 「미검증 누계 임계(2 건)」 | 원문이 v5.1 로 바뀌었는데(`qa-evaluation-guide.md:1260-1311` 번호 목록 · `:892-900` 4 요건) 옛 다섯 조항이 남았다. c4b 가 reviewer 일곱만 옮기고 넘겼다(`c4b-notes.md:99`) | SK-01 · SK-02 |
 | `react-kit/agents/react-reviewer.md` | `:169` 사본 출처 v5.1 · `:171-226` 번호 목록 · `:228-237` 4 요건 | KRe-1 의 「react-reviewer §10」 은 c4b `446428a` 가 처리했다 | 처리됨 |
 | `flutter-toolkit/evals/evals.json` | 사례 16(`id: 16`) 마지막 단언 · 사례 18 마지막 단언 「생성 후 $DART test로 검증한다」 · 사례 23 개 | 「건너뜀 — 관례 표 없는 호출」 을 재는 사례가 없다. 사례 18 이 flutter-test Step 4(`flutter-test/SKILL.md:152` `$FLUTTER test`)와 어긋난다 | SK-03 · SK-07 |
-| `flutter-toolkit/agents/widget-inspector.md` · `skills/flutter-feature/SKILL.md` | `widget-inspector.md:147` · `:198` · `:246` · `flutter-feature/SKILL.md:199` | 새 칸 값 규칙은 이미 있다 — 사례만 없다 | SK-03 (근거) |
+| `flutter-toolkit/agents/widget-inspector.md` · `skills/flutter-feature/SKILL.md` | `widget-inspector.md:147` · `:212` · `:260` · `flutter-feature/SKILL.md:199` | 새 칸 값 규칙은 이미 있다 — 사례만 없다 | SK-03 (근거) |
 | `CLAUDE.md` (루트) | `:52` 「23개 테스트 케이스」 · `:373` 「20개 스킬별 assertion」 | 두 문장이 서로 다르다 | SK-04 |
 | `flutter-toolkit/skills/flutter-kaizen/SKILL.md` | `:28-50` `## Gotchas` · `:37-44` 짝 스킬 표 | Makefile 규칙 스킬 넷을 계약 허용 경로에 처음부터 넣으라는 교훈이 없다(`c3a-notes.md:155-156`) | SK-05 |
 | `flutter-toolkit/skills/flutter-api/SKILL.md` · `flutter-feature/SKILL.md` · `flutter-screen/SKILL.md` | `flutter-api:333-336` · `flutter-feature:147-151` · `flutter-screen:269-272` | 사용자에게 보이는 codegen 안내가 flutter-run 의 전후 삭제 수 블록을 가리키지 않는다(`phase5-notes.md:81`) | SK-06 |
@@ -81,7 +81,7 @@ locked_at: "2026-09-26 21:02"
 | `planning-kit/skills/plan-sync-github/SKILL.md` · `docs/planning/research-log.md` | `plan-sync-github:18` Gotcha 4 · `:171` `apiVersion=2022-11-28` · `research-log.md:31-32` | 지원 기한(2028-03-10)은 설치되지 않는 `docs/` 에만 있다 | SK-13 |
 | `docs/planning/flows.md` · `data-modeling.md` | `flows.md:61` 「최신 안정판은 12.0.0」 · `data-modeling.md:90` ELK · 「문법은 그대로」 | EX-10 판정 「맞음」 — Mermaid 12 는 처리됨. `flows.md:61` 의 「최신 안정판」 수식어만 원문 직접 인용이 아니다 | 처리됨 (범위 경계) |
 | `docs/react/research-log.md` | `:39` 19.3 표 줄 · `:437` `react-view-transitions` 「backlog (canary 대기)」 · `:496` 같은 이름 다른 표 | canary 대기가 풀렸는데 backlog 줄이 그대로 | SK-14 |
-| `docs/react/kit-design/*.md` 여덟 | 모두 `last_updated: 2026-04-10`. `g6-build-audit.md:52` dev 줄 「포트 5173」(strictPort 없음) · `:144-206` §3 여덟 단계(스킬은 일곱) · `:416` `verdict: APPROVE \| REJECT` · `g1-scaffolding.md:192-193` 「/harness init 호출 → .harness/project.yaml 자동 생성」 · `final-integration.md:243` · `:486` | 2026-04-11 뒤 스킬 바뀜 커밋(문서별 2~9 개, 합 47 개)이 반영 안 됐다. `render-evidence-protocol` · `strictPort` · `BLOCKED` · `passed` 는 여덟 문서 모두 0 | SK-15 · SK-16 |
+| `docs/react/kit-design/*.md` 여덟 | 모두 `last_updated: 2026-04-10`. `g6-build-audit.md:52` dev 줄 「포트 5173」(strictPort 없음) · `:144-206` §3 여덟 단계(스킬은 일곱) · `:416` `verdict: APPROVE \| REJECT` · `g1-scaffolding.md:192-193` 「/harness init 호출 → .harness/project.yaml 자동 생성」 · `final-integration.md:243` · `:487` | 2026-04-11 뒤 스킬 바뀜 커밋(문서별 2~9 개, 합 47 개)이 반영 안 됐다. `render-evidence-protocol` · `strictPort` · `BLOCKED` · `passed` 는 여덟 문서 모두 0 | SK-15 · SK-16 |
 
 ## Skill
 

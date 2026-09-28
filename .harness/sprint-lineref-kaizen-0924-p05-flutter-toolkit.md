@@ -20,6 +20,7 @@
 | 42 | `flutter-screen/SKILL.md:276` | `flutter-screen/SKILL.md:286` | flutter-toolkit/skills/flutter-screen/SKILL.md | 본문 — 직접 고침 |
 | 44 | `flutter-widget/SKILL.md:226-235` | `flutter-widget/SKILL.md:233-243` | flutter-toolkit/skills/flutter-widget/SKILL.md | 본문 — 직접 고침 |
 | 45 | `figma-parity-self-verify.md:46` | `figma-parity-self-verify.md:50` | flutter-toolkit/references/figma-parity-self-verify.md | 본문 — 직접 고침 |
+| 45 | `:58` | `:62` | flutter-toolkit/references/figma-parity-self-verify.md | 본문 — 직접 고침 |
 | 145 | `flutter-audit/SKILL.md:50` | `flutter-audit/SKILL.md:54` | flutter-toolkit/skills/flutter-audit/SKILL.md | 본문 — 직접 고침 |
 | 157 | `flutter-toolkit/skills/flutter-feature/SKILL.md:193` | `flutter-toolkit/skills/flutter-feature/SKILL.md:199` | flutter-toolkit/skills/flutter-feature/SKILL.md | 본문 — 직접 고침 |
 | 158 | `flutter-toolkit/skills/flutter-extract/SKILL.md:41` | `flutter-toolkit/skills/flutter-extract/SKILL.md:45` | flutter-toolkit/skills/flutter-extract/SKILL.md | 본문 — 직접 고침 |

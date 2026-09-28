@@ -80,7 +80,7 @@ locked_at: "2026-09-26 20:00"
 | CS-11 | `contract-schema.md` 전체 | `@import` · `plugins` 규칙 0 건 (`:1270` 의 `claude-plugins` 는 경로) | SK-13 |
 | 판 번호 | `contract-schema.md:6` · `:1301` · `:1303-1305` | 머리 v5.6 · 절 v5.5 · 이력 첫 줄 v5.5 | AR-03 |
 | 소비면 | `qa-evaluation-guide.md:1223` · `SKILL.md:471` · `docs/harness/contract-schema.html` | 이 묶음 범위 밖 — 넘김 기록 | AR-04 |
-| 판 번호를 옮겨 적은 자리 | `contract-design-guide.md:1327` (버전 정보 표 `v5.5`) · `docs/index.html:239` (목차 제목 `v5.5`) · `qa-evaluation-guide.md:16` · `:15` · `:22` · `:1968` · `:2038` · `:2047` (`v5.5`) | 지금도 v5.6 을 못 따라갔다. 이 묶음 범위 밖 — 넘김 기록 (교차 진단이 찾았다) | AR-04 |
+| 판 번호를 옮겨 적은 자리 | `contract-design-guide.md:1327` (버전 정보 표 `v5.5`) · `docs/index.html:239` (목차 제목 `v5.5`) · `qa-evaluation-guide.md:16` · `:19` · `:26` · `:1989` · `:2063` · `:2072` (`v5.5`) | 지금도 v5.6 을 못 따라갔다. 이 묶음 범위 밖 — 넘김 기록 (교차 진단이 찾았다) | AR-04 |
 
 도우미 이름 열셋(`resolve_contract_root` · `list_contracts` · `fm_get` · `sha256_16` · `contract_digest` · `verify_seal` · `measurement_digest` · `verify_measurement` · `sprint_head` · `mine` · `unsigned_on` · `amend_direction` · `amend_direction_oracle`)은 B 판에서 정의가 각각 1 번이다. 새 이름 셋(`with_two` · `line_of` · `dirty_except_status`)은 0 번이다.
 
@@ -107,7 +107,7 @@ locked_at: "2026-09-26 20:00"
 
 - 고치는 파일은 셋이다: `harness/references/contract-schema.md` · `harness/references/feedback-schema.yaml` · `harness/skills/sprint-contract/SKILL.md`. SKILL.md 는 CS-9 한 줄만, Step 4 절 안에서 더한다. 다른 묶음(gd · pd · hs)이 같은 SKILL.md 의 Step 1 · 6 · 6.7 · 9 와 계약 형식 문서 측정 절을 고칠 수 있어 절 단위로 자리를 잠갔다.
 - 문서 사이트 `docs/harness/*.html` 은 부모가 마지막에 다시 만든다. harness `plugin.json` 판 올림 · marketplace · README 도 부모 몫이다.
-- 명시적 미완 (소비면 가운데 이번에 안 바꾸는 것) — 넘김 기록 `.harness/.meta/after-kaizen-0926b/cs-notes.md` 에 `경로:줄` 로 적는다: `harness/docs/guides/qa-evaluation-guide.md:1223` 의 「①~④ 의 짝은 다음 사이클 Phase 1 · 2 로 넘긴다」 (계약 측 짝이 생기면 낡는다 · 생성 측 짝 GD-7 과 함께 고친다), `harness/skills/sprint-contract/SKILL.md:477` 조건 패턴 표 (v5.5 다섯 — 새 패턴 둘이 없다. Step 2 는 이 묶음 표에 없는 절이다), `docs/harness/contract-schema.html` (문서 사이트). 판 번호를 옮겨 적은 자리 여덟도 같이 적는다: `harness/docs/guides/contract-design-guide.md:1327` · `docs/index.html:239` · `harness/docs/guides/qa-evaluation-guide.md:16` · `:15` · `:22` · `:1968` · `:2038` · `:2047` — v5.7 로 올리면 갭이 더 벌어진다.
+- 명시적 미완 (소비면 가운데 이번에 안 바꾸는 것) — 넘김 기록 `.harness/.meta/after-kaizen-0926b/cs-notes.md` 에 `경로:줄` 로 적는다: `harness/docs/guides/qa-evaluation-guide.md:1223` 의 「①~④ 의 짝은 다음 사이클 Phase 1 · 2 로 넘긴다」 (계약 측 짝이 생기면 낡는다 · 생성 측 짝 GD-7 과 함께 고친다), `harness/skills/sprint-contract/SKILL.md:477` 조건 패턴 표 (v5.5 다섯 — 새 패턴 둘이 없다. Step 2 는 이 묶음 표에 없는 절이다), `docs/harness/contract-schema.html` (문서 사이트). 판 번호를 옮겨 적은 자리 여덟도 같이 적는다: `harness/docs/guides/contract-design-guide.md:1327` · `docs/index.html:239` · `harness/docs/guides/qa-evaluation-guide.md:16` · `:19` · `:26` · `:1989` · `:2063` · `:2072` — v5.7 로 올리면 갭이 더 벌어진다.
 - 교차 진단 반영 (봉인 전, 2026-09-26): SK-01 측정에 `Step 7` 을 더했다 · AR-02 의 제목 수를 실제 값 열넷으로 고쳤다 · AR-04 에 판 번호 자리 여덟을 더했다 · SK-13 에 교훈 다섯과 낱말 여덟의 관계를 적었다. 넷 모두 조건을 좁히는 쪽이다. `m.sh` 가 바뀌어 AR-05 의 `m.sh` 값을 새로 쟀다. SC-01 ~ SC-03 의 `[goal]` 은 그대로 둔다 — 도우미 안쪽 구현은 자유이고 이름은 SK-03 `[exact]` 가 이미 잠근다.
 - 기존 편집기 경고: B 판에서 markdownlint-cli2 0.23.2 · MD013 끔 기준 `contract-schema.md` 8 건(`:519` · `:536` · `:537` 표 모양) · `SKILL.md` 9 건(`:104` · `:344` · `:406` · `:412` · `:425` · `:451` · `:628` · `:841` · `:850`). 둘 다 이 묶음 표에 없는 절이고 VS-26 목록에도 없다 — 이번에 더한 줄의 경고만 0 으로 잰다. 넘김 기록에 적어 부모가 배정한다.
 - 구현 단계는 `tone-kit:tone-guide` 1 단계를 부른 뒤 편집하고, 완료 전 5 단계 대조를 한다. 새 도우미 코드는 `harness/references/` 라 톤 범위 안이다.

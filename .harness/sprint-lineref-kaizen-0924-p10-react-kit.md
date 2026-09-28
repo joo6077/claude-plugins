@@ -13,6 +13,7 @@
 | 41 | `react-preflight/SKILL.md:111` | `react-preflight/SKILL.md:115` | react-kit/skills/react-preflight/SKILL.md | 본문 — 직접 고침 |
 | 41 | `react-run/SKILL.md:70` | `react-run/SKILL.md:74` | react-kit/skills/react-run/SKILL.md | 본문 — 직접 고침 |
 | 42 | `react-l10n/SKILL.md:150-151` | `react-l10n/SKILL.md:154-155` | react-kit/skills/react-l10n/SKILL.md | 본문 — 직접 고침 |
+| 140 | `:482` | `:483` | docs/react/kit-design/final-integration.md | 본문 — 직접 고침 |
 | 164 | `react-kit/skills/react-init/SKILL.md:202` | `react-kit/skills/react-init/SKILL.md:207` | react-kit/skills/react-init/SKILL.md | 본문 — 직접 고침 |
 | 165 | `docs/react/kit-design/g4-quality.md:564` | `docs/react/kit-design/g4-quality.md:567` | docs/react/kit-design/g4-quality.md | 본문 — 직접 고침 |
 | 264 | `react-kit/skills/react-audit/SKILL.md:279` | `react-kit/skills/react-audit/SKILL.md:287` | react-kit/skills/react-audit/SKILL.md | 본문 — 직접 고침 |

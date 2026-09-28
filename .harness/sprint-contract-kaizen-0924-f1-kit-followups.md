@@ -83,7 +83,7 @@ Codex 지적은 조건 수를 늘리지 않으려고 그 킷의 기존 조건에
 | `infra-kit/references/gate-result-taxonomy.md` | `:42` 「같은 원칙이 **규칙 소스**에도 적용된다」 | 번역투(K-02 `(표시\|적용\|…)(됩니다\|된다)`). 같은 문장을 infra-audit Gotcha 12 는 「해당한다」 로 고쳤다 | ER-02 |
 | `rust-kit/skills/rust-audit/SKILL.md` · `rust-model/SKILL.md` | `rust-audit:36` Gotcha 16 · `rust-model:31` | 네 칸 없는 `[미검증]` 두 자리 — rust-run (c) 와 같은 상황인데 이번 사이클 전수 감사가 놓쳤다 | SK-04 |
 | `react-kit/skills/react-init/SKILL.md` · `react-run/SKILL.md` | `react-init:61` ~ `:88` 단계 2 · `:203` · `react-run:21` · `templates/vite.config.template.ts:24` ~ `:28` (`port: 5173` · `strictPort: true`) | react-init 이 템플릿을 쓰지 않아 `strictPort` 가 실제 프로젝트에 안 들어간다 — 두 자리의 「템플릿이 strictPort: true 라」 단정이 틀리다 | SK-05 |
-| `reflect-kit/docs/SCHEMA.md` · `DESIGN.md` | `SCHEMA.md:123` §3 · `:145` · `DESIGN.md:179` · `:189` · 훅 `log-reflection.sh:147` · `:149` | 훅이 적는 `warn:lemma-map-unreadable` · `vocab:…` 가 두 문서 태그 목록에 없다 (손으로 센 답 2) | SK-06 |
+| `reflect-kit/docs/SCHEMA.md` · `DESIGN.md` | `SCHEMA.md:123` §3 · `:145` · `DESIGN.md:179` · `:197` · 훅 `log-reflection.sh:147` · `:149` | 훅이 적는 `warn:lemma-map-unreadable` · `vocab:…` 가 두 문서 태그 목록에 없다 (손으로 센 답 2) | SK-06 |
 | `bambu-kit/skills/bambu-print-profile/SKILL.md` | `:1600` 완료 검사 · `:1892` ~ `:1898` 음성 대조 블록 (1) · `:1992` ~ `:1994` 빈 목록 변이 · `:2015` | enum 줄만 빠진 목록이면 enum 검사가 조용히 꺼지고 `RESULT: PASS`. (1) 은 폴더 → 표 · 실행 줄 한 방향만 본다 | SK-07 |
 | `onboarding-kit/skills/setup-guide/SKILL.md` · `evals/evals.json` | `SKILL.md:198` Gotcha 8 의 1 번 · `:202` 값 든 `.env` 문단 · `evals.json:124` | Grep 목록에 `.env*` · `**/*.p8` 이 있다(내용이 출력된다). 평가 항목이 여전히 `.env` 를 기준으로 삼는다 | SK-08 (a)(b) |
 | `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `:5` · `:28` ~ `:31` · `:46` · `:370` · `:381` · `:384` · `:385` · `:392` | 낡은 Xcode · iOS 값, 근거 없는 시뮬레이터 수신 주장 셋, 막는 요구가 한 줄, 특정 앱 이름 다섯 줄 | SK-08 (c) |
@@ -337,7 +337,7 @@ howto-kit/evals/evals.json
 | 59 | P17 러너 `for c in data['cases']` (N P17 메모 「러너를 고칠 때 같이」) | 조건으로 다룸 — SK-11 |
 | 60 | P17 howto-audit 리포트 미검증 칸 · DITA 2.0 · 러너 음성 대조를 킷 안에 · 러너 시간 · `design-brief.md:390` (N P17) | 고치지 않음 — notes 사유 그대로 |
 | 61 | P1 넘김 — 킷 다섯 자리의 옛 `[미검증]` 문구 (N P1 → Phase 5 · 8 · 9 · 10 · 14) | 이미 반영 — 다섯 파일에서 옛 문구 0 줄(`infra-test:37` · `rust-reviewer.md:160` 은 네 칸) |
-| 62 | P4 넘김 — 판정 세 줄 (N P4 → Phase 8 · 9) · F20 (→ Phase 11) · P6 넘김 — react 규약 되말하기 · 관례 표 · 3 회 (→ Phase 10) | 이미 반영 — `docs/infra/platform/cicd.md:78` · `rust-preflight/SKILL.md:124` · plan-prd Gotcha 14 · `render-evidence-protocol.md:58` · `:59` · `:106` |
+| 62 | P4 넘김 — 판정 세 줄 (N P4 → Phase 8 · 9) · F20 (→ Phase 11) · P6 넘김 — react 규약 되말하기 · 관례 표 · 3 회 (→ Phase 10) | 이미 반영 — `docs/infra/platform/cicd.md:78` · `rust-preflight/SKILL.md:124` · plan-prd Gotcha 14 · `render-evidence-protocol.md:58` · `:63` · `:110` |
 | 63 | DG-02 교차 진단 기록 · Phase 7 · 8 · 9 · 11 개정 파일 줄 (FT · Final 지침) | 다른 계약 몫 — `kaizen-0924-final`. 이 계약은 notes `## Final 에 넘기는 것` 에 커밋 sha 를 적는다(ER-03) |
 | 64 | `check-stale-values.py` `SOURCE_DIRS` · validate-plugin V 줄 · V6 범위 · 평가자 사용자 교정 대조 (FT · XD P3 · P6 · P13) | 다른 계약 몫 — `kaizen-0924-f1-harness-followups`. 이 계약 DG-05 는 옛 값을 마흔한 파일에 직접 세고 validate-plugin 을 종료 코드와 V 줄로 함께 잰다 |
 | 65 | `.claude/skills/*-kaizen/` 고칠 것 (N P6 · P7 · P8 · P9 · P10 · P13 · P14 · P15 · P17) · `ci.yml` 줄 (N P10 · P12 · P14 · P17) · `detect-docs-drift.py` (N P14 · P16) · `save-feedback.sh` (N 여러 Phase) | 다른 계약 몫 — `kaizen-0924-f1-harness-followups` |

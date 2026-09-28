@@ -10,6 +10,8 @@
 | --- | --- | --- | --- | --- |
 | 64 | `docs/api/contract/contract-extraction-modes.md:1-7` | `docs/api/contract/contract-extraction-modes.md:1-8` | docs/api/contract/contract-extraction-modes.md | 본문 — 직접 고침 |
 | 65 | `docs/backend/research-log.md:194` | `docs/backend/research-log.md:195` | docs/backend/research-log.md | 본문 — 직접 고침 |
+| 65 | `:212` | `:214` | docs/backend/research-log.md | 본문 — 직접 고침 |
+| 65 | `:238` | `:240` | docs/backend/research-log.md | 본문 — 직접 고침 |
 | 66 | `docs/howto/drafts/SKILL.md:17` | `docs/howto/drafts/SKILL.md:18` | docs/howto/drafts/SKILL.md | 본문 — 직접 고침 |
 | 67 | `docs/bambu-calibration/calibration-reference.md:117` | `docs/bambu-calibration/calibration-reference.md:118` | docs/bambu-calibration/calibration-reference.md | 본문 — 직접 고침 |
 | 68 | `docs/kaizen/flutter-research-log.md:144` | `docs/kaizen/flutter-research-log.md:145` | docs/kaizen/flutter-research-log.md | 본문 — 직접 고침 |

@@ -184,7 +184,7 @@ AR-02 는 이 notes 커밋 뒤에 잰다.
 - `scripts/check-cause-table-copies.py:26` — 원문 덩어리가 첫 `- **미확정**` 줄에서 끝나, 원문에서 그 줄 뒤에 더한 경우는 사본이
   안 따라가도 통과한다(scratch 사본에 한 줄 넣어 `checked=2 violations=0` 확인). SC-02 가 덩어리를 그렇게 정의했으므로 계약
   위반은 아니고 설계 한계다. 끝 표시를 덩어리 뒤 빈 줄이나 다음 절 머리로 옮길지 판단이 필요하다
-- `harness/docs/guides/contract-design-guide.md:775` — 「작성 시점 패턴(조건 패턴 5 종)」 이 옛 수로 남았다. 같은 가지가
+- `harness/docs/guides/contract-design-guide.md:759` — 「작성 시점 패턴(조건 패턴 5 종)」 이 옛 수로 남았다. 같은 가지가
   `harness/skills/sprint-contract/SKILL.md:477` 을 「조건 패턴 8 종 (v5.7)」 로 올렸다. 옮겨 간 문장
   `docs/harness/contract-design-guide.html:1013` 에도 같은 말이 있어 문서 페이지 다시 만들 때 같이 맞춘다
 - `docs/harness/contract-schema.html` 은 목차(`docs/index.html`)만 v5.7 이고 페이지는 아직 옛 판 — 위 문서 페이지 차례에 포함

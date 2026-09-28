@@ -13,6 +13,12 @@
 | 56 | `api-kit/README.md:140-141` | `api-kit/README.md:144-145` | api-kit/README.md | 본문 — 직접 고침 |
 | 62 | `api-kit/skills/api-verify/SKILL.md:133-137` | `api-kit/skills/api-verify/SKILL.md:141-145` | api-kit/skills/api-verify/SKILL.md | 본문 — 직접 고침 |
 | 63 | `api-kit/skills/api-verify/SKILL.md:171` | `api-kit/skills/api-verify/SKILL.md:179` | api-kit/skills/api-verify/SKILL.md | 본문 — 직접 고침 |
+| 63 | `:177` | `:185` | api-kit/skills/api-verify/SKILL.md | 본문 — 직접 고침 |
+| 63 | `:206-208` | `:214-216` | api-kit/skills/api-verify/SKILL.md | 본문 — 직접 고침 |
 | 90 | `docs/api/verification/static-evidence-viewer-contract.md:9` | `docs/api/verification/static-evidence-viewer-contract.md:10` | docs/api/verification/static-evidence-viewer-contract.md | 본문 — 직접 고침 |
+| 90 | `:82` | `:83` | docs/api/verification/static-evidence-viewer-contract.md | 본문 — 직접 고침 |
+| 90 | `:86` | `:87` | docs/api/verification/static-evidence-viewer-contract.md | 본문 — 직접 고침 |
 | 91 | `api-verify/SKILL.md:100` | `api-verify/SKILL.md:108` | api-kit/skills/api-verify/SKILL.md | 본문 — 직접 고침 |
+| 91 | `:151` | `:159` | api-kit/skills/api-verify/SKILL.md | 본문 — 직접 고침 |
 | 91 | `api-verify/SKILL.md:18` | `api-verify/SKILL.md:22` | api-kit/skills/api-verify/SKILL.md | 본문 — 직접 고침 |
+| 91 | `:160` | `:168` | api-kit/skills/api-verify/SKILL.md | 본문 — 직접 고침 |

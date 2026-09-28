@@ -10,6 +10,7 @@
 | --- | --- | --- | --- | --- |
 | 61 | `skill-design-guide.md:388` | `skill-design-guide.md:392` | harness/docs/guides/skill-design-guide.md | 본문 — 직접 고침 |
 | 68 | `harness/skills/harness-kaizen/SKILL.md:194` | `harness/skills/harness-kaizen/SKILL.md:206` | harness/skills/harness-kaizen/SKILL.md | 본문 — 직접 고침 |
+| 68 | `:233` | `:245` | harness/skills/harness-kaizen/SKILL.md | 본문 — 직접 고침 |
 | 70 | `rust-init/SKILL.md:317` | `rust-init/SKILL.md:331` | rust-kit/skills/rust-init/SKILL.md | 본문 — 직접 고침 |
 | 73 | `README.md:403` | `README.md:404` | README.md | 본문 — 직접 고침 |
 | 113 | `.claude/skills/bambu-research/SKILL.md:29-32` | `.claude/skills/bambu-research/SKILL.md:33-36` | .claude/skills/bambu-research/SKILL.md | 본문 — 직접 고침 |

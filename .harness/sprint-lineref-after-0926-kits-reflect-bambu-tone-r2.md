@@ -11,4 +11,7 @@
 | 110 | `harness/docs/guides/skill-design-guide.md:302-308` | `harness/docs/guides/skill-design-guide.md:306-312` | harness/docs/guides/skill-design-guide.md | 본문 — 직접 고침 |
 | 111 | `references/materials.md:140` | `references/materials.md:147` | bambu-kit/skills/bambu-print-profile/references/materials.md | 본문 — 직접 고침 |
 | 116 | `dart-flutter-idioms.md:618` | `dart-flutter-idioms.md:625` | docs/tone/dart-flutter-idioms.md | 본문 — 직접 고침 |
+| 116 | `:686` | `:693` | docs/tone/dart-flutter-idioms.md | 본문 — 직접 고침 |
 | 116 | `naming-taxonomy.md:103` | `naming-taxonomy.md:104` | docs/tone/naming-taxonomy.md | 본문 — 직접 고침 |
+| 116 | `:127` | `:128` | docs/tone/naming-taxonomy.md | 본문 — 직접 고침 |
+| 116 | `:401` | `:402` | docs/tone/naming-taxonomy.md | 본문 — 직접 고침 |

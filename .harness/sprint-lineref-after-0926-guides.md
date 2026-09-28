@@ -14,13 +14,18 @@
 | 58 | `backend-kit/skills/backend-audit/SKILL.md:111` | `backend-kit/skills/backend-audit/SKILL.md:116` | backend-kit/skills/backend-audit/SKILL.md | 본문 — 직접 고침 |
 | 58 | `rust-kit/skills/rust-audit/SKILL.md:123` | `rust-kit/skills/rust-audit/SKILL.md:131` | rust-kit/skills/rust-audit/SKILL.md | 본문 — 직접 고침 |
 | 58 | `infra-kit/skills/infra-audit/SKILL.md:94` | `infra-kit/skills/infra-audit/SKILL.md:100` | infra-kit/skills/infra-audit/SKILL.md | 본문 — 직접 고침 |
+| 58 | `:110` | `:116` | infra-kit/skills/infra-audit/SKILL.md | 본문 — 직접 고침 |
 | 58 | `react-kit/references/render-evidence-protocol.md:82` | `react-kit/references/render-evidence-protocol.md:86` | react-kit/references/render-evidence-protocol.md | 본문 — 직접 고침 |
+| 58 | `:205` | `:209` | react-kit/references/render-evidence-protocol.md | 본문 — 직접 고침 |
 | 58 | `planning-kit/agents/planning-reviewer.md:97` | `planning-kit/agents/planning-reviewer.md:106` | planning-kit/agents/planning-reviewer.md | 본문 — 직접 고침 |
+| 58 | `:99` | `:108` | planning-kit/agents/planning-reviewer.md | 본문 — 직접 고침 |
+| 58 | `:176` | `:190` | planning-kit/agents/planning-reviewer.md | 본문 — 직접 고침 |
 | 58 | `planning-kit/skills/plan-audit/SKILL.md:136` | `planning-kit/skills/plan-audit/SKILL.md:141` | planning-kit/skills/plan-audit/SKILL.md | 본문 — 직접 고침 |
 | 65 | `docs/infra/platform/cicd.md:76` | `docs/infra/platform/cicd.md:77` | docs/infra/platform/cicd.md | 본문 — 직접 고침 |
 | 65 | `rust-kit/skills/rust-preflight/SKILL.md:112` | `rust-kit/skills/rust-preflight/SKILL.md:123` | rust-kit/skills/rust-preflight/SKILL.md | 본문 — 직접 고침 |
 | 69 | `react-kit/references/render-evidence-protocol.md:24-26` | `react-kit/references/render-evidence-protocol.md:28-30` | react-kit/references/render-evidence-protocol.md | 본문 — 직접 고침 |
 | 69 | `flutter-toolkit/references/visual-evidence-protocol.md:52` | `flutter-toolkit/references/visual-evidence-protocol.md:56` | flutter-toolkit/references/visual-evidence-protocol.md | 본문 — 직접 고침 |
+| 69 | `:91` | `:95` | flutter-toolkit/references/visual-evidence-protocol.md | 본문 — 직접 고침 |
 | 70 | `design-kit/skills/design-test/SKILL.md:276` | `design-kit/skills/design-test/SKILL.md:278` | design-kit/skills/design-test/SKILL.md | 본문 — 직접 고침 |
 | 84 | `visual-evidence-protocol.md:136` | `visual-evidence-protocol.md:140` | flutter-toolkit/references/visual-evidence-protocol.md | 측정 줄 — 그대로 둠 |
 | 111 | `qa-evaluator.md:992` | `qa-evaluator.md:1004` | harness/agents/qa-evaluator.md | 조건 줄 — 그대로 둠 |

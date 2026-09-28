@@ -13,6 +13,7 @@
 | 263 | `qa-evaluator.md:65` | `qa-evaluator.md:66` | harness/agents/qa-evaluator.md | 본문 — 직접 고침 |
 | 264 | `qa-evaluator.md:671` | `qa-evaluator.md:681` | harness/agents/qa-evaluator.md | 본문 — 직접 고침 |
 | 278 | `qa-evaluator.md:590` | `qa-evaluator.md:593` | harness/agents/qa-evaluator.md | 본문 — 직접 고침 |
+| 278 | `:1217` | `:1229` | harness/agents/qa-evaluator.md | 본문 — 직접 고침 |
 | 285 | `agent-design-guide.md:79` | `agent-design-guide.md:83` | harness/docs/guides/agent-design-guide.md | 본문 — 직접 고침 |
 | 285 | `create-skill/SKILL.md:27` | `create-skill/SKILL.md:29` | harness/skills/create-skill/SKILL.md | 본문 — 직접 고침 |
 | 336 | `.claude/skills/docs-site/SKILL.md:47-55` | `.claude/skills/docs-site/SKILL.md:51-59` | .claude/skills/docs-site/SKILL.md | 본문 — 직접 고침 |

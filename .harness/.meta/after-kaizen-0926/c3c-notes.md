@@ -114,7 +114,7 @@ meta-audit: 불러오고 판정하지 않은 규칙은 어댑터 전용 규칙(I
    다음 api 카이젠에서 조사 지침을 고치고, 문서 사이트 쪽에서 이 페이지를 다시 만든다
 3. tone — `tone-kit/references/adapter-dart-flutter.md:26` 가 가리키는 줄이 실제 정규식 줄과 다르다. 「§4 완료 게이트 G-04 줄」 이라고 적었지만 §4 에서 `G-04` 이름이 붙은 줄(`:259`)은 정규식 없는 표 행이고,
    실제 정규식은 이름 없는 코드 블록 넷째 줄(`:245`)이다. `docs/tone/dart-flutter-idioms.md:640` 은 「넷째 줄」 이라고 맞게 적었다. 다음 tone-kaizen 에서 `:26` 을 같은 말로 맞춘다
-4. reflect — `reflect-kit/skills/reflect-digest/SKILL.md:259` · `:315` 의 「엔트리 0 이고 Stop 실패 시도가 1 이상일 때」 는 코드와 조건이 다르다.
+4. reflect — `reflect-kit/skills/reflect-digest/SKILL.md:259` · `:319` 의 「엔트리 0 이고 Stop 실패 시도가 1 이상일 때」 는 코드와 조건이 다르다.
    코드는 전체 실패 수 `n` 이 아니라 마지막 기록 · 마지막 정상 종료 뒤의 실패 수 `a` 로 판정한다. 시험 `collect-status-test.sh` 의 「엔트리 0 · 실패 뒤 정상 종료 — 경고 없음」 경우가 증거다(`Stop 실패 시도 1회 … 엔트리 0` 인데 경고 줄이 없다).
    main 에 원래 있던 구절을 이번에 문장을 다시 쓰며 그대로 옮겼다. 다음 reflect-kaizen 에서 「마지막 기록 · 정상 종료 뒤의 실패 시도」 로 고친다
 5. reflect — `reflect-kit/hooks/log-reflection.sh:250` 주석이 아직 「`claude -p --model haiku`로 재시도」 다. 실제 호출(`:269`)은 `--safe-mode` 를 쓴다. 다음 reflect-kaizen 에서 주석을 맞춘다

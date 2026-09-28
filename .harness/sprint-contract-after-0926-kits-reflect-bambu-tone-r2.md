@@ -113,7 +113,7 @@ SC-03 ↔ SC-04 · SC-05(완료 검사 ↔ 새 실행 스크립트) · SK-05(실
 | `.github/workflows/ci.yml` | `:109` 마지막 validate 단계(Design-kit decision gate test). bambu-kit 단계 0 | 새 스크립트 두 개를 돌릴 자리 | SK-05 |
 | `tone-kit/references/adapter-dart-flutter.md` | `:26` 「정규식은 §4 완료 게이트 G-04 줄이 정본이다」, 실제 정규식 `:245`(§4 `text` 블록 넷째 줄), `:259` G-04 는 정규식 없는 표 행 | 가리키는 줄이 다르다 | SK-08 |
 | `docs/tone/dart-flutter-idioms.md` · `docs/tone-kit/dart-flutter-idioms.html` | md `:3-4` `version: 0.1.0` · `last_updated: 2026-09-02`, 그 뒤 원본 커밋 셋(`80daceb` · `358f8e1` · `b367184`). html `:275` · `:1571` 같은 판 | 머리 판이 안 올랐다 | SK-09 |
-| 3.38.4 표기 다섯 파일 | `adapter-dart-flutter.md:180` · `:235`, `dart-flutter-idioms.md:625` · `:686`, `naming-taxonomy.md:104` · `:127` · `:401`, html 두 페이지 7 줄 — 3.47.5 를 적은 줄 0(봉인 전 14 줄) | EX-14: 두 판 모두 58 개 | SK-10 |
+| 3.38.4 표기 다섯 파일 | `adapter-dart-flutter.md:180` · `:235`, `dart-flutter-idioms.md:625` · `:693`, `naming-taxonomy.md:104` · `:128` · `:402`, html 두 페이지 7 줄 — 3.47.5 를 적은 줄 0(봉인 전 14 줄) | EX-14: 두 판 모두 58 개 | SK-10 |
 | `tone-kit/references/sources.md` | `:97` 「위 표의 마지막 세 행」, `:143` go_router 16.3.0 예제, `:157` 위키 주소 「주의 (위키 이전 이력 있음)」 | 행이 늘면 틀리는 지칭 · 옛 판 · 옛 주소 | SK-11 |
 
 다른 세션 가지 `feat/bambu-kit-orca-h2s-feedback`(KBa-3, 끝 `42209be`, 기준 `baa1a38`)은 읽기만 했다. `git merge-tree --write-tree origin/main feat/bambu-kit-orca-h2s-feedback` 로

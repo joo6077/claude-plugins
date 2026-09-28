@@ -54,7 +54,7 @@
 | `F03` · `other-kits:P1` | 규약 §2 비교 반복 순서 — 주소 대조 · 표식으로 판정 · 새로고침 → 서버 다시 띄우기 → wasm-build · 확인 전 「갱신했다」 금지 · 최대 3 회. 템플릿 `strictPort: true`, react-run `dev` 포트 Gotcha, react-init devUrl 줄 (SK-02 · SK-06 · SK-07) |
 | `F05` | 규약 §2 「도구가 고장이라 말하기 전에」 세 확인 — 인자 이름 · 연 페이지가 내 서버인지 · 따로 뜨는 층 (SK-03) |
 | `F01` (리액트 쪽) | 규약 §1 되말하기 · 화면 자체 · 관례 표 (SK-01). 배정 행 자체는 Phase 6 몫 |
-| `other-kits:P2` | `project-detect.sh` 를 지우지 않고 고쳤다 — 설계 문서 `docs/react/kit-design/final-integration.md:243` · `:482` 가 킷 구성으로 적는다. 알려진 답 시험이 두 번째 결함(역슬래시 붙은 jq 경로)을 찾았다 (ER-01) |
+| `other-kits:P2` | `project-detect.sh` 를 지우지 않고 고쳤다 — 설계 문서 `docs/react/kit-design/final-integration.md:243` · `:483` 가 킷 구성으로 적는다. 알려진 답 시험이 두 번째 결함(역슬래시 붙은 jq 경로)을 찾았다 (ER-01) |
 | `other-kits:P5` | react-run · react-preflight 에 passed · skipped 두 수, 0 passed · skipped 1 이상은 `[미검증]`, `.only` 세기. react-build 는 test 단계가 없어 그대로 (SK-08) |
 | `other-kits:P6` | react-l10n 기본 흐름에서 `lingui extract --clean` 을 빼고 요청할 때만 도는 §4-1 · Gotcha 12 (SK-09) |
 | Phase 1 넘김 `render-evidence-protocol.md:63` | 「`[미검증]` 마커와 사유 한 줄」 을 여덟 자리(규약 · 다섯 UI 스킬 · react-test · common-gotchas)에서 네 칸으로 (SK-04) |

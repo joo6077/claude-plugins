@@ -9,6 +9,9 @@
 | 계약 줄 | 옛 참조 | 새 참조 | 대상 파일 | 처리 |
 | --- | --- | --- | --- | --- |
 | 48 | `design-audit/SKILL.md:114` | `design-audit/SKILL.md:118` | design-kit/skills/design-audit/SKILL.md | 본문 — 직접 고침 |
+| 48 | `:235` | `:247` | design-kit/agents/design-reviewer.md | 본문 — 직접 고침 |
+| 48 | `:248-249` | `:261-262` | design-kit/agents/design-reviewer.md | 본문 — 직접 고침 |
+| 48 | `:253` | `:266` | design-kit/agents/design-reviewer.md | 본문 — 직접 고침 |
 | 53 | `design-reviewer.md:218` | `design-reviewer.md:230` | design-kit/agents/design-reviewer.md | 본문 — 직접 고침 |
 | 70 | `rust-kit/skills/rust-model/SKILL.md:35` | `rust-kit/skills/rust-model/SKILL.md:39` | rust-kit/skills/rust-model/SKILL.md | 본문 — 직접 고침 |
 | 130 | `docs/rust/data/sqlx-patterns.md:180` | `docs/rust/data/sqlx-patterns.md:181` | docs/rust/data/sqlx-patterns.md | 본문 — 직접 고침 |
@@ -17,6 +20,7 @@
 | 168 | `design-reviewer.md:177` | `design-reviewer.md:187` | design-kit/agents/design-reviewer.md | 본문 — 직접 고침 |
 | 168 | `design-guide/SKILL.md:54` | `design-guide/SKILL.md:55` | design-kit/skills/design-guide/SKILL.md | 본문 — 직접 고침 |
 | 168 | `design-mockup/SKILL.md:69` | `design-mockup/SKILL.md:70` | design-kit/skills/design-mockup/SKILL.md | 본문 — 직접 고침 |
+| 168 | `:143` | `:146` | design-kit/skills/design-mockup/SKILL.md | 본문 — 직접 고침 |
 | 178 | `design-kit/skills/design-mockup/SKILL.md:166` | `design-kit/skills/design-mockup/SKILL.md:169` | design-kit/skills/design-mockup/SKILL.md | 본문 — 직접 고침 |
 | 182 | `design-kit/skills/design-component/SKILL.md:35` | `design-kit/skills/design-component/SKILL.md:36` | design-kit/skills/design-component/SKILL.md | 본문 — 직접 고침 |
 | 182 | `design-concept/SKILL.md:92` | `design-concept/SKILL.md:96` | design-kit/skills/design-concept/SKILL.md | 본문 — 직접 고침 |

@@ -31,7 +31,7 @@
 | KR-2 | 고침 | `5a3277e` — `rust-init` 멤버 크레이트 이름이 `{project}-api` |
 | KR-3 시각 종류 행 | 고침 | `5a3277e` — rust 감사 기준 `## 7. API Design` 에 「시각 종류별 저장」 행(sqlx-patterns 원칙 6), 카테고리 수 7 그대로 |
 | KR-3 버전 값 · testcontainers | 고침 | `5a3277e` — utoipa 출처 · testcontainers 전제 칸 · rust-middleware Gotcha 2 · rust-init 4a · 4b · toml 템플릿이 Step 2c 표를 가리킨다 |
-| KR-3 rust-model 타입 대응 | 처리됨 | `rust-kit/skills/rust-model/SKILL.md:39` · `:90` · `:240` (Phase 9) |
+| KR-3 rust-model 타입 대응 | 처리됨 | `rust-kit/skills/rust-model/SKILL.md:39` · `:94` · `:244` (Phase 9) |
 
 ## 킷별 판 판단
 

@@ -10,4 +10,6 @@
 | --- | --- | --- | --- | --- |
 | 69 | `docs/tone/dart-flutter-idioms.md:633` | `docs/tone/dart-flutter-idioms.md:640` | docs/tone/dart-flutter-idioms.md | 본문 — 직접 고침 |
 | 71 | `docs/api/verification/static-evidence-viewer-contract.md:9` | `docs/api/verification/static-evidence-viewer-contract.md:10` | docs/api/verification/static-evidence-viewer-contract.md | 본문 — 직접 고침 |
+| 71 | `:82` | `:83` | docs/api/verification/static-evidence-viewer-contract.md | 본문 — 직접 고침 |
+| 71 | `:86` | `:87` | docs/api/verification/static-evidence-viewer-contract.md | 본문 — 직접 고침 |
 | 72 | `.claude/skills/docs-site/SKILL.md:45-64` | `.claude/skills/docs-site/SKILL.md:49-68` | .claude/skills/docs-site/SKILL.md | 본문 — 직접 고침 |

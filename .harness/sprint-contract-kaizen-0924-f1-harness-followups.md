@@ -275,7 +275,7 @@ Codex 검토 r1 에서 더한 다섯도 새 조건을 만들지 않고 같은 �
 | F1H-30 | phase1 ~ 17 notes §Final | 문서 사이트 페이지 재생성 | 다른 계약 — `kaizen-0924-final` (F2) |
 | F1H-31 | phase1-notes §넘기는 것 | `sprint/SKILL.md:77` · create-agent · create-skill | 확인만 — Phase 4 반영(`15 종` · `1500-2000 words` · `` `[미검증]` + 사유 한 줄 `` 모두 0) |
 | F1H-32 | phase1 · 2 · 3 · 12 · 15 · 16 · 17 notes · 러닝북 Phase 12 과제 · `reflect-collector:P5` · `harness:P02` 비고 | 저장본 `project_name` 이 워크트리 이름 | 조건 ER-02 |
-| F1H-33 | phase2-notes §넘기는 것 — Phase 3 | `qa-evaluator.md:593` · `:1217` · 평가 가이드 `:12` · `:742` · `:746` · `:1785` · `:1862` · `:1915` | 확인만 — Phase 3 반영(평가 가이드 `Parity with` 가 1.6.0 · 1.7.0 · v5.1) |
+| F1H-33 | phase2-notes §넘기는 것 — Phase 3 | `qa-evaluator.md:593` · `:1229` · 평가 가이드 `:12` · `:742` · `:746` · `:1785` · `:1862` · `:1915` | 확인만 — Phase 3 반영(평가 가이드 `Parity with` 가 1.6.0 · 1.7.0 · v5.1) |
 | F1H-34 | phase2-notes §Phase 4 가 읽을 것 | `/sprint` 사용자가 할 일 · 초안 필수 필드 · contract-kaizen Step 2 | 확인만 — Phase 4 SK-04 · ER-02 · SK-06 반영 |
 | F1H-35 | phase2-notes §Phase 4 가 읽을 것 · phase4-notes | `feedback-schema.yaml` true 뜻 · 새 키 둘 | 고치지 않음 — Phase 4 넘김대로 다음 사이클 Phase 2 · 3. `verify-feedback.sh` 가 체크리스트 키를 재지 않아 지금 저장 · 검증을 막지 않는다(`grep -n checklist harness/scripts/verify-feedback.sh` 0 줄) |
 | F1H-36 | phase2-notes §Final 에 넘기는 것 둘째 | 서명 줄 규약을 러닝북 · 오케스트레이터가 스키마 절로 가리키게 | 조건 SK-01 (오케스트레이터 쪽). 러닝북은 레포 밖 작업 파일이라 이 계약이 고치지 않는다 |

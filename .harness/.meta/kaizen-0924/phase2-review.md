@@ -271,7 +271,7 @@ VERDICT: CHANGES
 
 #### ER-03 — 줄 번호 없는 가이드 경로 토큰이 다른 줄에 늘 받쳐진다
 
-1 회차 5 번을 반영해 `harness/docs/guides/qa-evaluation-guide.md:1806` · `:1862` 토큰이 들어오면서, 원래 있던 줄 번호 없는
+1 회차 5 번을 반영해 `harness/docs/guides/qa-evaluation-guide.md:1806` · `:1883` 토큰이 들어오면서, 원래 있던 줄 번호 없는
 `harness/docs/guides/qa-evaluation-guide.md` 토큰은 그 두 줄이 있기만 하면 1 이상이 된다(`grep -cF` 는 부분 문자열을 센다).
 그래서 반대편 표 3 행(`:12` `contract-schema.md` v5.3 표기 · `:746` 표준형 4 요소 · `:1915` Parity with)과 4 행의 `:742-743`(상태 전제 선택지) 넘김을
 notes 에서 통째로 빼도 20 값이 전부 1 이상이다. 초안도 이 사실을 적어 두었다(「앞 경로 … 는 다른 줄이 받쳐 1 이상 유지」).

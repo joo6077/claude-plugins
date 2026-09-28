@@ -62,7 +62,7 @@ Step 2.5 짝 조건: 만드는 쪽은 목록 123 파일(AR-01 · AR-03)이다. �
 | --- | --- | --- | --- |
 | 목록 123 파일 | `m AR-01` → `ver=v0.23.2 list_n=123 list_same=1 warn=2417`, 경고 있는 파일 116 개 | 규칙별 `MD060:962 MD034:599 MD032:258 MD022:214 MD024:164 MD025:86 MD031:35 MD036:33 MD040:32 MD012:16 MD038:5 MD033:4 MD028:4 MD010:2 MD058:1 MD041:1 MD004:1` | AR-01 |
 | `docs/api/contract/contract-extraction-modes.md:1-8` | 머리 설정 `title: 계약 추출 모드 — partial · pin · exact` 뒤 7 줄에 같은 글의 `#` 제목 | MD025 86 건은 모두 파일마다 1 건 — 머리 설정 `title:` 과 본문 첫 `#` 제목이 함께 있는 형식이다. `title:` 을 지우면 AP-04 · AR-03 에 걸리므로 본문 제목을 한 단계 내리거나 그 줄만 좁혀 끈다 | AR-03 · AP-04 · AR-05 |
-| `docs/backend/research-log.md:195` · `:212` · `:238` | 「데이터 소스」 · 「Phase 7 변경 요약」 제목 되풀이 | MD024 164 건 — 날짜마다 같은 소절 이름을 되풀이하는 기록 형식. 제목 글을 바꾸면 AR-03 에 걸리므로 좁혀 끈다 | ER-01 · AR-05 |
+| `docs/backend/research-log.md:195` · `:214` · `:240` | 「데이터 소스」 · 「Phase 7 변경 요약」 제목 되풀이 | MD024 164 건 — 날짜마다 같은 소절 이름을 되풀이하는 기록 형식. 제목 글을 바꾸면 AR-03 에 걸리므로 좁혀 끈다 | ER-01 · AR-05 |
 | `docs/howto/drafts/SKILL.md:18` | 머리 설정 뒤 첫 줄이 본문 글 | MD041 1 건. 제목을 새로 쓰면 낱말이 늘어난다(AR-03) | ER-01 · AP-04 (`name: howto`) |
 | `docs/bambu-calibration/calibration-reference.md:118` | 표 칸 안 `<br>` | MD033 — `<br>` 을 지우면 칸 안 줄바꿈 뜻이 사라진다 | ER-01 |
 | `docs/kaizen/flutter-research-log.md:145` · `docs/react/kit-design/g2-state-data.md:33` · `docs/rust/fundamentals/hexagonal-architecture.md:314` | `<T>` · `<name>` · `<Future>` | MD033 — 코드 표시(백틱)로 감싸면 모양만 바뀐다 | AR-03 |
