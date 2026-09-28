@@ -1,0 +1,15 @@
+dff1e68e020a502805c9de034d21b8a18abd857d45302fe54686c71089b625d3  ./_lib-hook-payload.sh
+793e5682f39120f337e7f3af4f610969e2a3e1627896c499369b61f4cdcad2e7  ./_plain-korean-glossary.py
+3821d2af80606b4adeb14f6368f7fa6819f94bd15f5374ace66ee05de21bb126  ./block-dirwide-autofixer.sh
+5e9d97d9e4e8fa41292611fd87793153536bf26e410a899a5646404042d92897  ./check-plain-korean.sh
+06cc4026dbbcaaf0ff7422aa078624404916d333984bcfa5db784c0ee0ff20dc  ./enforce-codex-stdin.sh
+a3d84db631e0fa5405b3898f0a238c18ad1122401fbaf557d0cc6522e30cee55  ./enforce-foreground-research.sh
+6fb809bc900ee906cb46bcd83340943cb039ab8fe05e5d64ef986d16dce84438  ./figma-url-reminder.sh
+8ca973ac847955ba53411a9fe0463d290ca3d3bec87568a8c07d3299d09f138e  ./flutter-mcp-bash-guard.sh
+a5c3a58afc2140731d94d9e5ef4e9b3a4dfd0c911bc2971e53258ce3e8367f5c  ./flutter-mcp-session-context.sh
+5aa8becacbd53f1d4fc10ed2944aa20096d26b688dd287908fe3d1c3c5d265bd  ./harvest-codex-log.sh
+7dc79b39692fff896cb828e299ecd44b3f6cbcaf410cab2ee11c4f67c4e2bedb  ./lint-contract-oracle.sh
+f3c3a7ed2125aae1f9f8c8e3bff87d772634c8e89ec995b1970b8d52f14cbec7  ./next-session-handoff.sh
+25b4dae61864b8cae928ea198d2a97f6cbca71f3fc4c0af2cdd7175449627d6c  ./parallel-session-guard.sh
+bdf5f8cc581a32d76f8d0e02ec4aa9a26a6e9c7d40afa90f095bbbab228aeca3  ./qa-pending-check.sh
+ff6591c66f0766a65f8c7e705e063aa4a7485a2bd826d98e4201a806148deceb  ./remind-plain-korean.sh
