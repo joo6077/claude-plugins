@@ -46,24 +46,24 @@
 | --- | --- | --- |
 | `harness/skills/sprint/SKILL.md:77` | 「`[미검증]` + 사유 한 줄」 — 처리 배정표 `harness:P09` 비고 「sprint/SKILL.md 3 단계 부분은 Phase 4 와 맞춘다」 | Phase 4 |
 | `harness/skills/create-agent/SKILL.md` (`:25` · `:33` · `:81` · `:106`) | 「15 종」 · 「4항: (2) 2건 이상 자동 REJECT」 | Phase 4 |
-| `harness/skills/create-skill/SKILL.md:24` | 「1500-2000 words 타깃 — Anthropic 기준」 — 근거 파일은 이 수치를 확인하지 못했다(확인된 기준은 500 줄 미만 권고뿐) | Phase 4 |
-| `react-kit/references/render-evidence-protocol.md:59` | 「`[미검증]` 마커와 사유 한 줄 … 부분 완료로 보고」 | Phase 10 |
-| `flutter-toolkit/references/visual-evidence-protocol.md:136` | 「`[미검증]` 마커 + 사유 한 줄」 | Phase 5 |
+| `harness/skills/create-skill/SKILL.md:26` | 「1500-2000 words 타깃 — Anthropic 기준」 — 근거 파일은 이 수치를 확인하지 못했다(확인된 기준은 500 줄 미만 권고뿐) | Phase 4 |
+| `react-kit/references/render-evidence-protocol.md:63` | 「`[미검증]` 마커와 사유 한 줄 … 부분 완료로 보고」 | Phase 10 |
+| `flutter-toolkit/references/visual-evidence-protocol.md:140` | 「`[미검증]` 마커 + 사유 한 줄」 | Phase 5 |
 | `onboarding-kit/skills/setup-guide/SKILL.md:30` | 「마커 + 사유 한 줄」 | Phase 14 |
-| `infra-kit/skills/infra-test/SKILL.md:37` | 「`[미검증] TOOL_OR_ENV_MISSING` … 재검증」 — 시도한 우회 칸 없음 | Phase 8 |
+| `infra-kit/skills/infra-test/SKILL.md:41` | 「`[미검증] TOOL_OR_ENV_MISSING` … 재검증」 — 시도한 우회 칸 없음 | Phase 8 |
 | `rust-kit/agents/rust-reviewer.md:137` | 「agent-design-guide §10」 을 인용하며 접미 없는 `[미검증]` | Phase 9 |
 
-이미 맞아서 건드리지 않은 곳: `harness/agents/qa-evaluator.md:65` (네 요건 원본) · `harness/docs/guides/qa-evaluation-guide.md:1874`
-(Parity Table 15 행). 조항 번호 · 항 수를 인용하는 곳(`react-kit/references/render-evidence-protocol.md:125` 「§3.7 5 조 3 항」 ·
-`planning-kit/skills/plan-audit/SKILL.md:25` 「§3.7 조항 4」 · `flutter-toolkit/references/visual-evidence-protocol.md:169` 「5 조항」 ·
-`qa-evaluation-guide.md:1868` 「§10 Unverifiable (4 항)」)은 번호 · 항 수를 그대로 두어 맞게 남았다.
+이미 맞아서 건드리지 않은 곳: `harness/agents/qa-evaluator.md:66` (네 요건 원본) · `harness/docs/guides/qa-evaluation-guide.md:1895`
+(Parity Table 15 행). 조항 번호 · 항 수를 인용하는 곳(`react-kit/references/render-evidence-protocol.md:129` 「§3.7 5 조 3 항」 ·
+`planning-kit/skills/plan-audit/SKILL.md:25` 「§3.7 조항 4」 · `flutter-toolkit/references/visual-evidence-protocol.md:173` 「5 조항」 ·
+`qa-evaluation-guide.md:1889` 「§10 Unverifiable (4 항)」)은 번호 · 항 수를 그대로 두어 맞게 남았다.
 
 ## Final 에 넘기는 것
 
 - 문서 사이트: `docs/harness/skill-design-guide.html` 에 「500 라인 상한」(`:665` · `:686` · `:998`)이 옛 판으로 남아 있다.
   `docs/harness/agent-design-guide.html` 도 옛 판이다. Final F2 재생성 대상 (`validate-post-kaizen.py` 의 `docs-site-regen` 이 이
   Phase 뒤 FAIL — 계약 DG-06 이 Final 몫으로 뺐다)
-- 오케스트레이터 `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:28` 의 「500 라인 상한」 표기 — 어느
+- 오케스트레이터 `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:32` 의 「500 라인 상한」 표기 — 어느
   Phase 범위에도 없다
 - `harness` plugin.json 버전 · marketplace · 루트 README 는 건드리지 않았다
 

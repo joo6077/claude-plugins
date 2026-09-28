@@ -52,7 +52,7 @@ CI 의 zsh 설치 차례 · 평가 시각 블록의 `.bak` 부산물 · 공유 �
   - `.harness/.meta/evidence/phase4.md:149` — 에이전트 배치 우선순위는 managed settings · `--agents` · project · user · plugin 차례다
 - 저장소 안 근거
   - `infra-kit/skills/infra-guide/SKILL.md:29` (Gotcha 13) — OpenTelemetry 상태는 signal 마다 다르다
-  - `api-kit/skills/api-verify/SKILL.md:133` — 경로 간 불변식은 한쪽 경로가 없으면 Hurl 이 종료 코드 3 을 내 판정 불가를 가를 곳이 후처리뿐이다(실측 2026-09-24)
+  - `api-kit/skills/api-verify/SKILL.md:141` — 경로 간 불변식은 한쪽 경로가 없으면 Hurl 이 종료 코드 3 을 내 판정 불가를 가를 곳이 후처리뿐이다(실측 2026-09-24)
   - `.harness/.meta/orchestrator-audit-log.md:297` · `:472` — 킷 Phase 를 동시 5 개 · 4 개로 돌렸을 때 서브에이전트가 과부하 오류 529 로 죽었고, 2 ~ 3 개는 무사고
   - `reflect-kit/hooks/_lib-project-id.sh:63-78` (`project_root`) — 워크트리에서도 본 저장소 폴더를 내는 규칙. 피드백 저장 · 평가자 로그 조회가 같은 규칙을 쓴다
   - `scratchpad/kaizen/codex/r1-harness.md` — Codex 독립 검토(`gpt-5.6-sol`, 읽기 전용) 7 건. 공식 문서를 인용한 둘(r1 6 · 7)은 위 근거 파일로 다시 확인했다
@@ -177,7 +177,7 @@ Codex 검토 r1 에서 더한 다섯도 새 조건을 만들지 않고 같은 �
   제외 이유 글자에 버전꼴 숫자(`x.y.z`)와 근거 파일 밖 URL 을 쓰지 않는다 — AP-01 · SK-06 (b) 와 부딪힌다
 - **ER-08** V 줄 요약이 판정 글자로 끝나지 않으면 `— <판정>` 을 붙인다. `check_bare_fence` 는 `--check=code-fence` 의 종료 코드로 판정한다.
   받는 쪽인 검증 가이드 §출력 포맷 예시의 실패 V 줄도 같은 꼴(`— FAIL` · `— WARN`)로 고친다. 실패 예시는 지우지 않는다.
-  검증 가이드의 머리 `version` 은 올리지 않고 변경 이력 표에 행을 더하지 않는다 — 그 표의 여섯 행이 모두 `x.y.z` 꼴(`plugin-validation-guide.md:655-660`, 머리 `version: 1.4.0`)이라 새 행이 AP-01 에 걸린다
+  검증 가이드의 머리 `version` 은 올리지 않고 변경 이력 표에 행을 더하지 않는다 — 그 표의 여섯 행이 모두 `x.y.z` 꼴(`plugin-validation-guide.md:687-692`, 머리 `version: 1.4.0`)이라 새 행이 AP-01 에 걸린다
 - **AR-01** `docs/api/` → `docs/api-kit/` · `docs/howto/` → `docs/howto-kit/` · onboarding 참조 → `docs/onboarding-kit/`, 스킬 본문 `SKILL.md` 는 그 스킬 폴더 이름을 페이지 이름으로, 예제 원본 하나는 덮어쓰기 표에.
   오케스트레이터 F2 표에 reflect-kit · bambu-kit · onboarding-kit · howto-kit 행을 드리프트 매핑과 같은 원본으로 더하고, planning-kit 행에서 없는 `planning-kit/references/` 를 뺀다
 - **AR-02** `validate` 작업에 zsh 설치 단계 하나와 시험 여섯. zsh 설치 단계는 여섯 시험 단계 모두보다 앞에 둔다 — reflect-kit 시험 둘은 zsh 가 없으면
@@ -260,8 +260,8 @@ Codex 검토 r1 에서 더한 다섯도 새 조건을 만들지 않고 같은 �
 | F1H-15 | final-todo P3 · xdiag P3 (2) | `verify_seal` 미정의 시 조용히 0 | 조건 ER-06 (b) — 편집 전 실측에서 `fm_get` 만 빠져도 79 개가 전부 `SEAL_ABSENT` 로 나오는 것까지 찾았다 |
 | F1H-16 | final-todo P3 계약 밖 1 | 삭제 열거 `--no-renames` | 조건 ER-05 |
 | F1H-17 | final-todo P3 계약 밖 2 | 짝 대조표 16 행 어긋남 | 조건 SK-05 (다) — skill 가이드를 고친다. 평가 가이드의 ⑤ 는 Phase 3 이 실제로 만든 짝이다 |
-| F1H-18 | final-todo P3 작은 것 첫째 | `qa-evaluator.md:65` 「위 (c)」 | 조건 SK-05 (라) |
-| F1H-19 | final-todo P3 작은 것 둘째 | `qa-evaluator.md:671` 「50 개를 넘는 삭제만 막는다」 | 확인만 — Phase 4 뒤 경로 지정 커밋도 50 개 넘는 삭제를 막아 문장이 맞다. ER-01 뒤에도 맞다 |
+| F1H-18 | final-todo P3 작은 것 첫째 | `qa-evaluator.md:66` 「위 (c)」 | 조건 SK-05 (라) |
+| F1H-19 | final-todo P3 작은 것 둘째 | `qa-evaluator.md:681` 「50 개를 넘는 삭제만 막는다」 | 확인만 — Phase 4 뒤 경로 지정 커밋도 50 개 넘는 삭제를 막아 문장이 맞다. ER-01 뒤에도 맞다 |
 | F1H-20 | final-todo 여러 Phase 첫째 | DG-02 새 MD024 (P7 · P8 · P9 · P11) · P12 ~ 17 전수 | 다른 계약 — `kaizen-0924-f1-kit-followups` |
 | F1H-21 | final-todo 여러 Phase 둘째 | 옛 값 검사 `SOURCE_DIRS` 에 킷 폴더 대부분 없음 | 조건 ER-07 — 넓힌다(실측: 킷 열넷 가운데 backend-kit 만 3 줄이 걸리고 나머지 0) |
 | F1H-22 | final-todo 여러 Phase 셋째 | 마지막 `end_sha` 커밋이 구조상 범위 밖 | 다른 계약 — `kaizen-0924-final` |
@@ -275,14 +275,14 @@ Codex 검토 r1 에서 더한 다섯도 새 조건을 만들지 않고 같은 �
 | F1H-30 | phase1 ~ 17 notes §Final | 문서 사이트 페이지 재생성 | 다른 계약 — `kaizen-0924-final` (F2) |
 | F1H-31 | phase1-notes §넘기는 것 | `sprint/SKILL.md:77` · create-agent · create-skill | 확인만 — Phase 4 반영(`15 종` · `1500-2000 words` · `` `[미검증]` + 사유 한 줄 `` 모두 0) |
 | F1H-32 | phase1 · 2 · 3 · 12 · 15 · 16 · 17 notes · 러닝북 Phase 12 과제 · `reflect-collector:P5` · `harness:P02` 비고 | 저장본 `project_name` 이 워크트리 이름 | 조건 ER-02 |
-| F1H-33 | phase2-notes §넘기는 것 — Phase 3 | `qa-evaluator.md:590` · `:1217` · 평가 가이드 `:12` · `:742` · `:746` · `:1785` · `:1862` · `:1915` | 확인만 — Phase 3 반영(평가 가이드 `Parity with` 가 1.6.0 · 1.7.0 · v5.1) |
+| F1H-33 | phase2-notes §넘기는 것 — Phase 3 | `qa-evaluator.md:593` · `:1217` · 평가 가이드 `:12` · `:742` · `:746` · `:1785` · `:1862` · `:1915` | 확인만 — Phase 3 반영(평가 가이드 `Parity with` 가 1.6.0 · 1.7.0 · v5.1) |
 | F1H-34 | phase2-notes §Phase 4 가 읽을 것 | `/sprint` 사용자가 할 일 · 초안 필수 필드 · contract-kaizen Step 2 | 확인만 — Phase 4 SK-04 · ER-02 · SK-06 반영 |
 | F1H-35 | phase2-notes §Phase 4 가 읽을 것 · phase4-notes | `feedback-schema.yaml` true 뜻 · 새 키 둘 | 고치지 않음 — Phase 4 넘김대로 다음 사이클 Phase 2 · 3. `verify-feedback.sh` 가 체크리스트 키를 재지 않아 지금 저장 · 검증을 막지 않는다(`grep -n checklist harness/scripts/verify-feedback.sh` 0 줄) |
 | F1H-36 | phase2-notes §Final 에 넘기는 것 둘째 | 서명 줄 규약을 러닝북 · 오케스트레이터가 스키마 절로 가리키게 | 조건 SK-01 (오케스트레이터 쪽). 러닝북은 레포 밖 작업 파일이라 이 계약이 고치지 않는다 |
 | F1H-37 | phase2 · 3 · 4 · 7 · 9 · 10 notes §다음 사이클 메모 | 개정 번호 규칙 · 열 번호 정규식 · 측정 묶음 관례 · 도우미 추출 스크립트 · 봉인 둘째 줄 · `mktemp` 폴더 · 측정 공통 정의 예시 · 검사기가 돈 줄 · 추적 규칙 표 | 고치지 않음 — 계약 스키마 · 설계 가이드의 새 규칙이라 다음 사이클 Phase 1 · 2 · 4 몫 |
 | F1H-38 | phase3-notes §넘기는 것 | §3.7 ①~④ 생성 측 짝 · 스키마 ①~④ 계약 측 짝 | 고치지 않음 — 새 절 신설, 다음 사이클 Phase 1 · 2 |
 | F1H-39 | phase3 · 4 notes | `.harness/feedback-draft.yaml` 고정 이름 · sprint-contract Step 9 문구 | 고치지 않음 — Phase 4 넘김대로 다음 사이클 Phase 2 |
-| F1H-40 | phase4-notes §넘기는 것 | `# sprint-scope` · `agent-design-guide.md:79` · `create-agent/SKILL.md:25` · `create-skill/SKILL.md:27` · `sprint-contract Step 6.7 (a)` · `V6 범위` | 고치지 않음 — Phase 4 넘김대로 다음 사이클(근거 재조회 · 새 절차) |
+| F1H-40 | phase4-notes §넘기는 것 | `# sprint-scope` · `agent-design-guide.md:83` · `create-agent/SKILL.md:25` · `create-skill/SKILL.md:29` · `sprint-contract Step 6.7 (a)` · `V6 범위` | 고치지 않음 — Phase 4 넘김대로 다음 사이클(근거 재조회 · 새 절차) |
 | F1H-41 | phase4 · 8 · 9 · 11 notes | `/sprint` Step 3 판정 표 · 재검증 블록의 폐기 결정 자리 | 고치지 않음 — 다음 사이클 Phase 4 (새 규칙 · F20 결정 뒤) |
 | F1H-42 | phase5 notes | flutter changelog · research-log | 다른 계약 — `kaizen-0924-final` |
 | F1H-43 | phase6 · 10 notes | 세 화면 규약의 공통 규칙 원문 절을 skill 가이드에 | 고치지 않음 — 새 절 신설, 다음 사이클 Phase 1 |
@@ -333,7 +333,7 @@ Codex 검토 r1 에서 더한 다섯도 새 조건을 만들지 않고 같은 �
 | F1H-88 | Codex r1 6 (낮음) | create-agent 가 플러그인에서 무시되는 `initialPrompt` 를 빠뜨림 | 조건 SK-05 (사) — 다시 확인: 근거 파일 `phase1.md:87` · `phase4.md:148` 에 같은 내용, 같은 변경의 agent 가이드 `:99` 는 넷을 적는다. Codex 가 짚지 않은 셋째 자리 agent 가이드 `:549` 도 셋만 적어 함께 고친다 |
 | F1H-89 | Codex r1 7 (낮음) | agent 가이드 배치 우선순위 표에 managed settings 가 없어 번호가 한 단계씩 틀림 | 조건 SK-05 (아) — 다시 확인: 근거 파일 `phase4.md:149` 「managed settings가 1위, `--agents` 2위, project 3위, user 4위, plugin 5위」. phase1-notes §다음 사이클 메모가 「근거 파일 phase4.md 에만 있어 미반영」 으로 넘긴 `:59` 항목이다 |
 | F1H-90 | REVIEW 검토 C2 (입력 밖) | 오케스트레이터 F2 매핑 표에 reflect · bambu · onboarding · howto 행이 없고 planning 행이 없는 `planning-kit/references/` 를 적는다 — Final 러닝북이 문서 사이트 재생성에 이 표를 쓴다 | 조건 AR-01 (b) |
-| F1H-91 | REVIEW 검토 (입력 밖) | `.claude/skills/docs-site/SKILL.md:47-55` 매핑 표가 harness · flutter · design · backend · infra · tone · process 일곱 줄뿐이다 | 고치지 않음 — `.claude/skills/docs-site/` 는 세 Final 계약 어느 범위에도 없다. 다음 사이클 |
+| F1H-91 | REVIEW 검토 (입력 밖) | `.claude/skills/docs-site/SKILL.md:51-59` 매핑 표가 harness · flutter · design · backend · infra · tone · process 일곱 줄뿐이다 | 고치지 않음 — `.claude/skills/docs-site/` 는 세 Final 계약 어느 범위에도 없다. 다음 사이클 |
 | F1H-92 | REVIEW 검토 (입력 밖) | 오케스트레이터 F4 research-log 목록(`:731-738`)과 체크리스트 「per-kit research-log 6개 파일」(`:765`)에 design · tone · api 연구 기록이 없다 | 고치지 않음 — 목록을 「`docs/*/research-log.md` 가 있는 킷 전부」 같은 규칙으로 바꾸려면 「파일이 없으면 새로 만든다」 조문(`:56`)과 함께 정해야 하는 새 내용이다. 이번 Final 은 러닝북이 `docs/*/research-log.md` 로 대신 정했다. 다음 사이클 |
 | F1H-93 | REVIEW 검토 C1 (받는 쪽 대조) | `harness/docs/guides/plugin-validation-guide.md` §출력 포맷 예시가 실패 V 줄을 판정 글자 없이 적는다 | 조건 ER-08 (c) |
 | F1H-94 | xdiag P10 (2) DG-05 (b) · P13 (2) AP-03 | validate-plugin V10 이 `docs/<킷>/` 원본을, V6 가 `skills/*/references/` 를 읽지 않는다 | 고치지 않음 — F1H-40 의 `V6 범위` 결정(다음 사이클 Phase 4)과 함께 정한다 |

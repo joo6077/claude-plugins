@@ -154,7 +154,7 @@ reflect-kit/skills/reflect-promote/SKILL.md
   66~69  행 4 · 5 · 6 · 7 이 헤더 없이 고립
 ```
 
-V10 을 `lstrip()` 기준으로 고치자 그 표를 잡았고(`FAIL …reflect-promote/SKILL.md:66`,
+V10 을 `lstrip()` 기준으로 고치자 그 표를 잡았고(`FAIL …reflect-promote/SKILL.md:67`,
 `14 plugins, 13 OK, 1 ERROR · Exit 2`), 산문을 표 뒤로 옮겨 8 행 표를 되살렸다. 고친 뒤
 `14 OK · Exit 0`.
 

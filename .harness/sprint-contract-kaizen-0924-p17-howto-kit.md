@@ -36,7 +36,7 @@ Phase 17 줄은 없다. 앞 Phase notes 가 넘긴 줄은 Phase 14 의 「howto-
 - [bash(1)](https://man7.org/linux/man-pages/man1/bash.1.html) · [zsh Functions](https://zsh.sourceforge.io/Doc/Release/Functions.html) — `export -f` 는 bash 기능이다. 근거 파일 실측: dash · zsh 자식에게 안 넘어간다 (SK-02 · SK-08 `n2`)
 - [Claude Code skills](https://code.claude.com/docs/en/skills) · [Plugins reference](https://code.claude.com/docs/en/plugins-reference) — `${CLAUDE_PLUGIN_ROOT}` 는 플러그인 스킬 본문에서 글자로 치환된다. 환경 변수로 내보내는 곳은 훅 · 보조 서버 프로세스뿐이다. 설치 복사본은 `~/.claude/plugins/cache` 에 있다 (SK-01 · RE-02)
 - [actions/runner-images](https://github.com/actions/runner-images) · [Ubuntu 24.04 설치 목록](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md) · [GitHub Docs — Customizing GitHub-hosted runners](https://docs.github.com/en/actions/how-tos/manage-runners/github-hosted-runners/customize-runners) — 우분투 이미지에 zsh 가 없고 `sh` 는 dash 다. 설치 전 `apt-get update` (ER-03 넘김 줄)
-- 내부: `harness/agents/qa-evaluator.md:1089`~`:1097` Step 8 · `harness/skills/refactor-checklist/SKILL.md:52`~`:61` — 레포의 기존 경로 찾기 순서(플러그인 치환 → 레포 → 마켓플레이스 설치본, `RESOLVED:` / `MISSING`). 새 순서를 만들지 않고 이 순서를 따른다 (RE-02)
+- 내부: `harness/agents/qa-evaluator.md:1101`~`:1097` Step 8 · `harness/skills/refactor-checklist/SKILL.md:52`~`:61` — 레포의 기존 경로 찾기 순서(플러그인 치환 → 레포 → 마켓플레이스 설치본, `RESOLVED:` / `MISSING`). 새 순서를 만들지 않고 이 순서를 따른다 (RE-02)
 - 내부: `harness/docs/guides/agent-design-guide.md` §10 Unverifiable 조건 정책 1 · 2 항 · `harness/docs/guides/skill-design-guide.md` §3.7 (Phase 1 결과) — SK-06 · ER-04
 
 ## GAP 분석 · 개선안 초안
@@ -71,9 +71,9 @@ Phase 17 줄은 없다. 앞 Phase notes 가 넘긴 줄은 Phase 14 의 「howto-
 | `howto-kit/evals/run-evals.sh` | `:39`~`:40` zsh · bash 두 셸만 · `:46`~`:56` `for a in $for_each` — 따옴표 없는 변수 | 러너를 zsh 로 부르면 assertion 이 한 덩어리로 `grep -F` 에 들어가 하나만 맞아도 통과한다 — 봉인 전 실측: 사례 E2 의 assertion 을 틀리게 바꾼 사본에서 sh · bash 는 `rc=1 fail=1`, zsh 는 `rc=0 pass=16`(`m SK-08` `n7z_base`). 게이트를 부르는 블록은 한 번도 돌리지 않는다 | SK-07 · SK-08 · DG-04 |
 | `howto-kit/evals/evals.json` | `:3` 설명 「zsh 와 bash 양쪽」 · `:4` `runner` · `:5`~ 사례 열여섯 | 블록 수를 적을 자리가 없다 | SK-09 · AR-03 (사례 그대로) |
 | `howto-kit/agents/howto-reviewer.md` | `:29`~`:30` 규칙 7 · `:78` 출력 형식 — 접미 없는 `[미검증]` 두 곳 | Phase 1 이 바꾼 agent-design-guide §10 1 · 2 항과 어긋난다. 이 킷의 G2 도 접미 없는 마커를 절차 문서에서 막는다 | SK-06 |
-| `howto-kit/skills/howto/SKILL.md` · `howto-kit/references/` 다섯 · `docs/howto/` | `howto/SKILL.md:225` · `references/step-contract.md:109` · `references/source-tiers.md:31` · `docs/howto/deprecation-policy.md:86` — 게이트 스크립트를 가리키기만 하고 부르지 않는다 (`git grep -n 'howto-gate\|howto_gate'`) | 고칠 곳이 없다 | AR-03 (그대로) |
-| `.claude/skills/howto-kaizen/SKILL.md` · `docs/howto-kit/overview.html` · `.github/workflows/ci.yml` | `howto-kaizen/SKILL.md:26` 「두 셸 출력 동일성」 · `overview.html:318` 「두 셸 출력의 동일성」 · `ci.yml:46`~`:47` `run-evals.py --verbose` 뿐 | 이 Phase 범위 밖(레포 전용 스킬 · 문서 사이트 · 공유 파일) | 범위 밖 — ER-03 넘김 |
-| `harness/agents/qa-evaluator.md` · `harness/skills/refactor-checklist/SKILL.md` | `qa-evaluator.md:1089`~`:1097` · `refactor-checklist/SKILL.md:52`~`:61` | 기존 경로 찾기 순서 — 읽기만 한다 | RE-02 |
+| `howto-kit/skills/howto/SKILL.md` · `howto-kit/references/` 다섯 · `docs/howto/` | `howto/SKILL.md:229` · `references/step-contract.md:109` · `references/source-tiers.md:31` · `docs/howto/deprecation-policy.md:86` — 게이트 스크립트를 가리키기만 하고 부르지 않는다 (`git grep -n 'howto-gate\|howto_gate'`) | 고칠 곳이 없다 | AR-03 (그대로) |
+| `.claude/skills/howto-kaizen/SKILL.md` · `docs/howto-kit/overview.html` · `.github/workflows/ci.yml` | `howto-kaizen/SKILL.md:30` 「두 셸 출력 동일성」 · `overview.html:318` 「두 셸 출력의 동일성」 · `ci.yml:46`~`:47` `run-evals.py --verbose` 뿐 | 이 Phase 범위 밖(레포 전용 스킬 · 문서 사이트 · 공유 파일) | 범위 밖 — ER-03 넘김 |
+| `harness/agents/qa-evaluator.md` · `harness/skills/refactor-checklist/SKILL.md` | `qa-evaluator.md:1101`~`:1097` · `refactor-checklist/SKILL.md:52`~`:61` | 기존 경로 찾기 순서 — 읽기만 한다 | RE-02 |
 
 Phase 1 결과 대조 (오케스트레이터 Step 17 전수 감사 — `skill-design-guide.md` 1.6.0 · `agent-design-guide.md` 1.7.0):
 

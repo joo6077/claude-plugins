@@ -89,7 +89,7 @@
 
 - `.claude/kaizen-input/insights-report.md` 의 `배정` 칸이 `Phase 8` 인 행은 `backend-family:P3` 하나다(`awk -F'|' '{print $4}'` 로 세면 `Phase 8` 1 건). 계약 `## 배경` 표 첫 행이 SK-01 ~ SK-04 · AR-02 로 반영한다. 비고 「기준 커밋 가르기 규칙 세 곳을 하나로」는 Phase 4 가 정한 `/sprint` Step 3 을 기준 원본으로 두고 글자 그대로 옮기는 것으로(SK-01 · RE-02) 다룬다.
 - `F09`(Phase 4 행)의 비고, `Phase 별 적용 힌트` 의 Phase 8 줄(내 변경 · 기준 커밋에서 이미 실패 · 환경)도 원칙 7 의 다섯 갈래 안에 들어간다.
-- 앞 Phase 넘김 셋 — Phase 1 `infra-test/SKILL.md:37`(SK-05), Phase 4 판정 세 줄(SK-01), Phase 7 README `:54`(SK-04) — 이 전부 조건이 됐다. 러닝북 `Phase 별 추가 과제` 에 Phase 8 줄은 없다.
+- 앞 Phase 넘김 셋 — Phase 1 `infra-test/SKILL.md:41`(SK-05), Phase 4 판정 세 줄(SK-01), Phase 7 README `:54`(SK-04) — 이 전부 조건이 됐다. 러닝북 `Phase 별 추가 과제` 에 Phase 8 줄은 없다.
 - 데이터 풀 §0.5 [infra] 세 건 가운데 `미분류` 기억은 통과 근거로 쓰지 않았다고 적었다. Gotcha 14 의 「실측(2026-09-18)」 은 §0-b `e863512e` 기록과 맞다.
 
 ### 4. 범위가 러닝북 표의 「고쳐도 되는 범위」 안인가 — 안이다
@@ -152,8 +152,8 @@ Then: 첫 줄 `notes_committed=1` · 둘째 줄 값 열일곱 개가 모두 1 �
 ## 권하는 것 (선택 — 판정에 영향 없음)
 
 1. **아직 남는 「1.7+」 자리를 다음 사이클 목록에 빠짐없이 적는다.** 계약 `## 범위 경계` 의 「그대로 둔 곳」 과 research-log 「다음 사이클 후보」 는 `audit-criteria.md:104` · `init-checklist.md:132` 의 「1.7+ mocking」 만 적는다.
-   같은 주장이 `infra-kit/skills/infra-test/SKILL.md:24`(Gotcha 8 「OpenTofu 1.7+는 `tofu test`에서 mocking 지원」)에 있고, 근거 파일이 다루지 않은 다른 주장
-   「OpenTofu 1.7+ write-only 인수」 가 `infra-test/SKILL.md:26`(Gotcha 10)에 있다. `mock.py` 의 research-log 치환에서
+   같은 주장이 `infra-kit/skills/infra-test/SKILL.md:28`(Gotcha 8 「OpenTofu 1.7+는 `tofu test`에서 mocking 지원」)에 있고, 근거 파일이 다루지 않은 다른 주장
+   「OpenTofu 1.7+ write-only 인수」 가 `infra-test/SKILL.md:30`(Gotcha 10)에 있다. `mock.py` 의 research-log 치환에서
    `- 「Terraform 1.10+ ephemeral」 · 「1.7+ mocking」 의 도입 버전 — 근거 파일이 확인하지 못했다(§5)` 를
    `- 「Terraform 1.10+ ephemeral」 · 「1.7+ mocking」(audit-criteria · init-checklist · infra-test Gotcha 8) · 「OpenTofu 1.7+ write-only 인수」(infra-test Gotcha 10) 의 도입 버전 — 근거 파일이 확인하지 못했다(§5)` 로 바꾸고,
    `## 범위 경계` 의 notes 줄에도 같은 두 자리를 더한다. 이 줄은 SK-11 토큰 · SK-09(infra-kit 만 본다) · ER-01(URL 없음)에 걸리지 않는다. 바꾸면 DG-02 · ER-02 를 다시 돌린다.

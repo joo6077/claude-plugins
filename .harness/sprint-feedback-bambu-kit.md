@@ -37,7 +37,7 @@ Iteration: 1
 - [x] SK-04: "JSON 변경 없이" 0건 + 관측 신호 기반 분기 대체 — PASS
   - 근거: `grep -c "JSON 변경 없이" SKILL.md` = 0, `references/failure-recipes.md` = 0 (측정값 0/0, 기준 ==0 충족). 대체: `SKILL.md:766-779` L2 게이트가 (a)~(d) 관측 신호 분기로 재구성, `failure-recipes.md` §2.1 동일 분기 존재. [L3, exact-enumerated]
 - [x] SK-05: user-preferences.md 신규 + 참조 + 목표/수단 구분 — PASS
-  - 근거: `references/user-preferences.md` 파일 존재 확인(L1). `SKILL.md:815`가 경로 참조. `user-preferences.md:21-33` "저장하는 것은 목표(품질)이고 속도는 수단이다... 즉 느림은 목표가 아니다" (저속을 목표로 저장하지 않는다는 문장 확인). [L3, exact]
+  - 근거: `references/user-preferences.md` 파일 존재 확인(L1). `SKILL.md:815`가 경로 참조. `user-preferences.md:21-34` "저장하는 것은 목표(품질)이고 속도는 수단이다... 즉 느림은 목표가 아니다" (저속을 목표로 저장하지 않는다는 문장 확인). [L3, exact]
 
 ### Script (4/4)
 - [x] SC-01: Phase 4.3 게이트 유량비 검사 양성/음성 대조 — PASS
@@ -60,11 +60,11 @@ Iteration: 1
 
 ### Architecture (2/4)
 - [x] AR-01: outer_wall_speed 문서 간 충돌 해소 — PASS (조건부, 잔여 모호점 있음)
-  - 근거: surface-recipes.md:118 이 소재별 매트릭스(PLA 25-40·Silk 15-25·PETG 50-70·PA/PC 20-30·ABS/ASA 25-35·TPU 10-20)를 SSOT로 선언(`surface-recipes.md:107` "이 표가 속도·가속 값의 정본(SSOT)이다"). seam-recipes.md 의 소재별 표(§4, PETG/ABS/ASA/PC/PA-CF 행)는 절대 속도값을 제거하고 "속도는 surface-recipes.md §3 표가 정본"으로 교체됨(`seam-recipes.md:139-143`) — 배경에 명시된 원 충돌("seam-recipes.md:117 PETG outer 50-70" vs "SKILL.md:804 outer 20-40")은 양쪽 다 해소 확인. 재질명이 태그된 outer_wall_speed 쌍 중 값이 다른 쌍 0건.
-  - [미검증 아님 — 단, 개선사항 기재] `seam-recipes.md:123` "회전체/원기둥, 컵, 화병" 행에 재질 미태그 "outer wall 60-80 mm/s" 잔존 (0.2mm layer 기준 baseline 표, surface-first 표와는 별개 컨텍스트로 보이나 SSOT 참조/적용조건 명시가 없음). 계약 측정문(같은 소재 쌍)의 문자 그대로는 위반이 아니라고 판단했으나, 조건의 상위 취지("단일 SSOT 참조 또는 적용조건 명시")는 완전히 충족되지 않음. [L3, exact-enumerated]
+  - 근거: surface-recipes.md:119 이 소재별 매트릭스(PLA 25-40·Silk 15-25·PETG 50-70·PA/PC 20-30·ABS/ASA 25-35·TPU 10-20)를 SSOT로 선언(`surface-recipes.md:108` "이 표가 속도·가속 값의 정본(SSOT)이다"). seam-recipes.md 의 소재별 표(§4, PETG/ABS/ASA/PC/PA-CF 행)는 절대 속도값을 제거하고 "속도는 surface-recipes.md §3 표가 정본"으로 교체됨(`seam-recipes.md:143-147`) — 배경에 명시된 원 충돌("seam-recipes.md:120 PETG outer 50-70" vs "SKILL.md:804 outer 20-40")은 양쪽 다 해소 확인. 재질명이 태그된 outer_wall_speed 쌍 중 값이 다른 쌍 0건.
+  - [미검증 아님 — 단, 개선사항 기재] `seam-recipes.md:127` "회전체/원기둥, 컵, 화병" 행에 재질 미태그 "outer wall 60-80 mm/s" 잔존 (0.2mm layer 기준 baseline 표, surface-first 표와는 별개 컨텍스트로 보이나 SSOT 참조/적용조건 명시가 없음). 계약 측정문(같은 소재 쌍)의 문자 그대로는 위반이 아니라고 판단했으나, 조건의 상위 취지("단일 SSOT 참조 또는 적용조건 명시")는 완전히 충족되지 않음. [L3, exact-enumerated]
 - [ ] AR-02: seam_slope_gap 기본값 0 환원 + seam_gap 과 구분 — **FAIL**
-  - 근거: `seam-recipes.md:92-107` §2.1 "seam_slope_gap 과 seam_gap 은 다른 키다" 신설 문단 존재, 대부분의 gap 값이 `0`으로 교정됨(line 32,41,86,123,125,127,128,160 등). 그러나 **`seam-recipes.md:124`** "원통 '선 최대한 안 보이게'" 행이 여전히 `검증 조합: Contour and Hole, 0 mm/0%, **10%**, 20 mm, 10 steps, around entire wall Off` 로 gap 값 `10%` 를 그대로 방치. 바로 위(123행) · 아래(125행) 형제 행은 모두 `gap 0` 으로 교정되었는데 이 행만 누락됨 (sibling consistency 위반). 측정: "gap 권장값 10%를 기본으로 처방하는 행" = 1건(기준 0건).
-  - 수정: `seam-recipes.md:124` 의 `10%` 를 `0` 으로 교정.
+  - 근거: `seam-recipes.md:95-110` §2.1 "seam_slope_gap 과 seam_gap 은 다른 키다" 신설 문단 존재, 대부분의 gap 값이 `0`으로 교정됨(line 32,41,86,123,125,127,128,160 등). 그러나 **`seam-recipes.md:128`** "원통 '선 최대한 안 보이게'" 행이 여전히 `검증 조합: Contour and Hole, 0 mm/0%, **10%**, 20 mm, 10 steps, around entire wall Off` 로 gap 값 `10%` 를 그대로 방치. 바로 위(123행) · 아래(125행) 형제 행은 모두 `gap 0` 으로 교정되었는데 이 행만 누락됨 (sibling consistency 위반). 측정: "gap 권장값 10%를 기본으로 처방하는 행" = 1건(기준 0건).
+  - 수정: `seam-recipes.md:128` 의 `10%` 를 `0` 으로 교정.
 - [x] AR-03: resolution 0.006-0.010 / enable_arc_fitting 끄기 권장 — surface-first 공통값에서 0건 — PASS
   - 근거: `SKILL.md:871-878` (외벽 표면 공통 섹션)에 `resolution 0.006-0.010` 문자열 0건, 오히려 `SKILL.md:876` "resolution 하향과 enable_arc_fitting 끄기는 surface-first 공통값이 아니다"로 명시적 배제. `SKILL.md:720` 도 "enable_arc_fitting — 기본값 유지... 곡면 계단 대응 카드로 제시하지 마라"로 끄기 권장 없음. 전체 파일에서 `resolution 0.006-0.010` 은 `SKILL.md:577`(Phase 3.0 Supportability Split, 실패모드 사후 대응 표, "surface-first 공통값" 섹션과 무관한 별개 컨텍스트) 1건 잔존 — 조건 조건문이 명시한 "surface-first 공통값" 범위에는 포함되지 않음. [L3, exact — 측정 범위(전체파일 vs 특정 섹션) 모호 플래그 기록]
 - [x] AR-04: 변경 범위 6파일 이내, 그 밖 0건 — PASS
@@ -79,7 +79,7 @@ Iteration: 1
 
 ### Reusability (1/2)
 - [ ] RE-01: 수치 정본을 references/ 에 두고 SKILL.md 중복 기재 금지 — **FAIL**
-  - 근거: `SKILL.md:744` "권장 착지값 (outer 30 mm/s 기준): inner `60-90` · internal_solid `70-120` · gap `30-70`." 이 값은 `surface-recipes.md:119` (`outer 30 → inner 60-90`), `surface-recipes.md:120` (`outer 30 기준 70-120mm/s`), `surface-recipes.md:122` (`30-70mm/s, 최대 80`) 와 완전히 동일한 수치의 재기재다. `surface-recipes.md:107` 자신이 "이 표가 속도·가속 값의 정본(SSOT)이다... 두 문서에 같은 소재의 속도 범위를 따로 적지 마라" 라고 선언했음에도 SKILL.md 가 같은 수치를 그대로 복제했다. (반면 `SKILL.md:874` 는 올바르게 "§유량비 게이트 + surface-recipes.md §3 표 참조" 로 참조만 한다 — 같은 파일 안에서 참조 방식과 복제 방식이 혼재.)
+  - 근거: `SKILL.md:744` "권장 착지값 (outer 30 mm/s 기준): inner `60-90` · internal_solid `70-120` · gap `30-70`." 이 값은 `surface-recipes.md:120` (`outer 30 → inner 60-90`), `surface-recipes.md:121` (`outer 30 기준 70-120mm/s`), `surface-recipes.md:123` (`30-70mm/s, 최대 80`) 와 완전히 동일한 수치의 재기재다. `surface-recipes.md:108` 자신이 "이 표가 속도·가속 값의 정본(SSOT)이다... 두 문서에 같은 소재의 속도 범위를 따로 적지 마라" 라고 선언했음에도 SKILL.md 가 같은 수치를 그대로 복제했다. (반면 `SKILL.md:874` 는 올바르게 "§유량비 게이트 + surface-recipes.md §3 표 참조" 로 참조만 한다 — 같은 파일 안에서 참조 방식과 복제 방식이 혼재.)
   - 수정: `SKILL.md:744` 를 구체 수치 대신 "권장 착지값은 `surface-recipes.md` §3 표를 따른다" 로 교체.
 - [x] RE-02: 기존 references 파일 확장(신규 생성 지양) — PASS
   - 근거: `git diff --stat` 상 `failure-recipes.md`/`seam-recipes.md`/`surface-recipes.md` 3개는 모두 `M`(수정, 섹션 확장)이며 재생성이 아님. 신규 파일은 `user-preferences.md` 1건뿐이며 이는 SK-05가 명시적으로 요구하는 별도 조건의 산출물(기존 3파일 중 어디에도 속하지 않는 신규 기능 영역)로, RE-02의 "불필요한 신규 파일 지양" 취지와 충돌하지 않는다고 판단. [L3]
@@ -121,12 +121,12 @@ Iteration: 1
 - Verdict: REJECT
 - 수정 우선순위:
   1. **DG-04** (최우선) — 수정된 스킬을 실제 MakerWorld/로컬 모델로 1회 완주 실행하고 Phase 4.3 게이트 원문 출력을 첨부. 이것 없이는 "회귀가 실제로 고쳐졌다"는 최종 증거가 없음.
-  2. **AR-02** — `seam-recipes.md:124` 의 잔존 `10%` gap 값을 `0`으로 교정 (형제 행과의 일관성 위반, 사소해 보이지만 계약이 정확히 겨냥한 결함 유형).
+  2. **AR-02** — `seam-recipes.md:128` 의 잔존 `10%` gap 값을 `0`으로 교정 (형제 행과의 일관성 위반, 사소해 보이지만 계약이 정확히 겨냥한 결함 유형).
   3. **RE-01** — `SKILL.md:744` 의 중복 수치를 `surface-recipes.md` §3 참조로 교체.
 
 ## Improvement Suggestions
 - [AR-04] 측정-경로-부재 — `git diff --stat -- bambu-kit/` 는 untracked 신규 파일을 구조적으로 못 잡는다. 측정 명령에 `git status --porcelain -- bambu-kit/` 병기 권장 (Diff-Scope Oracle 4요소 중 "생성물 제외/포함 pathspec" 재검토).
-- [AR-01] 측정-상태-모호 — "outer wall 60-80mm/s"(seam-recipes.md:123, 재질 미태그)가 surface-recipes.md 의 SSOT 선언과 공존해 실무 적용 시 혼선 소지. 재질 태그 없는 shape 기반 속도값도 조건의 "단일 SSOT 참조 또는 적용조건 명시" 대상에 포함되도록 조건문 구체화 권장.
+- [AR-01] 측정-상태-모호 — "outer wall 60-80mm/s"(seam-recipes.md:127, 재질 미태그)가 surface-recipes.md 의 SSOT 선언과 공존해 실무 적용 시 혼선 소지. 재질 태그 없는 shape 기반 속도값도 조건의 "단일 SSOT 참조 또는 적용조건 명시" 대상에 포함되도록 조건문 구체화 권장.
 - [DG-02] 검증경로-미기재 — 마크다운 전용 킷에 대한 IDE/lint 도구 바인딩이 project.yaml에 없음. markdownlint-cli2 등의 도구명 명시 또는 DG-02에 "N/A (문서 전용 변경)" 카브아웃 권장.
 - [RE-02] 조건-충돌 — RE-02(신규 참조파일 생성 지양)와 SK-05(신규 참조파일 생성 요구)가 문면상 충돌. RE-02에 "다른 조건이 명시적으로 요구하는 신규 파일은 예외" 명시 권장.
 - [회귀 게이트 서술] 절차-위반 — 계약의 "회귀 게이트" 서술이 "DG-04 통과 후 SC-04 수행"을 명시하나 실제로는 DG-04 FAIL 상태에서 SC-04가 (evaluator에 의해 독립적으로) 수행됨. 다음 iteration에서는 DG-04 선행 통과 후 SC-04를 구현자가 직접 재수행할 것을 권장.

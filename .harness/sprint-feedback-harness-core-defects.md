@@ -129,7 +129,7 @@ evaluator가 직접 실행/대조로 확인했다. iteration 1이 요구했던 "
   - 근거: 같은 표 10행 재확인, 빈 칸 0건 [L3, exact/enumerated]
 - [x] SK-03: SKILL.md가 SSOT 참조 + 평가자 전용 4종 작성 자문 존재 — PASS
   - 근거: `grep -c "contract-schema.md" harness/skills/sprint-contract/SKILL.md` = 11 (재확인).
-    `harness/skills/sprint-contract/SKILL.md:431-434`가 §조건 작성 preflight를 SSOT로 참조
+    `harness/skills/sprint-contract/SKILL.md:436-439`가 §조건 작성 preflight를 SSOT로 참조
     [L3, exact/enumerated]
 - [x] SK-04: 리터럴 환경값 금지 규칙 신설 — PASS
   - 근거: `grep -n "리터럴 환경값" harness/docs/guides/contract-design-guide.md` → 602행
@@ -147,7 +147,7 @@ evaluator가 직접 실행/대조로 확인했다. iteration 1이 요구했던 "
   - 근거: `git diff --name-only f2e1b34 HEAD -- harness/evals/test-fixtures/` → 빈 출력(재확인).
     fixture DG-01 5건(`grep -n DG-01 harness/evals/test-fixtures/fixture-*/*.md | wc -l` = 5).
     `contract-schema.md:450-451` (RE-01/RE-02 aggregation 예시) 및
-    `contract-design-guide.md:526-535` (DG-04 금지/허용 대비 예시) 원문 그대로 확인 —
+    `contract-design-guide.md:530-539` (DG-04 금지/허용 대비 예시) 원문 그대로 확인 —
     9건 전부 보존 [L3, exact/enumerated]
 - [x] SC-04: validate-plugin.py harness exit 0 — PASS
   - 근거: 직접 재실행 `python3 scripts/validate-plugin.py harness` → V1~V8 전부 OK,
@@ -155,10 +155,10 @@ evaluator가 직접 실행/대조로 확인했다. iteration 1이 요구했던 "
 
 ### Error (2/2)
 - [x] ER-01: N/A와 [미검증] 구분 문단 + 동의어 금지와 양립 — PASS
-  - 근거: `qa-evaluation-guide.md:1015-1027` 재확인 — 동의어 금지 문장 + N/A(사유) 예외 명시 +
+  - 근거: `qa-evaluation-guide.md:1024-1036` 재확인 — 동의어 금지 문장 + N/A(사유) 예외 명시 +
     구분 표 + 판별 기준 한 줄, 충돌 없이 공존 [L3, structural]
 - [x] ER-02: commands.analyze 미적용 프로젝트의 DG-01/DG-02 처리 명시 — PASS
-  - 근거: `qa-evaluation-guide.md:1029-1038` 재확인. 이번 iteration에서
+  - 근거: `qa-evaluation-guide.md:1040-1051` 재확인. 이번 iteration에서
     `harness-attribution-followup.md`의 DG-01/DG-02가 이 문단의 정확히 그 형식
     (`N/A (commands.analyze 미설정 …)` / `N/A (IDE diagnostics 미적용 확장자: …)`)으로
     실제 작성된 것을 추가 확인 [L3, structural]

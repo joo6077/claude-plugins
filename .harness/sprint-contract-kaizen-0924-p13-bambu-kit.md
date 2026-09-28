@@ -140,7 +140,7 @@ BambuStudio 02.08.02.61 · OrcaSlicer 2.4.2 둘 다 ` FEATURE: ` 2 건). 킷 문
 | `SKILL.md` §4.2 notes 틀 `# 4. 임포트 + 출력 절차` 7 번 | 「보낸 G-code 를 생성 설정과 대조한다 — `MISMATCH` 가 있으면 멈춘다」 | `MISMATCH` 로 시작하는 줄이 그대로라 읽기만 — SC-01 |
 | `SKILL.md` 음성 대조 절 「실측 2026-09-15」 블록 | 게이트 출력 모양(`FAIL` · `[미검증]` · `RESULT`) | 그 날짜의 기록이라 고치지 않는다. 새 `OPTION LIST` 줄 수는 SC-04 가 잰다 |
 | `bambu-kit/scripts/option-key-probe/build-option-list.sh:96` | 생성기를 부른다 (`set -euo pipefail`) | 생성기 exit 1 이면 멈춘다 — 읽기만. SC-05 |
-| `bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md:363` | 「목록이 없는 버전은 게이트가 `[미검증]` 으로 보고」 | 빈 목록도 같은 보고가 되어 문장과 맞는다 — 읽기만 |
+| `bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md:377` | 「목록이 없는 버전은 게이트가 `[미검증]` 으로 보고」 | 빈 목록도 같은 보고가 되어 문장과 맞는다 — 읽기만 |
 | `.claude/skills/bambu-kaizen/SKILL.md` · `.claude/skills/bambu-research/SKILL.md` · `docs/bambu-kit/bambu-print-profile.html` | 옛 읽는 순서 · 「Cloudflare 우회」 | 이 Phase 범위 밖 — 명시적 미완으로 넘긴다 (ER-03) |
 | 안 올라간 가지 `feat/bambu-kit-orca-h2s-feedback` (QA 승인) | 같은 SKILL.md 의 4.3 · 음성 대조 표 · 4.4 를 고친다 | 이 Phase 는 그 가지를 합치지 않는다(다른 기능 · 다른 계약). 다시 올릴 때 SKILL.md 충돌을 풀어야 한다고 넘긴다 (ER-03) |
 

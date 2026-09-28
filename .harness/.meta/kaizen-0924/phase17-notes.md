@@ -137,6 +137,6 @@ CI 우분투 이미지에 zsh 가 없고 `sh` 가 dash 인 것은 [runner-images
 - 러너 자체의 음성 대조(이번 SK-08 변형 여덟)를 킷 안 시험으로 둘지 — 지금은 계약 측정 안에만 있다
 - 러너 시간이 3.4 초에서 8 ~ 9 초로 늘었다. CI 에 넣은 뒤 시간 상한을 조건으로 둘지 정한다(계약 피드백 `nfr_coverage: true`)
 - 러너에 편집 전부터 있던 `for c in data['cases']`(한 글자 이름)가 남아 있다 — 다음에 러너를 고칠 때 같이
-- `docs/howto/design-brief.md:385` C5 「zsh·bash 양쪽에서 실행」 은 틀린 말은 아니지만 러너가 세 셸을 대조하게 됐다 — 설계 문서를 다시 볼 때 같이
+- `docs/howto/design-brief.md:390` C5 「zsh·bash 양쪽에서 실행」 은 틀린 말은 아니지만 러너가 세 셸을 대조하게 됐다 — 설계 문서를 다시 볼 때 같이
 - 플러그인 치환(`plugin` 경우)은 Claude Code 가 하는 글자 치환을 측정이 흉내 낸 것이다. 설치본으로 `/howto-audit` 을 실제로 불러 `RESOLVED:` 줄을 확인하는 것은 Final 뒤 배포본에서
 - `save-feedback.sh` 가 이 워크트리에서 `project_name: 'kaizen-0924'`(워크트리 이름)를 적었다 — Phase 4 · Phase 12 몫과 같은 문제

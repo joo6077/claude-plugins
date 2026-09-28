@@ -66,10 +66,10 @@
 ```text
 grep -rnE "사유 한 줄|agent-design-guide §10|skill-design-guide §3\.7" --include="*.md" .
   (.harness/ 와 두 가이드 자신은 뺌)
-react-kit/references/render-evidence-protocol.md:59   「`[미검증]` 마커와 사유 한 줄을 붙이고 부분 완료로 보고」
-flutter-toolkit/references/visual-evidence-protocol.md:136   「`[미검증]` 마커 + 사유 한 줄」
+react-kit/references/render-evidence-protocol.md:63   「`[미검증]` 마커와 사유 한 줄을 붙이고 부분 완료로 보고」
+flutter-toolkit/references/visual-evidence-protocol.md:140   「`[미검증]` 마커 + 사유 한 줄」
 onboarding-kit/skills/setup-guide/SKILL.md:30   「마커 + 사유 한 줄」
-infra-kit/skills/infra-test/SKILL.md:37   「`[미검증] TOOL_OR_ENV_MISSING: … — 재검증: <명령>`」 (시도한 우회 칸 없음, skill §3.7 인용)
+infra-kit/skills/infra-test/SKILL.md:41   「`[미검증] TOOL_OR_ENV_MISSING: … — 재검증: <명령>`」 (시도한 우회 칸 없음, skill §3.7 인용)
 rust-kit/agents/rust-reviewer.md:137   「미검증 항목 마커 (agent-design-guide §10)」 접미 없는 `[미검증]` + 이유
 ```
 
@@ -79,10 +79,10 @@ sprint-contract 2.5 (6) 대로 명시적 미완으로 넘긴다.
 `GAP 분석` 절 Counterpart 표에 다섯 행을 더한다:
 
 ```text
-| `react-kit/references/render-evidence-protocol.md:59` | 「`[미검증]` 마커와 사유 한 줄 … 부분 완료로 보고」(3 항 옛 문구) | Phase 10 범위 — 넘김 (ER-04) |
-| `flutter-toolkit/references/visual-evidence-protocol.md:136` | 「`[미검증]` 마커 + 사유 한 줄」 | Phase 5 범위 — 넘김 (ER-04) |
+| `react-kit/references/render-evidence-protocol.md:63` | 「`[미검증]` 마커와 사유 한 줄 … 부분 완료로 보고」(3 항 옛 문구) | Phase 10 범위 — 넘김 (ER-04) |
+| `flutter-toolkit/references/visual-evidence-protocol.md:140` | 「`[미검증]` 마커 + 사유 한 줄」 | Phase 5 범위 — 넘김 (ER-04) |
 | `onboarding-kit/skills/setup-guide/SKILL.md:30` | 「마커 + 사유 한 줄」 | Phase 14 범위 — 넘김 (ER-04) |
-| `infra-kit/skills/infra-test/SKILL.md:37` | 「`[미검증] TOOL_OR_ENV_MISSING` … 재검증」 — 시도한 우회 칸 없음 | Phase 8 범위 — 넘김 (ER-04) |
+| `infra-kit/skills/infra-test/SKILL.md:41` | 「`[미검증] TOOL_OR_ENV_MISSING` … 재검증」 — 시도한 우회 칸 없음 | Phase 8 범위 — 넘김 (ER-04) |
 | `rust-kit/agents/rust-reviewer.md:137` | 「agent-design-guide §10」 접미 없는 `[미검증]` | Phase 9 범위 — 넘김 (ER-04) |
 ```
 
@@ -90,7 +90,7 @@ ER-04 조건 줄을 이렇게 바꾼다 (러닝북이 notes 에 적으라고 한
 Final 이 처리 배정표를 채울 때 이 파일을 읽는다):
 
 ```text
-- [ ] ER-04: Counterpart 소비면 가운데 이 Phase 범위 밖이라 못 고치는 8 곳을 명시적 미완으로 넘기고, 이미 맞는 2 파일은 건드리지 않는다 — `.harness/.meta/kaizen-0924/phase1-notes.md` 에 `harness/skills/sprint/SKILL.md:77` · `harness/skills/create-agent/SKILL.md` · `harness/skills/create-skill/SKILL.md:24` · `react-kit/references/render-evidence-protocol.md:59` · `flutter-toolkit/references/visual-evidence-protocol.md:136` · `onboarding-kit/skills/setup-guide/SKILL.md:30` · `infra-kit/skills/infra-test/SKILL.md:37` · `rust-kit/agents/rust-reviewer.md:137` 과 처리 배정표 키 `F10` · `harness:P09` · `harness:P05` 가 각각 1 회 이상 있고, 이 Phase 커밋이 다섯 파일(`harness/skills/sprint/SKILL.md` · `harness/skills/create-agent/SKILL.md` · `harness/skills/create-skill/SKILL.md` · `harness/agents/qa-evaluator.md` · `harness/docs/guides/qa-evaluation-guide.md`)을 하나도 건드리지 않는다 [exact, enumerated]
+- [ ] ER-04: Counterpart 소비면 가운데 이 Phase 범위 밖이라 못 고치는 8 곳을 명시적 미완으로 넘기고, 이미 맞는 2 파일은 건드리지 않는다 — `.harness/.meta/kaizen-0924/phase1-notes.md` 에 `harness/skills/sprint/SKILL.md:77` · `harness/skills/create-agent/SKILL.md` · `harness/skills/create-skill/SKILL.md:26` · `react-kit/references/render-evidence-protocol.md:63` · `flutter-toolkit/references/visual-evidence-protocol.md:140` · `onboarding-kit/skills/setup-guide/SKILL.md:30` · `infra-kit/skills/infra-test/SKILL.md:41` · `rust-kit/agents/rust-reviewer.md:137` 과 처리 배정표 키 `F10` · `harness:P09` · `harness:P05` 가 각각 1 회 이상 있고, 이 Phase 커밋이 다섯 파일(`harness/skills/sprint/SKILL.md` · `harness/skills/create-agent/SKILL.md` · `harness/skills/create-skill/SKILL.md` · `harness/agents/qa-evaluator.md` · `harness/docs/guides/qa-evaluation-guide.md`)을 하나도 건드리지 않는다 [exact, enumerated]
       (Given: BUILD 가 notes 를 쓰고 커밋한 뒤 · 측정: `test -f .harness/.meta/kaizen-0924/phase1-notes.md` exit 0 · 위 11 문자열을 그 파일에서 각각 `grep -cF` 해 전부 1 이상 · `mine | grep -cE '^harness/(skills/(sprint|create-agent|create-skill)/SKILL\.md|agents/qa-evaluator\.md|docs/guides/qa-evaluation-guide\.md)$'` 0. 봉인 전 실측: notes 없음 — 구현이 만들 파일이라 면제)
 ```
 

@@ -34,7 +34,7 @@ Iteration: 1
 
 ### Skill (5/5)
 - [x] SK-01: 형상 클래스 축이 §2.7 로 정의됨 - PASS
-  - 근거: surface-recipes.md:93 "### 2.7. 형상 클래스 - planar vs thin" (형상클래스 헤더 매칭 == 1). AM-01 범위(45줄) 안에서 planar 5회, thin 8회, _geometry_class 2회, 30 7회, 0.5 4회, 전부 >=1. L3: 판정 근거(래티스 실측, seam-recipes §2.2 30mm 임계) 산문이 실제 실측 표(:117-125 5개 오브젝트 loops/thin_share)로 뒷받침됨.
+  - 근거: surface-recipes.md:94 "### 2.7. 형상 클래스 - planar vs thin" (형상클래스 헤더 매칭 == 1). AM-01 범위(45줄) 안에서 planar 5회, thin 8회, _geometry_class 2회, 30 7회, 0.5 4회, 전부 >=1. L3: 판정 근거(래티스 실측, seam-recipes §2.2 30mm 임계) 산문이 실제 실측 표(:117-125 5개 오브젝트 loops/thin_share)로 뒷받침됨.
 - [x] SK-02: thin 클래스 속도 미하향 규칙이 3표면에 있음 - PASS
   - 근거: surface-recipes.md 에서 thin/outer_wall_speed 동일줄 매치 2건(:104,:149, >=1). SKILL.md 매치 6건(>=2, :868,1097,1395,1417,1491,1603). AM-02 로 고정한 (b)블록 범위 [1092,1135]에 :1097 포함, (c)목록 범위 [863,878]에 :868 포함 - 각 1건 이상 조건 충족.
 - [x] SK-03: 냉각 위임 줄에 thin 예외 부착 - PASS

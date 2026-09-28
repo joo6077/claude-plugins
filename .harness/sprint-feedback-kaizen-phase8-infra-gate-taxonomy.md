@@ -90,7 +90,7 @@ frontmatter `conditions: 23` — 일치.
 - [x] RE-01: 상태 5종 정의가 `gate-result-taxonomy.md` 1파일에만, 소비 표면 3종은 경로 참조만 — PASS
   - 근거: 소비 표면 3파일 각각 `grep -cF 'gate-result-taxonomy.md'` >=1 (infra-test=9, infra-audit=4, infra-reviewer=2)
 - [x] RE-02: `[미검증]` 임계값·커버리지 임계 재정의 안 함 — PASS
-  - 근거: infra-kit 하위 `verified_coverage`+`0.60` 동시 등장 4줄(infra-reviewer.md:89,136 / infra-audit/SKILL.md:106,116) 전부 "§9 Canonical Unverified-Evidence Protocol"(정본은 qa-evaluation-guide 명시, 라인 72-74) 또는 "판정은 ... 그대로 적용한다(재정의 금지)"(infra-audit/SKILL.md:94) 인용 문맥 내에 위치함을 Read로 개별 확인 (L3). "류" 선언은 infra-reviewer.md:74 `"임계값이나 마커 의미를 여기서 다시 정의하지 않는다"` — 계약 측정문의 "류" 표현과 의미상 일치
+  - 근거: infra-kit 하위 `verified_coverage`+`0.60` 동시 등장 4줄(infra-reviewer.md:89,136 / infra-audit/SKILL.md:112,116) 전부 "§9 Canonical Unverified-Evidence Protocol"(정본은 qa-evaluation-guide 명시, 라인 72-74) 또는 "판정은 ... 그대로 적용한다(재정의 금지)"(infra-audit/SKILL.md:100) 인용 문맥 내에 위치함을 Read로 개별 확인 (L3). "류" 선언은 infra-reviewer.md:74 `"임계값이나 마커 의미를 여기서 다시 정의하지 않는다"` — 계약 측정문의 "류" 표현과 의미상 일치
 
 ### Diagnostics (4/4)
 - [x] DG-01: `validate-plugin.py infra-kit` exit 0 · `1 plugins, 1 OK` — PASS

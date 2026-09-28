@@ -27,7 +27,7 @@
    비고는 「harness/scripts/save-feedback.sh 도 같이 바뀐다」 다. phase1 · phase2 · phase3 notes 가 셋 다 저장본의 `project_name` 이
    워크트리 이름 `kaizen-0924` 로 적혔다고 적었다. Phase 12 범위는 `reflect-kit/` 뿐이라 이 하네스 파일을 고칠 수 있는 Phase 는 이번
    사이클에 Phase 4 하나다. 그런데 배경 표 · GAP · 넘김 열두 문자열 어디에도 없다. 같은 절에서 근거 파일 §3 이 짚은
-   `create-agent/SKILL.md:25` (「`model` 을 생략하면 `inherit`」) · `create-skill/SKILL.md:27` (「다른 플랫폼에서는 무시된다」) 도
+   `create-agent/SKILL.md:25` (「`model` 을 생략하면 `inherit`」) · `create-skill/SKILL.md:29` (「다른 플랫폼에서는 무시된다」) 도
    이 Phase 파일인데 말이 없다 — 이 둘은 기준 원본이 Phase 1 가이드라 두는 것이 맞지만, 그 이유와 넘김을 적어야 한다
 3. **러닝북 계약 규칙 두 개를 안 지켰다 — 함수 정의 확인 · 건드리면 안 되는 파일의 직접 세기.** 공통 정의의 셸 함수(`my` ·
    `added` · `url` · `unsigned_on`)에 기대면서 0 을 기대하는 측정이 아홉 곳(SC-00 · DG-01 · DG-03 · DG-04 · ER-03 · ER-04 · AP-01 ·
@@ -124,13 +124,13 @@
 - 배경 표 `F28` 행 「이번 처리」 에 덧붙인다: 「시뮬레이터 · 데이터베이스 나누기는 미반영 — 맡은 제안이 없고 근거 파일 §2 F28 도 다루지 않는다」
 - GAP 분석 「구현 후보가 둘 이상이었던 곳의 선택」 에 불릿 하나: 「create-agent `:25` · `:33` 의 `model` 을 생략하면 `inherit` 와
   create-skill `:27` 의 「공식 필수는 `name` 과 `description`」 · 「다른 플랫폼에서는 무시된다」 는 근거 파일 §3 이 낡았다고 짚었지만
-  고치지 않는다 — 두 스킬이 기준 원본으로 가리키는 `agent-design-guide.md:79` · `skill-design-guide.md` §frontmatter 규칙이 Phase 1 파일이고
+  고치지 않는다 — 두 스킬이 기준 원본으로 가리키는 `agent-design-guide.md:83` · `skill-design-guide.md` §frontmatter 규칙이 Phase 1 파일이고
   Phase 1 notes 가 다음 사이클로 넘겼다. 스킬 쪽만 고치면 스킬과 가이드가 갈린다」
-- 넘김 문자열을 스물다섯으로 — 기존 스물둘에 `reflect-collector:P5` · `create-agent/SKILL.md:25` · `create-skill/SKILL.md:27` 셋을 더한다.
+- 넘김 문자열을 스물다섯으로 — 기존 스물둘에 `reflect-collector:P5` · `create-agent/SKILL.md:25` · `create-skill/SKILL.md:29` 셋을 더한다.
   조건 산문 「스물두 문자열」 → 「스물다섯 문자열」, 괄호 안 넘김 목록 「넘김 열둘」 → 「넘김 열다섯」 에 세 문자열을 더하고,
-  측정 `for t in …` 목록 끝에 `'reflect-collector:P5' 'create-agent/SKILL.md:25' 'create-skill/SKILL.md:27'` 을 붙여 「25 값 전부 1 이상」.
+  측정 `for t in …` 목록 끝에 `'reflect-collector:P5' 'create-agent/SKILL.md:25' 'create-skill/SKILL.md:29'` 을 붙여 「25 값 전부 1 이상」.
   `## 범위 경계` 넘김 불릿의 「열두 문자열」 → 「열다섯 문자열」 과 세 문자열의 설명(각각 「다음 사이클 Phase 4 — 위 배경 행」 ·
-  「다음 사이클 Phase 1 · 4 — `agent-design-guide.md:79` 와 함께」 · 「다음 사이클 Phase 1 · 4 — skill 가이드 frontmatter 규칙과 함께」)을 더한다
+  「다음 사이클 Phase 1 · 4 — `agent-design-guide.md:83` 와 함께」 · 「다음 사이클 Phase 1 · 4 — skill 가이드 frontmatter 규칙과 함께」)을 더한다
 - 셋째 측정 앞에 `type my >/dev/null || exit 2;` 를 붙이고, 서명 줄 목록 측정 뒤에 직접 세기를 더한다 —
   `git log "$B..$END" --oneline -- harness/skills/sprint-contract harness/agents/qa-evaluator.md harness/docs/guides/skill-design-guide.md harness/docs/guides/agent-design-guide.md harness/docs/guides/contract-design-guide.md harness/docs/guides/qa-evaluation-guide.md harness/references .claude-plugin README.md CLAUDE.md .github .claude .harness/.meta/orchestrator-audit-log.md .harness/.meta/kaizen-failure-count.yaml | wc -l` 0.
   `docs/` 와 킷별 `plugin.json` 은 다른 Phase 가 제 킷 폴더를 고치므로 직접 세기에서 빼고 서명 줄 목록으로만 잰다는 말을 붙인다.

@@ -67,8 +67,8 @@ Step 8 피드백 저장 단계를 실행하지 않고 종료). 본 재평가는 
     `harness/docs/guides/contract-design-guide.md`, `harness/references/contract-schema.md`,
     `harness/skills/sprint-contract/SKILL.md` 4개 경로와 정확히 일치 (L3, exact 재실행 확인)
 - [x] AR-02: contract-design-guide.md 버전 정보 3행이 실제 값과 일치 — PASS
-  - 근거: `contract-design-guide.md:1185` Schema version `v5.3` == `contract-schema.md:828` `현재: v5.3`.
-    `contract-design-guide.md:1186` Parity `1.5.0`/`1.6.0` == `skill-design-guide.md:3` `version: 1.5.0`,
+  - 근거: `contract-design-guide.md:1201` Schema version `v5.3` == `contract-schema.md:828` `현재: v5.3`.
+    `contract-design-guide.md:1202` Parity `1.5.0`/`1.6.0` == `skill-design-guide.md:3` `version: 1.5.0`,
     `agent-design-guide.md:3` `version: 1.6.0` (L3, 3파일 grep 프로그래매틱 추출 비교, 손타이핑 없음)
 - [x] AR-03: 기존 계약 109개 봉인 검사 SEAL_BROKEN 0건 전부 SEAL_ABSENT — PASS
   - 근거: `.harness` 하위 전체(123개, phase2 자신 제외) 대상 `verify_seal` 직접 실행 →
@@ -83,10 +83,10 @@ Step 8 피드백 저장 단계를 실행하지 않고 종료). 본 재평가는 
     이름으로 등장하고 "Phase 3 소관" 명시. `[미검증]` 문자열은 "이 아니다" 부정문 맥락에서만
     등장 — grep 오탐 필터링: Read로 맥락 확인 결과 실제 마커 적용이 아니라 정정 서술 (L3)
 - [x] AR-06: 계약 등급표가 §3.7 원장을 복제하지 않고 참조 관계만 명시 — PASS
-  - 근거: `contract-design-guide.md:105-116` 에 "원장"과 "§3.7" 공존 + "복제하지 마라" 명시.
-    `skill-design-guide.md:272-281` §3.7 원장 8행(Enumerate-before-Act, Pre-Edit Batch Audit,
+  - 근거: `contract-design-guide.md:109-120` 에 "원장"과 "§3.7" 공존 + "복제하지 마라" 명시.
+    `skill-design-guide.md:276-285` §3.7 원장 8행(Enumerate-before-Act, Pre-Edit Batch Audit,
     Rule-by-Rule Audit, Scope-Bound Edits, Completion Evidence Gate, Counterpart Enumeration,
-    Variant Budget, User-Reported Failure Gate) 이름이 `contract-design-guide.md:131-150`
+    Variant Budget, User-Reported Failure Gate) 이름이 `contract-design-guide.md:135-154`
     등급표에 verbatim 재기재된 행 0건 확인 (L3, 8행 전수 대조)
 
 ### Skill (5/5)
@@ -114,7 +114,7 @@ Step 8 피드백 저장 단계를 실행하지 않고 종료). 본 재평가는 
 - [x] SC-02: 커버리지 검출기 zsh·bash 동일 + flag rate 2개 수치 가이드 기록 — PASS
   - 근거: `.harness` 전체 계약 대상 검출기 실행 결과 40행, zsh·bash 동일 해시
     (a412dc2bfe87b3ba69e5effc593c95f71be17a11dabcda7fb5be11ff565f9674). 가이드
-    `contract-design-guide.md:778-779` 나이브 76/114, 좁힌형태 29/114 2개 수치 확인 (L3)
+    `contract-design-guide.md:794-795` 나이브 76/114, 좁힌형태 29/114 2개 수치 확인 (L3)
 - [x] SC-03: variant 축 중복 검출기가 UI-04 실사례 재현 — PASS
   - 근거: B1/B2/B3/B6 4행 입력(B3·B6 4축 동일값)에서 evaluator 직접 실행 →
     `DUP_AXIS [...] <- variants: B3 B6` + `VARIANT_DISTINCT_FAIL n=1` (zsh·bash 동일, L3)
@@ -133,7 +133,7 @@ Step 8 피드백 저장 단계를 실행하지 않고 종료). 본 재평가는 
     (e) `contract-schema.md:569` "경로 화이트리스트는 예외 — 목록을 두 번 적지 마라" (신규)
     (L3, 5개 전수 + git diff로 신규성 검증)
 - [x] ER-02: 커버리지 검출기가 "검출기+해소기록"으로 규정 + 오탐률 기록 — PASS
-  - 근거: `contract-design-guide.md:773` "왜 blocking 게이트가 아닌가" + `:778-779` flagged
+  - 근거: `contract-design-guide.md:789` "왜 blocking 게이트가 아닌가" + `:778-779` flagged
     수치 2개 (L3)
 - [x] ER-03: 스키마 버전 bump + 변경 이력 최상단 신규 버전 — PASS
   - 근거: `contract-schema.md:828` 현재 v5.3(≠v5.2) + `:832` 변경 이력 최상단

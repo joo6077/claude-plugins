@@ -63,10 +63,10 @@ locked_at: "2026-09-26 21:02"
 
 | 대상 파일 | 실제 Read 증거 (`파일:라인`) | 발견한 기존 갭·위반 | 계약 조건화 여부 |
 | --------- | ---------------------------- | ------------------- | ---------------- |
-| `flutter-toolkit/skills/flutter-audit/SKILL.md` | `:30-51` 「아래 5 조항은 정본을 문구 변형 없이 복제」 · `:41` 「임계값은 2 다」 · `:25` L3 Honesty · `:407-411` Unverifiable 틀 · `:425` 「미검증 누계 임계(2 건)」 | 원문이 v5.1 로 바뀌었는데(`qa-evaluation-guide.md:1247-1298` 번호 목록 · `:892-900` 4 요건) 옛 다섯 조항이 남았다. c4b 가 reviewer 일곱만 옮기고 넘겼다(`c4b-notes.md:99`) | SK-01 · SK-02 |
+| `flutter-toolkit/skills/flutter-audit/SKILL.md` | `:30-51` 「아래 5 조항은 정본을 문구 변형 없이 복제」 · `:41` 「임계값은 2 다」 · `:25` L3 Honesty · `:407-411` Unverifiable 틀 · `:425` 「미검증 누계 임계(2 건)」 | 원문이 v5.1 로 바뀌었는데(`qa-evaluation-guide.md:1260-1311` 번호 목록 · `:892-900` 4 요건) 옛 다섯 조항이 남았다. c4b 가 reviewer 일곱만 옮기고 넘겼다(`c4b-notes.md:99`) | SK-01 · SK-02 |
 | `react-kit/agents/react-reviewer.md` | `:169` 사본 출처 v5.1 · `:171-226` 번호 목록 · `:228-237` 4 요건 | KRe-1 의 「react-reviewer §10」 은 c4b `446428a` 가 처리했다 | 처리됨 |
-| `flutter-toolkit/evals/evals.json` | 사례 16(`id: 16`) 마지막 단언 · 사례 18 마지막 단언 「생성 후 $DART test로 검증한다」 · 사례 23 개 | 「건너뜀 — 관례 표 없는 호출」 을 재는 사례가 없다. 사례 18 이 flutter-test Step 4(`flutter-test/SKILL.md:144` `$FLUTTER test`)와 어긋난다 | SK-03 · SK-07 |
-| `flutter-toolkit/agents/widget-inspector.md` · `skills/flutter-feature/SKILL.md` | `widget-inspector.md:135` · `:198` · `:246` · `flutter-feature/SKILL.md:193` | 새 칸 값 규칙은 이미 있다 — 사례만 없다 | SK-03 (근거) |
+| `flutter-toolkit/evals/evals.json` | 사례 16(`id: 16`) 마지막 단언 · 사례 18 마지막 단언 「생성 후 $DART test로 검증한다」 · 사례 23 개 | 「건너뜀 — 관례 표 없는 호출」 을 재는 사례가 없다. 사례 18 이 flutter-test Step 4(`flutter-test/SKILL.md:152` `$FLUTTER test`)와 어긋난다 | SK-03 · SK-07 |
+| `flutter-toolkit/agents/widget-inspector.md` · `skills/flutter-feature/SKILL.md` | `widget-inspector.md:147` · `:198` · `:246` · `flutter-feature/SKILL.md:199` | 새 칸 값 규칙은 이미 있다 — 사례만 없다 | SK-03 (근거) |
 | `CLAUDE.md` (루트) | `:52` 「23개 테스트 케이스」 · `:373` 「20개 스킬별 assertion」 | 두 문장이 서로 다르다 | SK-04 |
 | `flutter-toolkit/skills/flutter-kaizen/SKILL.md` | `:28-50` `## Gotchas` · `:37-44` 짝 스킬 표 | Makefile 규칙 스킬 넷을 계약 허용 경로에 처음부터 넣으라는 교훈이 없다(`c3a-notes.md:155-156`) | SK-05 |
 | `flutter-toolkit/skills/flutter-api/SKILL.md` · `flutter-feature/SKILL.md` · `flutter-screen/SKILL.md` | `flutter-api:333-336` · `flutter-feature:147-151` · `flutter-screen:269-272` | 사용자에게 보이는 codegen 안내가 flutter-run 의 전후 삭제 수 블록을 가리키지 않는다(`phase5-notes.md:81`) | SK-06 |
@@ -79,7 +79,7 @@ locked_at: "2026-09-26 21:02"
 | `react-kit/skills/react-screen/SKILL.md` | `:24` Gotcha 11 `<Activity />` 「canary 채널에서 안정화 중」 | EX-9 에 상태 근거가 없다 | 바깥 근거 없음 (범위 경계) |
 | `react-kit/references/project-detection.md` · `scripts/project-detect.sh` · `evals/scripts/project-detect-test.sh` | 참조 `:1-54`(스크립트 언급 0) · 스크립트 `:1-87` · 시험 `:9` | 부르는 곳이 시험뿐이다. 참조 문서의 JSON 예시 키와 스크립트 출력 키는 같다(봉인 전 실측 11 개) | SK-12 |
 | `planning-kit/skills/plan-sync-github/SKILL.md` · `docs/planning/research-log.md` | `plan-sync-github:18` Gotcha 4 · `:171` `apiVersion=2022-11-28` · `research-log.md:31-32` | 지원 기한(2028-03-10)은 설치되지 않는 `docs/` 에만 있다 | SK-13 |
-| `docs/planning/flows.md` · `data-modeling.md` | `flows.md:53` 「최신 안정판은 12.0.0」 · `data-modeling.md:78` ELK · 「문법은 그대로」 | EX-10 판정 「맞음」 — Mermaid 12 는 처리됨. `flows.md:53` 의 「최신 안정판」 수식어만 원문 직접 인용이 아니다 | 처리됨 (범위 경계) |
+| `docs/planning/flows.md` · `data-modeling.md` | `flows.md:61` 「최신 안정판은 12.0.0」 · `data-modeling.md:90` ELK · 「문법은 그대로」 | EX-10 판정 「맞음」 — Mermaid 12 는 처리됨. `flows.md:61` 의 「최신 안정판」 수식어만 원문 직접 인용이 아니다 | 처리됨 (범위 경계) |
 | `docs/react/research-log.md` | `:39` 19.3 표 줄 · `:437` `react-view-transitions` 「backlog (canary 대기)」 · `:496` 같은 이름 다른 표 | canary 대기가 풀렸는데 backlog 줄이 그대로 | SK-14 |
 | `docs/react/kit-design/*.md` 여덟 | 모두 `last_updated: 2026-04-10`. `g6-build-audit.md:52` dev 줄 「포트 5173」(strictPort 없음) · `:144-206` §3 여덟 단계(스킬은 일곱) · `:416` `verdict: APPROVE \| REJECT` · `g1-scaffolding.md:192-193` 「/harness init 호출 → .harness/project.yaml 자동 생성」 · `final-integration.md:243` · `:486` | 2026-04-11 뒤 스킬 바뀜 커밋(문서별 2~9 개, 합 47 개)이 반영 안 됐다. `render-evidence-protocol` · `strictPort` · `BLOCKED` · `passed` 는 여덟 문서 모두 0 | SK-15 · SK-16 |
 
@@ -181,7 +181,7 @@ locked_at: "2026-09-26 21:02"
 | KF-4 | flutter-audit `:50` | 계약에 넣음 | SK-01 이 조항 5 를 원문 v5.1 글자 그대로로 바꾼다 — 평가 측 보고 모양 `[조건/항목 ID, 사유, 시도한 fallback 단계]` 는 원문이 그대로 둔 것이라 따로 고치지 않는다 |
 | KF-4 | codegen 안내 셋 | 계약에 넣음 | SK-06 |
 | KF-4 | 평가 사례 18 `$DART test` | 계약에 넣음 | SK-07 |
-| KF-4 | `--delete-conflicting-outputs` | 계약에 넣음 — 결정은 「빼지 않는다」(UD-1) | SK-08. EX-5 로 경계를 2.7.0 으로 바로잡는다. `docs/flutter/research-log.md:19` 의 2026-09-24 조사 기록은 그날 기록이라 두고 notes 에 적는다 |
+| KF-4 | `--delete-conflicting-outputs` | 계약에 넣음 — 결정은 「빼지 않는다」(UD-1) | SK-08. EX-5 로 경계를 2.7.0 으로 바로잡는다. `docs/flutter/research-log.md:20` 의 2026-09-24 조사 기록은 그날 기록이라 두고 notes 에 적는다 |
 | KRe-1 | Activity canary | 바깥 근거 없음 | EX-9 가 상태를 판정할 수 없다고 했다. react-screen Gotcha 11 은 그대로 |
 | KRe-1 | `<ViewTransition>` Tier 2 | 계약에 넣음 | SK-11 · SK-14 · SK-16(g5b) |
 | KRe-1 | react-reviewer §10 | 처리됨 | c4b `446428a` 가 사본을 v5.1 로 옮겼다(`react-reviewer.md:169` · `:228`) |
@@ -190,7 +190,7 @@ locked_at: "2026-09-26 21:02"
 | UD-3 | flutter-preflight · react-preflight 기준 커밋 비교 | 계약에 넣음 | SK-09 · SK-10 · ER-01. 원문은 시작 판 `harness/skills/sprint/SKILL.md` Step 3 이다 — 다른 묶음이 원문을 바꾸면 사본 동기화는 그 묶음 몫으로 notes 에 적는다 |
 | UD-1 | build_runner 플래그 · react 틀 | 그대로 유지 | SK-08 이 플래그 줄 수를, AR-01 이 `react-kit/templates/` 가 바뀌지 않음을 잰다 |
 | KP-1 | GitHub 문서 날짜 | 계약에 넣음 | SK-13. 링크 날짜 `2022-11-28` 은 그대로(옛 호출이 깨지는 변경이 있다는 판단은 `research-log.md:32` 그대로) |
-| KP-1 | Mermaid 12 | 처리됨 | `bbdebaf` 가 `flows.md:53` · `data-modeling.md:78` 을 고쳤고 EX-10 이 「맞음」 으로 판정했다. 「최신 안정판」 수식어 한 곳은 원문 직접 인용이 아니라는 EX-10 의 열린 질문만 notes 에 적는다 |
+| KP-1 | Mermaid 12 | 처리됨 | `bbdebaf` 가 `flows.md:61` · `data-modeling.md:90` 을 고쳤고 EX-10 이 「맞음」 으로 판정했다. 「최신 안정판」 수식어 한 곳은 원문 직접 인용이 아니라는 EX-10 의 열린 질문만 notes 에 적는다 |
 | KP-1 | PRD 와 결정 기록(ADR) 비교 | 바깥 근거 없음 | EX-10 이 비교 자료를 다루지 않았다 |
 
 `docs/react/research-log.md:39` 산문은 이미 「canary 대기가 풀렸다」 고 적어 표 줄과 어긋나 있다 — SK-14 가 바로 이 표 줄을 맞춘다(교차 진단 확인).

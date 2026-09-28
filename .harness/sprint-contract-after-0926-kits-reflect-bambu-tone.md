@@ -84,13 +84,13 @@ SC-03 ↔ SC-04 · SC-05(완료 검사 ↔ 새 실행 스크립트) · SK-05(실
 | `bambu-kit/skills/bambu-print-profile/SKILL.md` 완료 검사 | `:1604-1611`(`skipped` 문구), `:1701` `elif t not in TYPES…` 가 enum 판정 `:1704` 보다 먼저 | 종류 줄이 빠진 목록이면 키 9 개 모두 거짓 「키 스코프 불일치」 FAIL, enum FAIL 0(봉인 전 재현) | SC-03 |
 | 같은 파일 `:2037-2041` 설명 문단 · `:1886-2019` 음성 대조 블록 | 「종류 줄이 없어 … 믿지 마라」 전제, 종류 줄 빠진 목록 변이 없음. `:1889` `mktemp -t gate` · `:2010` · `:2015` 가 임시 파일 18 개를 남긴다(봉인 전 실측) | 판정 동작을 고치면 문단 · 변이도 따라야 한다 | SC-03 · SC-08 |
 | 같은 파일 `:1846` 표 머리 · `:1918-1941` 실행 줄 | 완료 검사를 돌리는 실행 목록이 SKILL.md 안 블록뿐 · 금지 키 FAIL 시험 파일 0(`:1846` 「아직 FAIL 시험 파일이 없다」) | CI 가 시험 파일을 안 돌린다 | SC-04 · SC-05 · SC-06 · SK-05 |
-| 같은 파일 `:920` · `:1186` · `:1323` · `:1831`, `references/failure-recipes.md:150` | `[미검증]` 만 적고 네 칸(`harness/docs/guides/skill-design-guide.md:302-308`)이 없다 — 옛 판(`499cc12`)의 `:806` · `:1072` · `:1209` · `:1706` · `:150` 과 같은 문장 | 생성 측 다섯 자리 | SK-06 |
-| 같은 파일 `:2548` 릴리스 현황 · `references/bambu-fields-baseline.md:10` · `:16-17` · `references/materials.md:140` | 최신 beta 2.8.1 · 안정 2.7.1 · 로컬 02.06.00.51 · 「PLA Pure 2.6.0 stable 미포함」 | 이 맥 관측값과 다르다 | SK-07 |
+| 같은 파일 `:920` · `:1186` · `:1323` · `:1831`, `references/failure-recipes.md:150` | `[미검증]` 만 적고 네 칸(`harness/docs/guides/skill-design-guide.md:306-312`)이 없다 — 옛 판(`499cc12`)의 `:806` · `:1072` · `:1209` · `:1706` · `:150` 과 같은 문장 | 생성 측 다섯 자리 | SK-06 |
+| 같은 파일 `:2548` 릴리스 현황 · `references/bambu-fields-baseline.md:10` · `:16-17` · `references/materials.md:147` | 최신 beta 2.8.1 · 안정 2.7.1 · 로컬 02.06.00.51 · 「PLA Pure 2.6.0 stable 미포함」 | 이 맥 관측값과 다르다 | SK-07 |
 | 같은 파일 `:2460-2523` 받는 법 | 표 `:2469` 댓글 행에 답글 필드가 없다, 블록은 `hits` 만 센다. 모델 주소 403 이면 `design.json` 이 HTML 이라 `FAIL design.json …` · 종료 코드 1(봉인 전 가짜 curl 로 실측) | 답글 수를 못 센다 · 403 경우를 재는 시험이 없다 | SC-07 · ER-02 |
 | `.github/workflows/ci.yml` | `:109` 마지막 validate 단계(Design-kit decision gate test). bambu-kit 단계 0 | 새 스크립트 두 개를 돌릴 자리 | SK-05 |
 | `tone-kit/references/adapter-dart-flutter.md` | `:26` 「정규식은 §4 완료 게이트 G-04 줄이 정본이다」, 실제 정규식 `:245`(§4 `text` 블록 넷째 줄), `:259` G-04 는 정규식 없는 표 행 | 가리키는 줄이 다르다 | SK-08 |
 | `docs/tone/dart-flutter-idioms.md` · `docs/tone-kit/dart-flutter-idioms.html` | md `:3-4` `version: 0.1.0` · `last_updated: 2026-09-02`, 그 뒤 원본 커밋 셋(`80daceb` · `358f8e1` · `b367184`). html `:275` · `:1571` 같은 판 | 머리 판이 안 올랐다 | SK-09 |
-| 3.38.4 표기 다섯 파일 | `adapter-dart-flutter.md:180` · `:235`, `dart-flutter-idioms.md:618` · `:686`, `naming-taxonomy.md:103` · `:127` · `:401`, html 두 페이지 7 줄 — 3.47.5 를 적은 줄 0(봉인 전 14 줄) | EX-14: 두 판 모두 58 개 | SK-10 |
+| 3.38.4 표기 다섯 파일 | `adapter-dart-flutter.md:180` · `:235`, `dart-flutter-idioms.md:625` · `:686`, `naming-taxonomy.md:104` · `:127` · `:401`, html 두 페이지 7 줄 — 3.47.5 를 적은 줄 0(봉인 전 14 줄) | EX-14: 두 판 모두 58 개 | SK-10 |
 | `tone-kit/references/sources.md` | `:97` 「위 표의 마지막 세 행」, `:143` go_router 16.3.0 예제, `:157` 위키 주소 「주의 (위키 이전 이력 있음)」 | 행이 늘면 틀리는 지칭 · 옛 판 · 옛 주소 | SK-11 |
 
 다른 세션 가지 `feat/bambu-kit-orca-h2s-feedback`(KBa-3, 끝 `42209be`, 기준 `baa1a38`)은 읽기만 했다. `git merge-tree --write-tree origin/main feat/bambu-kit-orca-h2s-feedback` 로

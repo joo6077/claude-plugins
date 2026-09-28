@@ -34,11 +34,11 @@ Iteration: 2
 
 ### Architecture (4/4)
 - [x] AR-01: glob union으로 기존 hash 디렉토리 read — 마이그레이션 불필요 — PASS
-  - 근거: `SKILL.md:45,102` — backward-compat glob union 보증. `DESIGN.md:231-236` — 마이그레이션 스크립트 불필요 명시 [L3]
+  - 근거: `SKILL.md:45,102` — backward-compat glob union 보증. `DESIGN.md:241-246` — 마이그레이션 스크립트 불필요 명시 [L3]
 - [x] AR-02: plugin.json version=0.3.0, marketplace.json description `[v0.3.0 · 2026-04-17]` 접두사 — PASS
   - 근거: `reflect-kit/.claude-plugin/plugin.json:4` `"version": "0.3.0"`. `marketplace.json:51` description starts with `[v0.3.0 · 2026-04-17]` — Python 검증 `True` [exact]
 - [x] AR-03: DESIGN.md "결정 #3 Hybrid 전환" 섹션 + 독립 리뷰 근거 + backward-compat 보증 — PASS
-  - 근거: `DESIGN.md:210-248` — `## 결정 #3 상세 — Hybrid project_id (v0.3.0 전환)` 섹션. A/B/C안 비교(lines 217-220), backward-compat 표(lines 224-229), 보증 목록(lines 231-236) [L3]
+  - 근거: `DESIGN.md:219-258` — `## 결정 #3 상세 — Hybrid project_id (v0.3.0 전환)` 섹션. A/B/C안 비교(lines 217-220), backward-compat 표(lines 224-229), 보증 목록(lines 231-236) [L3]
 - [x] AR-04: README.md v0.3.0 변경 요약(Hybrid 전환 + 정규화 쿼리 + 내부 디렉토리 제외) — PASS
   - 근거: `README.md:9-15` — `## v0.3.0 변경 요약` 섹션에 Hybrid project_id, 정규화 쿼리, 내부 디렉토리 제외 세 항목 모두 명시 [L3]
 

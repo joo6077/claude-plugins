@@ -117,8 +117,8 @@ Context7 는 OAuth 미인증으로 사용 불가 — 전부 WebFetch 직접 조�
 
 | ID | 판정 | 증거 |
 |----|------|------|
-| C-01 | PASS | 정본 `qa-evaluation-guide.md:431-446` 과 `infra-reviewer.md` 복제본 `diff -u` → 차이 0 (16 lines byte-identical) |
-| C-02 | PASS | `infra-reviewer.md:73` "1 건 + FAIL 0" · `infra-audit/SKILL.md:89` "정확히 1 건" |
+| C-01 | PASS | 정본 `qa-evaluation-guide.md:436-451` 과 `infra-reviewer.md` 복제본 `diff -u` → 차이 0 (16 lines byte-identical) |
+| C-02 | PASS | `infra-reviewer.md:73` "1 건 + FAIL 0" · `infra-audit/SKILL.md:95` "정확히 1 건" |
 | C-03 | PASS | `grep -rc "Counterpart" infra-kit/` → 0 건 (신설 없음) |
 | C-04 | PASS | `infra-audit/SKILL.md:27` Gotcha 12 + Step 3a 머리말 4 줄(`:50`, `:52`) |
 | C-05 | PASS | SKILL.md 에서 스크립트를 추출해 3 fixture 재실행 — bad `exit=1` (미핀닝 3/3 검출) · good `exit=0` · empty `SKIP exit=0`. `bash -n` 구문 OK |

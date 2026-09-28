@@ -37,13 +37,13 @@ Iteration: 1
 
 ### Skill (11/11)
 - [x] SK-01: `sqlx::test` 트랜잭션/롤백 오설명 잔존 0건 — PASS
-  - 근거(L3): `grep -rn 'sqlx::test' rust-kit docs/rust | grep -E '트랜잭션|롤백' | grep -v '새 테스트 DB' | wc -l` → `0` (zsh/bash 동일). 원문 대체 확인: `rust-kit/skills/rust-test/SKILL.md:13,20,29,33,212-213`, `docs/rust/fundamentals/testing.md:110-117` 모두 "새 테스트 DB + migration 자동 적용 + 성공 시 정리"로 정정, "롤백" 언급은 "트랜잭션 롤백이 아니다" 정정 문맥에서만 등장
+  - 근거(L3): `grep -rn 'sqlx::test' rust-kit docs/rust | grep -E '트랜잭션|롤백' | grep -v '새 테스트 DB' | wc -l` → `0` (zsh/bash 동일). 원문 대체 확인: `rust-kit/skills/rust-test/SKILL.md:17,20,29,33,212-213`, `docs/rust/fundamentals/testing.md:112-119` 모두 "새 테스트 DB + migration 자동 적용 + 성공 시 정리"로 정정, "롤백" 언급은 "트랜잭션 롤백이 아니다" 정정 문맥에서만 등장
 - [x] SK-02: rust-test SKILL.md 정정 3요소 — PASS
   - 근거(L3): `새 테스트 DB` grep -c 5, `migrations` grep -c 5, `정리` grep -c 2, 전부 ≥1. 본문 확인: SKILL.md:13 "테스트 함수마다 **새 테스트 DB** 를 만들어 ... `migrations` 폴더가 있으면 **자동 적용**하며 ... **성공하면 그 DB 를 정리**한다"
 - [x] SK-03: MockDatabase 능력/한계 양면 명시 (2파일) — PASS
-  - 근거(L3): `grep -rln 'SQL predicate' rust-kit` → `rust-kit/skills/rust-audit/references/audit-criteria.md`, `rust-kit/skills/rust-test/SKILL.md` (2행 정확 일치). rust-test/SKILL.md:14 "검증할 수 있는 것: rows_affected 매핑, ... **검증할 수 없는 것**: 실제 SQL predicate 의미"; audit-criteria.md:77 "SQL predicate 의미 검증이나 통합 테스트로 계상하지 않는다"
+  - 근거(L3): `grep -rln 'SQL predicate' rust-kit` → `rust-kit/skills/rust-audit/references/audit-criteria.md`, `rust-kit/skills/rust-test/SKILL.md` (2행 정확 일치). rust-test/SKILL.md:18 "검증할 수 있는 것: rows_affected 매핑, ... **검증할 수 없는 것**: 실제 SQL predicate 의미"; audit-criteria.md:77 "SQL predicate 의미 검증이나 통합 테스트로 계상하지 않는다"
 - [x] SK-04: concurrency-guard-protocol 6개 소비 표면 정확 일치 — PASS
-  - 근거(L3): `grep -rln 'concurrency-guard-protocol' rust-kit | sort` → agents/rust-reviewer.md, references/concurrency-guard-protocol.md, skills/rust-audit/SKILL.md, skills/rust-audit/references/audit-criteria.md, skills/rust-model/SKILL.md, skills/rust-test/SKILL.md — 계약 열거 6행과 정확 일치, 각 인용이 형식적 문자열 매치가 아니라 실제 근거 인용(rust-model/SKILL.md:33 등) 확인
+  - 근거(L3): `grep -rln 'concurrency-guard-protocol' rust-kit | sort` → agents/rust-reviewer.md, references/concurrency-guard-protocol.md, skills/rust-audit/SKILL.md, skills/rust-audit/references/audit-criteria.md, skills/rust-model/SKILL.md, skills/rust-test/SKILL.md — 계약 열거 6행과 정확 일치, 각 인용이 형식적 문자열 매치가 아니라 실제 근거 인용(rust-model/SKILL.md:37 등) 확인
 - [x] SK-05: SSOT 4요소(rows_affected==0/stale/#[sqlx::test]/술어) — PASS
   - 근거(L3): `concurrency-guard-protocol.md` 각 토큰 grep -c: `rows_affected == 0`=1, `stale`=3, `#[sqlx::test]`=1, `술어`=10 (전부 ≥1). §1~§3 본문 확인 — SQL WHERE 술어(§1), 함수 추출+Conflict 반환(§2 라인 59-60), positive/stale negative 실DB 테스트 쌍(§3 표)
 - [x] SK-06: 판별력 정본 인용 전용, 자체 임계 재정의 0건 — PASS
@@ -51,7 +51,7 @@ Iteration: 1
 - [x] SK-07: rust-error 타입 설계 우선 + 5수단 열거 — PASS
   - 근거(L3): `smart constructor`·`NonEmpty`·`typestate`·`built`·`HashMap::entry` 각 grep -c ≥1 (전부 1). SKILL.md:14 "`.unwrap()`/`.expect()` 는 `?` 치환이 아니라 타입 설계로 제거한다"
 - [x] SK-08: 넣지 말 것 4종 금지 문구 — PASS
-  - 근거(L3): rust-error/SKILL.md:242,244,245,247 각각 "치환하지 마라"/"제거가 아니다"/"금지"/"켜지 마라" 취지로 4종 전부 명시
+  - 근거(L3): rust-error/SKILL.md:246,244,245,247 각각 "치환하지 마라"/"제거가 아니다"/"금지"/"켜지 마라" 취지로 4종 전부 명시
 - [x] SK-09: rust-init workspace lints deny 5종 — PASS
   - 근거(L3): `grep -cE '^(unwrap_used|expect_used|panic|panic_in_result_fn|arc_with_non_send_sync) = "deny"' rust-init/SKILL.md` → `5`. §4a `[workspace.lints.clippy]` 블록 내 위치 확인
 - [x] SK-10: 버전 현행성 표 SSOT + 5개 소비 표면(계약 5행 정확 일치) — PASS

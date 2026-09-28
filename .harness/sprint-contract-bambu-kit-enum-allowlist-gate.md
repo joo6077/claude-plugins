@@ -19,7 +19,7 @@ bambu-kit 이 처방하는 `ironing_type` 값 3 종(`topmost_only` · `top_surfa
 `top_surface_pattern` = `monotonic` · `monotonicline` · `concentric` · `archimedeanchords` ·
 `hilbertcurve` 등이다.
 
-근본 원인은 `references/bambu-fields-baseline.md:182` 가 **Orca wiki 를 출처로 인용**한 것이다.
+근본 원인은 `references/bambu-fields-baseline.md:197` 가 **Orca wiki 를 출처로 인용**한 것이다.
 
 영향: Bambu 는 알 수 없는 enum 값을 조용히 무시한다. 따라서 표면 마감이 통째로 빠진 채
 "적용했다" 고 보고된다. Phase 4.3 게이트는 `FORBIDDEN` **blocklist** 만 갖고 있어

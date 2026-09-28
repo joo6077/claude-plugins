@@ -61,7 +61,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 확인된 사실:
 
-- 현행 digest는 파싱 실패를 헤더에 노출하도록 이미 강제하지만, collector 자체가 0건을 생산하는 상태는 별도로 표시하지 않는다. [reflect-digest/SKILL.md:31](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/skills/reflect-digest/SKILL.md:31), [reflect-digest/SKILL.md:296](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/skills/reflect-digest/SKILL.md:296)
+- 현행 digest는 파싱 실패를 헤더에 노출하도록 이미 강제하지만, collector 자체가 0건을 생산하는 상태는 별도로 표시하지 않는다. [reflect-digest/SKILL.md:31](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/skills/reflect-digest/SKILL.md:31), [reflect-digest/SKILL.md:300](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/skills/reflect-digest/SKILL.md:300)
 - 실측 기간에는 reflection 세션 0, Codex 실패 시도 849, fallback 실패 시도 849, 마지막 성공 2026-08-28이다. 따라서 `엔트리 0 = 문제 없음`으로 읽으면 실제 상태와 정반대다.
 - facets 파일은 정확히 18개이고 대응하는 session-meta 18개도 모두 읽혔다. 18개 중 `friction_detail`이 비어 있지 않은 세션은 16개, 빈 세션은 2개다. reflections에는 이 18개 session ID가 모두 0건이다.
 - facets JSON에는 `session_id`와 `friction_detail`은 있지만 `project_path`는 없다. `project_path`와 `start_time`은 대응하는 `session-meta/<session_id>.json`에 있다. 따라서 P4의 join 경로는 `facets.session_id → session-meta.session_id → project_path`여야 한다.
@@ -114,8 +114,8 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 | [hooks.json:25](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/hooks/hooks.json:25), [log-reflection.sh:35](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/hooks/log-reflection.sh:35) | 수동 `nohup` background | 최신 hook 계약에는 native `async`/`asyncRewake`가 있음. 즉시 교체 필수는 아니지만 현행화 검토 대상 | [Hooks reference](https://code.claude.com/docs/en/hooks) |
 | [_lib-project-id.sh:62](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/hooks/_lib-project-id.sh:62) | `--show-toplevel` | guarded common-dir identity | [git-rev-parse](https://git-scm.com/docs/git-rev-parse) |
 | [save-feedback.sh:128](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/harness/scripts/save-feedback.sh:128), [save-feedback.sh:136](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/harness/scripts/save-feedback.sh:136) | `--show-toplevel` | reflect-kit과 같은 guarded common-dir 규칙 | [git-rev-parse](https://git-scm.com/docs/git-rev-parse) |
-| [reflect-digest/SKILL.md:110](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/skills/reflect-digest/SKILL.md:110) | 현재 cwd의 worktree basename 가능 | collector와 같은 common-repo identity | [Git 문서](https://git-scm.com/docs/git-rev-parse), [Claude의 worktree `cwd` 계약](https://code.claude.com/docs/en/hooks) |
-| [reflect-digest/SKILL.md:297](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/skills/reflect-digest/SKILL.md:297) | 엔트리/세션/파싱 실패만 표시 | collector 실패, 마지막 성공, stopped 경고 추가 | 내부 실측 |
+| [reflect-digest/SKILL.md:111](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/skills/reflect-digest/SKILL.md:111) | 현재 cwd의 worktree basename 가능 | collector와 같은 common-repo identity | [Git 문서](https://git-scm.com/docs/git-rev-parse), [Claude의 worktree `cwd` 계약](https://code.claude.com/docs/en/hooks) |
+| [reflect-digest/SKILL.md:301](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/skills/reflect-digest/SKILL.md:301) | 엔트리/세션/파싱 실패만 표시 | collector 실패, 마지막 성공, stopped 경고 추가 | 내부 실측 |
 | [SCHEMA.md:191](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/docs/SCHEMA.md:191) | 항상 `<basename>-<hash6>` | 이미 구현·README와 불일치. Hybrid + common-repo root 규칙으로 갱신 필요 | 내부 구현 |
 | [plugin.json:4](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/reflect-kit/.claude-plugin/plugin.json:4) | `0.7.1` | P3/P5 반영 시 patch release 필요 | 내부 릴리스 계약 |
 

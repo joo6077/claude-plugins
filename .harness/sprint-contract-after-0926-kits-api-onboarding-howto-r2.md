@@ -81,7 +81,7 @@ Pre-Edit Audit — 대상 파일을 열어 본 줄.
 - 항목별 처리
   - KA-1 · KA-2 · KA-3 · KA-4 · KA-5 · KO-1 · KH-1 — 계약에 넣음
   - KO-2 — 넣은 것: `guide_gate` 막는 요구 세 칸 검사(SK-09 · SK-10 · ER-03), CocoaPods → SPM 안내(SK-11, EX-11). 넣지 않은 것: 서비스 계정 키(Workload Identity Federation 우선)는 근거 파일(`.harness/.meta/evidence/phase14.md:118`)이 스스로 추론이라 적었고 EX 대조가 없다 — 바깥 근거 없음. 평가 날짜(`evals.json:10` · `:69` 의 `Last updated 2026-07-20 UTC`)는 본문 주장(.p12 · Instance ID)을 다시 확인한 원문 대조가 없다 — 날짜만 옮기면 확인하지 않은 주장을 확인했다고 적게 되므로 바깥 근거 없음으로 둔다. AUTO 표지는 목록에 처리됨으로 적혀 있다
-  - KH-2 — 넣은 것 다섯: 리포트 미검증 칸(SK-13) · DITA 2.0(SK-14, EX-12) · 러너 음성 대조를 킷 안에(SK-15) · 러너 시간(SK-16) · `design-brief.md:385`(SK-17)
+  - KH-2 — 넣은 것 다섯: 리포트 미검증 칸(SK-13) · DITA 2.0(SK-14, EX-12) · 러너 음성 대조를 킷 안에(SK-15) · 러너 시간(SK-16) · `design-brief.md:390`(SK-17)
 - KH-1 결정: 사본을 둔다. 근거 셋 — (1) 정본 머리말이 `*-kit/agents/*-reviewer.md` 전부에 사본을 요구한다 (2) 제외 사유가 일정(「다음 사이클 Phase 17 에서 넣는다」)뿐이었다 (3) howto-reviewer 는 이미 `[미검증:ENV]` · `[미검증:INVALID]` 네 칸을 써서 정본 조항과 부딪히는 규칙이 없다. 한 곳만 조심한다 — 조항 1 이 `미확인` 을 마커 동의어로 금지하는데 howto-kit 은 `[미확인]` 을 출처 등급 이름으로 쓴다(`howto-kit/references/source-tiers.md:12`). 사본 밖에 둘을 가르는 한 줄을 둔다(SK-12)
 - KA-3 결정: 상태 값은 넷 그대로 둔다. 보류(기준선 `pending` 의 실패)와 flaky(재실행에서 뒤집힌 실패)는 `/api-verify` §7 · §8 이 실패 기록을 남기라고 하므로 `state:'fail'` 로 두고, 행 · `실패 원인` 탭에 글자 표지(`보류` · `flaky`, `aria-label` 포함)로 가른다. 초록 표시 뒤로 실패가 숨지 않게 하는 쪽이다
 - KA-5 결정: §9 예시에서 index assertion 을 지운다(대체 표현 `[*]` 은 항목 하나일 때 hurl 8 이 값을 벗겨 떨어진다 — 위 실측). CSP 는 §7 글자 검사에 한 줄, §6 에 「확정 시안에 CSP `<meta>` 가 없으니 `viewer-spec.md` §1 의 문자열을 넣는다」 한 문장. 확정 시안 파일(`.mockups/`, git 밖)은 고치지 않는다

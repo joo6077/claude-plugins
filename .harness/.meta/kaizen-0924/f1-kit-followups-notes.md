@@ -90,15 +90,15 @@ K-11 — 새 합성어 0(「판정 줄」 · 「묶음 타겟」 은 검토 · �
 | 43 | P13 `[미검증]` 네 칸 다섯 자리 · 현행화 · 금지 키 FAIL 시험 파일 | 관심사 상한 · `/bambu-research` 소관 — 다음 사이클 Phase 13 |
 | 44 | 올리지 않은 가지 `feat/bambu-kit-orca-h2s-feedback` 충돌 | 다른 가지. 이 계약이 같은 음성 대조 블록 (1) · 완료 검사 · 자기 검사 두 블록 · 댓글 받기 블록을 또 고쳤다 — 그 가지를 합칠 때 충돌 자리가 는다 |
 | 48 | P14 `guide_gate` 세 칸 검사 · AUTO 표지 · CocoaPods → SPM · 서비스 계정 키 · 평가 날짜 | 예제를 고친 뒤 다음 사이클 Phase 14 |
-| 50 | `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:633` 같은 모양 칸 | 값을 설명하는 칸이고 실제로 도는 명령은 `adapter-dart-flutter.md:245` 블록이다 |
+| 50 | `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:640` 같은 모양 칸 | 값을 설명하는 칸이고 실제로 도는 명령은 `adapter-dart-flutter.md:245` 블록이다 |
 | 51 | P15 연구 기록 「죽은 이름 검사 넷」 서술 | 날짜 붙은 이력 기록이라 두고, 표 칸 둘이 더 있었다는 사실을 아래 메모에 남긴다 |
 | 52 | P15 C-06 강도 · `etc_seq=663` · `__` 예시 · 3.38.4 · go_router 링크 · 위키 이전 · `material_ui` · `locale-korean.md` §2 grep 열 · `sources.md` | 근거 재확인이 먼저. §2 grep 열은 여러 계약이 번역투 정규식 원문으로 베낀 자리 |
 | 53 | P16 뷰어에 「판정 불가」 자리 없음 | 기준 시안 `.mockups/api-ui-v7.html` 이 `.gitignore` 라 이 작업 폴더에 없다 — 사용자 확인이 먼저 |
 | 56 | `docs/superpowers/specs/2026-09-02-api-kit-design.md:249` | 날짜 붙은 설계 기록이라 이 계약 범위(킷 폴더 · 킷 원본 문서) 밖이고 결론은 맞다 |
 | 57 | P16 `/api-contract` §9 예시 · CSP · §7 식 · 판정 불가 검사 | hurl 로 먼저 재거나 사용자 확인이 먼저 — 다음 사이클 Phase 16 |
-| 60 | P17 howto-audit 리포트 미검증 칸 · DITA 2.0 · 러너 음성 대조를 킷 안에 · 러너 시간 · `design-brief.md:385` | P17 notes 사유 그대로 |
+| 60 | P17 howto-audit 리포트 미검증 칸 · DITA 2.0 · 러너 음성 대조를 킷 안에 · 러너 시간 · `design-brief.md:390` | P17 notes 사유 그대로 |
 | 69 | Codex r2-3 — `design-reviewer.md:26` 미검증 사본이 옛 판 | 기준 원본이 여섯 항목이라 「5 조항 복제」 가 성립하지 않고, 옮기면 design-audit REJECT 문턱이 같이 바뀐다 — 다음 사이클 Phase 3 뒤 |
-| 70 | Codex r2-4 — `planning-reviewer.md:22` 같은 옛 사본 · `:117` 없는 「4 요건」 | 69 행과 같다. react-kit · api-kit reviewer 도 같은 옛 사본이라 넷을 한 번에 |
+| 70 | Codex r2-4 — `planning-reviewer.md:29` 같은 옛 사본 · `:117` 없는 「4 요건」 | 69 행과 같다. react-kit · api-kit reviewer 도 같은 옛 사본이라 넷을 한 번에 |
 | 73 | Codex r2-7 — flutter-build `--delete-conflicting-outputs` 판 번호 · 명령에서 빼기 | 심각도 낮음. 2.7.0 동작은 설치본 `build_runner-2.13.1` CHANGELOG `:149` · `:150` 으로 확인되고 킷 문장과 어긋나지 않는다. 2.16 쪽은 설치본이 없어 모른다 |
 | 80 | Codex r3-6 — api-kit `-0` 을 「I-JSON 게이트」 로 분류 | RFC 7493 이 `-0` 을 금지하지 않는다는 본문이 근거 파일에 없다(확인 불가). 킷의 `-0` 줄은 이유를 JCS 로 적었다 |
 
@@ -149,7 +149,7 @@ Vite `strictPort`(https://vite.dev/config/server-options.html#server-port, `phas
 | Phase 16 | `-0` 을 「I-JSON 게이트」 에서 떼어 이름을 가를지(80 행) — RFC 7493 §2.2 원문을 근거 파일에 넣은 뒤 |
 | Phase 16 | 설계 기록 `docs/superpowers/specs/2026-09-02-api-kit-design.md:249`(56 행) — 세 Final 계약 어느 범위에도 없다 |
 | Phase 14 | onboarding G1 음성 입력(한 Step 에 출처 둘 · `misplaced`)을 킷 픽스처로 넣고 `gate_cases` 에 등록한다 — 이 계약은 임시 파일로만 쟀다 |
-| Phase 15 | `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:633` 의 같은 모양 칸(50 행)과 `locale-korean.md` §2 grep 열(52 행). P15 연구 기록의 「죽은 이름 검사 넷」 서술에는 표 칸 둘이 더 있었다(51 행) |
+| Phase 15 | `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:640` 의 같은 모양 칸(50 행)과 `locale-korean.md` §2 grep 열(52 행). P15 연구 기록의 「죽은 이름 검사 넷」 서술에는 표 칸 둘이 더 있었다(51 행) |
 | Phase 5 | `widget-inspector.md` §7(10 행) · `flutter-preflight` · react-preflight 기준 커밋 비교(11 행) · `--delete-conflicting-outputs` — build_runner 2.7.0 부터 `-d` 를 무시한다(설치본 `build_runner-2.13.1` CHANGELOG `:149` · `:150`). 2.16 은 설치본이 없어 모른다(73 행) |
 | Phase 3 뒤 | `design-reviewer` · `planning-reviewer` · react-kit · api-kit reviewer 의 미검증 옛 사본 넷을 한 번에(69 · 70 행) — 기준 원본 여섯 항목 정리가 먼저 |
 | Phase 13 | `G91` 뒤 E 상대값(42 행) — 설치본 시작 G-code 로 실측. 올리지 않은 가지 `feat/bambu-kit-orca-h2s-feedback` 을 합칠 때 이번에 고친 블록 넷과 충돌을 본다(44 행) |

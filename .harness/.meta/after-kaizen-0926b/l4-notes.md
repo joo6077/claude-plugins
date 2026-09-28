@@ -266,16 +266,16 @@
 - harness/docs/guides/plugin-validation-guide.md:401 MD036 disable-next-line — 「FAIL 예시」 은 항목마다 되풀이하는 굵은 표지다. 제목으로 바꾸면 같은 이름 제목이 겹친다(MD024)
 - harness/docs/guides/qa-evaluation-guide.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「QA Evaluation Guide」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
 - harness/docs/guides/qa-evaluation-guide.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
-- harness/docs/guides/qa-evaluation-guide.md:825 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
-- harness/docs/guides/qa-evaluation-guide.md:829 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
-- harness/docs/guides/qa-evaluation-guide.md:1037 MD024 disable — 「실패 사례」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
-- harness/docs/guides/qa-evaluation-guide.md:1041 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
-- harness/docs/guides/qa-evaluation-guide.md:1540 MD024 disable — 「실패 사례」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
-- harness/docs/guides/qa-evaluation-guide.md:1544 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
-- harness/docs/guides/qa-evaluation-guide.md:1735 MD038 disable — 코드 조각 속 공백(정규식 끝 공백 · 불릿 표식 `- ` · 백틱 세 개를 담은 코드 조각)이 원문 글자다. 공백을 지우면 뜻이 바뀐다
-- harness/docs/guides/qa-evaluation-guide.md:1741 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
-- harness/docs/guides/qa-evaluation-guide.md:2015 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
-- harness/docs/guides/qa-evaluation-guide.md:2019 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:826 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:830 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:1038 MD024 disable — 「실패 사례」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:1042 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:1541 MD024 disable — 「실패 사례」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:1545 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:1736 MD038 disable — 코드 조각 속 공백(정규식 끝 공백 · 불릿 표식 `- ` · 백틱 세 개를 담은 코드 조각)이 원문 글자다. 공백을 지우면 뜻이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:1742 MD038 enable — 바로 위 `disable MD038` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
+- harness/docs/guides/qa-evaluation-guide.md:2016 MD024 disable — 「원칙」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다
+- harness/docs/guides/qa-evaluation-guide.md:2020 MD024 enable — 바로 위 `disable MD024` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
 - harness/docs/guides/skill-design-guide.md:7 MD025 disable — 앞머리 `title:` 이 H1 으로 세어져 본문 첫 H1 「Claude Code 스킬 설계 가이드」 이 둘째가 된다. 앞머리와 본문 제목은 둘 다 그대로 둬야 한다
 - harness/docs/guides/skill-design-guide.md:11 MD025 enable — 바로 위 `disable MD025` 의 짝이다 — 끄는 범위를 그 자리에서 닫는다
 - harness/docs/guides/skill-design-guide.md:534 MD024 disable — 「이 프로젝트의 실제 예시」 은 다른 부모 절 아래 일부러 되풀이한 같은 이름 제목이다. 이름을 바꾸면 낱말이 바뀐다

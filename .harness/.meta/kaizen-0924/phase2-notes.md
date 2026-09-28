@@ -57,14 +57,14 @@ Gotcha 에 그 절을 가리키는 안내를 더했다. F2(커밋 뒤 빈 출력
 
 | 파일:줄 | 남은 것 |
 | --- | --- |
-| `harness/agents/qa-evaluator.md:590` | 한 줄에 두 문제 — 표준형 「4 요소」(스키마 v5.5 는 상한 ref 를 더한 5 요소), 상태 전제 선택지에 `Given: 이 스프린트의 커밋이 끝난 뒤` 가 없다 |
-| `harness/agents/qa-evaluator.md:1217` | 「contract-design-guide.md — 계약 작성 가이드 v4」 → v5.1 |
-| `harness/docs/guides/qa-evaluation-guide.md:12` | 참조 스키마 `(v5.3)` → v5.5 |
-| `harness/docs/guides/qa-evaluation-guide.md:742-743` | 상태 전제 확인이 `커밋 직전 working tree` · `스테이징 완료 후` · 브랜치 비교만 나열 — 커밋 구간 전제가 없다 |
-| `harness/docs/guides/qa-evaluation-guide.md:746` | 「contract-schema v4 §Diff-Scope Oracle 표준형」 · 「표준형 4 요소」 → 5 요소 |
-| `harness/docs/guides/qa-evaluation-guide.md:1785` | 평가자가 계약 수정 제안을 쓰는 예시 「`Given: 스테이징 완료 후` 를 붙이고 `--cached` 를 쓸 것」 — 커밋 뒤에는 늘 빈 집합을 잰다. 스키마 v5.5 §Diff-Scope 표준형 「상태 전제는 평가 시점에 다시 잴 수 있는 것으로 고른다」 로 맞춘다 |
-| `harness/docs/guides/qa-evaluation-guide.md:1862` | Parity Table 에 16 행(알려진 답 대조, 생성 측 skill 가이드 §3.7 · 계약 측 스키마 §알려진 답 대조) 없음 |
-| `harness/docs/guides/qa-evaluation-guide.md:1915` | 「Parity with: skill-design-guide 1.5.0 · agent-design-guide 1.6.0 · contract-design-guide v5.0」 → 1.6.0 · 1.7.0 · v5.1 |
+| `harness/agents/qa-evaluator.md:593` | 한 줄에 두 문제 — 표준형 「4 요소」(스키마 v5.5 는 상한 ref 를 더한 5 요소), 상태 전제 선택지에 `Given: 이 스프린트의 커밋이 끝난 뒤` 가 없다 |
+| `harness/agents/qa-evaluator.md:1229` | 「contract-design-guide.md — 계약 작성 가이드 v4」 → v5.1 |
+| `harness/docs/guides/qa-evaluation-guide.md:16` | 참조 스키마 `(v5.3)` → v5.5 |
+| `harness/docs/guides/qa-evaluation-guide.md:747-748` | 상태 전제 확인이 `커밋 직전 working tree` · `스테이징 완료 후` · 브랜치 비교만 나열 — 커밋 구간 전제가 없다 |
+| `harness/docs/guides/qa-evaluation-guide.md:751` | 「contract-schema v4 §Diff-Scope Oracle 표준형」 · 「표준형 4 요소」 → 5 요소 |
+| `harness/docs/guides/qa-evaluation-guide.md:1806` | 평가자가 계약 수정 제안을 쓰는 예시 「`Given: 스테이징 완료 후` 를 붙이고 `--cached` 를 쓸 것」 — 커밋 뒤에는 늘 빈 집합을 잰다. 스키마 v5.5 §Diff-Scope 표준형 「상태 전제는 평가 시점에 다시 잴 수 있는 것으로 고른다」 로 맞춘다 |
+| `harness/docs/guides/qa-evaluation-guide.md:1883` | Parity Table 에 16 행(알려진 답 대조, 생성 측 skill 가이드 §3.7 · 계약 측 스키마 §알려진 답 대조) 없음 |
+| `harness/docs/guides/qa-evaluation-guide.md:1936` | 「Parity with: skill-design-guide 1.5.0 · agent-design-guide 1.6.0 · contract-design-guide v5.0」 → 1.6.0 · 1.7.0 · v5.1 |
 | 같은 두 파일 — `Evaluated` 시각 | `harness:P08` 비고 「qa-evaluator 쪽 Evaluated 는 Phase 3 과 맞춘다」 — 계약 쪽은 `date '+%Y-%m-%d %H:%M'` 출력을 옮긴다(스키마 §메타데이터 v5.5) |
 
 Phase 3 확인 목록에 넣을 것: Phase 1 계약 DG-02 의 보조 스크립트(`new-warnings.sh` 옛 판)가 `sed -E 's#^[^ ]*:([0-9]+).*#\1#'`

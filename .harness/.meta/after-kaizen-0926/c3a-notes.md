@@ -20,7 +20,7 @@
   이 맥의 로컬 프로젝트 셋이 2.3.3 · 2.4.x 를 쓴다. 새 문장은 이미 있던 2.16 항목 한 줄 안에 이어 적었다(교차 진단 지적 2).
 - **결정 전파의 상태 값은 `approved` 하나.** 근거는 같은 절의 「승인 기록 없는 결정은 manifest 에 올리지 않는다」 다.
 - **`excluded_surfaces` 키는 늘 적는다.** 제외할 것이 없으면 `[]`. 키가 없으면 위반(종료 코드 1). 근거는 「침묵은 커버리지 공백」 문장이다.
-- **react-kit 틀은 지우지 않고 쓴다.** 설계 문서 `docs/react/kit-design/final-integration.md:486` 이 복사를 정해 두었고,
+- **react-kit 틀은 지우지 않고 쓴다.** 설계 문서 `docs/react/kit-design/final-integration.md:487` 이 복사를 정해 두었고,
   react-init 의 포트 고정이 틀에만 있는 `vm_port: 5173` 에 기댄다(harness 기본 틀은 `vm_port: null`).
 - **「관례 표 없는 호출」 을 밝힌 호출은 건너뜀, 말 없이 표만 빠지면 `[미검증]`.** flutter-feature 는 관례 표를 만들지 않는 스킬이라 호출에 그 말을 밝힌다.
   평가 사례 16 의 단언은 뒤의 경우라 그대로 맞는다.
@@ -132,7 +132,7 @@ tone-guide 5 단계 대조 (이번에 더한 여섯 줄, 1 단계는 이번 수�
 ## 그 밖에 적어 둘 것
 
 - 편집기가 바뀐 파일에서 띄우는 경고는 모두 이번에 손대지 않은 줄의 옛 경고다(`widget-inspector.md` MD060 · MD032, `project-detection.md` MD060 · MD032,
-  `flutter-ai-rules.md:19` MD032, `visual-change-protocol.md:211` · `:503` MD024, `react-kit/README.md:17` · `:43` MD060). 범위를 벗어나 고치지 않았다.
+  `flutter-ai-rules.md:20` MD032, `visual-change-protocol.md:211` · `:503` MD024, `react-kit/README.md:17` · `:43` MD060). 범위를 벗어나 고치지 않았다.
 - 라이브러리 문서 확인은 웹 조회가 막혀 있어 pub 설치본(`slang-4.14.0` · `slang_build_runner-4.14.0` · `build_runner-2.13.1` · `build_runner_core` 7.3.2 · 8.0.0)만 읽었다.
 - 측정 도우미: 계약 끝의 측정 도우미 블록(떼어 둔 사본 `/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72/scratchpad/kitsa-measure.sh`).
   로컬 CI 는 `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh`.

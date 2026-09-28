@@ -34,7 +34,7 @@ Iteration: 2
 - [x] SK-02: step-contract.md cause enum 확장 + 언어 분리 — PASS (재확인)
   - 근거: `howto-kit/references/step-contract.md:29` — `- cause: 권한-역할|권한-조직정책|선행조건|요금제|버전|A-B`. `선행조건` 포함, `언어` 파이프 목록 안에 없음.
 - [x] SK-03: SKILL.md "5종"→"6종" — PASS (재확인)
-  - 근거: `howto-kit/skills/howto/SKILL.md:111`. `grep -c '분기 사유 5 종'`=0, `grep -c '분기 사유 6 종'`=1.
+  - 근거: `howto-kit/skills/howto/SKILL.md:115`. `grep -c '분기 사유 5 종'`=0, `grep -c '분기 사유 6 종'`=1.
 
 ### Script (3/3)
 - [x] SC-01: CI validate 8종 전부 exit 0 — PASS (재실행)
@@ -60,7 +60,7 @@ Iteration: 2
   - L3(의미, 직접 판정): 직전 REJECT 사유였던 자기모순을 재확인한 결과 해소됨. `git show b8d0398`로 확인한 실제 diff는 정확히 2곳 — 라인 26 "확정된 분기 사유 5 종"→"6 종", 라인 76 "위 5 종"→"6 종". 재측정 결과: (1) §2 헤더(`26행`) "확정된 분기 사유 6 종" ↔ 바로 아래 표(`30-37행`) 6행 — 일치. (2) §3 비교표(`76행`) "위 6 종" ↔ 헤더와 일치. (3) 잔존하는 "5 종" 문자열 2건(`8행`, `17행`)을 직접 읽고 문맥을 판정: `8행` "이 킷은 그 분기의 사유를 **5 종**으로 유형화해 놓았었다. 이번 사이클이 그 목록을 검증했고, **둘이 틀렸다**는 것을 확인했다" — 과거완료 시제("~해 놓았었다")로 이번 사이클 이전의 잘못된 상태를 서술하며, 바로 이어지는 문장이 그것을 "틀렸다"고 명시적으로 교정한다. `17행`은 "## 1. 무엇이 틀렸나" 섹션의 표 안에서 같은 과거 오류를 서술한다. 두 잔존 사례 모두 §1(무엇이 틀렸나) 섹션 안에 있고, §2(확정된 사유, 6 종)·§3(비교표, 6 종)과 구조적으로 분리되어 있어 오류가 아니라 의도된 역사적 서술이다.
   - 결론: 문서가 이제 내적으로 정합하다. 헤더 숫자(6)와 표 행수(6)가 일치하고, 잔존 "5 종"은 명시적 과거 서술 문맥이다.
 - [x] AR-02: design-brief.md 교정 + 정본 포인터 — PASS (재확인, 회귀 없음)
-  - 근거: `grep -c 'branch-catalog.md' docs/howto/design-brief.md`=1, `grep -c '분기 사유는 5 가지로 유형화한다' docs/howto/design-brief.md`=0. `docs/howto/design-brief.md:151-156` — "2026-09-10 교정" 각주 + "6 가지"로 확정.
+  - 근거: `grep -c 'branch-catalog.md' docs/howto/design-brief.md`=1, `grep -c '분기 사유는 5 가지로 유형화한다' docs/howto/design-brief.md`=0. `docs/howto/design-brief.md:155-160` — "2026-09-10 교정" 각주 + "6 가지"로 확정.
 - [x] AR-03: HTML 미러 등록 (동일 id 2곳) — PASS (재확인)
   - 근거: `docs/index.html:572`(`pages` 배열, title "…사유 6종") · `:676`(`getIcon` 매핑) 양쪽 `howto-branch-catalog` 동일 id. `grep -c`=2.
 - [x] AR-04: 토큰 5개 리터럴 — PASS (재확인)

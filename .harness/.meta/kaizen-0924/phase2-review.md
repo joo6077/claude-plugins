@@ -25,7 +25,7 @@
 3. `SKILL.md` Gotchas 셋째 줄(메타 이슈 F1 의 스킬 쪽 안내 · F3)은 배경 표가 반영한다고 적었는데 재는 조건이 없다
 4. SK-06 의 멈춤 조건 「셸 실행 도구와 파일 쓰기 도구가 없는 세션」은 셸만 없는 세션을 놓친다. 근거 파일(§2 F21 · §4-7 · §5)이
    요구한 「대체 경로가 있는 도구는 멈추지 말 것」 구분도 없다
-5. 반대편 목록에서 평가자 쪽 세 자리가 빠졌다. 그중 `qa-evaluation-guide.md:1785` 는 AR-01 이 틀렸다고 고치는 `--cached` 권고를
+5. 반대편 목록에서 평가자 쪽 세 자리가 빠졌다. 그중 `qa-evaluation-guide.md:1806` 는 AR-01 이 틀렸다고 고치는 `--cached` 권고를
    평가자에게 그대로 가르친다. 평가자 가이드 parity 표에 16 행이 없는 것도 contract-kaizen Gotcha 「Cross-Surface Parity 전파 누락
    금지」가 Phase 3 넘김으로 적으라고 한 항목이다
 6. DG-06 의 `scope-isolation` 예외 분기(다른 Phase 커밋 때문에 FAIL 일 때)에 재는 명령이 없다
@@ -160,17 +160,17 @@ AR-03      SC preflight 소절 「이 스프린트가 소유한 줄의 이름을
 표에 없는 곳이 셋 나온다. 모두 Phase 3 범위라 고칠 수는 없고, 넘김으로 적어야 한다.
 
 ```text
-harness/docs/guides/qa-evaluation-guide.md:1785   평가자가 계약 수정 제안을 쓰는 예시가 「`Given: 스테이징 완료 후` 를 붙이고 `--cached` 를 쓸 것」
+harness/docs/guides/qa-evaluation-guide.md:1806   평가자가 계약 수정 제안을 쓰는 예시가 「`Given: 스테이징 완료 후` 를 붙이고 `--cached` 를 쓸 것」
                                                   — AR-01 이 「커밋 뒤에 늘 빈 집합을 잰다」고 고치는 옛 규칙을 평가자에게 가르친다
-harness/agents/qa-evaluator.md:590 · qa-evaluation-guide.md:743   상태 전제 확인이 `커밋 직전 working tree` · `스테이징 완료 후` · 브랜치 비교만
+harness/agents/qa-evaluator.md:593 · qa-evaluation-guide.md:748   상태 전제 확인이 `커밋 직전 working tree` · `스테이징 완료 후` · 브랜치 비교만
                                                   나열 (표에는 :590 이 「4 요소」로만 올라 있고 ER-03 토큰에는 :1217 만 있다)
-harness/docs/guides/qa-evaluation-guide.md:1862   Parity Table 머리 「9 개」 · 15 행까지만 있고 16 행(알려진 답 대조) 없음
+harness/docs/guides/qa-evaluation-guide.md:1883   Parity Table 머리 「9 개」 · 15 행까지만 있고 16 행(알려진 답 대조) 없음
                                                   — contract-kaizen Gotcha 「Cross-Surface Parity 전파 누락 금지」는 이런 빈 곳을 해당 Phase 에 넘김으로 적게 한다
 ```
 
 - `GAP 분석` 절 Counterpart 표에 세 행을 더한다 (처리: 「Phase 3 — 넘김 (ER-03)」)
-- ER-03 조건 문구의 경로 목록에 `harness/agents/qa-evaluator.md:590` · `harness/docs/guides/qa-evaluation-guide.md:1785` ·
-  `harness/docs/guides/qa-evaluation-guide.md:1862` 셋을 더해 「경로 9 개」로 고친다
+- ER-03 조건 문구의 경로 목록에 `harness/agents/qa-evaluator.md:593` · `harness/docs/guides/qa-evaluation-guide.md:1806` ·
+  `harness/docs/guides/qa-evaluation-guide.md:1883` 셋을 더해 「경로 9 개」로 고친다
 - 측정의 `for t in …` 목록에 같은 세 문자열을 더하고 「17 값」을 「20 값」으로 고친다. `범위 경계` 절의 「커버리지 해소: ER-03 —
   산문의 넘김 경로 6 개와 키 11 개 … 17 문자열」도 「경로 9 개 … 20 문자열」로 맞춘다
 - 봉인 전 실측 문구: 20 문자열을 담은 가짜 notes 로 20 값 전부 1, 한 줄을 지우면 그 값 0
@@ -237,7 +237,7 @@ VERDICT: CHANGES
 | 1 문장 삭제 대조 | 됐다 | SK-02 (a) `다르면 봉인하지 않는다` · SK-03 (a)(b) `` `N/A (사유)` 줄을 뺀 `` · SK-05 (c) `짐작해 적지 마라` · AR-03 `소유한 줄의 이름` · `마지막 단계(카이젠이면 Final)` 가 조건과 측정에 들어갔다. 계약의 30 건 표와 별도로 17 건을 내 손으로 지워 돌렸다 — 전부 모의본 1 → 지운 사본 0 (아래) |
 | 2 AR-01 정의 줄 | 됐다 | 조건 (a) 넷째 값과 `mock.py` 치환 `SC-f2-def`. 모의본 1, 새 선택지만 옛 문구로 되돌린 사본 0 |
 | 3 AR-02 (c) · 「세 번」 문구 | 됐다 | 모의본 1, 그 Gotcha 줄만 지운 사본 0. 새 문구 「세 번 깨졌고 그중 두 번은 오케스트레이터가 감사 기록 커밋을 …」 을 핸드오프 `.harness/.meta/phase4-handoff-to-contract.md` F1 · F3 절과 다시 대조했다 — 첫 번은 자기 개정 파일 경로 누락, 둘째 · 셋째가 감사 기록 커밋이다. 맞다 |
-| 4 SK-06 | 됐다 | 두 토큰 각각 모의본 1 → 지운 사본 0. 근거 파일 §4-7 「필수 도구이고 대체 경로가 없으면 … 중단 / 대체 경로가 있으면 즉시 중단하지 말고」 와 뜻이 맞다. 네 칸 이름도 `skill-design-guide.md:302-306` 과 같다 |
+| 4 SK-06 | 됐다 | 두 토큰 각각 모의본 1 → 지운 사본 0. 근거 파일 §4-7 「필수 도구이고 대체 경로가 없으면 … 중단 / 대체 경로가 있으면 즉시 중단하지 말고」 와 뜻이 맞다. 네 칸 이름도 `skill-design-guide.md:306-310` 과 같다 |
 | 5 ER-03 · 반대편 목록 | 됐다, 그러나 새 결함 | 세 행과 세 경로가 들어갔다. 인용한 줄 번호 여덟 개(`qa-evaluation-guide.md` `:12` `:742-743` `:746` `:1785` `:1862` `:1915`, `qa-evaluator.md` `:590` `:1217`)를 지금 파일에서 다시 읽었다 — 전부 맞다. 결함은 아래 「고칠 것」 |
 | 6 DG-06 예외 분기 | 됐다 | 가짜 출력이 아니라 **실제 검사 출력**으로 돌렸다: 복제 저장소에 `harness/skills/` 와 `tone-kit/skills/` 를 한 커밋에 섞은 서명 없는 커밋을 넣자 `[ FAIL  ] ✗ scope-isolation: 1 cross-phase commits` · 다음 줄 `수정:` · 그다음 들여쓴 줄 `473b9f8d`. 읽은 수 1 · 서명 커밋 0 (`C.UTF-8` · `C` 같음). 이 Phase 서명 줄을 단 섞인 커밋을 더하면 읽은 수 2 · 서명 커밋 1 |
 
@@ -271,7 +271,7 @@ VERDICT: CHANGES
 
 #### ER-03 — 줄 번호 없는 가이드 경로 토큰이 다른 줄에 늘 받쳐진다
 
-1 회차 5 번을 반영해 `harness/docs/guides/qa-evaluation-guide.md:1785` · `:1862` 토큰이 들어오면서, 원래 있던 줄 번호 없는
+1 회차 5 번을 반영해 `harness/docs/guides/qa-evaluation-guide.md:1806` · `:1862` 토큰이 들어오면서, 원래 있던 줄 번호 없는
 `harness/docs/guides/qa-evaluation-guide.md` 토큰은 그 두 줄이 있기만 하면 1 이상이 된다(`grep -cF` 는 부분 문자열을 센다).
 그래서 반대편 표 3 행(`:12` `contract-schema.md` v5.3 표기 · `:746` 표준형 4 요소 · `:1915` Parity with)과 4 행의 `:742-743`(상태 전제 선택지) 넘김을
 notes 에서 통째로 빼도 20 값이 전부 1 이상이다. 초안도 이 사실을 적어 두었다(「앞 경로 … 는 다른 줄이 받쳐 1 이상 유지」).
@@ -285,8 +285,8 @@ notes 에서 통째로 빼도 20 값이 전부 1 이상이다. 초안도 이 사
 ```
 
 - 조건 문구: 경로 목록의 `harness/docs/guides/qa-evaluation-guide.md` 하나를 넷으로 바꾼다 —
-  `harness/docs/guides/qa-evaluation-guide.md:12` · `harness/docs/guides/qa-evaluation-guide.md:742` ·
-  `harness/docs/guides/qa-evaluation-guide.md:746` · `harness/docs/guides/qa-evaluation-guide.md:1915`. 「경로 9 개」 → 「경로 12 개」
+  `harness/docs/guides/qa-evaluation-guide.md:16` · `harness/docs/guides/qa-evaluation-guide.md:747` ·
+  `harness/docs/guides/qa-evaluation-guide.md:751` · `harness/docs/guides/qa-evaluation-guide.md:1936`. 「경로 9 개」 → 「경로 12 개」
 - 측정: `for t in …` 목록에서 같은 자리를 같은 네 문자열로 바꾸고 「20 값」 → 「23 값」
 - `범위 경계` 절 「커버리지 해소: ER-03 — 산문의 넘김 경로 9 개 … 20 문자열」 → 「12 개 … 23 문자열」, `회귀 게이트` 절 표
   `[ER-03]` 의 「20 값」 → 「23 값」
@@ -300,9 +300,9 @@ notes 에서 통째로 빼도 20 값이 전부 1 이상이다. 초안도 이 사
 ### 2 회차 — 고치면 좋지만 막지는 않는 것
 
 - SK-06 모의본 문단은 멈출 때 `skill-design-guide.md` §3.7 네 칸을 채우라고 하는데, 그 첫 칸 「막는 것」 은 「실행한 명령과 그 실패
-  출력」 이다(`skill-design-guide.md:303`). 셸이 없는 세션은 명령을 실행할 수 없으니 그 칸을 채울 수 없다. 「셸이 없으면 막는 것 칸에
+  출력」 이다(`skill-design-guide.md:307`). 셸이 없는 세션은 명령을 실행할 수 없으니 그 칸을 채울 수 없다. 「셸이 없으면 막는 것 칸에
   이 세션에서 쓸 수 있는 도구 목록을 붙인다」 한 마디를 문단에 더하면 규칙끼리 부딪히지 않는다 (조건 영향 없음 — SK-06 토큰 다섯은 그대로)
-- `harness/agents/qa-evaluator.md:590` 은 반대편 표 1 행(표준형 4 요소)과 4 행(상태 전제 선택지)이 같이 쓴다 — 파일의 한 줄에 두
+- `harness/agents/qa-evaluator.md:593` 은 반대편 표 1 행(표준형 4 요소)과 4 행(상태 전제 선택지)이 같이 쓴다 — 파일의 한 줄에 두
   문제가 다 있어서다. 토큰으로는 둘을 가를 수 없으니 notes 의 그 줄에 두 내용을 함께 적게 한다
 
 VERDICT: CHANGES

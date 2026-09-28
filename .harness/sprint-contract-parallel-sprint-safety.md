@@ -43,7 +43,7 @@ harness 는 계약을 단일 고정 경로 `{CONTRACT_ROOT}/.harness/sprint-cont
 |---|---|---|
 | G1 | 계약·피드백 경로가 단일 고정이라 병렬 세션이 충돌 | 계약 22 참조 + 피드백 8 참조 |
 | G2 | 병렬 스포너가 고정 경로를 프롬프트에 주입 | `scripts/spawn-kaizen-phase.sh` |
-| G3 | 피드백 identity 를 LLM 이 생성 + fallback 이 cwd 기반 | `harness/scripts/save-feedback.sh:75-83`, `harness/skills/sprint-contract/SKILL.md:353` |
+| G3 | 피드백 identity 를 LLM 이 생성 + fallback 이 cwd 기반 | `harness/scripts/save-feedback.sh:75-83`, `harness/skills/sprint-contract/SKILL.md:355` |
 | G4 | 글로벌 YAML 파일명이 초 단위라 병렬 저장 충돌 | `harness/scripts/save-feedback.sh:72-83` |
 | G5 | live reader 가 plain 파일만 읽음 | `harness/skills/sprint/SKILL.md:94`, `scripts/collect-kaizen-data.py:152`, `harness/skills/harness-kaizen/scripts/trigger-check.sh:40-61` |
 | G6 | 실행 중 사용자 교정을 담을 구조 없음 | digest usc=true 12 건 |

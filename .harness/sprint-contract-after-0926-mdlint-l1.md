@@ -67,7 +67,7 @@ HEAD 가 그 가지 끝(`H`)이며 `git -C "$R" status --porcelain -- . ':(exclu
 
 | 대상 파일 | 실제 Read 증거 (`파일:라인`) | 발견한 기존 갭 | 조건화 |
 | --------- | ---------------------------- | -------------- | ------ |
-| `design-kit/docs/design/**` 26 개 | `foundations/color.md:1-7` 머리에 `title: 컬러` 와 `# 컬러` 가 함께 있다 · `color.md:283-287` 맨 URL 다섯 | 머리 `title` 때문에 `:7` 이 MD025 (23 파일), MD034 5 | SK-01 · SK-04 |
+| `design-kit/docs/design/**` 26 개 | `foundations/color.md:1-8` 머리에 `title: 컬러` 와 `# 컬러` 가 함께 있다 · `color.md:284-288` 맨 URL 다섯 | 머리 `title` 때문에 `:7` 이 MD025 (23 파일), MD034 5 | SK-01 · SK-04 |
 | `design-kit/skills/*/SKILL.md` 8 개 | `design-audit/SKILL.md:13` `# Gotchas` · `:52` `# Process` · `:142` `# References` | 맨 윗단계 제목 셋이라 MD025 (7 파일 14 곳) | SK-01 · SK-04 |
 | `design-kit/skills/design-test/SKILL.md` | `:1-14` 머리 뒤 첫 제목이 `## Gotchas` | MD041 1 | SK-01 · SK-04 |
 | `design-kit/skills/design-concept/SKILL.md` | `:86` 번호 11 로 시작하는 목록 | MD029 1 | SK-02 (번호 숫자는 떼고 잰다) |

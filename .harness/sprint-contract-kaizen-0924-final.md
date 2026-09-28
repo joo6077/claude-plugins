@@ -96,7 +96,7 @@ Phase notes 열일곱의 「넘기는 것」 · 「미반영 키와 사유」 ·
 | `.claude/kaizen-input/insights-report.md:56-153` | 처리 배정표 96 행 · Phase 행 74 개의 대상 계약 · QA 칸이 비었다 | `check-insights-tracking.py --final` 종료 코드 1 · `Phase 행 미완료 74` | AR-02 |
 | `docs/**/*.html` 마흔넷 | 아래 페이지 표의 페이지 · `docs.py` 시작 판 `changed=0 short=7 tok_new=0/56 tok_old=9/9` | 원본보다 옛 판. 일곱 쪽이 400 줄 미만 · api-kit 둘이 원본 출처 URL 을 빠뜨림(`check-api-kit-docs.py` `10/12 PASS`) · 열넷이 원본 머리 설정의 옛 판 번호를 제목 · 뱃지에 보인다 | AR-03 · DG-04 |
 | `docs/index.html:234-238` | harness 다섯 항목 제목 `v1.5.0` · `v1.6.0` · `v5.0` · `v5.0` · `v5.3` | 원본 판 번호(`1.6.0` · `1.7.0` · `v5.1` · `v5.1` · `v5.5`)보다 옛 판 (`navver.py` 시작 판 `nav_ver=0/5`) | AR-03 |
-| `docs/kaizen/changelog.md:1-7` · `research-log.md:9` · `flutter-changelog.md:9` · `flutter-research-log.md:9` · `docs/design/research-log.md:360` | 마지막 항목 2026-09-21 · 2026-08-13 | 이번 사이클 항목 없음 | AR-04 |
+| `docs/kaizen/changelog.md:1-7` · `research-log.md:9` · `flutter-changelog.md:10` · `flutter-research-log.md:10` · `docs/design/research-log.md:360` | 마지막 항목 2026-09-21 · 2026-08-13 | 이번 사이클 항목 없음 | AR-04 |
 | `.harness/.meta/kaizen-state.yaml:8-9` · `kaizen-failure-count.yaml:4` · `:19` | `cycle_id: "kaizen-2026-08-13"` · `last_updated: "2026-08-13"` · `phase_14` 까지 | 사후 점검 날짜 검사가 옛 항목으로 통과 · `phase_15` ~ `phase_17` 없음 | AR-05 |
 | `.harness/.meta/` | `evals-audit-2026-08-13.md` 까지 · `memory-promotion-candidates-*` 0 개 | 이번 사이클 점검 기록 · 후보 파일 없음 | AR-05 · AR-06 |
 | `.harness/.meta/orchestrator-audit-log.md:368` | 마지막 항목 2026-08-13 사이클 개시, 499 줄 | 이번 사이클 항목 없음 · 도구 고정 소제목 셋이 `:220` · `:224` · `:228` 에 이미 있음 | AR-07 · DG-02 |
@@ -198,7 +198,7 @@ BUILD 는 봉인(6.6) · 봉인 커밋(계약 파일 하나) 뒤 아래 차례�
 | 12 | 판정 유지. DG-02 는 더한 줄만 세지만 실제 판은 새 경고 0 (`DG-02`) | DG-02 · SC-02 transcript 검사 판별력 · AR-01 · ER-03 이 서명 없는 다른 킷 커밋을 못 봄 (`DG-02`) |
 | 13 | 판정 유지. 사용자 교정 대조가 워크트리 이름으로 로그를 찾다 건너뛰었다 — harness followups ER-03 이 고쳤다. SK-06 알려진 답이 킷 출력을 잠갔다 (`사용자 교정`) | AP-03 이 V6 가 안 읽는 두 파일에서 공허 · SK-07 정책 셋 가운데 하나만 · DG-06 `doc_mine` 늘 0 (`AP-03`) |
 | 14 | 판정 유지. 리포트 측정 수 26 vs 25 · N/A 3 vs 2 · 28/28 오기 (`N/A`) | DG-02 가 규칙별 수만 비교해 자리가 바뀐 경고를 못 봄 · ER-03 (d) · AR-01 ① (`DG-02`) |
-| 15 | 판정 유지. 같은 종류 죽은 검사 `core-antipatterns.md:36` 이 남았다 — kit followups `f93d715` 가 고쳤다 (`core-antipatterns`) | 측정 구멍 없음 — 0 기대 값 모두 사본에서 1 이상. 한계 메모: DG-02 가 규칙별 수만 비교해 자리가 바뀐 경고를 못 볼 수 있다(교차 진단이 규칙 + 줄 글자로 다시 재어 0) (`없음`) |
+| 15 | 판정 유지. 같은 종류 죽은 검사 `core-antipatterns.md:40` 이 남았다 — kit followups `f93d715` 가 고쳤다 (`core-antipatterns`) | 측정 구멍 없음 — 0 기대 값 모두 사본에서 1 이상. 한계 메모: DG-02 가 규칙별 수만 비교해 자리가 바뀐 경고를 못 볼 수 있다(교차 진단이 규칙 + 줄 글자로 다시 재어 0) (`없음`) |
 | 16 | 판정 유지. 뷰어에 판정 불가 자리가 없다(다음 사이클) · api-ui 서버 명령 — kit followups `9da098b` (`판정 불가`) | SK-09 `curl_missing` · AR-03 `outside_changed` · SK-05 `dir_api` · ER-02 `NAMES` 구멍 넷 (`SK-09`) |
 | 17 | 판정 유지. 러너가 `bash` 펜스만 봤다 — kit followups `6de53a3` 가 고쳤다 (`펜스`) | 측정 구멍 없음 — 여섯 0 기대 값 모두 사본에서 1 이상. 한계 메모: DG-04 · SK-07 에서 러너 안쪽 셸이 이 맥에서는 늘 `/bin/sh` 라 dash 로 한 번도 돌지 않았다(교차 진단이 dash 를 앞에 두고 다시 돌려 통과 — 결함 아님) (`없음`) |
 

@@ -68,7 +68,7 @@ locked_at: "2026-09-26 12:12"
 | `design-kit/evals/decision-gate-test.sh` | `:31` 입력 열 열 개 | 새 규칙을 재는 입력이 없다 | SC-02 |
 | `design-kit/skills/design-test/SKILL.md` · `design-audit/SKILL.md` · `agents/design-reviewer.md` | `design-test:276-278` 「여기서 재정의하지 않는다」 · `:367` 검사 실행 · `design-audit:49` · `design-reviewer:53` | §6 을 가리키기만 한다 — 바꿀 것 없음 | SK-10 |
 | `infra-kit/skills/infra-test/SKILL.md` | `:221` `OPTIONAL_TOOLS` · `:253-261` 규칙 1 · `:263-268` 규칙 2 python3 검사 · `:428` 알려진 답 | 규칙 1 이 줄 검사라 `run: \|` 안의 글자로 통과하고 흐름 표기 스텝을 놓친다(봉인 전 재현: block · flow · broken 셋이 틀린다) | SC-03 · SC-04 |
-| `docs/infra/platform/cicd.md` · `infra-kit/README.md` · 설치본 `~/.claude/plugins/cache/joo6077-plugins/infra-kit/0.4.0/` | `cicd.md:77-81` 판정 세 줄 · `README.md:26` 「모든 스킬이 이를 SSOT로 참조」 · 설치본에 `docs/` 폴더 없음 | 원칙 문서 열두 개 전부가 설치본에 없다 | 넘김 (`## 범위 경계`) |
+| `docs/infra/platform/cicd.md` · `infra-kit/README.md` · 설치본 `~/.claude/plugins/cache/joo6077-plugins/infra-kit/0.4.0/` | `cicd.md:78-82` 판정 세 줄 · `README.md:26` 「모든 스킬이 이를 SSOT로 참조」 · 설치본에 `docs/` 폴더 없음 | 원칙 문서 열두 개 전부가 설치본에 없다 | 넘김 (`## 범위 경계`) |
 | `react-kit/skills/react-init/SKILL.md` | `:90` harness `vm_port` 언급 · `:253-257` 단계 13 | 틀을 복사하는 절차가 없다 | SK-11 |
 | `react-kit/templates/harness-project.yaml.template` · `harness/templates/project.yaml` · `harness/skills/init/SKILL.md` | 틀 `:3` `stack: "react"` · `:98` `vm_port: 5173` · 기본 틀 `:59` `vm_port: null` · init `:17` · `:54` | 기본 틀로는 react-init `:90` 의 5173 약속이 안 선다. init 은 `.harness/` 가 있으면 멈춘다 | SK-11 (근거) |
 | `docs/react/kit-design/final-integration.md` | `:486` 「`/react-init` 이 `/harness init` 을 함께 호출할 때 … 복사」 | 설계는 복사를 정해 두었다 | SK-11 (근거) |
@@ -141,7 +141,7 @@ locked_at: "2026-09-26 12:12"
 | design-kit | 폴더 · UTF-8 아닌 입력을 종료 코드 2 로 | 계약에 넣음 | ER-01 · SC-02 |
 | infra-kit | infra-test checkout 판정을 YAML 구조로 · python3 없을 때 규칙 1 | 계약에 넣음 | SC-03 · SC-04. python3 · PyYAML 이 없으면 줄 검사로 남긴다 |
 | infra-kit | 판정 세 줄이 `docs/infra/platform/cicd.md` 에만 있는 구조 | 넘김 | 원칙 문서 열두 개 전부가 같은 구조다(`infra-kit/README.md:26`, 설치본 `infra-kit/0.4.0` 에 `docs/` 없음). 세 줄만 킷으로 옮기면 넷째 사본이 되고, 문서 전체를 킷 안으로 옮기면 `scripts/` · `.claude/skills/docs-site` 의 원본 ↔ 페이지 짝까지 바뀌어 이 계약 범위 밖이다 |
-| react-kit | `harness-project.yaml.template` 복사 절차 | 계약에 넣음 — 결정은 「쓴다」 | SK-11 · SK-12. 설계(`final-integration.md:486`)와 포트 약속(react-init `:90`)이 틀을 전제한다 |
+| react-kit | `harness-project.yaml.template` 복사 절차 | 계약에 넣음 — 결정은 「쓴다」 | SK-11 · SK-12. 설계(`final-integration.md:487`)와 포트 약속(react-init `:90`)이 틀을 전제한다 |
 
 범위 밖(이 계약이 고치지 않는다): rust-kit · api-kit 뷰어 · reviewer 에이전트의 미검증 규칙 · `docs/` HTML 페이지(다시 만들 페이지는 notes 에 적어 문서 사이트 묶음으로 넘긴다) · `scripts/` · `harness/` · `.claude/` · 킷 `plugin.json` 버전(릴리스 단계 몫) · react-preflight 기준 커밋 비교(이 묶음 과제 목록에 없다).
 

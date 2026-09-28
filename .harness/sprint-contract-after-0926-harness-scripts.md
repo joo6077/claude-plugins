@@ -19,7 +19,7 @@ locked_at: "2026-09-26 20:10"
   (세션 `bda55d45-296c-491f-89ba-b52042d58e72`, 결정 파일 `.claude/worktrees/after-0926b/.harness/.meta/after-kaizen-0926b/decisions.md`).
   이 계약의 합의는 그 위임으로 받았다. 조건을 느슨하게 하는 개정은 이 위임으로 동의 처리하지 않는다 — 개정 파일에 동의 칸을 비워 두고 부모가 사용자에게 묻는다.
 - 여섯 항목과 CS-12 는 모두 기준 판에서 아직 열려 있다(아래 편집 전 감사의 줄 근거 · 회귀 게이트의 봉인 전 실측).
-  - HS-1 피드백 저장: `HARNESS_CONTRACT` 를 줘도 계약 폴더를 셸 위치로 잡는다(실측 `contract_root=<T>/elsewhere`). 초안에 든 `sprint_slug` · `contract_path` · `session_id` · `contract_root` · `contract_path_inferred` 를 그대로 두고 같은 칸을 또 붙여 한 파일에 두 번 든다(실측 다섯 칸 중복). qa-evaluator 는 초안에 이 칸을 쓰라고 한다(`harness/agents/qa-evaluator.md:1093-1095`). sprint-contract Step 9 의 초안 이름은 고정 `.harness/feedback-draft.yaml` 이라 세션끼리 덮는다 — qa-evaluator 는 이미 `feedback-draft-<slug>.yaml` 이다(`:1089`).
+  - HS-1 피드백 저장: `HARNESS_CONTRACT` 를 줘도 계약 폴더를 셸 위치로 잡는다(실측 `contract_root=<T>/elsewhere`). 초안에 든 `sprint_slug` · `contract_path` · `session_id` · `contract_root` · `contract_path_inferred` 를 그대로 두고 같은 칸을 또 붙여 한 파일에 두 번 든다(실측 다섯 칸 중복). qa-evaluator 는 초안에 이 칸을 쓰라고 한다(`harness/agents/qa-evaluator.md:1105-1107`). sprint-contract Step 9 의 초안 이름은 고정 `.harness/feedback-draft.yaml` 이라 세션끼리 덮는다 — qa-evaluator 는 이미 `feedback-draft-<slug>.yaml` 이다(`:1089`).
   - HS-2 피드백 저장 시험이 고정 `/tmp/test-*.yaml` 아홉 자리를 써서 동시에 돌면 서로 지운다(실측 4 개 동시 3 회 = 12 회 중 12 회 실패). 사용자 HOME 에도 폴더 셋을 남긴다.
   - HS-3 커밋 안전 훅이 `git add <경로> && git commit`(그 경로의 삭제 60 개)과 하위 폴더에서의 `commit -a` · `git add -A && git commit`(폴더 밖 삭제 60 개)을 통과시킨다(실측 넷 다 exit 0).
   - HS-4 평가자 카이젠 회귀 패턴 `silent-check` 셋 중 #2 · #3 이 제목 글자만 봐서 본문을 비운 사본에서도 통과한다(실측).
@@ -85,8 +85,8 @@ locked_at: "2026-09-26 20:10"
 | 바뀌는 것 | 반대편 | 조건 |
 | --------- | ------ | ---- |
 | 저장 피드백 칸 모양 | `scripts/collect-kaizen-data.py` · `scripts/test-collect-kaizen-data.py` | AR-02 (기존 시험 통과 · 값 불변은 SC-02) |
-| 초안 이름 | `harness/agents/qa-evaluator.md:1089` (이미 슬러그 이름 — 바꾸지 않음) · `harness/skills/init/SKILL.md:61` | SK-01 |
-| 훅이 막는 조건 | `harness/README.md` · `skill-design-guide.md:284` · `qa-evaluation-guide.md:702` · `qa-evaluator.md:679` | SK-04 |
+| 초안 이름 | `harness/agents/qa-evaluator.md:1101` (이미 슬러그 이름 — 바꾸지 않음) · `harness/skills/init/SKILL.md:61` | SK-01 |
+| 훅이 막는 조건 | `harness/README.md` · `skill-design-guide.md:288` · `qa-evaluation-guide.md:707` · `qa-evaluator.md:689` | SK-04 |
 | 계약 규약 새 블록 | 계약 작성자 `harness/skills/sprint-contract/SKILL.md` Step 6 | SK-02 |
 | 새 공용 파일 | 계약 규약 §검증 수단 인라인 명시 한 줄 · 종료 코드 소비처 표 | SK-03 · SC-09 |
 
@@ -580,7 +580,7 @@ L
 | `scopediff.sh` (지금 `END` = `B`) | `changed=0 … commits=0 mixed_commits=0` / 모의 실행(무관 계약 · `HEAD~4..HEAD`) `block=15 changed=312 out_of_block=298 harness_other=82 commits=175 mixed_commits=17` | AR-01 |
 | SK 조건 글자 수 (`$T/B`) | SK-01 `a=0 b=2 c=0 d=0 · 1` · SK-02 제목 0 · Step 6 `# sprint-scope` 0 · `범위 목록 블록` 0 · SK-03 절 18 줄 · SK-04 `(a) 1 · 0 (b) 0 (c) 1 · 0 (d) 1 · 0` · SC-12 harness 작업 시험 줄 0 · zsh 줄 0 (같은 자르기로 훅 시험 줄 1) · RE-02 떼는 스크립트 0 | SK · SC-12 · RE-02 |
 | `validate-plugin.py harness` | `V1 frontmatter       9 skills + 1 agent — OK` · `V6 code-fence        0 bare — OK` · 종료 코드 0 | AP-03 · AP-04 |
-| `git push.*--force` 파일 전체 | `harness/docs/guides/skill-design-guide.md:802` 1 줄 (그래서 AP-02 는 더한 줄만 잰다) | AP-02 |
+| `git push.*--force` 파일 전체 | `harness/docs/guides/skill-design-guide.md:810` 1 줄 (그래서 AP-02 는 더한 줄만 잰다) | AP-02 |
 
 ## Skill
 
