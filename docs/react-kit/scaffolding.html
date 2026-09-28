@@ -195,6 +195,8 @@
     <li><a href="#s9"><span class="toc-n">09</span>7. 출처 요약</a></li>
     <li><a href="#s10"><span class="toc-n">10</span>현행화 기록</a></li>
     <li><a href="#s11"><span class="toc-n">11</span>8. 변경 이력</a></li>
+    <li><a href="#hand1"><span class="toc-n">+</span>Bad vs Good — G1 핵심 실수 패턴</a></li>
+    <li><a href="#hand2"><span class="toc-n">+</span>Scaffolding 핵심 Gotchas</a></li>
     <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
   </ol>
 </nav>
@@ -828,6 +830,90 @@ export function PrimaryButton({
   </ol>
 </section>
 
+<section class="section doc" id="hand1">
+  <div class="section-label">손 글 · 되살림</div>
+  <h2>Bad vs Good — G1 핵심 실수 패턴</h2>
+  <div class="doc-body">
+<p>이 절은 옛 쪽(<code>38cccd1</code>)의 손 글을 지금 스킬 문서에 맞춰 다시 쓴 것이다. 규칙 번호 대신 <code>/react-audit</code> 의 여섯 카테고리 이름을 쓴다.</p>
+<h3 class="sub">상대 경로 import vs <code>@/</code> 절대 경로</h3>
+<p><strong>나쁜 예</strong> — 폴더 깊이가 바뀌면 깨진다. 레이어 배치 규칙은 상대 경로 import 를 모두 금지하고 <code>@/</code> 만 허용한다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import { Button } from '../../../shared/ui/button'
+import { useUser } from '../../hooks/use-user'</code></pre></div>
+<p><strong>좋은 예</strong> — <code>/react-init</code> 이 tsconfig paths 와 vite alias 를 함께 설정한다. shadcn 원본은 <code>presentation/shared/components/ui/</code> 에 둔다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import { Button } from '@/presentation/shared/components/ui/button'
+import { useUser } from '@/presentation/features/user/hooks/use-user'</code></pre></div>
+<h3 class="sub"><code>any</code> 응답 vs Zod 경계 검증</h3>
+<p><strong>나쁜 예</strong> — <code>any</code> 는 Strict TypeScript 카테고리 위반이다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>async function fetchUser(id: string): Promise&lt;any&gt; {
+  const res = await fetch(`/users/${id}`)
+  return res.json()
+}</code></pre></div>
+<p><strong>좋은 예</strong> — 경계에서 한 번 검사하고 Result 로 넘긴다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>const UserSchema = z.object({ id: z.string(), name: z.string() })
+
+async function fetchUser(id: string) {
+  const res = await fetch(`/users/${id}`)
+  const parsed = UserSchema.safeParse(await res.json())
+  if (!parsed.success) return err({ kind: 'user/validation-failed', issues: parsed.error.issues.map(i =&gt; i.message) })
+  return ok(parsed.data)
+}</code></pre></div>
+<h3 class="sub">shadcn 옛 패키지 vs 지금 CLI</h3>
+<p><strong>나쁜 예</strong> — <code>shadcn-ui</code> npm 패키지는 deprecated 다. <code>/react-audit</code> Library Policy 가 ❌ 실패로 잡는다.</p>
+<div class="code"><span class="code-lang">bash</span><pre><code>npx shadcn-ui@latest add button</code></pre></div>
+<p><strong>좋은 예</strong> — CLI 가 <code>components.json</code> 기준 경로에 설치한다.</p>
+<div class="code"><span class="code-lang">bash</span><pre><code>pnpm dlx shadcn@latest init --template vite
+pnpm dlx shadcn@latest add button card input label</code></pre></div>
+  </div>
+</section>
+<section class="section doc" id="hand2">
+  <div class="section-label">손 글 · 되살림</div>
+  <h2>Scaffolding 핵심 Gotchas</h2>
+  <div class="doc-body">
+<p><code>/react-init</code> 과 <code>/react-feature</code> 를 돌리기 전에 확인한다. 오른쪽 칸은 지금 스킬 Gotchas 문장에 맞췄다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">실수 패턴</div></th>
+  <th><div class="c">올바른 접근</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><code>npx tailwindcss init</code> 으로 설정 파일을 만든다</div></td>
+  <td><div class="c">Tailwind v4 에는 없다. <code>@tailwindcss/vite</code> 플러그인과 <code>@import "tailwindcss";</code> 만 쓰고 설정은 CSS 의 <code>@theme</code> 에 둔다</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><code>shadcn-ui</code> 로 설치한다</div></td>
+  <td><div class="c"><code>pnpm dlx shadcn@latest init --template vite</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c">라우트 파일을 손으로 등록한다</div></td>
+  <td><div class="c"><code>@tanstack/router-plugin</code> 의 <code>tanstackRouter()</code> 가 <code>routeTree.gen.ts</code> 를 만든다. 직접 고치지 않는다</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">Zod 스키마를 레이어마다 다시 검사한다</div></td>
+  <td><div class="c">경계(<code>data/datasources/remote/</code>)에서 한 번. 안쪽은 Result 만 넘긴다</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">domain 에서 throw</div></td>
+  <td><div class="c">domain 은 Result 시그니처만. 예외는 data 경계에서 Failure 로 바꾼다</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c">Rust crate-type 을 <code>["cdylib"]</code> 만 둔다</div></td>
+  <td><div class="c"><code>crate-type = ["cdylib", "rlib"]</code> 둘 다 있어야 WASM 빌드와 Tauri 네이티브 재사용이 함께 된다</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><code>/react-feature</code> 가 일부 레이어만 만들고 멈춘다</div></td>
+  <td><div class="c">하나라도 실패하면 이번 실행이 만든 파일을 모두 지우고 원상복구한다</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
 <footer class="foot">
   <p>원본 <code>docs/react/kit-design/g1-scaffolding.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
 </footer>

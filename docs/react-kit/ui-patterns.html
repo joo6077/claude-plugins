@@ -194,6 +194,8 @@
     <li><a href="#s8"><span class="toc-n">08</span>6. 출처 요약</a></li>
     <li><a href="#s9"><span class="toc-n">09</span>현행화 기록</a></li>
     <li><a href="#s10"><span class="toc-n">10</span>7. 변경 이력</a></li>
+    <li><a href="#hand1"><span class="toc-n">+</span>Bad vs Good — G5 핵심 실수 패턴</a></li>
+    <li><a href="#hand2"><span class="toc-n">+</span>G5 스킬 공통 주의사항</a></li>
     <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
   </ol>
 </nav>
@@ -758,6 +760,103 @@ widget-inspector-react 에이전트   ←── 주기 실행 또는 수동
   </ol>
 </section>
 
+<section class="section doc" id="hand1">
+  <div class="section-label">손 글 · 되살림</div>
+  <h2>Bad vs Good — G5 핵심 실수 패턴</h2>
+  <div class="doc-body">
+<p>이 절은 옛 쪽(<code>38cccd1</code>)의 손 글을 지금 스킬 문서에 맞춰 다시 쓴 것이다. 규칙 번호 대신 <code>/react-audit</code> 의 여섯 카테고리 이름을 쓴다.</p>
+<h3 class="sub">픽셀 값 미디어 쿼리 vs <code>@container</code></h3>
+<p><strong>나쁜 예</strong> — 재사용 컴포넌트가 뷰포트 너비를 보면 사이드바 · 모달 안에 넣었을 때 깨진다.</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>@media (min-width: 768px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
+}</code></pre></div>
+<p><strong>좋은 예</strong> — 재사용 컴포넌트는 <code>@container</code>, 앱 최상위 레이아웃은 페이지 breakpoint 다. Tailwind v4 에는 <code>@container</code> 가 내장돼 있다.</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>export function ProductGrid({ products }: Props) {
+  return (
+    &lt;div className="@container"&gt;
+      &lt;div className="grid grid-cols-1 gap-3 @md:grid-cols-2 @xl:grid-cols-3"&gt;
+        {products.map(p =&gt; &lt;ProductCard key={p.id} {...p} /&gt;)}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre></div>
+<h3 class="sub">스피너 vs 실제 모양 Skeleton</h3>
+<p><strong>나쁜 예</strong> — 스피너는 로딩 뒤 콘텐츠와 크기가 달라 레이아웃이 밀린다.</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>if (isPending) return &lt;CircularProgress /&gt;</code></pre></div>
+<p><strong>좋은 예</strong> — shadcn Skeleton 은 <code>animate-pulse rounded-md bg-muted</code> 를 기본으로 가진다 — <code>bg-muted</code> 를 덮어 지우면 안 보인다. <code>isPending → isError → empty → success</code> 순서로 가른다.</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>if (isPending) return (
+  &lt;div className="flex gap-3"&gt;
+    &lt;Skeleton className="h-10 w-10 rounded-full" /&gt;
+    &lt;Skeleton className="h-6 w-32" /&gt;
+  &lt;/div&gt;
+)
+if (isError) return &lt;ErrorState error={error} /&gt;
+if (!data) return &lt;EmptyState /&gt;</code></pre></div>
+<h3 class="sub">정규식 import 치환 vs AST 변환</h3>
+<p><strong>나쁜 예</strong> — 문자열 치환은 함수 안 문자열이나 주석까지 바꾼다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>grep -rl 'logo-banner' src/ | xargs sed -i 's|../logo-banner|@/presentation/shared/components/logo-banner|'</code></pre></div>
+<p><strong>좋은 예</strong> — <code>/react-extract</code> 는 TypeScript AST 로 import 노드만 고치고, 이동 뒤 <code>tsc --noEmit</code> 가 실패하면 전체를 되돌린다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>import { Project } from 'ts-morph'
+const project = new Project({ tsConfigFilePath: 'tsconfig.json' })
+for (const sf of project.getSourceFiles()) {
+  for (const decl of sf.getImportDeclarations()) {
+    if (decl.getModuleSpecifierValue().endsWith('logo-banner')) {
+      decl.setModuleSpecifier('@/presentation/shared/components/logo-banner')
+    }
+  }
+}
+await project.save()</code></pre></div>
+  </div>
+</section>
+<section class="section doc" id="hand2">
+  <div class="section-label">손 글 · 되살림</div>
+  <h2>G5 스킬 공통 주의사항</h2>
+  <div class="doc-body">
+<p>G5 스킬 셋을 쓸 때 반복되는 실수다. 오른쪽 칸은 지금 각 스킬 Gotchas 문장에 맞췄다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">스킬</div></th>
+  <th><div class="c">실수</div></th>
+  <th><div class="c">올바른 방법</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>/react-responsive</code></div></td>
+  <td><div class="c">모든 컴포넌트를 <code>@container</code> 로 감싼다</div></td>
+  <td><div class="c">앱 최상위 레이아웃은 페이지 breakpoint, 재사용 컴포넌트만 컨테이너 쿼리</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>/react-responsive</code></div></td>
+  <td><div class="c"><code>text-sm md:text-base lg:text-lg</code> 처럼 글자 크기를 여러 단으로 바꾼다</div></td>
+  <td><div class="c">타이포 리듬이 깨진다. 디자인 시스템의 정해진 scale 만 쓴다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>/react-skeleton</code></div></td>
+  <td><div class="c"><code>bg-muted</code> 없는 Skeleton</div></td>
+  <td><div class="c">투명해서 shimmer 가 안 보인다. 기본 클래스를 지우지 않는다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>/react-skeleton</code></div></td>
+  <td><div class="c">Empty 상태에 Skeleton</div></td>
+  <td><div class="c">Skeleton 은 <code>isPending === true</code> 일 때만. 데이터가 없으면 Empty UI</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>/react-skeleton</code></div></td>
+  <td><div class="c">Error 에서도 Skeleton 이 남는다</div></td>
+  <td><div class="c"><code>isPending → isError → empty → success</code> 순서로 가른다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>/react-extract</code></div></td>
+  <td><div class="c"><code>export default</code> 컴포넌트를 그대로 옮긴다</div></td>
+  <td><div class="c">먼저 named export 로 바꾼다. 원본을 바꾸므로 사용자에게 먼저 알린다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>/react-extract</code></div></td>
+  <td><div class="c">이동 뒤 타입 검사 없이 완료 보고</div></td>
+  <td><div class="c"><code>tsc --noEmit</code> 가 실패하면 만든 파일과 고친 import 를 모두 되돌린다</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
 <footer class="foot">
   <p>원본 <code>docs/react/kit-design/g5-ui-patterns.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
 </footer>

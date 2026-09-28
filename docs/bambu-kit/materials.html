@@ -124,10 +124,15 @@
 <div class="page">
 
 <h1>Materials — Bambu 필라멘트 카탈로그 + 용도 매핑 + AMS 호환성</h1>
-<p class="subtitle">PLA · PETG · ABS/ASA · PA · PC · TPU · CF/GF 강화 — 40+ SKU 분류, AMS HT/AMS 2 Pro 로딩 가능 여부, 건조 요구. Bambu Studio 2.6.0 (v02.06.00.51) 기준 H2S 0.4 base 프로파일에서 추출했고 외부 스풀 강제 SKU와 H2S 노즐 hardened 권장 SKU를 명시한다. Codex research run <code>aeb457c7603a420db</code> · 점수 23/25.</p>
+<p class="subtitle">PLA · PETG · ABS/ASA · PA · PC · TPU · CF/GF 강화 — 40+ SKU 분류, AMS HT/AMS 2 Pro 로딩 가능 여부, 건조 요구. 최초 작성 때 Bambu Studio 2.6.0 (v02.06.00.51) 기준 H2S 0.4 base 프로파일에서 추출했고 외부 스풀 강제 SKU와 H2S 노즐 hardened 권장 SKU를 명시한다. Codex research run <code>aeb457c7603a420db</code> · 점수 23/25.</p>
 <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
   <span class="tag">Last updated 2026-05-15</span>
   <span class="tag">Studio 버전은 실행 때 조회한다</span>
+</div>
+
+<div class="version-note" style="border-left:3px solid var(--accent);background:var(--accent-dim);padding:14px 18px;border-radius:0 10px 10px 0;font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:28px">
+  <strong style="color:var(--text)">Bambu Studio 판은 실행 때 조회한다</strong> — 이 쪽에 판 번호를 기준값으로 박아 두지 않는다. 앱 판은 <code>/Applications/BambuStudio.app/Contents/Info.plist</code>, 프로파일 번들 판은 <code>~/Library/Application Support/BambuStudio/system/BBL.json</code> 의 <code>version</code> 이다. 두 값은 <strong>따로 갱신된다</strong>(프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 <code>SKILL.md</code> §환경 검증.<br>
+  최초 작성 시점 기준: 앱 <code>02.06.00.51</code> / 번들 <code>02.06.00.05</code>. 2026-09-05 확인: 앱 <code>02.08.02.61</code> / 번들 <code>02.08.00.06</code>, H2S 0.4 앵커값 10/10 동일.
 </div>
 
 <!-- ── Section 1 — PLA family ── -->
@@ -277,7 +282,7 @@
       </tbody>
     </table>
   </div>
-  <p class="caption">출처: Bambu Studio 2.6.0 H2S 0.4 base 프로파일 + Bambu Filament Guide.</p>
+  <p class="caption">출처: 최초 작성 때 Bambu Studio 2.6.0 H2S 0.4 base 프로파일 + Bambu Filament Guide.</p>
 </div>
 
 <!-- ── Section 4 — PC family ── -->
@@ -460,7 +465,7 @@
       </ul>
     </div>
   </div>
-  <p class="caption">출처: AMS 2 Pro 공식 호환 목록 + 로컬 Bambu Studio v02.06.00.51 시스템 프로파일.</p>
+  <p class="caption">출처: AMS 2 Pro 공식 호환 목록 + 최초 작성 때 로컬 Bambu Studio v02.06.00.51 시스템 프로파일.</p>
 </div>
 
 <!-- ── Section 10 — 건조 요구 차트 ── -->
@@ -703,7 +708,7 @@
       <li><span class="check">→</span><span>H2S 공식 — <a href="https://us.store.bambulab.com/products/h2s" target="_blank" rel="noopener" style="color:var(--accent)">us.store.bambulab.com/products/h2s</a></span></li>
       <li><span class="check">→</span><span>H2/P2S Hotend Compatibility — <a href="https://us.store.bambulab.com/collections/hotend" target="_blank" rel="noopener" style="color:var(--accent)">us.store.bambulab.com/en/products/bambu-hotend-h2-p2s</a></span></li>
       <li><span class="check">→</span><span>Bambu Studio Releases — <a href="https://github.com/bambulab/BambuStudio/releases" target="_blank" rel="noopener" style="color:var(--accent)">github.com/bambulab/BambuStudio/releases</a></span></li>
-      <li><span class="check">→</span><span>로컬 Bambu Studio <code>02.06.00.51</code> 시스템 프로파일 + Codex research run <code>aeb457c7603a420db</code> (점수 23/25)</span></li>
+      <li><span class="check">→</span><span>최초 작성 때 로컬 Bambu Studio <code>02.06.00.51</code> 시스템 프로파일 + Codex research run <code>aeb457c7603a420db</code> (점수 23/25)</span></li>
     </ul>
   </div>
 </div>

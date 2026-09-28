@@ -1648,7 +1648,7 @@ PY</pre>
               <tr><td>설치본 버전의 목록 파일 없음</td><td>같음. 다른 버전 목록으로 대신하지 않는다 — <code>build-option-list.sh</code> 로 만들라고 알린다</td></tr>
               <tr><td>목록 파일이 비었거나 깨짐 <span class="badge badge-info">09-25</span></td><td>같음. 그전에는 아무 말 없이 <code>RESULT: PASS</code> 였다</td></tr>
               <tr><td>enum 줄만 빠진 목록 <span class="badge badge-info">09-25</span></td><td>enum 값만. 키 존재 · 종류 검사는 그대로 돌아 <code>키 스코프 불일치</code> FAIL 을 낸다 <span class="badge badge-info">09-26</span>. 그전에는 받지 않는 값이 통과했다</td></tr>
-              <tr><td>종류 줄만 빠진 목록 <span class="badge badge-info">09-27</span></td><td>종류만. 종류 판정을 건너뛰고 <code>[미검증] … 종류 검사 미실행</code> 을 남기며, enum 판정은 돌아 <code>받지 않는 값</code> FAIL 을 낸다. 그전에는 적힌 키마다 거짓 <code>키 스코프 불일치</code> FAIL 이 나고 enum FAIL 은 0 건이었다 (재현 9 건)</td></tr>
+              <tr><td>종류 줄만 빠진 목록 <span class="badge badge-info">09-27</span></td><td>종류만. 종류 판정을 건너뛰고 <code>[미검증] … 종류 검사 미실행</code> 을 남기며, enum 판정은 돌아 <code>받지 않는 값</code> FAIL 을 낸다. 그전에는 적힌 키마다 거짓 <code>키 스코프 불일치</code> FAIL 이 나고 enum FAIL 은 0 건이었다 (재현 9 건). 스크립트 주석 그대로: 종류 줄이 없으면 종류 판정을 건너뛴다 — 돌리면 적힌 키마다 거짓 「키 스코프 불일치」 가 나고 enum 판정이 가려진다</td></tr>
               <tr><td>부모 해석 실패</td><td>유량비 · 부모값 · 형상 클래스</td></tr>
               <tr><td>layer · 외벽 속도 · 선폭 결측</td><td>유량비</td></tr>
               <tr><td><code>_wall_budget_short_share</code> 미기록</td><td>벽 예산</td></tr>
@@ -1686,7 +1686,7 @@ PY</pre>
   <p class="caption">통과한 파일은 <code>OK &lt;파일&gt;: type= from= keys= ironing= xy_hole= layer= brim= wipe= geometry=</code> 한 줄을 낸다 — 아래 「추가 의미 검증」 이 이 줄을 읽는다.</p>
 
   <div class="callout stop">
-    <strong>통과 규칙:</strong> <code>RESULT: PASS</code> 이면서 exit 0 이어야 zip · 완료 보고로 간다. <code>FAIL</code> 이면 JSON 을 고쳐 다시 돌리고 사용자에게 넘기지 않는다. <strong>출력이 비어 있으면 PASS 가 아니다</strong> — 파일 glob 이 아무것도 못 잡은 것이니 경로부터 고친다. 돌리지 않았거나 돌릴 수 없었으면 완료를 선언하지 말고 <code>[미검증]</code> 으로 적고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채운다 — 정의는 <code>harness/docs/guides/skill-design-guide.md</code> §3.7 「스킬이 지켜야 할 5 조항」 3 항이다. 표지는 <code>[미검증]</code> 하나로 통일하고 비슷한 말(<code>미확인</code> · <code>N/A</code> · <code>TBD</code> · <code>unverified</code>)을 새로 만들지 않는다 — <code>qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol.
+    <strong>통과 규칙:</strong> <code>RESULT: PASS</code> 이면서 exit 0 이어야 zip · 완료 보고로 간다. <code>FAIL</code> 이면 JSON 을 고쳐 다시 돌리고 사용자에게 넘기지 않는다. <strong>출력이 비어 있으면 PASS 가 아니다</strong> — 파일 glob 이 아무것도 못 잡은 것이니 경로부터 고친다. 돌리지 않았거나 돌릴 수 없었으면 완료를 선언하지 말고 <code>[미검증]</code> 으로 명시하고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워라 — 정의는 <code>harness/docs/guides/skill-design-guide.md</code> §3.7 「스킬이 지켜야 할 5 조항」 3 항이다. 표지는 <code>[미검증]</code> 하나로 통일하고 비슷한 말(<code>미확인</code> · <code>N/A</code> · <code>TBD</code> · <code>unverified</code>)을 새로 만들지 않는다 — <code>qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol.
   </div>
 </div>
 

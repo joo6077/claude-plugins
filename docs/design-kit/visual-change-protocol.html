@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +15,18 @@
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
 }
+[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe7e0;--border:#e0dcd4;--border2:#cfc9bf;
+  --text:#1a1a24;--text2:#5a5248;--text3:#6b6259;
+  --accent:#9A4A12;--accent2:#7C3A0E;--accent-dim:rgba(154,74,18,0.10);--accent-glow:rgba(154,74,18,0.05);
+  --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#0369A1;
+  --error:#b91c1c;--success:#146B32;--warn:#7A4A05;--info:#0369A1;
+}
+[data-theme="light"] h1{background:linear-gradient(135deg,var(--text) 0%,var(--accent) 60%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text}
+.theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+  background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
@@ -202,6 +214,7 @@ pre{overflow-x:auto;max-width:100%}
   <!-- kaizen-cycle: 2026-09-24 (§0 편집 전 확정 · §2 요소 하나 지목 · §3 비교 반복 순서 · 캡처 점검 목록 · §4 확정 구성 · 폐기 칸 · §6 게이트 스키마 검사 · 형제 규약 숫자) -->
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
 <div class="page">
 
 <div class="hero">
@@ -1116,5 +1129,22 @@ sys.exit(0)</pre>
 </div>
 
 </div>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

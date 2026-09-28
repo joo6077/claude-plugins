@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공차 &amp; 맞춤 — Bambu Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#14B8A6;--accent2:#5EEAD4;--accent-dim:rgba(20,184,166,0.12);
+    --accent-line:rgba(20,184,166,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#0F766E;--accent2:#115E59;--accent-dim:rgba(15,118,110,0.10);
+    --accent-line:rgba(15,118,110,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Bambu Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Bambu Kit · 참고 문서</span>
+  <h1>공차 &amp; 맞춤</h1>
+  <p class="orig-title">원본 제목: <strong>공차 (Tolerance) &amp; Fit 매뉴얼</strong></p>
+  <p class="subtitle">베어링 · 볼트 · 열 인서트 · 끼움 부품처럼 <strong>치수가 맞아야 하는 부품</strong>을 알아보고, process JSON 에 공차 보정 키를 넣을 때 쓰는 매뉴얼이다. SKILL.md Phase 1.7 과 Phase 3 이 부른다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>bambu-kit/skills/bambu-print-profile/references/tolerance.md</code></span>
+    <span class="badge">Phase 1.7 · Phase 3</span>
+    <span class="badge">갱신 2026-07-27</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>보정 키</h3>
+      <p>Bambu Studio 시스템 기본 파일에서 직접 확인한 공차 보정 키와 기본값 · 권장값을 표로 둔다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>지름은 두 배</h3>
+      <p>보정값은 경계를 옮기는 값이다. 구멍 지름은 보정값의 두 배만큼 바뀐다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>조용히 무효화되는 셋</h3>
+      <p>공차 키가 적용되지 않는 세 조건을 소스로 확인해 적었다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>맞춤 시험 조각</h3>
+      <p>못과 구멍 시험 조각을 Studio 기본 도형으로 바로 만들어 통과 · 실패에 따라 값을 고른다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="rel-r">
+  <div class="section-label" id="rel-r">같은 킷의 이웃 문서</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="bambu-print-profile.html">스킬 본문</a></h3>
+      <p>이 참고 문서를 부르는 Phase 순서와 게이트 전체.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="materials.html">소재 표</a></h3>
+      <p>소재별 온도 · 속도 · 건조 조건.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="failure-recipes.html">실패 대응</a></h3>
+      <p>실측 실패 모드와 고치는 값.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="seam-recipes.html">seam 전략</a></h3>
+      <p>회전체 · 각진 형상의 seam 결정 트리.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="comment-analysis.html">댓글 분석</a></h3>
+      <p>디자이너 권장과 사용자 실측을 댓글에서 뽑는 절차.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="user-preferences.html">사용자 선호</a></h3>
+      <p>매번 묻지 않는 지속 선호.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>1. Bambu Studio 공차 보정 키 (실측 검증)</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>1.1 ⚠️ 보정값 프레임 — 경계 오프셋이지 지름 변화가 아니다 (지름 = 2×)</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>1.2 ⚠️ 공차 키가 조용히 무효화되는 3 조건 (소스 검증)</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>2. 소재별 수축률 (Bambu 공식 + 실측 보정)</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>3. Fit-critical 부품 결정 트리</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>4. Standard Fastener / Bearing 사이즈 사전</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>5. Fit Calibration Coupon (peg-and-hole)</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>6. 9mm Craft Knife Elite fit 분석 (v0.4.2 dogfood)</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>7. 페리스 휠 (MakerWorld 1186414, 608ZZ variant) fit 분석</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>8. 미해결 / 검증 필요</a></li>
+    <li><a href="#s11"><span class="toc-n">11</span>9. 출처</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<blockquote class="quote"><p>Last updated: 2026-07-27 (§1.1 보정값 프레임 2× 규칙 · §1.2 무효화 3조건 · §7 수치 정정 · §8 미해결 2건 해소) Added in: bambu-kit v0.4.2 Trigger: SKILL.md Phase 1.7 (Tolerance &amp; Fit Analysis) + Phase 3 공차 보정 키 적용 시 로드</p></blockquote>
+<p>스킬이 fit-critical 부품(베어링/볼트/인서트/슬라이드 fit)을 식별하고 process JSON에 적절한 공차 보정 키를 자동으로 반영할 때 참조한다. 페리스 휠 608ZZ 회귀 + 9mm Knife sheath 가능성 모두 방지.</p>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>1. Bambu Studio 공차 보정 키 (실측 검증)</h2>
+  <div class="doc-body">
+<blockquote class="quote"><p>Bambu Studio v2.6.0 / v02.06.00.51 시스템 base <code>fdm_process_common.json</code> 직접 grep 검증 (2026-05-27).</p></blockquote>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">키 (Bambu JSON)</div></th>
+  <th><div class="c">단위</div></th>
+  <th><div class="c">default</div></th>
+  <th><div class="c">권장값</div></th>
+  <th><div class="c">설명</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><strong><code>elefant_foot_compensation</code></strong> ⚠️</div></td>
+  <td><div class="c">mm</div></td>
+  <td><div class="c"><code>"0"</code></div></td>
+  <td><div class="c"><code>0.10-0.20</code></div></td>
+  <td><div class="c">첫 레이어 squish 보정 (Bambu <strong>오타 "elefant"</strong> — "elephant"로 쓰면 silent skip)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>xy_hole_compensation</code></div></td>
+  <td><div class="c">mm</div></td>
+  <td><div class="c"><code>"0"</code></div></td>
+  <td><div class="c">PLA <code>+0.05</code>, PETG <code>+0.075</code>, ASA <code>+0.1</code></div></td>
+  <td><div class="c">홀 직경 보정 (음수 = 더 좁게, 양수 = 더 넓게). <strong>베어링 외경 압입 fit / 인서트 hole</strong> 에 사용</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>xy_contour_compensation</code></div></td>
+  <td><div class="c">mm</div></td>
+  <td><div class="c"><code>"0"</code></div></td>
+  <td><div class="c">PLA <code>-0.05</code>, PETG <code>-0.075</code>, ASA <code>-0.1</code></div></td>
+  <td><div class="c">외경 보정. <strong>베어링 내경에 들어가는 축 / 슬라이드 fit 외경</strong>에 사용</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>circle_compensation_manual_offset</code></div></td>
+  <td><div class="c">mm</div></td>
+  <td><div class="c"><code>"0"</code></div></td>
+  <td><div class="c">0 또는 형상별</div></td>
+  <td><div class="c">원형 보정 수동 오프셋 (xy_hole/contour와 별개로 원형만 추가 보정)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>enable_circle_compensation</code></div></td>
+  <td><div class="c">bool</div></td>
+  <td><div class="c"><code>"0"</code></div></td>
+  <td><div class="c">OFF</div></td>
+  <td><div class="c">원형 자동 보정 enable. ON 시 circle_compensation_manual_offset 적용</div></td>
+</tr>
+</tbody></table></div>
+<p>⚠️ <strong>키 이름 정확성 — silent skip 방지:</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Bambu Studio의 키는 <code>elefant_foot_compensation</code> (오타 의도적 유지). <code>elephant_foot_compensation</code>으로 쓰면 무시됨.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">모든 공차 키는 <strong>mm 단위 문자열</strong> (예: <code>"0.1"</code>, <code>"-0.05"</code>).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>elefant_foot_compensation</code>은 <strong>음수 불가</strong> (<code>def-&gt;min = 0</code>). 음수를 넣으면 거부된다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>precise_outer_wall</code> — <strong>사용 금지 유지, 단 사유 정정 (2026-07-27).</strong> 이전 판은 "Bambu Studio v2.6.0에 없음 / Orca 전용" 이라고 적었으나 <strong>사실이 아니다</strong>: <code>v02.06.00.51</code> 태그의 <code>PrintConfig.cpp</code> 에 <code>coBool</code> 로 실존한다. 실제 금지 사유는 <strong><code>mode = comDevelop</code></strong> (개발자 모드 전용 · 기본 <code>false</code> · 일반 UI 비노출) 이라 자동 생성 프로파일에서 건드리면 예측 불가라는 점이다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>xy_size_compensation</code> 은 Bambu Studio 에 <strong>없다</strong> (<code>PrintConfig.cpp</code> 조회 0건). PrusaSlicer 계열 키이며 Bambu 는 hole/contour 로 분리했다. 쓰면 silent skip.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>1.1 ⚠️ 보정값 프레임 — 경계 오프셋이지 지름 변화가 아니다 (지름 = 2×)</h2>
+  <div class="doc-body">
+<blockquote class="quote"><p><strong>이 절이 공차 SSOT의 최상위 규칙이다.</strong> 평가자 REJECT <code>PL-01</code> ("볼트 통과 hole 보정값 불일치 — 계약 <code>xy_hole</code> +0.2~0.3 vs 구현 +0.05")의 근본 원인이 바로 이 프레임 혼동이었다. 계약은 <strong>지름</strong> 기준으로, 구현은 <strong>오프셋</strong> 기준으로 같은 키를 서술해서 갈라졌다.</p></blockquote>
+<p><code>xy_hole_compensation</code> / <code>xy_contour_compensation</code> 값은 <strong>폴리곤 경계를 밀어내는 오프셋(반경 방향)</strong> 이다. 지름/폭이 그 값만큼 변하는 게 아니다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">소스: <code>PrintObjectSlice.cpp</code> 가 값을 <code>_shrink_contour_holes(xy_contour_scaled, xy_hole_scaled, expolygons)</code> 로 넘겨 <strong>경계 오프셋</strong>으로 적용한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>PrintConfig.cpp</code> tooltip: "Holes of object will be grown or shrunk in XY plane by the configured value."</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">교차검증: OrcaSlicer wiki <code>quality_settings_precision</code> 동일 문구.</div></li>
+</ul>
+<p><strong>따라서:</strong></p>
+<div class="code"><span class="code-lang">text</span><pre><code>지름 변화 = 2 × 보정값
+보정값   = (목표 지름 − 모델 지름) / 2</code></pre></div>
+<p><strong>환산 예 (모델 hole 이 명목 3.0mm 인 M3 통과 홀):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">목표 최종 지름</div></th>
+  <th><div class="c">필요한 <code>xy_hole_compensation</code></div></th>
+  <th><div class="c">흔한 오류</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">3.10mm</div></td>
+  <td><div class="c"><code>+0.05</code></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>3.20mm</strong> (권장 하한)</div></td>
+  <td><div class="c"><strong><code>+0.10</code></strong></div></td>
+  <td><div class="c"><code>+0.20</code> 으로 쓰면 3.40mm (헐거움)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>3.40mm</strong> (권장 상한)</div></td>
+  <td><div class="c"><strong><code>+0.20</code></strong></div></td>
+  <td><div class="c"><code>+0.40</code> 으로 쓰면 3.80mm (볼트 유격 과다)</div></td>
+</tr>
+</tbody></table></div>
+<p>⚠️ <strong>표를 읽을 때 프레임을 먼저 확인하라.</strong> 본 문서에서 §2 는 <strong>오프셋 값</strong>을, §4 는 <strong>최종 지름</strong>을 다룬다. §4 의 지름을 그대로 보정값 칸에 넣으면 PL-01 이 재발한다.</p>
+<p>⚠️ <strong>수축 보정과 설계 clearance 는 다른 목적이다.</strong> §2 의 소재별 값(<code>+0.05</code> 등)은 <strong>프린터/소재 치수 오차 보정</strong>이고, 볼트 유격 같은 <strong>설계 clearance</strong> 는 원래 모델 지오메트리의 몫이다. 모델이 이미 3.4mm 로 설계돼 있으면 clearance 를 또 더하지 마라 — 수축 보정분만 적용한다. 모델이 명목 3.0mm 일 때만 clearance 를 보정값으로 대체 투입한다.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>1.2 ⚠️ 공차 키가 조용히 무효화되는 3 조건 (소스 검증)</h2>
+  <div class="doc-body">
+<p>공차 키를 JSON 에 정확히 써도 아래 조건에서는 슬라이서가 <strong>값을 버린다</strong>. 생성 후 반드시 확인하라.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">조건</div></th>
+  <th><div class="c">무효화되는 키</div></th>
+  <th><div class="c">근거</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><strong>오브젝트가 multi-material / color-paint 됨</strong> (<code>num_extruders &gt; 1 &amp;&amp; is_mm_painted()</code>)</div></td>
+  <td><div class="c"><code>xy_hole_compensation</code>, <code>xy_contour_compensation</code> → <strong>강제 <code>0</code></strong></div></td>
+  <td><div class="c"><code>PrintObjectSlice.cpp</code>: <code>xy_hole_scaled = (num_extruders &gt; 1 &amp;&amp; this-&gt;is_mm_painted()) ? scaled&lt;float&gt;(0.f) : …</code> · Studio 가 CRITICAL 경고 "XY Size compensation can not be combined with color-painting"</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>오브젝트가 fuzzy skin paint 됨</strong></div></td>
+  <td><div class="c"><code>xy_hole_compensation</code>, <code>xy_contour_compensation</code></div></td>
+  <td><div class="c">동일 파일 <code>is_fuzzy_skin_painted()</code> 분기 + CRITICAL 경고</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong><code>raft_layers != 0</code></strong></div></td>
+  <td><div class="c"><code>elefant_foot_compensation</code> → <strong><code>0</code></strong></div></td>
+  <td><div class="c"><code>elephant_foot_compensation_scaled = (m_config.raft_layers == 0) ? … : 0.f</code> — "Only enable Elephant foot compensation if printing directly on the print bed"</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>실무 영향 (이 스킬 한정):</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">이 스킬은 <strong>멀티컬러 프로파일을 정식 지원</strong>하고 dogfood 케이스도 dual-color 가 많다 (box-opener-knife, stealth-press-1s). <strong>fit-critical 부품이 있는 모델을 color-paint 하면 공차 보정 전부가 무의미해진다.</strong> 이 경우 공차는 슬라이서가 아니라 <strong>모델 지오메트리 수정</strong>으로 해결해야 한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Phase 3 이 <code>raft_layers</code> 를 override 대상으로 나열하므로, <code>raft_layers &gt; 0</code> 과 <code>elefant_foot_compensation</code> 을 동시에 지정하지 마라 (후자가 조용히 죽는다).</div></li>
+</ul>
+<p><strong>per-object 오버라이드 가능성:</strong> 공차 3키는 <code>PrintConfig.hpp</code> 상 <code>PrintObjectConfig</code> 소속이라 Studio 에서 오브젝트별 오버라이드가 가능하다. 그러나 <strong>process JSON 은 값을 1개만 표현</strong>한다. 한 모델에 베어링 압입(빡빡)과 볼트 통과(헐거움)가 같이 있으면 <strong>하나의 process JSON 으로 둘을 동시에 만족시킬 수 없다</strong> → 가장 fit-critical 한 카테고리 기준으로 process JSON 을 잡고, 나머지는 notes.md 에 "Studio 에서 오브젝트별 오버라이드 필요" 로 명시하라.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>2. 소재별 수축률 (Bambu 공식 + 실측 보정)</h2>
+  <div class="doc-body">
+<p>3D 프린팅 후 cooling 단계에서 발생하는 dimensional 수축. PLA가 가장 안정적, ASA/ABS는 가장 큰 수축. fit-critical 부품의 공차 보정값은 수축률에 비례.</p>
+<blockquote class="quote"><p><strong>프레임: 아래는 전부 오프셋 값이다</strong> (§1.1). 지름에 미치는 효과는 2배다 — <code>+0.05</code> 오프셋 = 지름 <code>+0.10mm</code>. 이 표의 값은 <strong>소재 수축 보정 전용</strong>이며 설계 clearance 는 포함하지 않는다.</p></blockquote>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">소재</div></th>
+  <th><div class="c">평균 수축률</div></th>
+  <th><div class="c">권장 <code>xy_hole_compensation</code> (오프셋)</div></th>
+  <th><div class="c">권장 <code>xy_contour_compensation</code> (오프셋)</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><strong>PLA Basic / Matte / Tough+</strong></div></td>
+  <td><div class="c">0.2-0.3%</div></td>
+  <td><div class="c"><code>+0.05</code> mm</div></td>
+  <td><div class="c"><code>-0.05</code> mm</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>PLA-CF</strong></div></td>
+  <td><div class="c">0.15-0.20% (CF가 수축 억제)</div></td>
+  <td><div class="c"><code>+0.05</code> mm</div></td>
+  <td><div class="c"><code>-0.05</code> mm</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>PETG Basic / HF</strong></div></td>
+  <td><div class="c">0.3-0.5%</div></td>
+  <td><div class="c"><code>+0.075</code> mm</div></td>
+  <td><div class="c"><code>-0.075</code> mm</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>PETG-CF</strong></div></td>
+  <td><div class="c">0.2-0.3%</div></td>
+  <td><div class="c"><code>+0.05</code> mm</div></td>
+  <td><div class="c"><code>-0.05</code> mm</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>ASA / ABS</strong></div></td>
+  <td><div class="c">0.5-0.8%</div></td>
+  <td><div class="c"><code>+0.10</code> mm</div></td>
+  <td><div class="c"><code>-0.10</code> mm</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>PC</strong></div></td>
+  <td><div class="c">0.6-0.7%</div></td>
+  <td><div class="c"><code>+0.10</code> mm</div></td>
+  <td><div class="c"><code>-0.10</code> mm</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>PAHT-CF / PA6-CF</strong></div></td>
+  <td><div class="c">0.4-0.6% (어닐링 후 추가 수축)</div></td>
+  <td><div class="c"><code>+0.075</code> mm</div></td>
+  <td><div class="c"><code>-0.075</code> mm</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>TPU 90A/95A</strong></div></td>
+  <td><div class="c">1.0-1.5% (가장 큼, 유연소재)</div></td>
+  <td><div class="c"><code>+0.15</code> mm</div></td>
+  <td><div class="c"><code>-0.10</code> mm (TPU는 squeezable이라 contour는 less critical)</div></td>
+</tr>
+</tbody></table></div>
+<p>⚠️ <strong>권장값은 0.4mm nozzle + Bambu default flow ratio 기준</strong>. 다음 변수가 추가 영향:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Flow calibration 안 했으면 ±0.05 추가 필요</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Pressure Advance 안 했으면 외벽 거친 부분에서 추가 ±0.05</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">AMS HT 건조 안 한 흡습 소재 (PETG/PA/PC)는 +0.05 추가 권장</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>3. Fit-critical 부품 결정 트리</h2>
+  <div class="doc-body">
+<p>모델에서 fit-critical 부품을 식별하는 단계별 분류. Phase 1.7에서 댓글/이미지/MakerWorld description에서 다음 키워드/번호를 enumerate.</p>
+<h3 class="sub">3.1 Bearing (베어링 압입)</h3>
+<p><strong>식별 패턴:</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"608ZZ", "608", "609", "688", "625", "MR105", "MR84" 등 ISO 베어링 번호</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"bearing", "베어링", "轴承"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"ferris wheel", "spinner", "fidget", "회전체", "스피너" 모델</div></li>
+</ul>
+<p><strong>처리:</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">베어링 <strong>외경 압입</strong> (베어링이 인쇄물 hole에 들어감): <code>xy_hole_compensation</code> <strong>양수</strong> (소재별 표 §2 참조). 너무 빡빡 → 압입 실패, 너무 헐거움 → 베어링 회전 시 wobble</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">베어링 <strong>내경에 축 fit</strong> (인쇄물 축이 베어링 안에 들어감): <code>xy_contour_compensation</code> <strong>음수</strong> (소재별 표). 너무 빡빡 → 축 안 들어감, 너무 헐거움 → 베어링 빠짐</div></li>
+</ul>
+<h3 class="sub">3.2 Bolt / Screw</h3>
+<p><strong>식별 패턴:</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"M3", "M4", "M5", "M6", "M8" 표준 메트릭 볼트</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"self-tapping", "wood screw", "machine screw"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Lanyard hole, mounting hole 표시</div></li>
+</ul>
+<p><strong>처리 (M3 기준, 다른 사이즈는 §4 참조):</strong></p>
+<p>⚠️ 아래 hole 값은 <strong>최종 지름</strong>이다. 보정값으로 옮길 때 §1.1 변환식 <code>보정값 = (목표지름 − 모델지름) / 2</code> 를 반드시 통과시켜라. (PL-01 재발 지점)</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Bolt 통과 hole</strong> (볼트가 자유롭게 통과): 최종 지름 <strong>3.2-3.4mm</strong> (실제 3.0mm 볼트 + clearance).</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">모델이 이미 3.2-3.4mm 로 설계된 경우 → clearance 추가 금지. §2 수축 보정분만 적용 (PLA 오프셋 <code>+0.05</code>).</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">모델이 명목 <strong>3.0mm</strong> 인 경우 → 오프셋 <strong><code>+0.10</code> ~ <code>+0.20</code></strong> (지름 +0.20~0.40mm). <code>+0.2~0.3</code> 을 오프셋으로 쓰면 지름이 3.4-3.6mm 가 되어 과다 유격.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Bolt head 매립 hole</strong> (M3 head = 5.5mm): hole 5.6-5.8mm + counterbore 깊이.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Self-tapping screw</strong> (PLA에 직접 스레드 만들기): hole 2.7-2.8mm (M3 thread minor diameter 2.39mm + interference). PLA만 가능, PETG/ASA는 crack 위험.</div></li>
+</ul>
+<h3 class="sub">3.3 Heat-set Insert (열 인서트)</h3>
+<p><strong>식별 패턴:</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"heat-set insert", "brass insert", "M3 insert", "M4 insert"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"soldering iron" + "insert" 키워드</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">검은 brass cylinder + thread 이미지</div></li>
+</ul>
+<p><strong>처리:</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">M3 heat-set insert (가장 흔함): hole <strong>4.0mm</strong> (insert 외경 3.8-4.0mm + 0.0-0.2 squeeze)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">M4 heat-set insert: hole <strong>5.5mm</strong></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">M5 heat-set insert: hole <strong>6.5mm</strong></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">너무 빡빡 → 인서트 기울어짐, 너무 헐거움 → 인서트 빠짐</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>xy_hole_compensation</code> 위 권장값 그대로 적용</div></li>
+</ul>
+<h3 class="sub">3.4 Slide-fit / Push-lock</h3>
+<p><strong>식별 패턴:</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"push lock", "push button", "slide fit", "snap fit"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Knife sheath, pen holder, drawer, sliding mechanism</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Linear motion 부품</div></li>
+</ul>
+<p><strong>처리:</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">슬라이드 부품 외경: <code>xy_contour_compensation</code> <strong>약간 더 큰 음수</strong> (예: PLA -0.10) — 슬라이드 매끄러움 우선</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">슬라이드 receiving hole: 원본 그대로 또는 <code>xy_hole_compensation +0.05</code> — 너무 빡빡 안 되게</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Snap-fit (탄성 의존): <code>xy_contour_compensation</code> 미세 보정만 (-0.025), 본체는 그대로</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>4. Standard Fastener / Bearing 사이즈 사전</h2>
+  <div class="doc-body">
+<p>3D 프린팅 커뮤니티에서 자주 쓰는 패스너/베어링의 표준 hole/clearance 사이즈. ISO/DIN 기준.</p>
+<blockquote class="quote"><p><strong>프레임: 아래 "권장 hole" / "권장 contour" 는 전부 최종 지름(mm)이다 — 보정값이 아니다.</strong> 보정값으로 옮길 때 §1.1 변환식을 통과시켜라. 이 표의 지름을 보정값 칸에 직접 넣는 것이 PL-01 의 원인이었다.</p></blockquote>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">부품</div></th>
+  <th><div class="c">실제 외경/spec</div></th>
+  <th><div class="c">권장 hole</div></th>
+  <th><div class="c">권장 contour</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><strong>M3 bolt pass</strong> (M3 통과)</div></td>
+  <td><div class="c">3.0mm thread</div></td>
+  <td><div class="c"><strong>3.2-3.4mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>M3 head clearance</strong> (DIN 912 cap screw head)</div></td>
+  <td><div class="c">5.5mm</div></td>
+  <td><div class="c"><strong>5.6mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>M3 heat-set insert</strong></div></td>
+  <td><div class="c">3.8-4.0mm OD</div></td>
+  <td><div class="c"><strong>4.0mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>M4 bolt pass</strong></div></td>
+  <td><div class="c">4.0mm thread</div></td>
+  <td><div class="c"><strong>4.3mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>M4 heat-set insert</strong></div></td>
+  <td><div class="c">5.3-5.6mm OD</div></td>
+  <td><div class="c"><strong>5.5mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>M5 bolt pass</strong></div></td>
+  <td><div class="c">5.0mm thread</div></td>
+  <td><div class="c"><strong>5.3mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>M3 nut (hex)</strong></div></td>
+  <td><div class="c">5.5mm flat-to-flat</div></td>
+  <td><div class="c">hexagon hole <strong>5.6mm</strong> flat</div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>608ZZ bearing OD</strong> (외경 압입)</div></td>
+  <td><div class="c">22.0mm</div></td>
+  <td><div class="c"><strong>22.05-22.10mm</strong> (PLA)</div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>608ZZ bearing ID</strong> (축이 들어감)</div></td>
+  <td><div class="c">8.0mm</div></td>
+  <td><div class="c">—</div></td>
+  <td><div class="c">shaft <strong>7.90-7.95mm</strong> (PLA)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>688ZZ bearing OD</strong></div></td>
+  <td><div class="c">16.0mm</div></td>
+  <td><div class="c"><strong>16.05-16.10mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>688ZZ bearing ID</strong></div></td>
+  <td><div class="c">8.0mm</div></td>
+  <td><div class="c">—</div></td>
+  <td><div class="c">shaft <strong>7.90-7.95mm</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>625ZZ bearing OD</strong></div></td>
+  <td><div class="c">16.0mm</div></td>
+  <td><div class="c"><strong>16.05-16.10mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>MR105ZZ bearing OD</strong></div></td>
+  <td><div class="c">10.0mm</div></td>
+  <td><div class="c"><strong>10.05mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>MR84ZZ bearing OD</strong></div></td>
+  <td><div class="c">8.0mm</div></td>
+  <td><div class="c"><strong>8.05mm</strong></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+</tbody></table></div>
+<p>⚠️ 위 권장값은 PLA 기준. PETG/ASA는 수축률 표(§2)에 따라 추가 +0.025~0.05.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>5. Fit Calibration Coupon (peg-and-hole)</h2>
+  <div class="doc-body">
+<p>베어링/인서트 fit-critical 부품이 1개 이상 식별되면 Phase 5에서 자동 생성. 본 출력 전 ~15-20분에 fit 검증.</p>
+<h3 class="sub">5.1 Coupon STL 가이드 (Bambu Studio primitive로 즉시 생성)</h3>
+<div class="code"><span class="code-lang">text</span><pre><code>Coupon 1 — Bearing OD pocket test:
+  Add → Primitive → Cylinder
+  Outer: 30mm OD × 8mm 두께
+  Inner cavity (hole): 22.10mm (608ZZ OD + 0.10) — Bambu Studio Modifier → Subtract
+  → 출력 후 608ZZ 베어링이 정확히 fit 되는지 확인
+
+Coupon 2 — Shaft for bearing ID:
+  Add → Primitive → Cylinder
+  7.90mm OD × 20mm 높이
+  → 출력 후 608ZZ 베어링이 슬라이드 fit 되는지 확인 (헐겁지도 빡빡하지도 않게)
+
+Coupon 3 — Heat-set insert test:
+  Add → Primitive → Box 20×20×8mm
+  Subtract Cylinder 4.0mm × 6mm 깊이 (M3 insert용)
+  → 출력 후 4.0mm hole에 M3 insert를 인두로 압입해서 정렬/유지력 확인
+
+Coupon 4 — Bolt pass + nut catch (selective):
+  Add → Primitive → Box 30×15×6mm
+  Through hole: Cylinder 3.4mm × 6mm (M3 bolt pass)
+  Hex pocket: Polygon 6-sided 5.6mm flat × 3mm (M3 nut catch)
+  → M3 bolt + nut 통과/잡힘 확인</code></pre></div>
+<h3 class="sub">5.2 STL 직접 생성 안 하는 이유</h3>
+<p>Coupon용 STL은 OpenSCAD/CadQuery 같은 외부 도구 필요. Bambu Studio primitive (Cylinder + Box + Modifier Subtract) 조합으로 5분 안에 생성 가능. 사용자에게 가이드만 제공.</p>
+<p>추후 v0.5+: 표준 coupon STL 사전 출력본 첨부 검토 (BACKLOG).</p>
+<h3 class="sub">5.3 통과 / 실패 분기</h3>
+<p><strong>통과</strong> (베어링이 손가락 압력으로 정확히 fit, 흔들림 없음):</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">본 출력 진행</div></li>
+</ul>
+<p><strong>실패 — 너무 빡빡</strong> (베어링 안 들어감, 압입 시 인쇄물 깨질 위험):</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>xy_hole_compensation</code> 0.05 증가 → 재출력</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">또는 hole 보정값을 모델 내부 cylinder도 같이 보정 (Bambu Studio variable layer height)</div></li>
+</ul>
+<p><strong>실패 — 너무 헐거움</strong> (베어링 흔들림 또는 빠짐):</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>xy_hole_compensation</code> 0.05 감소 → 재출력</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">또는 베어링에 thread locker 또는 super glue 한 방울 (영구 고정)</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>6. 9mm Craft Knife Elite fit 분석 (v0.4.2 dogfood)</h2>
+  <div class="doc-body">
+<p>9mm 커터칼 sheath:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>slide-fit (push-lock 메커니즘)</strong> — blade가 sheath 내부에서 슬라이드 + lock</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">blade body 폭: 표준 9mm 커터칼은 약 8.9-9.0mm</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">sheath 내부 slot: <strong>9.0mm + clearance 0.1-0.2mm</strong></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">디자이너 의도: blade가 의도적으로 슬라이드 가능해야 함 (lock 시만 잡힘)</div></li>
+</ul>
+<p>권장 공차 (PLA Basic):</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>elefant_foot_compensation: "0.15"</code> (첫 레이어 squish — slot 입구 좁아짐 방지)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>xy_hole_compensation: "0.05"</code> (PLA 기본) — slot이 너무 좁게 출력 안 되도록</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>xy_contour_compensation: "-0.05"</code> — 외경 정확도 (손에 쥐기)</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>7. 페리스 휠 (MakerWorld 1186414, 608ZZ variant) fit 분석</h2>
+  <div class="doc-body">
+<p>페리스 휠 회전 부품 — 사용자 dogfood 회귀 (2026-05-27 보고: "베어링이랑 중심부랑 안맞았음").</p>
+<p>식별 부품:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>608ZZ 베어링 × 2</strong> (중심 축 회전용)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">회전체 (휠 본체) 회전축 hole — 베어링 외경(22mm) 압입</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">중심 축 — 베어링 내경(8mm) shaft fit</div></li>
+</ul>
+<p>권장 공차 (PLA Basic, 회전체 surface-first 가능) — <strong>§1.1 2× 규칙 적용 후 정정값</strong>:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">키</div></th>
+  <th><div class="c">보정값 (오프셋)</div></th>
+  <th><div class="c">모델 지름 → 최종 지름</div></th>
+  <th><div class="c">목표 (§4)</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>xy_hole_compensation</code></div></td>
+  <td><div class="c"><code>"0.05"</code></div></td>
+  <td><div class="c">22.00 → <strong>22.10mm</strong></div></td>
+  <td><div class="c">22.05-22.10 ✅</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>xy_contour_compensation</code></div></td>
+  <td><div class="c"><code>"-0.05"</code></div></td>
+  <td><div class="c">8.00 → <strong>7.90mm</strong></div></td>
+  <td><div class="c">7.90-7.95 ✅</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>elefant_foot_compensation</code></div></td>
+  <td><div class="c"><code>"0.15"</code></div></td>
+  <td><div class="c">첫 레이어 hole 좁아짐 방지</div></td>
+  <td><div class="c">—</div></td>
+</tr>
+</tbody></table></div>
+<p>⚠️ <strong>정정 이력 (2026-07-27 카이젠):</strong> 이전 판은 <code>xy_hole "0.075"</code> 를 "22.10mm 로 출력" 이라고 적었으나, 2× 규칙상 <code>+0.075</code> 오프셋은 <strong>22.15mm</strong> 다 (목표 초과). <code>xy_contour "-0.075"</code> 도 7.90mm 가 아니라 <strong>7.85mm</strong> 였다. 즉 <strong>두 조인트가 각각 0.05mm 씩 헐거워진다</strong> — 베어링 외경↔포켓 유격이 목표보다 0.05mm 크고(22.15 vs 22.05-22.10), 축↔베어링 내경 유격도 0.05mm 크다(7.85 vs 7.90-7.95). 조립체 전체로는 두 유격이 겹쳐 반경 방향 흔들림으로 나타난다 — 사용자 실측 보고 "베어링이랑 중심부랑 안맞았음"(2026-05-27)과 방향이 일치한다. 실제 생성된 프로파일(<code>ferris-wheel-608zz/.../coupon1-608zz-OD-pocket.3mf</code> 임베드 config)에 <code>xy_hole_compensation: "0.075"</code> 가 박혀 있는 것으로 확인됨.</p>
+<p>⚠️ <strong>이 모델을 dual-color 로 paint 하면 위 공차 전부가 무효다</strong> (§1.2). 페리스 휠은 멀티컬러 후보이므로 color-paint 여부를 반드시 사용자에게 확인하라.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
+  <h2>8. 미해결 / 검증 필요</h2>
+  <div class="doc-body">
+<p><strong>해소됨 (2026-07-27 카이젠):</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">~~Bambu Studio v2.7.0 beta에 추가 공차 키 있는지 (precise_z_height 등)~~ → <strong>해소.</strong> <code>precise_z_height</code> 는 v2.6.0.51 에 <strong>이미 존재</strong>하며 신규 키가 아니다. <code>coBool</code> / 기본 <code>0</code> / "experimental parameter" 로, 마지막 몇 레이어의 layer height 를 미세조정해 <strong>Z 높이</strong>를 맞추는 기능이다 — <strong>XY 공차와 무관하므로 fit 보정에 쓰지 마라.</strong></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">~~Slicer scaling factor (<code>xy_size_compensation</code> 등)~~ → <strong>해소.</strong> Bambu 에 <code>xy_size_compensation</code> 은 없다 (§1 참조). <code>hole_to_polyhole</code> 도 없다 (조회 0건).</div></li>
+</ul>
+<p><strong>미해결 (여전히 실측 필요):</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">실측 dogfood — 9mm sheath blade fit + 페리스 휠 608ZZ 압입은 출력 후 측정해야 정확한 값 확정. <strong>§7 정정값(<code>+0.05</code>/<code>-0.05</code>)으로 재출력 후 검증 필요</strong> — 기존 <code>0.075</code> 출력본은 2× 오류가 반영된 값이다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">소재별 수축률은 색상/lot/습도에 영향 — 실측 calibration 필수</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">§1.2 무효화 3조건의 UI 경고가 Studio 화면 어디에 뜨는지(슬라이스 시 popup vs sidebar) 실기 확인 — 사용자에게 안내할 문구 확정용</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s11">
+  <div class="section-label">§ 11</div>
+  <h2>9. 출처</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Bambu Studio v02.06.00.51 시스템 base: <code>fdm_process_common.json</code> 직접 grep (2026-05-27 검증)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>2026-07-27 카이젠 추가 검증 (소스 직접 조회):</strong></div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>PrintConfig.cpp</code> — 키 정의/tooltip/기본값/<code>min</code>. master 및 <code>v02.06.00.51</code> 태그 양쪽: <a class="ext" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp" target="_blank" rel="noopener">https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp</a></div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>PrintConfig.hpp</code> — 공차 3키의 <code>PrintObjectConfig</code> 소속(per-object 오버라이드 가능) 확인: <a class="ext" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.hpp" target="_blank" rel="noopener">https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.hpp</a></div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>PrintObjectSlice.cpp</code> — <code>_shrink_contour_holes()</code> 경계 오프셋 적용(§1.1 2× 규칙) + MM color-paint / fuzzy-skin / <code>raft_layers</code> 무효화 분기(§1.2): <a class="ext" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintObjectSlice.cpp" target="_blank" rel="noopener">https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintObjectSlice.cpp</a></div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">OrcaSlicer wiki (교차검증): <a class="ext" href="https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_precision" target="_blank" rel="noopener">https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_precision</a></div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">실측 3MF 임베드 config: <code>ferris-wheel-608zz/bundle/coupon-stl/coupon1-608zz-OD-pocket.3mf</code> → <code>Metadata/project_settings.config</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">ISO 메트릭 패스너 표준 (DIN 912 cap screw, ISO 4762)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">ISO 608ZZ bearing spec (22 OD / 8 ID / 7 thickness)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">3D 프린팅 커뮤니티 표준값 (Hackaday, Printables 가이드)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">페리스 휠 사용자 dogfood 피드백 (2026-05-27)</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 4 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp" target="_blank" rel="noopener">&#8599; https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.cpp</a></li>
+    <li><a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.hpp" target="_blank" rel="noopener">&#8599; https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintConfig.hpp</a></li>
+    <li><a class="card-source" href="https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintObjectSlice.cpp" target="_blank" rel="noopener">&#8599; https://github.com/bambulab/BambuStudio/blob/master/src/libslic3r/PrintObjectSlice.cpp</a></li>
+    <li><a class="card-source" href="https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_precision" target="_blank" rel="noopener">&#8599; https://github.com/OrcaSlicer/OrcaSlicer/wiki/quality_settings_precision</a></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>bambu-kit/skills/bambu-print-profile/references/tolerance.md</code> 의 기준 판은 커밋 <code>e500a63</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>

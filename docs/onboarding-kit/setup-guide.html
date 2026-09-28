@@ -156,7 +156,7 @@
       <article class="card">
         <div class="card-header"><span class="num">1</span><div><div class="rule-number">Freshness</div><h3>각 Step 전에 1차 출처 fetch</h3></div></div>
         <div class="card-body">
-          <p>학습 데이터의 콘솔 UI 정보는 자주 outdated된다. Step을 쓰기 전에 공식 help 문서를 조회하고, 본문에 출처 URL과 조회일을 남긴다.</p>
+          <p>학습 데이터의 콘솔 UI 정보는 자주 outdated된다. Step을 쓰기 전에 공식 help 문서를 조회하고, 본문에 출처 URL과 조회일을 남긴다 (<code>references/format-checklist.md</code> §3 의 <code>**출처:**</code> 줄).</p>
           <p>fetch하지 않은 Step은 쓰지 않는다. 대표 URL 하나로 전체 가이드를 정당화할 수 없다.</p>
         </div>
         <a class="card-source" href="../../onboarding-kit/skills/setup-guide/SKILL.md">↗ 원본 SKILL.md · 출처 원장</a>
@@ -373,12 +373,12 @@ guide_gate() {
       <li><span class="check">1</span><div><strong>스택 확정 없이 작성 금지.</strong> Flutter·네이티브 iOS·React Native·Node 백엔드는 SDK, 초기화 코드, CLI가 다르다. 탐지 실패 시 명시적으로 묻는다.<br>iOS Firebase SDK 설치 방식도 스택마다 갈린다.<br>· 네이티브 Apple 가이드는 Swift Package Manager 로 안내한다 — 공식 문서가 새 프로젝트에 SPM 을 쓰라 하고, CocoaPods 는 폐기 예정이며 Firebase 12 가 CocoaPods 로 나오는 마지막 major 라고 적었다. 폐기 날짜는 원문에 없다 (<a href="https://firebase.google.com/docs/ios/setup">https://firebase.google.com/docs/ios/setup</a>, 조회 2026-09-26)<br>· Flutter 가이드는 FlutterFire 절차를 따르고, 위 문서를 근거로 그 절차의 CocoaPods 단계를 SPM 으로 바꾸지 않는다 — 위 문서는 Apple 네이티브 범위라 FlutterFire 가 무엇으로 설치하는지 말하지 않는다</div></li>
       <li><span class="check">2</span><div><strong>로그인 뒤 콘솔 화면은 검증 불가.</strong> 공개 문서에 적힌 라벨만 인용하고 버튼 단위 흐름을 단정하지 않는다. 화면 차이 안내와 상위 섹션 검색어를 남긴다.</div></li>
       <li><span class="check">3</span><div><strong>Apple 사이트는 작업별로 나눈다.</strong> 키·식별자 발급은 Developer Account, 앱 레코드와 배포는 App Store Connect다. GCP/Firebase와 AWS Console/Marketplace도 구분한다.</div></li>
-      <li><span class="check">4</span><div><strong>글로벌 유니크 식별자 충돌.</strong> Bundle ID, Package Name, Project ID의 “not available” 해결책으로 조직·도메인의 reverse prefix를 안내한다.</div></li>
+      <li><span class="check">4</span><div><strong>글로벌 유니크 식별자 충돌.</strong> Bundle ID, Package Name, Project ID의 “not available” 해결책으로 조직·도메인의 reverse prefix를 안내한다. 조직 식별자 없는 흔한 조합(<code>com.&lt;앱이름&gt;.app</code>)은 누가 선점했을 확률이 높다.</div></li>
       <li><span class="check">5</span><div><strong>등록과 활성화는 다르다.</strong> App ID와 Provisioning Profile, Firebase 프로젝트와 APNs Key 업로드를 별도 단계로 쓴다.</div></li>
       <li><span class="check">6</span><div><strong>출시 후 변경 불가 정책.</strong> Bundle ID는 빌드 업로드 뒤, Firebase Project ID는 생성 뒤 변경 불가임을 사전 요구사항에 둔다.</div></li>
-      <li><span class="check">7</span><div><strong>임의 확장 금지.</strong> FCM에 Analytics·Crashlytics·Remote Config를, Stripe에 webhook·refund·subscription을, 단순 셋업에 CI/CD·모니터링·IaC를 자동 추가하지 않는다.</div></li>
-      <li><span class="check">8</span><div><strong>경로·파일명·env 키 날조 금지.</strong> 패턴으로 탐색하고 <code>파일:라인</code>으로 열거한다. 0건이면 새로 만든다고 적거나 묻는다. 값이 든 env 파일은 열지 않는다.</div></li>
-      <li><span class="check">9</span><div><strong>막는 요구는 세 칸으로.</strong> 실기기·유료 계정·출시 여부마다 출처, 실제로 막히는 작업, 확인된 우회를 적는다.</div></li>
+      <li><span class="check">7</span><div><strong>임의 확장 금지.</strong> FCM에 Analytics·Crashlytics·Remote Config를, Stripe에 webhook·refund·subscription을, 단순 셋업에 CI/CD·모니터링·IaC를 자동 추가하지 않는다. 더 다룰 가치가 있어 보이면 마지막에 한 줄로 제안만 한다 ("Analytics도 필요하면 <code>/setup-guide firebase analytics</code>").</div></li>
+      <li><span class="check">8</span><div><strong>경로·파일명·env 키 날조 금지.</strong> 패턴으로 탐색하고 <code>파일:라인</code>으로 열거한다. 0건이면 새로 만든다고 적거나 묻는다. 값이 든 env 파일(<code>.env.local</code> · <code>.env.production</code> 등)은 열지 않는다 — 열면 비밀 값이 대화 기록에 남는다.</div></li>
+      <li><span class="check">9</span><div><strong>막는 요구는 세 칸으로.</strong> 실기기·유료 계정·출시 여부마다 출처, 실제로 막히는 작업, 확인된 우회를 적는다. 이 스킬이 「이 가이드는 지금 만들 수 없다」 고 결론 낼 때도 같다 — 먼저 <code>harness/docs/guides/skill-design-guide.md</code> §3.7 조항 3 의 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 적는다.</div></li>
     </ul>
   </section>
 
@@ -453,7 +453,7 @@ guide_gate() {
       <div class="card"><div class="num">2</div><h3>막히는 것</h3><p class="card-body">어떤 작업이 막히는지 좁혀 쓴다. FCM 시험 발송은 앱 출시 없이 개발 환경에서 가능하다.</p></div>
       <div class="card"><div class="num">3</div><h3>우회</h3><p class="card-body">출처에서 확인한 우회만 쓴다. 없으면 <code>우회 없음(출처 확인)</code>으로 기록한다.</p></div>
     </div>
-    <p class="caption">2026-09-24 F10 실측: 출시 전·실기기 없음만으로 작업 불가를 선언해 범위를 잘못 막은 사례</p>
+    <p class="caption">2026-09-24 F10 실측(<code>/insights</code>): 출시 전·실기기 없음만으로 작업 불가를 선언해 범위를 잘못 막은 사례 — 사용자가 「앱 올리면 되잖아?」 로 되받았다</p>
   </section>
 
   <!-- ## Process -->
@@ -613,7 +613,7 @@ done</code></pre>
       <article class="card">
         <div class="rule-number">Stack</div>
         <h3>project-detection.md</h3>
-        <p class="card-body">스택과 외부 서비스 의존성을 찾는 패턴.</p>
+        <p class="card-body">스택과 외부 서비스 의존성을 찾는 패턴. 원본 스킬은 <code>references/project-detection.md</code> 로 가리킨다.</p>
         <a class="card-source" href="../../onboarding-kit/skills/setup-guide/references/project-detection.md">↗ 스택 탐지 패턴</a>
       </article>
       <article class="card">

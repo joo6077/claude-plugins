@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,6 +29,19 @@
     --radius-lg:20px;
     --transition:0.25s cubic-bezier(.4,0,.2,1);
   }
+[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe7e0;--border:#e0dcd4;--border2:#cfc9bf;
+  --text:#1a1a24;--text2:#5a5248;--text3:#6b6259;
+  --accent:#047857;--accent2:#065F46;--accent-dim:rgba(4,120,87,0.10);--accent-glow:rgba(4,120,87,0.05);
+  --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#0369A1;
+  --error:#b91c1c;--success:#146B32;--warn:#7A4A05;--info:#0369A1;
+}
+[data-theme="light"] h1{background:linear-gradient(135deg,var(--text) 0%,var(--accent) 60%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text}
+[data-theme="light"] .card:hover{box-shadow:0 12px 28px rgba(26,26,36,0.10),0 0 0 1px var(--accent-dim)}
+.theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+  background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
   body{
@@ -202,6 +215,7 @@
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
 <div class="container">
   <header class="hero">
     <div class="badge">Infra Kit · infra-test</div>
@@ -294,7 +308,7 @@
         <div class="gotcha"><div class="gotcha-check">05</div><div class="gotcha-body"><strong>CI 테스트에서 시크릿 노출 금지.</strong> <code>act</code>의 <code>.secrets</code>는 <code>.gitignore</code>에 넣고 환경 변수 덤프를 남기지 않는다.</div></div>
         <div class="gotcha"><div class="gotcha-check">06</div><div class="gotcha-body"><strong>K8s manifest 검증 도구 혼용 주의.</strong> kubeval은 deprecated다. kubeconform 또는 <code>kubectl --dry-run=server</code>를 쓴다. Helm 차트는 <code>helm template | kubeconform</code> 파이프라인으로 검증한다.</div></div>
         <div class="gotcha"><div class="gotcha-check">07</div><div class="gotcha-body"><strong>보안 스캔을 테스트로 대체하지 않는다.</strong> Trivy·Snyk·Checkov는 CI 게이트의 별도 단계로 둔다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">08</div><div class="gotcha-body"><strong>OpenTofu/Terraform 호환성을 확인한다.</strong> OpenTofu 1.8+ provider mocking과 Terraform 1.6+ test 지원을 구분한다 (<a href="https://github.com/opentofu/opentofu/releases/tag/v1.8.0">OpenTofu v1.8.0 릴리스</a>, 2026-09-28 조회).</div></div>
+        <div class="gotcha"><div class="gotcha-check">08</div><div class="gotcha-body"><strong>OpenTofu/Terraform 호환성을 확인한다.</strong> OpenTofu 는 1.8+ 부터 <code>tofu test</code> 에서 provider mocking 을 지원한다. Terraform은 1.6+에서 <code>terraform test</code> 지원 — 둘을 구분한다 (<a href="https://github.com/opentofu/opentofu/releases/tag/v1.8.0">OpenTofu v1.8.0 릴리스</a>, 2026-09-28 조회).</div></div>
         <div class="gotcha"><div class="gotcha-check">09</div><div class="gotcha-body"><strong>backend-test와 sibling consistency를 유지한다.</strong> Step 0 독립 감지, 기존 패턴 탐색, 외부 실환경 강제 금지를 함께 유지한다.</div></div>
         <div class="gotcha"><div class="gotcha-check">10</div><div class="gotcha-body"><strong>ephemeral 값을 쓰는 모듈의 테스트 fixture에 평문 시크릿을 넣지 않는다.</strong> Terraform 1.10+ <code>ephemeral</code> 블록이나 OpenTofu 1.11+ write-only 인수로 시크릿을 다루는 모듈은 <code>terraform test</code> fixture에서도 평문 주입 금지다. <code>run "xxx" { variables { secret = ... } }</code> 블록 대신 환경 변수나 Vault dev 모드를 쓴다. 출처: <a href="https://developer.hashicorp.com/terraform/language/ephemeral">Terraform ephemeral</a>.</div></div>
         <div class="gotcha"><div class="gotcha-check">11</div><div class="gotcha-body"><strong>셸 검증 스크립트는 결과 상태를 exit code로 전파한다.</strong> 이 스킬이 만드는 스크립트는 CI 에서 통과 여부를 가르는 검사로 쓰인다. 결함을 찾고도 <code>echo "WARN: ..."</code>만 하고 0으로 끝나면 파이프라인은 항상 통과하고 스크립트는 검증하는 척만 한다. 상태어 5종(<code>PASS</code> · <code>VIOLATION</code> · <code>SKIP_NO_TARGET</code> · <code>TOOL_OR_ENV_MISSING</code> · <code>EXECUTION_ERROR</code>)과 exit 매핑, 머리말 4 카운터, 핵심/선택 도구 분리는 <code>../../references/gate-result-taxonomy.md</code>가 SSOT이므로 여기서 다시 정의하지 않는다. 그 위에 아래 네 가지를 만드는 모든 셸 스크립트에 함께 적용한다.
@@ -846,5 +860,22 @@ deny[msg] {
 
   <footer>Infra Kit · infra-test · 원본 SKILL.md 전체 절 반영</footer>
 </div>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

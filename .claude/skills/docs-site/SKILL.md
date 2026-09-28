@@ -13,7 +13,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **외부 리소스 금지** — 페이지는 레포 밖 자원 없이 열려야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 스타일은 공통 파일 `docs/assets/site.css` 링크 한 줄(`<style>` 앞)과 `<style>` 안 인라인뿐이다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다 — 움직임 줄이기(`prefers-reduced-motion`)와 본문 행간 1.7 이다.
+1. **외부 리소스 금지** — 페이지는 레포 밖 자원 없이 열려야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 스타일은 공통 파일 `docs/assets/site.css` 링크 한 줄(`<style>` 앞)과 `<style>` 안 인라인뿐이다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다 — 움직임 줄이기(`prefers-reduced-motion`)와 본문 행간 1.7 이다. 링크가 하나인지는 `python3 scripts/check-docs-common-css.py` 가 `<link>` 요소를 세어 잰다(CI). 본문에서 이 이름들을 말할 때는 원래 글자로 적는다 — `site&#46;css` · `site&period;css` 같은 글자 참조나 `site<span>.</span>css` 같은 태그 끼우기로 쪼개 적지 마라. 예전 검사가 글자 수를 세던 때 생긴 우회이고, 새 검사는 쪼갠 자리를 위반으로 잡는다. 가리킬 때 위로 들뜨는 카드처럼 `transform` 으로 주는 움직임은 공통 파일이 멈추지 않으므로 쪽이 `@media (prefers-reduced-motion: no-preference)` 안에서만 준다.
 2. **index.html 등록 필수** — 페이지를 생성했는데 `docs/index.html`의 `categories` 배열에 등록하지 않으면 네비게이션에 표시되지 않는다. 아이콘도 `getIcon()` 함수에 추가해야 한다.
 3. **플러그인 accent 컬러 준수** — `references/css-tokens.md`의 플러그인별 accent 매핑을 따라라. Harness에 Design Kit 컬러를 쓰면 안 된다.
 4. **iframe 경로는 index.html 기준 상대경로** — `docs/index.html`에서 iframe으로 로드하므로 `file` 값은 `design-kit/typography-scale.html` 형태여야 한다.
@@ -67,7 +67,9 @@ user-invocable: true
 | howto-kit | `docs/howto/` | `docs/howto-kit/` |
 | process (공유) | `.claude/skills/kaizen-orchestrator/SKILL.md` · `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md` (그 밖은 내부 문서) | `docs/process/` |
 
-`docs/howto/drafts/` 는 초안 폴더라 매핑 밖이다 — 페이지를 만들지 않고 `scripts/detect-docs-drift.py` 도 건너뛴다.
+`docs/howto/drafts/` 는 초안 폴더라 매핑 밖이다 — 페이지를 만들지 않고 `scripts/detect-docs-drift.py` 도 건너뛴다. `tone-kit/references/project-detection.md` 도 페이지를 만들지 않는 원본이다 — 킷이 프로젝트 값을 감지하는 절차라 읽을 쪽으로 옮기지 않고, 스크립트가 건너뛴다. 원본마다 쪽 · 짝 · 페이지 없음 결정은 `.harness/.meta/after-kaizen-0928/d1-notes.md` 결정표에 있다.
+
+`scripts/detect-docs-drift.py` 는 모양만 바뀐 원본을 기본으로 뺀다 — 두 판에서 HTML 주석을 지우고 코드 울타리 줄을 한 표지로 바꾼 뒤 낱말과 기호의 순서가 같으면 다시 맞출 것이 없다고 본다. 기호 가운데 마크다운 꾸밈(줄 앞 제목 · 인용 · 목록 기호, 표 구분 줄 · 가로줄, 표 칸 `|`, 강조 `*`, 백틱, `<주소>` 의 꺾쇠, 역슬래시)만 빼고 센다 — 그래서 표 구분 줄 · 빈 줄 · 목록 기호 · 울타리 언어 표시 · 강조를 제목으로 바꾼 것 · 주소를 꺾쇠로 감싼 것은 빠지고, `>=` → `<=` 나 코드 안 `+` → `-` 처럼 기호만 바뀐 내용 수정은 남는다. 코드 울타리 안과 인라인 코드 안의 기호는 하나도 빼지 않는다. 뺀 짝 수는 표준 오류에 한 줄로 나온다. 모든 짝을 보려면 `--include-format-only` 를 준다.
 
 신규 킷이면 `references/css-tokens.md`의 플러그인 매핑에 새 accent를 추가한 뒤 진행한다.
 
