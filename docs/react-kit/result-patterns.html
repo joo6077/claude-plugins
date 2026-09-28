@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Result 패턴 (neverthrow) — React Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+    --accent-line:rgba(56,189,248,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#0369A1;--accent2:#075985;--accent-dim:rgba(3,105,161,0.10);
+    --accent-line:rgba(3,105,161,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; React Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">React Kit · 참고 문서</span>
+  <h1>Result 패턴 (neverthrow)</h1>
+  <p class="orig-title">원본 제목: <strong>Result Patterns (neverthrow)</strong></p>
+  <p class="subtitle">react-kit 의 모든 에러 경계는 <code>neverthrow</code> 의 <code>Result&lt;T, E&gt;</code> 로 넘긴다. <strong><code>throw</code> 는 쓰지 않는다</strong> — TanStack Query <code>queryFn</code> 안 한 곳만 예외다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>react-kit/references/result-patterns.md</code></span>
+    <span class="badge">레이어 다섯 줄</span>
+    <span class="badge">안티패턴 넷</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>동기와 비동기</h3>
+      <p>동기는 <code>ok</code> · <code>err</code>, 비동기는 <code>ResultAsync.fromPromise</code> 로 경계를 바꾸고 <code>andThen</code> 으로 잇는다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>Failure 유니온</h3>
+      <p><code>kind</code> 필드로 가르는 유니온이다. <code>never</code> 로 모든 경우를 다뤘는지 타입 검사한다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>레이어별 규칙</h3>
+      <p>domain 은 시그니처만, data 는 경계 변환과 체인, presentation 은 <code>isErr()</code> · <code>isOk()</code> 로 가른다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>하지 않는 것</h3>
+      <p>try/catch 로 Failure 를 감추거나, JSON 문자열로 throw 하거나, <code>any</code> 로 에러 타입을 우회하지 않는다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="tb-f">
+  <div class="section-label" id="tb-f">실패가 흘러가는 길</div>
+  <p class="desc">원본 「레이어별 사용 규칙」 표를 데이터가 흐르는 순서로 다시 놓았다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><div class="c">단계</div></th>
+          <th><div class="c">레이어</div></th>
+          <th><div class="c">하는 일</div></th>
+          <th><div class="c">돌려주는 것</div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="c">1</div></td>
+          <td><div class="c">data/datasources/remote</div></td>
+          <td><div class="c">fetch 실패를 Failure 로 바꾼다</div></td>
+          <td><div class="c"><code>ResultAsync</code></div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2</div></td>
+          <td><div class="c">data/repositories</div></td>
+          <td><div class="c">Zod 로 검사하고 체인으로 잇는다</div></td>
+          <td><div class="c"><code>Result</code></div></td>
+        </tr>
+        <tr>
+          <td><div class="c">3</div></td>
+          <td><div class="c">domain/usecases</div></td>
+          <td><div class="c">시그니처만 선언한다</div></td>
+          <td><div class="c"><code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code></div></td>
+        </tr>
+        <tr>
+          <td><div class="c">4</div></td>
+          <td><div class="c">presentation/hooks</div></td>
+          <td><div class="c"><code>queryFn</code> 안에서만 <code>throw result.error</code></div></td>
+          <td><div class="c">TanStack Query error</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">5</div></td>
+          <td><div class="c">presentation/components</div></td>
+          <td><div class="c">분기해서 화면에 보인다</div></td>
+          <td><div class="c">—</div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="tb-a">
+  <div class="section-label" id="tb-a">안티패턴과 대신 쓸 것</div>
+  <p class="desc">원본 「안티패턴」 목록에 까닭과 대신 쓸 것을 원본의 다른 절에서 찾아 붙였다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><div class="c">하지 않는 것</div></th>
+          <th><div class="c">왜</div></th>
+          <th><div class="c">대신</div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="c"><code>try/catch</code> 로 Failure 감추기</div></td>
+          <td><div class="c">실패가 호출자에게 보이지 않는다</div></td>
+          <td><div class="c">항상 Result 로 바꿔 돌려준다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c"><code>throw new Error(JSON.stringify(failure))</code></div></td>
+          <td><div class="c">타입 정보가 사라진다</div></td>
+          <td><div class="c"><code>err(failure)</code></div></td>
+        </tr>
+        <tr>
+          <td><div class="c"><code>any</code> 로 에러 타입 우회</div></td>
+          <td><div class="c">exhaustiveness 검사가 꺼진다</div></td>
+          <td><div class="c"><code>kind</code> 유니온과 <code>never</code> 검사</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">domain 레이어에서 throw</div></td>
+          <td><div class="c">domain 은 시그니처만 둔다</div></td>
+          <td><div class="c"><code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code> 선언</div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="rel-r">
+  <div class="section-label" id="rel-r">관련 쪽</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="state-data.html">G2 · 상태 & 데이터</a></h3>
+      <p><code>/react-api</code> 의 네 층과 Result 체인.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="quality.html">G4 · 품질</a></h3>
+      <p><code>/react-error</code> 의 심각도 매핑과 화면 표시.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="clean-arch-layout.html">레이어 배치</a></h3>
+      <p>각 레이어의 폴더와 import 방향.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>기본 사용</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>Failure discriminated union</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>레이어별 사용 규칙</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>안티패턴</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>관련 문서</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<p>react-kit 의 모든 에러 경계는 <code>neverthrow</code> 의 <code>Result&lt;T, E&gt;</code> 를 사용. <code>throw</code> 금지.</p>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>기본 사용</h2>
+  <div class="doc-body">
+<div class="code"><span class="code-lang">ts</span><pre><code>import { ok, err, Result, ResultAsync } from 'neverthrow'
+
+// 동기
+function parse(raw: unknown): Result&lt;User, UserFailure&gt; {
+  const parsed = UserSchema.safeParse(raw)
+  if (!parsed.success) return err({ kind: 'user/validation-failed', issues: parsed.error.issues.map(i =&gt; i.message) })
+  return ok(parsed.data)
+}
+
+// 비동기
+function fetchUser(id: string): ResultAsync&lt;User, UserFailure&gt; {
+  return ResultAsync.fromPromise(
+    fetch(`/users/${id}`).then(r =&gt; r.json()),
+    (e) =&gt; ({ kind: 'user/network-error', cause: String(e) })
+  ).andThen(parse)
+}</code></pre></div>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>Failure discriminated union</h2>
+  <div class="doc-body">
+<div class="code"><span class="code-lang">ts</span><pre><code>export type UserFailure =
+  | { kind: 'user/not-found'; userId: string }
+  | { kind: 'user/unauthorized' }
+  | { kind: 'user/network-error'; cause: string }
+  | { kind: 'user/validation-failed'; issues: string[] }</code></pre></div>
+<p><code>kind</code> 필드로 switch/match 분기. 모든 케이스를 다뤘는지 TypeScript <code>never</code> 타입 exhaustiveness 검증.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>레이어별 사용 규칙</h2>
+  <div class="doc-body">
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">레이어</div></th>
+  <th><div class="c">사용</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">domain/usecases</div></td>
+  <td><div class="c"><strong>시그니처</strong> <code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code> 로 선언만</div></td>
+</tr>
+<tr>
+  <td><div class="c">data/datasources/remote</div></td>
+  <td><div class="c"><code>ResultAsync.fromPromise(fetch(...), e =&gt; Failure)</code> 로 경계 변환</div></td>
+</tr>
+<tr>
+  <td><div class="c">data/repositories</div></td>
+  <td><div class="c">datasource 호출 + Zod parse → Result 체인</div></td>
+</tr>
+<tr>
+  <td><div class="c">presentation/hooks</div></td>
+  <td><div class="c">TanStack Query <code>queryFn</code> 안에서만 <code>throw result.error</code> (TanStack 이 error 로 포획)</div></td>
+</tr>
+<tr>
+  <td><div class="c">presentation/components</div></td>
+  <td><div class="c"><code>result.isErr()</code> / <code>isOk()</code> 로 분기, throw 금지</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>안티패턴</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>try/catch</code> 로 Failure 감추기 — 항상 Result 로 변환</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>throw new Error(JSON.stringify(failure))</code> — 타입 정보 손실</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>any</code> 로 에러 타입 우회</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ domain 레이어에서 throw</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>관련 문서</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g2-state-data.md</code> §2 <code>/react-api</code> — Clean Arch 4계층 + Result 체인</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g4-quality.md</code> §2 <code>/react-error</code> — Severity 매핑 + UI 표시</div></li>
+</ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>react-kit/references/result-patterns.md</code> 의 기준 판은 커밋 <code>e500a63</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>

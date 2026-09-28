@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>react-kit 공통 Gotchas — React Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+    --accent-line:rgba(56,189,248,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#0369A1;--accent2:#075985;--accent-dim:rgba(3,105,161,0.10);
+    --accent-line:rgba(3,105,161,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; React Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">React Kit · 참고 문서</span>
+  <h1>react-kit 공통 Gotchas</h1>
+  <p class="subtitle">react-kit 스킬과 에이전트를 쓰거나 고칠 때 <strong>QA 가 되풀이해 REJECT 한 실수 열하나</strong>를 원칙 · 나쁜 예 · 좋은 예로 정리했다. 트리거 낱말 겹침, 라이브러리 금지 목록, 출처 URL 누락 같은 것이다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>react-kit/references/common-gotchas.md</code></span>
+    <span class="badge">G1 ~ G11</span>
+    <span class="badge">처음 2026-04-10</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>트리거 낱말은 겹치지 않는다</h3>
+      <p>각 스킬 description 의 트리거 낱말 집합은 다른 스킬과 교집합이 없어야 한다 (G1).</p>
+    </div>
+    <div class="card glance-card">
+      <h3>금지 목록은 더하기만</h3>
+      <p>라이브러리 금지 목록에서는 지우지 않는다. 빌드 게이트급 원칙이라 경고로 낮추지 않는다 (G2 · G10).</p>
+    </div>
+    <div class="card glance-card">
+      <h3>출처와 참조는 구체적으로</h3>
+      <p>원칙 카드에 출처 URL 을 달고, References 는 폴더가 아니라 파일로 적는다 (G4 · G5).</p>
+    </div>
+    <div class="card glance-card">
+      <h3>렌더 증거는 따로</h3>
+      <p>렌더 증거 규약의 정의는 별도 참고 문서 하나에 둔다 (G11).</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="rel-r">
+  <div class="section-label" id="rel-r">관련 쪽</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="render-evidence-protocol.html">렌더 증거 규약</a></h3>
+      <p>G11 이 가리키는 정의.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="integration.html">통합 명세</a></h3>
+      <p>21 스킬이 함께 지키는 주의사항.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="build-audit.html">G6 · 빌드 · 감사</a></h3>
+      <p>Library Policy 빌드 게이트.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>G1. description 트리거 키워드 유일성</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>G2. Library Policy 금지 목록 — 추가만, 삭제 금지</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>G3. 코드 템플릿 내 placeholder 주석 — 미완성 단어 금지</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>G4. 원칙 카드 card-source URL 필수</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>G5. References 섹션 — 그룹 경로가 아닌 개별 파일 명시</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>G6. Gotchas / bad-good 예시 누락</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>G7. I-02 "modified 0건" 예외 목록 (Phase 4 harness 전수)</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>G8. Sibling Group 내부 N-way parity (Phase 9 rust-kit 전수)</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>G9. Context7 우선 리서치 (Phase 5 flutter-toolkit 전수)</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>G10. Library Policy 빌드 게이트급 원칙 — ⚠️ WARN 금지</a></li>
+    <li><a href="#s11"><span class="toc-n">11</span>G11. 렌더 증거 규약 — 정의는 별도 SSOT (Phase 10 2026-07-27)</a></li>
+    <li><a href="#s12"><span class="toc-n">12</span>사용 가이드</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<p>react-kit 스킬/에이전트를 작성하거나 개선할 때 반복되는 실수 패턴. 이번 세션(2026-04-10) QA REJECT 사례에서 추출한 원칙이다.</p>
+<hr class="rule">
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>G1. description 트리거 키워드 유일성</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 각 스킬의 <code>description</code> 트리거 키워드 집합은 다른 스킬 키워드 집합과 교집합이 공집합이어야 한다.</p>
+<p><strong>사례 (SK-05/RE-02)</strong>: <code>react-wasm</code> 과 <code>rust-kit</code> 의 "wasm-pack 빌드" 키워드 중복 → 어느 스킬이 트리거될지 모호.</p>
+<p><strong>해결</strong>: 키워드에 컨텍스트 단어를 추가해 도메인을 명확히 한다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">나쁜 예: <code>"wasm 추가"</code>, <code>"빌드"</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">좋은 예: <code>"React 컴포넌트에서 WASM 호출"</code>, <code>"Vite 프로젝트 wasm-pack 연동"</code></div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>G2. Library Policy 금지 목록 — 추가만, 삭제 금지</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 카이젠/개선 시 Library Policy 금지 라이브러리 목록은 <strong>추가만 허용</strong>, 삭제 또는 완화는 빌드 게이트 위반이다.</p>
+<p><strong>사례 (AP-03)</strong>: <code>react-audit</code> 의 Library Policy 섹션에서 <code>react-transition-group</code> 이 누락된 채 배포 → QA REJECT.</p>
+<p><strong>해결</strong>: 새 스킬이나 에이전트를 작성할 때 Library Policy 문구를 복사하지 말고 아래 3 파일을 <strong>정전 소스</strong>로 참조한다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>react-kit/skills/react-animation/SKILL.md</code> — Gotcha #1</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>react-kit/agents/animation-architect-react.md</code> — § 금지 라이브러리 목록</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>react-kit/skills/react-audit/SKILL.md</code> — Library Policy 카테고리</div></li>
+</ul>
+<p>금지 목록 (Phase 10 재확인: 2026-04-12): <code>motion</code> / <code>framer-motion</code> / <code>dnd-kit</code> / <code>react-spring</code> / <code>react-transition-group</code> / <code>react-dnd</code> / <code>react-beautiful-dnd</code> / <code>@formkit/auto-animate</code> / <code>gsap</code> / <code>lottie-react</code> / <code>animate.css</code></p>
+<p><strong>확장 사유</strong>: 이 목록은 react-kit 의 라이브러리 0개 애니메이션 원칙에서 파생된다. 새 라이브러리 금지 추가는 자유롭지만, 기존 항목 삭제/완화는 빌드 게이트 성격이 훼손되므로 엄격히 금지된다. 예외 허용은 사용자 명시 요청 + sprint-contract 계약 문구로만 가능하다.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>G3. 코드 템플릿 내 placeholder 주석 — 미완성 단어 금지</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 스킬 본문의 코드 예제에서 미완성 부분을 나타낼 때 <code>[미완성 마커]</code> (to-be-defined, hack, xxx 등) 를 쓰지 않는다. validate-plugin V5 는 이런 계열 단어를 탐지해 FAIL 처리하므로, 코드 템플릿 작성 시 descriptive 주석만 사용한다.</p>
+<p><strong>사례 (DG-01)</strong>: 코드 템플릿에 미완성 마커 주석이 남아 있어 사용자가 복사 후 그대로 사용할 위험.</p>
+<p><strong>해결</strong>: descriptive placeholder 표현을 사용한다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">나쁜 예: <code>// [미완성 마커]: 여기에 로직 추가</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">좋은 예: <code>// 비즈니스 로직을 여기에 위치시킨다</code>, <code>/* fetch / transform 처리 */</code></div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>G4. 원칙 카드 card-source URL 필수</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 스킬 본문에 원칙 카드(📌 형식 등)를 작성할 때 <code>card-source</code> URL 또는 참조 문서 경로를 반드시 명시한다.</p>
+<p><strong>사례 (CD-03)</strong>: docs-site integration.html 의 원칙 카드에 card-source URL 이 없어 QA REJECT.</p>
+<p><strong>해결</strong>: 원칙 카드 말미에 출처를 명시한다.</p>
+<div class="code"><span class="code-lang">text</span><pre><code>card-source: docs/react/kit-design/g1-scaffolding.md §2</code></pre></div>
+<p>내부 문서면 파일 경로, 외부 문서면 URL 을 사용한다.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>G5. References 섹션 — 그룹 경로가 아닌 개별 파일 명시</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 스킬 말미 <code>## References</code> 섹션에서 "docs/react/kit-design/ 전체" 같은 그룹 경로 대신 실제 참조 파일을 개별 나열한다.</p>
+<p><strong>사례 (KZ-04)</strong>: References 그룹 경로만 명시 → 어떤 섹션을 봐야 하는지 불명확.</p>
+<p><strong>해결</strong>:</p>
+<div class="code"><span class="code-lang">markdown</span><pre><code>## References
+- `docs/react/kit-design/g2-state-data.md` §3 — TanStack Query 설계 상세
+- `docs/react/wasm-catalog.md` §1 — 권장 WASM 카테고리</code></pre></div>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>G6. Gotchas / bad-good 예시 누락</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 스킬 Gotchas 항목에는 반드시 bad(나쁜 예) → good(좋은 예) 대조가 있어야 한다. 설명만 있고 예시가 없으면 QA REJECT 대상이다.</p>
+<p><strong>사례 (CD-02)</strong>: integration.html Gotchas 섹션에 bad-good 예시 누락 → REJECT.</p>
+<p><strong>해결</strong>: 각 Gotcha 항목을 아래 구조로 작성한다. 설명 → 나쁜 예(코드 블록) → 좋은 예(코드 블록) 순서로 배치한다.</p>
+<div class="code"><span class="code-lang">text</span><pre><code>N. **[제목]**: [설명]
+
+나쁜 예 — [이유]:
+&lt;ts 코드 블록: 잘못된 패턴&gt;
+
+좋은 예 — [이유]:
+&lt;ts 코드 블록: 올바른 패턴&gt;</code></pre></div>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>G7. I-02 "modified 0건" 예외 목록 (Phase 4 harness 전수)</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 카이젠·감사 계약의 <code>I-02: working tree modified 0건</code> 조건에서 react-kit 작업 시 아래 파일/디렉토리는 예외로 취급한다. 이유는 스킬 실행 자체가 이 파일들을 touching 하기 때문이다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>package.json</code> / <code>pnpm-lock.yaml</code> — 의존성 추가/업데이트 (<code>/react-init</code>, <code>/react-wasm</code>, <code>/react-tauri</code>).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>tsconfig.json</code> / <code>tsconfig.node.json</code> — strict 옵션, path alias 세팅.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>src-tauri/capabilities/*.json</code> — Tauri 2 capability 추가 (core:default, plugin permission).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>src/locales/*.po</code> / <code>src/locales/*.ts</code> — Lingui <code>extract</code> / <code>compile</code> 생성물.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>src/routeTree.gen.ts</code> — TanStack Router <code>tsr generate</code> 산출물.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>src/wasm/core/*</code> — <code>pnpm wasm-pack build ...</code> 산출물 (gitignore 처리 기본).</div></li>
+</ul>
+<p>계약 작성 시 I-02 조건에 이 예외 목록을 명시적으로 append 한다. 미명시 시 스킬 정상 실행 결과가 I-02 위반으로 잡힐 수 있다.</p>
+<p><strong>사례 (Phase 8 infra-kit 연쇄)</strong>: kaizen 계약의 I-02 가 예외 없이 작성되어 <code>.harness/sprint-contract.md</code>, <code>.harness/.meta/kaizen-data-pool.md</code> 같은 카이젠 자체 산출물이 위반 처리됐다. 같은 패턴이 react-kit 에서도 재현될 수 있다.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>G8. Sibling Group 내부 N-way parity (Phase 9 rust-kit 전수)</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 동일 그룹 스킬들은 <code>Gotchas</code> / <code>Process</code> / <code>Rules</code> / <code>Report Format</code> 섹션 구조를 parity 유지한다. 한 스킬만 포맷이 다르면 사용자는 어느 스킬이 정식 패턴인지 혼동한다.</p>
+<p><strong>Sibling Group (react-kit)</strong>:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">빌드 프리미티브 3총사: <code>react-run</code> / <code>react-build</code> / <code>react-preflight</code> — Gotchas + 서브커맨드 테이블 + Report Format + Rules 구조 동일.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">API 스캐폴딩 3총사: <code>react-feature</code> / <code>react-api</code> / <code>react-widget</code> — Gotchas + Process + Strict TS 검증 + 완료 안내 동일.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">메타 스킬: <code>react-audit</code> / <code>react-extract</code> — Mode(quick/deep) + Agent 도구 위임 구조 동일.</div></li>
+</ul>
+<p>카이젠 시 sibling 한쪽만 수정하면 다른 쪽도 동일 구조로 동기화해야 한다.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>G9. Context7 우선 리서치 (Phase 5 flutter-toolkit 전수)</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: react-kit 스킬이 다루는 라이브러리 (React 19, TanStack Query v5, TanStack Router, Tauri 2, Tailwind v4, Zustand v5, Lingui v5 (compatibility pin — v6 는 ESM-only · Node 22.19+), React Hook Form v7, Zod v4, Vite 8, shadcn CLI v4, Vitest, Playwright) API 를 인용할 때는 학습 데이터 대신 현재 공식 문서를 조회한다.</p>
+<p><strong>조회 순서 (fallback 체인)</strong>:</p>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>Context7</strong> <code>resolve-library-id</code> → <code>query-docs</code></div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>WebFetch</strong> 로 공식 문서 URL 직접 조회 — Context7 MCP 가 <strong>OAuth 미인증</strong>이면 도구 호출이 실패하고, 비대화형 세션에서는 인증 플로우를 실행할 수 없다. 이때는 Context7 복구를 기다리지 말고 바로 WebFetch 로 내려간다 (2026-07-27 카이젠 실측)</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>codex-rescue</strong> — 위 둘로도 1차 출처를 못 찾을 때 리서치 위임</div></li>
+</ul>
+<p>조회하지 못한 항목은 <strong>버전·기본값을 단정하지 않는다</strong>. 학습 데이터 기반 버전 서술은 금지다.</p>
+<p>이 원칙은 카이젠 수행자(Claude)에게 적용되며, 스킬 사용자(최종 프로젝트 개발자)에게는 권장 사항이다.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
+  <h2>G10. Library Policy 빌드 게이트급 원칙 — ⚠️ WARN 금지</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: Library Policy 카테고리 위반은 <strong><code>❌ FAIL</code> 로 분류</strong>한다. <code>⚠️ WARN</code> 으로 완화 금지. react-reviewer 핵심 규칙 / react-audit Rules / animation-architect-react Tier 판정 모두 일관.</p>
+<p><strong>근거</strong>: react-kit 은 라이브러리 0개 애니메이션·인터랙션 원칙을 정체성으로 한다. WARN 완화는 이 정체성을 침식한다.</p>
+<p><strong>카이젠 시 체크</strong>: 금지 목록 문구를 복사 후 <code>severity</code> / <code>⚠️</code> / <code>경고</code> 같은 단어로 바꾸지 않는다. "FAIL", "❌", "REJECT" 레벨 유지.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s11">
+  <div class="section-label">§ 11</div>
+  <h2>G11. 렌더 증거 규약 — 정의는 별도 SSOT (Phase 10 2026-07-27)</h2>
+  <div class="doc-body">
+<p><strong>원칙</strong>: 렌더 결과가 산출물인 스킬(<code>react-screen</code> · <code>react-widget</code> · <code>react-skeleton</code> · <code>react-responsive</code> · <code>react-animation</code>)은 편집 전과 완료 직전 두 번, measurement 를 만드는 <code>react-test</code> 는 완료 선언 전에 <code>react-kit/references/render-evidence-protocol.md</code> 를 따른다. <strong>내용을 이 파일에 복제하지 않는다</strong> — 그 문서가 react-kit 의 렌더 증거 SSOT 이고, 임계값·마커·등급은 다시 상위 harness 가이드를 인용한다.</p>
+<p><strong>요지</strong>: <code>tsc</code> 통과와 Strict TS 검증은 "그려진다" 는 증거가 아니다. 증거를 못 얻으면 <code>[미검증]</code> 을 달고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령 — 규약 §2)을 채워 부분 완료로 보고한다. 마커 동의어(<code>미확인</code> / <code>unverified</code> 등) 신설 금지.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s12">
+  <div class="section-label">§ 12</div>
+  <h2>사용 가이드</h2>
+  <div class="doc-body">
+<p>이 파일은 다음 시점에 참조한다:</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">새 react-kit 스킬 작성 시 (harness <code>create-skill</code> 전 필독)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">react-kit 카이젠 시 Gotchas 섹션 품질 검증 기준으로</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">QA Evaluator 가 react-kit 스킬을 평가할 때 체크리스트로</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Sprint Contract 작성 시 I-02 예외 목록 참조 (G7)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">렌더 산출물 스킬 편집 전 · 완료 직전 증거 규약 확인 (G11)</div></li>
+</ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>react-kit/references/common-gotchas.md</code> 의 기준 판은 커밋 <code>e500a63</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>
