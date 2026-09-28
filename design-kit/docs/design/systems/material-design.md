@@ -24,7 +24,7 @@ M3 핵심 원칙, M3 Expressive 업데이트, Material You 커스터마이징, �
 | Material Design 1 | 2014 | 물리적 종이 메타포, 그림자, 그리드 기반 레이아웃 |
 | Material Design 2 | 2018 | 커스터마이징 강화, 둥근 모서리, 흰 여백, 하단 네비게이션 |
 | Material Design 3 | 2021 | 다이내믹 컬러, 개인화, 더 큰 버튼, 부드러운 곡선 |
-| M3 Expressive | 2025 | 더 화려한 색상, 풍부한 애니메이션, 모던한 UI (Android 16) |
+| M3 Expressive | 2025 | 더 화려한 색상, 풍부한 애니메이션, 모던한 UI (Android 16 후속 업데이트) |
 
 > **출처:** [Wikipedia — Material Design](https://en.wikipedia.org/wiki/Material_Design)
 
@@ -254,7 +254,7 @@ M3는 화면 크기에 따라 다른 네비게이션 컴포넌트를 사용하�
 
 ## M3 Expressive (2025)
 
-Android 16과 함께 발표된 M3 Expressive는 Material Design의 시각적 표현력을 확장한다. 기존 M3의 미니멀 톤에서 벗어나 더 과감한 색상, 형태, 모션을 도입했다.
+M3 Expressive는 Material Design의 시각적 표현력을 확장한다. Google 은 2025-05-13 에 "Material 3 Expressive will be coming to Android 16 later this year." 라고 발표했다 — Android 16 첫 출시가 아니라 그해 뒤 업데이트로 들어온다는 뜻이다. 기존 M3의 미니멀 톤에서 벗어나 더 과감한 색상, 형태, 모션을 도입했다.
 
 ### 핵심 변경사항
 
@@ -277,12 +277,12 @@ Android 16과 함께 발표된 M3 Expressive는 Material Design의 시각적 표
 
 ### 실무 영향
 
-- M3 Expressive는 Android 16+ 기본 UI에 적용되지만, 앱 개발자가 채택하는 것은 선택사항이다
+- Google 은 Android 16 이 M3 Expressive 변경의 기반을 놓고, 2025년 3분기(Q3) 업데이트가 관련 시각 변경의 상당 부분을 가져온다고 설명했다 ("The Q3 update in-between the API releases is providing much of the new visual polish associated with Material Expressive.")
 - 기존 M3와 하위 호환된다 — Expressive 컴포넌트를 점진적으로 도입 가능
 - Jetpack Compose Material 3 라이브러리에서 Expressive 변형이 추가될 예정
 
 > **출처:** [Material Design Blog — M3 Expressive](https://m3.material.io/blog/building-with-m3-expressive)
-> **출처:** [Android Developers Blog — Android 16 Design](https://android-developers.googleblog.com/)
+> **출처:** [Android Developers Blog — The Android Show: I/O Edition (2025-05-13)](https://android-developers.googleblog.com/2025/05/the-android-show-io-edition.html) · [Android Developers Blog — Android 16 is here (2025-06-10)](https://android-developers.googleblog.com/2025/06/android-16-is-here.html) (2026-09-28 조회)
 
 ---
 
