@@ -121,11 +121,11 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 
 1. `docs/{plugin-name}/{page-name}.html`에 저장
 2. `docs/index.html`의 해당 플러그인 카테고리에 페이지 항목 추가:
-
+   <!-- markdownlint-disable-next-line MD031 -->
    ```javascript
    { id: '{page-name}', title: '{한국어 제목}', file: '{plugin-name}/{page-name}.html' }
    ```
-
+   <!-- markdownlint-disable-next-line MD031 -->
 3. `getIcon()` 함수에 SVG 아이콘 추가
 
 ## Step 6: 자가 검증
