@@ -40,7 +40,9 @@ design-kit · onboarding-kit · tone-kit 셋이 바뀌었다. 모두 문장과 �
 
 ## 남은 것
 
-- QA 판정과 `status: done` — 이 묶음 지시상 하지 않았다.
+- QA 판정: APPROVE (26 조건, 봉인 재계산 일치). 리포트와 `status: done` 은 커밋 `bd621ac3`. 독립 검토 BLOCKING 0. 교차 진단은 리포트에 `pending-parent` 로 남아 있다.
+- 독립 검토가 찾은 막지 않는 결함 1 — X2 는 같은 주장이 다른 파일에 있는지 찾지 않았다. `onboarding-kit/skills/setup-guide/references/search-strategy.md:88` 과 `docs/onboarding-kit/search-strategy.html:406-407` 이 「`.p8` 을 권장한다는 사실로부터」 라고 적어, 이번에 고친 evals.json 83 행(「'권장' 표현은 근거가 없다」)과 반대로 말한다. 계약 범위 밖 파일이라 APPROVE 뒤에 고치면 판정이 덮지 않는 변경이 된다. 다음 묶음에서 두 파일을 같이 고치고, 원문 대조 계약에는 「레포 전체에서 같은 주장」 줄을 항목마다 넣는다.
+- 막지 않는 결함 2 — evals.json 67 행 설명의 「Firebase 문서는 APNs 인증 키 업로드만 지시하고」 가 원문보다 넓다. Firebase Flutter 설정 페이지(2026-09-24 갱신)에는 「For each authentication key, select the .p8 file」 이 있다. source 칸과 상태 키는 iOS 페이지 기준이라 맞다. 「Firebase iOS 설정 문서는」 으로 좁히면 된다. 봉인된 조건이 재는 파일이라 승인 뒤에 손대지 않고 다음 묶음으로 넘긴다.
 - `docs/tone/research-log.md:43 · 44` 의 663 · C-06 줄 — 그 사이클의 기록이라 고치지 않았다 (계약 범위 경계).
 - `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:270` 과 대응 페이지의 663 행 — 이미 「근거로는 약하다」 고 적혀 원문 대조와 어긋나지 않아 그대로 뒀다.
 - ER-01 음성 대조에 적힌 예시 주소가 앞 묶음 기록에 이미 있어 대조가 0 을 냈다. 개정 A-01 로 대조 주소만 바꿨다 — 다음 계약은 대조 주소를 시작 판에서 `git grep` 해 0 인지 먼저 본다.
