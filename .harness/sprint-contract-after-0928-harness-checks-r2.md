@@ -4,7 +4,7 @@ slug: after-0928-harness-checks-r2
 created: "2026-09-28 14:00"
 complexity: "복잡"
 conditions: 44
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:925cf12b1330ffe9
 measurement_digest: sha256:ff2e15044cb81057
