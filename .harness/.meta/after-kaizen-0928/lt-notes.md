@@ -122,6 +122,15 @@ block 꼴 끄기는 하나도 더하지 않았다. 아래는 모두 다음 한 �
 - `.claude/skills/react-kaizen/SKILL.md` — markdown-it 로 그리면 울타리 깨짐 다섯 칸이 모두 0 이고, 4 번 항목도 `c3e45f3` 에서 이미 문단으로 그려져 경고 정리가 바꾼 것이 없다. `harness/skills/sprint-contract/SKILL.md` 도 울타리는 멀쩡해 B19 목록 두 곳만 고쳤다.
 - `.harness` 안 지난 계약 · 피드백의 줄 참조 520 곳 — 결정 기록(decisions.md)대로 묶음 rec 몫이다.
 
+## 자기 측정 (TIP 기준, 2026-09-28)
+
+조건마다 적힌 명령을 그대로 zsh 에서 돌렸다 (`TMPDIR` 은 scratch).
+
+- 통과: SK-02 (다른 파일 0 · 21 줄 모두 1 이상) · SK-03 (`TOTAL 0 0 0`, 기록 빠짐 0) · SK-04 (아홉 파일 0 · 레포 전체 삼킨 줄 0 · 안 닫힘 0) · SK-05 (`SITES 28 28` · rc=0) · SK-06 (other 0) · SK-07 (`0 0 2 0 0 6 0 0 0`, MD001 밖 0) · SK-08 (열 파일 모두 0 · `TOTAL 0 0 0` · 넓은 비교 2 열 0) · SK-09 (fence 0 · other 0) · SK-10 (`REFS 31 31` · rc=0) · SK-11 (넷 모두 1 이상 · 다른 사본 0) · SC-01 (열여섯 값 모두 봉인 때와 같다) · SC-03 (`4/4 PASS` · 공통 CSS 링크 각 1) · ER-01 (blockdir 0) · ER-02 (기록 빠짐 0) · ER-03 (더한 제목 셋 모두 페이지에 1) · AR-01 (BAD 0) · AR-02 (범위 밖 0) · AR-03 (SEAL_BROKEN 0 · 지난 기록 변경 0) · AP-03 · AP-04 (`Total: 14 plugins, 14 OK`) · RE-02 (0) · DG-01 (0).
+- 실패: SK-01 은 4 (기대 0 — 시험 입력 쪽은 90 으로 같다), DG-02 도 4. 넷 모두 `docs/react/kit-design/final-integration.md:457` 이다 (남은 것 첫 줄).
+- SC-02: `ci-local.sh` 25 단계 rc=0 · `feedback-agg-test SKIP (yq 없음)` 한 줄. CI 파일에만 있는 아홉 명령 모두 종료 코드 0 (api-kit 문서 12/12 · 문서 흐름 표 어긋남 0 · 원인 표 사본 0 · 검토 규약 사본 0 · 측정 도움 시험 실패 0 · bambu 게이트 24 · 주소 읽기 5 · 결정 게이트 21 불일치 0 · playwright 8 passed).
+- 톤: tone-kit `locale-korean.md` §8 G-1 · G-2 를 더한 줄 988 줄에 돌렸다. G-1 한 건은 `docs/backend/research-log.md` 의 원래 문장(줄 번호만 바꾼 줄)이라 새 글이 아니다. G-2 0.
+
 ## 킷 버전 판단
 
 바뀐 킷은 api-kit · bambu-kit · design-kit · flutter-toolkit · harness · howto-kit · infra-kit · onboarding-kit · react-kit · reflect-kit · rust-kit 열하나다. 모두 스킬 · 참조 문서의 마크다운 모양과 줄 참조 숫자만 바뀌었고 동작 규칙은 그대로라 patch 로 본다. 릴리스는 합친 뒤 main 에서 한다 (이 묶음에서는 하지 않았다).
