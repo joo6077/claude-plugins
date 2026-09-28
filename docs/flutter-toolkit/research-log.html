@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>flutter-toolkit 연구 기록 — Flutter Toolkit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#22D3EE;--accent2:#67E8F9;--accent-dim:rgba(34,211,238,0.12);
+    --accent-line:rgba(34,211,238,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#155E75;--accent2:#164E63;--accent-dim:rgba(21,94,117,0.10);
+    --accent-line:rgba(21,94,117,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Flutter Toolkit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Flutter Toolkit · 연구 기록</span>
+  <h1>flutter-toolkit 연구 기록</h1>
+  <p class="orig-title">원본 제목: <strong>Flutter Kit Research Log</strong></p>
+  <p class="subtitle">2026-04 첫 조사부터 2026-09 Phase 5 카이젠까지, <strong>조회한 출처 · 확인한 현행 stable 판 · 킷에 넣은 것과 넣지 않은 것</strong>을 사이클마다 남긴 기록이다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>docs/flutter/research-log.md</code></span>
+    <span class="badge">판 1.2.0</span>
+    <span class="badge">사이클 절 아홉</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>2026-09-25 · Phase 5</h3>
+      <p>codegen 필터를 킷이 스스로 붙이지 않게 하고, codegen 을 도는 다섯 자리가 전후 삭제 수를 세게 했다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-08-13 · Phase 5</h3>
+      <p>근거 파일로 사실을 정정하고 새 게이트 네 종을 넣었다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-07-27 · Phase 5</h3>
+      <p>새 규칙은 줄이고 기존 규칙의 강제 등급을 올리는 데 집중했다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-04-11 · 첫 조사</h3>
+      <p>조사한 소스를 요약하고 킷 스킬의 출발점을 정했다.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>[2026-09-25] — Phase 5 kaizen</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>[2026-08-13] — Phase 5 kaizen</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>[2026-07-27] - Phase 5 kaizen</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>[2026-06-05] — Phase 5 kaizen</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>[2026-05-07] — Phase 5 kaizen (flutter, /insights 흡수)</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>2026-04-11</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>2026-04-12</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>2026-04-12 (2차 — 에코시스템 확충)</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>2026-04-12 (3차 — 최신 에코시스템 보강)</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="table-wrap"><table class="fm">
+<thead><tr><th>머리 설정 키</th><th>값</th></tr></thead><tbody>
+<tr><td><code>title</code></td><td class="fm-val">Flutter Kit Research Log</td></tr>
+<tr><td><code>version</code></td><td class="fm-val">1.2.0</td></tr>
+<tr><td><code>last_updated</code></td><td class="fm-val">2026-08-13</td></tr>
+</tbody></table></div>
+<p>&lt;!-- markdownlint-disable-next-line MD025 --&gt;</p>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>[2026-09-25] — Phase 5 kaizen</h2>
+  <div class="doc-body">
+<p><strong>주제:</strong> 코드 생성 필터 제거와 전후 삭제 수 · widget-inspector 관례 대조 · 위젯 시험 함정 둘 · 카탈로그 타일 높이 · <code>[미검증]</code> 네 칸 · 특정 이름 빼기 · 지금 틀린 버전 사실 정정</p>
+<p><strong>외부 조회 0 회.</strong> 이 사이클의 유일한 외부 근거는 <code>.harness/.meta/evidence/phase5.md</code> 다. 아래 URL 은 전부 그 파일이 인용한 것이다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">확인한 사실</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart" target="_blank" rel="noopener">https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart</a></div></td>
+  <td><div class="c"><code>--build-filter</code> 는 공식 옵션이다. 다만 필터 밖의 기존 생성물을 남긴다는 보장은 공식 자료에 없다</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md" target="_blank" rel="noopener">https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md</a></div></td>
+  <td><div class="c">2.16 부터 잘못되거나 고쳐진 생성물을 기본으로 고친다. <code>--delete-conflicting-outputs</code> 는 제거된 호환 옵션 목록으로 옮겨졌다</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://git-scm.com/docs/git-status" target="_blank" rel="noopener">https://git-scm.com/docs/git-status</a></div></td>
+  <td><div class="c"><code>--porcelain=v1</code> 은 스크립트용 고정 형식이고 두 자리 가운데 어느 쪽의 <code>D</code> 도 삭제다</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html" target="_blank" rel="noopener">https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html</a></div></td>
+  <td><div class="c">locale 이 null 이면 시스템 로캘, 지원하지 않으면 <code>supportedLocales</code> 첫 항목</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://riverpod.dev/docs/root/do_dont" target="_blank" rel="noopener">https://riverpod.dev/docs/root/do_dont</a></div></td>
+  <td><div class="c">위젯이 provider 를 초기화하지 말고 provider 가 스스로 초기화한다</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html" target="_blank" rel="noopener">https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html</a></div></td>
+  <td><div class="c">겹친 스크롤을 하나처럼 움직이게 하는 위젯이 따로 있다 — 저절로는 협조하지 않는다</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json" target="_blank" rel="noopener">https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json</a></div></td>
+  <td><div class="c">stable 3.47.5 (2026-09-18)</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/api/packages/freezed" target="_blank" rel="noopener">https://pub.dev/api/packages/freezed</a></div></td>
+  <td><div class="c">stable 4.0.2 — Dart 3.13 · Analyzer 14, 생성자 파라미터 <code>final</code> 미지원 breaking</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">반영</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>codegen 필터 제거 (F06 · flutter:P-F06-codegen-delete-count · user-setup:P1)</strong> — 두 제안의 방향이 갈렸다(조건부 유지 대 전부 제거). 킷이 필터를 스스로 붙이지 않는 쪽으로 정했다. 사용자가 프로젝트 전용 필터 명령을 이름으로 부를 때만 쓴다. 킷이 codegen 을 직접 돌리는 다섯 자리(run · build · preflight · l10n · transition)는 전후 삭제 수를 매번 센다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>관례 대조 (F02 · flutter:P-INSPECTOR-convention)</strong> — widget-inspector 감지 기준 7. 호출 스킬이 넘긴 관례 표만 읽는다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>시험 함정 (F24 · flutter:P-TEST-locale-buildmod)</strong> · <strong>카탈로그 타일 높이 (F22 · flutter:P-CATALOG-tile-height)</strong></div></li>
+</ul>
+<h3 class="sub">미반영</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>F25</strong> — 시안 개수는 사용자 결정이 먼저다(근거 파일 §2 F25)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>F22 의 겹친 ProviderScope 부분</strong> — 근거 파일에 없다</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>[2026-08-13] — Phase 5 kaizen</h2>
+  <div class="doc-body">
+<p><strong>주제:</strong> 버전 사실 정정 3 종 + Primitive Substitution Gate(G1) · Riverpod invalidate 경계(G2) · 위젯 테스트 하네스(G3) · 성능 환경 배제(G4)</p>
+<p><strong>외부 조회 0 회.</strong> 이 사이클의 유일한 외부 근거는 <code>.harness/.meta/evidence/phase5.md</code> 다 (수집 방법: codex foreground). 아래 URL 은 전부 그 파일이 인용한 것이다.</p>
+<h3 class="sub">리서치 소스 (evidence 파일 경유)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">확인한 사실</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/freezed/changelog" target="_blank" rel="noopener">https://pub.dev/packages/freezed/changelog</a></div></td>
+  <td><div class="c"><strong>[정정 2026-08-13 근거]</strong> 최신 stable <strong>3.2.5</strong>. <code>.when</code>/<code>.map</code> 제거는 <strong>3.0</strong> 의 breaking, <strong>3.1.0 에서 재추가</strong>. "Freezed 3 부터 제거" 를 절대 규칙으로 쓰면 낡은 조항</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/release-notes" target="_blank" rel="noopener">https://docs.flutter.dev/release/release-notes</a></div></td>
+  <td><div class="c">stable 목록 최상단 <strong>3.47.0</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://flutter.dev/blog/whats-new-in-flutter-3-47" target="_blank" rel="noopener">https://flutter.dev/blog/whats-new-in-flutter-3-47</a></div></td>
+  <td><div class="c">Android 의존성 매트릭스 — Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/perf/impeller" target="_blank" rel="noopener">https://docs.flutter.dev/perf/impeller</a></div></td>
+  <td><div class="c">iOS Skia 전환 불가 · Android API 29+ 기본 · Web 은 Skia · <strong>macOS/Linux/Windows 는 3.47 부터 Impeller 기본</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/perf/ui-performance" target="_blank" rel="noopener">https://docs.flutter.dev/perf/ui-performance</a></div></td>
+  <td><div class="c">성능 디버깅은 물리 기기 + profile mode. debug/simulator 는 release 동작을 대표하지 않음</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/testing/build-modes" target="_blank" rel="noopener">https://docs.flutter.dev/testing/build-modes</a></div></td>
+  <td><div class="c">profile mode 는 emulator/simulator 에서 <strong>비활성</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://riverpod.dev/docs/concepts2/refs" target="_blank" rel="noopener">https://riverpod.dev/docs/concepts2/refs</a></div></td>
+  <td><div class="c"><code>watch</code> 선언형 구독 / <code>listen</code> side effect / <code>invalidate</code> 는 다음 read 때 재평가 / <code>refresh</code> 는 invalidate + read sugar</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><a class="ext" href="https://riverpod.dev/docs/concepts2/auto_dispose" target="_blank" rel="noopener">https://riverpod.dev/docs/concepts2/auto_dispose</a></div></td>
+  <td><div class="c">listener 0 이 된 뒤 <strong>한 프레임 후</strong> dispose · recompute 시 autoDispose 무관하게 state 파괴 · family 는 autoDispose 권장</div></td>
+</tr>
+<tr>
+  <td><div class="c">9</div></td>
+  <td><div class="c"><a class="ext" href="https://riverpod.dev/docs/how_to/testing" target="_blank" rel="noopener">https://riverpod.dev/docs/how_to/testing</a></div></td>
+  <td><div class="c">unit 은 <code>ProviderContainer.test()</code>(공유 금지, autoDispose 는 <code>listen</code> 으로 붙잡기) · widget 은 <code>ProviderScope</code> 루트 + <code>tester.container()</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">10</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flutter_riverpod/changelog" target="_blank" rel="noopener">https://pub.dev/packages/flutter_riverpod/changelog</a></div></td>
+  <td><div class="c">3.4.x 에서 scoped override 환경의 <code>invalidate</code>/<code>refresh</code> 미탐지 버그 수정 + <code>Ref.onManualInvalidation()</code> 추가 → <strong>버전 가드 필요</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">11</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/flutter/agent-plugins" target="_blank" rel="noopener">https://github.com/flutter/agent-plugins</a></div></td>
+  <td><div class="c">공식 Agent Plugins 는 "skills/rules 로 반복 워크플로우 주입" 을 agent mistake 감축의 1 차 기법으로 제시</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">내부 데이터 소스</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>.harness/.meta/kaizen-data-pool.md</code> §1 REJECT Top 20 — <code>RE-02</code>(기본 <code>Divider</code> 사용, <code>IFDivider</code> 미재사용) · <code>LG-02</code>(팔레트 변경 시 provider invalidate 누락) · <code>LG-01</code>(16종 매핑 중 2종만 검증)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>.claude/kaizen-input/insights-report.md</code> — 신규 델타 <strong>D5</strong>(성능 조사에서 환경 배제 성공 사례: 18일 누수된 시뮬레이터 render host 의 swap 포화), <strong>D3</strong>(사용자 관측 vs 자기 증거 충돌)</div></li>
+</ul>
+<h3 class="sub">사실 정정 (이 로그의 과거 서술 포함)</h3>
+<p>이 문서의 historical 항목 7 줄에 <code>**[정정 2026-08-13]**</code> 주석을 인라인으로 달았다. 과거 기록을 지우지 않고 정정만 덧붙인다.</p>
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><code>when</code>/<code>map</code> 이 영구 삭제됐다고 단정한 4 줄 → 3.1.0 재추가 명시</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body">Impeller 플랫폼 상태 2 줄 → 3.47 desktop 기본</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body">stable 3.44.7 표기 1 줄 → 3.47.0</div></li>
+</ul>
+<p>스킬 표면 정정: <code>flutter-api</code> · <code>flutter-audit</code> · <code>flutter-error</code> · <code>flutter-hooks</code> · <code>flutter-provider</code> (Freezed) · <code>flutter-widget</code> · <code>flutter-transition</code> (stable 버전) · <code>flutter-audit</code> · <code>references/flutter-ai-rules.md</code> (Impeller · AGP 매트릭스).</p>
+<h3 class="sub">반영 (신규 게이트 4 종)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G1 Primitive Substitution Gate (E2)</strong> — <code>flutter-toolkit/references/primitive-substitution-gate.md</code> SSOT 신설. <code>flutter-widget</code> · <code>flutter-screen</code> · <code>flutter-audit</code> · <code>widget-inspector</code> 4 표면이 인용만 한다. 기존 §Enumerate-before-Act(E1)가 있는데도 <code>RE-02</code> 가 났으므로 등급 승급으로 처리했고, <strong>layout primitive 는 면제 목록으로 명시</strong>해 과잉 규칙화를 막았다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G2 invalidate 경계</strong> — <code>flutter-provider</code> 에 파생 provider <code>watch</code>+<code>select</code> 연결, mutation 후 영향 provider 열거 + <code>invalidate</code>, autoDispose 실수명, <code>onManualInvalidation</code> <strong>3.4.x 버전 가드</strong>. "전체 family invalidate" 는 금지 조항으로 명시</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G3 widget test 하네스</strong> — <code>flutter-test</code> + <code>quality/testing.md</code> 에 <code>ProviderScope</code> 루트 + <code>tester.container()</code> 기본형과 전수 매핑 coverage 조항</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>G4 성능 환경 배제</strong> — <code>flutter-audit</code> + <code>quality/performance.md</code> 에 Environment Exclusion Checklist 8 항 + "simulator/debug 단독 결과는 <code>[미검증]</code>" 판정 규칙</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>[2026-07-27] - Phase 5 kaizen</h2>
+  <div class="doc-body">
+<p><strong>주제:</strong> Friction #2(시각·런타임 검증 신뢰 불가) enforcement 승급 + Flutter 3.44 / Riverpod 3.4 정합화</p>
+<h3 class="sub">리서치 소스 (전부 WebFetch 실측 · Context7 은 OAuth 미인증으로 사용 불가)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">확인한 사실</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/release-notes" target="_blank" rel="noopener">https://docs.flutter.dev/release/release-notes</a></div></td>
+  <td><div class="c">stable <strong>3.44.7</strong> (페이지 갱신 2026-07-10). 스킬들이 기준으로 삼던 3.41 은 구버전. <strong>[정정 2026-08-13]</strong> 릴리스 인덱스 stable 목록 최상단은 이제 <strong>3.47.0</strong> 이다</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/release-notes/release-notes-3.44.0" target="_blank" rel="noopener">https://docs.flutter.dev/release/release-notes/release-notes-3.44.0</a></div></td>
+  <td><div class="c"><code>TestWidgetsApp</code>(WidgetTester 기본 앱 표준화) · <code>TestTextField</code> 추가, <code>WidgetTesterCallback</code> 파라미터명 <code>widgetTester</code>→<code>tester</code>, flutter_test false-positive 히트테스트 수정. <code>ReorderableListView.onReorder</code> deprecated, <code>ExtendSelectionByPageIntent</code> 제거. <code>AnimatedCrossFade.onEnd</code> · Hero curve 커스터마이징 · <code>CupertinoSheetRoute</code> · 무한 <code>CarouselView</code> · <code>CarouselView.onItemChanged</code> · <code>RoundedSuperellipseInputBorder</code> · <code>Overlay.alwaysSizeToContent</code> · <code>ScrollCacheExtent</code> 추가. Impeller SDF 렌더링</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c"><a class="ext" href="https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html" target="_blank" rel="noopener">https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html</a></div></td>
+  <td><div class="c"><code>expectLater</code> + await 필수, <code>--update-goldens</code> 로 마스터 갱신. 커스텀 폰트는 플랫폼·Flutter 버전별로 다르게 렌더 → CI 실패 원인 4 종(OS 차이 / 버전 차이 / 폰트 로드 실패 / 실제 UI 변경)</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/golden_toolkit" target="_blank" rel="noopener">https://pub.dev/packages/golden_toolkit</a></div></td>
+  <td><div class="c"><strong>discontinued</strong>. 최신 0.15.0, 마지막 업데이트 3 년 전</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/alchemist" target="_blank" rel="noopener">https://pub.dev/packages/alchemist</a></div></td>
+  <td><div class="c">0.14.0, 4 개월 전 갱신, 유지보수 중 (Very Good Ventures / Betterment). 로컬·CI 테스트 분리, 자동 리사이즈, 테마·텍스트 스케일 조정</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flutter_riverpod" target="_blank" rel="noopener">https://pub.dev/packages/flutter_riverpod</a></div></td>
+  <td><div class="c">최신 <strong>3.4.1</strong> (조회 시점 기준 17 시간 전 릴리스)</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flutter_riverpod/changelog" target="_blank" rel="noopener">https://pub.dev/packages/flutter_riverpod/changelog</a></div></td>
+  <td><div class="c">3.2.0 <code>family.overrideWith</code> deprecated → <code>overrideWith2</code>(4.0 rename 예정), 3.4.0 <code>SyncProviderTransformerMixin</code> deprecated. 신규: <code>Ref.onManualInvalidation()</code> · <code>ProviderContainer.allProviders()</code> · <code>AsyncValue.requireValue</code>(3.1) · <code>CustomProviderListenable</code>/<code>ValueListenable</code>(3.4). <strong>mutations/offline 은 여전히 experimental</strong></div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/go_router/changelog" target="_blank" rel="noopener">https://pub.dev/packages/go_router/changelog</a></div></td>
+  <td><div class="c">최신 <strong>17.3.0</strong>. 17.0 <code>ShellRoute</code> observer 알림 기본화(<code>notifyRootObserver</code>), 15.0 URL 대소문자 구분(<code>caseSensitive</code>)</div></td>
+</tr>
+<tr>
+  <td><div class="c">9</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flutter_hooks" target="_blank" rel="noopener">https://pub.dev/packages/flutter_hooks</a></div></td>
+  <td><div class="c">최신 0.21.3+1. 훅 3 원칙(이름 <code>use</code> prefix · 무조건 호출 · 조건부 호출 금지) 재확인</div></td>
+</tr>
+</tbody></table></div>
+<p>&lt;!-- markdownlint-disable-next-line MD024 --&gt;</p>
+<h3 class="sub">내부 데이터 소스</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>.claude/kaizen-input/insights-report.md</code> (2026-07-27, 53 일 · 51 세션) — Friction #2 가 신규 최상위, 진앙이 Flutter</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>.claude/kaizen-input/reflect-digest-2026-07-27.md</code> — <code>mismatched-provider-skill</code> · <code>edit-before-read</code> · <code>preserve-original-colors</code> · <code>false-positive-static-verification</code> · <code>scan-animation-direction-mismatch</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>.harness/.meta/kaizen-data-pool.md</code> §1 글로벌 REJECT (<code>AR-01</code> codegen 산출물 혼입 · <code>UI-07</code> widget test 0 건 · <code>UI-03</code> alignment 불일치) / §2 외부 프로젝트 (fit-pal · apps · flutter_playwright)</div></li>
+</ul>
+<h3 class="sub">반영 (enforcement 등급 승급 중심 — 새 규칙 추가 최소화)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>신규</strong> <code>flutter-toolkit/references/visual-evidence-protocol.md</code> (E2) — 시각 산출물 완료 증거 SSOT. 채널 감지는 <strong>프로젝트 감지 기반</strong>(MCP 도구명 하드코딩 금지), baseline→변경→재캡처→대조 루프, "빈 캡처는 PASS 증거가 아니라 검증 실패 신호", degraded 모드 <code>[미검증]</code>, Visual Evidence Block 체크리스트</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">UI 스킬 5 종(widget · screen · skeleton · transition · responsive)에 Gotcha + 완료 단계 양쪽 연결</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>project-detection.md</code> Step 8 <code>VISUAL_CHANNEL</code> / <code>HAS_VISUAL_CHANNEL</code> 감지 추가</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>flutter-audit</code> — 자체 <code>[미검증]</code> 임계 재정의 삭제 → qa-evaluation-guide §Canonical Unverified-Evidence Protocol 5 조항 문구 변형 없이 복제 + Evidence Validity Gate 4 검사 도입</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>widget-inspector</code> — "Clean" vacuous pass 차단(스캔 대상 파일 수 선보고, 0 개면 <code>[미검증]</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>flutter-provider</code> — 신규 생성 전용임을 description·Step 1 에 명시(<code>mismatched-provider-skill</code>), Read-before-Edit MUST</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>flutter-hooks</code> — 3-Step → 4-Step(검증) 확장, 정적 확인을 동작 확인으로 주장 금지</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>flutter-run</code> — codegen 산출물/수기 변경 분리 보고 (<code>AR-01</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>flutter-test</code> — <code>$DART test</code> → <code>$FLUTTER test</code> 버그 수정, 무출처 주장(<code>community 2025-12</code>) 을 실측 URL 로 교체, 3.44 테스트 헬퍼 추가</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>flutter-kaizen</code> — validate-plugin 7 → 8 카테고리(V1~V8), scope-creep 은 unit 수 기준, NO_CHANGE 허용 명시</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>[2026-06-05] — Phase 5 kaizen</h2>
+  <div class="doc-body">
+<p>flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2026-06-04 Friction #3). flutter-extract/provider 1차 승격분 중복 회피, stack-agnostic 유지.</p>
+<p>출처: <code>.claude/kaizen-input/insights-report.md</code> Friction #3.</p>
+<blockquote class="quote"><p>Flutter 관련 리서치 로그. <code>docs/kaizen/flutter-research-log.md</code> 와 동일 내용을 per-kit view 로 보관한다. kaizen-orchestrator 의 per-kit research-log 정책 (Step 12) 에 따라 생성됨. 상세 소스/인사이트는 <code>docs/kaizen/flutter-research-log.md</code> 를 참조.</p></blockquote>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>[2026-05-07] — Phase 5 kaizen (flutter, /insights 흡수)</h2>
+  <div class="doc-body">
+<h3 class="sub">데이터 소스</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">데이터 풀 §0 <code>/insights</code> 30 일 분석 (3 friction · 3 pattern · 3 feature)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>harness/references/cross-kit-principles.md</code> v1 매트릭스의 flutter 열</div></li>
+</ul>
+<h3 class="sub">Phase 5 변경</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">flutter/README.md 에 cross-kit-principles 매트릭스 cross-reference 섹션 추가</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">plugin.json patch bump (이번 사이클)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">매핑: flutter-audit ANALYZE ↔ Pre-Edit Batch Audit, flutter-reviewer self-check ↔ Self-Evaluator Audit, PostToolUse 정적 검증 ↔ Hook-Triggered Auto-Correction</div></li>
+</ul>
+<h3 class="sub">외부 리서치 인용 (이전 사이클 보존, 이번 사이클 추가 없음)</h3>
+<p>이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.</p>
+<hr class="rule">
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>2026-04-11</h2>
+  <div class="doc-body">
+<p><strong>트리거:</strong> kaizen-orchestrator Phase 5 (research-mode rerun)</p>
+<h3 class="sub">조사한 소스 요약</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">제목</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">Riverpod 3.0 migration</div></td>
+  <td><div class="c"><a class="ext" href="https://riverpod.dev/docs/3.0_migration" target="_blank" rel="noopener">https://riverpod.dev/docs/3.0_migration</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c">Freezed 3.0 changelog</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/freezed/changelog" target="_blank" rel="noopener">https://pub.dev/packages/freezed/changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">채택 (abstract/sealed)</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c">go_router StatefulShellRoute</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html" target="_blank" rel="noopener">https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">Flutter 3.29 release notes</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/release-notes/release-notes-3.29.0" target="_blank" rel="noopener">https://docs.flutter.dev/release/release-notes/release-notes-3.29.0</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">flutter_hooks</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flutter_hooks" target="_blank" rel="noopener">https://pub.dev/packages/flutter_hooks</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c">fit-pal / apps sprint-feedback</div></td>
+  <td><div class="c">(internal)</div></td>
+  <td><div class="c">ground truth</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">주요 인사이트 (요약)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Riverpod 3.0 Notifier 라이프사이클</strong>: 재생성 시 leak 방지를 위해 Notifier 내부 Timer/Controller 금지, <code>ref.onDispose</code> 로 분리</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Freezed 3.0 sealed + Dart 3 switch expression</strong>: <code>when</code>/<code>map</code> 제거 마이그레이션 대응 — <strong>[정정 2026-08-13]</strong> <code>when</code>/<code>map</code> 은 <strong>3.1.0 에서 재추가</strong>됐다. 절대 규칙이 아니다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>go_router StatefulShellRoute + preload: true</strong>: 탭 네비게이션 공식 권장 패턴</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>context.mounted vs ref.mounted</strong>: async gap 후 context 재사용 시 필수 가드 구분</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Makefile monorepo 감지</strong>: fit-pal/apps 에서 make 기반 표준 타겟 감지 → project-detection Step 2b</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Props 번들링 (widget-inspector)</strong>: HAS_FREEZED + HAS_HOOKS 프로젝트에서 위젯 파라미터 6+ 개 → <code>@freezed Props</code> 권장</div></li>
+</ul>
+<h3 class="sub">전체 기록</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/kaizen/flutter-research-log.md</code> (마스터 로그)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/kaizen/flutter-changelog.md</code> (변경 이력)</div></li>
+</ul>
+<h3 class="sub">PR</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><a class="ext" href="https://github.com/joo6077/claude-plugins/pull/6" target="_blank" rel="noopener">https://github.com/joo6077/claude-plugins/pull/6</a></div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>2026-04-12</h2>
+  <div class="doc-body">
+<p><strong>트리거:</strong> 5성 Gap 개선 — docs/flutter 리서치 확충 (695줄 → 1500줄+)</p>
+<h3 class="sub">확충 대상 및 출처</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">파일</div></th>
+  <th><div class="c">추가 내용</div></th>
+  <th><div class="c">주요 출처</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">ui/animation.md</div></td>
+  <td><div class="c">Staggered animation, AnimatedSwitcher, RepaintBoundary, 성능 프로파일링</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/ui/animations/staggered-animations" target="_blank" rel="noopener">https://docs.flutter.dev/ui/animations/staggered-animations</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">ui/responsive.md</div></td>
+  <td><div class="c">Breakpoint utility, Sliver 반응형, Foldable 지원, 테스트 전략</div></td>
+  <td><div class="c"><a class="ext" href="https://m3.material.io/foundations/layout/applying-layout/window-size-classes" target="_blank" rel="noopener">https://m3.material.io/foundations/layout/applying-layout/window-size-classes</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">ui/theming.md</div></td>
+  <td><div class="c">ThemeExtension 코드 예시, Dynamic Color, AnimatedTheme, 테스트</div></td>
+  <td><div class="c"><a class="ext" href="https://api.flutter.dev/flutter/material/ThemeExtension-class.html" target="_blank" rel="noopener">https://api.flutter.dev/flutter/material/ThemeExtension-class.html</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">ui/widget-composition.md</div></td>
+  <td><div class="c">Child hoisting, Builder 패턴, 분해 기준, 테스트</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">https://docs.flutter.dev/perf/best-practices</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">state/state-management.md</div></td>
+  <td><div class="c">AsyncNotifier 구조, ref.invalidate vs refresh, Provider 선택, 테스트</div></td>
+  <td><div class="c"><a class="ext" href="https://docs-v2.riverpod.dev/docs/providers/notifier_provider" target="_blank" rel="noopener">https://docs-v2.riverpod.dev/docs/providers/notifier_provider</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">state/hooks.md</div></td>
+  <td><div class="c">커스텀 훅, useEffect keys 규칙, Props 번들링, 테스트</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html" target="_blank" rel="noopener">https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">state/async-patterns.md</div></td>
+  <td><div class="c">FutureBuilder 올바른 사용, Isolate.run, 취소 패턴, Debounce</div></td>
+  <td><div class="c"><a class="ext" href="https://dart.dev/language/isolates" target="_blank" rel="noopener">https://dart.dev/language/isolates</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">quality/performance.md</div></td>
+  <td><div class="c">DevTools, Impeller, 최적화 체크리스트, 메모리 관리</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/perf/impeller" target="_blank" rel="noopener">https://docs.flutter.dev/perf/impeller</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">quality/testing.md</div></td>
+  <td><div class="c">Widget test 기본 구조, Golden test, 테스트 피라미드, Fake vs Mock</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/cookbook/testing/widget/tap-drag" target="_blank" rel="noopener">https://docs.flutter.dev/cookbook/testing/widget/tap-drag</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">architecture/clean-architecture.md</div></td>
+  <td><div class="c">디렉토리 구조, UseCase 생략 기준, DI 패턴, 데이터 흐름</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/app-architecture/guide" target="_blank" rel="noopener">https://docs.flutter.dev/app-architecture/guide</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">architecture/routing.md</div></td>
+  <td><div class="c">GoRouter 설정, ShellRoute, 딥링크+인증, transition</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/documentation/go_router/latest/" target="_blank" rel="noopener">https://pub.dev/documentation/go_router/latest/</a></div></td>
+</tr>
+<tr>
+  <td><div class="c">architecture/api-layer.md</div></td>
+  <td><div class="c">Retrofit DataSource, DTO 변환, Interceptor, Pagination, 테스트</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/retrofit" target="_blank" rel="noopener">https://pub.dev/packages/retrofit</a></div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">방법론</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">모든 추가 내용에 flutter.dev, pub.dev, dart.dev, m3.material.io 등 공식 출처 URL 포함</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">기존 내용 미삭제 (append-only)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">코드 예시는 실전 프로젝트 패턴 기반, 최소한의 context로 이해 가능하도록 작성</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">각 문서에 "실전 패턴" + "테스트 전략" + 추가 Gotchas 섹션 보강</div></li>
+</ul>
+<h3 class="sub">향후 리서치 백로그</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">우선순위</div></th>
+  <th><div class="c">주제</div></th>
+  <th><div class="c">예상 출처</div></th>
+  <th><div class="c">대상 문서</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">Flutter 4.0 breaking changes</div></td>
+  <td><div class="c">flutter.dev/release</div></td>
+  <td><div class="c">전체</div></td>
+</tr>
+<tr>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">Riverpod 4.0 (예정) code generation 변경</div></td>
+  <td><div class="c">riverpod.dev</div></td>
+  <td><div class="c">state/state-management.md</div></td>
+</tr>
+<tr>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">Impeller Android 안정화 상태</div></td>
+  <td><div class="c">flutter.dev/perf/impeller</div></td>
+  <td><div class="c">quality/performance.md</div></td>
+</tr>
+<tr>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">Dart macros (stable 이후)</div></td>
+  <td><div class="c">dart.dev/language</div></td>
+  <td><div class="c">architecture/clean-architecture.md</div></td>
+</tr>
+<tr>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">Material 3 Expressive Theme</div></td>
+  <td><div class="c">m3.material.io</div></td>
+  <td><div class="c">ui/theming.md</div></td>
+</tr>
+<tr>
+  <td><div class="c">낮음</div></td>
+  <td><div class="c">Flutter web WASM compilation (stable)</div></td>
+  <td><div class="c">docs.flutter.dev/platform-integration/web/wasm</div></td>
+  <td><div class="c">state/async-patterns.md</div></td>
+</tr>
+<tr>
+  <td><div class="c">낮음</div></td>
+  <td><div class="c">DevTools extensions API</div></td>
+  <td><div class="c">docs.flutter.dev/tools/devtools</div></td>
+  <td><div class="c">quality/performance.md</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">품질 기준</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">각 문서가 5 원칙 + 2 수치 + 3 안티패턴 + 2 Gotchas 최소 유지</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">코드 예시는 실행 가능한 snippet (import 생략하되 타입은 명확히)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">deprecated API 사용 시 <code>[deprecated: YYYY-MM]</code> 태그 필수</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">출처 URL은 분기별로 접근 가능성 확인 (404 발견 시 즉시 대체)</div></li>
+</ul>
+<h3 class="sub">관련 카이젠 사이클</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">이번 확충은 flutter-kaizen Phase 5 이후 추가 보강으로, kaizen-orchestrator의 per-kit research-log 정책을 따름</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">다음 <code>/flutter-kaizen</code> 실행 시 이 리서치를 기반으로 flutter-toolkit 스킬 Gotchas/Process 개선 예정</div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>2026-04-12 (2차 — 에코시스템 확충)</h2>
+  <div class="doc-body">
+<p><strong>트리거:</strong> manual (research-log 200줄+ 확충 태스크)</p>
+<h3 class="sub">조사한 소스</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">제목</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">태그</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">1</div></td>
+  <td><div class="c">Flutter 3.41.0 release notes</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/release-notes/release-notes-3.41.0" target="_blank" rel="noopener">https://docs.flutter.dev/release/release-notes/release-notes-3.41.0</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">2</div></td>
+  <td><div class="c">What's new in Flutter 3.41 (blog.flutter.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://blog.flutter.dev/whats-new-in-flutter-3-41-302ec140e632" target="_blank" rel="noopener">https://blog.flutter.dev/whats-new-in-flutter-3-41-302ec140e632</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">3</div></td>
+  <td><div class="c">Flutter 3.38 &amp; Dart 3.10 (blog.flutter.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://blog.flutter.dev/whats-new-in-flutter-3-38-3f7b258f7228" target="_blank" rel="noopener">https://blog.flutter.dev/whats-new-in-flutter-3-38-3f7b258f7228</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">4</div></td>
+  <td><div class="c">Flutter 3.38 &amp; Dart 3.10 (Foresight Mobile)</div></td>
+  <td><div class="c"><a class="ext" href="https://foresightmobile.com/blog/flutter-3-38-dart-3-10-november-2025-update" target="_blank" rel="noopener">https://foresightmobile.com/blog/flutter-3-38-dart-3-10-november-2025-update</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">5</div></td>
+  <td><div class="c">Dart language evolution</div></td>
+  <td><div class="c"><a class="ext" href="https://dart.dev/resources/language/evolution" target="_blank" rel="noopener">https://dart.dev/resources/language/evolution</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">6</div></td>
+  <td><div class="c">Announcing Dart 3.10 (blog.dart.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://blog.dart.dev/announcing-dart-3-10-ea8b952b088" target="_blank" rel="noopener">https://blog.dart.dev/announcing-dart-3-10-ea8b952b088</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">7</div></td>
+  <td><div class="c">Riverpod 3.0 What's New</div></td>
+  <td><div class="c"><a class="ext" href="https://riverpod.dev/docs/whats_new" target="_blank" rel="noopener">https://riverpod.dev/docs/whats_new</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">8</div></td>
+  <td><div class="c">Riverpod 3.0 (codewithandrea.com)</div></td>
+  <td><div class="c"><a class="ext" href="https://codewithandrea.com/newsletter/september-2025/" target="_blank" rel="noopener">https://codewithandrea.com/newsletter/september-2025/</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">9</div></td>
+  <td><div class="c">riverpod_generator changelog (pub.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/riverpod_generator/changelog" target="_blank" rel="noopener">https://pub.dev/packages/riverpod_generator/changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">10</div></td>
+  <td><div class="c">Freezed changelog (pub.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/freezed/changelog" target="_blank" rel="noopener">https://pub.dev/packages/freezed/changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">11</div></td>
+  <td><div class="c">Dart Macros Discontinued &amp; Freezed 3.0</div></td>
+  <td><div class="c"><a class="ext" href="https://alperenderici.medium.com/dart-macros-discontinued-freezed-3-0-released-why-it-happened-whats-new-and-alternatives-385fc0c571a4" target="_blank" rel="noopener">https://alperenderici.medium.com/dart-macros-discontinued-freezed-3-0-released-why-it-happened-whats-new-and-alternatives-385fc0c571a4</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">12</div></td>
+  <td><div class="c">go_router changelog (pub.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/go_router/changelog" target="_blank" rel="noopener">https://pub.dev/packages/go_router/changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">13</div></td>
+  <td><div class="c">auto_route changelog (pub.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/auto_route/changelog" target="_blank" rel="noopener">https://pub.dev/packages/auto_route/changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">14</div></td>
+  <td><div class="c">flutter_hooks (pub.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flutter_hooks" target="_blank" rel="noopener">https://pub.dev/packages/flutter_hooks</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">15</div></td>
+  <td><div class="c">Impeller rendering engine (docs.flutter.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/perf/impeller" target="_blank" rel="noopener">https://docs.flutter.dev/perf/impeller</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">16</div></td>
+  <td><div class="c">Flutter WASM support (docs.flutter.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/platform-integration/web/wasm" target="_blank" rel="noopener">https://docs.flutter.dev/platform-integration/web/wasm</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">17</div></td>
+  <td><div class="c">Patrol 4.0 Released (LeanCode)</div></td>
+  <td><div class="c"><a class="ext" href="https://leancode.co/blog/patrol-4-0-release" target="_blank" rel="noopener">https://leancode.co/blog/patrol-4-0-release</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">18</div></td>
+  <td><div class="c">patrol changelog (pub.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/patrol/changelog" target="_blank" rel="noopener">https://pub.dev/packages/patrol/changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">19</div></td>
+  <td><div class="c">Flutter GenUI SDK (docs.flutter.dev)</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/ai/genui" target="_blank" rel="noopener">https://docs.flutter.dev/ai/genui</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">20</div></td>
+  <td><div class="c">M3 Expressive umbrella issue</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/flutter/flutter/issues/168813" target="_blank" rel="noopener">https://github.com/flutter/flutter/issues/168813</a></div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">21</div></td>
+  <td><div class="c">macro_kit (GitHub)</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/rebaz94/macro_kit" target="_blank" rel="noopener">https://github.com/rebaz94/macro_kit</a></div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">22</div></td>
+  <td><div class="c">build_runner speedups (codewithandrea.com)</div></td>
+  <td><div class="c"><a class="ext" href="https://codewithandrea.com/newsletter/december-2025/" target="_blank" rel="noopener">https://codewithandrea.com/newsletter/december-2025/</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">23</div></td>
+  <td><div class="c">DCM top Flutter features 2025</div></td>
+  <td><div class="c"><a class="ext" href="https://dcm.dev/blog/2025/12/23/top-flutter-features-2025/" target="_blank" rel="noopener">https://dcm.dev/blog/2025/12/23/top-flutter-features-2025/</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">24</div></td>
+  <td><div class="c">DCM top Dart features 2025</div></td>
+  <td><div class="c"><a class="ext" href="https://dcm.dev/blog/2025/12/20/top-dart-features-2025-years/" target="_blank" rel="noopener">https://dcm.dev/blog/2025/12/20/top-dart-features-2025-years/</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">25</div></td>
+  <td><div class="c">Flutter testing recap 2025 (DEV)</div></td>
+  <td><div class="c"><a class="ext" href="https://dev.to/3lvv0w/flutter-mobile-testing-methodologies-recap-2025-523j" target="_blank" rel="noopener">https://dev.to/3lvv0w/flutter-mobile-testing-methodologies-recap-2025-523j</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">26</div></td>
+  <td><div class="c">Very Good Ventures critical packages 2024</div></td>
+  <td><div class="c"><a class="ext" href="https://verygood.ventures/blog/pub-in-focus-the-most-critical-dart-flutter-packages-of-2024/" target="_blank" rel="noopener">https://verygood.ventures/blog/pub-in-focus-the-most-critical-dart-flutter-packages-of-2024/</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">채택한 인사이트</h3>
+<h4 class="sub">A. Flutter SDK (3.38 → 3.41)</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flutter 3.38 (2025-11, Dart 3.10):</strong> Stateful Hot Reload on web 안정화 (기본 활성), <code>web_dev_config.yaml</code>로 CORS 프록시/로컬 SSL 설정 가능, Android 16KB 메모리 페이지 필수화 (Google Play 2025-11-01부터) [official] [dated: 2025-11]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flutter 3.41 (2026-02, Dart 3.11):</strong> Impeller on Web 초기 구현 (wimp), 0x0 환경 크래시 수정 (수십 개 위젯), 새 Window Management API (Linux/macOS regular windows, Windows/Linux dialog windows, tooltip/popup windows), <code>Navigator.popUntilWithResult</code>, <code>RepeatingAnimationBuilder</code>, <code>DeviceOrientationBuilder</code>, CarouselView builder 추가 [official] [dated: 2026-02]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flutter 3.41 플랫폼:</strong> CocoaPods → Swift Package Manager 전환 가속, UIScene lifecycle 기본 지원, Material/Cupertino 라이브러리 별도 패키지 분리 진행 중, content-sized Flutter views (하이브리드 앱 자동 리사이즈) [official] [dated: 2026-02]</div></li>
+</ul>
+<h4 class="sub">B. Dart 언어 (3.7 → 3.10)</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dart 3.7 wildcard variables:</strong> <code>_</code> 이름의 로컬 변수/파라미터가 non-binding으로 동작, 여러 번 선언 가능. 패턴 매칭에서 특정 값을 무시할 때 유용 [official] [dated: 2025-05]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dart 3.8 formatter 개선:</strong> trailing comma 자동 배치 지능화 — 강제 분할 대신 컴파일러가 판단. 코드 출력 스타일 개선 [official] [dated: 2025-08]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dart 3.10 dot shorthands:</strong> <code>.center</code> 대신 <code>MainAxisAlignment.center</code> 생략 가능. enum, static member, constructor에 모두 적용. UI-heavy 파일에서 보일러플레이트 10-15% 감소 추정 [official] [dated: 2025-11]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dart 3.10 build hooks 안정화:</strong> <code>hook/build.dart</code> 스크립트로 네이티브 코드 컴파일/번들을 빌드 시 자동 실행 [official] [dated: 2025-11]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dart macros 중단 (2025-01):</strong> Dart 팀이 macro 기능 개발을 무기한 중단 발표. JIT/AOT 컴파일, tree-shaking, reflection 부재로 구현 복잡도가 너무 높았음. build_runner 기반 코드 생성이 당분간 유일한 경로 [official] [dated: 2025-01]</div></li>
+</ul>
+<h4 class="sub">C. Riverpod 3.0 (2025-09)</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>API 통합:</strong> AutoDispose/Family 변형 제거, <code>Notifier</code>와 <code>FamilyNotifier</code> 통합, <code>Ref</code> 서브클래스 단일화 [official] [dated: 2025-09]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Offline Persistence (실험):</strong> Provider를 SQLite 등에 영속화 가능. 앱 재시작 시 복원 [official] [dated: 2025-09]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Mutations (실험):</strong> 폼 제출 등 사이드이펙트에 loading/success/error 상태 자동 관리 [official] [dated: 2025-09]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Automatic Retry:</strong> 초기화 실패 시 exponential backoff으로 자동 재시도 [official] [dated: 2025-09]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Ref.mounted:</strong> async 작업 후 Provider 유효성 체크 (<code>BuildContext.mounted</code>와 동일 패턴) [official] [dated: 2025-09]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Pause/Resume:</strong> <code>ref.listen</code> 리스너를 수동 일시정지/재개 가능. 화면 비가시 시 자동 일시정지 [official] [dated: 2025-09]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>테스트:</strong> <code>ProviderContainer.test()</code> (자동 정리), <code>overrideWithBuild</code> (선택적 모킹), <code>overrideWithValue</code> 복원 [official] [dated: 2025-09]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>riverpod_generator:</strong> 타입 파라미터 지원, Family 인자 override 2 파라미터, Mutation 지원 추가 [official] [dated: 2025-09]</div></li>
+</ul>
+<h4 class="sub">D. Freezed 3.x (2025-07 → 2026-02)</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Freezed 3.2.0 (2025-07):</strong> Mixed mode 도입 — 기존 union 문법 + 간단 class 선언 혼용 가능. <code>map</code>/<code>when</code> 메서드 제거, Dart 3 패턴 매칭으로 대체. "eject union cases" 기능 추가 [official] [dated: 2025-07] — <strong>[정정 2026-08-13]</strong> 제거는 <strong>3.0</strong> 의 breaking 이었고 <strong>3.1.0 에서 재추가</strong>됐다. 3.2.0 을 제거 시점으로 적은 것은 오기다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Freezed 3.2.5 (2026-02):</strong> analyzer 10.0 지원. 3.2.3~3.2.5는 analyzer/source_gen/build 의존성 호환 범위 확장 [official] [dated: 2026-02]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>json_serializable 호환:</strong> Freezed 3.2.3 + json_serializable 6.11.3에서 analyzer &gt;=9/build &gt;=4 호환 이슈 보고됨. 버전 핀닝 주의 필요 [community] [dated: 2025-09]</div></li>
+</ul>
+<h4 class="sub">E. 라우팅</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>go_router 17.2.0:</strong> <code>TypedQueryParameter</code>로 쿼리 파라미터 이름 커스텀 인코딩/디코딩, <code>refreshListenable</code> 콜백 유실 수정. 17.0.0에서 <code>ShellRoute</code>가 기본으로 GoRouter observer에 알림 (breaking change), <code>notifyRootObserver</code> 파라미터 추가. 최소 SDK: Flutter 3.32/Dart 3.8 [official] [dated: 2026-04]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>auto_route 11.1.0:</strong> <code>.named</code> 생성자로 코드 생성 없이 shorthand named route 지원. 11.0.0에서 <code>redirect</code> → <code>redirectUntil</code> 리네이밍 (breaking), deprecated named navigation 메서드 제거 (<code>navigateNamed</code>, <code>pushNamed</code> 등). 10.3.0에서 <code>AutoRouteGuard</code> async 지원 + 네비게이션 히스토리 추적 [official] [dated: 2026-01]</div></li>
+</ul>
+<h4 class="sub">F. flutter_hooks</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>flutter_hooks 0.21.3+1:</strong> 현재 최신 안정 버전. Android/iOS/Linux/macOS/Web/Windows 전 플랫폼 지원. React hooks 패턴의 Flutter 구현체로 안정기 진입 [official] [dated: 2025-09]</div></li>
+</ul>
+<h4 class="sub">G. 테스팅</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Patrol 4.x:</strong> Web 플랫폼 지원 추가, VS Code 확장, 디버깅 개선. 4.5.0에서 <code>dart.library.js_interop</code> 마이그레이션, Android API 36 에뮬레이터 지원, iOS 18+ 알림 인덱싱 일관성 수정. 월 200K 다운로드, E2E 테스팅 사실상 표준 [official] [dated: 2026-03]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Golden testing:</strong> <code>alchemist</code>가 중단된 <code>golden_toolkit</code> 대체. CI/CD 파이프라인 통합이 표준 관행으로 정착 [blog] [dated: 2025-12]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>테스트 피라미드:</strong> unit 다수 → widget 중간 → integration 최소 구조 유지. Widget test에서 <code>find.byType</code> + <code>tester.tap</code> + <code>tester.pumpAndSettle</code> 기본 패턴 [official]</div></li>
+</ul>
+<h4 class="sub">H. 성능 &amp; 렌더링</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Impeller 상태 (2026-04):</strong> iOS 필수 (Skia 전환 불가), Android API 29+ 기본 (Vulkan 없으면 OpenGL 폴백), macOS 실험적 (플래그 활성화 필요), Web/Windows/Linux 미지원. Android에서 frame drop 12% → 1.5% (Skia 대비 실측치, e-커머스 앱) [official] [dated: 2026-04] — <strong>[정정 2026-08-13]</strong> <strong>macOS / Linux / Windows 는 Flutter 3.47 부터 Impeller 기본</strong>이다. Web 만 Skia</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Impeller on Web (wimp):</strong> Flutter 3.41에서 초기 구현 시작. 현재 Web은 <code>canvaskit</code>/<code>skwasm</code> 사용 [official] [dated: 2026-02]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Shader compilation jank 해소:</strong> Impeller는 AOT 셰이더 컴파일로 JIT 컴파일 잔버벅 제거. 복잡 UI에서 평균 래스터화 시간 50% 감소 [official]</div></li>
+</ul>
+<h4 class="sub">I. Web &amp; WASM</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>WASM stable (Flutter 3.24+):</strong> <code>flutter build web --wasm</code>으로 프로덕션 빌드 가능. WasmGC 필요 (Chrome 119+). Firefox/Safari는 호환 버그 있음, iOS 전면 미지원 (WebKit) [official] [dated: 2025-11]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>성능:</strong> WASM 앱이 JS 대비 로딩 40% 빠르고 메모리 30% 절감 (Flutter 팀 2025 벤치마크) [official] [dated: 2025-11]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>JS interop 전환:</strong> <code>dart:html</code>, <code>package:js</code> 폐기 예정 → <code>package:web</code> + <code>dart:js_interop</code>으로 마이그레이션 필수. WASM 호환 interop 모델 [official] [dated: 2025-11]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>폴백:</strong> WasmGC 미지원 브라우저에서 자동으로 JS 렌더러로 폴백 [official]</div></li>
+</ul>
+<h4 class="sub">J. AI 통합</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GenUI SDK (alpha):</strong> LLM이 Flutter 위젯 카탈로그로 UI를 동적 생성. 텍스트 대화 → 리치 인터랙티브 UI 변환 오케스트레이션 레이어. 2026년 beta/production 전환 예상 [official] [dated: 2025-12]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flutter AI Toolkit v1.0 (2025-12):</strong> 사전 빌드 채팅 위젯, 멀티턴 함수 호출, 음성-텍스트 변환 [official] [dated: 2025-12]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flutter MCP server + AI Rules:</strong> Google I/O 2025에서 Flutter를 "agentic apps" 프레임워크로 포지셔닝 [official] [dated: 2025-05]</div></li>
+</ul>
+<h4 class="sub">K. 코드 생성 &amp; 도구</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>build_runner 2x 속도 향상:</strong> transitive import 추적 전면 재작성. 3,000 생성 라이브러리 테스트에서 2배 속도 [blog] [dated: 2025-12]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>macro_kit:</strong> build_runner 없이 즉시 코드 생성 (초기 3-5초, 이후 100ms 미만). 커뮤니티 대안, 아직 초기 단계 [community] [dated: 2025-11]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Freezed 3.x + Dart 3 switch:</strong> <code>when</code>/<code>map</code> 제거 → <code>switch</code> expression + sealed class 패턴 매칭이 표준 [official] [dated: 2025-07] — <strong>[정정 2026-08-13]</strong> <code>when</code>/<code>map</code> 재추가(3.1.0) 이후로는 "표준" 이 아니라 <strong>신규 코드 권장</strong>이다</div></li>
+</ul>
+<h4 class="sub">L. 디자인 시스템</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Material 3 Expressive:</strong> M3E는 감정적 UX를 위한 M3 확장. Flutter 팀은 Material/Cupertino 패키지 분리 후 새 패키지에서 M3E 작업 예정 (현재 기여 미수락). 커뮤니티 패키지 <code>tofu_expressive</code> 존재 [community] [dated: 2025-07]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Material/Cupertino 분리:</strong> 3.41부터 본격화. 별도 패키지로 독립 버전/릴리스 가능하게 됨. 디자이너가 더 빠르게 업데이트 출시 가능 [official] [dated: 2026-02]</div></li>
+</ul>
+<h4 class="sub">M. 플랫폼 특화</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>iOS:</strong> Swift Package Manager 전환 가속 (CocoaPods 대체), UIScene lifecycle 기본 [official] [dated: 2026-02]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Desktop:</strong> Flutter 3.41에서 Linux/macOS regular window, Windows/Linux dialog window, tooltip/popup window API 추가 [official] [dated: 2026-02]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Hybrid apps:</strong> content-sized Flutter views로 고정 치수 요구 제거 [official] [dated: 2026-02]</div></li>
+</ul>
+<h4 class="sub">N. 인기 패키지 동향</h4>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>상태 관리:</strong> Riverpod이 사실상 표준. Bloc은 streams/events 기반 대안으로 건재 [blog] [dated: 2025-12]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>핵심 패키지 (criticality score 기준):</strong> flutter_rust_bridge, riverpod, bloc, freezed, drift, flutter_inappwebview, get, chopper, file_picker [blog] [dated: 2024-12]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>pub.dev 생태계:</strong> 50,000+ 패키지 등록. 상위 패키지 품질은 매우 높은 수준 [community]</div></li>
+</ul>
+<h3 class="sub">폐기 사유</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">없음 — 모든 URL 접근 가능 확인, 내용 일치 검증 완료</div></li>
+</ul>
+<h3 class="sub">flutter-toolkit 스킬 개선 포인트</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">스킬</div></th>
+  <th><div class="c">개선 영역</div></th>
+  <th><div class="c">근거 소스</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">flutter-provider</div></td>
+  <td><div class="c">Riverpod 3.0 Mutations, Offline Persistence, Pause/Resume Gotchas 추가</div></td>
+  <td><div class="c">#7, #8</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-api</div></td>
+  <td><div class="c">Freezed 3.2 Mixed mode + <code>when</code>/<code>map</code> 제거 마이그레이션 Gotchas — <strong>[정정 2026-08-13]</strong> 3.1.0 재추가로 제거 단정은 철회, 일관성 우선으로 개정</div></td>
+  <td><div class="c">#10, #11</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-screen</div></td>
+  <td><div class="c">go_router 17.0 <code>notifyRootObserver</code> breaking change 경고</div></td>
+  <td><div class="c">#12</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-transition</div></td>
+  <td><div class="c">auto_route 11.0 <code>redirect</code> → <code>redirectUntil</code> 리네이밍 경고</div></td>
+  <td><div class="c">#13</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-build</div></td>
+  <td><div class="c">Dart 3.10 dot shorthands + build_runner 2x 속도 향상 반영</div></td>
+  <td><div class="c">#5, #22</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-test</div></td>
+  <td><div class="c">Patrol 4.x Web 지원, alchemist golden test 전환 가이드</div></td>
+  <td><div class="c">#17, #18, #25</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-hooks</div></td>
+  <td><div class="c">flutter_hooks 안정기 확인, 큰 변경 없음</div></td>
+  <td><div class="c">#14</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-responsive</div></td>
+  <td><div class="c">WASM 폴백 메커니즘 + Web hot reload 안정화 반영</div></td>
+  <td><div class="c">#16</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-audit</div></td>
+  <td><div class="c">Impeller 플랫폼별 상태 체크리스트 추가</div></td>
+  <td><div class="c">#15</div></td>
+</tr>
+<tr>
+  <td><div class="c">flutter-widget</div></td>
+  <td><div class="c">RepeatingAnimationBuilder, DeviceOrientationBuilder 신규 위젯 가이드</div></td>
+  <td><div class="c">#1</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">향후 리서치 백로그 (갱신)</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">우선순위</div></th>
+  <th><div class="c">주제</div></th>
+  <th><div class="c">예상 출처</div></th>
+  <th><div class="c">대상 문서</div></th>
+  <th><div class="c">상태</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">Flutter 3.44+ (2026 Q2 예정)</div></td>
+  <td><div class="c">flutter.dev/release</div></td>
+  <td><div class="c">전체</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">Riverpod Offline Persistence 안정화</div></td>
+  <td><div class="c">riverpod.dev</div></td>
+  <td><div class="c">state/state-management.md</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">높음</div></td>
+  <td><div class="c">Impeller on Web (wimp) 진행 상황</div></td>
+  <td><div class="c">docs.flutter.dev/perf/impeller</div></td>
+  <td><div class="c">quality/performance.md</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">GenUI SDK beta 전환</div></td>
+  <td><div class="c">docs.flutter.dev/ai/genui</div></td>
+  <td><div class="c">신규 문서</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">Material/Cupertino 패키지 분리 완료</div></td>
+  <td><div class="c">flutter.dev</div></td>
+  <td><div class="c">ui/theming.md</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">M3 Expressive Flutter 구현 시작</div></td>
+  <td><div class="c">github.com/flutter/flutter/issues/168813</div></td>
+  <td><div class="c">ui/theming.md</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">중간</div></td>
+  <td><div class="c">macro_kit 성숙도 평가</div></td>
+  <td><div class="c">github.com/rebaz94/macro_kit</div></td>
+  <td><div class="c">architecture/clean-architecture.md</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">낮음</div></td>
+  <td><div class="c">Firefox/Safari WasmGC 호환 진행</div></td>
+  <td><div class="c">docs.flutter.dev/platform-integration/web/wasm</div></td>
+  <td><div class="c">state/async-patterns.md</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">낮음</div></td>
+  <td><div class="c">DevTools extensions API</div></td>
+  <td><div class="c">docs.flutter.dev/tools/devtools</div></td>
+  <td><div class="c">quality/performance.md</div></td>
+  <td><div class="c">미착수</div></td>
+</tr>
+<tr>
+  <td><div class="c">~~높음~~</div></td>
+  <td><div class="c">~~Dart macros (stable 이후)~~</div></td>
+  <td><div class="c">—</div></td>
+  <td><div class="c">—</div></td>
+  <td><div class="c"><strong>폐기</strong> (macro 개발 중단 확정)</div></td>
+</tr>
+</tbody></table></div>
+<p>&lt;!-- markdownlint-disable-next-line MD024 --&gt;</p>
+<h3 class="sub">PR</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">개선 포인트 확인 완료. 다음 <code>/flutter-kaizen</code> 실행 시 위 테이블 기반으로 스킬 Gotchas/Process 업데이트 예정</div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>2026-04-12 (3차 — 최신 에코시스템 보강)</h2>
+  <div class="doc-body">
+<p><strong>트리거:</strong> manual (<code>LATEST 2025-2026</code> 재검증 + research-log append-only 갱신)</p>
+<p>&lt;!-- markdownlint-disable-next-line MD024 --&gt;</p>
+<h3 class="sub">조사한 소스</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">#</div></th>
+  <th><div class="c">제목</div></th>
+  <th><div class="c">URL</div></th>
+  <th><div class="c">유형</div></th>
+  <th><div class="c">태그</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">27</div></td>
+  <td><div class="c">Breaking changes and migration guides</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/breaking-changes" target="_blank" rel="noopener">https://docs.flutter.dev/release/breaking-changes</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">28</div></td>
+  <td><div class="c">Changing RawMenuAnchor close order</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/breaking-changes/raw-menu-anchor-close-order" target="_blank" rel="noopener">https://docs.flutter.dev/release/breaking-changes/raw-menu-anchor-close-order</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">29</div></td>
+  <td><div class="c">Migrating Flutter Android app to Android Gradle Plugin 9.0.0</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/breaking-changes/migrate-to-agp-9" target="_blank" rel="noopener">https://docs.flutter.dev/release/breaking-changes/migrate-to-agp-9</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-02]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">30</div></td>
+  <td><div class="c">Migrating Flutter Android projects to built-in Kotlin</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin" target="_blank" rel="noopener">https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">31</div></td>
+  <td><div class="c">Hooks</div></td>
+  <td><div class="c"><a class="ext" href="https://dart.dev/tools/hooks" target="_blank" rel="noopener">https://dart.dev/tools/hooks</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-02]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">32</div></td>
+  <td><div class="c">Variables (wildcard variables)</div></td>
+  <td><div class="c"><a class="ext" href="https://dart.dev/language/variables" target="_blank" rel="noopener">https://dart.dev/language/variables</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-11]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">33</div></td>
+  <td><div class="c">flutter_riverpod changelog</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flutter_riverpod/changelog" target="_blank" rel="noopener">https://pub.dev/packages/flutter_riverpod/changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">34</div></td>
+  <td><div class="c">Impeller rendering engine</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/perf/impeller" target="_blank" rel="noopener">https://docs.flutter.dev/perf/impeller</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">35</div></td>
+  <td><div class="c">GenUI SDK main components and concepts</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/ai/genui/components" target="_blank" rel="noopener">https://docs.flutter.dev/ai/genui/components</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">36</div></td>
+  <td><div class="c">DevTools extensions</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/tools/devtools/extensions" target="_blank" rel="noopener">https://docs.flutter.dev/tools/devtools/extensions</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2025-10]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">37</div></td>
+  <td><div class="c">Casual Games Toolkit</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.flutter.dev/resources/games-toolkit" target="_blank" rel="noopener">https://docs.flutter.dev/resources/games-toolkit</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">38</div></td>
+  <td><div class="c">flame</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flame" target="_blank" rel="noopener">https://pub.dev/packages/flame</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">39</div></td>
+  <td><div class="c">flame changelog</div></td>
+  <td><div class="c"><a class="ext" href="https://pub.dev/packages/flame/changelog" target="_blank" rel="noopener">https://pub.dev/packages/flame/changelog</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-04]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">40</div></td>
+  <td><div class="c">Overview | Shorebird</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.shorebird.dev/code-push/" target="_blank" rel="noopener">https://docs.shorebird.dev/code-push/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">41</div></td>
+  <td><div class="c">Protect your Flutter iOS apps with Shorebird Obfuscation</div></td>
+  <td><div class="c"><a class="ext" href="https://shorebird.dev/blog/obfuscation-on-ios" target="_blank" rel="noopener">https://shorebird.dev/blog/obfuscation-on-ios</a></div></td>
+  <td><div class="c">blog</div></td>
+  <td><div class="c">[blog] [dated: 2026-02]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">42</div></td>
+  <td><div class="c">Flutter Version Management | Shorebird</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.shorebird.dev/getting-started/flutter-version/" target="_blank" rel="noopener">https://docs.shorebird.dev/getting-started/flutter-version/</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">43</div></td>
+  <td><div class="c">Releases · shorebirdtech/shorebird</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/shorebirdtech/shorebird/releases" target="_blank" rel="noopener">https://github.com/shorebirdtech/shorebird/releases</a></div></td>
+  <td><div class="c">community</div></td>
+  <td><div class="c">[community] [dated: 2025-11]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">44</div></td>
+  <td><div class="c">Flutter | Maestro Docs</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.maestro.dev/get-started/supported-platform/flutter" target="_blank" rel="noopener">https://docs.maestro.dev/get-started/supported-platform/flutter</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+<tr>
+  <td><div class="c">45</div></td>
+  <td><div class="c">Core Selectors | API Reference | Maestro Docs</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.maestro.dev/reference/selectors/core-selectors" target="_blank" rel="noopener">https://docs.maestro.dev/reference/selectors/core-selectors</a></div></td>
+  <td><div class="c">공식</div></td>
+  <td><div class="c">[official] [dated: 2026-03]</div></td>
+  <td><div class="c">채택</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">주요 인사이트 (신규)</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flutter 3.44 예정 변경점:</strong> 2026-04-12 기준 Flutter 3.44 정식 release note/announcement는 아직 없고, 공식 breaking changes 인덱스에는 pre-stable 항목으로 <code>RawMenuAnchor</code> close 순서 변경, <code>onReorder</code> 폐기, <code>cacheExtent</code>/<code>cacheExtentStyle</code> 폐기, <code>TextInputConnection.setStyle</code> 폐기, <code>IconData</code> final 처리, AGP 9.0 마이그레이션, page transition builders 재구성이 공개됨 [official] [dated: 2026-04]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Android 빌드 체인 변화:</strong> AGP 9.0 문서는 아직 plugin 호환성이 완전하지 않다고 명시하며, 당장은 <code>android.newDsl=false</code> 같은 임시 플래그가 필요할 수 있다. 별도 built-in Kotlin 마이그레이션 문서가 2026-04에 추가되어 AGP 9 전환 준비가 본격화됐다 [official] [dated: 2026-04]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Dart build hooks 정식 문서화:</strong> Dart 3.10부터 <code>hook/build.dart</code> 기반 build hooks가 공식 문서에 포함됐고, native assets 컴파일/다운로드 같은 빌드 단계 자동화가 정식 경로로 안내된다 [official] [dated: 2026-02]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Wildcard variables 재확인:</strong> <code>_</code> wildcard variable은 Dart 3.7+ 기능으로, Dart 3.10 신규 기능은 아니다. 따라서 "Dart 3.10+ 최신 기능" 범주에서는 dot shorthands/build hooks가 핵심이고 wildcard variables는 이미 선행 도입 기능으로 봐야 한다 [official] [dated: 2025-11]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Riverpod 3.0 안정화 상태:</strong> Offline Persistence와 Mutations는 여전히 experimental 상태이며, 2026-03의 <code>flutter_riverpod</code> 3.3.1/3.3.0 및 2026-01의 3.2.0에서도 안정화 선언은 없었다. 대신 pause/resume 후 알림 누락 수정, <code>Ref.isPaused</code>, <code>disposeNotifier: false</code> 등 후속 API/버그 수정이 진행됐다 [official] [dated: 2026-03]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Impeller 진행 상황:</strong> 2026-03 공식 문서 기준 Web은 여전히 <code>canvaskit</code>/<code>skwasm</code>가 Skia를 사용하며 "future" 상태이고, macOS는 opt-in 플래그 기반 시험 사용이다. Windows/Linux 지원 표시는 여전히 없다 [official] [dated: 2026-03] — <strong>[정정 2026-08-13]</strong> macOS/Linux/Windows 는 <strong>Flutter 3.47 부터 Impeller 기본</strong>으로 전환됐다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GenUI beta 전환 상태:</strong> 2026-04-12 기준 공식 문서상 <code>genui</code>는 여전히 alpha/experimental이며, beta 전환 공지는 확인되지 않았다. 다만 2026-03 기준 components/get-started 문서가 확장되어 <code>Conversation</code>, <code>Catalog</code>, <code>DataModel</code>, input-events 흐름 등 개념 문서가 보강됐다 [official] [dated: 2026-03]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>DevTools 최신 보강:</strong> Flutter SDK에 번들되는 DevTools는 2025-10 문서 기준 inspector/layout/performance/cpu/network/memory/app size/deep link validation을 제공하며, DevTools extensions 문서가 별도로 정리되어 third-party package가 새 탭 형태로 DevTools에 통합되는 경로가 공식화됐다 [official] [dated: 2025-10]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Casual Games Toolkit 최신 상태:</strong> 2026-03 문서 기준 toolkit은 basic/card/endless runner 3개 템플릿과 Flame 기반 SuperDash 데모, Ads/IAP/Firebase/Game Services 연동 자료를 계속 제공한다. 새 템플릿 추가는 확인되지 않았다 [official] [dated: 2026-03]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flame 최신 릴리스:</strong> 2026-04 기준 Flame 최신 버전은 <code>1.37.0</code>이며, <code>OverlayManager.setActive()</code>, <code>HueEffect</code>/<code>HueDecorator</code>, <code>HasAutoBatchedChildren</code> 등이 추가됐다. 직전 1.36.0에서는 최소 Flutter 버전이 3.41.0으로 상향되고 hot reload 전파, <code>ComponentPool</code>, <code>IconComponent</code> 등이 추가됐다 [official] [dated: 2026-04]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Shorebird 최신 상태:</strong> 확인 가능한 최신 GitHub release는 <code>v1.6.70</code>(2025-11)이며, 공식 docs는 Code Push가 Android/iOS에서 동작하고 Dart 코드 및 Dart dependency 변경은 패치 가능하지만 assets/native code/Flutter engine 변경은 패치 대상이 아니라고 명시한다. Flutter version management 문서에는 desktop release 지원 최소 버전도 명시돼 있다 [official] [dated: 2026-03]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Shorebird 보안 기능 업데이트:</strong> 2026-02 공식 블로그 기준 iOS에서도 <code>--obfuscate</code>가 first-class CLI 플래그로 지원되며, release에서 설정한 obfuscation이 patch에도 자동 승계된다 [blog] [dated: 2026-02]</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Patrol 이후 대안 테스팅 접근:</strong> Maestro는 Flutter를 first-class 지원 대상으로 문서화했고, Semantics label/identifier를 기준으로 black-box E2E를 수행한다. Flutter <code>Key</code>는 접근성 레이어에 노출되지 않으므로 selector로 쓰지 못한다는 점을 명시한다. 다만 2026-03 문서 기준 Flutter Desktop은 아직 미지원이고 Flutter Web은 지원한다 [official] [dated: 2026-03]</div></li>
+</ul>
+<h3 class="sub">신규 공백 / 확인 결과</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Flutter 3.44 release notes:</strong> 공식 release note/announcement 자체는 아직 없음. pre-stable migration docs 수준까지만 확인 가능</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Riverpod Offline Persistence 안정화:</strong> experimental 해제/정식 안정화 공지 없음</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Riverpod Mutations 안정화:</strong> experimental 해제/정식 안정화 공지 없음</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>GenUI beta 전환:</strong> beta 공지 없음, alpha 유지 확인</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Impeller on Windows/Linux/Web 정식 지원:</strong> 신규 지원 발표 없음</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Casual Games Toolkit 신규 템플릿:</strong> 2026-03 문서 기준 새 템플릿 확인되지 않음</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 80 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart" target="_blank" rel="noopener">&#8599; https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart</a></li>
+    <li><a class="card-source" href="https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md" target="_blank" rel="noopener">&#8599; https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md</a></li>
+    <li><a class="card-source" href="https://git-scm.com/docs/git-status" target="_blank" rel="noopener">&#8599; https://git-scm.com/docs/git-status</a></li>
+    <li><a class="card-source" href="https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html" target="_blank" rel="noopener">&#8599; https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html</a></li>
+    <li><a class="card-source" href="https://riverpod.dev/docs/root/do_dont" target="_blank" rel="noopener">&#8599; https://riverpod.dev/docs/root/do_dont</a></li>
+    <li><a class="card-source" href="https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html" target="_blank" rel="noopener">&#8599; https://api.flutter.dev/flutter/widgets/NestedScrollView-class.html</a></li>
+    <li><a class="card-source" href="https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json" target="_blank" rel="noopener">&#8599; https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json</a></li>
+    <li><a class="card-source" href="https://pub.dev/api/packages/freezed" target="_blank" rel="noopener">&#8599; https://pub.dev/api/packages/freezed</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/freezed/changelog" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/freezed/changelog</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/release/release-notes" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/release/release-notes</a></li>
+    <li><a class="card-source" href="https://flutter.dev/blog/whats-new-in-flutter-3-47" target="_blank" rel="noopener">&#8599; https://flutter.dev/blog/whats-new-in-flutter-3-47</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/perf/impeller" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/perf/impeller</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/perf/ui-performance" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/perf/ui-performance</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/testing/build-modes" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/testing/build-modes</a></li>
+    <li><a class="card-source" href="https://riverpod.dev/docs/concepts2/refs" target="_blank" rel="noopener">&#8599; https://riverpod.dev/docs/concepts2/refs</a></li>
+    <li><a class="card-source" href="https://riverpod.dev/docs/concepts2/auto_dispose" target="_blank" rel="noopener">&#8599; https://riverpod.dev/docs/concepts2/auto_dispose</a></li>
+    <li><a class="card-source" href="https://riverpod.dev/docs/how_to/testing" target="_blank" rel="noopener">&#8599; https://riverpod.dev/docs/how_to/testing</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/flutter_riverpod/changelog" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/flutter_riverpod/changelog</a></li>
+    <li><a class="card-source" href="https://github.com/flutter/agent-plugins" target="_blank" rel="noopener">&#8599; https://github.com/flutter/agent-plugins</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/release/release-notes/release-notes-3.44.0" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/release/release-notes/release-notes-3.44.0</a></li>
+    <li><a class="card-source" href="https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html" target="_blank" rel="noopener">&#8599; https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/golden_toolkit" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/golden_toolkit</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/alchemist" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/alchemist</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/flutter_riverpod" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/flutter_riverpod</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/go_router/changelog" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/go_router/changelog</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/flutter_hooks" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/flutter_hooks</a></li>
+    <li><a class="card-source" href="https://riverpod.dev/docs/3.0_migration" target="_blank" rel="noopener">&#8599; https://riverpod.dev/docs/3.0_migration</a></li>
+    <li><a class="card-source" href="https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html" target="_blank" rel="noopener">&#8599; https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/release/release-notes/release-notes-3.29.0" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/release/release-notes/release-notes-3.29.0</a></li>
+    <li><a class="card-source" href="https://github.com/joo6077/claude-plugins/pull/6" target="_blank" rel="noopener">&#8599; https://github.com/joo6077/claude-plugins/pull/6</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/ui/animations/staggered-animations" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/ui/animations/staggered-animations</a></li>
+    <li><a class="card-source" href="https://m3.material.io/foundations/layout/applying-layout/window-size-classes" target="_blank" rel="noopener">&#8599; https://m3.material.io/foundations/layout/applying-layout/window-size-classes</a></li>
+    <li><a class="card-source" href="https://api.flutter.dev/flutter/material/ThemeExtension-class.html" target="_blank" rel="noopener">&#8599; https://api.flutter.dev/flutter/material/ThemeExtension-class.html</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/perf/best-practices" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/perf/best-practices</a></li>
+    <li><a class="card-source" href="https://docs-v2.riverpod.dev/docs/providers/notifier_provider" target="_blank" rel="noopener">&#8599; https://docs-v2.riverpod.dev/docs/providers/notifier_provider</a></li>
+    <li><a class="card-source" href="https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html" target="_blank" rel="noopener">&#8599; https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html</a></li>
+    <li><a class="card-source" href="https://dart.dev/language/isolates" target="_blank" rel="noopener">&#8599; https://dart.dev/language/isolates</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/cookbook/testing/widget/tap-drag" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/cookbook/testing/widget/tap-drag</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/app-architecture/guide" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/app-architecture/guide</a></li>
+    <li><a class="card-source" href="https://pub.dev/documentation/go_router/latest/" target="_blank" rel="noopener">&#8599; https://pub.dev/documentation/go_router/latest/</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/retrofit" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/retrofit</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/release/release-notes/release-notes-3.41.0" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/release/release-notes/release-notes-3.41.0</a></li>
+    <li><a class="card-source" href="https://blog.flutter.dev/whats-new-in-flutter-3-41-302ec140e632" target="_blank" rel="noopener">&#8599; https://blog.flutter.dev/whats-new-in-flutter-3-41-302ec140e632</a></li>
+    <li><a class="card-source" href="https://blog.flutter.dev/whats-new-in-flutter-3-38-3f7b258f7228" target="_blank" rel="noopener">&#8599; https://blog.flutter.dev/whats-new-in-flutter-3-38-3f7b258f7228</a></li>
+    <li><a class="card-source" href="https://foresightmobile.com/blog/flutter-3-38-dart-3-10-november-2025-update" target="_blank" rel="noopener">&#8599; https://foresightmobile.com/blog/flutter-3-38-dart-3-10-november-2025-update</a></li>
+    <li><a class="card-source" href="https://dart.dev/resources/language/evolution" target="_blank" rel="noopener">&#8599; https://dart.dev/resources/language/evolution</a></li>
+    <li><a class="card-source" href="https://blog.dart.dev/announcing-dart-3-10-ea8b952b088" target="_blank" rel="noopener">&#8599; https://blog.dart.dev/announcing-dart-3-10-ea8b952b088</a></li>
+    <li><a class="card-source" href="https://riverpod.dev/docs/whats_new" target="_blank" rel="noopener">&#8599; https://riverpod.dev/docs/whats_new</a></li>
+    <li><a class="card-source" href="https://codewithandrea.com/newsletter/september-2025/" target="_blank" rel="noopener">&#8599; https://codewithandrea.com/newsletter/september-2025/</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/riverpod_generator/changelog" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/riverpod_generator/changelog</a></li>
+    <li><a class="card-source" href="https://alperenderici.medium.com/dart-macros-discontinued-freezed-3-0-released-why-it-happened-whats-new-and-alternatives-385fc0c571a4" target="_blank" rel="noopener">&#8599; https://alperenderici.medium.com/dart-macros-discontinued-freezed-3-0-released-why-it-happened-whats-new-and-alternatives-385fc0c571a4</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/auto_route/changelog" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/auto_route/changelog</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/platform-integration/web/wasm" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/platform-integration/web/wasm</a></li>
+    <li><a class="card-source" href="https://leancode.co/blog/patrol-4-0-release" target="_blank" rel="noopener">&#8599; https://leancode.co/blog/patrol-4-0-release</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/patrol/changelog" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/patrol/changelog</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/ai/genui" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/ai/genui</a></li>
+    <li><a class="card-source" href="https://github.com/flutter/flutter/issues/168813" target="_blank" rel="noopener">&#8599; https://github.com/flutter/flutter/issues/168813</a></li>
+    <li><a class="card-source" href="https://github.com/rebaz94/macro_kit" target="_blank" rel="noopener">&#8599; https://github.com/rebaz94/macro_kit</a></li>
+    <li><a class="card-source" href="https://codewithandrea.com/newsletter/december-2025/" target="_blank" rel="noopener">&#8599; https://codewithandrea.com/newsletter/december-2025/</a></li>
+    <li><a class="card-source" href="https://dcm.dev/blog/2025/12/23/top-flutter-features-2025/" target="_blank" rel="noopener">&#8599; https://dcm.dev/blog/2025/12/23/top-flutter-features-2025/</a></li>
+    <li><a class="card-source" href="https://dcm.dev/blog/2025/12/20/top-dart-features-2025-years/" target="_blank" rel="noopener">&#8599; https://dcm.dev/blog/2025/12/20/top-dart-features-2025-years/</a></li>
+    <li><a class="card-source" href="https://dev.to/3lvv0w/flutter-mobile-testing-methodologies-recap-2025-523j" target="_blank" rel="noopener">&#8599; https://dev.to/3lvv0w/flutter-mobile-testing-methodologies-recap-2025-523j</a></li>
+    <li><a class="card-source" href="https://verygood.ventures/blog/pub-in-focus-the-most-critical-dart-flutter-packages-of-2024/" target="_blank" rel="noopener">&#8599; https://verygood.ventures/blog/pub-in-focus-the-most-critical-dart-flutter-packages-of-2024/</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/release/breaking-changes" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/release/breaking-changes</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/release/breaking-changes/raw-menu-anchor-close-order" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/release/breaking-changes/raw-menu-anchor-close-order</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/release/breaking-changes/migrate-to-agp-9" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/release/breaking-changes/migrate-to-agp-9</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin</a></li>
+    <li><a class="card-source" href="https://dart.dev/tools/hooks" target="_blank" rel="noopener">&#8599; https://dart.dev/tools/hooks</a></li>
+    <li><a class="card-source" href="https://dart.dev/language/variables" target="_blank" rel="noopener">&#8599; https://dart.dev/language/variables</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/ai/genui/components" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/ai/genui/components</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/tools/devtools/extensions" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/tools/devtools/extensions</a></li>
+    <li><a class="card-source" href="https://docs.flutter.dev/resources/games-toolkit" target="_blank" rel="noopener">&#8599; https://docs.flutter.dev/resources/games-toolkit</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/flame" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/flame</a></li>
+    <li><a class="card-source" href="https://pub.dev/packages/flame/changelog" target="_blank" rel="noopener">&#8599; https://pub.dev/packages/flame/changelog</a></li>
+    <li><a class="card-source" href="https://docs.shorebird.dev/code-push/" target="_blank" rel="noopener">&#8599; https://docs.shorebird.dev/code-push/</a></li>
+    <li><a class="card-source" href="https://shorebird.dev/blog/obfuscation-on-ios" target="_blank" rel="noopener">&#8599; https://shorebird.dev/blog/obfuscation-on-ios</a></li>
+    <li><a class="card-source" href="https://docs.shorebird.dev/getting-started/flutter-version/" target="_blank" rel="noopener">&#8599; https://docs.shorebird.dev/getting-started/flutter-version/</a></li>
+    <li><a class="card-source" href="https://github.com/shorebirdtech/shorebird/releases" target="_blank" rel="noopener">&#8599; https://github.com/shorebirdtech/shorebird/releases</a></li>
+    <li><a class="card-source" href="https://docs.maestro.dev/get-started/supported-platform/flutter" target="_blank" rel="noopener">&#8599; https://docs.maestro.dev/get-started/supported-platform/flutter</a></li>
+    <li><a class="card-source" href="https://docs.maestro.dev/reference/selectors/core-selectors" target="_blank" rel="noopener">&#8599; https://docs.maestro.dev/reference/selectors/core-selectors</a></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>docs/flutter/research-log.md</code> 의 기준 판은 커밋 <code>e500a63</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>

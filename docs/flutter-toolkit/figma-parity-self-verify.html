@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figma 일치 자가검증 루프 — Flutter Toolkit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#22D3EE;--accent2:#67E8F9;--accent-dim:rgba(34,211,238,0.12);
+    --accent-line:rgba(34,211,238,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#155E75;--accent2:#164E63;--accent-dim:rgba(21,94,117,0.10);
+    --accent-line:rgba(21,94,117,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Flutter Toolkit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Flutter Toolkit · 참고 문서</span>
+  <h1>Figma 일치 자가검증 루프</h1>
+  <p class="orig-title">원본 제목: <strong>Flutter-Figma Parity 자가검증 루프 패턴</strong></p>
+  <p class="subtitle">Figma 시안과 Flutter 구현을 <strong>같이 캡처해 SSIM · 픽셀 차이로 재고, 차이 영역에서 고칠 파라미터를 추론해 다시 재는</strong> 다섯 단계 루프다. 눈으로 「비슷하다」 를 판정하던 작업을 수렴하는 측정으로 바꾼다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>flutter-toolkit/references/figma-parity-self-verify.md</code></span>
+    <span class="badge">판 0.1.0</span>
+    <span class="badge">갱신 2026-05-07</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>재는 루프</h3>
+      <p>캡처 → SSIM → 차이 영역 → 파라미터 조정 → 재측정. 임계값 0.95 이상이면 같은 화면, 0.85 미만이면 다시 만든다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>위젯별 파라미터</h3>
+      <p>Container · DecoratedBox · Text · CustomPaint 마다 먼저 의심할 속성 순서를 둔다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>도구</h3>
+      <p>Figma MCP <code>get_screenshot</code> · 화면 캡처 MCP 나 integration_test golden · SSIM · <code>pixelmatch</code> 를 엮는다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>한계</h3>
+      <p>텍스트 hinting 차이는 텍스트 영역을 가리고 잰다. 화면 배율(DPR)을 맞춰 비교하고, 캡처 MCP 가 없는 프로젝트에는 쓸 수 없다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="rel-r">
+  <div class="section-label" id="rel-r">같은 킷의 이웃 문서</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="visual-evidence-protocol.html">시각 증거 규약</a></h3>
+      <p>편집 전 · 후 캡처를 남기는 규칙.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="theming.html">테마</a></h3>
+      <p>디자인 토큰을 Flutter 테마로 옮기는 방법.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="research-log.html">연구 기록</a></h3>
+      <p>flutter 카이젠 사이클마다 조회한 출처.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>배경</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>핵심 아이디어 — measurable optimization loop</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>도구 스택</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>5-step 자가검증 루프</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>위젯별 파라미터 chain (Flutter 특화)</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>한계 + 적용 범위</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>참조</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="table-wrap"><table class="fm">
+<thead><tr><th>머리 설정 키</th><th>값</th></tr></thead><tbody>
+<tr><td><code>title</code></td><td class="fm-val">Flutter-Figma Parity 자가검증 루프 패턴</td></tr>
+<tr><td><code>version</code></td><td class="fm-val">0.1.0</td></tr>
+<tr><td><code>last_updated</code></td><td class="fm-val">2026-05-07</td></tr>
+<tr><td><code>source</code></td><td class="fm-val">/insights 2026-05-07 fresh report (130 sessions, "5시간 이상을 태운 Flutter–Figma parity 작업")</td></tr>
+</tbody></table></div>
+<p>&lt;!-- markdownlint-disable MD025 --&gt;</p>
+<p>&lt;!-- markdownlint-enable MD025 --&gt;</p>
+<blockquote class="quote"><p><strong>상위 규약:</strong> <code>visual-evidence-protocol.md</code>. 본 문서는 그 규약의 <strong>Figma 대조 특화 확장</strong>이다. 역할 경계 — 상위 규약은 "시각 산출물의 완료를 증거 없이 선언하지 않는다"(모든 UI 스킬 공통, E2), 본 문서는 "Figma 시안과의 차이를 SSIM 수치로 수렴시킨다"(Figma 작업 한정). 상위 규약의 Step 1(채널 감지) · Step 3(증거 유효성) · Step 4(degraded 모드) 를 먼저 통과한 뒤 아래 루프로 이어간다. <strong>빈 캡처는 SSIM 을 계산할 대상이 아니라 검증 실패 신호</strong>이며, 마커·임계값은 상위 규약이 인용하는 canonical 정의를 따른다 (여기서 재정의하지 않는다).</p></blockquote>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>배경</h2>
+  <div class="doc-body">
+<p><code>/insights</code> 2026-05-07 fresh report 에서 가장 큰 마찰 지점으로 명시된 항목:</p>
+<blockquote class="quote"><p><strong>시도해볼 기능 → 야심찬 워크플로우:</strong> 5시간 이상을 태운 Flutter–Figma parity 작업이 최고 레버리지 타깃입니다. 스크린샷, Figma와 픽셀 diff, FigmaDecoration 파라미터를 SSIM 수렴까지 자동 조정하는 자가검증 루프는 가장 고통스러운 세션을 측정 가능한 최적화 문제로 바꿔줍니다.</p></blockquote>
+<p>130 세션 분석에서 figma-flutter-kit 작업이 5시간+ 단일 세션 burn rate 1위. 본 문서는 그 마찰을 측정 가능한 최적화 문제로 reframe 하는 패턴을 다룬다.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>핵심 아이디어 — measurable optimization loop</h2>
+  <div class="doc-body">
+<p>기존 워크플로우 (사용자 눈 의존):</p>
+<div class="code"><span class="code-lang">text</span><pre><code>Figma 시안 확인 → Flutter 구현 → 스크린샷 캡처 → 사용자가 눈으로 비교 → "여기가 다름" → 수정 → 반복 N회</code></pre></div>
+<p>자가검증 루프 (측정값 의존):</p>
+<div class="code"><span class="code-lang">text</span><pre><code>Figma 시안 캡처 → Flutter 렌더 캡처 → SSIM 측정 → 임계값 미달이면 차이 분석 → 파라미터 조정 → 재측정 → 수렴까지 반복</code></pre></div>
+<p>핵심 차이: <strong>사용자 개입 없이 Claude 가 자율적으로 수렴할 수 있다.</strong> SSIM (Structural Similarity Index) 가 0.95+ 되면 자동 종료, 미달이면 어느 영역의 어느 파라미터를 조정해야 하는지 measurement-guided.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>도구 스택</h2>
+  <div class="doc-body">
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">단계</div></th>
+  <th><div class="c">도구</div></th>
+  <th><div class="c">비고</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">Figma 캡처</div></td>
+  <td><div class="c">Figma MCP <code>get_screenshot</code></div></td>
+  <td><div class="c">노드 ID 지정, PNG 추출</div></td>
+</tr>
+<tr>
+  <td><div class="c">Flutter 캡처</div></td>
+  <td><div class="c">프로젝트에 등록된 화면 캡처 MCP(서버 이름은 <code>.mcp.json</code> 에서 읽는다) 또는 integration_test golden</div></td>
+  <td><div class="c">렌더 결과 PNG</div></td>
+</tr>
+<tr>
+  <td><div class="c">SSIM 측정</div></td>
+  <td><div class="c">Python <code>scikit-image.metrics.structural_similarity</code> 또는 <code>pixelmatch</code> (Node)</div></td>
+  <td><div class="c">0.0~1.0 score</div></td>
+</tr>
+<tr>
+  <td><div class="c">픽셀 diff</div></td>
+  <td><div class="c"><code>pixelmatch</code> antialiasing-aware diff PNG 산출</div></td>
+  <td><div class="c">차이 영역 시각화</div></td>
+</tr>
+<tr>
+  <td><div class="c">파라미터 매핑</div></td>
+  <td><div class="c">FigmaDecoration / TextStyle / 색상 토큰</div></td>
+  <td><div class="c">diff 영역 → 어느 위젯 파라미터인지 추론</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>5-step 자가검증 루프</h2>
+  <div class="doc-body">
+<h3 class="sub">Step 1: 시안 + 구현 동시 캡처</h3>
+<div class="code"><span class="code-lang">python</span><pre><code># 의사 코드
+figma_png = figma_mcp.get_screenshot(node_id=NODE_ID)
+flutter_png = capture_mcp.take_screenshot(route=ROUTE, device=DEVICE)  # 서버·도구 이름은 .mcp.json 에서 읽는다</code></pre></div>
+<p>같은 viewport / DPR / 폰트 시스템에서 캡처. 디바이스 차이로 false-positive 발생 가능 — 픽셀 단위가 아닌 <strong>device-independent pixel</strong> 기준으로 정규화.</p>
+<h3 class="sub">Step 2: SSIM 측정</h3>
+<div class="code"><span class="code-lang">python</span><pre><code>from skimage.metrics import structural_similarity as ssim
+score = ssim(figma_array, flutter_array, channel_axis=-1)
+# 0.0 (완전히 다름) ~ 1.0 (동일)
+# 임계값: 0.95 (visually identical), 0.85 (acceptable), &lt;0.85 (rework 필요)</code></pre></div>
+<h3 class="sub">Step 3: 픽셀 diff 영역 추출</h3>
+<div class="code"><span class="code-lang">python</span><pre><code># pixelmatch 결과: 차이 픽셀 위치 + 크기 + 영역 bounding box
+diff_regions = pixelmatch(figma_png, flutter_png, output=diff_png, threshold=0.1)</code></pre></div>
+<p><code>diff_regions</code> 의 bounding box 가 어느 위젯 영역인지 매핑.</p>
+<h3 class="sub">Step 4: 파라미터 추론 + 조정</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">차이 패턴</div></th>
+  <th><div class="c">후보 파라미터</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">영역 전체 hue 차이</div></td>
+  <td><div class="c"><code>Color</code>, <code>LinearGradient.colors</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">윤곽 부드러움</div></td>
+  <td><div class="c"><code>BorderRadius</code>, <code>BoxShadow.blurRadius</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">인접 그림자</div></td>
+  <td><div class="c"><code>BoxShadow.offset</code>, <code>BoxShadow.spreadRadius</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">텍스트 굵기/장평</div></td>
+  <td><div class="c"><code>TextStyle.fontWeight</code>, <code>letterSpacing</code>, <code>height</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">위치 어긋남</div></td>
+  <td><div class="c">padding/margin, alignment, layout 위젯 (Stack offset 등)</div></td>
+</tr>
+<tr>
+  <td><div class="c">배경 텍스처</div></td>
+  <td><div class="c"><code>BoxDecoration.gradient</code> (linear vs radial), <code>image: DecorationImage</code></div></td>
+</tr>
+</tbody></table></div>
+<p>조정은 <strong>한 번에 한 파라미터씩</strong>. 여러 파라미터를 동시에 변경하면 무엇이 SSIM 을 올렸는지 attribution 안 됨.</p>
+<h3 class="sub">Step 5: 재측정 + 수렴 판정</h3>
+<div class="code"><span class="code-lang">text</span><pre><code>loop:
+  capture → ssim → if score &gt;= 0.95 break
+  diff regions → parameter candidate → adjust 1 param
+  → goto loop (max iter = 10)</code></pre></div>
+<p>10 회 iteration 내 미수렴 → 사용자 에스컬레이션. 무한루프 방지.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>위젯별 파라미터 chain (Flutter 특화)</h2>
+  <div class="doc-body">
+<h3 class="sub">Container / DecoratedBox</h3>
+<div class="code"><span class="code-lang">dart</span><pre><code>BoxDecoration(
+  color: ...,                    // hue/saturation 차이
+  gradient: LinearGradient(...), // multi-stop hue 차이
+  borderRadius: BorderRadius.circular(...), // 윤곽 부드러움
+  border: Border.all(...),       // 외곽선
+  boxShadow: [BoxShadow(...)],   // 인접 그림자 / inset
+  image: DecorationImage(...),   // 배경 텍스처
+)</code></pre></div>
+<h3 class="sub">Text</h3>
+<div class="code"><span class="code-lang">dart</span><pre><code>TextStyle(
+  fontFamily: ...,    // 폰트 자체 차이 (Pretendard vs SF Pro 등)
+  fontSize: ...,      // 크기 차이
+  fontWeight: ...,    // 굵기 차이
+  letterSpacing: ..., // 장평 차이
+  height: ...,        // line-height (Figma px → Flutter ratio 환산 필요)
+  color: ...,
+)</code></pre></div>
+<p><code>height</code> 환산 함정: Figma <code>line-height: 24px</code> + <code>font-size: 16px</code> → Flutter <code>height: 1.5</code> (ratio).</p>
+<h3 class="sub">Custom shapes (CustomPaint)</h3>
+<p>CustomPainter 의 paint() 메서드 안에서 Path / 색상 직접 조정. SSIM diff 결과를 painter argument 로 전달.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>한계 + 적용 범위</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Anti-aliasing 차이는 SSIM 으로 잘 잡힘 (threshold 0.1).</strong> 픽셀 완전 일치 (pixel-perfect) 는 plat 차이로 사실상 불가, 0.95 SSIM 으로 충분.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>텍스트 hinting 차이는 이미지 비교 한계.</strong> Figma 와 Flutter 의 hinting 알고리즘 차이로 텍스트 영역만 score 깎임 → 텍스트 영역 마스킹 후 SSIM 측정 권장.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>디바이스 픽셀 비율 (DPR) 정규화 필수.</strong> Figma 1x → Flutter 3x (iPhone) 비교 시 down-sample 후 비교.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>MCP 미설정 환경에서는 적용 불가.</strong> <code>mcp_server: null</code> 인 프로젝트는 Figma/Flutter 캡처 자체가 안 됨 → /insights 에서도 "MCP 디바이스 설정 마찰" 명시.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>참조</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>/insights</code> 2026-05-07 fresh report ("5시간 이상을 태운 Flutter–Figma parity") — 본 패턴의 trigger</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>~/.claude/CLAUDE.md</code> "피그마 구현 워크플로우" — 본 패턴의 prerequisite (Figma MCP 사용 의무)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>harness/docs/guides/skill-design-guide.md</code> §3.6 Pre-Edit Batch Audit — 본 패턴 적용 전 audit 단계</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">학술 참고: SSIM (Wang et al., 2004), pixelmatch (kss/pixelmatch GitHub), scikit-image structural_similarity</div></li>
+</ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>flutter-toolkit/references/figma-parity-self-verify.md</code> 의 기준 판은 커밋 <code>e500a63</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>
