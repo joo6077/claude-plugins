@@ -1,5 +1,7 @@
 # 실패 분류 체계
 
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 `/api-verify` 가 실패를 **계약 실패 · 환경 실패 · 인증 실패 · 데이터 부재** 로 나눌 때 쓰는 유일한 기준.
 "무엇이 깨졌는가" 와 "게이트를 깨야 하는가" 는 다른 질문이며, 이 문서는 둘을 분리해 판정한다.
 원 규칙은 `../../../../docs/api/verification/regression-diff-failure-policy.md` 다.

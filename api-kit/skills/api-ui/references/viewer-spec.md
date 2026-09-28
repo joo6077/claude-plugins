@@ -1,5 +1,7 @@
 # 정적 뷰어 스펙 — `.api/ui.html`
 
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 `/api-ui` 가 생성하는 단일 HTML 의 구조 정본. 확정 시안 `.mockups/api-ui-v8.html` 의 실측을 옮긴
 것이며, 시안과 이 문서가 어긋나면 **시안이 정본**이다.
 

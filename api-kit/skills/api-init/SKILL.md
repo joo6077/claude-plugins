@@ -15,6 +15,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/api/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 - **operation 키는 `METHOD + 정규화된 path template` 이다. `operationId` 로 dedupe 하지 마라** — `operationId` 는 OpenAPI 선택 필드라 curl·Talend·md 출처에는 대부분 없다. 이걸 원시 키로 쓰면 외부 덤프와의 매칭이 통째로 실패하고 dedupe 가 동작하지 않는다. `operationId` 는 별칭 컬럼에만 저장하고, 별칭 매칭에서 case-fold 하지 마라 — `getUser` 와 `GetUser` 는 서로 다른 별칭이다. (`docs/api/discovery/api-inventory-normalization.md` §1, 안티패턴)

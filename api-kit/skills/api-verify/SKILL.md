@@ -14,6 +14,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 - **exit code 3 과 4 를 절대 합치지 마라.** `3`(런타임 — DNS/TLS/connect/timeout)은 **환경 실패**이고 계약 판정을 보류해야 한다. `4`(assert)만 **계약 위반**이고 게이트를 깬다. non-zero 를 전부 계약 실패로 보고하면 회귀 diff 가 노이즈로 덮이고, CI 가 "서버가 죽음" 과 "계약이 깨짐" 을 구분할 수 없게 된다. `2`(입력 파싱)는 probe/계약 파일 버그이지 계약 판정이 아니다. Hurl 의 코드 체계를 승계하고 **임의로 재매핑하지 않는다**. 출처: `docs/api/verification/regression-diff-failure-policy.md` §5.

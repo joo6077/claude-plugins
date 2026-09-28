@@ -13,6 +13,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 - **브라우저가 요청을 쏘게 만들지 마라.** `fetch` · XHR · WebSocket · 프록시 · "Try it" 버튼을 넣는 순간 세 문제가 동시에 생긴다: CORS 실패가 기본값이고(`Authorization` 이 `Access-Control-Allow-Headers` 에 없거나 preflight 가 401), 우회용 프록시 운영자가 URL·헤더·베어러 토큰·본문을 전부 보게 되고, 토큰을 브라우저 저장소에 두게 된다(OWASP 는 `localStorage`/`sessionStorage` 에 토큰 저장을 금지한다). 요청 실행은 이미 Hurl + CLI 가 한다. `실행` 버튼의 유일한 동작은 **커맨드를 클립보드에 복사**하는 것이다.
 - **`file://` 는 opaque origin 이다.** `fetch('./data.json')` 로 사이드카를 읽는 순간 리포트가 빈 화면이 된다. 같은 폴더의 파일조차 same-origin 이 아니다. 모든 데이터는 HTML 안에 인라인한다. 그래서 §스냅샷 상한이 필요하다.
 - **`<script type="application/json">` 도 escape 없이는 안전하지 않다.** 실행되지 않을 뿐, 본문에 `</script` 가 있으면 블록이 조기 종료되어 이후 마크업이 파서에 노출된다. 인라인 전에 `<`, `</script`, `<!--` 세 패턴을 반드시 escape 한다.

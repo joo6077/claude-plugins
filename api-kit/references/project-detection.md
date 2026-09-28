@@ -1,5 +1,7 @@
 # API 프로젝트 감지
 
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 api-kit 스킬이 공통으로 실행하는 환경 감지 절차. 스킬은 이 문서를 인용만 하고 자체 감지 표를
 만들지 않는다.
 
