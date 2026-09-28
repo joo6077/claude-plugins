@@ -140,3 +140,14 @@
 - 레포 밖 훅은 이 컴퓨터에만 있다. 되돌리려면 `h1-backup/qa-pending-check.sh` 를 `~/.claude/hooks/` 로 복사하면 된다.
 - AR-05 의 커밋 수는 이 notes 커밋 뒤 17 이 된다 — 조건은 `n ≥ 1` 이다.
 - 지시문에 적힌 notes 경로 `.harness/.meta/after-kaizen-0926b/h1-notes.md` 는 없는 파일이다. 계약 AR-04 가 재는 `.harness/.meta/after-kaizen-0928/h1-notes.md` 에 이어 썼다.
+
+### 2 회차 QA 뒤 남은 것
+
+- QA 판정: APPROVE, 44/44 실측 통과. 계약 `status` 는 `done` 으로 바꿔 판정 기록과 함께 커밋했다.
+- 교차 진단: 평가자 피드백의 `Cross-Diagnosis Handoff` 가 `pending-parent` 다. 부모 세션이 교차 진단을 돌려 `cross_diagnosis_by` 를 채워야 한다.
+- 독립 검토에서 막지 않는 결함 1 건 — `scripts/ci-local.sh:37-46`
+  - 단계 안의 추가 설정만 보고, 작업 전체나 워크플로 전체에 걸린 `if` · `env` · `defaults.run.working-directory` 는 보지 않는다. 그런 단계를 못 다룬다고 알리지 않고 레포 뿌리 폴더에서 그냥 돌린다. 머리 주석의 「흉내 내지 않고 알린다」와 동작이 다르다.
+  - 재현: 작업 `a` 에 `defaults: run: working-directory: sub` 와 `env: MUST: yes`, 단계 `Where` 가 `test "$(basename "$PWD")" = sub && test "$MUST" = yes`. 작업 `b` 에 `if: false`, 단계 `Never` 가 `exit 3`. 이 파일을 임시 폴더에 두고 `bash scripts/ci-local.sh <폴더>`.
+  - 출력은 `FAIL a Where rc=1` · `FAIL b Never rc=3` · `failed=2`. 기대는 `UNSUPPORTED` 두 줄.
+  - 지금 `.github/workflows/ci.yml` 에는 그런 설정이 없어 SC-13 결과엔 영향이 없다. 들어오는 날부터 틀린 결과가 난다. 다음 묶음에서 작업·워크플로 단계의 `if` · `env` · `defaults` 를 보면 `UNSUPPORTED` 로 알리게 고친다.
+- 레포 밖 훅 되돌리기 경로는 위 절 그대로다.
