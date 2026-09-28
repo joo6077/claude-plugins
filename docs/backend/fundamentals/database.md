@@ -1,7 +1,7 @@
 ---
 title: 데이터베이스
 version: 0.3.0
-last_updated: 2026-09-25
+last_updated: 2026-09-28
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -158,8 +158,12 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 - 시간대와 나라를 코드 상수나 한 나라 기본값으로 박지 않는다. 시간대를 요청·기기·사용자 설정·레코드 칸 중 어디서 받는지, 저장할지 요청마다 받을지를
   계약에 정한다. 나라 코드로 시간대를 정하지 않는다 — 한 나라에 시간대가 여럿일 수 있고, 나라와 무관하게 사용자가 고른 시간대도 있다.
   이 항목은 RFC 요구가 아니라 이 킷의 규칙이다. RFC 5545 는 시간대를 어디서 받을지 정하지 않는다.
+- 벽시계를 API 로 보낼 때 `format: date-time` 을 붙이지 않는다. OpenAPI 의 `date-time` 은 RFC 3339 를 따르고, RFC 3339 의 `full-time` 은
+  `partial-time time-offset` 이라 `time-offset`(UTC 와의 차이)이 반드시 있다. 오프셋 없는 `2026-09-28T09:30:00` 은 `date-time` 이 아니다.
+- 특정 지역에 묶인 벽시계에 IANA 시간대 이름 칸을 두는 것과 벽시계를 순간 하나로만 저장하지 않는 것은 RFC · IANA 의 직접 요구가 아니라
+  이 킷 규칙이다. IANA 는 시간대마다 이름을 주고 그 규칙이 바뀔 수 있다고 적을 뿐, 어느 칸에 저장하라고 하지 않는다.
 
-> **출처:** [RFC 5545 §3.3.5 — DATE-TIME](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5), [PostgreSQL — Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html)
+> **출처:** [RFC 5545 §3.3.5 — DATE-TIME](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5), [PostgreSQL — Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html), [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339), [OpenAPI Format Registry — date-time](https://spec.openapis.org/registry/format/date-time), [IANA — Theory and pragmatics of the tz code and data](https://www.iana.org/time-zones/theory) (뒤 셋은 2026-09-28 조회)
 
 ---
 
