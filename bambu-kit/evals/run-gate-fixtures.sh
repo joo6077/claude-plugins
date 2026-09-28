@@ -2,7 +2,8 @@
 # 완료 검사(SKILL.md 4.3) 시험 파일을 따로 돌린다 — 음성 대조 표의 기대와 (2) 실행 줄을 SKILL.md 에서 읽어 원본 완료 검사로 판정한다.
 # 시험 파일 이름과 기대는 SKILL.md 한 곳에만 적는다. 이 스크립트에 이름을 다시 적으면 둘이 어긋난다.
 # 다른 사본을 잴 때: BAMBU_GATE_SKILL=<SKILL.md 사본> bash run-gate-fixtures.sh
-# 슬라이서가 없는 기계(리눅스 CI)에서는 설치본이 있어야 판정되는 FAIL 기대 파일을 「건너뜀」 으로 적는다 — 일치로 세지 않는다.
+# 표가 `[미검증]` 줄 수를 적은 행은 그 수까지 맞아야 일치다 — FAIL 줄과 종료 코드만 보면 못 읽은 칸 알림이 빠지거나 늘어도 모른다.
+# 슬라이서가 없는 기계(리눅스 CI)에서는 설치본이 있어야 판정되는 FAIL 기대 파일과 `[미검증]` 줄 수 기대를 「건너뜀」 으로 적는다 — 일치로 세지 않는다.
 # 종료 코드: 0 불일치 없음 · 1 불일치 있음 · 2 완료 검사 · 표 · 실행 줄을 못 읽음
 set -u
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -23,15 +24,17 @@ if [ -n "$A" ] && [ -n "$B" ]; then sed -n "$((A+1)),$((B-1))p" "$SKILL" > "$T/g
 # 빈 파일을 python3 로 돌리면 종료 코드 0 이라 모든 PASS 기대가 일치처럼 보인다
 grep -q 'RESULT' "$T/gate.py" || { echo "STOP 완료 검사를 못 뽑았다 — $SKILL"; exit 2; }
 
-# 표 → 이름 · 슬라이서 · 기대(fail|pass) · 검사 종류
+# 표 → 이름 · 슬라이서 · 기대(fail|pass) · 검사 종류 · `[미검증]` 줄 수 기대(적지 않았으면 -)
 awk -F'|' '/^\| `evals\/gate-fixtures\/[^`]+\.json` \|/ {
   name = $2; gsub(/^ *`evals\/gate-fixtures\/|` *$/, "", name)
   slicer = $3; gsub(/ /, "", slicer)
   kind = $4
+  unv = "-"
+  if (match(kind, /`\[미검증\]` [0-9]+ 줄/)) { unv = substr(kind, RSTART, RLENGTH); gsub(/[^0-9]/, "", unv) }
   if (kind ~ /FAIL 1 건/) { expect = "fail"; sub(/ *\*\*FAIL 1 건.*$/, "", kind); gsub(/^ +/, "", kind) }
   else if (kind ~ /PASS|FAIL 0 건/) { expect = "pass"; kind = "-" }
   else { expect = "?"; kind = "-" }
-  print name "\t" slicer "\t" expect "\t" kind
+  print name "\t" slicer "\t" expect "\t" kind "\t" unv
 }' "$SKILL" > "$T/table.tsv"
 # (2) 실행 줄 → 이름 · 슬라이서
 # shellcheck disable=SC2016  # $GATE · $FX 는 SKILL.md 실행 줄의 글자 그대로다
@@ -56,18 +59,25 @@ while read -r name slicer; do
   [ -f "$FX/$name" ] || continue
   row=$(awk -F'\t' -v x="$name" '$1 == x' "$T/table.tsv" | head -1)
   [ -n "$row" ] || continue
-  IFS=$'\t' read -r _ want_slicer expect kind <<< "$row"
+  IFS=$'\t' read -r _ want_slicer expect kind want_unv <<< "$row"
   if [ "$slicer" != "$want_slicer" ]; then miss "$name — 실행 줄 슬라이서 $slicer 가 표의 $want_slicer 와 다르다"; continue; fi
   if [ "$expect" = "?" ]; then miss "$name — 표의 기대 칸을 못 읽었다"; continue; fi
   out=$(TARGET_SLICER="$slicer" python3 "$T/gate.py" "$FX/$name" 2>&1); rc=$?
   fails=$(printf '%s\n' "$out" | grep -c '^FAIL ')
   passed=$(printf '%s\n' "$out" | grep -c '^RESULT: PASS$')
+  unv=$(printf '%s\n' "$out" | grep -c '^\[미검증\] ')
+  no_slicer=$(printf '%s\n' "$out" | grep -c '^\[미검증\] .*설치본 경로 없음')
   n=$((n + 1))
-  if { [ "$expect" = fail ] && [ "$fails" = 1 ] && [ "$rc" = 1 ]; } || { [ "$expect" = pass ] && [ "$passed" = 1 ] && [ "$rc" = 0 ]; }; then
+  verdict_ok=0
+  if { [ "$expect" = fail ] && [ "$fails" = 1 ] && [ "$rc" = 1 ]; } || { [ "$expect" = pass ] && [ "$passed" = 1 ] && [ "$rc" = 0 ]; }; then verdict_ok=1; fi
+  if [ "$verdict_ok" = 1 ] && { [ "$want_unv" = - ] || [ "$unv" = "$want_unv" ]; }; then
     echo "일치 $name"
-  elif [ "$expect" = fail ] && printf '%s\n' "$kind" | grep -qE "$NEEDS_SLICER" \
-      && printf '%s\n' "$out" | grep -q '^\[미검증\] .*설치본 경로 없음'; then
+  elif [ "$no_slicer" -gt 0 ] && [ "$expect" = fail ] && printf '%s\n' "$kind" | grep -qE "$NEEDS_SLICER"; then
     skip=$((skip + 1)); echo "건너뜀 $name — $slicer 설치본이 없어 「${kind}」 검사가 안 돈다"
+  elif [ "$no_slicer" -gt 0 ] && [ "$want_unv" != - ]; then
+    skip=$((skip + 1)); echo "건너뜀 $name — $slicer 설치본이 없어 \`[미검증]\` $want_unv 줄 기대를 잴 수 없다 (나온 \`[미검증]\` $unv 줄)"
+  elif [ "$verdict_ok" = 1 ]; then
+    bad=$((bad + 1)); echo "불일치 $name — \`[미검증]\` 기대 $want_unv 줄 · 결과 $unv 줄"
   else
     bad=$((bad + 1)); echo "불일치 $name — 기대 $expect · 결과 FAIL $fails 줄 · 종료 코드 $rc"
   fi

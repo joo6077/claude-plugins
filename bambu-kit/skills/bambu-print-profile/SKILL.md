@@ -1845,7 +1845,7 @@ PY
 scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) · 소재 부모값 1.5 배(`GUARDED` 키).
 이 목록 밖의 숫자 키는 값이 무엇이든 통과한다. 일곱 모두 아래 표에 FAIL 이 나야 하는 시험 파일이 하나 이상 있다 (2026-09-25).
 `compatible_printers` · 메타필드 · 숫자 타입 검사는 아직 FAIL 시험 파일이 없다.
-이 표와 아래 (2) 실행 줄은 `bambu-kit/evals/run-gate-fixtures.sh` 가 그대로 읽어 CI 에서 돌린다 — 칸 순서나 실행 줄 모양을 바꾸면 그 스크립트가 `STOP` 이나 불일치를 낸다.
+이 표와 아래 (2) 실행 줄은 `bambu-kit/evals/run-gate-fixtures.sh` 가 그대로 읽어 CI 에서 돌린다 — 칸 순서나 실행 줄 모양을 바꾸면 그 스크립트가 `STOP` 이나 불일치를 낸다. 기대 칸에 `[미검증]` 줄 수를 적은 행은 그 줄 수까지 맞아야 일치다 — 못 읽은 칸 알림이 빠지거나 가짜 줄이 늘면 불일치로 잡는다.
 
 | 주입 | 대상 슬라이서 | 기대 | 지운 사본 | 안 잡히면 |
 | --- | --- | --- | --- | --- |
@@ -1858,7 +1858,7 @@ scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) �
 | `evals/gate-fixtures/process-bridge-extruder-mismatch.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2 만 50) | `허공 위 속도` 줄을 `pass` 로 | 첫 칸만 읽어 2·3 번 슬롯이 안 보인다 |
 | `evals/gate-fixtures/process-thin-outer-slot2.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2 만 하향) | `_geometry_class=thin` 줄을 `pass` 로 | 슬롯별 외벽 하향이 안 보인다 |
 | `evals/gate-fixtures/process-bridge-unreadable-slot.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `허공 위 속도` 줄을 `pass` 로 | 못 읽는 칸 하나가 나머지 슬롯 검사를 통째로 끈다 |
-| `evals/gate-fixtures/process-thin-unreadable-slot.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `_geometry_class=thin` 줄을 `pass` 로 | 못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다 |
+| `evals/gate-fixtures/process-thin-unreadable-slot.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2) + `[미검증]` 2 줄 (슬롯 1 · 벽 예산 미기록) | `_geometry_class=thin` 줄을 `pass` 로 | 못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다 |
 | `evals/gate-fixtures/filament-unreadable-slot.json` | bambu | FAIL 0 건 + `[미검증]` 1 줄 (슬롯 1) | 못 읽은 칸 알림 줄을 `pass` 로 | 소재 부모값 이탈 검사가 조용히 꺼진다 |
 | `evals/gate-fixtures/filament-scope-process-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`outer_wall_speed` · `process`) | `키 스코프 불일치` 줄을 `pass` 로 | process 키를 소재 설정에 넣어도 통과한다 |
 | `evals/gate-fixtures/process-scope-filament-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`overhang_fan_threshold` · `filament`) | `키 스코프 불일치` 줄을 `pass` 로 | 냉각 키를 process 에 넣어도 통과한다 |
@@ -2557,9 +2557,9 @@ defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVer
 
 | 결과 | 처리 |
 |------|------|
-| `02.06.00.xx` (references baseline · 2026-07-27 기준 로컬 설치본) | references 그대로 사용. 정상. |
-| `02.06.01.xx` (1패치 위) | references 그대로 — 마이너 패치는 호환 가능성 높음. 단, scarf 필드 mismatch 의심되면 cross-check. |
-| `02.07.x.xx` / `02.08.x.xx` | ⚠️ **bambu-kaizen 트리거 권장** — references 는 `02.06.00.51` 기준이라 fields baseline 갱신이 필요할 수 있음. 사용자에게 보고 후 진행. |
+| `02.08.02.xx` (references 확인 판 — 2026-09-05 에 앱 `02.08.02.61` 로 다시 확인. 옵션 목록 `references/option-keys/bambu-02.08.02.61.tsv`) | references 그대로 사용. 정상. |
+| 그 밖의 `02.08.x.xx` (같은 2.8 줄, `02.08.04.57` Public Beta 포함) | references 그대로 — 패치 차이는 호환 가능성 높음. 단, 쓰려는 키가 옵션 목록에 없거나 import 에서 버려지면 cross-check. |
+| `02.06.x.xx` / `02.07.x.xx` (옛 판) | ⚠️ 옵션 목록은 `02.08.02.61` 판에서 뽑았다 — 옛 판에 없는 키가 들어갈 수 있다. 사용자에게 보고하고 업그레이드를 권장한다. 이 판으로 만들면 import 검증에서 버려진 키를 확인한다. |
 | `02.09.x.xx` 이상 (미확인 신버전) | ⚠️ **`/bambu-research` 먼저** — 스키마 변경 가능성. 확인 없이 생성 금지. |
 | `02.05.x.xx` 이하 (구버전) | ⚠️ JSON `"version": "2.6.0.2"`이 reject될 수 있음. 사용자에게 업그레이드 권장. |
 | 명령 실패 (`not installed`) | Studio 미설치. JSON은 만들되 import 검증 셸 명령 부분 skip. |
