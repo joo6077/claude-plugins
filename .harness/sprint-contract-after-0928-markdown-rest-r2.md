@@ -4,7 +4,7 @@ slug: after-0928-markdown-rest-r2
 created: "2026-09-28 13:55"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:ae224dc595515f00
 measurement_digest: sha256:fbb99435ba5a3964
