@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""문서 사이트 쪽마다 공통 CSS 링크가 하나인지, 이름을 숫자 글자 참조로 쪼개 적지 않았는지 잰다.
+"""문서 사이트 쪽마다 공통 CSS 링크가 하나인지, 이름을 글자 참조나 태그로 쪼개 적지 않았는지 잰다.
 
 글자 수로 재면 본문에 `site.css` 라는 이름을 적은 것까지 링크로 세고, 그걸 피하려고 쪽 글에서
 `site&#46;css` 처럼 쪼개 적는 우회가 생겼다. 이 검사는 `<link>` 요소를 세므로 본문 글은 원래 글자로 적어도 된다.
@@ -10,12 +10,14 @@
 
 쪽마다 어긋나면 한 줄로 적는다:
   - `assets/site.css` 를 가리키는 `<link>` 가 1 개가 아니다 (HTML 주석 안은 세지 않는다)
-  - `site.css` · `prefers-reduced-motion` 을 숫자 글자 참조(`&#46;` · `&#45;` · `&#x2e;` · `&#x2d;`)로 쪼갠 자리가 있다
+  - `site.css` · `prefers-reduced-motion` 을 쪼개 적은 자리가 있다 — 숫자 글자 참조(`&#46;` · `&#x2d;`),
+    이름 글자 참조(`&period;` · `&dash;` · `&hyphen;`), 태그 끼우기(`site<span>.</span>css`) 모두
 
 종료 코드는 harness/evals/gate-exit-codes.md 를 따른다 — 0 통과 · 1 어긋남 · 2 못 읽음 · 3 대상 없음.
 못 읽은 쪽과 어긋난 쪽이 함께 있으면 2 를 내고 둘 다 적는다.
 """
 
+import html
 import re
 import subprocess
 import sys
@@ -26,9 +28,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 LINK_RE = re.compile(r"<link\b[^>]*>", re.I | re.S)
 SITE_CSS_HREF_RE = re.compile(r"""\bhref\s*=\s*(?:"[^"]*assets/site\.css[^"]*"|'[^']*assets/site\.css[^']*'|[^\s"'>]*assets/site\.css[^\s"'>]*)""", re.I)
-DOT = r"(?:\.|&#0*46;|&#x0*2e;)"
-DASH = r"(?:-|&#0*45;|&#x0*2d;)"
-SPLIT_NAME_RE = re.compile(rf"site{DOT}css|prefers{DASH}reduced{DASH}motion", re.I)
+TAG_RE = re.compile(r"(<[^>]*>)")
+WATCHED_NAMES = ("site.css", "prefers-reduced-motion")
+# `&dash;` · `&hyphen;` 은 풀면 `-` 가 아니라 U+2010 이다. 보이는 모양이 같은 글자와 보이지 않는 글자를 맞춰 둔다
+LOOKALIKES = str.maketrans({"\u2010": "-", "\u2011": "-", "\u2012": "-", "\u2013": "-", "\u2212": "-",
+                            "\u00ad": None, "\u200b": None, "\u200c": None, "\u200d": None, "\u2060": None})
 
 
 def tracked_pages() -> list[Path] | None:
@@ -47,7 +51,19 @@ def site_css_links(text: str) -> int:
 
 
 def split_names(text: str) -> int:
-    return sum(1 for match in SPLIT_NAME_RE.finditer(text) if "&#" in match.group(0))
+    """글자 참조를 풀고 태그를 걷어 내면 나타나는데 원문에는 그대로 없는 이름의 수.
+
+    숫자 참조 꼴만 찾으면 `&period;` 나 `site<span>.</span>css` 로 쪼갠 우회가 그대로 지나간다.
+    """
+    parts = TAG_RE.split(COMMENT_RE.sub("", text).lower())
+    texts, tags = parts[0::2], parts[1::2]
+    decoded = [chunk.translate(LOOKALIKES) for chunk in (html.unescape("".join(texts)), *map(html.unescape, tags))]
+    splits = 0
+    for name in WATCHED_NAMES:
+        written = sum(part.count(name) for part in parts)
+        revealed = sum(chunk.count(name) for chunk in decoded)
+        splits += max(revealed - written, 0)
+    return splits
 
 
 def shown(page: Path) -> str:

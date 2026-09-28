@@ -18,7 +18,9 @@ kaizen-orchestrator Step F2 (docs-site 재생성) 에서 서브에이전트에�
     --include-format-only
                      모양만 바뀐 원본의 짝도 낸다. 기본은 뺀 짝 수를 표준 오류에 한 줄로 적고 뺀다.
                      모양만 바뀜 = 두 판에서 HTML 주석을 지우고 코드 울타리 줄을 한 표지로 바꾼 뒤
-                     낱말(\\w+) 순서가 같다 (표 구분 줄 · 빈 줄 · 목록 기호 · 울타리 언어 표시만 바뀐 경우)
+                     낱말(\\w+)과 기호의 순서가 같다. 기호 가운데 마크다운 꾸밈(줄 앞 제목 · 인용 · 목록 기호,
+                     표 구분 줄 · 가로줄, 표 칸 `|`, 강조 `*`, 백틱, `<주소>` 의 꺾쇠, 역슬래시)만 빼고 센다.
+                     코드 울타리 안과 인라인 코드 안의 기호는 하나도 빼지 않는다
     --verbose        변경된 소스 전체 목록 포함
     --check-table    이 스크립트의 매핑과 docs-site SKILL.md Step 1 표를 맞댄다.
                      한쪽에만 있는 (원본, 출력 폴더) 짝을 이름으로 대고 exit 1
@@ -138,7 +140,18 @@ DOCS_SITE_SKILL = REPO_ROOT / ".claude/skills/docs-site/SKILL.md"
 # tone project-detection 은 킷이 프로젝트 값을 감지하는 절차라 페이지를 만들지 않는 원본이다 (d1 결정표)
 SOURCE_EXCLUDES: tuple[str, ...] = ("docs/howto/drafts/", "tone-kit/references/project-detection.md")
 
-FENCE_LINE_RE = re.compile(r"^\s*(`{3,}|~{3,})\s*\S*\s*$")
+# 울타리 뒤에는 언어 표시 한 낱말만 온다. `\S*` 로 두면 `~~~old_value~~~` 같은 본문 줄까지 울타리로 보고 낱말째 지웠다
+FENCE_LINE_RE = re.compile(r"^\s*(`{3,}|~{3,})\s*[\w.+#-]*\s*$")
+TOKEN_RE = re.compile(r"\w+|[^\w\s]")
+TABLE_RULE_RE = re.compile(r"^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$")
+# `___` 는 낱말이라 빼지 않는다 — 낱말만 맞대던 때도 내용으로 셌다
+THEMATIC_BREAK_RE = re.compile(r"^\s*([-*=])(\s*\1){2,}\s*$")
+# 줄 앞 인용 · 제목 · 목록 기호. 번호 목록의 번호는 낱말이라 남기고 뒤의 `.` · `)` 만 뺀다
+LINE_MARK_RE = re.compile(r"^\s*(?:>\s*)*(?:#{1,6}(?=\s|$)|[-*+](?=\s)|(\d+)[.)](?=\s))?")
+INLINE_CODE_RE = re.compile(r"(?<!`)(`+)(.+?)\1(?!`)")
+AUTOLINK_RE = re.compile(r"<((?:https?|mailto|ftp):[^>\s]+|[^@\s<>]+@[^@\s<>]+)>")
+ESCAPE_RE = re.compile(r"\\([^\w\s])")
+DECORATION_RE = re.compile(r"[*|`]")
 
 
 # docs-site 페이지는 소스 basename 과 1:1 이 아니다.
@@ -250,23 +263,43 @@ def show_file(ref: str, path: str) -> str | None:
     return result.stdout if result.returncode == 0 else None
 
 
-def word_sequence(text: str) -> list[str]:
+def content_tokens(text: str) -> list[str]:
+    """낱말(`\\w+`)과 기호 한 글자씩의 순서. 마크다운 꾸밈 기호만 빼고 센다.
+
+    낱말만 맞대면 `>= 5` → `<= 5` · `a + 1` → `a - 1` 처럼 기호만 바뀐 내용 수정을 모양만 바뀐 것으로 놓친다.
+    코드 울타리 안과 인라인 코드 안은 글자 그대로라 기호를 하나도 빼지 않는다.
+    """
     text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
-    out: list[str] = []
+    tokens: list[str] = []
+    in_fence = False
     for line in text.splitlines():
         if FENCE_LINE_RE.match(line):
-            out.append("FENCE")
+            tokens.append("FENCE")
+            in_fence = not in_fence
             continue
-        out.extend(re.findall(r"\w+", line))
-    return out
+        if in_fence:
+            tokens.extend(TOKEN_RE.findall(line))
+            continue
+        if TABLE_RULE_RE.match(line) or THEMATIC_BREAK_RE.match(line):
+            continue
+        line = LINE_MARK_RE.sub(lambda match: match.group(1) or "", line)
+        for index, part in enumerate(INLINE_CODE_RE.split(line)):
+            # split 결과는 코드 밖 · 백틱 묶음 · 코드 안 순서로 돈다
+            if index % 3 == 2:
+                tokens.extend(TOKEN_RE.findall(part))
+            elif index % 3 == 0:
+                part = AUTOLINK_RE.sub(r"\1", part)
+                part = ESCAPE_RE.sub(r"\1", part)
+                tokens.extend(TOKEN_RE.findall(DECORATION_RE.sub(" ", part)))
+    return tokens
 
 
 def is_format_only(source: str, since: str) -> bool:
-    """두 판의 낱말 순서가 같으면 모양만 바뀐 원본이다. 한쪽 판에 파일이 없으면 내용이 바뀐 것으로 본다."""
+    """두 판의 낱말 · 기호 순서가 같으면 모양만 바뀐 원본이다. 한쪽 판에 파일이 없으면 내용이 바뀐 것으로 본다."""
     before, after = show_file(since, source), show_file("HEAD", source)
     if before is None or after is None:
         return False
-    return word_sequence(before) == word_sequence(after)
+    return content_tokens(before) == content_tokens(after)
 
 
 def map_source_to_html(source: str) -> str | None:

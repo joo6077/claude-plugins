@@ -2,7 +2,8 @@
 """check-docs-common-css.py 시험 — 임시 폴더의 사본 쪽으로 다섯 경우를 돌린다. 레포 파일은 건드리지 않는다.
 
   1. 정상 쪽 + 링크 둘인 쪽 → 종료 코드 1, 둘째 파일 이름만 적힘, 검사한 쪽 2
-  2. 본문 `site&#46;css` 쪽 · `prefers&#45;reduced-motion` 쪽 → 각각 종료 코드 1
+  2. 본문 `site&#46;css` 쪽 · `prefers&#45;reduced-motion` 쪽, 그리고 이름 글자 참조 `site&period;css` ·
+     `prefers&dash;reduced&hyphen;motion` 쪽과 태그를 끼운 `site<span>.</span>css` 쪽 → 각각 종료 코드 1
   3. 링크 하나 + 본문에 원래 글자 이름 + 주석 안 링크 + 작은따옴표 링크 쪽 → 종료 코드 0
   4. 링크 둘인 쪽 + UTF-8 이 아닌 바이트 쪽 → 종료 코드 2, 두 파일 이름이 모두 적힘
   5. 검사 사본을 scripts/ 에 넣은, 추적 HTML 이 0 개인 임시 git 저장소에서 인자 없이 → 종료 코드 3
@@ -50,12 +51,18 @@ def case_two_links(tmp: Path, check: Path) -> tuple[bool, str]:
     return ok, f"rc={rc}"
 
 
+SPLIT_BODIES = {
+    "dot": "<p>site&#46;css 를 부른다</p>",
+    "dash": "<p>prefers&#45;reduced-motion 을 쓴다</p>",
+    "named-dot": "<p>site&period;css 를 부른다</p>",
+    "named-dash": "<p>prefers&dash;reduced&hyphen;motion 을 쓴다</p>",
+    "tag-split": "<p>site<span>.</span>css 를 부른다</p>",
+}
+
+
 def case_split_names(tmp: Path, check: Path) -> tuple[bool, str]:
-    dot = write(tmp / "c2/dot.html", page(LINK, "<p>site&#46;css 를 부른다</p>"))
-    dash = write(tmp / "c2/dash.html", page(LINK, "<p>prefers&#45;reduced-motion 을 쓴다</p>"))
-    rc_dot, _ = run(check, dot)
-    rc_dash, _ = run(check, dash)
-    return rc_dot == 1 and rc_dash == 1, f"rc={rc_dot},{rc_dash}"
+    codes = [run(check, write(tmp / f"c2/{name}.html", page(LINK, body)))[0] for name, body in SPLIT_BODIES.items()]
+    return all(code == 1 for code in codes), "rc=" + ",".join(map(str, codes))
 
 
 def case_plain_names(tmp: Path, check: Path) -> tuple[bool, str]:

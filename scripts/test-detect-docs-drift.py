@@ -2,14 +2,15 @@
 """detect-docs-drift.py 의 모양/내용 가름 시험.
 
 임시 git 저장소에 도구 사본을 넣고 세 경우를 돌린다.
-  1. 표 구분 줄 · 빈 줄 · 울타리 언어 표시 · HTML 주석 · 목록 기호만 바꾼 커밋 → 기본 출력 없음, --include-format-only 1 줄
-  2. 낱말 하나를 바꾼 커밋 → 기본 출력 1 줄
+  1. 표 구분 줄 · 빈 줄 · 울타리 언어 표시 · HTML 주석 · 목록 기호 · 강조를 제목으로 · `<주소>` 감싸기만 바꾼 커밋
+     → 기본 출력 없음, --include-format-only 1 줄
+  2. 낱말 하나 · 표 칸 부등호 · 코드 안 연산자 · 울타리처럼 생긴 본문 줄을 바꾼 커밋 → 변형마다 기본 출력 1 줄
   3. 기준 판에 없던 매핑된 원본을 더한 커밋 → 기본 출력 1 줄
 
 사용법:
     python3 scripts/test-detect-docs-drift.py [--tool <도구 사본 경로>]
 
---tool 은 음성 대조용이다 — 가름을 망가뜨린 사본을 주면 경우 1 이 실패해야 한다.
+--tool 은 음성 대조용이다 — 가름을 망가뜨린 사본을 주면 경우 1 이, 낱말만 맞대는 옛 사본을 주면 경우 2 가 실패해야 한다.
 종료 코드는 harness/evals/gate-exit-codes.md 의 값을 쓴다 (0 통과 · 1 실패 · 2 준비 실패).
 """
 
@@ -33,9 +34,18 @@ BASE_SOURCE = """# 개요
 - 첫째 항목
 - 둘째 항목
 
+**요약**
+
+주소 https://example.com/a
+
+| 한도 | >= 5 |
+
 ```
 print("hello")
+x = a + 1
 ```
+
+~~~old_value~~~
 """
 
 FORMAT_ONLY_SOURCE = """# 개요
@@ -50,10 +60,27 @@ FORMAT_ONLY_SOURCE = """# 개요
 * 첫째 항목
 * 둘째 항목
 
+#### 요약
+
+주소 <https://example.com/a>
+
+| 한도 | >= 5 |
+
 ```python
 print("hello")
+x = a + 1
 ```
+
+~~~old_value~~~
 """
+
+CONTENT_CHANGES = {
+    "낱말": ("첫째 항목", "첫번째 항목"),
+    "표 칸 부등호": (">= 5", "<= 5"),
+    "코드 안 연산자": ("a + 1", "a - 1"),
+    "코드 안 대입과 비교": ("x = a", "x == a"),
+    "울타리처럼 생긴 본문 줄": ("~~~old_value~~~", "~~~new_value~~~"),
+}
 
 INDEX_HTML = """<script>
 const pages = [
@@ -116,12 +143,16 @@ def case_format_only(workdir: Path, tool: Path) -> tuple[bool, str]:
     return ok, f"default={len(default)} include_format_only={len(full)}"
 
 
-def case_word_change(workdir: Path, tool: Path) -> tuple[bool, str]:
-    repo, base = fresh_repo(workdir, "word-change", tool)
-    repo.write("docs/tone/overview.md", BASE_SOURCE.replace("첫째 항목", "첫번째 항목"))
-    repo.commit("word change")
-    default, _ = repo.drift(base)
-    return len(default) == 1, f"default={len(default)}"
+def case_content_change(workdir: Path, tool: Path) -> tuple[bool, str]:
+    missed = []
+    for index, (label, (before, after)) in enumerate(CONTENT_CHANGES.items()):
+        repo, base = fresh_repo(workdir, f"content-change-{index}", tool)
+        repo.write("docs/tone/overview.md", BASE_SOURCE.replace(before, after))
+        repo.commit(f"content change: {label}")
+        default, _ = repo.drift(base)
+        if len(default) != 1:
+            missed.append(label)
+    return not missed, f"caught={len(CONTENT_CHANGES) - len(missed)}/{len(CONTENT_CHANGES)} missed={missed}"
 
 
 def case_new_source(workdir: Path, tool: Path) -> tuple[bool, str]:
@@ -134,7 +165,7 @@ def case_new_source(workdir: Path, tool: Path) -> tuple[bool, str]:
 
 CASES = [
     ("1 모양만 바뀐 원본은 기본에서 빠진다", case_format_only),
-    ("2 낱말이 바뀐 원본은 기본에 남는다", case_word_change),
+    ("2 낱말 · 기호가 바뀐 원본은 기본에 남는다", case_content_change),
     ("3 새로 더한 원본은 기본에 남는다", case_new_source),
 ]
 
