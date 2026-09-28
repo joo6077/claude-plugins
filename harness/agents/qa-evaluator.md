@@ -230,14 +230,25 @@ frontmatter 에서 `status` 와 `owner_session` 을 읽는다.
 ```bash
 HDIR="$CONTRACT_ROOT/.harness"
 
-# frontmatter 단일 값 reader. 앞뒤 따옴표(" ')를 벗기므로 writer 가 따옴표를 쓰든 안 쓰든 동작한다.
+# frontmatter 단일 값 reader. 따옴표(" ')와 줄 끝 주석(빈칸 · 탭 뒤의 #)을 벗긴다.
+# 계약 형식 문서 §값 따옴표 규약의 fm_get 과 같은 동작이다 — 한쪽만 고치면 읽는 값이 갈린다.
 # ↓ 이 헬퍼는 Step 1-d / 1-e / 5 / 5.5 에서도 쓴다. Bash 호출이 분리되면 함께 붙여넣어라.
 fm_get() {   # 사용법: fm_get <파일> <키>
-  awk -v k="^$2:[[:space:]]*" '
+  awk -v k="$2" -v q="\"'" '
     NR==1 && /^---[[:space:]]*$/ { fm=1; next }
     fm && /^---[[:space:]]*$/    { exit }
-    fm && $0 ~ k                 { sub(k, "", $0); print; exit }
-  ' "$1" | sed -e "s/[[:space:]]*$//" -e "s/^['\"]//" -e "s/['\"]\$//"
+    fm && index($0, k ":") == 1 {
+      v = substr($0, length(k) + 2)
+      sub(/^[[:space:]]+/, "", v)
+      c = substr(v, 1, 1); e = index(substr(v, 2), c)
+      if (index(q, c) > 0 && e > 0) v = substr(v, 2, e - 1)
+      else {
+        if (c == "#") v = ""
+        else if (match(v, /[ \t]#/)) v = substr(v, 1, RSTART - 1)
+        sub(/[[:space:]]+$/, "", v)
+      }
+      print v; exit
+    }' "$1"
 }
 
 # 셸 무관 후보 열거 (zsh nomatch 안전).

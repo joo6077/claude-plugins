@@ -104,6 +104,14 @@ jobs:
       - name: Install docs guidance check (설치본에서 못 여는 docs/ 경로 안내)
         run: python3 scripts/check-install-docs-guidance.py
 
+      # 원문 덩어리 끝을 마지막 경우 줄로 잡았을 때 그 뒤에 더한 줄을 못 봤다(2026-09-28). 다섯 경우로 검사 자체를 잰다
+      - name: Cause table copy check test (원문 덩어리 끝 표지)
+        run: python3 scripts/test-check-cause-table-copies.py
+
+      # 로컬 CI 도구는 이 파일의 run 단계를 직접 읽는다. 손 목록 도구가 다섯 단계를 빠뜨린 일이 있었다(2026-09-28)
+      - name: Local CI tool test (CI 파일 읽기 · 준비 단계 · 못 다루는 열쇠)
+        run: bash scripts/test-ci-local.sh
+
       # 수집기가 옛 요약본을 오늘자 인사이트보다 먼저 집던 결함(2026-09-24 재현)을 다시 들이지 않게 한다.
       - name: Kaizen collector test (인사이트 입력 선택 · facets)
         run: python3 scripts/test-collect-kaizen-data.py
@@ -212,6 +220,13 @@ jobs:
 
       - name: Measure helpers test (도우미 떼기 · 공용 측정 파일)
         run: bash harness/evals/measure/measure-helpers-test.sh
+
+      # superseded 계약이 살아 있는 새 판을 가리키는지 기계로 보는 곳이 없었다(2026-09-28). 도구 시험과 레포 계약 둘을 잰다
+      - name: Superseded check test (가리킴 없음 · 없는 계약 · 사슬)
+        run: bash harness/evals/superseded/check-superseded-test.sh
+
+      - name: Superseded contracts check (레포 .harness)
+        run: bash harness/scripts/check-superseded.sh .harness
 
       - name: Dart format-on-edit hook test (편집한 파일 하나만)
         run: bash flutter-toolkit/evals/hooks/format-edited-dart-test.sh

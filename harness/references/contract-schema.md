@@ -238,17 +238,22 @@ ladder 2 단계(세션 소유 계약)가 통째로 죽어 있었다.
   따옴표(`"` 또는 `'`)로 감싸인 경우에만 한 쌍을 제거하고, 앞뒤 공백도 제거한다.
 
 ```bash
-# frontmatter 스칼라 1 개 읽기 — 값의 따옴표를 벗겨서 돌려준다 (zsh · bash 동일)
+# frontmatter 스칼라 1 개 읽기 — 따옴표와 줄 끝 주석을 벗겨서 돌려준다 (zsh · bash 동일)
+# 줄 끝 주석은 빈칸 · 탭 뒤의 # 부터다. abc#def 는 값 그대로다 (YAML 1.2 §6.6)
 fm_get() { # fm_get <file> <key>
   awk -v k="$2" -v q="\"'" '
     NR==1 && /^---[[:space:]]*$/ { fm=1; next }
     fm && /^---[[:space:]]*$/    { exit }
     fm && index($0, k ":") == 1 {
       v = substr($0, length(k) + 2)
-      sub(/^[[:space:]]+/, "", v); sub(/[[:space:]]+$/, "", v)
-      c = substr(v, 1, 1)
-      if (length(v) > 1 && index(q, c) > 0 && substr(v, length(v), 1) == c)
-        v = substr(v, 2, length(v) - 2)
+      sub(/^[[:space:]]+/, "", v)
+      c = substr(v, 1, 1); e = index(substr(v, 2), c)
+      if (index(q, c) > 0 && e > 0) v = substr(v, 2, e - 1)
+      else {
+        if (c == "#") v = ""
+        else if (match(v, /[ \t]#/)) v = substr(v, 1, RSTART - 1)
+        sub(/[[:space:]]+$/, "", v)
+      }
       print v; exit
     }' "$1"
 }
@@ -260,7 +265,7 @@ fm_get() { # fm_get <file> <key>
 | ------ | ------ | ------ |
 | `slug` | 슬러그 규칙을 만족하는 문자열 | 파일명 접미와 **동일**해야 한다. plain 모드면 필드 자체를 생략 |
 | `status` | `active` \| `done` \| `superseded` | 작성 시 `active`. `done` 전환 주체·시점은 §`status: done` 전환 주체 참조. `superseded` 는 같은 일을 새 판 계약으로 다시 쓸 때 옛 판에 붙인다 |
-| `superseded_by` | 새 판 계약의 슬러그 | `status: superseded` 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(`sprint-contract-<슬러그>.md`)이 있어야 하고 그 계약이 다시 `superseded` 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다 |
+| `superseded_by` | 새 판 계약의 슬러그 | `status: superseded` 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(`sprint-contract-<슬러그>.md`)이 있어야 하고 그 계약이 다시 `superseded` 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다. 기계 확인은 `bash harness/scripts/check-superseded.sh <.harness 폴더>` (CI 가 레포 `.harness` 에 돈다) |
 | `owner_session` | `$CLAUDE_CODE_SESSION_ID` 값 | 환경변수가 비어 있으면 **필드를 쓰지 마라.** 빈 문자열·`unknown` 같은 placeholder 금지 |
 
 ### 계약 봉인 — `conditions_digest` / `locked_at` (v5.3 신규 · E3)
@@ -1096,6 +1101,22 @@ done < "$DUPS"
 - **풀어 둔 판에서 `validate-doc-contracts.py` 는 `NOT RUN` 이다.** 그 스크립트는 `git ls-files` 를 부르므로 `git archive` 로
   푼 폴더에서는 `NOT RUN: git ls-files 실패 (rc=128)` 와 종료 코드 2 를 낸다. 푼 폴더에서 `git init -q && git add -A` 를
   한 뒤 돌린다 (실측 2026-09-26, 판 `6378948` — 풀어 둔 판은 종료 코드 2, 같은 사본에 두 명령을 한 뒤 종료 코드 0)
+
+아래 다섯은 2026-09-26 ~ 27 계약 넷의 측정이 헛 FAIL 을 내거나 결함을 놓친 자리다 (남은 일 목록 B22).
+
+- **린트 끄기 주석을 읽는 측정은 세 모양을 가른다.** `<!-- markdownlint-disable-next-line … -->` 은 다음 한 줄,
+  `disable-line` 은 그 줄만, 꼬리 없는 `disable` 은 `enable` 이 나올 때까지 끈다. `after-0926-mdlint` 측정 스크립트
+  `meaning.py` 가 `disable-next-line` 을 구간 `disable` 로 읽어 끈 범위를 부풀렸다
+- **파일마다 차이를 셀 때 첫 차이 하나에서 멈추지 않는다.** 같은 `meaning.py` 의 SPACING 검사가 파일마다 첫 차이만 내서,
+  고친 뒤에도 남은 둘째 차이를 못 봤다. 차이는 모두 내고 그 수를 센다
+- **커밋 메시지 끝 줄을 `git log --format=%B | tail` 로 재지 않는다.** `%B` 출력 끝에 빈 줄이 붙어 `tail -2` 가 서명 줄
+  하나와 빈 줄을 잡는다 — cx3 `AR-02` 에서 여덟 커밋이 모두 헛 FAIL 했다. 서명 줄은
+  `git log -1 --format='%(trailers:key=Co-Authored-By,valueonly)'` 로 뽑는다. 모델 이름은 바뀌므로 한 벌과 글자로 맞대지 말고
+  `Claude … <noreply@anthropic.com>` 모양으로 잰다
+- **기대 출력 글자는 봉인 전 실제 실행 출력에서 옮긴다.** 손으로 적으면 빈칸 수가 달라진다 — dr1a `SC-01` 은 출력이
+  빈칸 둘인데 계약은 한 칸이라 헛 FAIL 했다
+- **정렬은 `LC_ALL=C sort` 로 한다.** 로캘 없는 `sort -u` 는 이 맥과 CI 에서 차례가 갈린다 — k4 `DG-02` 가 이 규칙과
+  다르게 정렬했다. 겹친 줄을 지울 때도 `LC_ALL=C sort -u` 로 쓴다
 
 ```bash
 # 두 판 풀기 · 경고 줄 번호 — zsh · bash 동일

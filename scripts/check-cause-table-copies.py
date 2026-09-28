@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """check-cause-table-copies.py — preflight 두 스킬이 든 「실패 원인 가르기」 판정 표 사본이 원문과 글자까지 같은지 잰다.
 
-원문은 `harness/skills/sprint/SKILL.md` Step 3 의 `| 공용 작업 폴더 |` 줄부터 `- **미확정**` 줄까지다
-(판정 표와 CI 에서만 실패할 때의 두 경우). 킷은 따로 설치되어 원문을 읽지 못하므로 사본을 든다.
+원문은 `harness/skills/sprint/SKILL.md` Step 3 의 `| 공용 작업 폴더 |` 줄부터, 사본 위치를 알리는
+`판정 표와 두 경우는` 으로 시작하는 줄 바로 앞까지다 (판정 표와 CI 에서만 실패할 때의 두 경우).
+킷은 따로 설치되어 원문을 읽지 못하므로 사본을 든다.
+끝을 마지막 경우 줄(`- **미확정**`)로 잡으면 그 뒤에 원문에만 더한 줄을 못 본다 — 끝은 표지 줄로 잡는다.
 원문 첫 줄이 강화되고 두 경우가 더해졌는데 사본 둘이 따라가지 못한 일이 있었다(2026-09-27 Codex 점검).
 
 같다고 보는 기준은 reviewer 사본 검사와 같다 — 줄 앞 공백과 인용 표식 `>` · 끝 공백을 떼고 빈 줄을 버린 뒤,
@@ -23,7 +25,7 @@ from plugin_utils import REPO_ROOT, contains_block, normalized
 
 CANON = "harness/skills/sprint/SKILL.md"
 BLOCK_START = "| 공용 작업 폴더 |"
-BLOCK_END = "- **미확정**"
+BLOCK_END = "판정 표와 두 경우는"
 COPY_SECTION = "## 실패 원인 가르기"
 
 COPIES = [
@@ -37,14 +39,14 @@ def read_lines(rel: str) -> list[str]:
 
 
 def canonical_block(lines: list[str]) -> list[str]:
-    """시작 줄부터 끝 줄까지. 둘 중 하나라도 못 찾으면 빈 목록이다."""
+    """시작 줄부터 끝 표지 줄 바로 앞까지. 둘 중 하나라도 못 찾으면 빈 목록이다."""
     block: list[str] = []
     for line in lines:
         if not block and not line.startswith(BLOCK_START):
             continue
-        block.append(line)
         if line.startswith(BLOCK_END):
             return block
+        block.append(line)
     return []
 
 
@@ -69,7 +71,7 @@ def main() -> int:
         print(f"UNREADABLE {CANON} {error}")
         return 2
     if not block:
-        print(f"CANON_MISSING {CANON} `{BLOCK_START}` 줄부터 `{BLOCK_END}` 줄까지의 덩어리가 없다")
+        print(f"CANON_MISSING {CANON} `{BLOCK_START}` 줄부터 `{BLOCK_END}` 표지 줄 앞까지의 덩어리가 없다")
         return 2
 
     violations = infra_errors = 0

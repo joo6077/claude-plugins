@@ -27,12 +27,23 @@ import json
 import sys
 from pathlib import Path
 
-from plugin_utils import REPO_ROOT
+from plugin_utils import REPO_ROOT, load_marketplace
 
-ALL_KITS = [
-    "harness", "flutter-toolkit", "rust-kit", "react-kit",
-    "design-kit", "backend-kit", "infra-kit", "tone-kit", "api-kit",
-]
+# 평가 대상은 마켓 목록의 킷 가운데 evals/evals.json 이 있는 것이다. 손 목록은 새 킷을 조용히 빠뜨린다.
+# 형식이 달라 이 러너로 못 도는 킷만 이유와 함께 뺀다 — 빼는 줄은 `SKIP <킷> (<사유>)` 로 찍는다
+SKIP_KITS = {
+    "howto-kit": "게이트 픽스처 형식 — CI 가 sh howto-kit/evals/run-evals.sh 로 따로 돈다",
+}
+
+
+def eval_kits() -> list[str]:
+    names = [plugin["name"] for plugin in load_marketplace().get("plugins", [])]
+    have = [name for name in names if (REPO_ROOT / name / "evals" / "evals.json").is_file()]
+    # 평가 파일이 없는 킷도 이름을 찍는다 — 다른 이름으로 둔 킷이 소리 없이 빠지지 않게
+    absent = [name for name in names if name not in have]
+    if absent:
+        print(f"평가 파일(evals/evals.json) 없는 킷 {len(absent)} 개 — 대상 아님: {', '.join(absent)}")
+    return have
 
 PLACEHOLDER_PATTERNS = [
     "(placeholder)",
@@ -164,11 +175,14 @@ def main() -> int:
     parser.add_argument("--verbose", "-v", action="store_true", help="상세 출력")
     args = parser.parse_args()
 
-    kits = [args.plugin] if args.plugin else ALL_KITS
+    kits = [args.plugin] if args.plugin else eval_kits()
     grand_pass = 0
     grand_fail = 0
 
     for kit in kits:
+        if kit in SKIP_KITS:
+            print(f"SKIP {kit} ({SKIP_KITS[kit]})")
+            continue
         kit_path = REPO_ROOT / kit
         if not kit_path.exists():
             print(f"SKIP: {kit} (디렉토리 없음)")

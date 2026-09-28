@@ -75,6 +75,7 @@ QA Evaluator가 이 계약을 기준으로 구현을 APPROVE/REJECT한다.
 - **"기존 검사가 전부 통과한다" 를 조건으로 잠그기 전에 그 검사를 지금 돌려라.** 봉인 전 실측 규칙은 값을 잠그는 조건만 보지만, 기존 테스트·회귀 검사 묶음도 같은 위험이 있다. 실측: `l3-miss` 회귀 검사는 2026-03-31 생성 이후 대상 파일 21 판 전부에서 0 건이었고(죽은 검사), 그것을 모른 채 "기존 3 개 포함 전부 통과" 를 잠근 조건이 구현과 무관하게 실패했다. 죽은 검사를 발견하면 사용자 승인을 받아 그 자리에서 고치고(양성·음성 대조 첨부) 개정 사이드카에 기록한다
 - **값이 면제여도 재는 명령의 준비 단계는 봉인 전에 돌려라.** 구현이 만들 값은 미리 잴 수 없어 `[미실측]` 면제지만, 그 값을 재는 명령이 읽을 경로 · 부르는 도구(`command -v <도구>` 의 출력과 종료 코드) · `PATH` 를 바꿔 도구를 숨기는 전제 · 임시 사본을 만드는 절차는 지금 돌려 볼 수 있다. 실측(2026-09-22): `PATH=/usr/bin:/bin` 으로 `jq` 를 숨긴다는 전제가 이 기계에서 성립하지 않아(`/usr/bin/jq`) REJECT 났다. 2026-09-19 에는 한 번도 돌려 보지 않은 검증 명령 때문에 QA 한 회가 통째로 날아갔다. contract-schema.md §미실측 오라클 봉인 금지 참조
 - **조건 수 가이드는 기능 조건만 센다 — 자동 포함 여섯 줄 · 금지 패턴 줄 · `N/A (사유)` 줄은 세지 않는다.** 전체 줄을 세면 이 레포에서 가장 작은 계약도 11 줄이라 단순 작업의 수를 지킬 수 없었다. 위 「안티패턴 최소 2개」 항목은 변경 파일에 걸릴 패턴이 있을 때의 규칙이다 — 하나도 없으면 Step 3 의 `AP-00: N/A (사유)` 한 줄로 쓴다. 실측(2026-09-19): 한 줄 훅 수정이 무거운 계약 · QA 절차에 묻혀 사용자가 「그래서 내가 뭘 하면 되냐」고 물었다
+- **측정 명령을 짜기 전에 계약 형식 문서 `harness/references/contract-schema.md` §측정 관례 를 읽어라.** 지난 계약들이 헛 FAIL 을 낸 함정이 거기 모여 있다. 가장 잦은 것: 커밋 메시지 끝 줄을 `git log --format=%B | tail` 로 재면 끝 빈 줄 때문에 모든 커밋이 FAIL 한다 — 서명 줄은 `%(trailers:key=Co-Authored-By,valueonly)` 로 뽑는다. 린트 끄기 주석 세 모양 · 차이 전부 세기 · 기대 글자를 실제 출력에서 옮기기 · `LC_ALL=C sort` 도 같은 절에 있다
 - **여러 주체가 같은 가지에 커밋하면 범위 조건을 구간 누적 차이로 재지 마라 — 서명 줄로 내 커밋을 가린다.** 누적 차이는 남의 커밋까지 이 계약이 떠안는다. `.harness/` 는 산출물 이름을 열거하지 말고 `verify_seal` 로, 구현 경로는 서명 줄 `mine` 과 반대 방향 확인 `unsigned_on` 으로 잰다 (contract-schema.md §`.harness/` 범위 조건 · §여러 주체가 한 가지에 커밋할 때). 실측(2026-08-13): 한 Phase 계약의 범위 조건이 세 번 깨졌고 그중 두 번이 남의 커밋 때문이었다
 
 ## 설정 로드
@@ -278,12 +279,22 @@ reader 측 `fm_get`(`harness/agents/qa-evaluator.md` Step 1-b)은 닫는 `---` �
 **두 파서가 갈라지면 writer 만 오판한다.** 아래는 `fm_get` 과 동일 동작이며 인자 순서만 다르다.
 
 ```bash
-read_fm() {   # read_fm <key> <file> — 첫 frontmatter 블록에서만 읽어 따옴표를 벗겨 출력
-  awk -v k="^${1}:[[:space:]]*" '
+read_fm() {   # read_fm <key> <file> — 첫 frontmatter 블록에서만 읽어 따옴표 · 줄 끝 주석을 벗겨 출력
+  awk -v k="${1}" -v q="\"'" '
     NR==1 && /^---[[:space:]]*$/ { fm=1; next }
     fm && /^---[[:space:]]*$/    { exit }
-    fm && $(0) ~ k               { sub(k, "", $(0)); print; exit }
-  ' "${2}" | sed -e "s/[[:space:]]*$//" -e "s/^['\"]//" -e "s/['\"]\$//"
+    fm && index($(0), k ":") == 1 {
+      v = substr($(0), length(k) + 2)
+      sub(/^[[:space:]]+/, "", v)
+      c = substr(v, 1, 1); e = index(substr(v, 2), c)
+      if (index(q, c) > 0 && e > 0) v = substr(v, 2, e - 1)
+      else {
+        if (c == "#") v = ""
+        else if (match(v, /[ \t]#/)) v = substr(v, 1, RSTART - 1)
+        sub(/[[:space:]]+$/, "", v)
+      }
+      print v; exit
+    }' "${2}"
 }
 echo "status=[$(read_fm status "$CF")] owner=[$(read_fm owner_session "$CF")]"
 ```
@@ -332,6 +343,30 @@ verify_measurement "$CF"
 
 계약을 `done` 으로 전환하는 주체는 **qa-evaluator(APPROVE 시점)** 다. 이 스킬은 `status` 를
 `done` 으로 바꾸지 않는다 — 여기서는 "같은 슬러그의 기존 active 계약을 어떻게 할지" 만 정한다.
+
+**같은 일을 새 판 계약으로 다시 쓸 때** (예: 봉인한 조건이 틀려 `-r2` 접미 새 슬러그로 다시 쓴다) 옛 판을
+그대로 두면 active 계약이 둘이 되어 평가자가 어느 것을 잴지 갈린다. 새 판을 선점한 뒤 옛 판 frontmatter 에 두 줄을 적는다.
+
+```yaml
+status: superseded
+superseded_by: <새 슬러그>
+```
+
+- 바꾸는 것은 frontmatter 의 이 두 줄뿐이다. 조건 줄 · 측정 줄은 건드리지 않으므로 `SEAL_OK` · `MEASURE_OK` 가 그대로다
+- 적은 뒤 `check-superseded.sh` 를 돌려 종료 코드 0 을 확인한다. `harness/scripts/…` 레포 상대 경로는 플러그인을
+  설치해 쓰는 프로젝트에 없다 — 스크립트 폴더를 아래 차례로 찾는다 (qa-evaluator Step 8 과 같은 규약).
+  Step 9 · 10 의 `save-feedback.sh` · `verify-feedback.sh` 도 같은 폴더 `$HS` 에서 부른다
+
+  ```bash
+  HS="${CLAUDE_PLUGIN_ROOT}/scripts"                                      # (1) 설치된 플러그인
+  [ -f "$HS/check-superseded.sh" ] || HS="$CONTRACT_ROOT/harness/scripts"  # (2) harness 레포에서 작업 중
+  [ -f "$HS/check-superseded.sh" ] || { f=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
+    -path '*/harness/scripts/check-superseded.sh' 2>/dev/null | head -1); HS=${f%/*}; }  # (3) 마켓 설치본
+  bash "$HS/check-superseded.sh" "$CONTRACT_ROOT/.harness"
+  ```
+
+  `MISSING_BY` · `MISSING_TARGET` · `CHAIN` 이 나오면 가리킴을 고친다 — 규칙 정의는
+  `harness/references/contract-schema.md` §v5 신규 필드 의 `superseded_by` 행이다
 
 **결과: 같은 슬러그를 두 세션이 동시에 생성해도 어느 쪽도 상대의 계약 파일을 덮어쓰지 않는다.**
 선점에 실패한 세션은 BLOCKED 되거나 다른 접미의 새 경로로 이동할 뿐, 기존 파일을 건드리지 않는다.
@@ -889,7 +924,8 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
    - `diagnosis.checklist`: Step 7의 결과
    - `diagnosis.cross_diagnosis_by: qa-evaluator`
    - `diagnosis.cross_diagnosis_notes`: Step 8의 결과
-2. `HARNESS_CONTRACT="$CF" bash harness/scripts/save-feedback.sh contract .harness/feedback-draft-<slug>.yaml` 실행.
+2. `HARNESS_CONTRACT="$CF" bash "$HS/save-feedback.sh" contract .harness/feedback-draft-<slug>.yaml` 실행.
+   `$HS` 는 Step 0.5 의 스크립트 폴더 찾기로 같은 Bash 호출 안에서 다시 구한다.
    `HARNESS_CONTRACT` 를 빼면 스크립트가 계약 경로를 추측하거나 필드를 뺀다 — 실측(2026-09-26): 슬러그 계약인데
    `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다.
    셸 변수는 Bash 호출이 바뀌면 사라진다 — 같은 호출 안에서 `CF=<계약 파일 절대 경로>` 를 다시 적고 부른다.
@@ -898,7 +934,7 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
 
 ### 10. 피드백 검증
 
-1. `bash harness/scripts/verify-feedback.sh {Step 9에서 출력된 경로}` 실행
+1. `bash "$HS/verify-feedback.sh" {Step 9에서 출력된 경로}` 실행 (`$HS` 는 Step 9 와 같이 구한다)
 2. PASS → 스킬 완료
 3. FAIL → 피드백 YAML 수정 후 Step 9부터 재시도
 
