@@ -227,7 +227,7 @@
         <article class="card">
           <div class="card-num">PRINCIPLE 01</div>
           <h3>시크릿 fixture도 ephemeral하게</h3>
-          <p>Terraform 1.10+의 <code>ephemeral</code> 블록이나 OpenTofu 1.7+의 write-only 인수를 쓰는 모듈은 테스트에서도 평문 변수를 주입하지 않는다. 환경 변수 또는 Vault dev 모드를 사용한다.</p>
+          <p>Terraform 1.10+의 <code>ephemeral</code> 블록이나 OpenTofu 1.11+ write-only 인수(<a href="https://github.com/opentofu/opentofu/releases/tag/v1.11.0">v1.11.0 릴리스</a>, 2026-09-28 조회)를 쓰는 모듈은 테스트에서도 평문 변수를 주입하지 않는다. 환경 변수 또는 Vault dev 모드를 사용한다.</p>
           <a class="card-source" href="https://developer.hashicorp.com/terraform/language/ephemeral">Terraform ephemeral</a>
         </article>
         <article class="card">
@@ -269,7 +269,7 @@
           <tbody>
             <tr><td>Terraform test</td><td>1.6+</td><td><code>terraform test</code> 지원</td></tr>
             <tr><td>Terraform ephemeral</td><td>1.10+</td><td>ephemeral 블록</td></tr>
-            <tr><td>OpenTofu mocking</td><td>1.7+</td><td><code>tofu test</code> mocking·write-only</td></tr>
+            <tr><td>OpenTofu mocking</td><td>1.8+</td><td><code>tofu test</code> provider mocking (<a href="https://github.com/opentofu/opentofu/releases/tag/v1.8.0">v1.8.0</a>) · write-only 는 1.11+ (<a href="https://github.com/opentofu/opentofu/releases/tag/v1.11.0">v1.11.0</a>)</td></tr>
             <tr><td>원격 액션 핀</td><td>40자</td><td>전체 커밋 SHA</td></tr>
             <tr><td>Terratest 제한</td><td>30m</td><td><code>go test -v -timeout 30m</code></td></tr>
             <tr><td>PASS</td><td>exit 0</td><td>실행됨, 위반 없음</td></tr>
@@ -294,9 +294,9 @@
         <div class="gotcha"><div class="gotcha-check">05</div><div class="gotcha-body"><strong>CI 테스트에서 시크릿 노출 금지.</strong> <code>act</code>의 <code>.secrets</code>는 <code>.gitignore</code>에 넣고 환경 변수 덤프를 남기지 않는다.</div></div>
         <div class="gotcha"><div class="gotcha-check">06</div><div class="gotcha-body"><strong>K8s manifest 검증 도구 혼용 주의.</strong> kubeval은 deprecated다. kubeconform 또는 <code>kubectl --dry-run=server</code>를 쓴다. Helm 차트는 <code>helm template | kubeconform</code> 파이프라인으로 검증한다.</div></div>
         <div class="gotcha"><div class="gotcha-check">07</div><div class="gotcha-body"><strong>보안 스캔을 테스트로 대체하지 않는다.</strong> Trivy·Snyk·Checkov는 CI 게이트의 별도 단계로 둔다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">08</div><div class="gotcha-body"><strong>OpenTofu/Terraform 호환성을 확인한다.</strong> OpenTofu 1.7+ mocking과 Terraform 1.6+ test 지원을 구분한다.</div></div>
+        <div class="gotcha"><div class="gotcha-check">08</div><div class="gotcha-body"><strong>OpenTofu/Terraform 호환성을 확인한다.</strong> OpenTofu 1.8+ provider mocking과 Terraform 1.6+ test 지원을 구분한다 (<a href="https://github.com/opentofu/opentofu/releases/tag/v1.8.0">OpenTofu v1.8.0 릴리스</a>, 2026-09-28 조회).</div></div>
         <div class="gotcha"><div class="gotcha-check">09</div><div class="gotcha-body"><strong>backend-test와 sibling consistency를 유지한다.</strong> Step 0 독립 감지, 기존 패턴 탐색, 외부 실환경 강제 금지를 함께 유지한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">10</div><div class="gotcha-body"><strong>ephemeral 값을 쓰는 모듈의 테스트 fixture에 평문 시크릿을 넣지 않는다.</strong> Terraform 1.10+ <code>ephemeral</code> 블록이나 OpenTofu 1.7+ write-only 인수로 시크릿을 다루는 모듈은 <code>terraform test</code> fixture에서도 평문 주입 금지다. <code>run "xxx" { variables { secret = ... } }</code> 블록 대신 환경 변수나 Vault dev 모드를 쓴다. 출처: <a href="https://developer.hashicorp.com/terraform/language/ephemeral">Terraform ephemeral</a>.</div></div>
+        <div class="gotcha"><div class="gotcha-check">10</div><div class="gotcha-body"><strong>ephemeral 값을 쓰는 모듈의 테스트 fixture에 평문 시크릿을 넣지 않는다.</strong> Terraform 1.10+ <code>ephemeral</code> 블록이나 OpenTofu 1.11+ write-only 인수로 시크릿을 다루는 모듈은 <code>terraform test</code> fixture에서도 평문 주입 금지다. <code>run "xxx" { variables { secret = ... } }</code> 블록 대신 환경 변수나 Vault dev 모드를 쓴다. 출처: <a href="https://developer.hashicorp.com/terraform/language/ephemeral">Terraform ephemeral</a>.</div></div>
         <div class="gotcha"><div class="gotcha-check">11</div><div class="gotcha-body"><strong>셸 검증 스크립트는 결과 상태를 exit code로 전파한다.</strong> 이 스킬이 만드는 스크립트는 CI 에서 통과 여부를 가르는 검사로 쓰인다. 결함을 찾고도 <code>echo "WARN: ..."</code>만 하고 0으로 끝나면 파이프라인은 항상 통과하고 스크립트는 검증하는 척만 한다. 상태어 5종(<code>PASS</code> · <code>VIOLATION</code> · <code>SKIP_NO_TARGET</code> · <code>TOOL_OR_ENV_MISSING</code> · <code>EXECUTION_ERROR</code>)과 exit 매핑, 머리말 4 카운터, 핵심/선택 도구 분리는 <code>../../references/gate-result-taxonomy.md</code>가 SSOT이므로 여기서 다시 정의하지 않는다. 그 위에 아래 네 가지를 만드는 모든 셸 스크립트에 함께 적용한다.
           <ul>
             <li><strong>파이프 실패</strong> — <code>set -euo pipefail</code> 없이 파이프를 쓰지 않는다. 파이프는 마지막 명령의 exit code만 평가한다. Docker best practices도 <code>RUN</code> 파이프에 <code>set -o pipefail &amp;&amp;</code>를 앞에 두라고 적는다.</li>

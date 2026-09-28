@@ -150,18 +150,22 @@
   <span class="eyebrow">Infra Kit · 연구 기록</span>
   <h1>infra-kit 연구 기록</h1>
   <p class="orig-title">원본 제목: <strong>Infra Kit Research Log</strong></p>
-  <p class="subtitle">2026-04 첫 조사부터 카이젠 뒤 판 번호 정정까지, <strong>조회한 출처 · 실행해서 잡은 결함 · 바꾼 규칙</strong>을 사이클마다 남긴 기록이다.</p>
+  <p class="subtitle">2026-04 첫 조사부터 카이젠 뒤 바깥 원문 대조까지, <strong>조회한 출처 · 실행해서 잡은 결함 · 바꾼 규칙</strong>을 사이클마다 남긴 기록이다.</p>
   <div class="meta">
     <span class="badge">원본 <code>docs/infra/research-log.md</code></span>
-    <span class="badge">판 1.4.1</span>
-    <span class="badge">마지막 갱신 2026-09-26</span>
-    <span class="badge">사이클 절 아홉</span>
+    <span class="badge">판 1.4.2</span>
+    <span class="badge">마지막 갱신 2026-09-28</span>
+    <span class="badge">사이클 절 열</span>
   </div>
 </header>
 
 <section class="section" aria-labelledby="glance">
   <div class="section-label" id="glance">한눈에</div>
   <div class="glance">
+    <div class="card glance-card">
+      <h3>2026-09-28 · 바깥 원문 대조</h3>
+      <p>OpenTofu mocking 하한은 1.8+, write-only 는 1.11+ 다. Argo CD 3.5 는 API 제거가 아니라 gRPC 응답 형식 변경이다. GitLab · Buildkite 도 커밋별 실행을 찾을 수 있다.</p>
+    </div>
     <div class="card glance-card">
       <h3>2026-09-26 · 판 번호 정정</h3>
       <p>Kubernetes 최신 안정판은 1.37.0 이다. 앞 사이클 표에 적힌 「v1.37.1」 은 원문에 없어 여기서 고쳤다. Flux · Argo CD 판은 맞았다.</p>
@@ -174,25 +178,22 @@
       <h3>2026-08-13 · 핀닝 검사</h3>
       <p>기존 grep 핀닝 검사가 이 레포 워크플로의 미핀닝 6 건을 0 건으로 보고했다. GitHub 소유 액션을 조용히 빼던 것이 원인이었다.</p>
     </div>
-    <div class="card glance-card">
-      <h3>2026-07-27 · 샘플 결함</h3>
-      <p>infra-test Step 5 샘플 스크립트의 결함 세 건을 실제로 재현한 뒤 고쳤다.</p>
-    </div>
   </div>
 </section>
 
 <nav class="toc" aria-label="목차">
   <div class="section-label">목차</div>
   <ol class="toc-list">
-    <li><a href="#s1"><span class="toc-n">01</span>[2026-09-26] - 카이젠 뒤 남은 것 (k2)</a></li>
-    <li><a href="#s2"><span class="toc-n">02</span>[2026-09-24] - Phase 8 kaizen</a></li>
-    <li><a href="#s3"><span class="toc-n">03</span>[2026-08-13] - Phase 8 kaizen</a></li>
-    <li><a href="#s4"><span class="toc-n">04</span>[2026-07-27] - Phase 8 kaizen</a></li>
-    <li><a href="#s5"><span class="toc-n">05</span>[2026-06-05] — Phase 8</a></li>
-    <li><a href="#s6"><span class="toc-n">06</span>[2026-05-07] — Phase 8 kaizen (infra, /insights 흡수)</a></li>
-    <li><a href="#s7"><span class="toc-n">07</span>2026-04-12</a></li>
-    <li><a href="#s8"><span class="toc-n">08</span>2026-04-11</a></li>
-    <li><a href="#s9"><span class="toc-n">09</span>2026-04-12</a></li>
+    <li><a href="#s1"><span class="toc-n">01</span>[2026-09-28] - 바깥 원문 대조 (A7)</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>[2026-09-26] - 카이젠 뒤 남은 것 (k2)</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>[2026-09-24] - Phase 8 kaizen</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>[2026-08-13] - Phase 8 kaizen</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>[2026-07-27] - Phase 8 kaizen</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>[2026-06-05] — Phase 8</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>[2026-05-07] — Phase 8 kaizen (infra, /insights 흡수)</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>2026-04-12</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>2026-04-11</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>2026-04-12</a></li>
     <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
   </ol>
 </nav>
@@ -201,13 +202,64 @@
   <div class="section-label">원본 머리말</div>
 <div class="table-wrap"><table class="fm">
 <thead><tr><th>머리 설정 키</th><th>값</th></tr></thead><tbody>
-<tr><td><code>version</code></td><td class="fm-val">1.4.1</td></tr>
-<tr><td><code>last_updated</code></td><td class="fm-val">2026-09-26</td></tr>
+<tr><td><code>version</code></td><td class="fm-val">1.4.2</td></tr>
+<tr><td><code>last_updated</code></td><td class="fm-val">2026-09-28</td></tr>
 </tbody></table></div>
 </section>
 
 <section class="section doc" id="s1">
   <div class="section-label">§ 01</div>
+  <h2>[2026-09-28] - 바깥 원문 대조 (A7)</h2>
+  <div class="doc-body">
+<p>FIXED. 2026-09-24 사이클이 남긴 바깥 사실과 킷 문장을 원문과 다시 맞췄다. 근거는 Codex 원문 대조 <code>.harness/.meta/after-kaizen-0928/ex/A7.md</code>(2026-09-28 조회) 하나다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">대상</div></th>
+  <th><div class="c">원문</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">Flux 2.9</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/fluxcd/flux2/releases/tag/v2.9.0" target="_blank" rel="noopener">fluxcd/flux2 v2.9.0</a> — <code>image.toolkit.fluxcd.io/v1beta2</code> · <code>notification.toolkit.fluxcd.io/v1beta2</code> 가 수명이 끝나 CRD 에서 제거됐다</div></td>
+  <td><div class="c">맞음 — 빠진 API 다</div></td>
+</tr>
+<tr>
+  <td><div class="c">Argo CD 3.5</div></td>
+  <td><div class="c"><a class="ext" href="https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/" target="_blank" rel="noopener">Argo CD 3.4 → 3.5 업그레이드 안내</a> — 이벤트 조회 API 의 gRPC 응답 형식이 바뀌고 REST 경로는 그대로다</div></td>
+  <td><div class="c"><strong>정정</strong> — API 제거가 아니라 gRPC 응답 형식 변경이다. 2026-09-24 후보의 「Flux v2.9 · Argo CD 3.5 에서 빠진 API」 는 서로 다른 두 변경을 한데 묶었다</div></td>
+</tr>
+<tr>
+  <td><div class="c">Kubernetes 1.37</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md" target="_blank" rel="noopener">CHANGELOG-1.37</a> — <code>scheduling.k8s.io</code> 를 <code>v1alpha2</code> 에서 <code>v1alpha3</code> 으로 올리고 <code>v1alpha2</code> 를 완전히 뺐다. 클러스터를 올리기 전에 <code>v1alpha2</code> 객체를 지우라고 한다</div></td>
+  <td><div class="c">맞음 — 빠진 API 는 <code>scheduling.k8s.io/v1alpha2</code> 다</div></td>
+</tr>
+<tr>
+  <td><div class="c">GitHub 밖 CI</div></td>
+  <td><div class="c"><a class="ext" href="https://docs.gitlab.com/api/pipelines/" target="_blank" rel="noopener">GitLab — Pipelines API</a> 의 <code>sha</code> · <a class="ext" href="https://buildkite.com/docs/apis/rest-api/builds" target="_blank" rel="noopener">Buildkite — Builds API</a> 의 <code>commit</code>(전체 SHA 만)</div></td>
+  <td><div class="c"><strong>정정</strong> — 커밋별 실행 조회가 된다. <code>platform/cicd.md</code> 원칙 7 에 반영했다. 조회 결과만으로 필수 검사 전체의 통과나 실패 원인이 증명되지는 않는다</div></td>
+</tr>
+<tr>
+  <td><div class="c">OpenTofu state encryption</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/opentofu/opentofu/releases/tag/v1.7.0" target="_blank" rel="noopener">opentofu v1.7.0</a> — 새 기능 목록에 「State Encryption」</div></td>
+  <td><div class="c">맞음 — 하한은 1.7 이다</div></td>
+</tr>
+<tr>
+  <td><div class="c">OpenTofu provider mocking</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/opentofu/opentofu/releases/tag/v1.8.0" target="_blank" rel="noopener">opentofu v1.8.0</a> — 「Provider mocking in <code>tofu test</code>」</div></td>
+  <td><div class="c"><strong>정정</strong> — 하한은 1.8+ 다. audit-criteria · init-checklist · infra-test Gotcha 8 을 고쳤다</div></td>
+</tr>
+<tr>
+  <td><div class="c">OpenTofu write-only 인수</div></td>
+  <td><div class="c"><a class="ext" href="https://github.com/opentofu/opentofu/releases/tag/v1.11.0" target="_blank" rel="noopener">opentofu v1.11.0</a> — 「Ephemeral Values and Write Only Attributes」</div></td>
+  <td><div class="c"><strong>정정</strong> — 하한은 1.11+ 다. infra-test Gotcha 10 을 고쳤다</div></td>
+</tr>
+</tbody></table></div>
+<p>2026-09-24 · 2026-09-26 항목의 이력 줄은 그대로 두고 여기서 정정한다. 「빠진 API 를 원칙으로 올릴지」 후보에서 Argo CD 3.5 는 빠진다 — 제거가 아니기 때문이다.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
   <h2>[2026-09-26] - 카이젠 뒤 남은 것 (k2)</h2>
   <div class="doc-body">
 <p>FIXED. 2026-09-24 사이클이 기록한 판 번호를 원문과 다시 맞췄다. 근거는 Codex 원문 대조 <code>.harness/.meta/after-kaizen-0926b/ex/EX-8.md</code>(2026-09-26 조회) 하나다.</p>
@@ -237,8 +289,8 @@
   </div>
 </section>
 
-<section class="section doc" id="s2">
-  <div class="section-label">§ 02</div>
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
   <h2>[2026-09-24] - Phase 8 kaizen</h2>
   <div class="doc-body">
 <p>CHANGED. 처리 배정표의 Phase 8 행 <code>backend-family:P3</code> 하나와 앞 Phase 가 넘긴 셋(Phase 1 — <code>infra-test</code> 의 <code>[미검증]</code> 네 칸, Phase 4 — harness <code>/sprint</code> Step 3 의 판정 세 줄, Phase 7 — README 검증 절 「7 카테고리 구조 감사」)을 세 관심사로 묶었다. 외부 근거는 <code>.harness/.meta/evidence/phase8.md</code> 하나이고 이 Phase 는 새로 조회하지 않았다.</p>
@@ -334,8 +386,8 @@
   </div>
 </section>
 
-<section class="section doc" id="s3">
-  <div class="section-label">§ 03</div>
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
   <h2>[2026-08-13] - Phase 8 kaizen</h2>
   <div class="doc-body">
 <p>CHANGED. Step 0.6 선별에서 infra-kit 은 low-signal 제외 후보였으나 사용자가 전체 14 Phase 를 선택해 실행했다. 외부 근거는 codex 를 foreground 로 호출해 <code>.harness/.meta/evidence/phase8.md</code> 에 파일로 고정한 뒤 그 파일만 읽고 작업했다 (백그라운드 실행 중 네트워크 조회 금지). 커밋 <code>73ef4e7</code> — 11 파일.</p>
@@ -458,8 +510,8 @@
   </div>
 </section>
 
-<section class="section doc" id="s4">
-  <div class="section-label">§ 04</div>
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
   <h2>[2026-07-27] - Phase 8 kaizen</h2>
   <div class="doc-body">
 <p>CHANGED. Step 0.6 에서 infra-kit 은 LOW signal 이었으나, (a) Phase 3 이 <code>infra-reviewer</code> 를 canonical drift 대상으로 실명 지목했고 (b) digest 의 exit-code 캡처 3 회 반복 신호가 infra-test 샘플 스크립트의 실제 결함으로 재현되어 변경했다.</p>
@@ -547,8 +599,8 @@
   </div>
 </section>
 
-<section class="section doc" id="s5">
-  <div class="section-label">§ 05</div>
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
   <h2>[2026-06-05] — Phase 8</h2>
   <div class="doc-body">
 <p>NO_CHANGE. infra-init Gotcha #2/#4/#9 에 가드 포화. infra-test↔backend-test parity 3항목 대칭 확인. SKIP.</p>
@@ -556,8 +608,8 @@
   </div>
 </section>
 
-<section class="section doc" id="s6">
-  <div class="section-label">§ 06</div>
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
   <h2>[2026-05-07] — Phase 8 kaizen (infra, /insights 흡수)</h2>
   <div class="doc-body">
 <h3 class="sub">데이터 소스</h3>
@@ -578,8 +630,8 @@
   </div>
 </section>
 
-<section class="section doc" id="s7">
-  <div class="section-label">§ 07</div>
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
   <h2>2026-04-12</h2>
   <div class="doc-body">
 <p><strong>트리거:</strong> infra-research 수동 실행 (12개 카테고리 확충)</p>
@@ -1038,8 +1090,8 @@
   </div>
 </section>
 
-<section class="section doc" id="s8">
-  <div class="section-label">§ 08</div>
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
   <h2>2026-04-11</h2>
   <div class="doc-body">
 <p><strong>트리거:</strong> kaizen-orchestrator Phase 8 (research-mode rerun)</p>
@@ -1277,8 +1329,8 @@
   </div>
 </section>
 
-<section class="section doc" id="s9">
-  <div class="section-label">§ 09</div>
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
   <h2>2026-04-12</h2>
   <div class="doc-body">
 <p><strong>트리거:</strong> infra-research 수동 실행 (12개 카테고리 추가 조사)</p>
@@ -1538,8 +1590,16 @@
 
 <section class="section" id="refs">
   <div class="section-label">출처 주소 모음</div>
-  <p class="desc">원본에 적힌 주소 103 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <p class="desc">원본에 적힌 주소 108 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
   <ol class="refs">
+    <li><a class="card-source" href="https://github.com/fluxcd/flux2/releases/tag/v2.9.0" target="_blank" rel="noopener">&#8599; https://github.com/fluxcd/flux2/releases/tag/v2.9.0</a></li>
+    <li><a class="card-source" href="https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/" target="_blank" rel="noopener">&#8599; https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/</a></li>
+    <li><a class="card-source" href="https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md" target="_blank" rel="noopener">&#8599; https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md</a></li>
+    <li><a class="card-source" href="https://docs.gitlab.com/api/pipelines/" target="_blank" rel="noopener">&#8599; https://docs.gitlab.com/api/pipelines/</a></li>
+    <li><a class="card-source" href="https://buildkite.com/docs/apis/rest-api/builds" target="_blank" rel="noopener">&#8599; https://buildkite.com/docs/apis/rest-api/builds</a></li>
+    <li><a class="card-source" href="https://github.com/opentofu/opentofu/releases/tag/v1.7.0" target="_blank" rel="noopener">&#8599; https://github.com/opentofu/opentofu/releases/tag/v1.7.0</a></li>
+    <li><a class="card-source" href="https://github.com/opentofu/opentofu/releases/tag/v1.8.0" target="_blank" rel="noopener">&#8599; https://github.com/opentofu/opentofu/releases/tag/v1.8.0</a></li>
+    <li><a class="card-source" href="https://github.com/opentofu/opentofu/releases/tag/v1.11.0" target="_blank" rel="noopener">&#8599; https://github.com/opentofu/opentofu/releases/tag/v1.11.0</a></li>
     <li><a class="card-source" href="https://kubernetes.io/releases/" target="_blank" rel="noopener">&#8599; https://kubernetes.io/releases/</a></li>
     <li><a class="card-source" href="https://github.com/fluxcd/flux2/releases" target="_blank" rel="noopener">&#8599; https://github.com/fluxcd/flux2/releases</a></li>
     <li><a class="card-source" href="https://github.com/argoproj/argo-cd/releases" target="_blank" rel="noopener">&#8599; https://github.com/argoproj/argo-cd/releases</a></li>
@@ -1551,11 +1611,8 @@
     <li><a class="card-source" href="https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1" target="_blank" rel="noopener">&#8599; https://github.com/kubernetes/kubernetes/releases/tag/v1.37.1</a></li>
     <li><a class="card-source" href="https://opentofu.org/docs/v1.11/language/state/encryption/" target="_blank" rel="noopener">&#8599; https://opentofu.org/docs/v1.11/language/state/encryption/</a></li>
     <li><a class="card-source" href="https://opentelemetry.io/docs/specs/status/" target="_blank" rel="noopener">&#8599; https://opentelemetry.io/docs/specs/status/</a></li>
-    <li><a class="card-source" href="https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md" target="_blank" rel="noopener">&#8599; https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md</a></li>
     <li><a class="card-source" href="https://github.com/hashicorp/terraform/releases/tag/v1.16.0" target="_blank" rel="noopener">&#8599; https://github.com/hashicorp/terraform/releases/tag/v1.16.0</a></li>
     <li><a class="card-source" href="https://github.com/opentofu/opentofu/releases/tag/v1.12.6" target="_blank" rel="noopener">&#8599; https://github.com/opentofu/opentofu/releases/tag/v1.12.6</a></li>
-    <li><a class="card-source" href="https://github.com/fluxcd/flux2/releases/tag/v2.9.0" target="_blank" rel="noopener">&#8599; https://github.com/fluxcd/flux2/releases/tag/v2.9.0</a></li>
-    <li><a class="card-source" href="https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/" target="_blank" rel="noopener">&#8599; https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/</a></li>
     <li><a class="card-source" href="https://github.com/crossplane/crossplane/releases/tag/v2.4.0" target="_blank" rel="noopener">&#8599; https://github.com/crossplane/crossplane/releases/tag/v2.4.0</a></li>
     <li><a class="card-source" href="https://docs.github.com/en/actions/reference/security/secure-use" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/actions/reference/security/secure-use</a></li>
     <li><a class="card-source" href="https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference" target="_blank" rel="noopener">&#8599; https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference</a></li>
