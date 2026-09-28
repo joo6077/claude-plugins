@@ -9,12 +9,16 @@ kaizen-orchestrator Step F2 (docs-site 재생성) 에서 서브에이전트에�
 "어느 HTML 을 재생성해야 하는지" 를 정확히 알려주기 위한 manifest 역할이다.
 
 사용법:
-    python3 scripts/detect-docs-drift.py [--since <ref>] [--json]
+    python3 scripts/detect-docs-drift.py [--since <ref>] [--json] [--include-format-only]
     python3 scripts/detect-docs-drift.py --check-table
 
 옵션:
     --since <ref>    기준 git ref (기본: main)
     --json           JSON array 형식으로 출력
+    --include-format-only
+                     모양만 바뀐 원본의 짝도 낸다. 기본은 뺀 짝 수를 표준 오류에 한 줄로 적고 뺀다.
+                     모양만 바뀜 = 두 판에서 HTML 주석을 지우고 코드 울타리 줄을 한 표지로 바꾼 뒤
+                     낱말(\\w+) 순서가 같다 (표 구분 줄 · 빈 줄 · 목록 기호 · 울타리 언어 표시만 바뀐 경우)
     --verbose        변경된 소스 전체 목록 포함
     --check-table    이 스크립트의 매핑과 docs-site SKILL.md Step 1 표를 맞댄다.
                      한쪽에만 있는 (원본, 출력 폴더) 짝을 이름으로 대고 exit 1
@@ -119,12 +123,22 @@ SOURCE_OVERRIDES: dict[str, list[str]] = {
     "docs/react/kit-design/g5-ui-patterns.md": ["docs/react-kit/ui-patterns.html"],
     "docs/react/kit-design/g5b-animation.md": ["docs/react-kit/animation.html"],
     "docs/react/kit-design/g6-build-audit.md": ["docs/react-kit/build-audit.html"],
+    # tone 코어 규칙은 먼저 생긴 리서치 쪽이 같은 주제를 다룬다. 이름으로 새 쪽을 만들지 않고 그 쪽과 짝짓는다
+    "tone-kit/references/core-antipatterns.md": ["docs/tone-kit/antipattern-catalog.html"],
+    "tone-kit/references/core-comment.md": ["docs/tone-kit/comment-economy.html"],
+    "tone-kit/references/core-naming.md": ["docs/tone-kit/naming-taxonomy.html"],
+    "tone-kit/references/core-structure.md": ["docs/tone-kit/extraction-thresholds.html"],
+    # 스킬의 부속 목록이라 따로 쪽을 두지 않고 그 스킬 쪽에 묶는다
+    "reflect-kit/skills/codex-kaizen/references/search-sources.md": ["docs/reflect-kit/codex-kaizen.html"],
 }
 
 DOCS_SITE_SKILL = REPO_ROOT / ".claude/skills/docs-site/SKILL.md"
 
-# 초안 폴더의 SKILL.md 가 스킬 본문 이름 규칙에 걸려 없는 `drafts.html` 을 새 페이지로 냈다
-SOURCE_EXCLUDES: tuple[str, ...] = ("docs/howto/drafts/",)
+# 초안 폴더의 SKILL.md 가 스킬 본문 이름 규칙에 걸려 없는 `drafts.html` 을 새 페이지로 냈다.
+# tone project-detection 은 킷이 프로젝트 값을 감지하는 절차라 페이지를 만들지 않는 원본이다 (d1 결정표)
+SOURCE_EXCLUDES: tuple[str, ...] = ("docs/howto/drafts/", "tone-kit/references/project-detection.md")
+
+FENCE_LINE_RE = re.compile(r"^\s*(`{3,}|~{3,})\s*\S*\s*$")
 
 
 # docs-site 페이지는 소스 basename 과 1:1 이 아니다.
@@ -224,6 +238,37 @@ def changed_files(since: str) -> list[str]:
     return [line for line in out.splitlines() if line.strip()]
 
 
+def show_file(ref: str, path: str) -> str | None:
+    result = subprocess.run(
+        ["git", "show", f"{ref}:{path}"],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return result.stdout if result.returncode == 0 else None
+
+
+def word_sequence(text: str) -> list[str]:
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+    out: list[str] = []
+    for line in text.splitlines():
+        if FENCE_LINE_RE.match(line):
+            out.append("FENCE")
+            continue
+        out.extend(re.findall(r"\w+", line))
+    return out
+
+
+def is_format_only(source: str, since: str) -> bool:
+    """두 판의 낱말 순서가 같으면 모양만 바뀐 원본이다. 한쪽 판에 파일이 없으면 내용이 바뀐 것으로 본다."""
+    before, after = show_file(since, source), show_file("HEAD", source)
+    if before is None or after is None:
+        return False
+    return word_sequence(before) == word_sequence(after)
+
+
 def map_source_to_html(source: str) -> str | None:
     """Given a changed source file, return the corresponding HTML target.
 
@@ -250,11 +295,13 @@ def map_source_to_html(source: str) -> str | None:
     return None
 
 
-def detect_drift(since: str) -> list[DriftEntry]:
+def detect_drift(since: str, include_format_only: bool = True) -> tuple[list[DriftEntry], int]:
+    """(짝 목록, 모양만 바뀌어 뺀 짝 수) 를 돌려준다."""
     sources = changed_files(since)
     registry = load_registry()
     entries: list[DriftEntry] = []
     seen: set[tuple[str, str]] = set()
+    skipped = 0
     for src in sources:
         override = SOURCE_OVERRIDES.get(src)
         if override is not None:
@@ -264,18 +311,22 @@ def detect_drift(since: str) -> list[DriftEntry]:
             if candidate is None:
                 continue
             candidates = [candidate]
+        format_only = not include_format_only and is_format_only(src, since)
         for candidate in candidates:
             target, registered, exists = resolve_target(candidate, registry)
             key = (src, target)
             if key in seen:
                 continue
             seen.add(key)
+            if format_only:
+                skipped += 1
+                continue
             entries.append(
                 DriftEntry(
                     source=src, target=target, registered=registered, exists=exists
                 )
             )
-    return entries
+    return entries, skipped
 
 
 def script_pairs() -> set[tuple[str, str]]:
@@ -339,11 +390,16 @@ def main() -> int:
     parser.add_argument(
         "--check-table", action="store_true", help="매핑과 docs-site SKILL.md Step 1 표를 맞댄다"
     )
+    parser.add_argument(
+        "--include-format-only", action="store_true", help="모양만 바뀐 원본의 짝도 낸다"
+    )
     args = parser.parse_args()
     if args.check_table:
         return check_table()
 
-    entries = detect_drift(args.since)
+    entries, skipped = detect_drift(args.since, args.include_format_only)
+    if skipped:
+        print(f"모양만 바뀐 원본의 짝 {skipped} 개를 뺐다 — 모두 보려면 --include-format-only", file=sys.stderr)
 
     if args.json:
         print(json.dumps([e.to_dict() for e in entries], ensure_ascii=False, indent=2))
