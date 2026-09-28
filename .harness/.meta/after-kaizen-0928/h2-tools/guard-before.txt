@@ -1,0 +1,10 @@
+X1 pre=1 post=1
+X2 pre=1 post=1
+X3 pre=1 post=1
+X4 pre=1 post=1
+T1 pre=0 post=0
+T2 pre=0 post=0
+T3 pre=0 post=0
+X5 pre=1 post=1
+E1-PreToolUse rc=0 out=0 err=0
+E1-PostToolUse rc=0 out=0 err=0
