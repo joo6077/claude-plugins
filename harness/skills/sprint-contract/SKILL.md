@@ -353,7 +353,18 @@ superseded_by: <새 슬러그>
 ```
 
 - 바꾸는 것은 frontmatter 의 이 두 줄뿐이다. 조건 줄 · 측정 줄은 건드리지 않으므로 `SEAL_OK` · `MEASURE_OK` 가 그대로다
-- 적은 뒤 `bash harness/scripts/check-superseded.sh "$CONTRACT_ROOT/.harness"` 를 돌려 종료 코드 0 을 확인한다.
+- 적은 뒤 `check-superseded.sh` 를 돌려 종료 코드 0 을 확인한다. `harness/scripts/…` 레포 상대 경로는 플러그인을
+  설치해 쓰는 프로젝트에 없다 — 스크립트 폴더를 아래 차례로 찾는다 (qa-evaluator Step 8 과 같은 규약).
+  Step 9 · 10 의 `save-feedback.sh` · `verify-feedback.sh` 도 같은 폴더 `$HS` 에서 부른다
+
+  ```bash
+  HS="${CLAUDE_PLUGIN_ROOT}/scripts"                                      # (1) 설치된 플러그인
+  [ -f "$HS/check-superseded.sh" ] || HS="$CONTRACT_ROOT/harness/scripts"  # (2) harness 레포에서 작업 중
+  [ -f "$HS/check-superseded.sh" ] || { f=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
+    -path '*/harness/scripts/check-superseded.sh' 2>/dev/null | head -1); HS=${f%/*}; }  # (3) 마켓 설치본
+  bash "$HS/check-superseded.sh" "$CONTRACT_ROOT/.harness"
+  ```
+
   `MISSING_BY` · `MISSING_TARGET` · `CHAIN` 이 나오면 가리킴을 고친다 — 규칙 정의는
   `harness/references/contract-schema.md` §v5 신규 필드 의 `superseded_by` 행이다
 
@@ -913,7 +924,8 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
    - `diagnosis.checklist`: Step 7의 결과
    - `diagnosis.cross_diagnosis_by: qa-evaluator`
    - `diagnosis.cross_diagnosis_notes`: Step 8의 결과
-2. `HARNESS_CONTRACT="$CF" bash harness/scripts/save-feedback.sh contract .harness/feedback-draft-<slug>.yaml` 실행.
+2. `HARNESS_CONTRACT="$CF" bash "$HS/save-feedback.sh" contract .harness/feedback-draft-<slug>.yaml` 실행.
+   `$HS` 는 Step 0.5 의 스크립트 폴더 찾기로 같은 Bash 호출 안에서 다시 구한다.
    `HARNESS_CONTRACT` 를 빼면 스크립트가 계약 경로를 추측하거나 필드를 뺀다 — 실측(2026-09-26): 슬러그 계약인데
    `contract_path` 가 빠진 채 저장됐다. `$CF` 는 Step 0.5 에서 선점한 계약 경로다.
    셸 변수는 Bash 호출이 바뀌면 사라진다 — 같은 호출 안에서 `CF=<계약 파일 절대 경로>` 를 다시 적고 부른다.
@@ -922,7 +934,7 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
 
 ### 10. 피드백 검증
 
-1. `bash harness/scripts/verify-feedback.sh {Step 9에서 출력된 경로}` 실행
+1. `bash "$HS/verify-feedback.sh" {Step 9에서 출력된 경로}` 실행 (`$HS` 는 Step 9 와 같이 구한다)
 2. PASS → 스킬 완료
 3. FAIL → 피드백 YAML 수정 후 Step 9부터 재시도
 
