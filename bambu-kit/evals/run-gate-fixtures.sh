@@ -3,7 +3,7 @@
 # 시험 파일 이름과 기대는 SKILL.md 한 곳에만 적는다. 이 스크립트에 이름을 다시 적으면 둘이 어긋난다.
 # 다른 사본을 잴 때: BAMBU_GATE_SKILL=<SKILL.md 사본> bash run-gate-fixtures.sh
 # 표가 `[미검증]` 줄 수를 적은 행은 그 수까지 맞아야 일치다 — FAIL 줄과 종료 코드만 보면 못 읽은 칸 알림이 빠지거나 늘어도 모른다.
-# 슬라이서가 없는 기계(리눅스 CI)에서는 설치본이 있어야 판정되는 FAIL 기대 파일과 `[미검증]` 줄 수 기대를 「건너뜀」 으로 적는다 — 일치로 세지 않는다.
+# 슬라이서가 없는 기계(리눅스 CI)에서는 설치본이 있어야 판정되는 FAIL 기대 파일과, 판정은 맞았는데 `[미검증]` 줄 수만 잴 수 없는 경우를 「건너뜀」 으로 적는다 — 일치로 세지 않는다. 판정이 틀리면 슬라이서가 없어도 불일치다.
 # 종료 코드: 0 불일치 없음 · 1 불일치 있음 · 2 완료 검사 · 표 · 실행 줄을 못 읽음
 set -u
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -74,7 +74,7 @@ while read -r name slicer; do
     echo "일치 $name"
   elif [ "$no_slicer" -gt 0 ] && [ "$expect" = fail ] && printf '%s\n' "$kind" | grep -qE "$NEEDS_SLICER"; then
     skip=$((skip + 1)); echo "건너뜀 $name — $slicer 설치본이 없어 「${kind}」 검사가 안 돈다"
-  elif [ "$no_slicer" -gt 0 ] && [ "$want_unv" != - ]; then
+  elif [ "$verdict_ok" = 1 ] && [ "$no_slicer" -gt 0 ] && [ "$want_unv" != - ]; then
     skip=$((skip + 1)); echo "건너뜀 $name — $slicer 설치본이 없어 \`[미검증]\` $want_unv 줄 기대를 잴 수 없다 (나온 \`[미검증]\` $unv 줄)"
   elif [ "$verdict_ok" = 1 ]; then
     bad=$((bad + 1)); echo "불일치 $name — \`[미검증]\` 기대 $want_unv 줄 · 결과 $unv 줄"
