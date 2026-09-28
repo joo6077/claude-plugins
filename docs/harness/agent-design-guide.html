@@ -302,7 +302,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
       </tbody>
     </table>
   </div>
-  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields">Create custom subagents — Supported frontmatter fields (2026-09-24 조회 · 2026-09-22 수정본 · 2026-09-28 다시 조회)</a>
+  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields">Create custom subagents — Supported frontmatter fields (2026-09-24 조회 · 2026-09-22 수정본 · 2026-09-28 다시 조회 — 필수는 name 과 description 둘뿐임을 재확인)</a>
 
   <div class="limits">
     <div class="correction">
@@ -468,7 +468,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
   <div class="correction">
     <div class="note-title">중요 정정 (2026-07)</div>
     <p>과거 이 가이드는 서브에이전트의 하위 위임을 금지된 것으로 적었으나, 현재 공식 동작은 다르다. <strong>서브에이전트는 기본적으로 자기 아래로 서브에이전트를 스폰할 수 있으며, 메인 대화 기준 3 층까지 중첩된다.</strong> 깊이 한계에 닿으면 Claude Code 가 해당 서브에이전트에서 <code>Agent</code> 도구를 회수하므로, 그 에이전트는 위임 없이 직접 일하고 요약 하나만 돌려준다.</p>
-    <a class="card-source" href="https://code.claude.com/docs/en/sub-agents">Create custom subagents — Let subagents spawn their own subagents (2026-07 확인 · 2026-09-28 다시 조회 — 3 층은 기본값)</a>
+    <a class="card-source" href="https://code.claude.com/docs/en/sub-agents">Create custom subagents — Let subagents spawn their own subagents (2026-07 확인 · 2026-09-28 다시 조회 — 3 층은 기본값이고 환경 변수로 바꾼다)</a>
   </div>
   <div class="depth">
     <div class="layer"><div class="layer-n">깊이 조정</div><h4><code>env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code></h4><p><code>settings.json</code> 에 둔다. <code>1</code> 로 두면 중첩 비활성</p></div>
@@ -736,7 +736,7 @@ tools: Agent(worker, researcher), Read, Bash
   <div class="grid-2">
     <div class="note warn">
       <div class="note-title">확인하지 못한 것</div>
-      <p><code>Concurrent subagent limit reached</code> 는 이미 20 개가 동시에 도는 세션에서 하나를 더 띄울 때 나는 <strong>동시 실행 상한 오류</strong>다. 중첩 깊이 상한에 닿으면 보통 서브에이전트에는 <code>Agent</code> 도구가 아예 주어지지 않고, fork 는 도구가 남지만 부르면 오류가 난다 — 그 오류 글자는 원문에 없다. 이전 판이 적은 <code>Subagent spawn limit reached</code> 는 2026-09-26 원문 대조에서 찾지 못한 문구다.</p>
+      <p><code>Concurrent subagent limit reached</code> 는 이미 20 개가 동시에 도는 세션에서 하나를 더 띄울 때 나는 <strong>동시 실행 상한</strong> 오류다. 중첩 깊이 상한에 닿으면 보통 서브에이전트에는 <code>Agent</code> 도구가 아예 주어지지 않고, fork 는 도구가 남지만 부르면 오류가 난다 — 그 오류 글자는 원문에 없다. 이전 판이 적은 <code>Subagent spawn limit reached</code> 는 2026-09-26 원문 대조에서 찾지 못한 문구다.</p>
     </div>
     <div class="note">
       <div class="note-title">"기본 5 개" 는 플랫폼 상한이 아니다</div>
