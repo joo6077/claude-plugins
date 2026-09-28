@@ -1,6 +1,6 @@
 # Sprint Feedback
 Feature: harness 가이드 · 스킬 · 에이전트 남은 일 (GD-1 ~ GD-12 · UD-5)
-Evaluated: 2026-09-27 01:33
+Evaluated: 2026-09-27 09:41
 Verdict: APPROVE
 Iteration: 2
 
@@ -113,3 +113,15 @@ Iteration: 2
 
 ## Improvement Suggestions
 - [SK-19] 검증경로-미기재 — (1회차 제안 반복 아님, 이미 AM-01 로 해소됨) sprint-contract Step 6.6(측정 사전 실행)에 git trailer 포맷 조건은 `separator` 지정 여부를 사전 점검 항목으로 추가하면 이번과 같은 "봉인 후에야 발견되는 통과 불가능 조건" 재발을 막을 수 있음
+
+## 재확인 (독립 평가자, TIP 이동 후)
+
+이 리포트가 저장된 뒤 가지 `chore/ak2-gd` 에 커밋 `a03fe81`(gd-notes.md 만 4줄 추가·2줄 삭제)이 더 붙었다. 독립적으로 새 끝점 기준 재확인했다:
+
+- 계약 파일(`sprint-contract-after-0926-guides.md`) 은 `a03fe81` 에서 0줄 변경 — sha256 재계산 `a46f02da0e46f179970a4f346c22c31ba5d728db934933d8c608679c243eb4ad` 로 안정
+- AR-01: 새 `BASE..TIP(a03fe81)` 구간에서 바뀐 파일 32개 전부 여전히 `ALLOWED` 열 폴더(harness/design-kit/flutter-toolkit/react-kit/rust-kit/api-kit/backend-kit/infra-kit/planning-kit/docs) 안, 커밋 16개 전부 맨 위 폴더 하나(`multi_top=0`) — PASS 유지
+- AR-02: `gd-notes.md` 스물한 토큰 전부 재확인(`GD-1`~`GD-12`·`UD-5`·`tone-guide`·`처리됨`·`KD-3`·`CS-3`·문서 페이지 넷) 존재, `KD-3`↔`§8.9`·`CS-3`↔`①~④` 짝 줄 유지 — PASS 유지 (오히려 새 커밋이 README 커밋 규칙 관련 남길 것을 보강)
+- AR-03: 새 커밋의 변경 파일이 `.harness/` 안(`gd-notes.md`)뿐이라 이 조건의 측정 대상(`.harness` 제외 영역)에 포함되지 않음 — 재측정 불필요, PASS 유지
+- 나머지 33개 조건의 대상 파일은 `a03fe81` 에서 전혀 바뀌지 않아(diff 확인) 기존 판정을 그대로 유지
+
+Verdict 영향 없음 — 최종 판정은 그대로 APPROVE 유지.
