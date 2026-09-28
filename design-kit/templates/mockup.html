@@ -1259,7 +1259,9 @@
   <script>
     /* ==========================================================
        CONFIG — 시안 메타데이터
-       스킬이 이 부분을 채워준다
+       스킬이 이 부분을 채워준다. 스크립트는 시안 목록을 여기 variants 키에서만 읽는다.
+       여섯째 시안부터는 칸 묶음을 하나씩 더한다 — 탭 버튼 · 패널 · 비교 선택 두 곳의 option ·
+       투표 카드 · 메모 칸 · 이 variants 항목 · T.ko.tab / T.en.tab 글자 (id 는 f, g … 순서).
     ========================================================== */
     const MOCKUP_CONFIG = {
       screenName: '{{SCREEN_NAME}}',
@@ -1426,7 +1428,7 @@
       if (devLabel) devLabel.textContent = DEVICE_META[currentDevice][lang];
 
       // vote-score 텍스트 갱신
-      ['a','b','c','d','e'].forEach(v => {
+      Object.keys(MOCKUP_CONFIG.variants).forEach(v => {
         const el = document.getElementById(`vote-score-${v}`);
         if (el) el.textContent = T[lang].feedback.voted;
       });
@@ -1526,19 +1528,6 @@
       }
     }
 
-    const TAB_COLORS = {
-      a: '{{COLOR_A}}',
-      b: '{{COLOR_B}}',
-      c: '{{COLOR_C}}',
-      d: '{{COLOR_D}}',
-      e: '{{COLOR_E}}',
-    };
-
-    const TAB_LABELS = {
-      ko: { a: '시안 A', b: '시안 B', c: '시안 C', d: '시안 D', e: '시안 E' },
-      en: { a: 'Variant A', b: 'Variant B', c: 'Variant C', d: 'Variant D', e: 'Variant E' },
-    };
-
     function renderCompare() {
       const leftId  = document.getElementById('compare-left').value;
       const rightId = document.getElementById('compare-right').value;
@@ -1547,15 +1536,15 @@
       clonePanel(leftId, 'compare-clone-left');
       const leftDot   = document.getElementById('compare-left-dot');
       const leftLabel = document.getElementById('compare-left-label');
-      if (leftDot)   leftDot.style.background = TAB_COLORS[leftId];
-      if (leftLabel) leftLabel.textContent = TAB_LABELS[currentLang][leftId];
+      if (leftDot)   leftDot.style.background = MOCKUP_CONFIG.variants[leftId].color;
+      if (leftLabel) leftLabel.textContent = T[currentLang].tab[leftId];
 
       // 오른쪽 복제
       clonePanel(rightId, 'compare-clone-right');
       const rightDot   = document.getElementById('compare-right-dot');
       const rightLabel = document.getElementById('compare-right-label');
-      if (rightDot)   rightDot.style.background = TAB_COLORS[rightId];
-      if (rightLabel) rightLabel.textContent = TAB_LABELS[currentLang][rightId];
+      if (rightDot)   rightDot.style.background = MOCKUP_CONFIG.variants[rightId].color;
+      if (rightLabel) rightLabel.textContent = T[currentLang].tab[rightId];
     }
 
     function clonePanel(panelId, targetId) {
@@ -1600,23 +1589,18 @@
     const STORAGE_KEY = `dk-mockup-feedback-${encodeURIComponent('{{SCREEN_NAME}')}`;
 
     function saveFeedback() {
-      const data = {
-        voted: votedFor,
-        notes: {
-          a: document.getElementById('note-a')?.value || '',
-          b: document.getElementById('note-b')?.value || '',
-          c: document.getElementById('note-c')?.value || '',
-          d: document.getElementById('note-d')?.value || '',
-          e: document.getElementById('note-e')?.value || '',
-        }
-      };
+      const notes = {};
+      Object.keys(MOCKUP_CONFIG.variants).forEach(v => {
+        notes[v] = document.getElementById(`note-${v}`)?.value || '';
+      });
+      const data = { voted: votedFor, notes };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       showToast(T[currentLang].feedback.saved);
     }
 
     function clearFeedback() {
       localStorage.removeItem(STORAGE_KEY);
-      ['a','b','c','d','e'].forEach(v => {
+      Object.keys(MOCKUP_CONFIG.variants).forEach(v => {
         const el = document.getElementById(`note-${v}`);
         if (el) el.value = '';
         const voteEl = document.getElementById(`vote-${v}`);
@@ -1636,7 +1620,7 @@
         const data = JSON.parse(raw);
         if (data.voted) castVote(data.voted);
         if (data.notes) {
-          ['a','b','c','d','e'].forEach(v => {
+          Object.keys(MOCKUP_CONFIG.variants).forEach(v => {
             const el = document.getElementById(`note-${v}`);
             if (el && data.notes[v]) el.value = data.notes[v];
           });
@@ -1668,18 +1652,17 @@
     /* ==========================================================
        KEYBOARD NAVIGATION (탭 간 화살표 이동)
     ========================================================== */
-    const TAB_ORDER = ['a', 'b', 'c', 'd', 'e'];
-
     document.addEventListener('keydown', (e) => {
       if (document.activeElement?.classList.contains('mockup-tab')) {
-        const idx = TAB_ORDER.indexOf(currentTab);
-        if (e.key === 'ArrowRight' && idx < TAB_ORDER.length - 1) {
-          selectTab(TAB_ORDER[idx + 1]);
-          document.querySelector(`[data-tab="${TAB_ORDER[idx + 1]}"]`)?.focus();
+        const tabOrder = Object.keys(MOCKUP_CONFIG.variants);
+        const idx = tabOrder.indexOf(currentTab);
+        if (e.key === 'ArrowRight' && idx < tabOrder.length - 1) {
+          selectTab(tabOrder[idx + 1]);
+          document.querySelector(`[data-tab="${tabOrder[idx + 1]}"]`)?.focus();
           e.preventDefault();
         } else if (e.key === 'ArrowLeft' && idx > 0) {
-          selectTab(TAB_ORDER[idx - 1]);
-          document.querySelector(`[data-tab="${TAB_ORDER[idx - 1]}"]`)?.focus();
+          selectTab(tabOrder[idx - 1]);
+          document.querySelector(`[data-tab="${tabOrder[idx - 1]}"]`)?.focus();
           e.preventDefault();
         }
       }

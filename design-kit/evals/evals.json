@@ -385,10 +385,10 @@
       "id": 19,
       "skill": "design-mockup",
       "prompt": "대시보드 홈 화면 시안 만들어줘",
-      "expected_output": "하이파이 HTML 시안 3개(개수 미지정) + 각 UI 요소에 유니크 ID 부여",
+      "expected_output": "하이파이 HTML 시안 최소 5개(개수 미지정, 위 제한 없음) + 각 UI 요소에 유니크 ID 부여",
       "assertions": [
         {
-          "text": "개수를 지정하지 않았으므로 HTML 시안을 정확히 3개 생성한다",
+          "text": "개수를 지정하지 않았으므로 HTML 시안을 최소 5개 생성하고, 비교에 더 필요하면 더 낸다",
           "type": "output"
         },
         {

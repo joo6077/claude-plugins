@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const path = require('path');
+const fs = require('fs');
 
 const VISUALS_DIR = path.resolve(__dirname, '../../docs/design-kit');
 
@@ -1084,5 +1085,112 @@ test.describe('animation.html', () => {
       const body = await page.locator('body').textContent();
       expect(body).not.toContain('이 문서는 design-research');
     });
+  });
+});
+
+// ============================================================
+// templates/mockup.html — 여섯째 시안을 받는지
+// ============================================================
+// 시안 개수에 위 제한이 없으므로 틀은 칸 묶음 하나를 더하면 여섯째 시안을 받아야 한다.
+// 실행할 때마다 지금 틀을 읽어 e 칸 묶음을 f 로 복제한 쪽을 띄운다.
+const MOCKUP_TEMPLATE = path.resolve(__dirname, '../templates/mockup.html');
+
+function replaceOnce(html, pattern, build) {
+  const match = html.match(pattern);
+  if (!match) throw new Error(`틀에서 칸 묶음을 못 찾음: ${pattern}`);
+  return html.replace(match[0], build(match[0]));
+}
+
+function toVariantF(block) {
+  return block
+    .replace(/^(\s*)e: \{/m, '$1f: {')
+    .replace(/'e'/g, "'f'")
+    .replace(/-e\b/g, '-f')
+    .replace(/"e"/g, '"f"')
+    .replace(/tab\.e/g, 'tab.f')
+    .replace(/_E\b/g, '_F')
+    .replace(/시안 E/g, '시안 F')
+    .replace(/>E</g, '>F<');
+}
+
+function buildSixVariantMockup() {
+  let html = fs.readFileSync(MOCKUP_TEMPLATE, 'utf8');
+  const blocks = [
+    /<button class="mockup-tab"[^>]*\n\s*data-tab="e"[\s\S]*?<\/button>/,
+    /<div class="mockup-panel" id="panel-e">[\s\S]*?<\/div>\n\s*<\/div>/,
+    /<div class="mockup-vote-card" onclick="castVote\('e'\)"[\s\S]*?<\/div>\n\s*<\/div>/,
+    /<div class="mockup-note-field">\s*<label class="mockup-note-label" for="note-e">[\s\S]*?<\/div>/,
+    /\n(\s*)e: \{\n[\s\S]*?\n\s*\},/,
+  ];
+  for (const pattern of blocks) {
+    html = replaceOnce(html, pattern, (block) => `${block}\n${toVariantF(block).replace(/^\n/, '')}`);
+  }
+  for (const side of ['compare-left', 'compare-right']) {
+    html = replaceOnce(
+      html,
+      new RegExp(`id="${side}"[\\s\\S]*?<option value="e"[^\\n]*`),
+      (block) => `${block}\n<option value="f" data-i18n="tab.f">시안 F</option>`,
+    );
+  }
+  html = replaceOnce(html, /e: '시안 E' \}/, () => "e: '시안 E', f: '시안 F' }");
+  html = replaceOnce(html, /e: 'Variant E' \}/, () => "e: 'Variant E', f: 'Variant F' }");
+  html = html.replace(/\{\{TAGS_[A-F]\}\}/g, '[]');
+  return html;
+}
+
+test.describe('templates/mockup.html 시안 6 개', () => {
+  let url;
+
+  test.beforeAll(async () => {
+    const out = test.info().outputPath('mockup-six-variants.html');
+    fs.mkdirSync(path.dirname(out), { recursive: true });
+    fs.writeFileSync(out, buildSixVariantMockup());
+    url = 'file:///' + out.replace(/\\/g, '/');
+  });
+
+  async function openMockup(page) {
+    const errors = [];
+    page.on('pageerror', (err) => errors.push(err.message));
+    await page.route(/^https?:/, (route) => route.abort());
+    await page.goto(url);
+    await page.waitForLoadState('domcontentloaded');
+    return errors;
+  }
+
+  test('f 탭을 누르면 f 패널이 열린다', async ({ page }) => {
+    const errors = await openMockup(page);
+    await page.locator('.mockup-tab[data-tab="f"]').click();
+    await expect(page.locator('#panel-f')).toHaveClass(/active/);
+    await expect(page.locator('.mockup-tab[data-tab="f"]')).toHaveAttribute('aria-selected', 'true');
+    expect(errors).toEqual([]);
+  });
+
+  test('e 탭에서 오른쪽 화살표를 누르면 f 탭으로 간다', async ({ page }) => {
+    const errors = await openMockup(page);
+    await page.locator('.mockup-tab[data-tab="e"]').click();
+    await page.locator('.mockup-tab[data-tab="e"]').focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.locator('.mockup-tab[data-tab="f"]')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#panel-f')).toHaveClass(/active/);
+    expect(errors).toEqual([]);
+  });
+
+  test('f 투표 카드를 누르면 눌린 상태가 된다', async ({ page }) => {
+    const errors = await openMockup(page);
+    await page.locator('#vote-f').click();
+    await expect(page.locator('#vote-f')).toHaveAttribute('aria-pressed', 'true');
+    expect(errors).toEqual([]);
+  });
+
+  test('f 메모는 저장 뒤 다시 열어도 남고 초기화하면 빈다', async ({ page }) => {
+    const errors = await openMockup(page);
+    await page.locator('#note-f').fill('여섯째 시안 메모');
+    await page.locator('button[onclick="saveFeedback()"]').click();
+    await page.reload();
+    await page.waitForLoadState('domcontentloaded');
+    await expect(page.locator('#note-f')).toHaveValue('여섯째 시안 메모');
+    await page.locator('button[onclick="clearFeedback()"]').click();
+    await expect(page.locator('#note-f')).toHaveValue('');
+    expect(errors).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 ---
 name: design-mockup
 description: >
-  특정 화면 요청 시 하이파이 HTML 시안을 계약된 개수만큼 생성하여 제시한다 (미지정 3 · 사용자 지정 N · 승인 상한 5).
+  특정 화면 요청 시 하이파이 HTML 시안을 계약된 개수만큼 생성하여 제시한다 (사용자 지정 N · 미지정이면 최소 5 개부터 필요한 만큼, 위 제한 없음).
   정의된 디자인 컨셉과 토큰이 있으면 자동으로 로드하여 반영한다.
   각 시안의 UI 요소에 유니크 ID를 부여하여 사용자가 특정 컴포넌트를
   지칭하거나 추출할 수 있다. 선택한 시안/컴포넌트를 Figma MCP로 전송 가능.
@@ -29,7 +29,7 @@ user-invocable: true
 13. **확정 = 승인 기록 파일 생성 (대화 로그로 끝내지 마라)** — 사용자가 시안을 확정하면 Step 5 에서 `.design/approvals/{YYYYMMDD}-{화면명}.md` 를 생성한다. 여기에 선택된 안, 산출물 경로, **확정된 시각 값(색상·타이포·간격)**, 원문 근거를 남긴다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(시안 승인 기록) 확인 불가" 로 REJECT 된다 — 2026-07-13 글로벌 REJECT `UI-06` 의 실제 사유다. **자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시**하라. 규격: `../../references/visual-change-protocol.md` §4.
 14. **승인된 시안 값을 토큰으로 치환하지 마라 (Visual Source of Truth Precedence)** — 사용자가 브라우저로 확인하고 승인한 시안의 색상·간격은 프로젝트 팔레트 토큰보다 **우선한다**. 시안 수정 요청을 처리할 때 승인된 값을 "토큰 체계에 맞춰" 단일 tint 나 기존 accent 로 정규화하지 마라. 토큰화가 필요하면 값을 바꾸는 게 아니라 **그 값으로 토큰을 정의**하고 별도 제안하라. 프로젝트에 이미 색상 체계가 있으면 새 팔레트를 도입하기 전에 기존 값을 먼저 열거해 제시한다. 우선순위 표: `../../references/visual-change-protocol.md` §1.
 15. **부분 수정 요청은 그 속성만 — Change Manifest 필수** — "이 카드 보더만 진하게", "색은 지금이 맞는데 그라디언트만 이전으로" 같은 요청에서 지목되지 않은 시각 속성(background, fill, radius, shadow, spacing, typography)을 함께 바꾸지 마라. 편집 전에 `변경 / 보존` 두 목록을 응답에 남기고, 수정 후 보존 목록의 값이 그대로인지 확인한다. 의도 외 영역이 변했으면 성공이 아니라 실패이므로 되돌리고 다시 적용한다. 부분 롤백 요청은 지목된 축만 되돌린다. 상세: `../../references/visual-change-protocol.md` §2.
-16. **산출 전에 Variant Contract Matrix 를 합의하라 (개수 계약 + 구별성 게이트)** — 시안을 하나라도 만들기 전에 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 6 열을 채워 사용자와 합의한다. 개수는 **사용자가 말하면 정확히 그 수**, 미지정이면 3, 자체 판단으로 그 이상 늘리지 않으며 승인 시 최대 5 다. 개수 상한·primary axis 개수·부대 산출물(토큰 파일·디자인 시스템·서페이스 레인·카탈로그) 금지의 정본은 `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이며 여기서 재정의하지 않는다. "몇 개 목업" 요청에 수십 타일과 토큰 파일을 함께 만들면 사용자가 전부 지우게 된다 — 실제로 그랬다.
+16. **산출 전에 Variant Contract Matrix 를 합의하라 (개수 계약 + 구별성 게이트)** — 시안을 하나라도 만들기 전에 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 6 열을 채워 사용자와 합의한다. 개수는 **사용자가 말하면 정확히 그 수**, 말하지 않으면 **최소 5 개부터 위 제한 없이 필요한 만큼** 낸다. 개수 규칙·primary axis 개수·부대 산출물(토큰 파일·디자인 시스템·서페이스 레인·카탈로그) 금지의 기준 원본은 `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이며 여기서 재정의하지 않는다. "몇 개 목업" 요청에 수십 타일과 토큰 파일을 함께 만들면 사용자가 전부 지우게 된다 — 실제로 그랬다.
 17. **시안 캡처는 `artifact_snapshot` 이다 — 앱 화면 정상을 주장하지 마라** — 목업 HTML 이 잘 열리는 것과 사용자가 실제 앱에서 그 화면을 보는 것은 다른 명제다. 증거를 인용할 때 채널 이름을 함께 적고, PASS 문장에 viewport · route/state · visible locator · count/height · screenshot id 5 요소를 넣어라. 채널 정의: `../../references/visual-change-protocol.md` §7 Evidence Channels. 사용자가 "아직 깨져 있다" 고 보고하면 반박하지 말고 재현하라 — 규약 정본은 `harness/docs/guides/skill-design-guide.md` §3.8 User-Reported Failure Gate 다.
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -77,13 +77,12 @@ user-invocable: true
 ### Step 2-a: 개수와 축을 먼저 고정한다 (파일을 만들기 전에)
 
 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 를 채워 사용자와 합의한다.
-정본 규칙(상한·축 개수·부대 산출물 금지)은 `harness/docs/guides/skill-design-guide.md` §5.6 이다.
+개수 규칙 · 축 개수 · 부대 산출물 금지의 기준 원본은 `harness/docs/guides/skill-design-guide.md` §5.6 이다.
 
 | 상황 | 산출 개수 |
 | ------ | ---------- |
 | 사용자가 개수를 말함 | **정확히 그 수** — 초과도 미달도 위반 |
-| 미지정 | **3** |
-| 자체 판단으로 늘리기 | 금지. 승인받으면 **최대 5**, 6 개 이상은 배치를 나눠 제안 |
+| 미지정 | **최소 5** — 비교에 더 필요하면 더 낸다. 위 제한 없음 |
 
 매트릭스 6 열(`variant_id` · `strategy_label` · `axis_vector` · `constants` ·
 `intended_user_scenario` · 생성 파일)을 채운 뒤 **구별성 자가 검사**를 통과시킨다 — 지정 축이
@@ -105,13 +104,17 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
 - 호버 시 ID를 표시하는 JavaScript 오버레이 포함
 - lorem ipsum 금지 — 실제 콘텐츠 또는 현실적 예시 데이터 사용
 
-`strategy_label` 후보 풀 (합의된 개수만큼 **골라 쓴다** — 다섯 개를 전부 내라는 목록이 아니다):
+`strategy_label` 후보 풀 (합의된 개수만큼 **골라 쓴다**. 합의한 수가 풀보다 많으면 요청 화면에 맞는 풀 밖 전략을 더 만든다 — 이 목록은 예시이지 한계가 아니다):
 
 - **전환 최적화형** — 사이드바 네비게이션 + 메인 콘텐츠, 주요 CTA를 상단 고정
 - **탐색성 강화형** — 탑바 + 카드 그리드, 필터/정렬 전면 배치
 - **정보 밀도형** — 탭 기반 + 리스트 뷰, 스캔 가능한 텍스트 계층 강조
 - **브랜드 임팩트형** — 풀스크린 히어로 + 스크롤 섹션, 비주얼 중심 진입
 - **대시보드/제어형** — 위젯 패널 레이아웃, 상태 요약 + 빠른 액션 우선
+
+틀은 시안 칸 A~E 다섯을 기본으로 둔다. 여섯째 시안부터는 칸 묶음을 f, g … 순서로 하나씩 더한다 —
+탭 버튼 · 패널 · 비교 선택 두 곳의 option · 투표 카드 · 메모 칸 · `MOCKUP_CONFIG.variants` 항목 ·
+`T.ko.tab` / `T.en.tab` 글자. 틀 스크립트는 시안 목록을 `MOCKUP_CONFIG.variants` 에서만 읽으므로 스크립트는 고치지 않는다.
 
 반응형이 요구사항에 포함된 경우, 각 시안에 mobile/tablet/desktop breakpoint 섹션을 추가하고 컬럼 수·거터·max-width 규칙을 명시한다.
 
