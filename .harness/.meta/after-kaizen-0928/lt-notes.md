@@ -1,0 +1,131 @@
+# lt 묶음 기록 — 마크다운 남은 경고 · 깨진 코드 블록 · 목록 · 밀린 줄 참조 (A1 · B18 · B19 · B20)
+
+- 계약: `.harness/sprint-contract-after-0928-markdown-rest.md` (28 조건, 봉인 커밋 `b53f607`, 조건 지문 `sha256:fce06290475f8679` · 측정 지문 `sha256:aabae5a87f521872`). 측정 묶음 커밋 `37c6386`.
+- 기준 판 `e500a63`, 가지 `chore/ak3-lt`. QA 판정은 하지 않았다. 계약 `status` 는 `active` 그대로다.
+
+## 항목별 결과
+
+| 항목 | 한 일 | 커밋 |
+| --- | --- | --- |
+| A1 | 시험 입력 21 파일을 뺀 여덟 파일의 경고 177 건을 0 으로. 표 구분 줄 칸 띄움, 목록 앞 빈 줄, 굵은 글 이름표 끝에 쌍점, 두 번 이상 빈 줄 지움, 첫 제목 넣기, 겹친 제목 이름 바꾸기. 그려진 모양(목록 촘촘함 · 목록 · 인용 · 표 · 코드 블록 수)은 그대로다 | `ba7e7eb` · `1bec949` · `067e867` · `7278b7a` · `b6d7ef3` · `44b618a` · `5694d8b` |
+| B18 | 아홉 파일의 바깥 코드 블록 28 곳을 백틱 넷으로 바꾸고 안쪽 여닫이를 짝으로 맞췄다. 울타리를 끄던 block 꼴 주석을 지웠다(과제 제목 단계 MD001 짝만 남김). 이 과정에서 드러난 겹친 제목에는 next-line 주석을 달았다 | `5694d8b` · `9a95ed8` |
+| B19 | 열 파일에서 목록 안 코드 블록 앞뒤 빈 줄을 next-line MD031 주석으로 바꿔 경고 정리 전 판 `c3e45f3` 과 같은 촘촘한 목록으로. `infra-audit` 은 목록을 끊던 주석 줄을 항목 들여쓰기로 옮겼다 | `1bec949` · `88e3ef0` · `7278b7a` · `1951824` · `b5924fd` · `43f3e34` · `f621dd3` · `9a95ed8` |
+| B20 | git 줄 대응으로 따라간 줄 참조 23 곳과 같은 참조를 싣는 페이지 셋(`docs/backend-kit/research-log.html` · `docs/howto-kit/overview.html` · `docs/harness/plugin-validation.html`) | `067e867` · `7278b7a` · `5694d8b` |
+
+## 뺀 시험 입력 21 파일 (A1)
+
+모두 시험 입력이다. 시험이 파일 글자 그대로를 입력으로 쓰고, 경고 자체가 시험이 재는 모양이라 고치면 시험 뜻이 바뀐다.
+
+| 경로 | 이유 |
+| --- | --- |
+| `harness/evals/test-fixtures/fixture-a/contract.md` | 시험 입력 — `harness/evals/test-fixtures/README.md` 절차가 `fixture-*/contract.md` 를 계약 평가 입력으로 연다 |
+| `harness/evals/test-fixtures/fixture-b/contract.md` | 시험 입력 — `harness/evals/test-fixtures/README.md` 절차가 `fixture-*/contract.md` 를 계약 평가 입력으로 연다 |
+| `harness/evals/test-fixtures/fixture-c/contract.md` | 시험 입력 — `harness/evals/test-fixtures/README.md` 절차가 `fixture-*/contract.md` 를 계약 평가 입력으로 연다 |
+| `harness/evals/test-fixtures/fixture-d/contract.md` | 시험 입력 — `harness/evals/test-fixtures/README.md` 절차가 `fixture-*/contract.md` 를 계약 평가 입력으로 연다 |
+| `harness/evals/test-fixtures/fixture-e/contract.md` | 시험 입력 — `harness/evals/test-fixtures/README.md` 절차가 `fixture-*/contract.md` 를 계약 평가 입력으로 연다 |
+| `howto-kit/evals/fixtures/fail-g3-domainmix.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/fail-g4-deprecation-ko.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/fail-g4-korean-abolish-unsourced.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/fail-g4-korean-delete-unsourced.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/fail-g4-korean-shutdown-unsourced.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/fail-g5-nonterminal.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/fail-g6-granularity.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/pass-fcm-ios.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/pass-g4-completion-phrase-not-deprecation.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/pass-g4-delete-action-not-deprecation.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/pass-g4-korean-delete-sourced.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/pass-g4-korean-sourced.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `howto-kit/evals/fixtures/pass-g4-retention-notice-not-deprecation.md` | 시험 입력 — `howto-kit/evals/evals.json` 이 게이트 G1 ~ G6 판정 입력으로 연다 |
+| `onboarding-kit/skills/setup-guide/evals/fixtures/gate-g4-ko-sourced.md` | 시험 입력 — `onboarding-kit/skills/setup-guide/evals/evals.json` 이 가이드 게이트 판정 입력으로 연다 |
+| `onboarding-kit/skills/setup-guide/evals/fixtures/gate-g4-ko-unsourced.md` | 시험 입력 — `onboarding-kit/skills/setup-guide/evals/evals.json` 이 가이드 게이트 판정 입력으로 연다 |
+| `onboarding-kit/skills/setup-guide/evals/fixtures/gate-ok-flutter.md` | 시험 입력 — `onboarding-kit/skills/setup-guide/evals/evals.json` 이 가이드 게이트 판정 입력으로 연다 |
+
+## 글이 바뀐 줄 (A1, 새 판 `경로:줄`)
+
+공백만이 아니라 글자가 바뀐 줄이다. 표 구분 줄은 대시 수가 바뀌어 여기에 든다 — 뜻은 같고 칸 띄움만 다르다.
+
+- `api-kit/skills/api-ui/SKILL.md:14` — 첫 제목을 머리 설정 바로 아래로 옮김 (MD041). 옛 자리 38 줄은 지움
+- `api-kit/skills/api-ui/SKILL.md:45` — 표 구분 줄 칸 띄움 (MD060)
+- `api-kit/skills/api-ui/SKILL.md:58` — 표 구분 줄 칸 띄움 (MD060)
+- `api-kit/skills/api-ui/SKILL.md:115` — 표 구분 줄 칸 띄움 (MD060)
+- `api-kit/skills/api-ui/SKILL.md:128` — 표 구분 줄 칸 띄움 (MD060)
+- `api-kit/skills/api-ui/SKILL.md:174` — 표 구분 줄 칸 띄움 (MD060)
+- `api-kit/skills/api-ui/SKILL.md:249` — 첫 제목이 위로 가 둘째 큰 제목이 되지 않게 한 단계 내림 (MD025)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:729` — 굵은 글 이름표 끝에 쌍점 (MD036). 제목으로 바꾸지 않아 목차가 그대로다
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:737` — 굵은 글 이름표 끝에 쌍점 (MD036). 제목으로 바꾸지 않아 목차가 그대로다
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:745` — 굵은 글 이름표 끝에 쌍점 (MD036). 제목으로 바꾸지 않아 목차가 그대로다
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:752` — 굵은 글 이름표 끝에 쌍점 (MD036). 제목으로 바꾸지 않아 목차가 그대로다
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:776` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:817` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:959` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:986` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1018` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1049` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1058` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1084` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1109` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1262` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1296` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1344` — 두 인용 사이 빈 줄 경고(MD028). 인용 둘을 따로 두려고 사이에 설명 주석
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:1399` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:2115` — 굵은 글 이름표 끝에 쌍점 (MD036). 제목으로 바꾸지 않아 목차가 그대로다
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:2582` — 표 구분 줄 칸 띄움 (MD060)
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:2614` — 표 구분 줄 칸 띄움 (MD060)
+- `design-kit/references/visual-change-protocol.md:211` — 같은 이름 「규칙」 제목을 절 이름으로 구분 (MD024). 페이지 소제목도 같게
+- `design-kit/references/visual-change-protocol.md:526` — 같은 이름 「규칙」 제목을 절 이름으로 구분 (MD024). 페이지 소제목도 같게
+- `harness/references/contract-schema.md:527` — 표 구분 줄 칸 띄움 (MD060)
+- `harness/references/contract-schema.md:543` — 표 구분 줄 칸 띄움 (MD060)
+- `howto-kit/skills/howto-audit/SKILL.md:17` — 첫 줄 제목 넣기 (MD041)
+- `howto-kit/skills/howto-doc/SKILL.md:15` — 첫 줄 제목 넣기 (MD041)
+- `onboarding-kit/skills/setup-guide/SKILL.md:8` — 첫 줄 제목 넣기 (MD041)
+
+## 넣은 next-line 주석 (새 판 `경로:줄`)
+
+block 꼴 끄기는 하나도 더하지 않았다. 아래는 모두 다음 한 줄만 끄는 주석이다.
+
+- `.claude/kaizen-input/per-project-feedback.md:141` — MD024 — 프로젝트마다 같은 이름 소제목(`sprint-contract.md (excerpt)` 등)이 되풀이되는 사본이라 이름을 바꿀 수 없다. 울타리를 고치자 드러났다
+- `.claude/kaizen-input/per-project-feedback.md:168` — MD024 — 프로젝트마다 같은 이름 소제목(`sprint-contract.md (excerpt)` 등)이 되풀이되는 사본이라 이름을 바꿀 수 없다. 울타리를 고치자 드러났다
+- `.claude/kaizen-input/per-project-feedback.md:227` — MD024 — 프로젝트마다 같은 이름 소제목(`sprint-contract.md (excerpt)` 등)이 되풀이되는 사본이라 이름을 바꿀 수 없다. 울타리를 고치자 드러났다
+- `.claude/kaizen-input/per-project-feedback.md:253` — MD024 — 프로젝트마다 같은 이름 소제목(`sprint-contract.md (excerpt)` 등)이 되풀이되는 사본이라 이름을 바꿀 수 없다. 울타리를 고치자 드러났다
+- `.claude/kaizen-input/per-project-feedback.md:302` — MD024 — 프로젝트마다 같은 이름 소제목(`sprint-contract.md (excerpt)` 등)이 되풀이되는 사본이라 이름을 바꿀 수 없다. 울타리를 고치자 드러났다
+- `.claude/kaizen-input/per-project-feedback.md:330` — MD024 — 프로젝트마다 같은 이름 소제목(`sprint-contract.md (excerpt)` 등)이 되풀이되는 사본이라 이름을 바꿀 수 없다. 울타리를 고치자 드러났다
+- `.claude/skills/docs-site/SKILL.md:124` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `.claude/skills/docs-site/SKILL.md:128` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:2107` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `bambu-kit/skills/bambu-print-profile/SKILL.md:2112` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `bambu-kit/skills/bambu-print-profile/references/comment-analysis.md:153` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `bambu-kit/skills/bambu-print-profile/references/comment-analysis.md:157` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `flutter-toolkit/skills/flutter-hooks/SKILL.md:126` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `flutter-toolkit/skills/flutter-kaizen/SKILL.md:209` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `flutter-toolkit/skills/flutter-kaizen/SKILL.md:215` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `harness/skills/sprint-contract/SKILL.md:408` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `harness/skills/sprint-contract/SKILL.md:416` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `harness/skills/sprint-contract/SKILL.md:864` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `harness/skills/sprint-contract/SKILL.md:886` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `infra-kit/skills/infra-audit/SKILL.md:38` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `react-kit/skills/react-skeleton/SKILL.md:39` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `react-kit/skills/react-skeleton/SKILL.md:43` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `reflect-kit/skills/reflect-digest/SKILL.md:139` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `reflect-kit/skills/reflect-digest/SKILL.md:243` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `reflect-kit/skills/reflect-digest/SKILL.md:254` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `reflect-kit/skills/reflect-promote/SKILL.md:126` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `reflect-kit/skills/reflect-promote/SKILL.md:144` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `rust-kit/skills/rust-docker/SKILL.md:210` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `rust-kit/skills/rust-docker/SKILL.md:214` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `rust-kit/skills/rust-docker/SKILL.md:216` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+- `rust-kit/skills/rust-docker/SKILL.md:220` — MD031 — 목록 안 코드 블록을 촘촘하게 두려고 빈 줄 대신 넣었다. 빈 줄을 넣으면 목록 항목이 문단으로 그려진다
+
+## 고치지 않은 것 (이유)
+
+- `.claude/kaizen-input/` 의 줄 참조 13 곳 — 다른 프로젝트 `.harness` 기록을 2026-04-24 에 떠 온 사본이다. 가리키는 파일이 이 저장소에 없어 git 줄 대응으로 따라갈 수 없고, 사본을 고치면 원래 기록과 달라진다. 이 폴더에서 바꾼 것은 `per-project-feedback.md` 의 울타리 · 주석 · 빈 줄뿐이다 (B18).
+- `docs/howto/design-brief.md:23` 의 `qa-evaluation-guide.md:1009-1013` 과 `docs/howto/design-brief.md:370` 의 `…:1004-1013` — 가리키던 줄이 지워져 git 줄 대응으로 새 자리를 구할 수 없다. 뜻으로 새 자리를 고르면 추측이라 두었다.
+- `.claude/skills/react-kaizen/SKILL.md` — markdown-it 로 그리면 울타리 깨짐 다섯 칸이 모두 0 이고, 4 번 항목도 `c3e45f3` 에서 이미 문단으로 그려져 경고 정리가 바꾼 것이 없다. `harness/skills/sprint-contract/SKILL.md` 도 울타리는 멀쩡해 B19 목록 두 곳만 고쳤다.
+- `.harness` 안 지난 계약 · 피드백의 줄 참조 520 곳 — 결정 기록(decisions.md)대로 묶음 rec 몫이다.
+
+## 킷 버전 판단
+
+바뀐 킷은 api-kit · bambu-kit · design-kit · flutter-toolkit · harness · howto-kit · infra-kit · onboarding-kit · react-kit · reflect-kit · rust-kit 열하나다. 모두 스킬 · 참조 문서의 마크다운 모양과 줄 참조 숫자만 바뀌었고 동작 규칙은 그대로라 patch 로 본다. 릴리스는 합친 뒤 main 에서 한다 (이 묶음에서는 하지 않았다).
+
+## 남은 것
+
+- `docs/react/kit-design/final-integration.md:457` 표 구분 줄 `|------|------|` 의 MD060 경고 4 건. B18 로 바깥 코드 블록을 바로 닫자 원래 코드 블록 밖이던 표가 다시 표로 그려지면서 드러났다. 고치려면 그 줄의 칸 띄움을 바꿔야 하는데, 계약 SK-06 이 아홉 파일에서 울타리 · 주석 · 빈 줄 밖의 줄 변경을 0 으로 묶었다. next-line 주석은 표 둘째 줄에 걸 수 없고(표가 끊긴다, scratch 실측), 파일 전체 끄기는 ER-01 의 뜻을 우회한다. 그래서 두었고 DG-02 는 이 파일에서 4 가 남는다. SK-06 을 「표 구분 줄 칸 띄움 한 줄」 만큼 넓히는 개정은 조건을 느슨하게 하는 쪽이라 사용자 동의가 따로 필요하다.
