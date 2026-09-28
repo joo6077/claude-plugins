@@ -5,6 +5,8 @@ argument-hint: "[서비스명] 또는 빈값(전체 스캔)"
 user-invocable: true
 ---
 
+# 최신 근거로 만드는 외부 서비스 설정 가이드
+
 프로젝트를 분석하고 그 시점 최신 정보로 1차 출처를 fetch하여, 외부 서비스 설정 가이드 MD를 step-by-step으로 생성한다.
 
 ## Input
@@ -199,6 +201,7 @@ Apple 은 두 사이트가 완전히 다르고, **어느 한쪽이 셋업 전부
 키·식별자 발급은 Developer Account, **앱이라는 레코드와 배포는 App Store Connect** 다. 요청받은 셋업이 어느 행에 해당하는지 먼저 확정하고, 해당 행만 가이드에 넣는다 (Gotcha 7 스코프).
 
 같은 패턴이 다른 플랫폼에도 있음:
+
 - Google Cloud: GCP Console vs Firebase Console
 - AWS: AWS Console vs AWS Marketplace
 
