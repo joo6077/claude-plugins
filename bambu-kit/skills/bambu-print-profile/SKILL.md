@@ -11,12 +11,14 @@ H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ �
 ## 트리거 조건
 
 **트리거함:**
+
 - MakerWorld URL이 메시지에 포함 (`makerworld.com/en/models/...`)
 - 로컬 모델 파일 경로(.3mf/.stl/.step) 언급
 - "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅", "프린트 셋팅", "MakerWorld 모델 출력하려고" 같은 표현
 - "원기둥 seam 안 보이게", "회전체 표면 깔끔하게" 같은 형상 + seam 결합 요청
 
 **트리거 안 함:**
+
 - 단순 1필드 변경 ("온도 245로 해줘", "색만 바꿔줘")
 - 기존 프로파일 리뷰
 - 다른 프린터 / 다른 슬라이서 언급
@@ -511,6 +513,7 @@ grep -oE 'https?://(printables|thangs|cults3d)\.com/[^"]+' "$SRC"  # 외부 호�
 ```
 
 결과를 4개 카테고리로 분류해서 사용자에게 짧게 보고:
+
 - **assembly_manual_pdf**: 0개 이상
 - **video_build_guide**: 0개 이상
 - **github_repo**: 0개 이상
@@ -535,6 +538,7 @@ mdls -name kMDItemNumberOfPages "/Users/jackson/Hub/60_3D Print/Settings/<모델
 Read 도구로 분석 (10p 이상이면 `pages: "1-10"`, `pages: "11-20"` 형식으로 분할):
 
 추출 항목 (체크리스트):
+
 - ☐ Bill of Materials — PDF가 웹 BOM보다 정확할 가능성 높음. **수량/규격이 다르면 PDF 우선**.
 - ☐ 조립 단계 enumerate — 1~N 단계 순서
 - ☐ **숨은 부품 위치** — "Insert on other side!", "Do not forget", "Fit from the back!" 같은 표시 검색
@@ -547,6 +551,7 @@ Read 도구로 분석 (10p 이상이면 `pages: "1-10"`, `pages: "11-20"` 형식
 #### 1.5.2 YouTube 영상 (있으면 시도)
 
 1차: `codex-rescue` 에이전트에 transcript 추출 위임 (`MODE=research`, `--write` X). 출력 계약:
+
 - 핵심 손기술 팁 5-10개
 - 자주 보고되는 실수 패턴
 - 비디오 timestamp + 설명
@@ -562,6 +567,7 @@ curl -sL "https://raw.githubusercontent.com/<owner>/<repo>/main/README.md" -o /t
 ```
 
 추출 항목:
+
 - CHANGELOG / Releases — 리비전 차이 (R1 vs R1S 같은 케이스)
 - 추가 STL 위치
 - 라이센스 (LICENSE 파일도 확인)
@@ -593,6 +599,7 @@ Phase 1에서 전체 크롤링한 댓글을 4 카테고리로 분류하고 디�
 - **user_variant** — 사이즈/소재/구조 변형 보고.
 
 각 카테고리에 추출된 항목을 카운트하여 보고:
+
 ```text
 댓글 분석 결과
 - designer_reply: X개 (핵심 권장 N건 추출)
@@ -645,16 +652,19 @@ mkdir -p "/Users/jackson/Hub/60_3D Print/Settings/<모델명>/"
 댓글에서 **외부 URL/추가 리소스 언급**이 발견되면 진입. 0개면 skip.
 
 대상 패턴:
+
 - printables.com / thingiverse / cults3d — 같은 모델의 다른 호스팅
 - GitHub repo — fork/remix
 - YouTube/Bilibili — 빌드 가이드 영상
 
 처리:
+
 1. 같은 모델의 다른 호스팅: WebFetch 또는 Codex 위임으로 매뉴얼/추가 STL 확인
 2. GitHub: `curl -sL raw.githubusercontent.com/...README.md` fetch
 3. 영상: `codex-rescue` 에이전트에 transcript 위임 (research mode), fail-soft
 
 skip:
+
 - SNS, URL shortener, affiliate 링크 — `references/comment-analysis.md` §4.2 참조.
 
 #### 1.6.5 Cross-check 보고 (디자이너 권장 vs 자동화 모드)
@@ -693,10 +703,12 @@ Creator 명시 필드 (page profile label):
 ```
 
 또한 .3mf creator profile metadata와도 cross-check:
+
 - 댓글은 support OFF 권장 vs .3mf print profile은 support ON → 사용자에게 보고
 - 댓글의 권장 layer vs .3mf의 layer 값 불일치 → 사용자에게 보고
 
 **Phase 3 처리 분기 (옵션별):**
+
 - [A] 강도 1 (strong with value) 모두 freeze + 강도 2 (directive) 영역도 freeze. Creator 미명시 영역 default 유지
 - [B] [A] + ironing topmost 한 항목만 추가
 - [C] (default) 강도 1 + Creator 명시 필드 freeze. Creator 미명시 영역(ironing/scarf/외벽 매끈)은 surface-first 자동 적용
@@ -714,29 +726,33 @@ Phase 1 크롤링 + Phase 1.5 첨부 자료 + Phase 1.6 댓글에서 fit-critica
 
 #### 1.7.1 Fit-critical 부품 4 카테고리 식별
 
-**(a) Bearing (베어링 압입)**
+**(a) Bearing (베어링 압입):**
 
 식별 패턴 (Phase 1 본문 + 댓글 + 부품 라벨에서 grep):
+
 - ISO 베어링 번호: "608", "608ZZ", "609", "688", "688ZZ", "625", "625ZZ", "MR105", "MR84"
 - 키워드: "bearing", "베어링", "轴承"
 - 모델 카테고리: "ferris wheel", "spinner", "fidget", "회전체", "스피너", "fan", "wheel"
 
-**(b) Bolt / Screw**
+**(b) Bolt / Screw:**
 
 식별 패턴:
+
 - 메트릭 표준: "M3", "M4", "M5", "M6", "M8"
 - 키워드: "bolt", "screw", "self-tapping", "wood screw", "machine screw"
 - BOM 표 또는 댓글에서 "x M3" 같은 카운트
 
-**(c) Heat-set Insert (열 인서트)**
+**(c) Heat-set Insert (열 인서트):**
 
 식별 패턴:
+
 - 키워드: "heat-set insert", "brass insert", "M3 insert", "soldering iron + insert"
 - 어셈블리 가이드의 "press insert at X mm hole" 표시
 
-**(d) Slide-fit / Push-lock / Snap-fit**
+**(d) Slide-fit / Push-lock / Snap-fit:**
 
 식별 패턴:
+
 - 키워드: "push lock", "push button", "slide fit", "snap fit"
 - 모델: knife sheath, pen holder, drawer, sliding mechanism, linear motion 부품
 
@@ -757,7 +773,7 @@ Tolerance Analysis 결과
 `references/tolerance.md` §3 결정 트리 + §4 standard fastener/bearing 사이즈 사전 참조하여 다음을 결정:
 
 | 카테고리 | Bambu JSON 키 | 권장 보정 방향 |
-|---------|--------------|---------------|
+| --- | --- | --- |
 | bearing OD (압입) | `xy_hole_compensation` | + (소재별 표 §2 참조) |
 | bearing ID (축 fit) | `xy_contour_compensation` | − (소재별 표) |
 | bolt pass hole | `xy_hole_compensation` | + · **`tolerance.md` §3.2 규칙을 따른다** (모델이 이미 3.2-3.4mm 면 수축 보정만, 명목 3.0mm 면 오프셋 `+0.10~+0.20`) |
@@ -798,7 +814,7 @@ grep -iE "기능|튼튼|빨리|속도|시간|prototype|functional|strong|fast|te
 판정:
 
 | 상황 | 처리 |
-|------|------|
+| --- | --- |
 | 표면 신호 **있음** | surface-first ON. `ironing_type` 결정 트리(Phase 3) 필수 통과. |
 | 기능 신호만 있음 | surface-first OFF. **notes.md 에 "표면 마감 미적용" 명시** (조용히 빠뜨리지 말 것). |
 | **둘 다 없음 / 모호** | **사용자에게 1줄로 물어라** — 추측 금지. |
@@ -940,7 +956,7 @@ done
 `references/materials.md`를 로드. 모델 용도/형상/사용자 요구에 매칭:
 
 | 용도 | 우선 후보 |
-|------|----------|
+| --- | --- |
 | 박스 오프너/도구 (functional) | PETG HF, PLA Tough+ |
 | 내열 부품 (vent, hot duct) | PETG HF, ASA, PC |
 | 외관 prototype | PLA Basic, PLA Matte |
@@ -950,6 +966,7 @@ done
 | Sealing/gasket | TPU 90A (TPU 85A 비추 — 검증된 문제) |
 
 **필수 cross-check:**
+
 - AMS 2 Pro 직접 로드 가능 여부 (PET-CF/PPA-CF/PPS-CF/TPU 95A HF는 외부 스풀)
 - 건조 요구 (PETG/PA/PC는 AMS HT 65°C 사전 + continuous)
 - H2S 노즐 호환 (CF류는 hardened 권장)
@@ -966,7 +983,7 @@ done
 ⚠️ **JSON 으로 지원 불가능한 요구를 근사 구현하지 마라.** 조용한 근사는 "했다고 보고했는데 안 되어 있음" 으로 끝난다. Phase 1.9 감지 항목 + 사용자 요구를 **지원 가능 / 불가능** 두 칸으로 갈라 적고, 불가능 칸은 `notes.md` 에 명시 보고한다.
 
 | 요구 | process/filament JSON | 처리 |
-|------|----------------------|------|
+| --- | --- | --- |
 | L1 계단 — **adaptive / variable layer height** | ❌ **불가** (`failure-recipes.md` §1.1) | **notes only.** `adaptive_layer_height` 를 JSON 에 넣지 마라 — Phase 4.3 게이트가 잡는다 |
 | L1 계단 — 고정 `layer_height` 하향 | ✅ 가능 | `0.12` 1 차, `0.08-0.12` 는 사용자 확인 후 (`failure-recipes.md` §1.2) |
 | L1 계단 — XY faceting | ✅ 가능 (조건부) | `resolution` `0.006-0.010`. ⚠️ Z 계단 해결책 아님. **XY faceting 을 실제로 관측했을 때만** 쓴다 — 2026-09-05 실측(faceting 없는 박스)에서는 이득 근거가 없어 철회됐다. surface-first 공통값으로 넣지 마라 |
@@ -989,8 +1006,6 @@ done
 
 배수는 **타이핑하지 말고** `기존 layer_height / 새 layer_height` 로 계산해서 적는다.
 
-
-
 **Designer-stated Constraint Override Rule (v0.4.0 신규, v0.4.1 범위 좁힘):**
 
 Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-first 포함)와 형상-기반 자동 결정보다 **명시 필드 한정 상위 우선순위**다. 충돌 시 명시 필드는 디자이너 권장이 이긴다.
@@ -1000,7 +1015,7 @@ Phase 1.6에서 추출한 `designer_constraints`는 자동화 모드(surface-fir
 권장 강도 3 카테고리별로 적용 범위가 다르다. 자세한 분류와 예시는 `references/comment-analysis.md` §5 참조.
 
 | 강도 | 예시 (영/중) | 적용 범위 | JSON 처리 |
-|------|-------------|----------|----------|
+| --- | --- | --- | --- |
 | (1) **strong constraint with explicit value** | "No supports needed" / "并不需要支撑" (값: support=off) | **명시 키로 강제** | `enable_support: "0"` 같이 명시 |
 | (2) **directive without explicit field set** | "do not modify profile" / "请不要修改打印配置" | **Creator가 같은 페이지/댓글에서 명시한 필드만 강제**. Creator 미명시 영역은 **자동 결정에 위임 가능** | Creator profile 라벨에 적힌 layer/walls/infill만 강제. ironing/scarf/outer_wall_speed/wall_sequence/seam_position 등 미명시 영역은 자동 결정 |
 | (3) **intent / info** | "Push-lock means it must be held down" | JSON 무관 | notes.md §3.2 사용성 참조용 |
@@ -1031,7 +1046,7 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 **Bambu Studio v2.6.0 검증된 공차 키 4개:**
 
 | 키 (정확한 Bambu JSON 이름) | default | 용도 |
-|----------------------------|---------|------|
+| --- | --- | --- |
 | `elefant_foot_compensation` ⚠️ | `"0"` | 첫 레이어 squish 보정 (오타 "elefant" — "elephant"로 쓰면 silent skip) |
 | `xy_hole_compensation` | `"0"` | 홀 직경 보정 (양수 = 더 넓게) |
 | `xy_contour_compensation` | `"0"` | 외경 보정 (음수 = 더 좁게) |
@@ -1040,7 +1055,7 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 **카테고리별 공차 키 매트릭스:**
 
 | Fit-critical 카테고리 | Bambu 키 | 권장 보정 |
-|---------------------|----------|----------|
+| --- | --- | --- |
 | **베어링 외경 압입** (608ZZ 22mm 등) | `xy_hole_compensation` | + (PLA `0.05`, PETG `0.075`, ASA `0.10`) |
 | **베어링 내경 축 fit** (608ZZ 8mm 등) | `xy_contour_compensation` | − (PLA `-0.05`, PETG `-0.075`, ASA `-0.10`) |
 | **볼트 통과 hole** (M3 → **최종 지름** 3.2-3.4mm, M4 → 4.3mm) | `xy_hole_compensation` | **§1.1 변환식 필수**: 모델이 이미 목표 지름이면 수축 보정만(PLA `+0.05`), 명목 3.0mm 면 오프셋 `+0.10~+0.20`. 표의 지름을 보정값으로 직접 쓰지 마라 (`PL-01`) |
@@ -1051,6 +1066,7 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 **소재별 수축률 반영 정책:**
 
 수축률 높은 소재일수록 hole_compensation 값 ↑. `references/materials.md` §4 표 그대로 적용:
+
 - **PLA** (Basic/Matte/Tough+/CF): 0.2-0.3% → `xy_hole +0.05`, `xy_contour -0.05`
 - **PETG** (Basic/HF): 0.3-0.5% → `xy_hole +0.075`, `xy_contour -0.075`
 - **ASA / ABS**: 0.5-0.8% → `xy_hole +0.10`, `xy_contour -0.10`
@@ -1065,7 +1081,7 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 **⚠️ 공차 키가 조용히 무효화되는 3 조건 (소스 검증 — `tolerance.md` §1.2):**
 
 | 조건 | 무효화 | 대응 |
-|------|--------|------|
+| --- | --- | --- |
 | 오브젝트가 **multi-material / color-paint** 됨 | `xy_hole` · `xy_contour` → 강제 `0` | 공차 보정 불가. **모델 지오메트리로 해결**해야 함을 사용자에게 보고 |
 | 오브젝트가 **fuzzy skin paint** 됨 | `xy_hole` · `xy_contour` → 강제 `0` | 동일 |
 | **`raft_layers != 0`** | `elefant_foot_compensation` → `0` | 둘을 동시에 지정하지 마라 |
@@ -1087,11 +1103,10 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 
 `elefant_foot_compensation`만 default 0.15 (PLA 안전 마진)로 추가. `xy_hole/xy_contour`는 default `"0"` 유지.
 
-
 **필수 메타필드 (silent skip 회피 — Codex run `a2a01770a87626167` 검증):**
 
 | 필드 | 값 | 비고 |
-|------|----|------|
+| --- | --- | --- |
 | `type` | `"process"` 또는 `"filament"` | |
 | `name` | `"<모델명> - <변종> 0.12mm"` 등 사용자 인지 가능 이름 | |
 | `version` | `"2.6.0.2"` | Semver parseable 필수. 이 값이 현재 v2.6.0과 호환. |
@@ -1244,7 +1259,7 @@ Q = line_width x layer_height x speed x flow_ratio        (mm^3/s)
 ```
 
 | 비율 | 판정 | 조치 |
-|------|------|------|
+| --- | --- | --- |
 | `<= 3x` | 통과 | 그대로 진행 |
 | `3x ~ 5x` | 경고 | notes.md 에 비율과 사유를 적고 사용자에게 고지 |
 | `> 5x` | **FAIL** | surface-first 적용 실패. 인접 속도를 낮춰 재계산한다. 조용히 통과시키지 마라 |
@@ -1278,7 +1293,7 @@ ABS H2S 는 `20`/`35` mm^3/s (Standard / High Flow).
 건조 여부를 먼저 묻지 마라. **관측 신호로 습기를 지목하거나 배제한 뒤에** 말한다.
 
 | 단계 | 관측 신호 | 판정 · 허용 override |
-|------|-----------|---------------------|
+| --- | --- | --- |
 | (a) | 압출 중 pop/crackle + 가시 증기, 압출물의 무작위 기포·공극, 결손이 경로와 무관하게 전역 랜덤 | **습기 1 순위.** 건조 후 재출력 권고 + JSON 보류 |
 | (b) | 결손이 travel 직후 **선 시작부**에 집중 | 리트랙션 재가압 · PA · seam 축. (1)(2) 로 진행 |
 | (c) | **특정 속도 구간**에서만 발생 | MVS 클램프 · 부분 막힘 · 온도 부족. JSON 은 §유량비 게이트로 |
@@ -1326,6 +1341,8 @@ underlying default 열은 **소재 override 가 없을 때의 값**이므로 그
 
 > `references/user-preferences.md` 가 있으면 Phase 1.8 은 그 §1 을 적용하고 **사용자에게 표면 의도를 되묻지 않는다.** 그 파일은 목표(품질 우선)와 제약(시간 무제한)만 갖고 수단(구체 속도값)은 갖지 않는다 — 속도는 `surface-recipes.md` §3 이 소재별로 정한다.
 
+<!-- 두 인용은 따로 읽는다: 앞은 적용 규칙, 뒤는 이전 판을 바꾼 이유 -->
+
 > 이전 판의 "default ON" 표기는 "사용자 요구가 …일 때" 라는 조건과 서로 모순이어서, 실제로는 아무도 켜지 않는 경로가 생겼다 (ironing 누락 회귀). 판정은 **Phase 1.8 단일 지점**에서만 한다.
 
 상세 정책은 `references/surface-recipes.md` 참조. SKILL은 결정 트리 분기와 형상 enumerate만 인라인으로 가진다.
@@ -1333,7 +1350,7 @@ underlying default 열은 **소재 override 가 없을 때의 값**이므로 그
 **형상 클래스 라우팅 (2026-09-08 신규 · Phase 1.0 측정값을 그대로 쓴다 — 여기서 추측하지 마라):**
 
 | `_geometry_class` | 속도 | 냉각 | JSON 기록 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `planar` | §외벽 표면 공통 + 유량비 게이트대로 하향 | base 위임 | `_geometry_class: "planar"` |
 | `thin` | **하향 없음** — `outer_wall_speed` · 인접 4 키 · `top_surface_speed` 를 쓰지 않는다. 유량비는 부모 실효값으로 계산해 보고만 한다 (`0.12mm High Quality @BBL H2S` 는 `3.8x` 경고 구간) | 사용자 확인 후 filament `overhang_fan_threshold 10%` 1 키 (§filament 튜닝 정책 예외) | `_geometry_class: "thin"` + `_thin_loop_share` |
 
@@ -1379,7 +1396,7 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 8개 소재 적용 판정 요약 — 자세한 `ironing_type` / `ironing_speed` / `ironing_flow` / `ironing_spacing` / `ironing_inset` 값은 `references/surface-recipes.md` §5.1 매트릭스 참조.
 
 | 소재 | 판정 |
-|------|------|
+| --- | --- |
 | PLA Basic / PLA Matte | `topmost` 적극 권장 |
 | PLA Silk | `topmost` only — 광택 죽음 주의 |
 | PETG HF | 원칙 off, 평면 장식만 `topmost` (blob/scar 위험) |
@@ -1515,6 +1532,7 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 ```
 
 **구조 원칙:**
+
 - PDF가 없는 케이스: §3은 "Creator 페이지의 조립 가이드" 요약 또는 "조립 매뉴얼 없음 — 사용자 자체 판단" 명시
 - 영상이 없는 케이스: §5에서 "영상 가이드 없음" 명시
 - §2.5 추가 소모품은 PDF에서 자주 발견되는 항목 — 반드시 cross-check
@@ -2082,16 +2100,19 @@ enum 줄만 빠진 목록도 같다 — `받지 않는 값` FAIL 이 사라지�
 #### 4.4 Verify (Import 후 사용자 확인)
 
 생성 후 사용자에게 안내:
+
 1. `File → Import → Import Configs...` → `<modelname>.zip` 선택
 2. 좌측 Process/Filament 드롭다운에 새 preset 보이는지 **반드시 확인**
 3. 안 보이면 셸로 검증:
+   <!-- markdownlint-disable-next-line MD031 -->
    ```bash
    ls "$HOME/Library/Application Support/BambuStudio/user/<userid>/process/"
    ls "$HOME/Library/Application Support/BambuStudio/user/<userid>/filament/"
    ```
+   <!-- markdownlint-disable-next-line MD031 -->
    `.json` + `.info` 페어 확인. 제작자 3mf 로 출력하면 바로 아래 값 섞임 방지도 따른다.
 
-**제작자 3mf 로 출력할 때 — 값 섞임 방지 (2026-09-19 신규)**
+**제작자 3mf 로 출력할 때 — 값 섞임 방지 (2026-09-19 신규):**
 
 제작자 3mf 를 연 뒤 드롭다운에서 생성한 설정으로 바꾸면, 설정 전환 창(Transfer · Discard · Save)의 Transfer 가
 **3mf 에 들어 있던 제작자 값**을 새 설정 위로 옮긴다. 실측 (2026-09-19 H2 AMS Flipper): 생성 설정과 달리
@@ -2377,6 +2398,7 @@ PY
 **coupon process JSON 정책 (lean variant):**
 
 본 process JSON에서 다음만 변경:
+
 - `top_shell_layers`: `"0"` → top 무시 (얇은 쿠폰)
 - `bottom_shell_layers`: `"1"` → 첫 레이어 안착만
 - `sparse_infill_density`: `"0%"` → 외벽만 평가
@@ -2541,6 +2563,7 @@ PY
 ## v2 백로그 (수동으로 진행)
 
 플러그인 내 `bambu-kit/skills/bambu-print-profile/BACKLOG.md` 참조. 핵심:
+
 - 홈서버 Linux에 print outcome capture daemon (MQTT + FTPS + JSONL)
 - 카이젠 스킬은 이 레포의 `.claude/skills/bambu-research` + `.claude/skills/bambu-kaizen`에 분리됨 (자동 주기 폴링 + SKILL 격차 분석). bambu-kit 플러그인에는 포함되지 않는다.
 - 실측 피드백을 references에 자동 환류 (v1은 손으로 함)
@@ -2556,7 +2579,7 @@ defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVer
 ```
 
 | 결과 | 처리 |
-|------|------|
+| --- | --- |
 | `02.06.00.xx` (references baseline · 2026-07-27 기준 로컬 설치본) | references 그대로 사용. 정상. |
 | `02.06.01.xx` (1패치 위) | references 그대로 — 마이너 패치는 호환 가능성 높음. 단, scarf 필드 mismatch 의심되면 cross-check. |
 | `02.07.x.xx` / `02.08.x.xx` | ⚠️ **bambu-kaizen 트리거 권장** — references 는 `02.06.00.51` 기준이라 fields baseline 갱신이 필요할 수 있음. 사용자에게 보고 후 진행. |
@@ -2569,6 +2592,7 @@ defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVer
 ### 2. Memory 자동 로드
 
 다음 3개 파일을 Read로 자동 로드 (사용자 명시 요청 없어도):
+
 - `~/.claude/projects/-Users-jackson/memory/3d_printing_setup.md` — 하드웨어 환경 (H2S + AMS 구성, 노즐)
 - `~/.claude/projects/-Users-jackson/memory/bambu_studio_json_import.md` — silent skip 회피 4개 필수 필드
 - `~/.claude/projects/-Users-jackson/memory/bambu_print_profile_skill.md` — v1 학습 환류 (회전체 random > aligned 등)
@@ -2587,7 +2611,7 @@ ls ~/Library/Application\ Support/BambuStudio/system/BBL/filament/ | grep -i "<m
 ## 검증된 실측 사례
 
 | 모델 | 소재 | 결과 |
-|------|------|------|
+| --- | --- | --- |
 | Box opener knife (583712) | PLA Basic dual-color | ✅ 정상 출력 검증. 회전체 손잡이 seam은 random + external 처리 |
 | H2D Vent Pipe (1441653) | PETG HF + TPU 90A | ⚠️ stringing 발생 (필라멘트 건조 부족 의심). seam은 random + external + entire_loop |
 | Stealth Press 1S (825644) | ASA dual-color | ✅ PDF/영상 통합 분석 워크플로우 dogfood. 5섹션 notes.md 표준 템플릿 확립. 웹 BOM 30개 vs PDF 매뉴얼 카운트 34개 mismatch 발견 → Phase 1.5 신규. |
