@@ -437,7 +437,7 @@ showDialog(
   context: context,
   builder: (_) => ValueListenableBuilder<double>(
     valueListenable: progress,
-    builder: (_, value, __) => {widget_prefix}ProgressDialogWidget(percent: value),
+    builder: (_, value, _) => {widget_prefix}ProgressDialogWidget(percent: value),
   ),
 );
 

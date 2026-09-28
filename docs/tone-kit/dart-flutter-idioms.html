@@ -845,7 +845,7 @@ showDialog(
   context: context,
   builder: (_) =&gt; ValueListenableBuilder&lt;double&gt;(
     valueListenable: progress,
-    builder: (_, value, __) =&gt;
+    builder: (_, value, _) =&gt;
         {widget_prefix}ProgressDialogWidget(percent: value),
   ),
 );</code></pre>

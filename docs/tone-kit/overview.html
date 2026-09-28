@@ -397,7 +397,7 @@ Widget _buildHeader() =&gt; ...;</code></pre></div><div class="good"><div class=
 children: sections.map(_body).expand((w) =&gt; [divider, w]).skip(1).toList()</code></pre></div><div class="good"><div class="compare-label">✓ good</div><pre><code>Row(spacing: {TokenClass}.w10, children: [icon, label])
 ListView.separated(
   itemCount: sections.length,
-  separatorBuilder: (_, __) =&gt; divider,
+  separatorBuilder: (_, _) =&gt; divider,
   itemBuilder: _body,
 )</code></pre></div></div>
       <p class="desc">프레임워크가 이미 가진 파라미터를 손으로 재구현한 것이고, 항목이 늘 때마다 삽입 위치를 사람이 관리해야 한다. 체이닝은 짧아 보이지만 읽는 비용을 올린다.</p>
@@ -411,7 +411,7 @@ ListView.separated(
 // Material 3 surface tint 가 배경색을 덮어
 // 실제 색이 더 밝아 보인다.</code></pre></div></div>
       <p class="desc">종결어미만 <code>한다</code>체로 바꿔도 문장 구조가 그대로면 번역투는 남는다. 주체를 되살리고 원인과 결과를 구체로 잇는다. 둘째 줄은 번역투와 음역이 같이 걸린 사례다 — 공식 API 이름은 영어 원문(<code>surface tint</code>), 일반 명사는 한국어로 쓴다.</p>
-      <div class="sources"><span class="sources-title">출처</span><a class="card-source" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663">국립국어원 공공언어 자료</a><a class="card-source" href="https://dart.dev/effective-dart/documentation">Effective Dart: Documentation</a></div>
+      <div class="sources"><span class="sources-title">출처</span><a class="card-source" href="https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663">국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」</a><a class="card-source" href="https://dart.dev/effective-dart/documentation">Effective Dart: Documentation</a></div>
     </article>
 
     <article class="card principle">
