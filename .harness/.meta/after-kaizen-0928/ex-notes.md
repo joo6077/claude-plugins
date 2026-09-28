@@ -35,8 +35,9 @@
 
 - `design-kit/docs/design/systems/material-design.md` 와 그 페이지의 「Android 16」 — 그 문서가 따로 단 Android Developers Blog 출처를 대조하지 않았다. 그 출처를 조회해야 판정할 수 있다.
 - `docs/flutter/architecture/routing.md:85-86` 의 `(_, __)` — A11 은 tone 예시만 물었다. 같은 Dart 3.7 사실이라 flutter 문서 정리 때 같이 고치면 된다.
-- setup-guide 평가 사례 `deprecation-claim-fidelity` 의 단정 줄 `guide_includes('.p8')` · `guide_recommends('APNs 인증 키(.p8)')` — 새 FCM 문서는 `.p8` 확장자도 「recommended」 강도도 쓰지 않는다 (ex A12 §4). 단정을 바꾸려면 Apple 의 APNs 키 공식 문서를 따로 조회해야 해서 이번에는 출처 칸과 상태 값만 고쳤다.
+- setup-guide 평가 사례 `deprecation-claim-fidelity` — 독립 검토가 「출처 상태는 documented 인데 판정 줄은 권장을 요구한다」는 어긋남을 짚었고, a388623 에서 판정 줄과 설명을 documented 에 맞췄다. 남은 것은 `guide_includes('.p8')` 한 줄이다. 새 FCM 문서는 `.p8` 확장자를 쓰지 않아 Apple 의 APNs 키 공식 문서를 따로 조회해야 판정할 수 있다.
 - ex 파일이 「추론」 으로 낸 새 규칙은 넣지 않았다 — 벽시계 문자열 모양 고정(`YYYY-MM-DDTHH:mm:ss`), PRD · ADR 경계 규칙, setup-guide 조회일 · 갱신일 분리 규칙, 서비스 계정 선택 나무 전체. 넣으려면 사용자가 킷 규칙으로 정해야 한다.
 - 국립국어원 자료는 제목 · 등록일만 확인했다. 첨부 PDF 본문이 원칙 1 · 2 · 5 · 8 을 실제로 뒷받침하는지는 미확인이다.
 - 역사 기록은 고치지 않았다 — `.harness/.meta` 의 leftovers · phase notes, `docs/tone/research-log.md:44`, `docs/infra/research-log.md` 2026-09-24 절의 「다음 사이클 후보」 줄. 2026-09-28 정정 절이 그 줄을 정정한다.
-- 작업 폴더에 계약 피드백 초안 `.harness/feedback-draft-after-0928-external-facts.yaml` 이 추적 안 된 채 남아 있다 (저장본은 `~/.harness/feedback/contract/1a3bcba6-2026-09-28T110000-bda55d45-97400.yaml`, 검증 PASS).
+- 독립 검토가 BLOCKING 으로 짚은 C-06 의 남은 MUST 두 자리(`docs/tone-kit/comment-economy.html` 「원칙 6이 여기 속한다」 · `docs/tone-kit/templates.html` 개요 표 2 행)는 47e07fa 에서 고쳤고 2회차 QA 가 다시 재서 APPROVE 했다. 다만 SK-11 은 「고친 자리」만 재고 옛 값이 남았는지는 재지 않았다 — 다음 계약에서 강도를 바꿀 때는 옛 값 전체 검색 조건을 같이 둔다.
+- 계약 피드백 저장본은 `~/.harness/feedback/contract/1a3bcba6-2026-09-28T110000-bda55d45-97400.yaml`, 평가 피드백 저장본은 `~/.harness/feedback/evaluator/1a3bcba6-2026-09-28T114442-bda55d45-42952.yaml` (둘 다 검증 PASS).
