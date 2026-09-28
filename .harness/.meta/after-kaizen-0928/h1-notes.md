@@ -57,3 +57,86 @@
 - B3: sprint-contract 의 스크립트 셋을 설치 환경에서도 찾게 했다 (df5adaf).
 - SC-07 의 1 회 `63x33` 은 부하 탓이 아니라 기본 작업 폴더(고치기 전 파일)를 잰 것으로 보인다 — 검토자가 같은 값을 다시 냈다. 봉인된 QA 리포트는 고치지 않는다.
 - 레포 밖 `~/.claude/hooks/qa-pending-check.sh` 의 `value()` 도 같은 결함이다. 작업 폴더 밖이라 손대지 않았다 — 50~60 줄의 값 읽기를 fm_get 규칙으로 바꾸면 된다.
+
+## 2 회차 계약 (2026-09-28)
+
+계약 `.harness/sprint-contract-after-0928-harness-checks-r2.md` (44 조건, 기능 36). 1 회차 계약은 `status: superseded` 로 두었다 (0fbb27d).
+봉인 `conditions_digest: sha256:925cf12b1330ffe9` · `measurement_digest: sha256:ff2e15044cb81057` · `locked_at: 2026-09-28 14:09`, 봉인 커밋 3f44337 (파일 1 개).
+교차 진단 지적 하나(GAP 분석 · AR-05 알려진 답의 `commits=13` 이 측정 묶음 커밋 뒤 14)를 봉인 전에 고쳤다 — 조건 줄은 그대로 `n ≥ 1` 이다.
+계약 피드백 `~/.harness/feedback/contract/1a3bcba6-2026-09-28T140952-bda55d45-38415.yaml` 은 verify-feedback `PASS`.
+
+### 이 판에서 한 구현
+
+- 레포 밖 훅 `~/.claude/hooks/qa-pending-check.sh` 의 `value()` 만 고쳤다 — 따옴표 값은 닫는 따옴표까지, 아니면 빈칸 · 탭 뒤 `#` 앞까지 읽는다. 고치기 전 원본(지문 `bdf5f8cc581a32d7`)과 시험 `h1-backup/qa-pending-value-test.sh` 를 먼저 커밋했다 (600e7a7). 고친 뒤 지문 `b18721b2ab224706`.
+- 지역 변수 이름은 `first` · `closing` 이다. `close` 는 awk 내장 함수라 쓰지 않았다.
+- 그 밖의 구현은 1 회차 가지 커밋 그대로다. 새 조건이 구현 빈틈을 드러낸 곳은 없었다.
+
+### 조건별 자기 측정 (가지 끝, 봉인 뒤)
+
+| 조건 | 값 |
+| --- | --- |
+| 측정 파일 21 개 지문 | 계약에 적힌 값과 모두 같다 |
+| SK-01 | `ng=0 total=42` · 종료 코드 0 |
+| SK-02 · SK-03 · SK-04 · SK-05 | `skill-0.5` 1 · 2 · 5, `skill-gotchas` 1 · 1, `schema-측정관례` 일곱 모두 1 이상, `schema-전체` 1 |
+| SC-01 · ER-01 | A · B · REPO 세 줄 계약과 같다 (`REPO rc=0 checked=4 violations=0 states=`), `MISSING rc=2` |
+| SC-02 · SC-05 · SC-12 | `그대로 rc=0 broken=0` 셋, `망가뜨림 rc=1 broken=1` 셋, `two-run rc=1 … failed=1] fail_line=1 pass_line=1` |
+| SC-03 | `current rc=0 pass_F=7 fail_F=0 swapped=0` · `old-fm_get rc=1 pass_F=3 fail_F=4 swapped=1` |
+| SC-04 · ER-03 | a · b · c · d 네 줄 계약과 같다, `e-note-removed rc=2 … applied=0` |
+| SC-06 · SC-07 | 여섯 줄 계약과 같다 (visual-styles `btn=63x48`), 전체 `189/189 PASS` · 쪽 189 · 종료 코드 0 |
+| SC-08 · ER-04 | `same` · `foo` 슬러그 17 개와 `foo n=18 … kaizen-phase18-foo`, 범위 밖 다섯 줄 `rc=1 slug=`, `help_1_17=0` 둘 |
+| SC-09 · SC-10 | `m-evals.sh` 네 줄 계약과 글자까지 같다 |
+| SC-11 · ER-02 | `repo-list … steps=40 run=35 skip=5 unsupported=0` · `extra-list … extra_run=1` · `wd-list rc=1 … unsupported_line=1` · `none-list rc=2`, `grep -cE` 0 |
+| SC-13 | `steps=40 run=35 skip=5 unsupported=0 failed=0` · 종료 코드 0, 여섯 단계 이름 모두 `PASS` 줄에 1 이상 |
+| SC-14 | `guard chore/ak3-h1 rc=0 fails=0 s24=PASS s25=PASS s26=PASS` · 음성 대조 `guard 95508d9 rc=1 fails=2 s24=FAIL s25=FAIL s26=PASS` |
+| SC-15 | 고친 훅 `ng=0 total=7` · 종료 코드 0, 원본 사본 `ng=4 total=7` · 1 |
+| SC-16 | 고친 훅 `plain rc=0 caught=1` · `cmt rc=0 caught=1`, 원본 사본 `cmt rc=0 caught=0` |
+| SC-17 | 고친 훅 종료 코드 0 (`failed=0 total=7`), 원본 사본 1 |
+| SC-18 | `run` · `sync` 둘 다 `rc=0 absent=[planning-kit, reflect-kit, bambu-kit, onboarding-kit]`, `0bf2dad` 는 `absent=[]` |
+| SC-19 | `same` · `mid` 둘 다 `s2=flutter-toolkit,rust-kit,bambu-kit s3=react-kit bad_rc=0`, `0bf2dad` `mid s2=aaa-kit,infra-kit,reflect-kit s3=rust-kit` |
+| SC-20 | bash · zsh `repo=0 plugin=0 market=0`, `feedback_repo_rel=0`. `0bf2dad` 는 `plugin=127 market=127` · `feedback_repo_rel=2` |
+| AR-01 | 사라진 명령 0, 새 명령 넷이 계약과 같다 |
+| AR-02 | `rows=14 cite=14 only_rows=[] only_cite=[]`, 새 두 행 `grep -cE` 2 |
+| AR-03 | `html` 세 값 1 이상, `assets/site.css=1`, `fm_same=1 md_lines=17 html_lines=17`, 쪽 `OK … of=0/0/0/0` |
+| AR-04 | (1) 3 줄 (2) 1 · 1 (3) 1 · 1 (4) 0 |
+| AR-05 | `changed=` 20 경로가 계약과 같다, `commits=16 bad=0 dirty=0` (이 notes 커밋 전) |
+| AR-06 | (1) `59fe55125c0dbc77` (2) 0 (3) 0, 양성 대조 1 |
+| AR-07 | (1) `bdf5f8cc581a32d7` (2) 0 (3) `outside_diff=0 fn=1 syntax=0` (4) `b18721b2ab224706` |
+| AP-03 · AP-04 | 종료 코드 0 · 0 |
+| RE-02 | 자기 읽개 0, `measure-common.sh` 1 |
+| DG-01 | 0 |
+| DG-02 | `md_new=0 sh_new=0 py_bad=0 js_bad=0 files=20`, 훅 shellcheck 종료 코드 0 |
+
+### 2 회차 검사
+
+- `python3 scripts/validate-plugin.py` → `14 plugins, 14 OK` · 종료 코드 0. `sync-docs.py --check-only` 0. `sync-evals.py --check-only` → `0 added, 0 orphans, 0 missing` · 0.
+- 새 로컬 CI(`scripts/ci-local.sh`) 위 SC-13 값. 옛 도구(`.harness/handoff/2026-09-26-tools/ci-local.sh`) 종료 코드 0, 모든 단계 `rc=0`, `feedback-agg-test` 만 yq 가 없어 SKIP. 옛 도구가 모르는 새 단계는 「이 스크립트 밖의 것」 목록으로만 나온다.
+- `detect-docs-drift.py` → `harness/references/contract-schema.md → docs/harness/contract-schema.html` 한 짝을 알린다. 이 가지가 두 파일을 같이 고쳤고 AR-03 `fm_same=1` 이다. `--check-table` 은 어긋남 0.
+
+### 톤 대조 (tone-guide 5 단계)
+
+어댑터 없음(오버레이 `.claude/tone-project.md`), 주석 언어 ko. 대상은 새 시험 파일과 훅 `value()`.
+
+| 규칙 | 건수 | 판정 |
+| --- | --- | --- |
+| C-01 · C-02 (what 대신 why, 이름 반복) | 0 | 통과 — 시험 머리 두 줄은 쓰는 법과 종료 코드 뜻 |
+| C-04 · C-09 (템플릿 마커 · 구분선) | 0 | 통과 |
+| C-07 (해설 3 줄 초과) | 0 | 통과 |
+| C-15 (주석 종결형, 관측 컨벤션) | 0 | 통과 |
+| N-08 (한 글자 이름) | 0 | 통과 — 1 회차 사본의 `c` · `e` 를 `first` · `closing` 으로 |
+| N-09 (무역할 파일명) | 0 | 통과 |
+| S-03 · S-04 (의미 없는 추출 · 넘기기만 하는 래퍼) | 0 | 통과 |
+| S-12 (같은 역할은 같은 모양, 관측 컨벤션) | 0 | 통과 — 함수 떼기 · 입력 일곱은 `m-qapending.sh` 와 같은 모양 |
+| H (보존 주석) | 0 삭제 | 훅의 기존 주석 세 줄(첫 머리말 블록 · 따옴표 · find 제약)은 그대로 |
+| K-02 G-1 (번역투 여섯 종) | 0 | 통과 — 새 시험 파일 · 이 절에 grep |
+
+### 킷 버전 판단 (2 회차)
+
+- harness: 1 회차 판단 그대로 patch (0.16.0 → 0.16.1). 이 판에서 레포 파일은 `.harness/` 안만 더했다.
+- 그 밖 킷: 바뀐 것 없음. 레포 밖 훅은 킷이 아니다.
+
+### 2 회차 남은 것
+
+- QA 판정: qa-evaluator 로 2 회차 계약을 평가해야 한다. 이 묶음은 판정하지 않았고 `status` 는 `active` 그대로다.
+- 레포 밖 훅은 이 컴퓨터에만 있다. 되돌리려면 `h1-backup/qa-pending-check.sh` 를 `~/.claude/hooks/` 로 복사하면 된다.
+- AR-05 의 커밋 수는 이 notes 커밋 뒤 17 이 된다 — 조건은 `n ≥ 1` 이다.
+- 지시문에 적힌 notes 경로 `.harness/.meta/after-kaizen-0926b/h1-notes.md` 는 없는 파일이다. 계약 AR-04 가 재는 `.harness/.meta/after-kaizen-0928/h1-notes.md` 에 이어 썼다.
