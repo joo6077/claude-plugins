@@ -185,7 +185,7 @@ grep -nE '(을|를) ?(처리|관리)(합니다|한다)|에 대해서?|하도록 
 
 ## 10. 출처
 
-- [국립국어원 공공언어 자료](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663)
+- [국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663)
 - [한국어 번역투 연구 (KCI)](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002178732)
 - [LINE 테크니컬 라이팅](https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/)
 - [Google Engineering Practices](https://google.github.io/eng-practices/review/reviewer/looking-for.html)
