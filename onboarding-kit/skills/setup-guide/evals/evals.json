@@ -7,7 +7,7 @@
       "id": "flutter-fcm-ios",
       "description": "Flutter 프로젝트에서 FCM iOS 가이드 생성. flutterfire CLI + Dart 초기화 흐름이 정확해야 하고, 네이티브 Swift 흐름이 섞이면 안 됨 (Gotcha 1 stack-first)",
       "prompt": "FCM iOS 설정해줘",
-      "source": "https://firebase.google.com/docs/flutter/setup (2026-07-27 조회 · Last updated 2026-07-20 UTC) — Flutter 는 dart pub global activate flutterfire_cli → flutterfire configure → Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform). AppDelegate 의 FirebaseApp.configure() 는 Flutter 셋업 절차에 등장하지 않는다",
+      "source": "https://firebase.google.com/docs/flutter/setup (2026-09-28 조회 · Last updated 2026-09-24 UTC) — Flutter 는 dart pub global activate flutterfire_cli → flutterfire configure → Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform). AppDelegate 의 FirebaseApp.configure() 는 Flutter 셋업 절차에 등장하지 않는다",
       "setup": {
         "project_files": [
           "pubspec.yaml",
@@ -64,19 +64,20 @@
     },
     {
       "id": "deprecation-claim-fidelity",
-      "description": "deprecated 박스는 1차 출처가 실제로 deprecated라 말할 때만 삽입한다. 출처가 '권장'만 한 것을 'deprecated'로 승격하면 실패 (날조 방지)",
+      "description": "deprecated 박스는 1차 출처가 실제로 deprecated라 말할 때만 삽입한다. 출처가 말하지 않은 강도를 올리면 실패 — 업로드 지시만 있는 .p8 을 '권장'으로, 언급이 없는 .p12 를 'deprecated'로 쓰는 것 모두 날조다",
       "prompt": "Firebase Cloud Messaging APNs 인증 설정",
-      "source": "https://firebase.google.com/docs/cloud-messaging/ios/client (2026-07-27 조회 · Last updated 2026-07-20 UTC) — .p8 APNs 인증 키를 권장하지만 .p12 인증서를 deprecated로 표기하지 않는다. 이 문서가 deprecated로 명시한 것은 Instance ID API",
+      "source": "https://firebase.google.com/docs/cloud-messaging/ios/get-started (2026-09-28 조회 · Last updated 2026-09-24 UTC) — 문서는 APNs authentication key 업로드를 지시하고 .p12 나 certificate 는 언급하지 않는다. 이 문서가 deprecated로 명시한 것은 Instance ID API",
       "setup": {
         "fetched_source_states": {
-          "apns_auth_key_p8": "recommended",
-          "apns_certificate_p12": "not_marked_deprecated",
+          "apns_auth_key_p8": "documented",
+          "apns_certificate_p12": "not_mentioned",
           "instance_id_api": "deprecated"
         }
       },
       "assertions": [
         "guide_includes('.p8')",
-        "guide_recommends('APNs 인증 키(.p8)') == true",
+        "guide_instructs_upload('APNs 인증 키(.p8)') == true",
+        "guide_does_not_claim_recommended('.p8') — 출처 상태가 documented 라 '권장' 표현은 근거가 없다",
         "guide_does_not_claim_deprecated('.p12') — 출처에 없는 deprecation 날조 금지",
         "deprecated_box_inserted_only_when_source_says_deprecated == true",
         "if guide_includes('❌ Deprecated') then cited_source_contains_deprecation_keyword(any of: 'deprecated', 'sunset', 'removed', '지원 종료', '폐지', '중단', '서비스 종료', '단종') == true — 한국어 1 차 출처의 표기도 근거다"

@@ -292,14 +292,14 @@ await controller.forward();</code></pre>
   <div class="grid-3">
     <div class="card">
       <div class="principle-title"><span class="strength s-must">MUST</span></div>
-      <p class="desc" style="margin-bottom:0">공식 스타일 가이드가 강제하는 항목. 프로젝트 재량으로 끄지 않는다. 원칙 6이 여기 속한다.</p>
+      <p class="desc" style="margin-bottom:0">공식 스타일 가이드가 강제하는 항목. 프로젝트 재량으로 끄지 않는다. 이 문서의 원칙 9개 중에는 여기 속하는 것이 없다.</p>
       <div class="sources">
         <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart: Documentation</a>
       </div>
     </div>
     <div class="card">
       <div class="principle-title"><span class="strength s-should">SHOULD</span></div>
-      <p class="desc" style="margin-bottom:0">공개 출처의 권고. 근거를 남기면 예외를 둘 수 있다. 원칙 1·2·3·5·7이 여기 속한다.</p>
+      <p class="desc" style="margin-bottom:0">공개 출처의 권고. 근거를 남기면 예외를 둘 수 있다. 원칙 1·2·3·5·6·7이 여기 속한다.</p>
       <div class="sources">
         <a class="card-source" href="https://google.github.io/eng-practices/review/reviewer/looking-for.html" target="_blank" rel="noopener">&rarr; Google Engineering Practices</a>
       </div>
@@ -554,7 +554,7 @@ final res = await client.post(uri, headers: {'X-Idem-Key': key});</code></pre>
         <span class="num">6</span>
         <h3>공개 API는 doc, 구현 이유는 라인 주석</h3>
       </div>
-      <div class="principle-title"><span class="strength s-must">MUST</span><span class="pill">[코어]</span></div>
+      <div class="principle-title"><span class="strength s-should">SHOULD</span><span class="pill">[코어]</span></div>
       <p class="lead">공개 API에는 계약을 쓴 doc을, 로컬 구현에는 doc 대신 아무것도 두지 않는다.</p>
 
       <div class="pair">
@@ -576,11 +576,13 @@ String _cacheKey(String id) =&gt; 'item:$id';</code></pre>
         </div>
       </div>
 
-      <p class="desc" style="margin-bottom:12px">doc이 다루는 것은 <strong>계약</strong>이다 — 파라미터 의미, 반환값, 오용을 유발하는 규칙(옵션 A를 넘기면 옵션 B가 무시됨 등). 공개 API에 문서 주석을 다는 것은 공식 강제 항목(<code>DO use /// for public APIs</code> 계열)이다.</p>
+      <p class="desc" style="margin-bottom:12px">doc이 다루는 것은 <strong>계약</strong>이다 — 파라미터 의미, 반환값, 오용을 유발하는 규칙(옵션 A를 넘기면 옵션 B가 무시됨 등). 원문 강도는 Effective Dart 의 PREFER 다 — <code>PREFER writing doc comments for public APIs</code>, 모든 멤버가 아니라 대부분을 문서화하라고 한다. 린트 <code>public_member_api_docs</code> 는 재정의하지 않은 공개 멤버를 모두 문서화하라고 DO 로 적지만, 그것은 켜고 끄는 린트의 설명이라 이 원칙의 강도는 <span class="strength s-should">SHOULD</span> 로 둔다 (2026-09-28 조회).</p>
       <div class="rule-box">반대로 <strong>로컬 구현 세부를 문서 주석으로 감싸지 않는 쪽</strong>은 <span class="strength s-observed">관측 컨벤션</span> 이라 프로젝트별로 완화할 수 있다.</div>
     </div>
     <div class="sources">
       <a class="card-source" href="https://dart.dev/effective-dart/documentation" target="_blank" rel="noopener">&rarr; Effective Dart: Documentation</a>
+      <a class="card-source" href="https://dart.dev/effective-dart" target="_blank" rel="noopener">&rarr; Effective Dart — 강도 정의</a>
+      <a class="card-source" href="https://dart.dev/tools/linter-rules/public_member_api_docs" target="_blank" rel="noopener">&rarr; 린트 public_member_api_docs</a>
     </div>
   </div>
 

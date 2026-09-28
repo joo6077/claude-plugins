@@ -1,9 +1,25 @@
 ---
-version: 1.4.1
-last_updated: 2026-09-26
+version: 1.4.2
+last_updated: 2026-09-28
 ---
 
 # Infra Kit Research Log
+
+## [2026-09-28] - 바깥 원문 대조 (A7)
+
+FIXED. 2026-09-24 사이클이 남긴 바깥 사실과 킷 문장을 원문과 다시 맞췄다. 근거는 Codex 원문 대조 `.harness/.meta/after-kaizen-0928/ex/A7.md`(2026-09-28 조회) 하나다.
+
+| 대상 | 원문 | 결과 |
+| --- | --- | --- |
+| Flux 2.9 | [fluxcd/flux2 v2.9.0](https://github.com/fluxcd/flux2/releases/tag/v2.9.0) — `image.toolkit.fluxcd.io/v1beta2` · `notification.toolkit.fluxcd.io/v1beta2` 가 수명이 끝나 CRD 에서 제거됐다 | 맞음 — 빠진 API 다 |
+| Argo CD 3.5 | [Argo CD 3.4 → 3.5 업그레이드 안내](https://argo-cd.readthedocs.io/en/stable/operator-manual/upgrading/3.4-3.5/) — 이벤트 조회 API 의 gRPC 응답 형식이 바뀌고 REST 경로는 그대로다 | **정정** — API 제거가 아니라 gRPC 응답 형식 변경이다. 2026-09-24 후보의 「Flux v2.9 · Argo CD 3.5 에서 빠진 API」 는 서로 다른 두 변경을 한데 묶었다 |
+| Kubernetes 1.37 | [CHANGELOG-1.37](https://github.com/kubernetes/kubernetes/blob/v1.37.1/CHANGELOG/CHANGELOG-1.37.md) — `scheduling.k8s.io` 를 `v1alpha2` 에서 `v1alpha3` 으로 올리고 `v1alpha2` 를 완전히 뺐다. 클러스터를 올리기 전에 `v1alpha2` 객체를 지우라고 한다 | 맞음 — 빠진 API 는 `scheduling.k8s.io/v1alpha2` 다 |
+| GitHub 밖 CI | [GitLab — Pipelines API](https://docs.gitlab.com/api/pipelines/) 의 `sha` · [Buildkite — Builds API](https://buildkite.com/docs/apis/rest-api/builds) 의 `commit`(전체 SHA 만) | **정정** — 커밋별 실행 조회가 된다. `platform/cicd.md` 원칙 7 에 반영했다. 조회 결과만으로 필수 검사 전체의 통과나 실패 원인이 증명되지는 않는다 |
+| OpenTofu state encryption | [opentofu v1.7.0](https://github.com/opentofu/opentofu/releases/tag/v1.7.0) — 새 기능 목록에 「State Encryption」 | 맞음 — 하한은 1.7 이다 |
+| OpenTofu provider mocking | [opentofu v1.8.0](https://github.com/opentofu/opentofu/releases/tag/v1.8.0) — 「Provider mocking in `tofu test`」 | **정정** — 하한은 1.8+ 다. audit-criteria · init-checklist · infra-test Gotcha 8 을 고쳤다 |
+| OpenTofu write-only 인수 | [opentofu v1.11.0](https://github.com/opentofu/opentofu/releases/tag/v1.11.0) — 「Ephemeral Values and Write Only Attributes」 | **정정** — 하한은 1.11+ 다. infra-test Gotcha 10 을 고쳤다 |
+
+2026-09-24 · 2026-09-26 항목의 이력 줄은 그대로 두고 여기서 정정한다. 「빠진 API 를 원칙으로 올릴지」 후보에서 Argo CD 3.5 는 빠진다 — 제거가 아니기 때문이다.
 
 ## [2026-09-26] - 카이젠 뒤 남은 것 (k2)
 

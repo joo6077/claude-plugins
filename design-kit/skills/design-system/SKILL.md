@@ -106,7 +106,7 @@ Tier 3 — Component (컴포넌트 예외 오버라이드)
 | Elevation | 선택 | elevation.level-0 ~ level-4 (shadow값) | — |
 | Motion | 선택 | motion.duration.fast(100ms), motion.duration.normal(200ms), motion.easing.standard | — |
 
-**참고 — Material 3 Expressive (2025-05 발표, Android 16):** MD3 Expressive는 HCT(Hue-Chroma-Tone) 기반 **tonal palette 정교화**로 primary/secondary/tertiary 분리를 강화했고, 46개 연구/18,000명 참가를 근거로 더 풍부한 컬러 토큰 세트와 동적 컬러 개인화를 유지한다. 타이포는 variable font axes(예: Roboto Flex)로 weight/width를 시스템화하고, 모션은 springy 애니메이션으로 표현력을 강화했다. MD3 tonal 구조를 채택할 때는 HCT 톤 스텝을 semantic alias에 매핑하여 primitive로 저장한다. 출처: [Supercharge MD3 Expressive](https://supercharge.design/blog/material-3-expressive), [Dezeen Google Expressive](https://www.dezeen.com/2025/05/28/google-ushers-in-age-of-expressive-interfaces-with-material-design-update/).
+**참고 — Material 3 Expressive (2025-05 발표):** 공식 Material 문서는 M3 Expressive 가 46 개 연구 · 18,000명 넘는 참가자를 근거로 더 넓은 색 범위 · 동적 색 · 개인화 · spring 기반 motion physics system 을 준다고 적는다. HCT 로 색마다 tonal palette 를 만들고 그 톤을 color role 에 배정하는 것은 Expressive 고유 기능이 아니라 M3 색 시스템 전체의 설명이다. Roboto Flex 같은 variable font 는 표현을 위한 선택지이고 M3 type scale 에 포함되지 않는다. tonal palette 의 톤을 primitive 로, color role 을 semantic alias 로 대응시키는 것은 공식 규칙이 아니라 이 저장소 3 계층 토큰 구조의 저장소 관례다. 출처: [Start building with Material 3 Expressive](https://m3.material.io/blog/building-with-m3-expressive), [Color system](https://m3.material.io/styles/color/system/overview), [Typography](https://m3.material.io/styles/typography/overview), [Motion](https://m3.material.io/styles/motion/overview) (2026-09-28 조회).
 
 ## Step 3: HAS_DS=true → 기존 시스템 분석
 

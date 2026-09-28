@@ -49,7 +49,7 @@ Good : dart-flutter 어댑터 문서는 `- 반환값:` 라벨과 `///` 문법만
 
 **강도: MUST** (킷 구조 결정)
 
-> **출처:** [국립국어원 공공언어 자료](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) · 원본 프로젝트 전수 감사 (2026-08-28, 규칙 625줄 / 39 섹션)
+> **출처:** [국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) · 원본 프로젝트 전수 감사 (2026-08-28, 규칙 625줄 / 39 섹션)
 
 ### 2. 번역투 킬러 패턴 6종을 제거한다 `[한국어]`
 
@@ -131,7 +131,7 @@ void evictExpired() { }
 
 **강도: SHOULD** (국립국어원·번역투 연구 근거, 프로젝트가 MUST 로 승격 가능)
 
-> **출처:** [국립국어원 공공언어 자료](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) · [한국어 번역투 연구 (KCI)](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002178732)
+> **출처:** [국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) · [한국어 번역투 연구 (KCI)](https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002178732)
 
 ### 3. 지운 자리를 능동형·주체·원인으로 채운다 `[한국어]`
 
@@ -216,7 +216,7 @@ final expiresAt = issuedAt.add(ttl); // UTC 기준
 <!-- markdownlint-disable-next-line MD036 -->
 **강도: SHOULD**
 
-> **출처:** [Effective Dart documentation](https://dart.dev/effective-dart/documentation) · [국립국어원 공공언어 자료](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663)
+> **출처:** [Effective Dart documentation](https://dart.dev/effective-dart/documentation) · [국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663)
 
 ### 6. 이름 번역 주석은 지운다 `[코어][한국어]`
 
@@ -322,7 +322,7 @@ Good — 프로젝트 저장소에 두고, 판정이 갈렸던 행만 3열로 �
 <!-- markdownlint-disable-next-line MD036 -->
 **강도: 관측 컨벤션**
 
-> **출처:** [국립국어원 공공언어 자료](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) · 프로젝트 실측 — 초기 표 6행 / 3열, 2026-08 시점
+> **출처:** [국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) · 프로젝트 실측 — 초기 표 6행 / 3열, 2026-08 시점
 
 ### 9. 새 이름을 만들지 않는다 `[한국어]`
 
