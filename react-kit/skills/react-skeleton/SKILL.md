@@ -36,11 +36,11 @@ user-invocable: true
 - `components.json` 존재 여부 (shadcn 초기화 확인)
 - `src/presentation/shared/components/ui/skeleton.tsx` 존재 여부
   - 없으면 설치 안내 후 중단:
-
+    <!-- markdownlint-disable-next-line MD031 -->
     ```bash
     pnpm dlx shadcn@latest add skeleton
     ```
-
+    <!-- markdownlint-disable-next-line MD031 -->
 - `src/presentation/shared/lib/utils.ts`의 `cn` 헬퍼 확인
 
 ## 2. 입력 수집
