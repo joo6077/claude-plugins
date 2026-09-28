@@ -77,6 +77,18 @@ jobs:
       - name: Docs drift mapping check (스크립트 짝 ↔ docs-site 표)
         run: python3 scripts/detect-docs-drift.py --check-table
 
+      # 드리프트 도구는 모양만 바뀐 원본(표 구분 줄 · 울타리 언어 표시 · 주석)을 기본에서 뺀다. 가름이 내용 바뀐 원본까지
+      # 빼면 다시 맞출 쪽을 놓치므로 임시 저장소에서 세 경우를 돌린다
+      - name: Docs drift format-only filter test (모양/내용 가름)
+        run: python3 scripts/test-detect-docs-drift.py
+
+      # 공통 CSS 링크를 글자 수로 재자 쪽 글에서 이름을 숫자 글자 참조로 쪼개 적는 우회가 생겼다(2026-09-27 세 쪽).
+      # <link> 요소로 세고 쪼갠 자리를 잡는다
+      - name: Docs common CSS link check (공통 CSS 링크 하나 · 글자 참조 쪼갬 0)
+        run: python3 scripts/check-docs-common-css.py
+      - name: Docs common CSS link check test (다섯 경우)
+        run: python3 scripts/test-check-docs-common-css.py
+
       # 킷 reviewer 일곱과 flutter-audit 은 평가 가이드의 미검증 규칙을 사본으로 든다. 원문이 바뀌었는데 사본이 따라가지 않은 일이
       # 세 번 있었다(2026-07-27 · 2026-08-13 · 2026-09-24). 사본이 원문과 글자까지 같은지 잰다.
       - name: Reviewer protocol copy check (미검증 규칙 사본 대조)
