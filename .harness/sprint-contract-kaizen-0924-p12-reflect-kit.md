@@ -35,7 +35,7 @@ Phase 12 를 부른 것은 `phase4-notes.md` 의 `reflect-collector:P5` 넘김 �
    두 분석기의 stderr 를 버려서(`:248` · `:277`) 원인이 로그에 한 줄도 없었다
 2. **대체 경로가 원시 로그를 더럽혔다 (P3 에서 찾음).** 대체 경로 `claude -p` 의 프롬프트 제출 훅이 분석용 프롬프트(다른 세션의 transcript)를 원시 로그 `YYYY-MM.md` 에
    3,044 번 적었다(2026-09-25 오전 실측 — 수집이 멈춘 동안 계속 는다). 같은 때 실패한 대체 경로 수(3,041)와 거의 같다. 봉인 전 실측에서 `claude -p` 가 띄운 훅은 부른 쪽의 환경 변수를 받는다(`marker=[1]`)
-3. **엔트리 0 이 「문제 없음」 으로 읽힌다 (P4).** digest 요약은 엔트리 · 세션 · 파싱 실패만 보인다(`reflect-digest/SKILL.md:297`). 수집이 멈춘 동안 digest 를 돌리면
+3. **엔트리 0 이 「문제 없음」 으로 읽힌다 (P4).** digest 요약은 엔트리 · 세션 · 파싱 실패만 보인다(`reflect-digest/SKILL.md:301`). 수집이 멈춘 동안 digest 를 돌리면
    0 만 나오고 원인은 `## 훅 실패 요약` 의 건수에 묻힌다. facets 는 `/insights` 가 따로 낸 세션 요약인데 digest 가 읽지 않는다
 4. **워크트리마다 로그 폴더가 갈린다 (P5).** `_lib-project-id.sh:62` 가 `--show-toplevel` 을 써서 링크된 워크트리에서 워크트리 폴더 이름이 나온다.
    봉인 전 실측: 로그 폴더 31 개 가운데 12 개가 워크트리 이름이다(`.project-root` 마커에 `/.claude/worktrees/` 가 든 폴더)
@@ -154,7 +154,7 @@ Gotcha 12 가 막는 「못 셌음」 과 같은 것이다 — SK-04 가 §0 에
 | `reflect-kit/docs/SCHEMA.md` §3 · §5 · `reflect-kit/docs/DESIGN.md` 에러 관측성 · 결정 #3 · `reflect-kit/README.md` | 태그 목록 · 폴더 이름 규칙 | 반영 — SK-05, 두 목록이 같은지 AR-02 |
 | `reflect-kit/skills/reflect-promote/SKILL.md:52` · `reflect-kit/scripts/legacy-id-migrate.sh` | `compute_project_id` 를 이름으로 부른다 | 그대로 — 부르는 모양이 안 바뀐다 |
 | `harness/scripts/save-feedback.sh:136-176` | 같은 규칙을 따로 구현 | 미반영 — 범위 밖. 다음 사이클 Phase 4 (ER-03) |
-| `harness/agents/qa-evaluator.md:754-765` · `harness/docs/guides/qa-evaluation-guide.md:643-652` | prompt 로그 폴더를 `--show-toplevel` 이름으로 찾는다 | 미반영 — 범위 밖. 워크트리 계약에서는 이 변경 뒤 새 기록이 본 레포 폴더에 쌓이므로 평가자 쪽 규칙도 같이 바뀌어야 한다. 다음 사이클 Phase 3 (ER-03) |
+| `harness/agents/qa-evaluator.md:766-777` · `harness/docs/guides/qa-evaluation-guide.md:648-657` | prompt 로그 폴더를 `--show-toplevel` 이름으로 찾는다 | 미반영 — 범위 밖. 워크트리 계약에서는 이 변경 뒤 새 기록이 본 레포 폴더에 쌓이므로 평가자 쪽 규칙도 같이 바뀌어야 한다. 다음 사이클 Phase 3 (ER-03) |
 | `scripts/collect-kaizen-data.py:421` | facets `project_path` 를 `/.claude/worktrees/` 앞에서 자른다 | 같은 방향이라 그대로 |
 | `docs/reflect-kit/*.html` | 스킬 문서 페이지 | Final F2 (ER-03) |
 | `.github/workflows/ci.yml` | 새 시험을 돌릴 자리 | Phase 가 못 고친다 — notes 에 넣을 줄 셋 (ER-03) |

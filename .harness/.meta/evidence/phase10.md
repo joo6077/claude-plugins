@@ -66,7 +66,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 확인된 사실:
 
 - Vite는 지정 포트가 사용 중이면 기본적으로 다음 가용 포트를 시도한다. `server.strictPort: true`이면 다음 포트로 이동하지 않고 종료한다. [`vite.config.template.ts:24`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/templates/vite.config.template.ts:24)에는 현재 `port: 5173`만 있다. [Vite 공식 문서](https://vite.dev/config/server-options.html#server-port)
-- Tauri의 공식 Vite 예시는 `devUrl: http://localhost:5173`, `port: 5173`, `strictPort: true`를 함께 두며 “Tauri expects a fixed port”라고 설명한다. 현재 [`react-init/SKILL.md:202`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-init/SKILL.md:202)도 `devUrl`을 5173으로 고정한다. [Tauri 공식 Vite 설정](https://v2.tauri.app/start/frontend/vite/)
+- Tauri의 공식 Vite 예시는 `devUrl: http://localhost:5173`, `port: 5173`, `strictPort: true`를 함께 두며 “Tauri expects a fixed port”라고 설명한다. 현재 [`react-init/SKILL.md:207`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-init/SKILL.md:207)도 `devUrl`을 5173으로 고정한다. [Tauri 공식 Vite 설정](https://v2.tauri.app/start/frontend/vite/)
 - [`harness-project.yaml.template:98`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/templates/harness-project.yaml.template:98) 역시 검사 포트를 5173으로 고정한다.
 - Vite CLI에는 다른 포트를 지정하는 `--port`와 고정 실패를 요구하는 `--strictPort`가 모두 있다. [Vite CLI](https://vite.dev/guide/cli)
 
@@ -101,7 +101,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 - Vitest `passWithNoTests` 기본값은 `false`지만, 활성화하면 테스트를 하나도 찾지 못해도 실패하지 않는다. [Vitest `passWithNoTests`](https://vitest.dev/config/passwithnotests)
 - `allowOnly` 기본값은 `!process.env.CI`다. 즉 로컬에서는 `.only`가 허용되고 선택된 테스트만 실행될 수 있다. [Vitest `allowOnly`](https://vitest.dev/config/allowonly)
-- 현재 [`react-preflight/SKILL.md:111`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-preflight/SKILL.md:111)은 `N passed`만 보고한다. [`react-run/SKILL.md:68`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-run/SKILL.md:68)도 test 전용 passed/skipped 칸이 없다.
+- 현재 [`react-preflight/SKILL.md:115`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-preflight/SKILL.md:115)은 `N passed`만 보고한다. [`react-run/SKILL.md:72`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-run/SKILL.md:72)도 test 전용 passed/skipped 칸이 없다.
 
 반대·제약 근거:
 
@@ -117,7 +117,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 - `--clean`은 소스에서 더 이상 발견되지 않는 obsolete 메시지를 catalog에서 제거한다. [Lingui CLI](https://lingui.dev/ref/cli)
 - 따라서 매크로가 적용되지 않아 extractor가 메시지를 발견하지 못하면 `--clean`이 번역된 항목까지 제거할 수 있다는 위험 모델은 공식 동작과 일치한다.
 - Lingui v6 문서는 `@lingui/macro`가 v5에서 분리·deprecated 되었고 이제 더 이상 유지보수되지 않는다고 명시한다. 대체 경로는 `@lingui/core/macro`와 `@lingui/react/macro`다. [Lingui v6 migration](https://lingui.dev/releases/migration-6)
-- 현재 [`react-l10n/SKILL.md:150`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-l10n/SKILL.md:150)은 `extract --clean`을 기본 codegen 흐름 안의 선택 단계로 둔다.
+- 현재 [`react-l10n/SKILL.md:154`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-l10n/SKILL.md:154)은 `extract --clean`을 기본 codegen 흐름 안의 선택 단계로 둔다.
 
 추론:
 
@@ -138,14 +138,14 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 | [`react-widget/SKILL.md:17`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-widget/SKILL.md:17) | “2026-04 현재 19.2+” | React 19.3.0. `forwardRef`를 새 코드에서 피하라는 방향은 공식 React 문서와 일치한다. [React `forwardRef`](https://react.dev/reference/react/forwardRef) |
 | [`react-form/SKILL.md:28`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-form/SKILL.md:28) | “현행 stable 5.5.7” | resolvers 5.9.1. 다만 “5.1부터 Zod 4 지원”이라는 호환성 하한은 여전히 맞다. [v5.1.0](https://github.com/react-hook-form/resolvers/releases/tag/v5.1.0), [v5.9.1](https://github.com/react-hook-form/resolvers/releases/tag/v5.9.1) |
 | [`react-init/SKILL.md:19`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-init/SKILL.md:19) | “현행 stable 5.5.7” | resolvers 5.9.1. `zod/v3`를 legacy 전용으로 둔 결론은 유지 가능하다. 같은 두 release 출처 |
-| [`react-init/SKILL.md:173`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-init/SKILL.md:173) | Lingui stable 6.6.0 | 6.8.0. 그러나 v5 pin은 Node floor를 올리지 않는다는 명시적 호환성 결정이므로 자동 상향 대상은 아니다. [Lingui v6.8.0](https://github.com/lingui/js-lingui/releases/tag/v6.8.0), [v6 migration](https://lingui.dev/releases/migration-6) |
+| [`react-init/SKILL.md:178`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/skills/react-init/SKILL.md:178) | Lingui stable 6.6.0 | 6.8.0. 그러나 v5 pin은 Node floor를 올리지 않는다는 명시적 호환성 결정이므로 자동 상향 대상은 아니다. [Lingui v6.8.0](https://github.com/lingui/js-lingui/releases/tag/v6.8.0), [v6 migration](https://lingui.dev/releases/migration-6) |
 | [`project-detection.md:28`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/react-kit/references/project-detection.md:28) | 예시 `vite: 8.2.0` | 최신 8.3.0. 예시임을 명확히 하거나 갱신할 수 있다. [npm registry](https://registry.npmjs.org/vite/latest) |
 | [`research-log.md:22`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/react/research-log.md:22) | Vite 8.2.0 | 8.3.0. Vite 8/Rolldown 설명 자체는 유효하다. [Vite 8](https://vite.dev/blog/announcing-vite8) |
 | [`research-log.md:23`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/react/research-log.md:23) | resolvers 5.5.7 | 5.9.1. |
 | [`research-log.md:25`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/react/research-log.md:25) | Lingui 6.6.0 | 6.8.0. |
 | [`research-log.md:27`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/react/research-log.md:27) | React 19.2.8, Query 5.101.4, Tauri 2.11.4, Zustand 5.0.14 | 각각 19.3.0, 5.103.2, 2.11.5, 5.0.15. Tailwind 4.3.3은 그대로다. |
-| [`research-log.md:303`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/react/research-log.md:303) | `<ViewTransition>`을 canary/backlog로 분류 | React 19.3에서 stable. [React 19.3 발표](https://react.dev/blog/2026/09/09/react-19-3) |
-| [`research-log.md:392`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/react/research-log.md:392) | React canary 통합, stable 대기 | React 19.3에서 `<ViewTransition>`과 Fragment Refs가 stable이므로 낡았다. [React 19.3 발표](https://react.dev/blog/2026/09/09/react-19-3) |
+| [`research-log.md:303`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/react/research-log.md:301) | `<ViewTransition>`을 canary/backlog로 분류 | React 19.3에서 stable. [React 19.3 발표](https://react.dev/blog/2026/09/09/react-19-3) |
+| [`research-log.md:392`](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/react/research-log.md:390) | React canary 통합, stable 대기 | React 19.3에서 `<ViewTransition>`과 Fragment Refs가 stable이므로 낡았다. [React 19.3 발표](https://react.dev/blog/2026/09/09/react-19-3) |
 
 필수 소스 관련 구현 판단:
 

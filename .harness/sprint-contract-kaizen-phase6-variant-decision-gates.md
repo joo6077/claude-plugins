@@ -72,7 +72,7 @@ Phase 6 은 이번 사이클 `/insights` §0 **신규 델타의 주 무대**다 
 | E2c | 감사 측 커버리지 판정 부재 | `design-audit` · `design-reviewer` 에 `decisions.yaml` 0 건 | 양쪽에 조항 1 개씩 (10 카테고리 구조는 건드리지 않는다) |
 | E3a | 증거 채널 구분 0 건 | `grep -rncE 'artifact_snapshot\|dom_snapshot\|browser_user_visible\|device_user_visible' design-kit/` → **0 건** | §7 신설 (4 채널 + PASS 문장 5 요소) |
 | E3b | Phase 1 §3.8 과의 연결 없음 | `grep -rncF 'skill-design-guide.md' design-kit/` → **0 건** | §7 에서 경로+절 번호로 참조 (재서술 금지) |
-| F1 | WCAG 터치타겟 레벨 미표기 | 아래 AR-01 오라클 사전값 **6 줄** (`design-guide/SKILL.md:15` · `visual-hierarchy.md:267` · `apple-hig.md:67` · `navigation.md:221` · `navigation.md:267` · `accessibility.md:95`) | 전 줄에 레벨·출처 귀속 부여 |
+| F1 | WCAG 터치타겟 레벨 미표기 | 아래 AR-01 오라클 사전값 **6 줄** (`design-guide/SKILL.md:15` · `visual-hierarchy.md:271` · `apple-hig.md:68` · `navigation.md:233` · `navigation.md:279` · `accessibility.md:96`) | 전 줄에 레벨·출처 귀속 부여 |
 
 **넣지 않는 것 (evidence §2 경계 준수)** — Playwright/Chromatic/Percy/BackstopJS 중 하나를
 design-kit 표준으로 강제하지 않는다. OKLCH · M3 Expressive · Liquid Glass 를 기존 승인값보다 상위
@@ -92,7 +92,7 @@ design-kit 표준으로 강제하지 않는다. OKLCH · M3 Expressive · Liquid
 - `design-kit/README.md` — description 1 줄 변경으로 동기화가 필요해지나 **Final 소관**이다.
   DG-04 가 그 드리프트를 측정해 신고한다 (숨기지 않는다).
 - `design-kit/skills/*/references/**` · `design-kit/templates/**` · `design-kit/evals/**` —
-  스킬 로컬 참조/템플릿/평가 픽스처. `design-kit/skills/design-mockup/references/mockup-guidelines.md:67`
+  스킬 로컬 참조/템플릿/평가 픽스처. `design-kit/skills/design-mockup/references/mockup-guidelines.md:71`
   에 레벨 미표기 44 가 **1 건 잔존**하고 `design-kit/evals/visuals.spec.js` 13 곳이 44 를 모바일
   기준으로 assert 하나 둘 다 범위 밖이므로 보고만 한다.
 - `harness/**` (Phase 1~4 소관) · 다른 킷 전부.

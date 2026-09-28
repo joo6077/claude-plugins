@@ -85,14 +85,14 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 - 문서: 판정식 값에 템플릿을 쓸 수 있고(`jsonpath "$.createdAt" toDate "%+" > {{ a_date }}`), 같은 요청에서 잡은 capture 를 바로 검사하는 예시가 있다(`[Captures] pets: xpath "//pets"` 다음 `[Asserts] variable "pets" count == 200`) (S3).
 - 실측: 두 기능을 합치면 `len($.data) <= $.meta.total` 이 한 요청 안에서 된다. 정상 값이면 종료 0, total 을 -1 로 바꾸면 종료 4 (L1).
 - 추론: 새로 늘어난 문법이 아니라 기존 기능의 조합이다. 한계는 셋이다. 한쪽이 capture 로 잡힌 값 하나여야 하고, 덧셈 같은 계산은 안 되고, 경로가 없으면 종료 3 으로 떨어진다(L1).
-- 이 기재가 있는 자리는 네 곳이다: `api-contract/SKILL.md:24`, `api-contract/references/strictness-modes.md:84`(표 "**불가**")·`:88`, `api-verify/SKILL.md:133`, `api-verify/references/failure-taxonomy.md:107`.
+- 이 기재가 있는 자리는 네 곳이다: `api-contract/SKILL.md:28`, `api-contract/references/strictness-modes.md:84`(표 "**불가**")·`:88`, `api-verify/SKILL.md:141`, `api-verify/references/failure-taxonomy.md:107`.
 - 지시문의 주의 2 는 "Hurl 로 표현할 수 없다" 를 전제로 둔다. 실측은 **적을 수는 있다**는 쪽이다. 다만 (b) 때문에 후처리에 두는 결론은 그대로 설 수 있다. 확정 결정 5 건과는 무관하다.
 
 **(d) pin 을 새로 만들면 스냅샷 사본 값을 한 번 망가뜨려 FAIL 이 나는지 본다.**
 - 변이 시험의 정의: 결함을 일부러 넣고 시험을 돌린다. 시험이 실패하면 그 결함은 "잡힌" 것이고, 통과하면 "살아남은" 것이다. 살아남으면 시험 묶음에 문제가 있다는 신호다 (S22).
 - Hurl 형태로는 해봤다: total → -1 로 바꾸면 종료 0 이 종료 4 로 바뀌었다(L1).
 - 킷의 후처리 쪽은 **재지 못했다**. 레포에 `.api/` 실측 산출물이 0 개이고(`find -name .api` 결과 없음), 후처리는 스크립트가 아니라 스킬 본문 지시로만 있다.
-- 추론: 망가뜨릴 대상은 봉인된 기준선이 아니라 사본이어야 한다. 킷의 "CI(자동 검사 서버)에서 기준선 자동 갱신 0 회" 규칙(`api-verify/SKILL.md:17`)과 맞는다.
+- 추론: 망가뜨릴 대상은 봉인된 기준선이 아니라 사본이어야 한다. 킷의 "CI(자동 검사 서버)에서 기준선 자동 갱신 0 회" 규칙(`api-verify/SKILL.md:21`)과 맞는다.
 
 ### other-kits:P8 — 뷰어를 브라우저로 열어 항목 수와 콘솔 오류를 확인한다
 
@@ -127,15 +127,15 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 | 파일:줄 | 지금 적힌 값 | 최신 / 실측 값 | 출처 |
 | --- | --- | --- | --- |
 | `api-kit/skills/api-probe/references/hurl-execution.md:312` | "`HURL_*` 환경변수는 옵션에만 붙고 변수에는 안 붙는다" | 8.0.0 에서 `HURL_foo` 가 `HURL_VARIABLE_foo` 로 바뀌었다(깨지는 변경). `HURL_VARIABLE_who` 는 `{{who}}` 를 채운다. 명령줄 `--variable` 이 환경변수를 이긴다. `HURL_SECRET_name` 은 시크릿으로 동작한다 | S1(`--variable` 환경변수 `HURL_VARIABLE_name`, `--secret` 환경변수 `HURL_SECRET_name`), S4(8.0.0 Breaking Changes), L4 |
-| `docs/api/execution/auth-secret-lifecycle.md:131` | 같은 기재 + "변수는 `--variable`/…/`[Options] variable:` 로만 들어간다" | 같음. 환경변수 경로가 하나 더 있다 | S1, S4, L4 |
-| `docs/api/execution/probe-synthesis-hurl-semantics.md:49`, `:82` | 같은 기재 | 같음 | S1, S4, L4 |
-| `api-kit/skills/api-verify/SKILL.md:20` | "`--secret` 은 **stderr 로그와 리포트만** 가린다 … `--very-verbose` 는 body 를 stderr 에 그대로 뿌린다" | 킷의 2026-09-05 실측(`docs/api/research-log.md` "`--secret` 은 문서보다 새는 면적이 넓다")은 이렇다. `--very-verbose` stderr 는 `***` 로 가려지고, `--output` 파일 · `--json` 의 `curl_cmd`·`captures` · `--report-json` 의 `store/` 는 평문이다. 이번에 두 채널을 더 쟀다. `--curl` 파일과 `--error-format long` stderr 도 가려진다. 공식 문서 기재는 그대로다 | 내부 research-log, S2, L5 |
+| `docs/api/execution/auth-secret-lifecycle.md:133` | 같은 기재 + "변수는 `--variable`/…/`[Options] variable:` 로만 들어간다" | 같음. 환경변수 경로가 하나 더 있다 | S1, S4, L4 |
+| `docs/api/execution/probe-synthesis-hurl-semantics.md:50`, `:83` | 같은 기재 | 같음 | S1, S4, L4 |
+| `api-kit/skills/api-verify/SKILL.md:25` | "`--secret` 은 **stderr 로그와 리포트만** 가린다 … `--very-verbose` 는 body 를 stderr 에 그대로 뿌린다" | 킷의 2026-09-05 실측(`docs/api/research-log.md` "`--secret` 은 문서보다 새는 면적이 넓다")은 이렇다. `--very-verbose` stderr 는 `***` 로 가려지고, `--output` 파일 · `--json` 의 `curl_cmd`·`captures` · `--report-json` 의 `store/` 는 평문이다. 이번에 두 채널을 더 쟀다. `--curl` 파일과 `--error-format long` stderr 도 가려진다. 공식 문서 기재는 그대로다 | 내부 research-log, S2, L5 |
 | `api-kit/skills/api-ui/SKILL.md:20` | "`--secret` 은 stderr 로그와 리포트만 … 가린다" | 위와 같음. 이 기재는 리포트 쪽이 틀렸다(`report.json` 은 가리지만 `store/*_response.json` 은 평문) | 내부 research-log |
-| `api-kit/skills/api-probe/SKILL.md:15` | "`--very-verbose` … body 를 stderr 로 뱉으므로 CI 로그에 그대로 남는다" | 본문은 찍히지만 **등록한 시크릿은 `***`**. 시크릿으로 등록 안 한 값(개인정보 등)은 그대로 남는다 | 내부 research-log, L5(같은 동작을 `--error-format long` 에서 확인) |
-| `api-contract/SKILL.md:24`, `api-contract/references/strictness-modes.md:84`·`:88`, `api-verify/SKILL.md:133`, `api-verify/references/failure-taxonomy.md:107` | 경로 간 조건은 "Hurl 로 표현 불가" / "**불가**" / "경로 하나에 predicate 하나" | capture + 템플릿 판정식으로 **적을 수 있다**. 한계: 한쪽은 capture 값 하나, 계산 불가, 경로가 없으면 종료 3 | S3, L1 |
-| `api-contract/SKILL.md:225` | `.hurl` 합성 예시 `jsonpath "$.data[0].id" isString` | 같은 파일 `:20` 이 "`$.data[0].id` 같은 index assertion 금지" 라고 적는다. 파일 안에서 서로 어긋난다(외부 근거가 아니라 내부 모순) | 레포 파일 |
-| `api-contract/SKILL.md:20`·`:68`, `docs/api/contract/snapshot-sealing-canonicalization.md:35` | I-JSON 검문 목록: 중복 키 · NaN/Infinity · lone surrogate · 부동소수 표준으로 못 담는 숫자 | RFC 8785 정정 7920 (Technical, 2024-05-15 확인됨): -0 은 0 으로 적히므로, 읽는 쪽은 -0 을 만나면 오류를 내야 한다(SHOULD). 목록에 -0 이 없다 | S9 |
-| `docs/api/discovery/api-inventory-normalization.md:19`~`:78` (OpenAPI 3.1.0 인용 다수), `docs/api/execution/probe-synthesis-hurl-semantics.md:19`·`:25`·`:31`, `docs/api/discovery/artifact-interop-import-export.md:37`·`:67` | OpenAPI 3.1.0 | 최신은 **3.2.1** (2026-09-10). 3.2.0 은 2025-09-19, 3.1 줄의 최신은 3.1.2 (2025-09-19). 3.2 에 새로 생긴 것: `query` 메서드, 목록에 없는 메서드를 담는 `additionalOperations`, 쿼리 문자열 전체를 하나로 받는 `in: querystring`, 한 줄씩 이어지는 응답을 적는 `itemSchema`(`text/event-stream`, `application/jsonl` 등). 킷 파일에서 이 넷은 한 번도 안 나온다(grep 0 건) | S14, S15, S16 |
+| `api-kit/skills/api-probe/SKILL.md:19` | "`--very-verbose` … body 를 stderr 로 뱉으므로 CI 로그에 그대로 남는다" | 본문은 찍히지만 **등록한 시크릿은 `***`**. 시크릿으로 등록 안 한 값(개인정보 등)은 그대로 남는다 | 내부 research-log, L5(같은 동작을 `--error-format long` 에서 확인) |
+| `api-contract/SKILL.md:28`, `api-contract/references/strictness-modes.md:84`·`:88`, `api-verify/SKILL.md:141`, `api-verify/references/failure-taxonomy.md:107` | 경로 간 조건은 "Hurl 로 표현 불가" / "**불가**" / "경로 하나에 predicate 하나" | capture + 템플릿 판정식으로 **적을 수 있다**. 한계: 한쪽은 capture 값 하나, 계산 불가, 경로가 없으면 종료 3 | S3, L1 |
+| `api-contract/SKILL.md:229` | `.hurl` 합성 예시 `jsonpath "$.data[0].id" isString` | 같은 파일 `:20` 이 "`$.data[0].id` 같은 index assertion 금지" 라고 적는다. 파일 안에서 서로 어긋난다(외부 근거가 아니라 내부 모순) | 레포 파일 |
+| `api-contract/SKILL.md:24`·`:72`, `docs/api/contract/snapshot-sealing-canonicalization.md:36` | I-JSON 검문 목록: 중복 키 · NaN/Infinity · lone surrogate · 부동소수 표준으로 못 담는 숫자 | RFC 8785 정정 7920 (Technical, 2024-05-15 확인됨): -0 은 0 으로 적히므로, 읽는 쪽은 -0 을 만나면 오류를 내야 한다(SHOULD). 목록에 -0 이 없다 | S9 |
+| `docs/api/discovery/api-inventory-normalization.md:20`~`:79` (OpenAPI 3.1.0 인용 다수), `docs/api/execution/probe-synthesis-hurl-semantics.md:20`·`:26`·`:32`, `docs/api/discovery/artifact-interop-import-export.md:38`·`:68` | OpenAPI 3.1.0 | 최신은 **3.2.1** (2026-09-10). 3.2.0 은 2025-09-19, 3.1 줄의 최신은 3.1.2 (2025-09-19). 3.2 에 새로 생긴 것: `query` 메서드, 목록에 없는 메서드를 담는 `additionalOperations`, 쿼리 문자열 전체를 하나로 받는 `in: querystring`, 한 줄씩 이어지는 응답을 적는 `itemSchema`(`text/event-stream`, `application/jsonl` 등). 킷 파일에서 이 넷은 한 번도 안 나온다(grep 0 건) | S14, S15, S16 |
 | (지금 기재 없음) `.hurl` 합성 규칙 | — | Hurl 8.0 부터 jsonpath 결과가 1 개면 배열을 벗긴다. 항목 1 개짜리 목록에 `[*]` + `count` 를 쓰면 종료 4 로 떨어진다. 벗기지 않는 옵션 `--no-jsonpath-coercion` 은 미출시 8.1.0 에 들어 있다. 킷 파일에 `[*]` 는 지금 0 건이라 당장 영향은 없다 | S4, S6, L3 |
 | `api-kit/skills/api-probe/references/hurl-execution.md:5` | Hurl `8.0.1` (릴리스 2026-04-28) | **여전히 최신**. 변경 기록 날짜 2026-04-28, GitHub 게시 2026-04-29T09:12Z. master 에 8.1.0 (날짜 미정)이 쌓여 있다. 보안 수정 2 건 포함: CVE-2026-63481(공개 보안 결함 번호, `[Cookies]` 섹션 쿠키를 다른 호스트로 넘어갈 때 안 벗긴 문제, #5118 closed), HTML 리포트의 헤더 값 escape 수정. 그 밖에 `--fail-with-body`, `--no-jsonpath-coercion` | S4, S5, S7 |
 | `api-kit/skills/api-ui/SKILL.md:158`, `api-ui/references/viewer-spec.md:19` | 누르는 자리 `44px`, 근거 "확정 시안 실측" | WCAG 2.2 기준은 AA 등급 24px, AAA 등급 44px. 시안을 쟀더니 59 개 중 25 개가 44 미만(`::after` 포함), 24 미만 0 개 | S21, L7 |
@@ -143,7 +143,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 | 바뀐 것 없음 | JSON Schema 2020-12 · RFC 9110 · RFC 8785 · RFC 7493 · WCAG 2.2 · Hurl 옵션 기본값·우선순위·종료 코드 | JSON Schema 는 "The current version is 2020-12" (S17). RFC 9110 은 Internet Standard 이고 대체 문서 없음. 확인된 기술 정정 3 건은 12.5.1(Accept 예시 표)·14.1.1·8.3.2 이고, 킷이 쓰는 4xx·`Retry-After` 절(15.5.x, 10.2.3)은 아니다 (S10, S11). RFC 8785 는 Informational, 대체 문서 없음 (S8). RFC 7493·9535 대체 문서 없음 (S12, S13). Hurl 우선순위 "Environment variables → Command-line options → Options section" 순으로 뒤가 이긴다, `--retry-interval` 1000ms, `--max-redirs` 50 (−1 무제한), 종료 코드 0~4 (S1, L6) | S1, S8, S10–S13, S17, L6 |
 | 버전 고정 없음 (참고) | Schemathesis · oasdiff · microdiff | Schemathesis v4.28.0 (2026-09-22), oasdiff v1.32.1 (2026-09-15), microdiff v1.6.0 (2026-08-02). 킷 파일에는 이 셋의 버전 표기가 없다(grep 0 건) | S23, S24, S25 |
 
-참고로 Pact 는 여전히 pending 기능을 켜야 쓰는 옵션으로 두고 "앞으로 기본값이 된다" 고만 적는다 (S18). pending 이 풀리는 단위는 **공급자 브랜치별**이다. 첫 검증 성공을 올린 브랜치와 그 뒤 새로 만든 브랜치에서만 풀리고, 이미 있던 다른 브랜치에서는 pending 이 유지된다 (S18). 킷의 `state: pending | accepted` (`api-contract/SKILL.md:252`, `failure-taxonomy.md:120`·`:121`)에는 브랜치 축이 없다. 브랜치를 섞지 말라는 문장만 따로 있다(`failure-taxonomy.md:126`).
+참고로 Pact 는 여전히 pending 기능을 켜야 쓰는 옵션으로 두고 "앞으로 기본값이 된다" 고만 적는다 (S18). pending 이 풀리는 단위는 **공급자 브랜치별**이다. 첫 검증 성공을 올린 브랜치와 그 뒤 새로 만든 브랜치에서만 풀리고, 이미 있던 다른 브랜치에서는 pending 이 유지된다 (S18). 킷의 `state: pending | accepted` (`api-contract/SKILL.md:256`, `failure-taxonomy.md:120`·`:121`)에는 브랜치 축이 없다. 브랜치를 섞지 말라는 문장만 따로 있다(`failure-taxonomy.md:126`).
 
 ---
 
@@ -158,8 +158,8 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 7. **P8 — 항목 수 대조 식을 고정.** `Object.keys(EP).length` 와 보이는 `[data-ep]` 수가 같은지 본다(L7 에서 14 = 14). 두 숫자를 보고에 그대로 인용한다.
 8. **P8 — 44px 줄.** 이번 파일에서 재지 않을 거면 '시안에서 잰 값 — 이번 파일은 재지 않음' 으로 표시한다. 잴 거라면 먼저 기대값(AA 등급 24 / AAA 등급 44)과 세는 대상을 정한다. 지금 44 로 재면 시안부터 25/59 로 떨어진다(L7). 근거 문구 "확정 시안 실측" 은 L7 과 맞지 않는다.
 9. **현행화 — `HURL_VARIABLE_*` 기재 고치기** 4 곳(§3 표 1~3 행). 조건: 네 파일 모두에서 "변수에는 안 붙는다" 류 문장이 0 건이고, `HURL_VARIABLE_` 이 1 건 이상. 근거 S1, S4, L4.
-10. **현행화 — `--secret` 옛 기재 3 곳 맞추기** (`api-verify/SKILL.md:20`, `api-ui/SKILL.md:20`, `api-probe/SKILL.md:15`). 킷 자신의 2026-09-05 실측과 이번 L5 에 맞춘다. 결론(킷 자체 scrubber 를 거친 것만 저장, 설계문서 §8.2)은 그대로이고 오히려 강해진다.
-11. **현행화 — I-JSON 검문 목록에 -0 추가** (`api-contract/SKILL.md:20`·`:68`, `snapshot-sealing-canonicalization.md:35`). 근거 S9 정정 7920. JCS(JSON 을 비교용 한 가지 모양으로 적는 규칙) 기준선을 쓴다는 확정 결정과는 충돌하지 않는다. 추론: 목록에 한 줄 더하는 것이다.
+10. **현행화 — `--secret` 옛 기재 3 곳 맞추기** (`api-verify/SKILL.md:25`, `api-ui/SKILL.md:20`, `api-probe/SKILL.md:19`). 킷 자신의 2026-09-05 실측과 이번 L5 에 맞춘다. 결론(킷 자체 scrubber 를 거친 것만 저장, 설계문서 §8.2)은 그대로이고 오히려 강해진다.
+11. **현행화 — I-JSON 검문 목록에 -0 추가** (`api-contract/SKILL.md:24`·`:72`, `snapshot-sealing-canonicalization.md:36`). 근거 S9 정정 7920. JCS(JSON 을 비교용 한 가지 모양으로 적는 규칙) 기준선을 쓴다는 확정 결정과는 충돌하지 않는다. 추론: 목록에 한 줄 더하는 것이다.
 12. **선택 — OpenAPI 3.2 대응 한 줄.** 인벤토리 정규화 문서에 3.2.1 이 최신이고 `query` · `additionalOperations` · `in: querystring` · `itemSchema` 가 생겼다는 사실만 적는다. `query` 메서드를 안전 메서드로 분류할지는 근거를 못 가져왔으니 정하지 않는다(§5).
 13. **선택 — `.hurl` 합성 Gotcha.** Hurl 8 의 1 개 결과 배열 벗기기 때문에 `[*]` + `count` 를 쓰지 않는다(S6, L3).
 
@@ -172,7 +172,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 - **`file://` 로 열었을 때의 콘솔 오류**: MCP 가 막아서 재지 못했다. 웹 서버로 연 결과(L7)만 있다.
 - **파비콘을 `data:` 로 넣는 것이 킷 CSP 와 맞는지**: 재지 않았다.
 - **HTTP `QUERY` 메서드가 안전하고 여러 번 보내도 결과가 같은 메서드로 정의돼 있는지**: 해당 표준 초안을 가져오지 않았다. 안전 검사의 허용 메서드 분류에 넣을지는 근거 없이 정하지 마라.
-- **CVE-2026-63481 상세**: 변경 기록 한 줄과 #5118 의 제목·closed 상태만 봤다. 영향 범위는 가져오지 않았다. 킷은 다른 호스트로의 리다이렉트를 0 회로 막으므로(`api-verify/SKILL.md:23`) 영향이 작을 것으로 본다(추론).
+- **CVE-2026-63481 상세**: 변경 기록 한 줄과 #5118 의 제목·closed 상태만 봤다. 영향 범위는 가져오지 않았다. 킷은 다른 호스트로의 리다이렉트를 0 회로 막으므로(`api-verify/SKILL.md:29`) 영향이 작을 것으로 본다(추론).
 - **Hurl 8.1.0 출시일**: 변경 기록에 "TBD" 로만 적혀 있다.
 - **"경로=값 → 판정" 줄 형식이나 판정 불가 셋째 상태를 규정한 외부 표준**: 못 찾았다. 없다는 뜻은 아니다.
 - **열린 질문 1**: '판정 불가' 가 막는 검사를 깨는가? Hurl 은 경로 부재를 실패로 센다(L2). 킷이 셋째 상태를 두면 이 부분에서 Hurl 과 갈린다. 깨지 않게 두면 경로가 사라지는 회귀가 조용히 지나갈 수 있다(추론). 사용자 결정이 필요하다.

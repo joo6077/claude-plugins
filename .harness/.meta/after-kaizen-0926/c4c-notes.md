@@ -146,7 +146,7 @@ AR-01 은 `impl_files=14 exact=1 mixed_commits=0 seal_commit_files=1 seal_before
    `fitpal-api` · `fitpal-migration` · `cargo-test-wrong-target` 사건은 없다. 원래 이름이 실제로 남은 곳은 계약의 「Pre-Edit 감사」 표(`:64`),
    git 기록(`1b3e53d` 의 지운 줄 — `fitpal-api` 5 · `fitpal-migration` 4), `.harness/.meta/kaizen-data-pool.md:2372` 다.
    봉인 요약값이 덮지 않는 설명 글이지만 끝난 계약이라 고치지 않았다
-3. 이름이 다시 들어올 길 — `.claude/skills/kaizen-orchestrator/SKILL.md:307` 과 `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:130` 이
+3. 이름이 다시 들어올 길 — `.claude/skills/kaizen-orchestrator/SKILL.md:307` 과 `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:154` 이
    Phase 9 조사 입력으로 「fit-pal server」 를 적는다. rust-kit 에 이 이름이 다시 들어오는 것을 막는 저장소 검사는 없다.
    이번 계약 범위(rust-kit) 밖이다. 다음 사이클 Phase 9 전에 rust-kaizen 절차에 「킷 안 앱 이름 0 건」 검사를 둘지, 저장소 검사에 넣을지 정한다
 4. rust-init `:235` 의 `name = "myapp-api"` 는 같은 파일이 폴더 틀에 쓰는 `{project}` 자리 표시(`:91` · `:126` · `:159`)와 방식이 다르다.

@@ -38,7 +38,7 @@ Iteration: 1
 
 ### Skill (9/9)
 - [x] SK-01: database.md 원칙 10 — PASS
-  - 근거: `docs/backend/fundamentals/database.md:138-165` (원칙 10 전문 L3 직독) + `m SK-01` 측정 `1 1 1 1 1 1 1 1 1 1 1 1 1 / 1 1 / 1 / 0.3.0 2026-09-25` (계약 기대값과 완전 일치). 토큰 15개(세 종류 표·IANA·TIMESTAMPTZ 원래 시간대 미보존·floating·서머타임 해석·상수 금지·RFC 아님 문장·출처 URL 2개) 전부 확인, 안티패턴 2행 확인, 원칙 9→10→수치 기준 순서 확인.
+  - 근거: `docs/backend/fundamentals/database.md:140-171` (원칙 10 전문 L3 직독) + `m SK-01` 측정 `1 1 1 1 1 1 1 1 1 1 1 1 1 / 1 1 / 1 / 0.3.0 2026-09-25` (계약 기대값과 완전 일치). 토큰 15개(세 종류 표·IANA·TIMESTAMPTZ 원래 시간대 미보존·floating·서머타임 해석·상수 금지·RFC 아님 문장·출처 URL 2개) 전부 확인, 안티패턴 2행 확인, 원칙 9→10→수치 기준 순서 확인.
 - [x] SK-02: backend-system Gotcha 18 — PASS
   - 근거: `backend-kit/skills/backend-system/SKILL.md:33` (Gotcha 18 전문) + `:28`(13(c)) + Step2 API규격 행. `m SK-02` = `1×8 / 1 0 / 1 / 1..18` (기대값 일치). 옛 (c)문구 0건, Gotcha 번호 1~18 연속 확인.
 - [x] SK-03: backend-guide Gotcha 19 — PASS

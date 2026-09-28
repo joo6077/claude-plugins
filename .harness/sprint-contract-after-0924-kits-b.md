@@ -58,7 +58,7 @@ locked_at: "2026-09-26 14:03"
 | `reflect-kit/evals/hooks/collect-status-test.sh` | `:125-127` `b4` 한 번 실패 → 경고 기대 · `:130` `b6` 정상 종료 뒤 한 번 실패 → 경고 기대 | 새 문턱에서는 두 기대값이 바뀐다. 옛 엔트리 세기 경우 0 | SC-06 |
 | `reflect-kit/skills/reflect-digest/SKILL.md` | `:35` Gotcha #13 「늦은 쪽 뒤에 Stop 실패 시도가 있으면」 · `:84` 블록 형식 · `:121` 4 단계 「`yaml` 코드블록 추출」 · `:254` · `:314` 「1 이상일 때」 | 코드 블록 없는 절을 읽는 법이 없다. 문턱 설명이 옛 조건 | SK-01 · SK-02 |
 | `reflect-kit/README.md` | `:84` `.errors.log` 한 줄 설명 · `:99` 대체 경로 `claude -p --model haiku` | `ok:no-issues` 가 없다. 새 인자가 반영돼야 한다 | SK-03 |
-| `reflect-kit/docs/SCHEMA.md` · `DESIGN.md` · `skills/reflect-kaizen/SKILL.md` | `SCHEMA.md:11` · `:148` · `DESIGN.md:24` · `:192` · `reflect-kaizen:63` · `:128` | 세는 법 설명(「마지막 기록 뒤」 실패로 센다)과 `⚠` 줄 쓰임새는 새 문턱과 어긋나지 않는다 — 바꾸지 않는다 | 범위 경계 |
+| `reflect-kit/docs/SCHEMA.md` · `DESIGN.md` · `skills/reflect-kaizen/SKILL.md` | `SCHEMA.md:11` · `:148` · `DESIGN.md:24` · `:200` · `reflect-kaizen:63` · `:128` | 세는 법 설명(「마지막 기록 뒤」 실패로 센다)과 `⚠` 줄 쓰임새는 새 문턱과 어긋나지 않는다 — 바꾸지 않는다 | 범위 경계 |
 | `~/.claude/logs/claude-plugins/reflections-2026-09.md` (이 맥 실제 기록, 읽기만) | 절 머리 `:2` 11:15:26 · `:30` 12:05:14 · `:155` 12:24:26 은 코드 블록 0 · `:58` 12:16:43 은 네 블록 · `reflections-2026-08.md` 는 ```` ```yaml ```` 61 개 | `collect_status 7` 이 `기록된 세션 2 / 엔트리 4` — 코드 블록 없는 세 엔트리를 뺀다 | SC-03 (참고값) |
 | `~/.claude/logs/claude-plugins/.errors.log` (읽기만) | 2026-09-26 11:29 ~ 12:13 에 `err=` 없는 `fail:codex-exit-2` 여섯 줄(세션 `f5b7f3a5…` · `d204ea78…`, 재시작 전 옛 판) · 13:06:22 `ok:no-issues` · 전체에 `err=` 0 줄 | 11:15 기록 뒤 옛 판 세션 실패가 한 시간 안에 섞여 경고가 켜졌다 꺼진다. 새 판의 실패 빈도 자료는 아직 없다 | SC-04 (문턱 근거) |
 | `~/.claude/settings.json` (읽기만) | SessionStart 둘(그중 `pkill -f 'flutter-playwright-mcp'`) · UserPromptSubmit 넷 · Stop 넷 | 대체 경로가 이 훅들을 띄우면 다른 세션의 화면 도구 서버를 죽이고 알림 · 기록을 남긴다 | SC-05 (근거) |
@@ -72,7 +72,7 @@ locked_at: "2026-09-26 14:03"
 | `docs/tone/dart-flutter-idioms.md` | `:633` 같은 칸 · `:646` 실행 줄 · `:662` 판정표 4 행 | 어댑터와 같은 결함 | SK-04 |
 | `tone-kit/references/locale-korean.md` | `:58-69` §2 표(grep 열 여섯 칸 중 다섯에 `\|`) · `:155` §8 G-1 실행 줄 · `:174` §9 | grep 열을 붙여 넣으면 죽는다. 실행은 §8 이 한다(`phase15-notes.md:135` 권고 「§8 을 가리키게 한다」) | SK-05 |
 | 루트 `CLAUDE.md` · `tone-kit/README.md` · `.claude/skills/tone-research/SKILL.md` · `.claude/skills/tone-kaizen/SKILL.md` | `CLAUDE.md:294` · `README.md:88` · `tone-research:4` · `:85` · `tone-kaizen:35` · `:100` | 「8종」 다섯 줄에 셈 기준이 없다. `tone-kaizen:35` 만 「11종 (리서치 문서 8종 + overview · research-log · templates)」. 실제 `.md` 11 · 셋 뺀 주제 문서 8 · 페이지 `docs/tone-kit/` 주제 8 | SK-06 |
-| `docs/superpowers/specs/2026-09-02-api-kit-design.md` | `:249` · `:251` 「표현되지 않는다」 · 「쓸 수 없다」 · `:254` 결론 · `:280` `### 10.1 사실 정정` 선례 | 이유가 틀렸다. 근거 `docs/api/research-log.md:161-175` · `api-kit/skills/api-verify/SKILL.md:133` | SK-08 |
+| `docs/superpowers/specs/2026-09-02-api-kit-design.md` | `:249` · `:251` 「표현되지 않는다」 · 「쓸 수 없다」 · `:254` 결론 · `:280` `### 10.1 사실 정정` 선례 | 이유가 틀렸다. 근거 `docs/api/research-log.md:161-175` · `api-kit/skills/api-verify/SKILL.md:141` | SK-08 |
 | `.claude/skills/kaizen-orchestrator/SKILL.md` | `:574` 이미 「적을 수 있지만 … 후처리뿐」 | 이미 고쳐져 있다 — 바꾸지 않는다 | 범위 경계 |
 
 ## Skill
@@ -137,7 +137,7 @@ locked_at: "2026-09-26 14:03"
 | bambu-kit | enum 줄만 빠진 목록의 `[미검증]` 문구 | 계약에 넣음 | ER-02. 종류 줄만 빠진 목록은 모든 키가 거짓 「키 스코프 불일치」 FAIL 을 낸다(봉인 전 실측) — 판정 동작을 바꾸는 일이라 넘김(notes) |
 | bambu-kit | `G91` 뒤 E 상대값 | 계약에 넣음 — 결정은 「코드는 그대로, 실측을 문단에 적는다」 | SK-07. 설치본 시작 G-code 두 판 모두 G91 구간 E 이동 0 · E 모드 M83 뿐이다. 펌웨어가 G91 을 E 에도 적용하는지는 저장소 밖 원문이 있어야 정할 수 있어 코드 변경은 넘김 |
 | bambu-kit | 가지 `feat/bambu-kit-orca-h2s-feedback` 충돌 | 넘김 — notes 에 자리만 | AR-02. 그 가지는 `baa1a38`(v0.9.2) 기준이라 그 뒤 main 변경 전부와 부딪힌다. 이 계약 몫은 목록 `[미검증]` 줄(`META =` 줄과 주석 한 줄 사이)과 G-code 문단(그 가지 기준 뒤에 생긴 문단) |
-| tone-kit | `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:633` 표 칸 정규식 형식 | 계약에 넣음 — 결정은 「표 칸에는 `\|` 정규식을 싣지 않고 실행 줄을 가리킨다」 | SK-04. 근거: `adapter-contract.md:45` 「정규식은 실행 검증한 것만 싣는다」, P15 이 같은 결함을 `core-naming` 표에서 이 방식으로 고쳤다(`sprint-contract-kaizen-0924-p15-tone-kit.md:600`) |
+| tone-kit | `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:640` 표 칸 정규식 형식 | 계약에 넣음 — 결정은 「표 칸에는 `\|` 정규식을 싣지 않고 실행 줄을 가리킨다」 | SK-04. 근거: `adapter-contract.md:45` 「정규식은 실행 검증한 것만 싣는다」, P15 이 같은 결함을 `core-naming` 표에서 이 방식으로 고쳤다(`sprint-contract-kaizen-0924-p15-tone-kit.md:600`) |
 | tone-kit | `locale-korean.md` §2 grep 열 | 계약에 넣음 — 열은 두고 §8 G-1 갈래를 가리킨다 | SK-05. 열을 없애면 옛 계약들의 「§2 grep 열」 인용이 끊긴다(`sprint-contract-kaizen-0924-f1-kit-followups.md:330`) |
 | tone-kit | 「리서치 문서 N종」 셈 기준 | 계약에 넣음 — 기준은 tone-kaizen `:35` 가 쓰는 것 | SK-06. 과제가 적은 자리(루트 CLAUDE.md · tone-kaizen `:35` · `:100` · tone-research 설명 줄)에 같은 킷의 README `:88` 과 tone-research `:85` 를 더했다 — 같은 수가 적힌 자리를 전부 맞춘다. `:35` 는 이미 기준을 적고 있어 글자 그대로 둔다. `docs/api` 12종은 같은 기준(research-log 제외 13 − 1)으로 맞아 고치지 않는다 |
 | api-kit | 설계 기록 `2026-09-02-api-kit-design.md:249` | 계약에 넣음 | SK-08. 오케스트레이터 `:574` 는 이미 고쳐져 있다 |

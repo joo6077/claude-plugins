@@ -21,7 +21,7 @@ locked_at: "2026-09-25 07:40"
 | `backend-family:P3` | infra-guide — 자동 검사가 빨갛다고 내 변경 탓으로 단정하지 않기. 비고: 기준 커밋 가르기 규칙 세 곳을 하나로 정한다 | 반영 — SK-01 ~ SK-04 · AR-02. 규칙은 Phase 4 가 `/sprint` Step 3 하나로 정했다(`phase4-notes.md`) — 판정 세 줄을 원문 그대로 옮긴다(SK-01 알려진 답) |
 | `F09` (Phase 4 행) | 비고 「기준 커밋 가르기 규칙이 harness:P07 · backend-family:P3(Phase 8) · backend-family:P4(Phase 9) 세 곳」 | Phase 4 가 정한 정본을 따른다. CI 에서만 보이는 두 경우(환경 · 비결정성, 미확정)는 근거 파일 §4 로 더한다 — `/sprint` 가 이 둘을 받을지는 다음 사이클 Phase 4 로 넘긴다(ER-03) |
 | `phase4-notes.md` 넘김 표 | 「`backend-family:P3` · `backend-family:P4` — Phase 8 · 9 — `/sprint` Step 3 의 판정 세 줄을 옮겨 적는다. 플러그인이 따로 설치돼 경로로 가리킬 수 없다」 | 반영 — SK-01 이 코드 블록과 판정 표가 원문과 글자 그대로 같은지 잰다 |
-| `phase1-notes.md` 넘김 표 | `infra-kit/skills/infra-test/SKILL.md:37` 「`[미검증] TOOL_OR_ENV_MISSING` … 재검증」 — 시도한 우회 칸 없음 | 반영 — SK-05. 같은 꼴이 infra-test 안에 셋 더(Step 8 4 항 · 보고 예시 두 줄), infra-audit 에 셋 · infra-reviewer 에 둘 더 있고 상태어 정본에는 리포트 쪽 네 칸 안내가 없어 함께 고친다(SK-05 · SK-06) |
+| `phase1-notes.md` 넘김 표 | `infra-kit/skills/infra-test/SKILL.md:41` 「`[미검증] TOOL_OR_ENV_MISSING` … 재검증」 — 시도한 우회 칸 없음 | 반영 — SK-05. 같은 꼴이 infra-test 안에 셋 더(Step 8 4 항 · 보고 예시 두 줄), infra-audit 에 셋 · infra-reviewer 에 둘 더 있고 상태어 정본에는 리포트 쪽 네 칸 안내가 없어 함께 고친다(SK-05 · SK-06) |
 | `phase7-notes.md` 넘김 표 | `infra-kit/README.md` 검증 절 「7 카테고리 구조 감사」(`:54`) — 검사는 V1 ~ V10 열 가지 | 반영 — SK-04. 숫자를 박지 않고 개수는 `harness/docs/guides/plugin-validation-guide.md` 가 정한다고 적는다(Phase 7 과 같은 문구) |
 | Phase 1 가이드 변경 셋 (`skill-design-guide.md` §3.7) | (1) `[미검증]` 네 칸 (2) 작업을 못 한다고 결론 내리기 전 네 칸 (3) 0 이 아닌 값을 내는 새 측정 — 알려진 답 대조 | (1) SK-05 · SK-06 (2) infra-audit Step 4 BLOCKED 의 「소스 부재」 가 이 꼴이라 SK-06 에 넣었다 (3) infra-test 가 만드는 검사 스크립트가 0 이 아닌 값을 낸다 — SK-07 |
 | 근거 파일 §3 현행화 · §5 | `kubeconform -kubernetes-version 1.30.0` 고정 · README 이력 줄 「OpenTelemetry 3 signals stable」 · 「OpenTofu 1.7+ native state encryption」 은 v1.11 문서로 출처화 불가 | 반영 — SK-08 · SK-10 · SK-09. Flux v2.9 · Argo CD 3.5 · Kubernetes 1.37 · Terraform 1.16 · OpenTofu 1.12.6 · Crossplane 2.4 는 research-log 에 기록만 한다(SK-11) — 규칙으로 올리려면 `docs/infra/` 원칙이 먼저다(infra-kaizen Gotcha 2) |
@@ -206,7 +206,7 @@ infra-kit/skills/infra-init/SKILL.md
 - 커버리지 해소: SK-01 · SK-02 · SK-03 · SK-05 · SK-06 · SK-09 · AR-02 — 산문의 파일 이름은 측정 `m <조건 ID>` 가 공통 정의의 변수(`$CI` · `$GU` · `$PI` · `$OLDPI` · `$SP` ·
   `$TE` · `$GT` · `$AU` · `$RV` · `$AC` · `$IC` · `$IN`)로 연다(파일과 변수의 대응은 `common.sh` 머리). 토큰은 `m.sh` 의 같은 ID 갈래에 글자 그대로 있다.
   SK-01 의 `0.2.0` 은 머리 설정 값이라 `fm_get` 이 읽고, `/sprint` 는 `$SP` 의 스킬 이름, `m.sh` 는 측정 도우미 자체의 이름이다. SK-05 의 `gate-result-taxonomy.md` 는
-  산문 속 짧은 이름(`$GT`), `infra-kit/skills/infra-test/SKILL.md:37` 은 넘김 출처 표기다. SK-05 · SK-06 · SK-09 의 `infra-kit/` 는 `grep -r` 의 인자다
+  산문 속 짧은 이름(`$GT`), `infra-kit/skills/infra-test/SKILL.md:41` 은 넘김 출처 표기다. SK-05 · SK-06 · SK-09 의 `infra-kit/` 는 `grep -r` 의 인자다
 - 커버리지 해소: ER-01 — `.harness/.meta/kaizen-0924/phase8-notes.md` · `.harness/.meta/evidence/phase8.md` 는 공통 정의의 `$NOTES` · `$EVID` 다. 측정 절은 `m ER-01` 한 줄이다
 - 커버리지 해소: ER-03 — `.harness/.meta/kaizen-0924/phase8-notes.md` 는 공통 정의의 `$NOTES` 다. `docs/infra-kit/cicd.html` · `docs/infra-kit/infra-test.html` ·
   `docs/infra-kit/gate-result-taxonomy.html` · `.harness/stale-values.yaml` · `plugin.json` · `phase-research-templates.md` · `harness/skills/sprint/SKILL.md` · `.claude/skills/infra-kaizen/SKILL.md` 는

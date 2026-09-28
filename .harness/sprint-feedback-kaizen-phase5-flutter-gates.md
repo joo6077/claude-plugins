@@ -49,19 +49,19 @@ schema 강제로 인해 피드백 저장 단계가 실행되지 않아 글로벌
 - [x] SK-03: 대상 8종 + 면제 5종 명시 — PASS
   - 근거: `flutter-toolkit/references/primitive-substitution-gate.md:37-44` 8종 표(Divider·Button·Chip·Card·ListTile·Switch·TextField·CircularProgressIndicator) + `:46-50` 면제 목록(Text·Row·Column·Padding·SizedBox) "금지하지 않는다" 문구 확인 (L3, Read)
 - [x] SK-04: flutter-provider select/invalidate 조항 — PASS
-  - 근거: `grep -c 'select('` = 4, `grep -c 'ref.invalidate'` = 4 (둘 다 ≥1), `flutter-toolkit/skills/flutter-provider/SKILL.md:30-31` Read 확인 — (a) select 선언형 연결 조항, (b) invalidate 열거 조항 모두 존재 (L3)
+  - 근거: `grep -c 'select('` = 4, `grep -c 'ref.invalidate'` = 4 (둘 다 ≥1), `flutter-toolkit/skills/flutter-provider/SKILL.md:34-35` Read 확인 — (a) select 선언형 연결 조항, (b) invalidate 열거 조항 모두 존재 (L3)
 - [x] SK-05: onManualInvalidation 버전 가드 — PASS
-  - 근거: `grep -rn 'onManualInvalidation' flutter-toolkit docs/flutter | grep -v '3\.4' | wc -l` → 0 (zsh/bash 동일). 매칭 3개 라인 전부 `3.4.x` 문자열 동반 확인 (`flutter-provider/SKILL.md:29,33,234`) (L3)
+  - 근거: `grep -rn 'onManualInvalidation' flutter-toolkit docs/flutter | grep -v '3\.4' | wc -l` → 0 (zsh/bash 동일). 매칭 3개 라인 전부 `3.4.x` 문자열 동반 확인 (`flutter-provider/SKILL.md:33,33,234`) (L3)
 - [x] SK-06: widget test 하네스 2파일 존재 — PASS
   - 근거: `grep -rln 'tester.container()' flutter-toolkit/skills/flutter-test/SKILL.md docs/flutter/quality/testing.md` → 2행 모두 일치 (L2)
 - [x] SK-07: coverage 조항 + 16종 수치 인용 — PASS
-  - 근거: `flutter-toolkit/skills/flutter-test/SKILL.md:117` `"LG-01: 16종 매핑 단위 테스트 커버리지 부족 (2종만 검증)"` 인용 확인 (L2)
+  - 근거: `flutter-toolkit/skills/flutter-test/SKILL.md:125` `"LG-01: 16종 매핑 단위 테스트 커버리지 부족 (2종만 검증)"` 인용 확인 (L2)
 - [x] SK-08: Environment Exclusion Checklist 8항목 양쪽 존재 — PASS
   - 근거: 8개 토큰(profile mode·physical device·simulator/emulator·swap·DevTools trace·Impeller·refresh rate·slowest target device) 전부 `flutter-audit/SKILL.md`(라인 253-260) 및 `docs/flutter/quality/performance.md`(라인 25-32) 양쪽에서 매치 확인 (L3)
 - [x] SK-09: 미검증 판정 규칙 양쪽 존재 — PASS
-  - 근거: `flutter-audit/SKILL.md:262-263` "simulator/emulator 또는 debug mode 결과만 있으면 앱 코드 성능 병목으로 확정하지 말고 `[미검증]`" / `docs/flutter/quality/performance.md:38-39` 동일 취지 확인 (L3)
+  - 근거: `flutter-audit/SKILL.md:266-267` "simulator/emulator 또는 debug mode 결과만 있으면 앱 코드 성능 병목으로 확정하지 말고 `[미검증]`" / `docs/flutter/quality/performance.md:39-40` 동일 취지 확인 (L3)
 - [x] SK-10: qa-evaluation-guide 인용 + REOPENED 미정의 — PASS
-  - 근거: `flutter-audit/SKILL.md:32,55-56,66` §Canonical Unverified-Evidence Protocol / §Canonical User-Reported Failure Protocol / §Evidence Validity Gate 인용 확인, `grep -n 'REOPENED'` → 0건 (L3)
+  - 근거: `flutter-audit/SKILL.md:36,55-56,66` §Canonical Unverified-Evidence Protocol / §Canonical User-Reported Failure Protocol / §Evidence Validity Gate 인용 확인, `grep -n 'REOPENED'` → 0건 (L3)
 
 ### Error (3/3)
 - [x] ER-01: Impeller 낡은 단정 0건 — PASS
@@ -69,7 +69,7 @@ schema 강제로 인해 피드백 저장 단계가 실행되지 않아 글로벌
 - [x] ER-02: Flutter 3.44 stable 단정 0건 — PASS
   - 근거: `grep -rn '2026-07 stable\|...' flutter-toolkit docs/flutter | grep -v '정정 2026-08-13' | wc -l` → 0 (zsh/bash 동일) (L3)
 - [x] ER-03: 넣지 말 것 3종 금지 조항 명문화 — PASS
-  - 근거: G1 `primitive-substitution-gate.md:46-50` "금지하지 않는다"/과잉규칙 서술 + `flutter-audit/SKILL.md:427` "MUST NOT ... layout primitive 로 확대 적용하지 않는다". G2 `flutter-provider/SKILL.md:31,233` "모든 mutation 후 전체 family invalidate 는 하지 마라"/"MUST NOT". G4 `flutter-audit/SKILL.md:264`, `performance.md:39` "iOS simulator ... 쓰지 마라" — 3종 전부 확인 (L3)
+  - 근거: G1 `primitive-substitution-gate.md:46-50` "금지하지 않는다"/과잉규칙 서술 + `flutter-audit/SKILL.md:431` "MUST NOT ... layout primitive 로 확대 적용하지 않는다". G2 `flutter-provider/SKILL.md:35,233` "모든 mutation 후 전체 family invalidate 는 하지 마라"/"MUST NOT". G4 `flutter-audit/SKILL.md:268`, `performance.md:39` "iOS simulator ... 쓰지 마라" — 3종 전부 확인 (L3)
 
 ### Architecture (3/3)
 - [x] AR-01: 변경 17개 경로 한정 — PASS [측정 상태 적응 — 아래 참조]
@@ -82,7 +82,7 @@ schema 강제로 인해 피드백 저장 단계가 실행되지 않아 글로벌
 - [x] AR-02: research-log.md 정정 주석 전수 — PASS
   - 근거: `grep -nE '...' docs/flutter/research-log.md | grep -v '정정 2026-08-13' | wc -l` → 0 (zsh/bash 동일). 음성 대조 재현: `[정정 2026-08-13]` 주석 1건 제거 시 7건 검출 — 오라클 판별력 확인 (L3)
 - [x] AR-03: Phase 5 라운드 헤더 + last_updated — PASS
-  - 근거: `docs/flutter/research-log.md:8` `## [2026-08-13] — Phase 5 kaizen`, frontmatter `last_updated: 2026-08-13` (L2)
+  - 근거: `docs/flutter/research-log.md:9` `## [2026-08-13] — Phase 5 kaizen`, frontmatter `last_updated: 2026-08-13` (L2)
 
 ### Anti-patterns (2/2)
 - [x] AP-03: bare code fence 0건 (계약 원 측정문 그대로) — PASS
@@ -101,10 +101,10 @@ schema 강제로 인해 피드백 저장 단계가 실행되지 않아 글로벌
   - 근거: `CircularProgressIndicator` 매치 파일 2개(`primitive-substitution-gate.md`,
     `flutter-widget/SKILL.md`) 중 후자(`:28`)는 Read로 맥락 확인 결과 Primitive Substitution
     Gate와 무관한 기존(pre-existing) Gotcha("기존 위젯 수정이 기본값" 규칙)의 예시 언급으로,
-    게이트 목록 재열거가 아님을 확인. `flutter-widget/SKILL.md:25`의 신규 Gate 조항 자체는
+    게이트 목록 재열거가 아님을 확인. `flutter-widget/SKILL.md:29`의 신규 Gate 조항 자체는
     "여기서 목록을 다시 세지 마라"라고 명시하며 목록을 재열거하지 않음 (L3, grep 오탐 필터링 적용)
 - [x] RE-02: 기존 SSOT 인용 패턴 준수 — PASS
-  - 근거: `visual-evidence-protocol.md`의 "절차 전문: `references/visual-evidence-protocol.md`" 인용 스타일과 동일하게, 4개 소비 표면 전부 "그 파일이 SSOT 다 — 여기서 목록을 다시 세지 마라" 패턴으로 인용 (`flutter-widget/SKILL.md:25`, `flutter-screen/SKILL.md:19`, `flutter-audit/SKILL.md:22,427`, `widget-inspector.md:105,120,219`) (L3)
+  - 근거: `visual-evidence-protocol.md`의 "절차 전문: `references/visual-evidence-protocol.md`" 인용 스타일과 동일하게, 4개 소비 표면 전부 "그 파일이 SSOT 다 — 여기서 목록을 다시 세지 마라" 패턴으로 인용 (`flutter-widget/SKILL.md:29`, `flutter-screen/SKILL.md:23`, `flutter-audit/SKILL.md:26,427`, `widget-inspector.md:115,120,219`) (L3)
 
 ### Diagnostics (3/3)
 - [x] DG-01: validate-plugin.py FAIL 0 — PASS

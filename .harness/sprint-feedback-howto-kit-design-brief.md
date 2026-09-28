@@ -75,7 +75,7 @@ Iteration: 1
   - 근거: `test -f docs/howto-kit/design-brief.md && test -f docs/howto-kit/drafts/SKILL.md` → 성공. `find docs/howto-kit -type f` → 정확히 이 2 파일만 존재
 - [x] AR-04: `| C<숫자>` 행 10건 이상 — PASS [structural, collective]
   - 측정값: 14 (기준: >= 10)
-  - 근거: `grep -cE '^\| C[0-9]+' docs/howto-kit/design-brief.md` → `14`. design-brief.md:363-376 (C1~C14)
+  - 근거: `grep -cE '^\| C[0-9]+' docs/howto-kit/design-brief.md` → `14`. design-brief.md:368-381 (C1~C14)
 
 ### Anti-patterns (2/2)
 - [x] AP-03: bare code fence 0건 (여는 fence 상태기계 직접 측정) — PASS [exact, enumerated]

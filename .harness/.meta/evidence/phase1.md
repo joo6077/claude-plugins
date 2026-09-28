@@ -21,16 +21,16 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 ### harness:P09 — 검증 불가 보고를 실행 가능한 형태로 만들기
 
-현재 생성 측 문구는 [skill-design-guide.md:300](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:300)의 `[미검증] + 사유 한 줄`뿐이다.
+현재 생성 측 문구는 [skill-design-guide.md:304](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:304)의 `[미검증] + 사유 한 줄`뿐이다.
 
-반면 현재 평가 구현은 [qa-evaluator.md:65](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:65)에서 다음 네 가지를 요구한다.
+반면 현재 평가 구현은 [qa-evaluator.md:66](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:66)에서 다음 네 가지를 요구한다.
 
 1. 1차 도구 시도와 실패 출력
 2. fallback 시도 또는 fallback 누락 기록
 3. 실제 실패 로그
 4. 통제 불가 사유와 환경 복구 후 실행할 재검증 명령
 
-[agent-design-guide.md:569](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:569)의 “4항”은 아직 `마커/2건 임계/조용한 PASS 금지/생성자 주장 배제`라는 옛 구성이어서, 실제 평가자의 네 요건과도 어긋난다.
+[agent-design-guide.md:582](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:582)의 “4항”은 아직 `마커/2건 임계/조용한 PASS 금지/생성자 주장 배제`라는 옛 구성이어서, 실제 평가자의 네 요건과도 어긋난다.
 
 외부 근거:
 
@@ -48,9 +48,9 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 기존 레포에는 이미 “0 기대 측정”용 양성 대조가 있다.
 
-- 생성 측: [skill-design-guide.md:313](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:313)
+- 생성 측: [skill-design-guide.md:317](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:317)
 - 계약 스키마: [contract-schema.md:817](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:817)
-- sprint-contract 패턴 표: [sprint-contract/SKILL.md:459](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:459)
+- sprint-contract 패턴 표: [sprint-contract/SKILL.md:465](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:465)
 
 이번 P05는 이를 “새로 짠 측정 스크립트가 0이 아닌 수치를 내는 경우”까지 확장한다.
 
@@ -83,15 +83,15 @@ bash: zero=<alpha> one=<beta> all=<alpha beta>
 
 | 위치 | 현재 값 | 최신 확인값 |
 |---|---|---|
-| [agent-design-guide.md:70](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:70) | frontmatter 15종 | 현재 공식 표는 18종이다: 기존 15종에 `omitClaudeMd`, `initialPrompt`, `experimental`이 추가되어 있다. 필수는 여전히 `name`, `description`뿐이다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
-| [agent-design-guide.md:95](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:95) | `initialPrompt`는 공식 필드가 아님 | 현재는 공식 파일 frontmatter와 `--agents` JSON 양쪽에서 인정된다. 다만 `--agent` 또는 `agent` 설정으로 메인 세션 에이전트가 될 때의 첫 사용자 턴이며, 플러그인 서브에이전트에서는 무시된다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
-| [create-agent/SKILL.md:25](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/create-agent/SKILL.md:25), [create-agent/SKILL.md:81](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/create-agent/SKILL.md:81), [create-agent/SKILL.md:106](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/create-agent/SKILL.md:106) | 공식 15종 | 18종으로 동반 수정 필요. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
-| [agent-design-guide.md:214](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:214) | 내장 Explore는 Haiku | v2.1.198부터 부모 모델을 상속한다. Anthropic API에서는 Opus가 상한이며, `CLAUDE_CODE_SUBAGENT_MODEL`로 전역 override할 수 있다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
-| [agent-design-guide.md:463](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:463) | 동시 20, 세션 누적 200, 깊이 3 | 현재 공식 문서는 동시 실행 기본 20과 깊이 기본 3은 유지하지만, 세션 전체 spawn 수에는 제한이 없다고 명시한다. `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION=200` 주장은 제거 대상이다. ultracode에서는 동시 20 제한도 적용되지 않는다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
-| [agent-design-guide.md:715](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:715) | “2026-08 재확인 — frontmatter 15종” | 최신 공식 문서 기준 18종. 현재 Claude Code 최신 GitHub 릴리스는 v2.1.281이다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md), [v2.1.281](https://github.com/anthropics/claude-code/releases/tag/v2.1.281) |
-| [skill-design-guide.md:9](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:9), [skill-design-guide.md:15](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:15), [agent-design-guide.md:9](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:9) | “2026-04 최신” | 현행 문서를 다시 조회했으므로 “최신” 고정 표기는 부정확하다. 조회일 또는 단순 출처명으로 바꾸는 편이 안전하다. Claude Code subagents 문서는 2026-09-22 수정본이었다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
-| [skill-design-guide.md:560](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:560), [skill-design-guide.md:1133](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:1133) | “500라인 상한” | 공식 문서는 “최적 성능을 위해 500줄 미만”, 공식 `skill-creator`는 “500줄 미만이 이상적이며 필요하면 더 길어도 됨”이라고 한다. 강제 상한이 아니라 권고값이다. 본문 [570행](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:570)은 이미 이를 인정하므로 제목·요약표만 과도하게 강하다. [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices.md), [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) |
-| [create-skill/SKILL.md:24](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/create-skill/SKILL.md:24) | “1500~2000 words 타깃 — Anthropic 기준” | 이번에 가져온 현행 공식 문서와 `skill-creator`에서는 이 단어 수 범위를 확인하지 못했다. 확인 가능한 기준은 500줄 미만 권고뿐이다. [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices.md), [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) |
+| [agent-design-guide.md:74](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:74) | frontmatter 15종 | 현재 공식 표는 18종이다: 기존 15종에 `omitClaudeMd`, `initialPrompt`, `experimental`이 추가되어 있다. 필수는 여전히 `name`, `description`뿐이다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
+| [agent-design-guide.md:99](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:99) | `initialPrompt`는 공식 필드가 아님 | 현재는 공식 파일 frontmatter와 `--agents` JSON 양쪽에서 인정된다. 다만 `--agent` 또는 `agent` 설정으로 메인 세션 에이전트가 될 때의 첫 사용자 턴이며, 플러그인 서브에이전트에서는 무시된다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
+| [create-agent/SKILL.md:25](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/create-agent/SKILL.md:25), [create-agent/SKILL.md:82](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/create-agent/SKILL.md:82), [create-agent/SKILL.md:108](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/create-agent/SKILL.md:108) | 공식 15종 | 18종으로 동반 수정 필요. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
+| [agent-design-guide.md:218](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:218) | 내장 Explore는 Haiku | v2.1.198부터 부모 모델을 상속한다. Anthropic API에서는 Opus가 상한이며, `CLAUDE_CODE_SUBAGENT_MODEL`로 전역 override할 수 있다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
+| [agent-design-guide.md:467](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:467) | 동시 20, 세션 누적 200, 깊이 3 | 현재 공식 문서는 동시 실행 기본 20과 깊이 기본 3은 유지하지만, 세션 전체 spawn 수에는 제한이 없다고 명시한다. `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION=200` 주장은 제거 대상이다. ultracode에서는 동시 20 제한도 적용되지 않는다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
+| [agent-design-guide.md:732](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:732) | “2026-08 재확인 — frontmatter 15종” | 최신 공식 문서 기준 18종. 현재 Claude Code 최신 GitHub 릴리스는 v2.1.281이다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md), [v2.1.281](https://github.com/anthropics/claude-code/releases/tag/v2.1.281) |
+| [skill-design-guide.md:13](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:13), [skill-design-guide.md:19](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:19), [agent-design-guide.md:13](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/agent-design-guide.md:13) | “2026-04 최신” | 현행 문서를 다시 조회했으므로 “최신” 고정 표기는 부정확하다. 조회일 또는 단순 출처명으로 바꾸는 편이 안전하다. Claude Code subagents 문서는 2026-09-22 수정본이었다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md) |
+| [skill-design-guide.md:568](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:568), [skill-design-guide.md:1141](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:1141) | “500라인 상한” | 공식 문서는 “최적 성능을 위해 500줄 미만”, 공식 `skill-creator`는 “500줄 미만이 이상적이며 필요하면 더 길어도 됨”이라고 한다. 강제 상한이 아니라 권고값이다. 본문 [570행](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:578)은 이미 이를 인정하므로 제목·요약표만 과도하게 강하다. [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices.md), [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) |
+| [create-skill/SKILL.md:26](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/create-skill/SKILL.md:26) | “1500~2000 words 타깃 — Anthropic 기준” | 이번에 가져온 현행 공식 문서와 `skill-creator`에서는 이 단어 수 범위를 확인하지 못했다. 확인 가능한 기준은 500줄 미만 권고뿐이다. [Best Practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices.md), [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) |
 
 추가 변경 사항으로 `/agents` 생성 wizard는 Claude Code v2.1.198부터 제거되었고, 직접 파일을 쓰거나 Claude에게 생성을 요청하는 방식으로 바뀌었다. 현행 가이드에 wizard 사용 지시는 없어 직접 수정할 낡은 줄은 찾지 못했다. [공식 문서](https://code.claude.com/docs/en/sub-agents.md)
 

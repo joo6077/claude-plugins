@@ -30,17 +30,17 @@ Iteration: 1
 
 ### Skill (6/6)
 - [x] SK-01: SKILL.md Step 4 범위에서 `사용자 수정 불가` 0회, `조건을 지우거나 ID를 바꾸지 않는다` 문장 존재, `N/A (` 2회, 6개 ID(DG-01~04, RE-01~02) 각 1회 이상 — PASS
-  - 근거: `harness/skills/sprint-contract/SKILL.md:504-538` (범위 awk 추출 실측: `사용자 수정 불가`=0, `N/A (`=2, DG-01=4·DG-02=2·DG-03=3·DG-04=2·RE-01=2·RE-02=2)
+  - 근거: `harness/skills/sprint-contract/SKILL.md:510-544` (범위 awk 추출 실측: `사용자 수정 불가`=0, `N/A (`=2, DG-01=4·DG-02=2·DG-03=3·DG-04=2·RE-01=2·RE-02=2)
 - [x] SK-02: red-flags.md "Diagnostics 조건 빼줘" 행이 "지우는 것은 불가"와 "N/A"를 함께 말하고 "수정 불가"로 끝나지 않음 — PASS
   - 근거: `harness/skills/sprint-contract/references/red-flags.md:20` (측정: 해당 행 `grep -c 'N/A'`=1, `grep -c '수정 불가 |$'`=0)
 - [x] SK-03: contract-schema.md §3·§4 범위에 `- [ ] DG-0X: N/A (` 패턴 예시 줄 3개, `Canonical Unverified-Evidence Protocol` 1회 — PASS
   - 근거: `harness/references/contract-schema.md:790-822` (범위 실측: DG-0X N/A 패턴 3, Canonical 참조 1)
 - [x] SK-04: qa-evaluator.md Reusability·Diagnostics 검증 절에 N/A 처리 규칙 (a)(b)(c) 전부 존재 — PASS
-  - 근거: `harness/agents/qa-evaluator.md:582-605` (범위 실측: N/A=4, `사유가 거짓`=1, FAIL=4, `따로 센다`=1. 의미 검증: "명령을 돌리지 않고 사유를 잰다"(a) · "PASS·FAIL·[미검증] 어디에도 넣지 않고 N/A로 따로 센다"(b) · "사유가 거짓이면 FAIL...사유 없는 N/A도 FAIL"(c) 모두 원문 확인)
+  - 근거: `harness/agents/qa-evaluator.md:585-608` (범위 실측: N/A=4, `사유가 거짓`=1, FAIL=4, `따로 센다`=1. 의미 검증: "명령을 돌리지 않고 사유를 잰다"(a) · "PASS·FAIL·[미검증] 어디에도 넣지 않고 N/A로 따로 센다"(b) · "사유가 거짓이면 FAIL...사유 없는 N/A도 FAIL"(c) 모두 원문 확인)
 - [x] SK-05: qa-evaluation-guide.md §Canonical 2항 범위에 4가지 N/A 경우(명령 미설정·변경 파일 미해당·DG-04·RE-01/02) + 측정 방법 각각 존재 — PASS
-  - 근거: `harness/docs/guides/qa-evaluation-guide.md:1029-1039` (범위 실측: `변경 파일`=3, `DG-04`=1, `RE-01`=1, `측정`=3)
+  - 근거: `harness/docs/guides/qa-evaluation-guide.md:1040-1052` (범위 실측: `변경 파일`=3, `DG-04`=1, `RE-01`=1, `측정`=3)
 - [x] SK-06: skill-behavior.md 에 설정·문서 산출물 사례(HSB-CAP-06) 신규 추가, `N/A (사유)` 1회 + 그 블록에 `측정` 존재 — PASS
-  - 근거: `harness/evals/skill-behavior.md:44-50` (측정: `grep -c 'N/A (사유)'`=1, 블록 내 `측정`=1)
+  - 근거: `harness/evals/skill-behavior.md:53-60` (측정: `grep -c 'N/A (사유)'`=1, 블록 내 `측정`=1)
 
 ### Script (0/0, N/A 1)
 - [N/A] SC-00: N/A (이 스프린트는 scripts/release.sh·버전 bump·marketplace.json 을 건드리지 않는다) — 사유 사실 확인

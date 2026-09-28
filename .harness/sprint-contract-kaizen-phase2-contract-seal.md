@@ -23,7 +23,7 @@ amendment 사이드카를 도입했는데도 2026-08-11 에 `AR-04: 계약 write
 
 | # | 근본원인 | 실측 증거 |
 | --- | --- | --- |
-| RC1 | **write-once 규칙이 쓰기 측 표면에 존재하지 않는다** | `grep -rn 'write-once'` 결과 — qa-evaluator.md:566 · qa-evaluation-guide.md:350 (**읽기 측 2 건**) / contract-design-guide.md · sprint-contract/SKILL.md (**쓰기 측 0 건**). 본문을 편집한 주체는 "생성자" 인데 생성자가 읽는 문서 어디에도 그 규칙이 없다 |
+| RC1 | **write-once 규칙이 쓰기 측 표면에 존재하지 않는다** | `grep -rn 'write-once'` 결과 — qa-evaluator.md:569 · qa-evaluation-guide.md:355 (**읽기 측 2 건**) / contract-design-guide.md · sprint-contract/SKILL.md (**쓰기 측 0 건**). 본문을 편집한 주체는 "생성자" 인데 생성자가 읽는 문서 어디에도 그 규칙이 없다 |
 | RC2 | **준수 경로(사이드카)의 기대 보상이 위반 경로보다 낮다** | 같은 날 REJECT — `amendment A-01은 prompt-log 앵커 부재로 unknown 분류, PASS 근거 불가`. 사이드카를 실제로 썼는데 앵커가 없어 `unknown` 으로 떨어져 아무 효력이 없었다. 다음 시도에서 본문 직접 편집으로 전환됐다 |
 | RC3 | **위반이 탐지되지 않는다** | 계약 본문은 평문 markdown 이고 변조를 재는 오라클이 없다. Step 6.5 게이트는 헤더·조건 수만 본다 — 조건 **문구** 가 바뀌어도 조건 수가 같으면 통과한다 |
 
@@ -59,7 +59,7 @@ RC2 의 구조를 한 줄로: `유형` 이 direction(강화/완화)과 consent(�
 | G6 | variant 축 값 상이성이 계약 레벨에서 안 잡힘 | REJECT `UI-04: B3 과 B6 이 4 축 전부 동일값` | 인자 매트릭스의 두 번째 용법 |
 | G7 | 측정문이 구현 제거에 반응하는지 안 본다 | REJECT `ER-02: mutation test 로 확정 — 동시성 가드를 완전히 삭제해도 테스트 통과` | 음성 대조 신설 |
 | G8 | QA 모호성 태그가 작성 단계로 되먹여지지 않음 | Improvement 태그 6 종 반복 (`측정-수단-부재` 외) | 작성 preflight 로 승격 |
-| G9 | 가이드 버전 정보가 실제 스키마와 drift | `contract-design-guide.md:916` = `v4`, 실제 스키마 = v5.2 | 사실 정정 |
+| G9 | 가이드 버전 정보가 실제 스키마와 drift | `contract-design-guide.md:932` = `v4`, 실제 스키마 = v5.2 | 사실 정정 |
 | G10 | parity 대상 버전이 Phase 1 bump 이전 값 | `:917` = skill v1.4.0 / agent v1.5.0, Phase 1 이 1.5.0 / 1.6.0 으로 bump | 사실 정정 |
 
 ### 오라클 유효성 사전 검증 (직전 사이클 최대 교훈 — 실행 결과만이 증거)

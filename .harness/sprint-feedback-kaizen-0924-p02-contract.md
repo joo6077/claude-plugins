@@ -99,7 +99,7 @@ Iteration: 1
 - [ ] DG-03: N/A — release.sh 교집합 0건 — PASS(N/A 타당)
 - [ ] DG-04: N/A — 비-md 파일 0건(RE-01과 동일 명령) — PASS(N/A 타당)
 - [x] DG-05: validate-plugin.py·check-stale-values.py 클린 — PASS
-  - 근거: (Given 확인: `git diff --quiet $END -- 4파일` exit 0) (a) `validate-plugin.py harness` 실행 → V6/V9/V10 3줄, ERROR·FAIL 0, 이 Phase 4파일 관련 FAIL 0 (b) `check-stale-values.py` exit 0, 이 Phase 4파일 매치 0. 양성 대조: harness/+scripts/ 를 스크래치에 통째로 복제해 동일 실행으로 baseline 재현(Exit 0) 후 SKILL.md 사본에 `awk x $1` 추가 → `V9 1 arg-substitution hazard(s)` + `FAIL harness/skills/sprint-contract/SKILL.md:856` 재현(계약 문서 기재 :857과 오프셋 1줄 차이는 내 삽입 위치 차이, 검출 메커니즘 자체는 확인됨)
+  - 근거: (Given 확인: `git diff --quiet $END -- 4파일` exit 0) (a) `validate-plugin.py harness` 실행 → V6/V9/V10 3줄, ERROR·FAIL 0, 이 Phase 4파일 관련 FAIL 0 (b) `check-stale-values.py` exit 0, 이 Phase 4파일 매치 0. 양성 대조: harness/+scripts/ 를 스크래치에 통째로 복제해 동일 실행으로 baseline 재현(Exit 0) 후 SKILL.md 사본에 `awk x $1` 추가 → `V9 1 arg-substitution hazard(s)` + `FAIL harness/skills/sprint-contract/SKILL.md:863` 재현(계약 문서 기재 :857과 오프셋 1줄 차이는 내 삽입 위치 차이, 검출 메커니즘 자체는 확인됨)
 - [x] DG-06: scope-isolation·doc-contracts 가 FAIL/ERROR 아님 — PASS
   - 근거: `validate-post-kaizen.py --since 76cfb37` 직접 실행 → `[ PASS ] scope-isolation: no cross-phase commits (7 commits · 13 kits)`, `[ PASS ] doc-contracts: 1 블록 검사 · violation 0`. `docs-site-regen` 은 FAIL 이었으나 계약이 Final F2 몫으로 명시 제외. 둘 다 PASS 이므로 예외 분기(unsigned_on 대조) 불필요
 - [x] DG-07: contract-kaizen 회귀 확인 6패턴 전부 1건 이상 — PASS

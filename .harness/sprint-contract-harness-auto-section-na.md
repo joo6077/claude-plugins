@@ -31,13 +31,13 @@ locked_at: "2026-09-19 13:58"
 ## GAP 분석
 
 - Pre-Edit Audit (실제 Read 증거, 기준 `origin/main` baa1a38):
-  - `harness/skills/sprint-contract/SKILL.md:504-518` Step 4 "모든 계약에 자동 포함되며 사용자 수정 불가" → SK-01
+  - `harness/skills/sprint-contract/SKILL.md:510-524` Step 4 "모든 계약에 자동 포함되며 사용자 수정 불가" → SK-01
   - `harness/references/contract-schema.md:790-806` §3 · §4 자동 포함 블록, N/A 언급 0 → SK-03
   - `harness/skills/sprint-contract/references/red-flags.md:20` "Diagnostics 조건 빼줘 … 수정 불가" → SK-02
-  - `harness/agents/qa-evaluator.md:582-597` Reusability · Diagnostics 검증 — 조건 본문이 N/A 일 때 처리 규칙 0 → SK-04
-  - `harness/docs/guides/qa-evaluation-guide.md:1029-1039` 2 항 — `commands` 가 null 인 경우만 다룬다. 명령이 있어도 이번 변경
+  - `harness/agents/qa-evaluator.md:585-600` Reusability · Diagnostics 검증 — 조건 본문이 N/A 일 때 처리 규칙 0 → SK-04
+  - `harness/docs/guides/qa-evaluation-guide.md:1040-1052` 2 항 — `commands` 가 null 인 경우만 다룬다. 명령이 있어도 이번 변경
     파일을 재지 않는 경우 · 앱 없음 · 컴포넌트 없음은 없다 → SK-05
-  - `harness/evals/skill-behavior.md:28` "analyze/test 명령 미설정 표시" 사례 1 개 — 설정 · 문서 산출물 사례 없음 → SK-06
+  - `harness/evals/skill-behavior.md:35` "analyze/test 명령 미설정 표시" 사례 1 개 — 설정 · 문서 산출물 사례 없음 → SK-06
 - 같은 문구를 복제한 곳: `commands.analyze 미설정` 문구는 `qa-evaluation-guide.md` 에만 있다(전수 grep). 킷 reviewer 6 종은 §Canonical
   을 이름으로만 참조하므로 2 항 개정이 복제본 불일치를 만들지 않는다.
 

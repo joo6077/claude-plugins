@@ -55,7 +55,7 @@ bambu-kit/ docs/bambu-kit/` 출력 0 파일 — 계약의 "baseline: 0 파일" �
 - [x] SK-01: Orca ironing 이름 3종 0건 — PASS
   - 측정값: topmost_only=0, top_surfaces=0, all_solid=0 (기준: 각 0) [L3, exact/enumerated]
   - 근거: `grep -rc 'topmost_only|top_surfaces|all_solid' bambu-kit/` 전체 0. 대체 확인:
-    `bambu-kit/skills/bambu-print-profile/references/surface-recipes.md:152-166` 표 전체가
+    `bambu-kit/skills/bambu-print-profile/references/surface-recipes.md:153-167` 표 전체가
     `topmost`/`top`/`no ironing`/`solid` 로 교체되어 있음 (Read 로 직접 확인)
 - [x] SK-02: Orca infill 이름 2종 word-boundary 0건 + Bambu 값 대체 — PASS
   - 측정값: bare(`\barchimedean\b|\bhilbert\b`)=0, archimedeanchords=4 (기준 >=1), hilbertcurve=4
@@ -99,14 +99,14 @@ bambu-kit/ docs/bambu-kit/` 출력 0 파일 — 계약의 "baseline: 0 파일" �
     topmost, solid`(허용값 전체) 모두 포함 [L3, exact/enumerated]
 - [x] ER-02: allowlist 출처가 설치본 실측 + 버전 명시 — PASS
   - 근거: `SKILL.md:1182` 주석 "값 출처: 설치본 Bambu Studio 02.08.02.61 바이너리 enum 테이블
-    실측", `bambu-fields-baseline.md:182` 동일 버전 문자열 + "user preset 실측" 인용 [L3, structural]
+    실측", `bambu-fields-baseline.md:197` 동일 버전 문자열 + "user preset 실측" 인용 [L3, structural]
 
 ### Architecture (3/3)
 - [x] AR-01: 파생 HTML 2파일 Orca 이름 0건 — PASS
   - 측정값: `docs/bambu-kit/surface-recipes.html`=0, `docs/bambu-kit/bambu-fields-baseline.html`=0
     (기준 각 0) [L3, exact/enumerated]
 - [x] AR-02: `bambu-fields-baseline.md` ironing_type 행 출처 갱신 — PASS
-  - 근거: `bambu-fields-baseline.md:182` 행에 `fdm_process_common.json` AND `02.08.02.61` 둘 다
+  - 근거: `bambu-fields-baseline.md:197` 행에 `fdm_process_common.json` AND `02.08.02.61` 둘 다
     포함 + Bambu 실제 enum 4값(`no ironing`/`top`/`topmost`/`solid`) 명시, "Orca wiki 를 이 키의
     출처로 쓰지 마라" 경고 추가 [L3, exact]
 - [x] AR-03: 변경 범위 한정 (귀속 판정 적용) — PASS

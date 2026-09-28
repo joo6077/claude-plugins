@@ -76,7 +76,7 @@ conditions_digest 차이: 없음
 ### Skill (3/3)
 - [x] SK-01: `harness/skills/sprint-contract/SKILL.md` 에 봉인 직후 계약만 단독 커밋하는 단계가
       `Step 6.7` 로 들어갔다 — PASS
-  - 근거(L3): `harness/skills/sprint-contract/SKILL.md:713` `### 6.7. 봉인 커밋 (E3)` 절이
+  - 근거(L3): `harness/skills/sprint-contract/SKILL.md:720` `### 6.7. 봉인 커밋 (E3)` 절이
     `### 6.6.`(675) 직후·`### 7.`(745) 직전에 정확히 위치. `grep -Fc 'Step 6.7'` = 2
     (line 126 tier 주석, line 766 self-check 참조). `awk '/^### 6.7/,/^### 7/'` 로 절단한
     33줄 안에서 (a) `feat/` 1건 (b) `commit -o` 2건 (c) `스쿼시` 2건 — 전부 측정 기준(≥1) 충족.
@@ -97,7 +97,7 @@ conditions_digest 차이: 없음
 
 ### Script (2/2)
 - [x] SC-01: 평가자가 봉인 커밋을 찾는 명령이 `qa-evaluator.md` 에 실려 있고 그대로 돌아간다 — PASS
-  - 근거(L3): `qa-evaluator.md:482` `grep -c 'diff-filter=A'`=1. 이 계약 경로로 직접 실행:
+  - 근거(L3): `qa-evaluator.md:485` `grep -c 'diff-filter=A'`=1. 이 계약 경로로 직접 실행:
     `git log --diff-filter=A --format='%h' -- .harness/sprint-contract-seal-commit-and-evidence-boundary.md`
     → 출력 1줄 `e76983d`. AR-04 의 단독 커밋(이미 만들어짐)이 전제이며 실제로 그 순서로 성립함을
     확인 (같은 커밋 e76983d 가 AR-04 와 SC-01 을 동시에 만족).
@@ -110,7 +110,7 @@ conditions_digest 차이: 없음
 ### Error (2/2)
 - [x] ER-01: 근거 경계 기준이 "구현자가 사후에 고칠 수 있는가" 하나로 정리됐고 두 파일에 같은
       문구 — PASS
-  - 근거(L3): `contract-schema.md:1074`, `qa-evaluation-guide.md:502` 둘 다 "**사람이 쓴 서술**은
+  - 근거(L3): `contract-schema.md:1074`, `qa-evaluation-guide.md:507` 둘 다 "**사람이 쓴 서술**은
     고칠 수 있으니 근거가 못 된다" 동일 문장. `grep -Fc '사람이 쓴 서술'` 각각 1.
 - [x] ER-02: 커밋 메시지가 어느 쪽인지 표에 명시 — PASS
   - 근거(L3): `contract-schema.md:1082` 표 행 `| **커밋 메시지 본문** | **불가** | git 기록이지만

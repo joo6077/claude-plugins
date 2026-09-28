@@ -83,9 +83,9 @@ AP-03 FAIL(측정 clause 2 결함 — 닫는 fence 를 세는 패턴이 언어 �
 
 ### Error (2/2)
 - [x] ER-01: layer_height 0.08 근거 오귀속 정정 — PASS
-  - 근거: `surface-recipes.md` `박스/도구` 0건, `1 차 권장` 1건, `미확인` 2건. `bambu-fields-baseline.md` `layer_height 0.08-0.12` 0건. `surface-recipes.md:107` 실제 행: "`0.12`: 0.12mm High Quality @BBL H2S.json (공식 체인 실재). **`0.08` 은 이 파일의 공식 근거가 아니다**...`[미확인]`" (L3 Read 확인)
+  - 근거: `surface-recipes.md` `박스/도구` 0건, `1 차 권장` 1건, `미확인` 2건. `bambu-fields-baseline.md` `layer_height 0.08-0.12` 0건. `surface-recipes.md:108` 실제 행: "`0.12`: 0.12mm High Quality @BBL H2S.json (공식 체인 실재). **`0.08` 은 이 파일의 공식 근거가 아니다**...`[미확인]`" (L3 Read 확인)
 - [x] ER-02: enable_arc_fitting / resolution 성격 오귀속 정정 — PASS
-  - 근거: SKILL.md `(원통 모델)` 0건, `G-code encoding` 2건(`SKILL.md:718` "품질 개선 기능이 아니라 G-code encoding 변경"). `surface-recipes.md:116` `Z 계단의 주 해결책이 아니다` 1건 (`resolution` 행에 부착 — "⚠️ **XY 세그먼트 해상도 전용** — Z 계단의 주 해결책이 아니다") (L3 확인)
+  - 근거: SKILL.md `(원통 모델)` 0건, `G-code encoding` 2건(`SKILL.md:718` "품질 개선 기능이 아니라 G-code encoding 변경"). `surface-recipes.md:117` `Z 계단의 주 해결책이 아니다` 1건 (`resolution` 행에 부착 — "⚠️ **XY 세그먼트 해상도 전용** — Z 계단의 주 해결책이 아니다") (L3 확인)
 
 ### Architecture (3/3)
 - [x] AR-01: 변경이 정확히 4경로로 한정 — PASS

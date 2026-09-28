@@ -26,7 +26,7 @@ locked_at: "2026-09-25 06:16"
 | 러닝북 (1) | build-filter 방향을 하나로 | 위 `F06` 행 |
 | 러닝북 (2) | 인사이트 스프린트가 넣은 것(편집 파일 포맷 훅 · flutter-ui-verify · 규약 보강)을 다시 넣지 않는다 | 셋 다 건드리지 않는다. 규약은 Step 4 의 `[미검증]` 두 줄과 증거 블록 한 줄 · 예시 한 줄만 고친다 (SK-09) |
 | 러닝북 (3) | `flutter-transition/SKILL.md` 에 특정 앱 이름 | 반영 — 같은 종류를 킷 파일 전부에서 뺀다: 앱 이름 `fit-pal` 9 줄 · 프로젝트 이름 `apps` 4 줄 · 특정 화면 조종 도구 이름 2 줄 (SK-08) |
-| Phase 1 넘김 | `visual-evidence-protocol.md:136` 「`[미검증]` 마커 + 사유 한 줄」 | 반영 — 같은 모양 여덟 줄을 같이 찾아 아홉 줄 전부 네 칸으로 (SK-09) |
+| Phase 1 넘김 | `visual-evidence-protocol.md:140` 「`[미검증]` 마커 + 사유 한 줄」 | 반영 — 같은 모양 여덟 줄을 같이 찾아 아홉 줄 전부 네 칸으로 (SK-09) |
 | Phase 3 넘김 | `F31` 의 UI 관례 대조 | SK-04 가 받는다 |
 | Phase 4 넘김 | `flutter-preflight` 에 기준 커밋 비교가 없다 — 「필요하면」 | 미반영 — 이 Phase 근거 파일에 기준 커밋 비교 근거가 없고(`git merge-base` 근거는 `phase4.md`), 선택 과제라 이번 묶음 수를 늘리지 않는다. 다음 사이클 (ER-01) |
 | 근거 §3 현행화 | Freezed 「최신 stable 3.2.5」 · Flutter 「현재 stable 3.47.0」 | 지금 틀린 문장 아홉 줄만 고친다 (SK-10). go_router 18 · auto_route 11.1 은 새 내용을 더하는 일이고, Riverpod 3.4.1 두 줄은 조회 날짜가 붙어 틀리지 않았다 — 다음 사이클 (ER-01) |
@@ -34,15 +34,15 @@ locked_at: "2026-09-25 06:16"
 
 고칠 것은 일곱 갈래다.
 
-1. **codegen 필터 (F06).** `flutter-run/SKILL.md:44` · `flutter-build/SKILL.md:48` · `flutter-preflight/SKILL.md:79` 이 feature 인자를 받으면
-   `--build-filter="lib/features/$FEATURE/**"` 를 붙이고, `flutter-l10n/SKILL.md:125` 는 Slang 에 `--build-filter="lib/**/i18n/**"` 를,
-   `project-detection.md:52` 는 `app-codegen-filter FILTER=...` 를 자동 대안으로 둔다. `flutter-transition/SKILL.md:303`(§5)은 날 codegen 한 줄을 그대로 돌린다.
+1. **codegen 필터 (F06).** `flutter-run/SKILL.md:48` · `flutter-build/SKILL.md:52` · `flutter-preflight/SKILL.md:83` 이 feature 인자를 받으면
+   `--build-filter="lib/features/$FEATURE/**"` 를 붙이고, `flutter-l10n/SKILL.md:138` 는 Slang 에 `--build-filter="lib/**/i18n/**"` 를,
+   `project-detection.md:52` 는 `app-codegen-filter FILTER=...` 를 자동 대안으로 둔다. `flutter-transition/SKILL.md:317`(§5)은 날 codegen 한 줄을 그대로 돌린다.
    삭제를 세는 자리는 어디에도 없다.
-   `flutter-run/SKILL.md:139` 는 「항상 `--delete-conflicting-outputs` 플래그 포함」 을 MUST 로, `flutter-build/SKILL.md:16` 은 「플래그 필수」 를 Gotcha 로 둔다
-2. **관례 대조 (F02).** `widget-inspector.md` 감지 기준 여섯에 관례 대조가 없다. 부르는 두 스킬(`flutter-widget/SKILL.md:258` · `flutter-screen/SKILL.md:276`)이 관례 표를 넘기지 않는다
+   `flutter-run/SKILL.md:143` 는 「항상 `--delete-conflicting-outputs` 플래그 포함」 을 MUST 로, `flutter-build/SKILL.md:20` 은 「플래그 필수」 를 Gotcha 로 둔다
+2. **관례 대조 (F02).** `widget-inspector.md` 감지 기준 여섯에 관례 대조가 없다. 부르는 두 스킬(`flutter-widget/SKILL.md:266` · `flutter-screen/SKILL.md:286`)이 관례 표를 넘기지 않는다
 3. **시험 함정 (F24).** `flutter-test/SKILL.md` Gotchas(`:15-27`)에 로캘 고정 · 빌드 도중 provider 수정이 없다
-4. **카탈로그 타일 (F22).** `flutter-widget/SKILL.md:226-235` 카탈로그 등록 절에 타일 높이 이야기가 없다
-5. **특정 이름 (러닝북).** `fit-pal` 이 킷 파일 일곱 개 아홉 줄, `apps` 가 네 줄, 화면 조종 도구 이름이 `figma-parity-self-verify.md:46` · `:58` 에 있다
+4. **카탈로그 타일 (F22).** `flutter-widget/SKILL.md:233-243` 카탈로그 등록 절에 타일 높이 이야기가 없다
+5. **특정 이름 (러닝북).** `fit-pal` 이 킷 파일 일곱 개 아홉 줄, `apps` 가 네 줄, 화면 조종 도구 이름이 `figma-parity-self-verify.md:50` · `:62` 에 있다
 6. **`[미검증]` 사유 한 줄 (Phase 1 넘김).** 설계 가이드 §3.7 5 조항 3 항은 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 요구하는데
    규약 `:136` 과 스킬 일곱 줄 · 평가 사례 한 줄이 「마커와 사유」 로 남아 있다
 7. **틀린 버전 사실 (근거 §3).** Freezed 「최신 stable 3.2.5」 여섯 줄(지금 4.0.2), Flutter 「현재 stable 3.47.0」 세 줄(지금 3.47.5)
@@ -142,7 +142,7 @@ Phase 2 · 3 의 변경(계약 크기 · 평가자 확인 목록)은 flutter 스
   2.16 에서 이 옵션이 경고인지 오류인지는 근거 파일에 없다. 명령 줄 열한 곳을 판에 따라 가르는 일은 다음 사이클이다
 - **관례 대조를 어느 모드에서** — quick 만. 근거 §4 3 번. deep 은 호출 스킬의 표가 없다
 - **`[미검증]` 네 칸 범위** — 규약 한 줄(넘김 원문) 대 같은 모양 전부. **전부 아홉 줄.** 같은 규칙이 박힌 자리를 한 곳씩 고치면 안 고친 곳에서 같은 일이 난다.
-  평가 측 자리(`flutter-audit/SKILL.md:50` · `widget-inspector` 의 `[미검증]` 줄)는 모양이 다르고 평가 쪽 가이드와 함께 볼 일이라 다음 사이클로 넘긴다(ER-01)
+  평가 측 자리(`flutter-audit/SKILL.md:54` · `widget-inspector` 의 `[미검증]` 줄)는 모양이 다르고 평가 쪽 가이드와 함께 볼 일이라 다음 사이클로 넘긴다(ER-01)
 - **틀린 버전 사실** — 모든 버전 줄 대 지금 틀린 문장만. **지금 틀린 문장만**(Freezed 여섯 · Flutter 셋). 조회 날짜가 붙은 옛 사실(Riverpod 3.4.1 두 줄 ·
   go_router 17.2.2)은 날짜 기준으로 참이라 고치지 않는다
 - **특정 이름** — `flutter-transition` 한 줄 대 킷 전부. **킷 파일 전부**(러닝북 규칙 「특정 앱 이름·특정 MCP 서버 이름을 킷 파일에 넣지 마라」). `docs/` 의 옛 조사 기록은
@@ -154,9 +154,9 @@ Phase 2 · 3 의 변경(계약 크기 · 평가자 확인 목록)은 flutter 스
 | --- | --- | --- |
 | `flutter-toolkit/evals/evals.json` 사례 1 · 5 · 16 | codegen 필터 · 사유 한 줄 · inspector 리포트를 기대 | 새 동작으로 바꾼다 — AR-01 · SK-09 (c) |
 | `flutter-toolkit/skills/flutter-widget` · `flutter-screen` (inspector 호출) | quick 모드로 부른다 | 관례 표를 넘긴다 — SK-05 |
-| `flutter-toolkit/skills/flutter-feature/SKILL.md:193` | quick 모드로 부른다 | 관례 표를 만들지 않는 스킬이라 그대로 — 에이전트가 `[미검증] 관례 표 없음` 을 적는다. SK-05 (c) 가 이 절이 안 바뀌었는지 잰다 |
-| `flutter-toolkit/skills/flutter-extract/SKILL.md:41` | inspector 리포트의 추출 후보를 읽는다 | 새 절은 추출 후보가 아니다(SK-04 「Total 에 더하지 않고」) — 그대로 |
-| `flutter-toolkit/references/project-detection.md:57-58` | `$MAKE app-build` · `$MAKE app-preflight` 가 안에서 codegen 을 돌린다 | 그 타겟을 블록의 codegen 줄 자리에 넣어 센다 — SK-01 (b) |
+| `flutter-toolkit/skills/flutter-feature/SKILL.md:199` | quick 모드로 부른다 | 관례 표를 만들지 않는 스킬이라 그대로 — 에이전트가 `[미검증] 관례 표 없음` 을 적는다. SK-05 (c) 가 이 절이 안 바뀌었는지 잰다 |
+| `flutter-toolkit/skills/flutter-extract/SKILL.md:45` | inspector 리포트의 추출 후보를 읽는다 | 새 절은 추출 후보가 아니다(SK-04 「Total 에 더하지 않고」) — 그대로 |
+| `flutter-toolkit/references/project-detection.md:58-59` | `$MAKE app-build` · `$MAKE app-preflight` 가 안에서 codegen 을 돌린다 | 그 타겟을 블록의 codegen 줄 자리에 넣어 센다 — SK-01 (b) |
 | `harness/docs/guides/skill-design-guide.md` §3.7 | 네 칸 원문 | 읽기만 — SK-09 (d) 가 `$END` 판에 원문이 있는지 잰다 |
 | `docs/flutter/*.md`(research-log 밖) · `docs/kaizen/flutter-*.md` | 지난 사이클 기록 | 건드리지 않는다. `docs/kaizen/flutter-changelog.md` · `flutter-research-log.md` 는 Final 이 notes 로 쓴다 — ER-01 |
 
@@ -205,12 +205,12 @@ Phase 2 · 3 의 변경(계약 크기 · 평가자 확인 목록)은 flutter 스
   읽는데 frontmatter 를 바꾸지 않는다. 문서 사이트 재생성은 Final F2 몫이다 — 이 Phase 는 `harness/docs/guides/` · `harness/references/` 를 건드리지 않아 `docs-site-regen` 은 SKIP 이다
 - 넘기는 것 — BUILD 가 notes(`.harness/.meta/kaizen-0924/phase5-notes.md`)에 아래 스물두 문자열을 **각각 한 번 이상** 적는다(ER-01 이 센다 — 짧은 키 일곱 `F02` · `F06` · `F22` · `F24` · `F25` · `F31` · `user-setup:P1` 은 낱말 경계로 세므로 백틱으로 감싸거나 뒤를 띄어 쓴다. `F06은` 처럼 조사를 바로 붙이면 0 이다):
   처리 배정표 키 열 `F02` · `F06` · `F22` · `F24` · `F25` · `flutter:P-F06-codegen-delete-count` · `flutter:P-INSPECTOR-convention` · `flutter:P-TEST-locale-buildmod` ·
-  `flutter:P-CATALOG-tile-height` · `user-setup:P1` 과 넘김 열둘 — `visual-evidence-protocol.md:136` (Phase 1 넘김, 반영) · `F31` (Phase 3 넘김, SK-04 로 반영) ·
+  `flutter:P-CATALOG-tile-height` · `user-setup:P1` 과 넘김 열둘 — `visual-evidence-protocol.md:140` (Phase 1 넘김, 반영) · `F31` (Phase 3 넘김, SK-04 로 반영) ·
   `flutter-preflight` (Phase 4 넘김 미반영 — 다음 사이클 Phase 5, 근거 파일에 기준 커밋 비교 근거가 오면 `/sprint` Step 3 판정 세 줄을 옮긴다) ·
   `ProviderScope` (F22 의 겹친 ProviderScope 부분 — 근거 없음) · `go_router` · `auto_route` (근거 §3 의 새 내용 — 다음 사이클) ·
   `--delete-conflicting-outputs` (명령 줄의 플래그를 판에 따라 뺄지 — 다음 사이클, 2.16 에서 경고인지 오류인지 근거 필요) ·
-  `flutter-audit/SKILL.md:50` (평가 측 `[미검증]` 형식 — 평가 쪽 가이드와 함께 다음 사이클) ·
-  `flutter-feature/SKILL.md:151` (사용자에게 보여 주는 codegen 안내 셋 `flutter-api/SKILL.md:336` · `flutter-feature/SKILL.md:151` · `flutter-screen/SKILL.md:272` 은 전후 삭제 수 블록을 가리키지 않는다 — 다음 사이클) ·
+  `flutter-audit/SKILL.md:54` (평가 측 `[미검증]` 형식 — 평가 쪽 가이드와 함께 다음 사이클) ·
+  `flutter-feature/SKILL.md:157` (사용자에게 보여 주는 codegen 안내 셋 `flutter-api/SKILL.md:351` · `flutter-feature/SKILL.md:157` · `flutter-screen/SKILL.md:282` 은 전후 삭제 수 블록을 가리키지 않는다 — 다음 사이클) ·
   `$DART test` (evals 사례 18 의 「생성 후 $DART test로 검증한다」 가 flutter-test Step 4 의 `$FLUTTER test` 와 어긋난다 — 다음 사이클) ·
   `docs/kaizen/flutter-changelog.md` (Final 이 notes 의 changelog 단락으로 쓴다) · `Phase 6` (대조할 기존 화면 수는 플러터 규약 「2 개 이상」 · 스스로 고치기 상한 「3 회」 그대로다 — 이 Phase 가 바꾸지 않았다).
   **그 가운데 셋은 사유와 한 줄에 쓴다** — `flutter-preflight` 는 `기준 커밋` 과, `--delete-conflicting-outputs` 는 `경고인지 오류인지` 와, `Phase 6` 은 `2 개 이상` 과 같은 줄에.
@@ -248,7 +248,7 @@ Phase 2 · 3 의 변경(계약 크기 · 평가자 확인 목록)은 flutter 스
 - 커버리지 해소: SK-09 — `evals.json` 은 `"$EV"`, `flutter-toolkit/` 은 (a) 의 `"$E/$FT"`, `harness/docs/guides/skill-design-guide.md` 는 (d) 의 `"$E/harness/docs/guides/skill-design-guide.md"` 다
 - 커버리지 해소: SK-10 — `flutter-ai-rules.md` 는 `"$AIR"`, `flutter-toolkit/` 은 (a) 의 `"$E/$FT"` 다
 - 커버리지 해소: SK-08 — `fit-pal` · `apps` · 도구 이름은 측정의 `grep` 정규식 인자다. SK-09 — 스킬 일곱 개는 측정 (c) 의 `sect` 인자 순서 그대로다
-- 커버리지 해소: ER-01 — notes 경로 `.harness/.meta/kaizen-0924/phase5-notes.md` 는 공통 정의의 `$NOTES`, 스물두 문자열(`flutter-audit/SKILL.md:50` · `flutter-feature/SKILL.md:151` 포함)은
+- 커버리지 해소: ER-01 — notes 경로 `.harness/.meta/kaizen-0924/phase5-notes.md` 는 공통 정의의 `$NOTES`, 스물두 문자열(`flutter-audit/SKILL.md:54` · `flutter-feature/SKILL.md:157` 포함)은
   측정 `for t in …` 두 줄과 같은 줄 세기 한 줄(`flutter-preflight` · `--delete-conflicting-outputs` · `Phase 6`)의 인자다
 - 검출기는 공백 든 코드 조각 안의 인자를 읽지 못한다 — 위 해소 줄이 전부 그 경우다
 - 편집 전부터 있던 마크다운 경고(MD060 · MD032 등)는 범위 밖이다 — DG-02 는 더한 줄에 새로 걸린 경고만 잰다

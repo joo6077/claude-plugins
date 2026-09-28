@@ -48,7 +48,7 @@ Iteration: 1
 - [x] SK-01: design-reviewer L3<10/10 → REJECT, CONDITIONAL APPROVE 갈래 제거 — PASS
   - 근거: `bash m.sh SK-01` → `a=1 b=0 l3_ok=1 l3_norej=0 verdict=1 audit_l3=1 copies=0` (계약 기대값과 완전 일치). L3 의미 검증: `design-kit/agents/design-reviewer.md:72` CONDITIONAL 은 사본 인용 한 줄뿐, 규칙 11(`:126` 부근)이 명시적으로 "L3<10/10 → REJECT" 로 기술, design-audit/SKILL.md `## Step 5` 절이 같은 판정을 기술 (Read 로 원문 확인)
 - [x] SK-02: 행간 비율 세 자리 — PASS
-  - 근거: `old=0 row=1 reviewer=1 nowcag=1 audit=1` 일치. L3: `audit-criteria.md:10` 이 `typography.md` §줄 높이·§한글 줄 높이 권장값을 가리키고 WCAG 1.4.12 없음(Read 확인), `design-reviewer.md:126`·`design-audit/SKILL.md:71`도 같은 참조
+  - 근거: `old=0 row=1 reviewer=1 nowcag=1 audit=1` 일치. L3: `audit-criteria.md:10` 이 `typography.md` §줄 높이·§한글 줄 높이 권장값을 가리키고 WCAG 1.4.12 없음(Read 확인), `design-reviewer.md:127`·`design-audit/SKILL.md:74`도 같은 참조
 - [x] SK-03: 규약 숫자 다섯 자리 재정의 제거 — PASS
   - 근거: `global=0 | n=1 num=0 guide=1;` x5 일치. 사전 봉인 baseline `global=5`(손으로 센 값과 일치) 이 양성 대조로 측정 활성 확인
 - [x] SK-04: OKLCH Gotcha 12 EX-13 원문화 — PASS

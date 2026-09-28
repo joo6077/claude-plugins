@@ -27,7 +27,7 @@ Phase 10 을 가리키는 것이 둘(`F01` — 「리액트 규약에도 되말�
 | `other-kits:P5` | react-preflight 보고에 skipped 칸이 없고 0 개 실행을 통과로 적는다 | 반영 — react-run · react-preflight 형제 둘에 passed · skipped 두 수, 0 passed · skipped 1 이상은 `[미검증]`, `.only` 세기 (SK-08). react-build 는 test 단계가 없다 |
 | `other-kits:P6` | react-l10n 기본 흐름의 `lingui extract --clean` | 반영 — 기본 흐름에서 빼고 사용자가 요청할 때만 도는 §4-1(미커밋 변경 확인 · 삭제 수 · 지워진 번역 · 확인 전 커밋 안 함), Gotcha 12, 설계 문서 한 줄 주석 (SK-09) |
 | `F09` 비고 · Phase 4 넘김 | `react-preflight` 에 기준 커밋 비교가 없다 — 「필요하면」 | 미반영 — 이 Phase 근거 파일에 기준 커밋 비교 근거가 없다(`git merge-base` 근거는 `phase4.md` 몫). Phase 5 도 같은 사유로 flutter-preflight 를 넘겼다. 다음 사이클 (ER-04) |
-| Phase 1 넘김 | `render-evidence-protocol.md:59` 「`[미검증]` 마커와 사유 한 줄 … 부분 완료로 보고」 | 반영 — 같은 모양 여덟 자리(규약 · 다섯 UI 스킬 · react-test · common-gotchas)를 네 칸으로 (SK-04) |
+| Phase 1 넘김 | `render-evidence-protocol.md:63` 「`[미검증]` 마커와 사유 한 줄 … 부분 완료로 보고」 | 반영 — 같은 모양 여덟 자리(규약 · 다섯 UI 스킬 · react-test · common-gotchas)를 네 칸으로 (SK-04) |
 | Phase 6 넘김 | 리액트 규약에 되말하기 · 관례 표 · 반영 확인 · 캡처 점검 · 3 회 상한이 없다 | 반영 — SK-01 ~ SK-03, 숫자(2 개 이상 · 3 회)는 flutter · design 규약과 같다 (AR-02). 세 규약 정본 절은 다음 사이클 Phase 1 몫이라 형제 숫자 문단만 둔다 (SK-05) |
 | 근거 §3 현행화 | React 19.3.0 · resolvers 5.9.1 · Lingui 6.8.0 · RHF 7.88.0 · Zod 4.6.5 · Vite 8.3.0, React 19.3 `<ViewTransition>` stable | 지금 틀린 문장 여섯 줄만 고친다(SK-10). Lingui v5 pin 은 그대로(근거 §4 7 번). `project-detection.md:28` 의 `"vite": "8.2.0"` 은 출력 모양 예시라 그대로. `<ViewTransition>` stable 은 조사 기록의 backlog 줄로만 받는다 — 킷 파일에 `<ViewTransition>` 을 canary 라고 적은 곳이 없고(canary 는 `react-screen` Gotcha 11 의 `<Activity />` 에만 있다), Tier 2 를 옮길지는 새 내용이라 다음 사이클 (ER-04) |
 
@@ -36,10 +36,10 @@ Phase 10 을 가리키는 것이 둘(`F01` — 「리액트 규약에도 되말�
 1. **렌더 증거 규약 (F01 · F03 · F05 · other-kits:P1 · Phase 6 넘김).** `react-kit/references/render-evidence-protocol.md` 은 완료 직전에만 돈다(`:12`).
    §1 Step 0 은 세 줄(`:35-40`)이라 되말하기 · 화면 자체 · 관례 표가 없고, §2(`:48-59`)에 기준 캡처 · 반영 확인 · 캡처 점검 · 도구 오진 확인 · 스스로 고치기 상한이 없다.
    다섯 UI 스킬의 증거 Gotcha(`react-screen:27` · `react-widget:58` · `react-skeleton:23` · `react-responsive:41` · `react-animation:41`)는 「완료 직전에」 만 부른다
-2. **개발 서버 포트 (other-kits:P1).** 템플릿 `vite.config.template.ts:25` 는 `port: 5173` 만 둔다. Tauri devUrl(`react-init/SKILL.md:202`)과 harness 검사 포트(`harness-project.yaml.template:98`)가 5173 이다
+2. **개발 서버 포트 (other-kits:P1).** 템플릿 `vite.config.template.ts:25` 는 `port: 5173` 만 둔다. Tauri devUrl(`react-init/SKILL.md:207`)과 harness 검사 포트(`harness-project.yaml.template:98`)가 5173 이다
 3. **`[미검증]` 사유 한 줄 (Phase 1 넘김).** 규약 `:59` 와 소비 일곱 자리가 「마커와 사유」 로 남아 있다
-4. **시험 수 보고 (other-kits:P5).** `react-preflight/SKILL.md:111` 은 `✓ (N passed)` 만, `react-run/SKILL.md:70` 은 test 전용 칸이 없다
-5. **`--clean` (other-kits:P6).** `react-l10n/SKILL.md:150-151` 이 `--clean` 을 기본 흐름의 선택 단계로 둔다
+4. **시험 수 보고 (other-kits:P5).** `react-preflight/SKILL.md:115` 은 `✓ (N passed)` 만, `react-run/SKILL.md:74` 은 test 전용 칸이 없다
+5. **`--clean` (other-kits:P6).** `react-l10n/SKILL.md:154-155` 이 `--clean` 을 기본 흐름의 선택 단계로 둔다
 6. **project-detect.sh (other-kits:P2).** `:52` 의 `-n` 비교와 역슬래시 붙은 필드 경로. 시험이 없다
 7. **틀린 버전 문장 (근거 §3).** `react-init:18` · `:19` · `:173` · `react-widget:17` · `react-form:27` · `:28`
 
@@ -137,7 +137,7 @@ Context7 은 근거 파일 수집 때도 쓰지 못했다(§5).
 구현 후보가 둘 이상이었던 곳의 선택:
 
 - **project-detect.sh — 지울지 고칠지 (other-kits:P2).** **고친다.** 사용자 결정 몫이지만 위임 기록(`범위 경계` 절)에 따라 검토자 확인으로 대신한다.
-  지우면 설계 문서 `docs/react/kit-design/final-integration.md:243` · `:482` 가 킷 구성으로 적은 파일이 사라져 문서까지 고쳐야 하고 되돌리기 어렵다.
+  지우면 설계 문서 `docs/react/kit-design/final-integration.md:243` · `:483` 가 킷 구성으로 적은 파일이 사라져 문서까지 고쳐야 하고 되돌리기 어렵다.
   고치는 것은 한 줄이고 알려진 답 시험이 붙는다. 부르는 스킬이 없다는 사실은 notes 에 남긴다
 - **네 칸 범위.** 넘김 원문 한 줄 대 같은 모양 전부. **여덟 자리 전부.** 한 곳씩 고치면 안 고친 곳에서 같은 일이 난다.
   평가 측(`react-reviewer` 복제 조항 · `react-audit` 미검증 절)은 모양이 다르고 평가 가이드와 함께 볼 일이라 넘긴다
@@ -161,8 +161,8 @@ Context7 은 근거 파일 수집 때도 쓰지 못했다(§5).
 | `react-kit/agents/react-reviewer.md` `:238` · `:334` | 규약 경로를 가리킨다 | 경로 · 절 이름이 그대로라 읽기만 — AR-02 |
 | `react-kit/evals/evals.json` 사례 2 · 13 · 18 · 20 | 화면 추가 · 번역 · test 서브커맨드 · preflight | 새 동작 단언 — SK-11 |
 | `react-kit/skills/react-build/SKILL.md` | run · preflight 형제 | test 단계가 없어 그대로 — SK-08 |
-| `react-kit/templates/harness-project.yaml.template:98` · `react-kit/skills/react-init/SKILL.md:202` | 5173 을 쓴다 | 앞은 읽기만(값이 맞는다), 뒤는 한 줄 — SK-07 |
-| `docs/react/kit-design/g4-quality.md:564` | `--clean` 을 명령 목록에 둔다 | 주석 — SK-09 |
+| `react-kit/templates/harness-project.yaml.template:98` · `react-kit/skills/react-init/SKILL.md:207` | 5173 을 쓴다 | 앞은 읽기만(값이 맞는다), 뒤는 한 줄 — SK-07 |
+| `docs/react/kit-design/g4-quality.md:567` | `--clean` 을 명령 목록에 둔다 | 주석 — SK-09 |
 | `docs/react/kit-design/g6-build-audit.md` | dev 포트 · preflight 절 | 이번에 안 고친다 — ER-04 넘김 |
 | `.github/workflows/ci.yml` | 새 시험을 돌릴 자리 | Phase 가 못 고친다 — notes 에 넣을 줄 (ER-04) |
 | `harness/docs/guides/skill-design-guide.md` §3.7 · flutter · design 규약 | 네 칸 원문 · 같은 숫자 | 읽기만 — AR-02 |
@@ -261,7 +261,7 @@ react-kit/evals/evals.json
 - 커버리지 해소: AR-01 — `docs/react/` 는 `unsigned_on` 의 인자, `.harness/` 는 `scope` 블록 줄과 `verify_seal` 이 도는 폴더, `harness/references/contract-schema.md` 는 권장 형태의 출처다
 - 검출기는 공백 든 코드 조각 안의 인자를 읽지 못한다 — 위 해소 줄이 전부 그 경우다
 - 편집 전부터 있던 경고(markdownlint MD060 · MD032 등)는 범위 밖이다 — DG-02 는 더한 줄의 새 경고만 잰다
-- notes 에 함께 적는다(조건으로는 재지 않는다): 「그대로 둔 곳」 에 `react-kit/skills/react-audit/SKILL.md:279` 의 「<사유> / 시도한 fallback」 과 `react-reviewer.md:183` —
+- notes 에 함께 적는다(조건으로는 재지 않는다): 「그대로 둔 곳」 에 `react-kit/skills/react-audit/SKILL.md:287` 의 「<사유> / 시도한 fallback」 과 `react-reviewer.md:183` —
   복제 조항 5 의 보고 모양이라 그대로 둔다. `project-detect.sh` 를 부르는 스킬이 없다는 사실과, 킷이 이 스크립트를 쓰게 할지는 다음 사이클 판단이라는 한 줄.
   「다음 사이클 메모」 에 넷 — `react-kaizen` Step 6 의 계약 경로(`.harness/history/…`)와 「병렬 실행 중 git 쓰기 금지」 가 지금 러닝북과 어긋난다 · 규약이 react-run Gotcha 를
   이름으로 가리키므로 그 Gotcha 머리를 바꾸면 AR-02 첫 값이 떨어진다 · 설계 문서 `kit-design/` 가 초판 뒤 스킬 변경을 따라가지 않는다 ·
@@ -507,7 +507,7 @@ PY
   ER-04)  # notes 문자열 · 공유 파일과 다른 Phase 파일을 건드린 커밋
     git cat-file -e "$END:$NOTES" && echo notes_committed=1 || echo notes_committed=0
     toks "$(cat "$E/$NOTES")" '`F03`' '`F05`' '`F01`' 'other-kits:P1' 'other-kits:P2' 'other-kits:P5' 'other-kits:P6' \
-      'render-evidence-protocol.md:59' 'project-detection.md:28' '<Activity />' 'UNVERIFIED_ENV' 'react-view-transitions' \
+      'render-evidence-protocol.md:63' 'project-detection.md:28' '<Activity />' 'UNVERIFIED_ENV' 'react-view-transitions' \
       'g6-build-audit.md' '.claude/skills/react-kaizen/SKILL.md' 'bash react-kit/evals/scripts/project-detect-test.sh' 'plugin.json' \
       '## 바꾼 파일' '## 반영한 처리 배정표 키' '## 미반영 키와 사유' '## 넘기는 것' '## changelog 한 단락' '## 킷 로그 한 단락' '## 다음 사이클 메모'
     # 넘김 한 줄은 사유와 같은 줄로 센다 — 낱말은 다른 절에도 나와 넘김 줄을 빠뜨려도 1 이 된다

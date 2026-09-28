@@ -137,7 +137,7 @@ Iteration: 1
 - 검사 대상 증거: 30건 (26개 실측 조건 + 4개 N/A)
 - 무효 판정: 0건
 - 셸 스니펫 실행 검증: 계약 측정 스니펫(bash 헬퍼 10개: common.sh·asr.sh·ins.sh·aud.sh·hooks.sh·v8.sh·guide.py·sdocs.sh·scope.sh·dg.sh)을 계약 텍스트에서 독립 재추출(diff 0, 구현자 사본과 바이트 동일 확인)한 뒤 evaluator 가 직접 bash 로 전부 실행 — 계약이 "모든 측정은 bash 에서 돈다"고 명시했으므로 zsh 실행은 해당 없음(고정 인터프리터, 위 Check Artifacts ④ 참조)
-- 양성 대조: AP-01(git diff 77ed5bb..f81568d → 14, 재실행 확인) · AP-02(skill-design-guide.md:802 재실행 확인) · AR-02(f81568d..origin/main → hunks=6/4 outside=6/4, 재실행 확인) · SC-05/SC-06/SC-07/SC-08/SC-09/SC-10/SC-11/SC-12/SC-04/AR-04/AR-03(계약 자체 내장 시작판·시험판 대조, evaluator 가 asr.sh/ins.sh/aud.sh/hooks.sh/v8.sh/sdocs.sh/scope.sh 재실행으로 동일 값 재확인)
+- 양성 대조: AP-01(git diff 77ed5bb..f81568d → 14, 재실행 확인) · AP-02(skill-design-guide.md:810 재실행 확인) · AR-02(f81568d..origin/main → hunks=6/4 outside=6/4, 재실행 확인) · SC-05/SC-06/SC-07/SC-08/SC-09/SC-10/SC-11/SC-12/SC-04/AR-04/AR-03(계약 자체 내장 시작판·시험판 대조, evaluator 가 asr.sh/ins.sh/aud.sh/hooks.sh/v8.sh/sdocs.sh/scope.sh 재실행으로 동일 값 재확인)
 - 무효 0건은 미검증 카운터에 영향 없음(현재 누계: 0)
 
 ## Summary

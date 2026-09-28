@@ -146,39 +146,39 @@ provider/build 수정:
 낡거나 빠진 곳:
 
 - Flutter `3.47.0 → 3.47.5`
-  - [flutter-widget/SKILL.md:31](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-widget/SKILL.md:31)
-  - [flutter-transition/SKILL.md:19](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-transition/SKILL.md:19)
-  - [flutter-ai-rules.md:103](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/references/flutter-ai-rules.md:103)
+  - [flutter-widget/SKILL.md:35](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-widget/SKILL.md:35)
+  - [flutter-transition/SKILL.md:23](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-transition/SKILL.md:23)
+  - [flutter-ai-rules.md:104](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/references/flutter-ai-rules.md:104)
 
 - Riverpod `3.4.1 → 3.4.3`
-  - [flutter-provider/SKILL.md:29](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-provider/SKILL.md:29)
-  - [flutter-widget/SKILL.md:33](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-widget/SKILL.md:33)
+  - [flutter-provider/SKILL.md:33](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-provider/SKILL.md:33)
+  - [flutter-widget/SKILL.md:37](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-widget/SKILL.md:37)
   - 기존 deprecation 내용은 여전히 유효하고 버전·날짜만 낡았다.
 
 - Freezed `3.2.5 → 4.0.2`
-  - [flutter-hooks/SKILL.md:28](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-hooks/SKILL.md:28)
-  - [flutter-provider/SKILL.md:21](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-provider/SKILL.md:21)
-  - [flutter-api/SKILL.md:20](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-api/SKILL.md:20)
-  - [flutter-error/SKILL.md:20](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-error/SKILL.md:20)
-  - [flutter-audit/SKILL.md:179](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-audit/SKILL.md:179)
-  - [flutter-ai-rules.md:83](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/references/flutter-ai-rules.md:83)
+  - [flutter-hooks/SKILL.md:32](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-hooks/SKILL.md:32)
+  - [flutter-provider/SKILL.md:25](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-provider/SKILL.md:25)
+  - [flutter-api/SKILL.md:24](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-api/SKILL.md:24)
+  - [flutter-error/SKILL.md:24](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-error/SKILL.md:24)
+  - [flutter-audit/SKILL.md:183](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-audit/SKILL.md:183)
+  - [flutter-ai-rules.md:84](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/references/flutter-ai-rules.md:84)
   - `.when/.map`이 3.1에서 돌아왔다는 내용은 여전히 사실이지만 “최신 3.2.5”는 틀렸고 Freezed 4의 breaking 항목이 빠졌다.
 
 - go_router `17.2.2 → 18.0.1`
-  - [flutter-screen/SKILL.md:18](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-screen/SKILL.md:18)
+  - [flutter-screen/SKILL.md:22](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-screen/SKILL.md:22)
   - 17.0 breaking 설명은 역사적으로 맞지만 최신 요구조건 Flutter 3.44/Dart 3.12와 18.0 migration이 빠졌다.
 
 - auto_route 현행화 누락
-  - [flutter-transition/SKILL.md:18](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-transition/SKILL.md:18)
+  - [flutter-transition/SKILL.md:22](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-transition/SKILL.md:22)
   - 11.0 설명은 맞지만 최신 11.2.0 및 11.1의 `animatePageTransition` deprecation이 빠졌다.
 
 - build_runner 2.16과 충돌하는 “플래그 필수”:
-  - [flutter-run/SKILL.md:44](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-run/SKILL.md:44), [50](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-run/SKILL.md:50), [139](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-run/SKILL.md:139)
-  - [flutter-build/SKILL.md:16](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-build/SKILL.md:16), [42](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-build/SKILL.md:42), [48](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-build/SKILL.md:48)
-  - [flutter-preflight/SKILL.md:73](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-preflight/SKILL.md:73), [79](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-preflight/SKILL.md:79)
-  - [flutter-l10n/SKILL.md:125](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-l10n/SKILL.md:125)
-  - [project-detection.md:52](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/references/project-detection.md:52)
-  - [flutter-ai-rules.md:55](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/references/flutter-ai-rules.md:55)
+  - [flutter-run/SKILL.md:48](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-run/SKILL.md:48), [50](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-run/SKILL.md:54), [139](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-run/SKILL.md:143)
+  - [flutter-build/SKILL.md:20](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-build/SKILL.md:20), [42](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-build/SKILL.md:46), [48](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-build/SKILL.md:52)
+  - [flutter-preflight/SKILL.md:77](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-preflight/SKILL.md:77), [79](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-preflight/SKILL.md:83)
+  - [flutter-l10n/SKILL.md:138](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/skills/flutter-l10n/SKILL.md:138)
+  - [project-detection.md:52](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/references/project-detection.md:53)
+  - [flutter-ai-rules.md:56](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/flutter-toolkit/references/flutter-ai-rules.md:56)
   - 동일 명령이 있는 `flutter-screen:272`, `flutter-transition:303`, `flutter-feature:151`, `flutter-api:336`도 버전 적응이 필요하다.
   - 권장 현재값: build_runner `>=2.16`에서는 플래그 없이 전체 build; 구버전 lock 지원이 필요하면 버전을 확인해 조건부로만 플래그를 붙인다.
 

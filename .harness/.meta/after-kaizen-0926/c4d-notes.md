@@ -34,7 +34,7 @@
 
 ## 넘긴 것과 사유
 
-- F1H-41 앞절반 — `/sprint` Step 3 원인 가르기 판정 표(CI 에서만 보이는 두 경우 `phase8-notes.md:94` · 첫 줄 문턱 `phase9-notes.md:94`). 폐기 결정과 다른 일이고, 표를 바꾸면 글자 그대로 옮긴 사본 둘(`docs/infra/platform/cicd.md:76` · `rust-kit/skills/rust-preflight/SKILL.md:112`)도 함께 바뀌어야 해 이 묶음 범위 밖이다. 다음 사이클 Phase 4 로 넘긴다. F1H-41 뒷절반(재검증 블록의 폐기 결정 자리)은 이 묶음이 했다
+- F1H-41 앞절반 — `/sprint` Step 3 원인 가르기 판정 표(CI 에서만 보이는 두 경우 `phase8-notes.md:94` · 첫 줄 문턱 `phase9-notes.md:94`). 폐기 결정과 다른 일이고, 표를 바꾸면 글자 그대로 옮긴 사본 둘(`docs/infra/platform/cicd.md:77` · `rust-kit/skills/rust-preflight/SKILL.md:123`)도 함께 바뀌어야 해 이 묶음 범위 밖이다. 다음 사이클 Phase 4 로 넘긴다. F1H-41 뒷절반(재검증 블록의 폐기 결정 자리)은 이 묶음이 했다
 - PRD 가 나중에 생겼을 때 `PRD 없음` 줄을 PRD 비범위 표로 옮기는 절차 — plan-prd Step 0 이 읽을 대상을 늘리는 일이라 planning-kit 몫이다. 다음 사이클로 넘긴다
 - `docs/design-kit/design-mockup.html` — 원본이 바뀌어 이 페이지가 옛 글이 된 자리는 셋이다. 481 번째 줄 감지 블록(`.design/approvals/*.md` 다음에 `.planning/prd-*.md` 줄이 없다), 484 ~ 489 번째 줄 카드 「찾은 입력의 적용」(PRD 비범위 표 규칙이 없다), 629 번째 줄 Step 6 폐기 칸(옛 자리표시자를 조금 줄인 판 `{버린 안·요소와 이유 — 없으면 \`없음\`}` 이고, PRD 가리키기와 `PRD 없음` 줄이 없다). 처음 적은 notes 는 481 번째 줄만 적고 「Step 6 폐기 칸 자리표시자는 글자 그대로 실려 있지 않다」 고 썼다 — 글자 그대로는 아니어도 옛 판이 실려 있다(독립 검토가 찾았다). 페이지 재생성은 부모가 모아서 하고, 세 자리 모두 원본과 대조한다
 - 핸드오프 스킬(`~/.claude/skills/handoff`) · 다른 킷 — 범위 밖
@@ -90,7 +90,7 @@
 | K-02 번역투 6 종 (locale-korean §8 G-1 식) | 0 | 통과 — 식이 살아 있는지 `에 의해` 가 든 예문으로 1 건 나오는 것을 먼저 봤다 |
 | K-04 종결형 (`합니다` · `습니다`) | 0 | 통과 — 산문은 모두 `한다` 체 |
 | K-05 외래어 · 음역 | 0 | 통과 — `PRD` · `Gotcha` · `Non-goals` · `No-gos` · `Shape Up` 은 원래 이름 그대로 |
-| K-11 새 이름 | 0 | 통과 — `비범위 표` 는 planning-kit 에 이미 있는 말이다(`planning-reviewer.md:103` · `docs/planning/prd-patterns.md:133`) |
+| K-11 새 이름 | 0 | 통과 — `비범위 표` 는 planning-kit 에 이미 있는 말이다(`planning-reviewer.md:114` · `docs/planning/prd-patterns.md:152`) |
 | C-01 · C-15 명령 줄 주석 | 2 | 통과 — `# 폐기한 결정 원문이 든 PRD` · `# PRD 가 없을 때 적어 둔 폐기 결정` 은 그 줄 출력이 무엇인지 알린다. 같은 블록 형제 줄(`# 실제로 들어간 커밋` 등)과 같은 짧은 조각 모양이다(C-08) |
 | C-04 구분선 · C-10 디자인 툴 참조 · C-13 자화자찬 | 0 | 통과 |
 | N-07 `effective` · `resolved` 접두 | 0 | 통과 |
@@ -115,9 +115,9 @@
 | --- | --- | --- | --- |
 | R1 | 새 워크트리에서는 폐기 기록을 못 보고 빈 출력이 나온다 | `harness/skills/sprint/SKILL.md:64-65` (같은 파일 `:42-51` 이 Step 0.5 전에 새 워크트리를 만들라고 권한다) | harness 다음 사이클. 본 작업 폴더에서 추적 안 된 `.planning` · `.harness` 파일은 새 워크트리에 따라오지 않고, `2>/dev/null` 이 오류를 버려서 「기록 없음」 과 「못 봄」 이 같은 빈 출력이다. ER-01 은 이 빈 출력을 좋은 값으로 잰다. 재현 — 추적 안 된 `.planning/prd-alarm.md` 와 `PRD 없음` 이 든 `.harness/sprint-contract-x.md` 를 둔 빈 레포에서 본 폴더는 2 줄, `git worktree add` 뒤 새 폴더는 0 줄(오류 출력도 0 줄). 이 레포 본 작업 폴더의 추적 안 된 계약은 19 개다. 두 줄이 본 작업 폴더(`git worktree list` 첫 줄)도 함께 보거나, 못 읽은 자리를 말하게 고친다 |
 | R2 | `PRD 없음` 이 흔한 말이라 규칙을 설명하는 문서까지 걸린다 | `harness/skills/sprint/SKILL.md:65` | R1 과 같이. 이 가지에서 `grep -rn 'PRD 없음' .design .harness` → 31 줄이고, 모두 이 묶음의 계약 · notes · QA 리포트다. 실제 폐기 결정은 0 줄이다. SC-01 시험 폴더에는 표시 줄 하나짜리 파일만 있어 이 경우를 재지 않는다. 사용자 프로젝트에서도 QA 리포트가 계약 줄을 옮겨 적으면 같은 결정이 두 번 잡힌다. 찾는 모양을 좁히고, 시험 폴더에 규칙 설명 문장이 든 파일을 더한다 |
-| R3 | PRD 가 없을 때의 대체 규칙이 결정 원문을 두 곳에 적게 한다. 사용자에게 묻지 않고 정한 규칙이다 | `design-kit/skills/design-mockup/SKILL.md:166` · `harness/skills/sprint-contract/SKILL.md:630` · `harness/skills/sprint/SKILL.md:78` | 사용자 한 줄 확인 뒤 다음 사이클. 셋 다 PRD 가 없으면 승인 기록과 계약 `범위 경계` 에 각각 네 칸(이유 포함)으로 적게 한다. design-mockup 이 규격으로 부르는 `design-kit/references/visual-change-protocol.md:221-222` 는 「결정 원문이 두 곳에 있으면 한쪽만 고쳐진다」 라서 맞지 않는다. 사용자가 고른 것은 「plan-prd 표로 확정」 뿐이다(세션 기록 `bda55d45….jsonl` 1187 번째 줄). `/Users/jackson/Hub` 아래 `.planning/prd-*.md` 는 1 건(`iyaki-zip-dev`)뿐이라 실제로는 대체 규칙이 주로 쓰인다. 빈틈도 있다 — PRD 를 가리키는 조건은 기능 단위(「그 기능 PRD」)이고 대체 조건은 프로젝트 단위(`prd-*.md` 0 개)라, 다른 기능의 PRD 만 있는 프로젝트는 어느 쪽에도 해당하지 않는다. 물을 것: PRD 가 없을 때 원문 자리를 한 곳으로 정하고 다른 쪽은 경로만 적게 할지, 대체 조건을 기능 단위로 맞출지 |
+| R3 | PRD 가 없을 때의 대체 규칙이 결정 원문을 두 곳에 적게 한다. 사용자에게 묻지 않고 정한 규칙이다 | `design-kit/skills/design-mockup/SKILL.md:169` · `harness/skills/sprint-contract/SKILL.md:636` · `harness/skills/sprint/SKILL.md:78` | 사용자 한 줄 확인 뒤 다음 사이클. 셋 다 PRD 가 없으면 승인 기록과 계약 `범위 경계` 에 각각 네 칸(이유 포함)으로 적게 한다. design-mockup 이 규격으로 부르는 `design-kit/references/visual-change-protocol.md:221-222` 는 「결정 원문이 두 곳에 있으면 한쪽만 고쳐진다」 라서 맞지 않는다. 사용자가 고른 것은 「plan-prd 표로 확정」 뿐이다(세션 기록 `bda55d45….jsonl` 1187 번째 줄). `/Users/jackson/Hub` 아래 `.planning/prd-*.md` 는 1 건(`iyaki-zip-dev`)뿐이라 실제로는 대체 규칙이 주로 쓰인다. 빈틈도 있다 — PRD 를 가리키는 조건은 기능 단위(「그 기능 PRD」)이고 대체 조건은 프로젝트 단위(`prd-*.md` 0 개)라, 다른 기능의 PRD 만 있는 프로젝트는 어느 쪽에도 해당하지 않는다. 물을 것: PRD 가 없을 때 원문 자리를 한 곳으로 정하고 다른 쪽은 경로만 적게 할지, 대체 조건을 기능 단위로 맞출지 |
 | R4 | notes 가 옛 글이 된 문서 페이지 자리를 한 곳만 적었다 | `docs/design-kit/design-mockup.html:481` · `:484-489` · `:629` | 이 notes 의 「넘긴 것과 사유」 해당 줄을 세 자리로 고쳤다. 페이지 재생성은 부모가 모아서 한다 |
-| R5 | 계약 서술 절 이름이 쉬운 말 목록에 든 낱말을 쓴다 | `.harness/sprint-contract-after-0924-discard-decisions.md:146-147` (`오라클 해소:` 2 줄) | 봉인된 계약이라 고치지 않았다. sprint-contract 가 요구하는 이름은 `커버리지 해소:` 하나다(`harness/skills/sprint-contract/SKILL.md:685`). 다음 계약부터 그 이름을 쓴다 |
+| R5 | 계약 서술 절 이름이 쉬운 말 목록에 든 낱말을 쓴다 | `.harness/sprint-contract-after-0924-discard-decisions.md:146-147` (`오라클 해소:` 2 줄) | 봉인된 계약이라 고치지 않았다. sprint-contract 가 요구하는 이름은 `커버리지 해소:` 하나다(`harness/skills/sprint-contract/SKILL.md:692`). 다음 계약부터 그 이름을 쓴다 |
 | R6 | 피드백 저장 시험이 고정 `/tmp` 경로를 써서 동시에 돌면 서로 파일을 지운다 | `harness/evals/kaizen/feedback-system/save-test.sh:45` 등 (`/tmp/test-*.yaml` 여러 개) | harness 다음 사이클. QA 1 차 `ci-local.sh` 의 `feedback-save-test rc=2` 원인이다 — 다른 워크트리(`ak-c3b`)가 같은 시험을 같은 때 돌렸다. 격리 재실행은 `rc=0`. 시험 안 경로를 `mktemp -d` 아래로 옮긴다 |
 
 QA 피드백 YAML(`~/.harness/feedback/evaluator/1a3bcba6-2026-09-26T135838-bda55d45-17131.yaml`)의 `cross_diagnosis_by: pending-parent` 는 부모가 교차 진단을 마치면 채운다. QA 가 넘긴 두 질문에 독립 검토가 답했다 — (1) SK-03 · F20 행 판단은 뒤집지 않았고 그 대신 R3 를 짚었다, (2) DG-05 는 가지 끝을 풀어 둔 깨끗한 사본에서 `rc=0` 22 줄 · SKIP 한 줄로 다시 나왔고 처음의 `rc=2` 는 다시 나오지 않았다.
