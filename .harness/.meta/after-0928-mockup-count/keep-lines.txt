@@ -1,0 +1,21 @@
+K01	harness/docs/guides/skill-design-guide.md	| 2 개 이상 | 편집 전에 같은 역할의 서로 다른 기존 화면을 2 개 이상 읽어 관례 표로 남긴다 | design §0 · flutter Step 0 · react §1 |
+K01	harness/docs/guides/skill-design-guide.md	| 최대 3 회 | 의도 밖 영역이 바뀌면 스스로 되돌리고 다시 고친다. 3 회를 넘기면 사용자에게 넘긴다 | design §3 · flutter Step 2 · react §2 |
+K01	harness/docs/guides/skill-design-guide.md	Bad:  "목업 몇 개" 요청 → 9~40 타일 + 토큰 파일 + 서페이스 레인 생성 → 사용자가 전부 삭제 요구
+K01	harness/docs/guides/skill-design-guide.md	Bad:  variant 6 개를 냈으나 B3 와 B6 가 지정된 4 축 전부에서 같은 값 → 구별 불가 → REJECT
+K02	design-kit/references/visual-change-protocol.md	3. **관례 표** — 앱 코드가 있으면 같은 역할의 서로 다른 기존 화면 **2 개 이상**을 Read 해서 경로와 함께 표로
+K02	design-kit/references/visual-change-protocol.md	   **스스로 고치기는 최대 3 회**다. 3 회째도 실패하면 기준 캡처 · 마지막 재캡처 · 달라진 속성을 붙여 사용자에게 넘긴다
+K02	design-kit/references/visual-change-protocol.md	    print("USAGE_ERROR: variant 2 개 이상 필요"); sys.exit(2)
+K02	design-kit/references/visual-change-protocol.md	1. **사용자가 개수를 말하면 정확히 그 수를 낸다.** 초과도 미달도 위반이다. "3 개" 요청에 5 개를
+K02	design-kit/references/visual-change-protocol.md	   내면 사용자가 2 개를 지우는 비용을 떠안는다.
+K03	flutter-toolkit/references/visual-evidence-protocol.md	6. **관례 표**: 같은 역할의 서로 다른 기존 화면 2 개 이상을 Read 해서 그 경로와 함께 표로 남긴다. 칸은 줄 모양(카드인지 평평한 줄인지) · 칩·뱃지 모양 · 아이콘 뜻(닫기·끝내기·접기) · 재사용할 위젯(경로와 용도)이다
+K03	flutter-toolkit/references/visual-evidence-protocol.md	   **의도 외 영역이 변했으면 self-reject 하고 되돌린 뒤 다시 시도**한다 (최대 3 회, 이후 사용자 에스컬레이션)
+K04	react-kit/references/render-evidence-protocol.md	6. **관례 표**: 같은 역할의 서로 다른 기존 화면 **2 개 이상**을 Read 해서 경로와 함께 표로 남긴다. 칸은 줄 모양(카드인지
+K04	react-kit/references/render-evidence-protocol.md	   **스스로 고치기는 최대 3 회**다. 3 회째도 실패하면 기준 캡처 · 마지막 재캡처 · 달라진 속성을 붙여 사용자에게 넘긴다
+K05	design-kit/skills/design-mockup/references/mockup-guidelines.md	시안은 개수와 무관하게 서로 다른 레이아웃/구성 접근을 사용한다 (개수는 `SKILL.md` Step 2-a 를 따른다):
+K05	design-kit/skills/design-mockup/references/mockup-guidelines.md	최소 2개 축에서 차이가 나야 별도 시안으로 인정한다.
+K06	design-kit/skills/design-concept/templates/concept.md	**여러 컨셉 안(A/B/C)을 제시할 때는 이 축에서 차별화한다.**
+K06	design-kit/skills/design-concept/templates/concept.md	> Gotcha #6 — 최소 **2개 축 이상**이 달라야 "컨셉 안"이다. 색상만 바꾼 건 "스타일 옵션".
+K07	design-kit/skills/design-mockup/SKILL.md	  고치는 순서 · 반영 확인 · 스스로 고치기 횟수 상한은 §3 비교 반복 순서를 따르고(기준 원본 harness `skill-design-guide.md` §8.9), 캡처마다 §3 캡처 점검 목록을 본다.
+K08	design-kit/evals/evals.json	json-id:14:{"assertions": [{"text": "A/B 두 안이 hero 구조/그리드/정보 밀도/타이포 위계/이미지 비중 중 최소 2개 축에서 달라진다 (Gotcha #6)", "type": "output"}, {"text": "A/B가 색상만 다른 '스타일 옵션'이 아니라 레이아웃이 다른 '컨셉 옵션'이다", "type": "output"}, {"text": "차별화 축을 표나 대조 블록으로 명시한다", "type": "output"}], "expected_output": "컨셉 A/B 두 안. hero 구조 · 그리드 · 정보 밀도 · 타이포 위계 · 이미지 비중 중 최소 2개 축에서 차별화.", "id": 14, "prompt": "컨셉 2개 안으로 뽑아줘 A랑 B", "skill": "design-concept"}
+K08	design-kit/evals/evals.json	json-id:28:{"assertions": [{"text": "시안 파일을 만들기 전에 대상 화면의 파일 경로와 라우트를 적는다", "type": "output"}, {"text": "요청을 요소 이름과 배치까지 넣어 한 문장으로 되말한다", "type": "output"}, {"text": "같은 역할의 서로 다른 기존 화면 2 개 이상을 읽고 줄 모양 · 칩·뱃지 모양 · 아이콘 뜻 · 재사용 부품 칸의 관례 표를 남긴다", "type": "output"}, {"text": "코드 검색에서 나오지 않은 부품 이름을 시안에 쓰지 않는다", "type": "behavior"}], "expected_output": "파일을 만들기 전에 대상 화면 경로·라우트, 한 문장 되말하기, 같은 역할 기존 화면 2 개 이상의 관례 표를 남기고 관례를 constants 에 넣은 시안", "id": 28, "prompt": "그룹 설정 화면 시안 만들어줘 — 앱에 프로필 설정 화면이랑 알림 설정 화면이 이미 있어", "skill": "design-mockup"}
+K08	design-kit/evals/evals.json	json-id:29:{"assertions": [{"text": "「추가 칩만」 과 「줄 전체」 두 갈래로 읽히면 묻고 시작한다", "type": "behavior"}, {"text": "Change Manifest 변경 목록에 추가 칩만 올리고 같은 줄의 나머지 칩을 보존 목록에 올린다", "type": "output"}, {"text": "기준 캡처에서 달라져야 할 표식을 정하고 재캡처에서 그 표식이 바뀌었는지로 반영을 판정한다", "type": "behavior"}, {"text": "의도 외 변화가 3 회째에도 남으면 증거를 붙여 사용자에게 넘긴다", "type": "behavior"}], "expected_output": "되말하기로 갈래를 확인하고, 요소 하나 지목 Change Manifest · 반영 확인 표식 · 캡처 점검 목록 · 스스로 고치기 최대 3 회를 따른 수정", "id": 29, "prompt": "추가 칩만 오른쪽에 고정해줘", "skill": "design-mockup"}
