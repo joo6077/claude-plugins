@@ -4,7 +4,7 @@ slug: after-0928-external-facts-2
 created: "2026-09-28 12:46"
 complexity: "복잡"
 conditions: 26
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:30978e4d67ca2840
 measurement_digest: sha256:8c1c9fcbc681c2ca
