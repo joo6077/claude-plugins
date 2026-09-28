@@ -355,7 +355,7 @@ Future<void> setupFcm() async {
 - [ ] `.gitignore`에 `*.p8` 추가 (실수로 커밋 방지)
 - [ ] `GoogleService-Info.plist`는 git에 커밋해도 무방 (공개 식별자만 포함) — 단, 환경별 분리 시 파일명 구분
 - [ ] FCM 등록 토큰은 서버에 저장 시 사용자별로 격리 (다른 사용자에게 발송되지 않도록)
-- [ ] Firebase Admin SDK의 서비스 계정 JSON은 **서버에만** 보관 (앱 번들에 절대 포함 금지)
+- [ ] Firebase Admin SDK 서버 인증은 Google 환경이면 키가 필요 없는 ADC(Application Default Credentials)를 먼저 쓴다. 서비스 계정 JSON 키를 써야 하면 **서버에만** 보관하고 앱 번들에 절대 넣지 않는다 — Google 은 모바일 앱 같은 클라이언트에서 서비스 계정을 쓰지 말라고 권고한다 ([서비스 계정 키 관리 권장 사항](https://docs.cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys) · [Admin SDK 설정](https://firebase.google.com/docs/admin/setup), 2026-09-28 조회)
 
 ## 검증 체크리스트
 
