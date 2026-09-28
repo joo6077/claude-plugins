@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **의존성 역순으로 생성** — Clean Architecture 규칙상 domain → data → presentation 순으로 생성해야 참조 에러가 없다. presentation 먼저 만들면 import가 존재하지 않는 파일을 참조해 tsc 오류 발생.
 2. **경계에서 Zod parse 필수** — datasource는 raw response를 그대로 return하지 않는다. 반드시 `Schema.parse(json)`으로 검증 후 domain 타입으로 변환한다.
 3. **Store는 feature 내부에서만 import** — 다른 feature가 이 feature의 store를 직접 참조하면 feature 간 결합이 생긴다. cross-feature 상태는 `src/presentation/shared/stores/`로 승격한다.

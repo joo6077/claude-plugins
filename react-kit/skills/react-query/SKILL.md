@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **TanStack Query = 서버 상태 전용** — API 응답, 캐시, 동기화가 TanStack Query 도메인. UI 토글·임시 편집 상태·WASM 진행 상태는 Zustand(react-store)가 담당. 서버 응답을 Zustand에 복사하면 두 개의 진실 공급원이 생겨 동기화 버그가 발생한다.
 2. **queryFn 안에서 Result throw 필수** — TanStack Query는 queryFn이 throw 해야 에러를 `error` 필드로 잡는다. repository가 반환한 `Result`를 그대로 return하면 `data`가 `Result<T, E>` 타입으로 꼬인다. `if (result.isErr()) throw result.error` 로 언래핑한다.
 3. **queryKey 3-레벨 배열 규칙 필수** — `[domain, subject, params]` 형태. `['user', 'detail', { id }]`, `['user', 'list', { page }]`. 일관성 없는 queryKey는 invalidation이 꼬인다.

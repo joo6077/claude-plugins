@@ -13,6 +13,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 1. **domain 테스트에서 직접 fetch/API 호출 금지** — domain 레이어(usecases, entities, failures)는 순수 함수이므로 외부 의존성이 없어야 한다. 네트워크 호출이 필요하면 대상 파일이 data 레이어인지 재확인하고 MSW 로 모킹하라.
