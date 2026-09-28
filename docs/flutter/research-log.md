@@ -17,7 +17,7 @@ last_updated: 2026-08-13
 | # | URL | 확인한 사실 |
 | --- | --- | --- |
 | 1 | <https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart> | `--build-filter` 는 공식 옵션이다. 다만 필터 밖의 기존 생성물을 남긴다는 보장은 공식 자료에 없다 |
-| 2 | <https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md> | 2.16 부터 잘못되거나 고쳐진 생성물을 기본으로 고친다. `--delete-conflicting-outputs` 는 제거된 호환 옵션 목록으로 옮겨졌다. 정정(2026-09-28): build_runner 원문 기준 2.7.0 부터 — 이 옵션은 이미 무시됐다. 2.16 은 목록만 옮긴 판이다 (`.harness/.meta/after-kaizen-0926b/ex/EX-5.md`) |
+| 2 | <https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md> | 2.16 부터 잘못되거나 고쳐진 생성물을 기본으로 고친다. `--delete-conflicting-outputs` 는 제거된 호환 옵션 목록으로 옮겨졌다. 정정(2026-09-28): build_runner 원문 기준 2.7.0 부터 — 이 옵션은 이미 무시됐다. 제거된 옵션 목록으로 옮긴 판은 2.15.0 이다(태그 `build_runner-v2.15.0` 의 명령줄 원본 파일) (`.harness/.meta/after-kaizen-0926b/ex/EX-5.md`) |
 | 3 | <https://git-scm.com/docs/git-status> | `--porcelain=v1` 은 스크립트용 고정 형식이고 두 자리 가운데 어느 쪽의 `D` 도 삭제다 |
 | 4 | <https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html> | locale 이 null 이면 시스템 로캘, 지원하지 않으면 `supportedLocales` 첫 항목 |
 | 5 | <https://riverpod.dev/docs/root/do_dont> | 위젯이 provider 를 초기화하지 말고 provider 가 스스로 초기화한다 |
