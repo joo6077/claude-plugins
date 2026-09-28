@@ -123,7 +123,7 @@ user-invocable: true
 5. **rule_id 발급 + ledger append**
    - `rule_id=$(uuidgen)` (macOS/Linux 모두 기본 제공)
    - `promotions-ledger.md`에 아래 YAML 블록 append:
-
+     <!-- markdownlint-disable-next-line MD031 -->
      ```yaml
      - rule_id: <uuid>
        mistake_tag: <canonical_tag>          # lemma_key 안 최빈 원시 표기
@@ -141,7 +141,7 @@ user-invocable: true
        post_freq: null
        status: active
      ```
-
+     <!-- markdownlint-disable-next-line MD031 -->
    - `post_freq: null` 로 둔다. `/reflect-kaizen`이 30일 뒤 숫자로 채운다 (`aliases` 포함 합산).
    - `aliases` 는 `tag_canon_groups` 가 낸 `lemma_key` 클러스터의 멤버 **전체**를 그대로 옮긴다 (Gotchas #9). **비워두거나 손으로 추리면 `post_freq` 가 구조적으로 과소집계되어 효과 없는 규칙이 "효과 있음" 으로 오판정된다.**
    - `enforcement_level` 은 신규 승격이면 아래 매핑표에서 surface 에 대응하는 값을 적는다.
