@@ -17,7 +17,7 @@ last_updated: 2026-09-25
 
 - [build_runner CLI 옵션 소스](https://github.com/dart-lang/build/blob/master/build_runner/lib/src/build_runner_command_line.dart) ·
   [build-filter 통합시험](https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart) — 필터는 공식 옵션, 필터 밖 생성물 보존 보장은 없음
-- [build_runner CHANGELOG](https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md) — 2.16 부터 생성물을 기본으로 고치고 `--delete-conflicting-outputs` 는 제거된 호환 옵션
+- [build_runner CHANGELOG](https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md) — 2.16 부터 생성물을 기본으로 고치고 `--delete-conflicting-outputs` 는 제거된 호환 옵션. 정정(2026-09-28): build_runner 원문 기준 2.7.0 부터 — 이 옵션은 이미 무시됐다. 2.16 은 목록만 옮긴 판이다 (`.harness/.meta/after-kaizen-0926b/ex/EX-5.md`)
 - [git-status](https://git-scm.com/docs/git-status) — `--porcelain=v1` 고정 형식 · 두 자리 `D`
 - [Flutter 국제화](https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization) · [WidgetsApp.locale](https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html) ·
   [TestPlatformDispatcher.locale](https://api.flutter.dev/flutter/flutter_test/TestPlatformDispatcher/locale.html) — 로캘 기본값과 시험 로캘
