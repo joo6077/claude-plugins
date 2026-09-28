@@ -38,7 +38,12 @@ SKIP_KITS = {
 
 def eval_kits() -> list[str]:
     names = [plugin["name"] for plugin in load_marketplace().get("plugins", [])]
-    return [name for name in names if (REPO_ROOT / name / "evals" / "evals.json").is_file()]
+    have = [name for name in names if (REPO_ROOT / name / "evals" / "evals.json").is_file()]
+    # 평가 파일이 없는 킷도 이름을 찍는다 — 다른 이름으로 둔 킷이 소리 없이 빠지지 않게
+    absent = [name for name in names if name not in have]
+    if absent:
+        print(f"평가 파일(evals/evals.json) 없는 킷 {len(absent)} 개 — 대상 아님: {', '.join(absent)}")
+    return have
 
 PLACEHOLDER_PATTERNS = [
     "(placeholder)",

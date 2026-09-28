@@ -117,11 +117,12 @@ fi
 # Step 2: data pool §N 추출 (해당 Phase 섹션만)
 # kaizen-data-pool.md 의 §1 ~ §5 섹션을 Phase 별 참조 테이블에 따라 매핑
 # 모든 Phase 는 §1 (feedback) + §5 (validate-plugin) 공통 참조
-# §2 · §3 은 수집기 §6 표(scripts/collect-kaizen-data.py 「Phase 별 참조 가이드」)의 그 Phase 행을 따른다 — 표를 고치면 여기도 고친다
+# §2 · §3 은 수집기 §6 표(scripts/collect-kaizen-data.py 「Phase 별 참조 가이드」)의 그 킷 행을 따른다 — 표를 고치면 여기도 고친다
+# 번호가 아니라 킷 이름으로 고른다. 마켓 목록 중간에 킷이 끼면 번호가 밀린다
 COMMON_SECTIONS="§1 §5"
-case "$PHASE_NUM" in
-    5|9|13) PHASE_SECTIONS="$COMMON_SECTIONS §2" ;;
-    10) PHASE_SECTIONS="$COMMON_SECTIONS §3" ;;
+case "$PHASE_NAME" in
+    flutter-toolkit|rust-kit|bambu-kit) PHASE_SECTIONS="$COMMON_SECTIONS §2" ;;
+    react-kit) PHASE_SECTIONS="$COMMON_SECTIONS §3" ;;
     *) PHASE_SECTIONS="$COMMON_SECTIONS" ;;
 esac
 
