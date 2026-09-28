@@ -4,7 +4,8 @@ slug: after-0928-record-fixes
 created: "2026-09-28 12:31"
 complexity: "복잡"
 conditions: 23
-status: done
+status: superseded
+superseded_by: after-0928-record-fixes-r2
 conditions_digest: "sha256:eeed04ad09b3a423"
 measurement_digest: "sha256:31aef57f8264fd42"
 locked_at: "2026-09-28 12:40"
