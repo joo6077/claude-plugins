@@ -46,3 +46,14 @@
 - 옛 로컬 CI 도구 `/Users/jackson/Hub/10_Dev/claude-plugins/.harness/handoff/2026-09-26-tools/ci-local.sh` 는 그대로 있다 — 그 경로 · 지문을 적은 봉인 계약이 있어 지우거나 고칠 수 없다. 앞으로의 계약은 `scripts/ci-local.sh` 를 쓰면 된다.
 - 카이젠 오케스트레이터 문서(`.claude/skills/kaizen-orchestrator/SKILL.md` · `docs/process/kaizen-flow.html` 등)는 여전히 「Phase 1~17」 이라 적는다. 지금 킷 수로는 맞지만 킷이 늘면 손으로 고쳐야 한다 — 이 계약 범위 밖이라 두었다.
 - 로컬 CI 새 도구는 `npm ci` 같은 준비 단계를 돌리지 않는다. 새 작업 폴더에서는 `npm ci` 를 먼저 해야 playwright 단계가 돈다.
+
+## 독립 검토 뒤 고친 것 (2026-09-28)
+
+- B1 남은 자리: `harness/scripts/commit-guard.sh` 의 `scope_blocks` 안 `val()` 이 줄 끝 주석을 값으로 읽었다.
+  `status: active   # 진행 중` 계약을 없는 것으로 봐 범위 밖 커밋이 통과했다. fm_get 과 같은 규칙으로 고치고 시험 SCOPE-s24~s26 을 더했다 (76b6cc5).
+  이 두 파일은 AR-05 의 18 경로 밖이다 — AR-05 는 이제 20 경로로 FAIL 한다. 경로 목록을 넓히는 개정(느슨해지는 쪽)이나 새 계약이 필요하다.
+- B9: run-evals · sync-evals 가 평가 파일 없는 킷 이름을 한 줄로 찍는다 (dd60755). SC-09 · SC-10 측정값은 그대로다.
+- B8: `spawn-kaizen-phase.sh` 의 §2 · §3 을 킷 이름으로 고른다 (dd60755).
+- B3: sprint-contract 의 스크립트 셋을 설치 환경에서도 찾게 했다 (df5adaf).
+- SC-07 의 1 회 `63x33` 은 부하 탓이 아니라 기본 작업 폴더(고치기 전 파일)를 잰 것으로 보인다 — 검토자가 같은 값을 다시 냈다. 봉인된 QA 리포트는 고치지 않는다.
+- 레포 밖 `~/.claude/hooks/qa-pending-check.sh` 의 `value()` 도 같은 결함이다. 작업 폴더 밖이라 손대지 않았다 — 50~60 줄의 값 읽기를 fm_get 규칙으로 바꾸면 된다.
