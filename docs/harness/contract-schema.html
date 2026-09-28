@@ -443,24 +443,29 @@ locked_at: "{YYYY-MM-DD HH:mm}"     # v5.3 — 봉인 시각</code>
           <tbody>
             <tr><td><code>slug</code></td><td>슬러그 규칙을 만족하는 문자열</td><td>파일명 접미와 <strong>동일</strong>해야 한다. plain 모드면 필드 자체를 생략</td></tr>
             <tr><td><code>status</code></td><td><code>active</code> | <code>done</code> | <code>superseded</code></td><td>작성 시 <code>active</code>. <code>done</code> 전환 주체·시점은 <a class="jump" href="#status">아래</a> 참조. <code>superseded</code> 는 같은 일을 새 판 계약으로 다시 쓸 때 옛 판에 붙인다</td></tr>
-            <tr><td><code>superseded_by</code></td><td>새 판 계약의 슬러그</td><td><code>status: superseded</code> 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(<code>sprint-contract-&lt;슬러그&gt;.md</code>)이 있어야 하고 그 계약이 다시 <code>superseded</code> 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다</td></tr>
+            <tr><td><code>superseded_by</code></td><td>새 판 계약의 슬러그</td><td><code>status: superseded</code> 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(<code>sprint-contract-&lt;슬러그&gt;.md</code>)이 있어야 하고 그 계약이 다시 <code>superseded</code> 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다. 기계 확인은 <code>bash harness/scripts/check-superseded.sh &lt;.harness 폴더&gt;</code> (CI 가 레포 <code>.harness</code> 에 돈다)</td></tr>
             <tr><td><code>owner_session</code></td><td><code>$CLAUDE_CODE_SESSION_ID</code> 값</td><td>환경변수가 비어 있으면 <strong>필드를 쓰지 마라.</strong> 빈 문자열·<code>unknown</code> 같은 placeholder 금지</td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
-  <code class="code-block"># frontmatter 스칼라 1 개 읽기 — 값의 따옴표를 벗겨서 돌려준다 (zsh · bash 동일)
+  <code class="code-block"># frontmatter 스칼라 1 개 읽기 — 따옴표와 줄 끝 주석을 벗겨서 돌려준다 (zsh · bash 동일)
+# 줄 끝 주석은 빈칸 · 탭 뒤의 # 부터다. abc#def 는 값 그대로다 (YAML 1.2 §6.6)
 fm_get() { # fm_get &lt;file&gt; &lt;key&gt;
   awk -v k="$2" -v q="\"'" '
     NR==1 &amp;&amp; /^---[[:space:]]*$/ { fm=1; next }
     fm &amp;&amp; /^---[[:space:]]*$/    { exit }
     fm &amp;&amp; index($0, k ":") == 1 {
       v = substr($0, length(k) + 2)
-      sub(/^[[:space:]]+/, "", v); sub(/[[:space:]]+$/, "", v)
-      c = substr(v, 1, 1)
-      if (length(v) &gt; 1 &amp;&amp; index(q, c) &gt; 0 &amp;&amp; substr(v, length(v), 1) == c)
-        v = substr(v, 2, length(v) - 2)
+      sub(/^[[:space:]]+/, "", v)
+      c = substr(v, 1, 1); e = index(substr(v, 2), c)
+      if (index(q, c) &gt; 0 &amp;&amp; e &gt; 0) v = substr(v, 2, e - 1)
+      else {
+        if (c == "#") v = ""
+        else if (match(v, /[ \t]#/)) v = substr(v, 1, RSTART - 1)
+        sub(/[[:space:]]+$/, "", v)
+      }
       print v; exit
     }' "$1"
 }</code>
@@ -1222,6 +1227,11 @@ done &lt; "$DUPS"
       <li><span class="check">✓</span><strong>검사기가 돌았다는 줄을 함께 센다.</strong> 「종료 코드 0 또는 1 이고 경고 0 건」 은 검사기가 멈춰도 통과한다. 검사기가 실제로 돌았다는 줄(예: <code>Linting: 1 file</code> · <code>검사 범위: 소스 디렉토리</code>)이 나오는지를 같은 조건에서 잰다(Phase 10 실측)</li>
       <li><span class="check">✓</span><strong>「바꾸지 않는다」 구간은 더한 줄의 자리와 수까지 잠근다.</strong> 지운 줄 수만 재면 줄을 더해 판정을 느슨하게 만드는 편집이 통과한다(Phase 3 실측). <code>git diff -U0</code> 의 <code>@@</code> 머리에서 더한 줄 · 지운 줄 번호를 모두 뽑아, 허용한 절 밖에 0 줄인지 잰다</li>
       <li><span class="check">✓</span><strong>풀어 둔 판에서 <code>validate-doc-contracts.py</code> 는 <code>NOT RUN</code> 이다.</strong> 그 스크립트는 <code>git ls-files</code> 를 부르므로 <code>git archive</code> 로 푼 폴더에서는 <code>NOT RUN: git ls-files 실패 (rc=128)</code> 와 종료 코드 2 를 낸다. 푼 폴더에서 <code>git init -q &amp;&amp; git add -A</code> 를 한 뒤 돌린다 (실측 2026-09-26, 판 <code>6378948</code> — 풀어 둔 판은 종료 코드 2, 같은 사본에 두 명령을 한 뒤 종료 코드 0)</li>
+      <li><span class="check">✓</span><strong>린트 끄기 주석을 읽는 측정은 세 모양을 가른다.</strong> <code>&lt;!-- markdownlint-disable-next-line … --&gt;</code> 은 다음 한 줄, <code>disable-line</code> 은 그 줄만, 꼬리 없는 <code>disable</code> 은 <code>enable</code> 이 나올 때까지 끈다. <code>after-0926-mdlint</code> 측정 스크립트 <code>meaning.py</code> 가 <code>disable-next-line</code> 을 구간 <code>disable</code> 로 읽어 끈 범위를 부풀렸다 (남은 일 B22)</li>
+      <li><span class="check">✓</span><strong>파일마다 차이를 셀 때 첫 차이 하나에서 멈추지 않는다.</strong> 같은 <code>meaning.py</code> 의 SPACING 검사가 파일마다 첫 차이만 내서, 고친 뒤에도 남은 둘째 차이를 못 봤다. 차이는 모두 내고 그 수를 센다</li>
+      <li><span class="check">✓</span><strong>커밋 메시지 끝 줄을 <code>git log --format=%B | tail</code> 로 재지 않는다.</strong> <code>%B</code> 출력 끝에 빈 줄이 붙어 <code>tail -2</code> 가 서명 줄 하나와 빈 줄을 잡는다 — cx3 <code>AR-02</code> 에서 여덟 커밋이 모두 헛 FAIL 했다. 서명 줄은 <code>git log -1 --format='%(trailers:key=Co-Authored-By,valueonly)'</code> 로 뽑는다. 모델 이름은 바뀌므로 한 벌과 글자로 맞대지 말고 <code>Claude … &lt;noreply@anthropic.com&gt;</code> 모양으로 잰다</li>
+      <li><span class="check">✓</span><strong>기대 출력 글자는 봉인 전 실제 실행 출력에서 옮긴다.</strong> 손으로 적으면 빈칸 수가 달라진다 — dr1a <code>SC-01</code> 은 출력이 빈칸 둘인데 계약은 한 칸이라 헛 FAIL 했다</li>
+      <li><span class="check">✓</span><strong>정렬은 <code>LC_ALL=C sort</code> 로 한다.</strong> 로캘 없는 <code>sort -u</code> 는 이 맥과 CI 에서 차례가 갈린다 — k4 <code>DG-02</code> 가 이 규칙과 다르게 정렬했다. 겹친 줄을 지울 때도 <code>LC_ALL=C sort -u</code> 로 쓴다</li>
     </ul>
     <code class="code-block"># 두 판 풀기 · 경고 줄 번호 — zsh · bash 동일
 with_two() {  # with_two &lt;저장소&gt; &lt;판1&gt; &lt;판2&gt; &lt;명령&gt; [인자...] — 명령 뒤에 두 폴더를 붙여 부르고 그 종료 코드를 돌려준다
