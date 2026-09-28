@@ -394,6 +394,48 @@
       "note": "굵은 머리 — 머리 낱말 비교가 ** 때문에 빗나가던 결함의 음성 입력"
     },
     {
+      "id": "blocking-empty-under-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-under-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "__ 로 감싼 굵은 머리 — ** 만 지워 표 머리를 놓치고 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-italic-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-italic-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "* 로 감싼 기울인 머리 — 표 머리를 놓치고 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-no-edge-pipe",
+      "fixture": "fixtures/gate-fail-blocking-empty-no-edge-pipe.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "줄 양 끝 | 가 없는 표 — | 로 시작하지 않는 줄을 버려 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
       "id": "blocking-empty-quote-crlf",
       "fixture": "fixtures/gate-fail-blocking-empty-quote-crlf.md",
       "stack": "flutter",
