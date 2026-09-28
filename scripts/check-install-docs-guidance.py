@@ -78,9 +78,11 @@ def main():
     def is_tracked(path):
         return path.rstrip("/") in tracked or path.rstrip("/") in folders
 
-    kits = sorted({p.split("/")[0] for p in tracked if p.endswith("/.claude-plugin/plugin.json") and p.count("/") == 2})
+    kits = sorted({manifest.split("/")[0] for manifest in tracked
+                   if manifest.endswith("/.claude-plugin/plugin.json") and manifest.count("/") == 2})
     total = ok = need = exempt = 0
-    for path in sorted(p for p in tracked if p.split("/")[0] in kits and "/evals/" not in p):
+    for path in sorted(candidate for candidate in tracked
+                       if candidate.split("/")[0] in kits and "/evals/" not in candidate):
         try:
             text = open(path, encoding="utf-8").read()
         except (OSError, UnicodeDecodeError):
