@@ -4,7 +4,7 @@ slug: after-0928-docs-site
 created: "2026-09-28 12:15"
 complexity: "복잡"
 conditions: 31
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:496b4785f3dd5d39
 measurement_digest: sha256:48cdc97f09055aac
