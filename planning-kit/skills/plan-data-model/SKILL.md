@@ -14,6 +14,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **구현 스키마로 점프 금지** — 이 스킬은 **개념 모델**이다. `VARCHAR(255)`, 인덱스, FK 제약 등 구현 디테일 금지. 구현은 backend-kit/rust-kit 가 담당.
 2. **CRUD 함정** — 모든 기능을 "X 를 Create/Read/Update/Delete" 로 환원하면 도메인 이벤트가 사라진다. "OrderPlaced", "PaymentRefunded" 같은 **사건 중심** 모델링 선행.
 3. **Aggregate 경계 누락 금지** — 엔티티를 나열만 하고 경계를 안 그으면 의존성이 폭발한다. 각 Aggregate 의 **Root** 를 명시.

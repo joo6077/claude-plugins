@@ -14,6 +14,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 - **Library Policy 는 빌드 게이트급**: `motion`, `framer-motion`, `@dnd-kit/*`, `react-spring`, `react-transition-group`, `react-dnd`, `react-beautiful-dnd`, `gsap`, `lottie-react`, `@formkit/auto-animate`, `animate.css` import 는 빌드 실패 — 경고가 아니라 즉각 REJECT

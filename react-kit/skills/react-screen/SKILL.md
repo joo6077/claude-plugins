@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **`routeTree.gen.ts` 수동 수정 금지** — TanStack Router 플러그인이 덮어쓴다. 수정이 필요하면 플러그인 옵션을 조정한다.
 2. **라우트 파라미터는 `$` prefix** — TanStack Router는 `$userId` 형태 사용. Next.js의 `[userId]`와 다르다.
 3. **라우트 파일명 `-` prefix 제외** — TanStack Router 플러그인 기본 설정이 `-` prefix 파일을 무시한다. 특수 파일 네이밍 시 주의.

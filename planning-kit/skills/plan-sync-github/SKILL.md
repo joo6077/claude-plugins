@@ -12,6 +12,8 @@ user-invocable: true
 
 # Plan Sync GitHub
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 ## Gotchas
 
 1. **확인 없이 생성 금지** — Issues/Milestones 는 외부에 보이는 리소스다. 생성 목록 미리 보여주고 사용자 승인 후 실행. dry-run 먼저.

@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **Discovery 없이 PRD 금지** — Problem / JTBD / User / Success Metric 이 없으면 `/plan-discover` 먼저 실행. 추측 기반 PRD 는 나중에 전부 재작업된다.
 2. **포맷 강제 금지** — PR/FAQ 와 Shape Up Pitch 는 용도가 다르다. 신규 제품/큰 기능은 PR/FAQ, 6주 사이클 단위의 문제해결은 Shape Up. 사용자에게 선택하게 하라.
 3. **Solution 을 먼저 쓰지 마라** — PR/FAQ 는 "릴리스 시 보도자료" 부터 쓴다. Shape Up 은 "Problem → Appetite → Solution" 순서. 기술 구현은 마지막.

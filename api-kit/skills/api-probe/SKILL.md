@@ -14,6 +14,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/api/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 - **Hurl `--secret` 은 stdout 을 가리지 않는다. 스냅샷 저장 전에 킷 자체 scrubber 를 반드시 거친다** — `--secret` 이 가린다고 확인된 곳은 stderr 로그 · JSON 리포트의 `report.json` · `--curl` 파일이다(실측 2026-09-05 · 2026-09-24). 기본 stdout, `--include`, `--output <file>`, `--json` stdout, JSON 리포트의 `store/*_response.json` 에는 토큰이 평문으로 남는다. Hurl 이 응답 stdout 을 "unaltered output" 으로 취급하기 때문이다. 응답을 파일로 남기는 **모든** 경로에 자체 redaction 을 걸어라. 같은 이유로 `--very-verbose` 를 무심코 켜지 마라 — request/response body 를 stderr 로 뱉는다. 등록한 시크릿 값은 `***` 로 바뀌지만 등록하지 않은 변형(base64 · 대소문자 · `Bearer` 접두)과 시크릿으로 등록하지 않은 개인정보는 CI 로그에 그대로 남는다. 진단으로 켤 때는 redaction 을 함께 걸고 그 출력을 artifact 로 흘리지 않는다. (`docs/api/execution/auth-secret-lifecycle.md` §6, `probe-synthesis-hurl-semantics.md` Gotchas)

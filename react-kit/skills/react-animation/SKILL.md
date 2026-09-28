@@ -14,6 +14,8 @@ user-invocable: true
 
 # React Animation
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 ## Gotchas
 
 1. **라이브러리 0개 원칙 — 절대 예외 없음**: Motion(framer-motion) / dnd-kit / react-spring / react-transition-group / @formkit/auto-animate / react-dnd / gsap / lottie-react / react-beautiful-dnd / animate.css 는 **설치 및 import 금지**. 이들의 import 구문이 코드베이스에 존재하면 `/react-audit` 이 빌드 실패를 발행한다. 사용자가 요청하더라도 대안 구현을 제시하고 라이브러리 사용을 거부한다.

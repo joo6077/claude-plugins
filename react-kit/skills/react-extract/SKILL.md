@@ -13,6 +13,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **grep/regex import 치환 금지** — 단순 문자열 치환은 함수 내부 문자열이나 주석에도 패턴이 있으면 오염된다. import 경로 변환은 반드시 TypeScript AST 수준(ts-morph 또는 TypeScript Compiler API)에서 import 노드를 식별하여 처리한다.
 2. **`export default` 컴포넌트 추출 금지** — `export default function ...`은 import 시 임의 이름을 붙일 수 있어 일관성이 깨진다. 먼저 named export로 리팩터한 후 추출한다. 원본을 변경하는 것이므로 사용자에게 먼저 알린다.
 3. **상대 경로 → absolute 통일** — 기존 코드의 `import { X } from './x'`를 이동 후 경로 재계산하지 않는다. 항상 `@/presentation/shared/components/...` 형태로 업데이트한다.

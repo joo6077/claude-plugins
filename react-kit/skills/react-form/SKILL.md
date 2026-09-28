@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **Submit은 Result 반환, try/catch 금지** — 폼 제출 로직은 `Promise<Result<T, Failure>>`를 반환하는 mutation 훅을 props로 주입받는다. 컴포넌트 안에서 `try/catch`로 submit 에러를 잡지 않는다. 상위 useCase에서 이미 Result로 변환되어 있어야 한다.
 2. **에러 표시는 `formState.errors`만** — 별도 state로 에러 메시지를 관리하지 않는다. 필드 에러는 `formState.errors.<field>?.message`, 제출 실패(서버/네트워크 에러)는 `setError('root.serverError', { message })` 후 `formState.errors.root?.serverError?.message` 로 표시.
 3. **`defaultValues` 필수** — 초기값 없이 시작하면 uncontrolled → controlled 전환 경고가 발생한다. 빈 문자열이라도 모든 필드에 명시한다.

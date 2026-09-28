@@ -1703,7 +1703,7 @@ PY</pre>
   </div>
 
   <div class="callout">
-    <strong>시험 파일을 새로 만들 때 — 그 키를 보는 규칙이 있는지부터 확인한다.</strong> 옵션 목록은 키 이름 · 받는 프리셋 종류 · <strong>enum 값</strong>만 본다. 숫자 키의 값은 판정하지 않으므로 아무 숫자 키에 말도 안 되는 값을 넣은 시험 파일은 <strong>그냥 통과한다</strong>(실측 2026-09-23: <code>top_surface_acceleration</code> <code>99999</code> → <code>RESULT: PASS</code>). 값까지 보는 규칙은 일곱이다 — 공차 보정 음수 금지(<code>elefant_foot_compensation</code>) · 형상 클래스별 외벽 하향(<code>outer_wall_speed</code>) · 유량비 5x(인접 속도 4 키) · 벽 예산(<code>_wall_budget_short_share</code>) · 허공 위 속도(<code>bridge_speed</code> 30 초과) · scarf 길이 비율(<code>seam_slope_min_length</code> ÷ <code>_scarf_loop_circumference_mm</code>) · 소재 부모값 1.5 배(<code>GUARDED</code> 키). <code>compatible_printers</code> · 메타필드 · 숫자 형식 검사는 아직 FAIL 시험 파일이 없다. 이 표와 (2) 실행 줄은 <code>bambu-kit/evals/run-gate-fixtures.sh</code> 가 그대로 읽어 CI 에서 돌린다 — 칸 순서나 실행 줄 모양을 바꾸면 그 스크립트가 <code>STOP</code> 이나 불일치를 낸다.
+    <strong>시험 파일을 새로 만들 때 — 그 키를 보는 규칙이 있는지부터 확인한다.</strong> 옵션 목록은 키 이름 · 받는 프리셋 종류 · <strong>enum 값</strong>만 본다. 숫자 키의 값은 판정하지 않으므로 아무 숫자 키에 말도 안 되는 값을 넣은 시험 파일은 <strong>그냥 통과한다</strong>(실측 2026-09-23: <code>top_surface_acceleration</code> <code>99999</code> → <code>RESULT: PASS</code>). 값까지 보는 규칙은 일곱이다 — 공차 보정 음수 금지(<code>elefant_foot_compensation</code>) · 형상 클래스별 외벽 하향(<code>outer_wall_speed</code>) · 유량비 5x(인접 속도 4 키) · 벽 예산(<code>_wall_budget_short_share</code>) · 허공 위 속도(<code>bridge_speed</code> 30 초과) · scarf 길이 비율(<code>seam_slope_min_length</code> ÷ <code>_scarf_loop_circumference_mm</code>) · 소재 부모값 1.5 배(<code>GUARDED</code> 키). <code>compatible_printers</code> · 메타필드 · 숫자 형식 검사는 아직 FAIL 시험 파일이 없다. 이 표와 (2) 실행 줄은 <code>bambu-kit/evals/run-gate-fixtures.sh</code> 가 그대로 읽어 CI 에서 돌린다 — 칸 순서나 실행 줄 모양을 바꾸면 그 스크립트가 <code>STOP</code> 이나 불일치를 낸다. 기대 칸에 <code>[미검증]</code> 줄 수를 적은 행은 그 줄 수까지 맞아야 일치다 — 못 읽은 칸 알림이 빠지거나 가짜 줄이 늘면 불일치로 잡는다.
   </div>
 
   <div class="table-wrap prose">
@@ -1719,7 +1719,7 @@ PY</pre>
         <tr><td><code>process-bridge-extruder-mismatch.json</code></td><td>bambu</td><td>허공 위 속도 <strong>FAIL 1 건</strong> (슬롯 2 만 50)</td><td>같음</td><td>첫 칸만 읽어 2 · 3 번 슬롯이 안 보인다</td></tr>
         <tr><td><code>process-thin-outer-slot2.json</code></td><td>bambu</td><td>thin 라우팅 <strong>FAIL 1 건</strong> (슬롯 2 만 하향)</td><td><code>_geometry_class=thin</code> 줄을 <code>pass</code> 로</td><td>슬롯별 외벽 하향이 안 보인다</td></tr>
         <tr><td><code>process-bridge-unreadable-slot.json</code></td><td>bambu</td><td>허공 위 속도 <strong>FAIL 1 건</strong> (슬롯 2) + <code>[미검증]</code> 1 줄 (슬롯 1)</td><td><code>허공 위 속도</code> 줄을 <code>pass</code> 로</td><td>못 읽는 칸 하나가 나머지 슬롯 검사를 통째로 끈다</td></tr>
-        <tr><td><code>process-thin-unreadable-slot.json</code></td><td>bambu</td><td>thin 라우팅 <strong>FAIL 1 건</strong> (슬롯 2) + <code>[미검증]</code> 1 줄 (슬롯 1)</td><td><code>_geometry_class=thin</code> 줄을 <code>pass</code> 로</td><td>못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다</td></tr>
+        <tr><td><code>process-thin-unreadable-slot.json</code></td><td>bambu</td><td>thin 라우팅 <strong>FAIL 1 건</strong> (슬롯 2) + <code>[미검증]</code> 2 줄 (슬롯 1 · 벽 예산 미기록)</td><td><code>_geometry_class=thin</code> 줄을 <code>pass</code> 로</td><td>못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다</td></tr>
         <tr><td><code>filament-unreadable-slot.json</code></td><td>bambu</td><td>FAIL 0 건 + <code>[미검증]</code> 1 줄 (슬롯 1)</td><td>못 읽은 칸 알림 줄을 <code>pass</code> 로</td><td>소재 부모값 이탈 검사가 조용히 꺼진다</td></tr>
         <tr><td><code>filament-scope-process-key.json</code></td><td>bambu</td><td>키 스코프 불일치 <strong>FAIL 1 건</strong> (<code>outer_wall_speed</code> · process)</td><td><code>키 스코프 불일치</code> 줄을 <code>pass</code> 로</td><td>process 키를 소재 설정에 넣어도 통과한다</td></tr>
         <tr><td><code>process-scope-filament-key.json</code></td><td>bambu</td><td>키 스코프 불일치 <strong>FAIL 1 건</strong> (<code>overhang_fan_threshold</code> · filament)</td><td>같음</td><td>냉각 키를 process 에 넣어도 통과한다</td></tr>
@@ -2099,9 +2099,9 @@ KNOWN = ["M83", "; FEATURE: Outer wall", "G1 X0 Y0", "G1 X10 Y0 E1",
           <table>
             <thead><tr><th>결과</th><th>처리</th></tr></thead>
             <tbody>
-              <tr><td><code>02.06.00.xx</code></td><td>references 기준값(2026-07-27 로컬 설치본). 그대로 사용</td></tr>
-              <tr><td><code>02.06.01.xx</code></td><td>그대로 — 작은 패치는 호환 가능성 높음. scarf 필드가 의심되면 대조</td></tr>
-              <tr><td><code>02.07.x.xx</code> · <code>02.08.x.xx</code></td><td><span class="badge badge-warn">bambu-kaizen 권장</span> references 가 <code>02.06.00.51</code> 기준 — 보고 뒤 진행</td></tr>
+              <tr><td><code>02.08.02.xx</code></td><td>references 확인 판(2026-09-05 앱 <code>02.08.02.61</code>, 옵션 목록 <code>bambu-02.08.02.61.tsv</code>). 그대로 사용</td></tr>
+              <tr><td>그 밖의 <code>02.08.x.xx</code></td><td>그대로 — 같은 2.8 줄의 패치는 호환 가능성 높음. 키가 옵션 목록에 없거나 import 에서 버려지면 대조</td></tr>
+              <tr><td><code>02.06.x.xx</code> · <code>02.07.x.xx</code></td><td><span class="badge badge-warn">옛 판</span> 옵션 목록은 2.8.2 판에서 뽑았다 — 옛 판에 없는 키가 들어갈 수 있다. 보고하고 업그레이드 권장</td></tr>
               <tr><td><code>02.09.x.xx</code> 이상</td><td><span class="badge badge-bad">/bambu-research 먼저</span> 확인 없이 생성 금지</td></tr>
               <tr><td><code>02.05.x.xx</code> 이하</td><td><code>"version": "2.6.0.2"</code> 가 거부될 수 있다 — 업그레이드 권장</td></tr>
               <tr><td>명령 실패</td><td>미설치. JSON 은 만들되 import 확인 셸 명령은 건너뛴다</td></tr>

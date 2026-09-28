@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **단일 프레임워크 강요 금지** — RICE 가 만능이 아니다. 기능 성격에 따라 Kano / WSJF / MoSCoW 가 더 적합할 수 있다. 선택 근거 명시.
 2. **Confidence 를 임의로 100% 두지 마라** — RICE 의 Confidence 가 50% 이하면 discovery/실험 먼저. 100% 로 셋팅하면 가중치가 사라진다.
 3. **Effort 추정을 엔지니어 없이 금지** — 기획자 혼자 추정한 Effort 는 편향된다. 최소 "엔지니어 리뷰 대기" 플래그 붙이기.

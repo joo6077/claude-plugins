@@ -326,6 +326,160 @@
         "GATE_FAIL"
       ],
       "note": "출처 칸에 http 주소가 없는 행이 있으면 G5 FAIL"
+    },
+    {
+      "id": "blocking-empty-lead-space",
+      "fixture": "fixtures/gate-fail-blocking-empty-lead-space.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "줄 앞 공백 세 칸 표 — 표를 못 알아봐 rows=0 으로 통과하던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-nbsp-head-crlf",
+      "fixture": "fixtures/gate-fail-blocking-empty-nbsp-head-crlf.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "머리 칸 U+00A0 · CRLF — 두 모양이 겹쳐도 표를 알아봐야 한다"
+    },
+    {
+      "id": "blocking-empty-ideo-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-ideo-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "머리 칸 U+3000 — 전각 공백을 못 지워 머리를 놓치던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-nbsp-cell",
+      "fixture": "fixtures/gate-fail-blocking-empty-nbsp-cell.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "U+00A0 하나뿐인 칸 — 빈 칸을 찬 칸으로 세던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-bold-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-bold-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "굵은 머리 — 머리 낱말 비교가 ** 때문에 빗나가던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-under-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-under-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "__ 로 감싼 굵은 머리 — ** 만 지워 표 머리를 놓치고 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-italic-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-italic-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "* 로 감싼 기울인 머리 — 표 머리를 놓치고 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-no-edge-pipe",
+      "fixture": "fixtures/gate-fail-blocking-empty-no-edge-pipe.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "줄 양 끝 | 가 없는 표 — | 로 시작하지 않는 줄을 버려 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-quote-crlf",
+      "fixture": "fixtures/gate-fail-blocking-empty-quote-crlf.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "인용 속 표 · CRLF — > 로 시작하는 줄을 표로 안 보던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-five-col",
+      "fixture": "fixtures/gate-fail-blocking-five-col.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=0 empty=0 nourl=0 unrecognized=1",
+        "GATE_FAIL"
+      ],
+      "note": "알아보지 못한 막는 요구 표 — 표 없음과 같은 PASS rows=0 으로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-plain-unrelated",
+      "fixture": "fixtures/gate-ok-plain-unrelated.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=2 ledger=2",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
+        "GATE_PASS"
+      ],
+      "note": "막는 요구 표가 아닌 표(요구 사항 · 설명)만 있으면 G5 는 막지 않는다 — 과하게 막는지 보는 양성 입력"
     }
   ]
 }
