@@ -121,25 +121,40 @@ guide_gate() {
 
   # G5 막는 요구 세 칸 — `| 요구 | 출처 | 막히는 것 | 우회 |` 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다.
   #    표가 없으면 PASS rows=0 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9).
-  blk=$(awk '
+  #    마크다운이 표로 그리는 모양은 다 읽는다 — 줄 앞 공백 세 칸까지 · 인용(>) 속 표 · 굵은 머리 · U+00A0 / U+3000 공백.
+  #    네 낱말이 다 든 머리인데 네 칸 표가 아니면(다섯 칸 등) 「표 없음」 과 같은 PASS 로 흘리지 않고 unrecognized 로 FAIL 한다.
+  #    LC_ALL=C 는 두 공백 글자를 바이트로 지우려는 것이다 — 어느 awk(BSD · mawk · gawk)든 같은 바이트로 읽는다.
+  blk=$(LC_ALL=C awk '
     function trim(text){ gsub(/^[ \t]+|[ \t]+$/, "", text); return text }
     { sub(/\r$/, "") }   # CRLF 가이드는 마지막 칸이 "우회\r" 가 되어 표 머리를 못 찾는다
-    /^\|/ {
-      row=$(0); sub(/^\|/, "", row); sub(/\|[ \t]*$/, "", row)
+    {
+      line=$(0); gsub(/\302\240|\343\200\200/, " ", line)
+      match(line, /^ */)
+      if (RLENGTH >= 4) { in_table=0; next }   # 네 칸 이상 들여쓰면 표가 아니라 코드 블록이다
+      sub(/^ */, "", line)
+      while (line ~ /^>/) sub(/^> */, "", line)
+      if (line !~ /^\|/) { in_table=0; next }
+      row=line; sub(/^\|/, "", row); sub(/\|[ \t]*$/, "", row)
       ncell=split(row, cell, "|")
-      for (i=1; i<=ncell; i++) cell[i]=trim(cell[i])
-      if (ncell==4 && cell[1]=="요구" && cell[2]=="출처" && cell[3]=="막히는 것" && cell[4]=="우회") { in_table=1; next }
+      words=0
+      for (i=1; i<=ncell; i++) {
+        cell[i]=trim(cell[i]); head[i]=cell[i]; gsub(/\*\*/, "", head[i])
+        if (head[i]=="요구" || head[i]=="출처" || head[i]=="막히는 것" || head[i]=="우회") words++
+      }
+      if (ncell==4 && head[1]=="요구" && head[2]=="출처" && head[3]=="막히는 것" && head[4]=="우회") { in_table=1; next }
+      if (words==4) { unrec++; in_table=0; next }
       if (!in_table || row ~ /^[ \t:|-]+$/) next
       rows++
       if (ncell!=4 || cell[1]=="" || cell[2]=="" || cell[3]=="" || cell[4]=="") empty++
       if (cell[2] !~ /http/) nourl++
-      next
     }
-    { in_table=0 }
-    END { print rows+0, empty+0, nourl+0 }
+    END { print rows+0, empty+0, nourl+0, unrec+0 }
   ' "$g")
-  blk_rows=${blk%% *}; blk_rest=${blk#* }; blk_empty=${blk_rest%% *}; blk_nourl=${blk_rest#* }
-  if [ "$blk_empty" -ne 0 ] || [ "$blk_nourl" -ne 0 ]; then
+  blk_rows=${blk%% *}; blk_rest=${blk#* }; blk_empty=${blk_rest%% *}; blk_rest=${blk_rest#* }
+  blk_nourl=${blk_rest%% *}; blk_unrec=${blk_rest#* }
+  if [ "$blk_unrec" -ne 0 ]; then
+    echo "G5_BLOCKING FAIL rows=$blk_rows empty=$blk_empty nourl=$blk_nourl unrecognized=$blk_unrec"; fail=1
+  elif [ "$blk_empty" -ne 0 ] || [ "$blk_nourl" -ne 0 ]; then
     echo "G5_BLOCKING FAIL rows=$blk_rows empty=$blk_empty nourl=$blk_nourl"; fail=1
   else
     echo "G5_BLOCKING PASS rows=$blk_rows"
