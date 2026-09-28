@@ -130,7 +130,8 @@ const VERBOSE = process.env.VERBOSE === '1';
     // 테마 토글이 없는 페이지가 172 중 147 이다. 없는 요소를 0x0 으로 재고 44px 미만이라
     // 실패시키면, 고치지도 못할 조건으로 전 페이지가 FAIL 이 된다 (실측: text3 를 고쳤는데도
     // 22/172 그대로였고 원인이 이것이었다). 존재할 때만 잰다.
-    const btn = await p.evaluate(() => { const e = document.getElementById('theme-btn');
+    // 단추 id 는 쪽마다 둘이다 — themeToggle 쪽을 안 보면 44 미만 단추가 btn=none 으로 통과한다 (2026-09-28 실측 63x33)
+    const btn = await p.evaluate(() => { const e = document.getElementById('theme-btn') || document.getElementById('themeToggle');
       if (!e) return null;
       const r = e.getBoundingClientRect();
       return { w: Math.round(r.width), h: Math.round(r.height) }; });
