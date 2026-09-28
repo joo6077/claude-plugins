@@ -17,3 +17,5 @@
 | k1 남은 것 | api-kit 예시 계약 `contracts/users.me.yaml` 에 비교 기준값 블록이 없어 보류 상태가 글로만 남음 |
 | k1 남은 것 | bambu 시험 파일 `process-thin-unreadable-slot.json` 에 `_wall_budget_short_share` 가 없어 알림 하나가 더 남 |
 | k1 남은 것 | bambu 완료 검사 계약이 슬라이서 설치된 맥에서만 잰다 — 슬라이서 없는 사본 대조를 측정 관례로 |
+| h1 검토 | `scripts/ci-local.sh:37-46` 가 작업 전체 · 워크플로 전체의 `if` · `env` · `defaults.run.working-directory` 를 안 보고 뿌리 폴더에서 돌린다 — 못 다루면 UNSUPPORTED 로 알리게 |
+| lt 남은 것 | 계약 측정 관례: 경로 목록을 따옴표 없는 변수로 넘기면 zsh 에서 한 덩어리가 된다 — xargs · 배열로 넘기라는 한 줄을 계약 형식 문서 측정 관례에 |

@@ -208,7 +208,7 @@ QA evaluator 가 증거로 읽는 위치다.
 - 원문 근거: {사용자 발화 인용 또는 자율 모드 판단 근거}
 ```
 
-### 규칙
+### 승인 기록 규칙
 
 - **자율 모드에서 승인을 대행한 경우에도 기록을 남긴다.** 이때 승인 주체를 "자율 모드" 로 명시하고
   판단 근거를 적는다. 기록 없이 진행하면 측정 근거 부재로 평가에서 REJECT 된다.
@@ -523,7 +523,7 @@ Playwright 공식 문서도 visual comparison 은 첫 실행에서 reference 를
 | `browser_user_visible` | 브라우저에서 지정 route·state·viewport 로 도달해 얻은 visible locator + count/height | 실기기 폰트·DPI·플랫폼 위젯 차이 |
 | `device_user_visible` | 실기기/시뮬레이터에서 얻은 관측 | (가장 강한 채널 — 비용이 크다) |
 
-### 규칙
+### 증거 채널 규칙
 
 - **증거를 인용할 때 채널 이름을 함께 적는다.** 채널 없는 증거는 강도를 알 수 없다.
 - **`artifact_snapshot` 만으로 "사용자가 보는 화면이 정상" 이라고 말하지 못한다.** 목업 HTML 이

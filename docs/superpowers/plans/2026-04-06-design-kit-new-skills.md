@@ -42,9 +42,7 @@ Run: `mkdir -p design-kit/skills/design-concept/references`
 
 - [ ] **Step 2: SKILL.md 작성**
 
-<!-- markdownlint-disable MD025 MD031 MD032 -->
-
-```markdown
+````markdown
 ---
 name: design-concept
 description: >
@@ -149,7 +147,7 @@ references/concept-criteria.md의 카테고리별로 컨셉 요소를 정리한�
 # References
 
 - `references/concept-criteria.md` — 컨셉 도출 기준 상세
-```text
+````
 
 - [ ] **Step 3: 파일 생성 확인**
 
@@ -164,8 +162,6 @@ git commit -m "feat(design-kit): design-concept SKILL.md 추가
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
-
-<!-- markdownlint-enable MD025 MD031 MD032 -->
 
 ---
 
@@ -267,7 +263,7 @@ Run: `mkdir -p design-kit/skills/design-mockup/references`
 
 - [ ] **Step 2: SKILL.md 작성**
 
-```markdown
+````markdown
 ---
 name: design-mockup
 description: >
@@ -304,19 +300,15 @@ user-invocable: true
 
 프로젝트에서 이전 단계 산출물을 탐색한다:
 
-```
-
-<!-- markdownlint-disable MD025 -->
+```text
 
 # 감지 대상
-
-<!-- markdownlint-enable MD025 -->
 
 .design/concept.md          → 컨셉 로드
 **/theme/** **/tokens/**    → 디자인 토큰 로드
 **/design-tokens.*          → 디자인 토큰 로드
 
-```text
+```
 
 - 컨셉 존재 → 무드 키워드, 컬러/타이포 방향, UI 패턴을 시안에 반영
 - 토큰 존재 → 구체적 컬러값, 타이포 스케일, 간격을 시안에 적용
@@ -364,7 +356,7 @@ references/mockup-guidelines.md를 참조하여 시안을 생성한다:
 # References
 
 - `references/mockup-guidelines.md` — 시안 생성 기준 상세
-```
+````
 
 - [ ] **Step 3: 파일 생성 확인**
 
@@ -494,7 +486,7 @@ Run: `mkdir -p design-kit/skills/design-component/references`
 
 - [ ] **Step 2: SKILL.md 작성**
 
-```markdown
+````markdown
 ---
 name: design-component
 description: >
@@ -522,19 +514,15 @@ user-invocable: true
 
 프로젝트에서 이전 단계 산출물을 탐색한다:
 
-```
-
-<!-- markdownlint-disable MD024 MD025 -->
+```text
 
 # 감지 대상
-
-<!-- markdownlint-enable MD024 MD025 -->
 
 .design/concept.md              → 컨셉 로드 (컬러/타이포/UI 패턴 방향)
 **/theme/** **/tokens/**        → 디자인 토큰 로드
 .design/mockups/*.html          → 확정 시안 로드
 
-```text
+```
 
 - 시안 존재 → 시안에서 반복되는 UI 요소를 자동 식별하여 제안
 - 토큰 존재 → 컴포넌트별 토큰 매핑 자동 생성
@@ -568,7 +556,7 @@ references/component-spec-template.md의 포맷으로 각 컴포넌트를 정의
 # References
 
 - `references/component-spec-template.md` — 컴포넌트 정의 템플릿
-```
+````
 
 - [ ] **Step 3: 파일 생성 확인**
 
@@ -598,9 +586,7 @@ Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 
 - [ ] **Step 1: component-spec-template.md 작성**
 
-<!-- markdownlint-disable MD031 MD058 MD060 -->
-
-```markdown
+````markdown
 # 컴포넌트 정의 템플릿
 
 design-component 스킬이 출력하는 컴포넌트 카탈로그의 포맷.
@@ -675,7 +661,7 @@ design-component 스킬이 출력하는 컴포넌트 카탈로그의 포맷.
 | 네비게이션 | default, active/selected, hover |
 | 토글/스위치 | off, on, disabled |
 | 체크박스 | unchecked, checked, indeterminate, disabled |
-```text
+````
 
 - [ ] **Step 2: 파일 생성 확인**
 
@@ -690,8 +676,6 @@ git commit -m "feat(design-kit): design-component references 추가
 
 Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
 ```
-
-<!-- markdownlint-enable MD031 MD058 MD060 -->
 
 ---
 

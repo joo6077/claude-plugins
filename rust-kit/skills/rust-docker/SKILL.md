@@ -207,17 +207,17 @@ CMD ["/app"]
 
 1. 생성된 파일 목록 출력: `Dockerfile`, `docker-compose.yml`, `.dockerignore`.
 2. `HAS_SQLX`이면 빌드 전 `cargo sqlx prepare`로 `.sqlx/` 디렉토리를 생성해야 한다고 안내한다:
-
+   <!-- markdownlint-disable-next-line MD031 -->
    ```bash
    DATABASE_URL=postgres://... cargo sqlx prepare
    ```
-
+   <!-- markdownlint-disable-next-line MD031 -->
 3. 다음 빌드/실행 명령을 안내한다:
-
+   <!-- markdownlint-disable-next-line MD031 -->
    ```bash
    docker compose up --build
    ```
-
+   <!-- markdownlint-disable-next-line MD031 -->
 4. 다음 단계 안내:
    - CI/CD 파이프라인이 필요하면 GitHub Actions 워크플로우 추가를 제안하세요.
    - 프로덕션 배포를 준비한다면 시크릿을 환경변수 대신 Docker secrets 또는 Vault로 관리하세요.

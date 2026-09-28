@@ -11,6 +11,8 @@ argument-hint: "[--env <name>] [--no-open]"
 user-invocable: true
 ---
 
+# `.api/ui.html` 정적 뷰어 생성
+
 ## Gotchas
 
 설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
@@ -37,14 +39,12 @@ user-invocable: true
 - **`판정 불가` 를 PASS 에 합치지 마라.** `/api-verify` 는 경로 간 불변식의 한쪽 경로가 없으면 그 판정 줄을 `판정 불가` 로 따로 센다. 뷰어가 상태를 PASS · FAIL · 미실행 셋만 두면 그 엔드포인트가 PASS 칩으로 들어가, 경로가 사라진 회귀가 초록 표시 뒤로 숨는다. 네 번째 상태(`unjudged`)로 두고 요약 칩은 0 이어도 남긴다. 상태를 정하는 순서는 §2 표다.
 - **`ui.html` 커밋 여부는 미결이다.** dev/stg 스냅샷이 인라인되므로 커밋은 가능하지만 diff 가 매우 시끄럽다. 기본은 `.gitignore` 등록이고, 사용자가 커밋을 원하면 그때 빼준다. 임의로 결정해서 커밋하지 마라.
 
-# `.api/ui.html` 정적 뷰어 생성
-
 ## 0. 프로젝트 감지
 
 `../../references/project-detection.md` 의 절차를 실행한다. 최소한 아래를 확정한 뒤 진행한다.
 
 | 변수 | 출처 |
-|------|------|
+| --- | --- |
 | `API_ROOT` | `.api/` 디렉토리 경로 |
 | `ENV` | `--env` 인자 → 없으면 `project.yaml` 의 기본 환경 |
 | `TIER` | 해당 환경의 `tier` (`dev`/`stg`/`prod`) |
@@ -57,7 +57,7 @@ user-invocable: true
 `.api/` 를 읽는다. 레이아웃 정본은 `../../references/api-layout.md` 다.
 
 | 파일 | 뷰어에서의 역할 |
-|------|-----------------|
+| --- | --- |
 | `project.yaml` | 환경 목록 · baseUrl · tier · read-only 여부 → 상단 환경 선택기 |
 | `auth.yaml` | 프로파일 이름 · 만료 정보 → 토큰 만료 미터, 인증 탭 (**값은 읽지 않는다**) |
 | `inventory.yaml` | 그룹 · 엔드포인트 · 파라미터 · 헤더 → 트리와 요청 폼 |
@@ -114,7 +114,7 @@ FAIL 로 정한 엔드포인트에 이런 줄이 있어도 버리지 않는다 �
 브라우저는 렌더만 한다. 무거운 계산은 전부 여기서 끝낸다.
 
 | 계산 | 방법 |
-|------|------|
+| --- | --- |
 | 비교 기준선 | RFC 8785 JCS canonical JSON (키 재귀 정렬 · 공백 0) |
 | 화면 표시본 | prettier `json` parser → 없으면 `JSON.stringify(obj, null, 2)` |
 | 구조 diff | `microdiff` 로 baseline ↔ 현재 스냅샷 비교 → 경로 단위 `add`/`rm`/`chg` 목록 |
@@ -127,7 +127,7 @@ diff 결과는 **본문 트리의 인라인 거터**와 **데이터 구조 표�
 ## 5. 상한 적용
 
 | 항목 | 상한 | 초과 시 |
-|------|------|---------|
+| --- | --- | --- |
 | 단일 스냅샷 본문 | `256KB` | 잘라내고 원본 파일 경로 표시 + 잘림 배너. 잘린 구간 diff 거터는 비운다 |
 | 단일 HTML evidence payload | `10MiB` | 경고 후 진행 |
 | 〃 | `50MiB` | split · excerpt 모드로 전환 (엔드포인트 그룹별 분할) |
@@ -173,7 +173,7 @@ wc -c "$UI"                                                      # 10MiB 이하
 ```
 
 | 항목 | 기대값 | 근거 |
-|------|--------|------|
+| --- | --- | --- |
 | `<script src` 매치 라인 | 0 | 확정 시안 실측 0 |
 | `<link rel="stylesheet"` 매치 라인 | 0 | 확정 시안 실측 0 |
 | `fetch(` 매치 라인 | 0 | 확정 시안 실측 0 |
@@ -248,7 +248,7 @@ start .api/ui.html         # Windows
 - Step 7 브라우저 확인 — 연 방법 · 콘솔 error 수와 뺀 `favicon.ico` 건수 · `ep` · `shown` · `under24` · `under44` · 상태 네 가지의 칩 숫자 `chips` 와 트리 줄 수 `rows`. 못 했으면 `[미검증]` 과 네 칸
 - 마스킹 게이트 통과 여부
 
-# References
+## References
 
 - `references/viewer-spec.md` — 뷰어 구조·데이터 모델·토큰·상호작용 정본
 - `../../references/api-layout.md` — `.api/` 산출물 레이아웃

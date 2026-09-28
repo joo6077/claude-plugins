@@ -35,7 +35,7 @@ user-invocable: true
 ## Step 1: 대상 범위 결정
 
 - 파일 경로 → 해당 파일만
-<!-- markdownlint-disable-next-line MD037 -->
+  <!-- markdownlint-disable-next-line MD037 -->
 - 디렉토리 경로 → 하위 인프라 관련 파일 전체 (Dockerfile, *.yml, *.yaml, *.tf, *.hcl)
 - 미지정 → 최근 변경된 인프라 파일 (git diff 기준)
 

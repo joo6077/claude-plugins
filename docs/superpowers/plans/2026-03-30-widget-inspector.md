@@ -35,7 +35,7 @@ ls flutter-toolkit/agents/ 2>/dev/null || mkdir -p flutter-toolkit/agents
 
 - [ ] **Step 2: widget-inspector.md 작성**
 
-```markdown
+````markdown
 ---
 name: widget-inspector
 description: >
@@ -145,7 +145,7 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 
 ### Step 3: 리포트 생성
 
-```
+```text
 
 -- Widget Inspector Report ([quick|deep]) --
 
@@ -167,15 +167,15 @@ Pattern Repetition (패턴 반복)
 
 Total: N extraction candidates
 
-```text
+```
 
 후보가 0건이면:
-```
+```text
 
 -- Widget Inspector Report ([quick|deep]) --
 Clean — 추출 후보 없음
 
-```text
+```
 
 ## Gotchas
 
@@ -191,7 +191,7 @@ Clean — 추출 후보 없음
 - **MUST** 추출 시 예상 배치 경로를 제안한다
 - **MUST** quick 모드는 전달받은 범위만 스캔한다
 - **MUST NOT** feature 특화 로직이 있는 private 위젯을 추출 대상으로 잡지 않는다
-```
+````
 
 - [ ] **Step 3: 커밋**
 
@@ -219,7 +219,7 @@ ls flutter-toolkit/skills/flutter-extract/ 2>/dev/null || mkdir -p flutter-toolk
 
 - [ ] **Step 2: SKILL.md 작성**
 
-```markdown
+````markdown
 ---
 name: flutter-extract
 description: >
@@ -274,9 +274,7 @@ user-invocable: true
 
 사용자에게 추출 계획을 보여주고 확인받는다:
 
-```
-
-<!-- markdownlint-disable MD037 -->
+```text
 
 추출 계획:
 
@@ -289,9 +287,7 @@ user-invocable: true
 
 진행할까요?
 
-<!-- markdownlint-enable MD037 -->
-
-```text
+```
 
 ### 3. 배치 경로 결정
 
@@ -367,7 +363,7 @@ user-invocable: true
 - 새 위젯 생성 → `flutter-widget`
 - 코드 품질 감사 → `flutter-audit`
 - codegen 실행 → `flutter-run codegen`
-```
+````
 
 - [ ] **Step 3: 커밋**
 
@@ -405,12 +401,12 @@ widget-inspector 에이전트 리포트와 연동."
 
 `flutter-audit/SKILL.md`의 deep 모드 섹션, Agent 3 뒤에 추가:
 
-```markdown
+````markdown
 ### Agent 4: Widget Inspector (재사용성 감사) -- 항상 실행
 
 재사용 가능한 위젯 패턴을 감지하여 추출 후보를 리포팅한다.
 
-```
+```text
 
 대상 파일에서 재사용 가능한 위젯 패턴을 감지한다:
 
@@ -424,8 +420,8 @@ widget-inspector 에이전트 리포트와 연동."
 
 각 추출 후보마다 파일:라인, 감지 기준, 추출 제안(위젯 이름 + 배치 경로)을 출력한다.
 
-```text
 ```
+````
 
 - [ ] **Step 3: Report Format에 Reusability 섹션 추가**
 

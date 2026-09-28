@@ -529,7 +529,7 @@ git commit -m "feat: design-kit 플러그인 디렉토리 스캐폴딩"
 
 `design-kit/skills/design-system/SKILL.md`:
 
-```markdown
+````markdown
 ---
 name: design-system
 description: >
@@ -556,13 +556,9 @@ user-invocable: true
 
 프로젝트 루트에서 디자인 토큰/테마 파일을 탐색한다:
 
-```
-
-<!-- markdownlint-disable MD025 -->
+```text
 
 # 탐색 패턴 (스택 무관)
-
-<!-- markdownlint-enable MD025 -->
 
 **/theme/**
 **/tokens/**
@@ -571,7 +567,7 @@ user-invocable: true
 **/colors.*
 **/typography.*
 
-```text
+```
 
 - 발견되면: HAS_DS=true, 기존 토큰 구조를 분석
 - 미발견: HAS_DS=false, 신규 토큰 체계 제안 모드
@@ -612,7 +608,7 @@ templates/design-tokens.md 포맷으로 토큰 명세를 생성한다.
 
 - `references/token-principles.md` — 토큰 설계 원칙 상세
 - `templates/design-tokens.md` — 토큰 명세 출력 포맷
-```
+````
 
 - [ ] **Step 2: token-principles.md 작성**
 
@@ -781,7 +777,7 @@ git commit -m "feat(design-kit): design-system 스킬 — 토큰 체계 세팅"
 
 `design-kit/skills/design-guide/SKILL.md`:
 
-```markdown
+````markdown
 ---
 name: design-guide
 description: >
@@ -823,7 +819,7 @@ references/principle-index.md에서 해당 카테고리의 원칙 파일을 찾�
 
 각 피드백 항목은 반드시 이 포맷을 따른다:
 
-```
+```text
 
 ### [카테고리] 항목 제목
 
@@ -833,7 +829,7 @@ references/principle-index.md에서 해당 카테고리의 원칙 파일을 찾�
 **권장:** [권장 사항]
 **이유:** [왜 이렇게 해야 하는지]
 
-```text
+```
 
 ## Step 4: 요약
 
@@ -843,7 +839,7 @@ references/principle-index.md에서 해당 카테고리의 원칙 파일을 찾�
 # References
 
 - `references/principle-index.md` — 카테고리별 원칙 문서 인덱스
-```
+````
 
 - [ ] **Step 2: principle-index.md 작성**
 
@@ -905,7 +901,7 @@ git commit -m "feat(design-kit): design-guide 스킬 — 실시간 디자인 가
 
 `design-kit/skills/design-audit/SKILL.md`:
 
-```markdown
+````markdown
 ---
 name: design-audit
 description: >
@@ -937,14 +933,14 @@ user-invocable: true
 
 Agent 도구를 사용하여 design-reviewer 서브에이전트를 생성한다:
 
-```
+```text
 
 Agent 도구 호출:
 
 - subagent_type: design-reviewer
 - prompt: "다음 파일을 디자인 원칙 기준으로 평가하라: [대상 파일 목록]"
 
-```text
+```
 
 에이전트가 읽기 전용으로 분석 후 카테고리별 PASS/FAIL 결과를 반환한다.
 
@@ -966,7 +962,7 @@ REJECT 시 각 FAIL 항목에 대해:
 
 - `references/audit-criteria.md` — 카테고리별 감사 기준 상세
 - `templates/audit-report.md` — 리포트 출력 포맷
-```
+````
 
 - [ ] **Step 2: audit-criteria.md 작성**
 
@@ -1082,7 +1078,7 @@ git commit -m "feat(design-kit): design-audit 스킬 — 디자인 품질 감사
 
 `design-kit/agents/design-reviewer.md`:
 
-```markdown
+````markdown
 ---
 name: design-reviewer
 description: >
@@ -1158,7 +1154,7 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
 
 ## 출력 형식
 
-```
+```text
 
 ## [카테고리명]
 
@@ -1178,24 +1174,20 @@ UI 코드를 디자인 원칙 기준으로 평가하는 읽기 전용 에이전�
 
 - 사유: [판정 불가 이유]
 
-```text
+```
 
 ## 최종 판정
 
-```
+```text
 
 ---
-
-<!-- markdownlint-disable MD003 -->
 
 **판정: {{APPROVE|REJECT}}**
 PASS: {{n}}개 / FAIL: {{n}}개 / 미검증: {{n}}개
 ---
 
-<!-- markdownlint-enable MD003 -->
-
-```text
 ```
+````
 
 - [ ] **Step 2: 커밋**
 
@@ -1359,7 +1351,7 @@ git commit -m "feat(design-kit): hooks, scripts, evals 추가"
 
 `design-kit/README.md`:
 
-```markdown
+````markdown
 # design-kit
 
 스택 무관 UI/UX 디자인 플러그인. 디자인 시스템 세팅, 실시간 가이드, 디자인 감사를 제공한다.
@@ -1380,13 +1372,13 @@ git commit -m "feat(design-kit): hooks, scripts, evals 추가"
 
 ## 사용 흐름
 
-```
+```text
 
 1. /design-system     → 프로젝트 디자인 토큰 세팅
 2. (개발 중) /design-guide  → 실시간 디자인 조언
 3. (개발 후) /design-audit  → 디자인 품질 감사
 
-```text
+```
 
 ## 원칙
 
@@ -1399,8 +1391,7 @@ git commit -m "feat(design-kit): hooks, scripts, evals 추가"
 ```bash
 claude plugin add github:joo6077/claude-plugins/design-kit
 ```
-
-```text
+````
 
 - [ ] **Step 2: marketplace.json에 design-kit 추가**
 
@@ -1442,9 +1433,7 @@ git commit -m "feat(design-kit): README + marketplace 등록 + CLAUDE.md 업데�
 
 `.claude/skills/design-research/SKILL.md`:
 
-<!-- markdownlint-disable MD024 MD025 MD031 MD032 -->
-
-```markdown
+````markdown
 ---
 name: design-research
 description: >
@@ -1505,12 +1494,13 @@ git commit -m "docs(design): [카테고리] 리서치 갱신 — [소스 요약]
 
 - 크롤링 대상 소스 목록은 Process Step 2 테이블 참조
 - 기존 docs/design/ 문서의 섹션 구조를 따를 것
-```text
+````
 
 - [ ] **Step 2: design-kaizen 스킬 작성**
 
 `.claude/skills/design-kaizen/SKILL.md`:
-```markdown
+
+````markdown
 ---
 name: design-kaizen
 description: >
@@ -1564,7 +1554,7 @@ git commit -m "kaizen(design-kit): [개선 요약]"
 - 기존 카이젠 패턴: `.claude/skills/kaizen-orchestrator/SKILL.md`
 - harness-kaizen: `harness/skills/harness-kaizen/SKILL.md`
 - flutter-kaizen: `flutter-toolkit/skills/flutter-kaizen/SKILL.md`
-```text
+````
 
 - [ ] **Step 3: 커밋**
 
@@ -1572,8 +1562,6 @@ git commit -m "kaizen(design-kit): [개선 요약]"
 git add .claude/skills/design-research/ .claude/skills/design-kaizen/
 git commit -m "feat: design-research, design-kaizen 개발용 스킬 추가"
 ```
-
-<!-- markdownlint-enable MD024 MD025 MD031 MD032 -->
 
 ---
 
