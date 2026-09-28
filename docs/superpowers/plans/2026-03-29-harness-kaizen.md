@@ -370,7 +370,7 @@ git commit -m "kaizen: 이벤트 트리거 감지 스크립트 추가"
 
 - [ ] **Step 1: research-log-entry.md 작성**
 
-```markdown
+````markdown
 # 연구 로그 엔트리 템플릿
 
 > SKILL.md에서 research-log.md에 엔트리 추가 시 이 형식을 따른다.
@@ -401,8 +401,7 @@ git commit -m "kaizen: 이벤트 트리거 감지 스크립트 추가"
 
 - PR URL 또는 "개선 포인트 없음"
 ```
-
-```text
+````
 
 - [ ] **Step 2: 커밋**
 
@@ -421,9 +420,7 @@ git commit -m "kaizen: 연구 로그 엔트리 템플릿 추가"
 
 - [ ] **Step 1: SKILL.md 작성**
 
-<!-- markdownlint-disable MD029 MD031 MD058 MD060 -->
-
-```markdown
+````markdown
 ---
 name: harness-kaizen
 description: >
@@ -622,7 +619,7 @@ EOF
 | 커밋 메시지 | `kaizen:` prefix | `kaizen: sprint-contract few-shot 판단 로직 추가` |
 | 브랜치명 | 버전 + 날짜 | `kaizen/0.4.0-2026-04-07` |
 | PR 제목 | bump 유형 명시 | `[minor] sprint-contract 복잡도 판단 개선` |
-```text
+````
 
 - [ ] **Step 2: 커밋**
 
@@ -630,8 +627,6 @@ EOF
 git add harness/skills/harness-kaizen/SKILL.md
 git commit -m "kaizen: 메인 스킬 파일 (SKILL.md) 추가"
 ```
-
-<!-- markdownlint-enable MD029 MD031 MD058 MD060 -->
 
 ---
 

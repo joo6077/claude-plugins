@@ -244,7 +244,7 @@
 <tr>
   <td><div class="c"><strong>F4</strong></div></td>
   <td><div class="c">네비게이션 경로 부재</div></td>
-  <td><div class="c"><code>reflections-2026-05.md:18705</code> <strong>"고급 설정 아래에도 없음"</strong> / <code>feedback_setup_guide_site_distinction.md:18</code> FCM 하려고 App Store Connect 로 진입 → 옵션 자체가 없음 / <code>format-checklist.md:115</code> <code>General</code> 한 단계 누락으로 경로 무효</div></td>
+  <td><div class="c"><code>reflections-2026-05.md:18705</code> <strong>"고급 설정 아래에도 없음"</strong> / <code>feedback_setup_guide_site_distinction.md:18</code> FCM 하려고 App Store Connect 로 진입 → 옵션 자체가 없음 / <code>format-checklist.md:133</code> <code>General</code> 한 단계 누락으로 경로 무효</div></td>
 </tr>
 </tbody></table></div>
 <p>F2 와 F3 는 서로를 악화시킨다. <code>reflections-2026-05.md:18752-18753</code> 이 그 실물이다 — 사용자가 "자세하게"를 요구한 <strong>직후에</strong> 사이드바 메뉴 순서를 검증 없이 단정했다. <strong>입도 요구를 날조로 메우는 것</strong>이 이 킷이 막아야 할 최악의 실패다.</p>
@@ -334,7 +334,7 @@ SKILL.md:131  "문서에 있는 상위 섹션명까지만 확정하고,
 <p>딥링크가 없으면 <strong>전역 검색어</strong>를 준다.</p>
 <blockquote class="quote"><p><em>"The Search bar at the top in the Google Cloud console is an efficient way to search for various product services, documentation pages, tutorials and even Google Cloud Resources"</em> — [cloud.google.com/blog/topics/developers-practitioners/tips-get-most-out-google-cloud-documentation]</p></blockquote>
 <h3 class="sub">P4. 중간 단계를 생략하지 않는다</h3>
-<p>경로 표기는 <code>A &gt; B &gt; C</code> 로 전 구간을 쓴다. 한 단계라도 빠지면 사용자가 화면에서 못 찾는다 — <code>format-checklist.md:115</code> 의 실측(<code>General</code> 누락으로 경로 무효)이 근거다.</p>
+<p>경로 표기는 <code>A &gt; B &gt; C</code> 로 전 구간을 쓴다. 한 단계라도 빠지면 사용자가 화면에서 못 찾는다 — <code>format-checklist.md:133</code> 의 실측(<code>General</code> 누락으로 경로 무효)이 근거다.</p>
 <blockquote class="quote"><p><em>"Don't use bold on the greater-than symbol. Include a space before and after the symbol."</em> — Microsoft, [learn.microsoft.com/en-us/style-guide/procedures-instructions/describing-interactions-with-ui]</p></blockquote>
 <p>내부 데이터는 <code>path: ["Settings","General","Cloud Messaging"]</code> 로 <strong>구조화</strong>해 보관하고 렌더링만 <code>&gt;</code> 로 한다 (Microsoft 는 <code>&gt;</code> 를 굵게 하지 말라 하고 Google 은 시퀀스 전체를 한 bold 로 감싸라 해서 표기가 갈리기 때문이다).</p>
 <h3 class="sub">P5. 방향어를 단독으로 쓰지 않는다 — 이름 있는 컨테이너가 1 순위다</h3>
@@ -689,7 +689,7 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것</code></pre></div>
   <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>조회했다는 주장은 도구 호출 기록으로만 성립한다.</strong> — <code>feedback_skill_invocation_evidence.md</code>, <code>reflections-2026-05.md:18733</code></div></li>
   <li class="lv0"><span class="li-mark">5.</span><div class="li-body"><strong>1차 출처가 deprecated 라고 말하지 않은 것을 deprecated 로 쓰지 마라.</strong> 출처보다 강한 주장은 날조다. — <code>search-strategy.md:88</code></div></li>
   <li class="lv0"><span class="li-mark">6.</span><div class="li-body"><strong>사이트가 갈리는 서비스는 사전 요구사항 맨 위에 작업별 표를 박아라.</strong> — <code>feedback_setup_guide_site_distinction.md</code></div></li>
-  <li class="lv0"><span class="li-mark">7.</span><div class="li-body"><strong>한국어 라벨은 번역 추정이다. 영문을 정본으로, 한국어는 괄호.</strong> — <code>format-checklist.md:117</code></div></li>
+  <li class="lv0"><span class="li-mark">7.</span><div class="li-body"><strong>한국어 라벨은 번역 추정이다. 영문을 정본으로, 한국어는 괄호.</strong> — <code>format-checklist.md:135</code></div></li>
   <li class="lv0"><span class="li-mark">8.</span><div class="li-body"><strong>각 단계에 관측 가능한 확인 지점을 붙여라.</strong> 무증상 실패가 가장 위험하다. — <code>bambu_studio_json_import.md:23-24</code>, <code>bambu_ironing_type_enum.md:13</code></div></li>
   <li class="lv0"><span class="li-mark">9.</span><div class="li-body"><strong>같은 규칙을 여러 문서에 재서술하지 마라.</strong> 정본 한 곳을 인용하라. 재서술은 반드시 갈라진다. — <code>qa-evaluation-guide.md:1004-1013</code></div></li>
   <li class="lv0"><span class="li-mark">10.</span><div class="li-body"><strong>추측 fallback 을 두지 마라.</strong> 확정 실패 시 조용히 기본값으로 떨어지면 같은 입력이 환경마다 다른 답을 낸다. — <code>reflect-kit/hooks/_lib-tag-canon.sh:40-45</code></div></li>
