@@ -51,4 +51,7 @@
 - 「ex 남은 것 — 새 규칙 넷」(벽시계 문자열 모양 · PRD/ADR 경계 · 조회일/갱신일 분리 · 서비스 계정 선택 나무) — 새 규칙이라 사용자 확인 전에는 넣지 않았다. 보고 때 물어야 한다.
 - api-kit 예시의 다른 네 계약에는 비교 기준값 블록이 없다 — 이번 항목은 보류 상태를 글로만 적은 `users.me` 하나였다 (범위 경계).
 - 「k1」 이라는 검토 이름이 `after-kaizen-0928/k1-notes.md` 와 `remaining.md` 의 다른 회차 검토에 겹쳐 쓰였다. 출처를 되짚을 때 폴더까지 같이 적어야 한다 (교차 진단 지적, 계약 배경 절에 적음).
-- QA 판정과 계약 `status: done` 은 이 묶음에서 하지 않았다.
+- QA 판정은 APPROVE (28/28, 리포트 `.harness/sprint-feedback-after-0929-final-sweep-rules.md`), 계약 `status: done`. 교차 진단은 부모 세션 몫(`cross_diagnosis_by: pending-parent`).
+- 독립 검토 참고 1 (막지 않음, 범위 밖·이번 변경 전부터 있던 일) — `scripts/ci-local.sh` 가 작업 전체의 `strategy.matrix` · `continue-on-error` · `container` · `runs-on` 을 `UNSUPPORTED` 로 알리지 않고 그냥 돌린다. matrix 단계는 `${{ matrix.x }}: bad substitution` 으로 `FAIL`, `continue-on-error: true` 작업은 CI 와 달리 `failed=1` 로 센다. 지금 레포 CI 파일은 이 열쇠를 안 써서 결과에 영향이 없어 이번엔 두었다. 쓰기 시작하면 이번 `if` · `env` · `defaults` 처럼 `UNSUPPORTED` 로 알리게 넓혀야 한다.
+- 독립 검토 참고 2 (막지 않음) — `jobs: {a: null}` 처럼 내용 없는 작업이 있으면 안내 문장 대신 파이썬 오류 전문이 찍힌다. 종료 코드는 BASE 와 같은 2 라 동작은 같고 보기만 나쁘다. 오류-01 안내 경로에 한 줄 더하면 된다.
+- 킷 판 번호(onboarding-kit · harness · bambu-kit · design-kit patch)는 main 에 합친 뒤 올린다.
