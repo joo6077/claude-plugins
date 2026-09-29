@@ -308,7 +308,7 @@ footer code { color: var(--text2); }
     </p>
     <div class="meta-row">
       <span>원본 <code>docs/planning/prd-patterns.md</code></span>
-      <span>last_updated 2026-09-25</span>
+      <span>last_updated 2026-09-29</span>
       <span>패턴 6 가지 · 원칙 1 가지 · 출처 19 개</span>
     </div>
   </header>
@@ -674,6 +674,17 @@ footer code { color: var(--text2); }
       <p>Atlassian: 「A product requirements document (PRD) defines the purpose, features, and behavior of a product, aligning stakeholders and guiding development.」</p>
       <p>adr.github.io: 「An Architectural Decision Record (ADR) captures a single AD and its rationale.」</p>
       <p>Michael Nygard: 「Each record describes a set of forces and a single decision in response to those forces.」</p>
+      <p><strong>이 경계의 핵심 질문</strong></p>
+      <ul>
+        <li>비범위 표에 적은 항목이 제품 범위를 정하는가, 아니면 구조 · 비기능 특성 · 의존성 · 인터페이스를 정하는가?</li>
+        <li>뒤쪽이면 ADR 에 결정 하나와 근거 · 결과를 적고, PRD 에는 그 ADR 경로만 남겼는가?</li>
+        <li>폐기한 제품 기능이 동시에 구조 결정이면 PRD 비범위 줄과 ADR 을 함께 두되, 결정 근거는 ADR 한 곳에만 적었는가?</li>
+      </ul>
+      <p>
+        <strong>적용 시점</strong> — PRD 비범위 표에 한 줄 더할 때, 기획 도중 구조나 의존성을 고르는 결정이 나왔을 때.
+        <strong>한계</strong> — PRD 와 ADR 을 직접 비교하거나 폐기한 결정을 반드시 어느 한쪽에 적으라고 정한 원문은 찾지 못했다(2026-09-28 조회).
+        PRD 에서 ADR 경로만 가리키고 내용을 다시 쓰지 않는 방식도 원문의 직접 문장이 아니라 이 킷의 운영 규칙이다.
+      </p>
 
       <div class="when-limit">
         <div class="when"><b>적용 시점</b><span>PRD 작성, 기획 도중 사용자가 기능이나 설정 항목을 없애기로 한 때, 스토리 · 흐름 · 데이터 모델을 PRD 에서 이어 만들 때</span></div>
@@ -1008,7 +1019,7 @@ footer code { color: var(--text2); }
   </section>
 
   <footer>
-    Planning Kit · 문서 v0.2.0 · last updated 2026-09-25 ·
+    Planning Kit · 문서 v0.2.0 · last updated 2026-09-29 ·
     원본 <code>docs/planning/prd-patterns.md</code>
   </footer>
 
