@@ -163,7 +163,7 @@ section {
 
 .card:hover {
   border-color: var(--accent);
-  transform: translateY(-2px);
+  transform: var(--dk-hover-move, translateY(-2px));
   box-shadow: 0 8px 32px rgba(167, 139, 250, 0.12);
 }
 
@@ -342,7 +342,7 @@ td code {
 .checklist-item:hover {
   border-color: var(--border2);
   border-left-color: var(--accent2);
-  transform: translateX(2px);
+  transform: var(--dk-hover-move, translateX(2px));
 }
 
 .checklist-icon {
@@ -405,9 +405,6 @@ footer a {
   th, td { padding: 12px 14px; font-size: 13px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
-}
 </style>
 </head>
 <body>
