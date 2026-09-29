@@ -68,7 +68,7 @@
 | `scripts/validate-doc-contracts.py` | 0 · 1 · 2 · 3 |
 | `scripts/check-reviewer-protocol-copies.py` | 0 · 1 · 2 |
 | `scripts/check-cause-table-copies.py` | 0 · 1 · 2 |
-| `scripts/check-docs-a11y.js` | 0 · 1 |
+| `scripts/check-docs-a11y.js` | 0 · 1 · 2 |
 | `scripts/check-api-kit-docs.py` | 0 · 1 |
 | `scripts/collect-kaizen-data.py` | 0 · 2 |
 | `scripts/finalize-phase.sh` | 0 · 1 · 2 |
