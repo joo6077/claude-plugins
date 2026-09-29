@@ -4,7 +4,7 @@ slug: after-0928-korean-condition-ids
 created: "2026-09-29 09:21"
 complexity: "복잡"
 conditions: 29
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:2dfbe5bc0290bd96
 measurement_digest: sha256:d63c0cc68f812773
