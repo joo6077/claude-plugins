@@ -90,3 +90,72 @@ dark_pages=200 light_pages=84 changed=0 narrowed_checks=2 narrowed_bad=0 br_rc=0
   하나 바꾸고, bambu 쪽 체크리스트 29 번 항목 하나를 지운 뒤 `--head-root <사본> --only-narrowed` →
   `index.html … color_diff=1` (`DIV rgb(245, 240, 232)` → `rgb(255, 0, 0)` `Claude Plugins`),
   `bambu-print-profile.html … removed=5` · `narrowed_bad=2` · 종료 코드 1.
+
+## AM-02 — relaxing
+
+- 대상 조건: 진단-05 (그 안의 `python3 scripts/check-api-kit-docs.py` 종료 코드 0) · 구조-11 (바뀐 파일이 `# sprint-scope` 목록 안)
+- 변경 1 — 범위 목록: `## 범위 경계` 의 `# sprint-scope` 블록에 `scripts/check-api-kit-docs.py` 한 줄을 더해 읽는다.
+  원 목록 8 줄은 그대로다.
+- 변경 2 — 검사: `scripts/check-api-kit-docs.py` 의 쪽마다 검사 하나(원 83 · 84 번째 줄, 쪽 본문에
+  `prefers-reduced-motion` 글자가 있는가)를 「HTML 주석 밖에 `assets/site.css` 를 가리키는 `<link>` 가 있는가」로
+  바꾼다. 나머지 검사(줄 수 · 출처 URL · accent · 외부 리소스 · overflow 억제 · `dk-theme`)는 그대로다.
+- 왜: 구조-06 이 움직임 줄이기 규칙을 쪽마다 적지 않고 공통 CSS `docs/assets/site.css` 한 곳에 모으게 한다. 그 뒤
+  원 검사는 api-kit 12 쪽을 모두 떨어뜨린다(`0/12 PASS`, 종료 코드 1) — 2 회차 QA 가 진단-05 를 이것 하나로
+  REJECT 했다. 스크립트는 범위 목록 밖이라 고치면 구조-11 이 깨진다. 두 조건을 원 문구대로 함께 만족하는 구현이
+  없었다.
+- 근거 (redaction 거친 원문 — 세션 기록의 선택지 답): 질문 「…기존 검사 스크립트 scripts/check-api-kit-docs.py 는
+  api-kit 문서 12 쪽마다 그 규칙 글자가 쪽 안에 있어야 통과시킵니다. 그래서 지금 0/12 로 실패합니다. 이 스크립트는
+  계약의 '건드려도 되는 파일' 목록 밖에 있습니다. 목록에 이 스크립트를 더하고, 검사를 '공통 CSS 파일을 연결했는가'로
+  바꿔도 될까요? …」, 고른 답 「목록에 더하고 검사를 바꾼다 (Recommended)」
+- 앵커: 2026-09-29T06:46:43.548Z · session=bda55d45-296c-491f-89ba-b52042d58e72 ·
+  cwd=/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak3-fs2
+
+### consent — anchored
+
+세션 기록 `~/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72.jsonl`
+의 `AskUserQuestion` 쌍을 `tool_use_id` 로 짝지어 뽑았다. 결정 기록
+`/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0928/.harness/.meta/after-kaizen-0928/decisions.md`
+맨 끝 절이 같은 시각 · 줄을 적는다.
+
+| 항목 | 값 |
+| --- | --- |
+| 질문 머리 | 검사 스크립트 |
+| 질문 시각 | 2026-09-29T06:31:21.922Z (기록 6526 번째 줄) |
+| 답 시각 | 2026-09-29T06:46:43.548Z (기록 6533 번째 줄) |
+| `tool_use_id` | `toolu_0174t587yD2dEcWf9B7CgYgf` |
+| 세션 | `bda55d45-296c-491f-89ba-b52042d58e72` |
+| 작업폴더 | `/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak3-fs2` |
+| 고른 답 | 목록에 더하고 검사를 바꾼다 (Recommended) |
+
+동의는 이 개정을 담은 커밋과 스크립트를 고친 커밋보다 앞선다 — 이 절을 쓰기 직전 `date -u` 가
+2026-09-29T06:48:23Z 였다.
+
+### amend_direction — 계산
+
+두 변경을 각각 스키마 `harness/references/contract-schema.md` 의 헬퍼로 쟀다. zsh · bash 모두 같다.
+
+- 범위 목록은 허용 집합이라 `amend_direction` 에 넣었다. 원 집합은 계약의 `# sprint-scope` 블록 8 줄, 개정 집합은
+  거기에 `scripts/check-api-kit-docs.py` 를 더한 9 줄이다.
+- 검사는 측정 집합이라 `amend_direction_oracle` 에 넣었다. 원 집합은 api-kit 12 쪽마다 「`prefers-reduced-motion` 글자」,
+  개정 집합은 같은 12 쪽마다 「`assets/site.css` 연결」이다(`research-log.md` 는 스크립트가 원래 뺀다).
+
+```text
+relaxing added=1 removed=0
+relaxing measured_removed=12 measured_added=12
+```
+
+둘 다 완화다. 범위는 넓어지고, 쪽 안의 규칙 글자를 재던 검사가 빠진다(연결 검사가 그 자리에 들어오지만 빠지는
+측정이 있으면 완화로 본다).
+
+### 스크립트 지문 · 대조
+
+| 판 | sha256 앞 16 자리 | 결과 |
+| --- | --- | --- |
+| 고치기 전(`fbdc31f3`) | `eb67e3833bbb9471` | `0/12 PASS` · 종료 코드 1 |
+| 고친 뒤 | `ae30eeaae841ebfc` | `12/12 PASS` · 종료 코드 0 |
+
+- 음성 대조 1: scratch 사본에서 `docs/api-kit/auth-secret-lifecycle.html` 의 `site.css` 연결 줄을 지우고 사본의 스크립트를
+  돌렸다 → 그 쪽 `FAIL … 공통 CSS assets/site.css 연결 없음` · `11/12 PASS` · 종료 코드 1.
+- 음성 대조 2: 같은 줄을 HTML 주석으로 감싼 사본 → 같은 FAIL · `11/12 PASS` · 종료 코드 1 (주석 안 링크는 세지 않는다).
+- 연결 여부의 쪽 전체 검사는 여전히 `scripts/check-docs-common-css.py` 가 맡는다(스크립트-01). 이 개정은 api-kit
+  검사가 그것과 부딪히지 않게 할 뿐이다.
