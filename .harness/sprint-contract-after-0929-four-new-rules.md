@@ -4,7 +4,7 @@ slug: after-0929-four-new-rules
 created: "2026-09-29 17:23"
 complexity: "복잡"
 conditions: 25
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:b809213f05ea2d04
 measurement_digest: sha256:a142377bc0fe31be
