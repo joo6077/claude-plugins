@@ -11,8 +11,8 @@ KIT=$(cd "$HERE/.." && pwd)
 SKILL=${BAMBU_GATE_SKILL:-$KIT/skills/bambu-print-profile/SKILL.md}
 FX=$HERE/gate-fixtures
 export SKILL_DIR=$KIT/skills/bambu-print-profile
-# 설치본이 있어야 돌아가는 검사 — 옵션 목록을 쓰는 셋과 시스템 부모값을 쓰는 다섯. 표 기대 칸의 첫 낱말과 맞춘다
-NEEDS_SLICER='^(모르는 키|키 스코프 불일치|받지 않는 값|허공 위 속도|thin 라우팅|벽 예산|유량비|소재 부모값)$'
+# 설치본이 있어야 돌아가는 검사 — 옵션 목록을 쓰는 셋과 시스템 부모값을 쓰는 여섯. 표 기대 칸의 첫 낱말과 맞춘다
+NEEDS_SLICER='^(모르는 키|키 스코프 불일치|받지 않는 값|허공 위 속도|thin 라우팅|벽 예산|유량비|소재 부모값|카메라 준비 블록 없음)$'
 
 T=$(mktemp -d "${TMPDIR:-/tmp}/rgf.XXXXXX") || exit 2
 trap 'rm -rf "$T"' EXIT
