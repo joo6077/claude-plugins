@@ -243,10 +243,6 @@
     .delta li{grid-template-columns:1fr;gap:2px}
     .flow-step{flex:1 1 100%}
   }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
-  }
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}
   a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -268,8 +264,7 @@
 <p class="subtitle">
   검증 결과를 사람이 읽는 단일 HTML 리포트가 지켜야 할 제약. 외부 의존 0건, <code>file://</code> 직접 열람,
   신뢰할 수 없는 응답 본문의 안전한 인라인, 비밀 마스킹을 다룬다. 확정 시안은 <span class="mono">.mockups/api-ui-v8.html</span> 이다.
-  <span class="mono">v0.1.1 · 최종 갱신 2026-09-24</span>
-</p>
+  <span class="mono">v0.1.1 · 최종 갱신 2026-09-24</span> 설치본 플러그인에는 docs/api/ · docs/superpowers/ 가 없다 — 이 파일의 docs/... 경로를 열 수 없으면 https://raw.githubusercontent.com/joo6077/claude-plugins/main/ 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.</p>
 
 <div class="warn-banner">
   <h2>중심 제약 — 의존성 0, 단일 <code>ui.html</code></h2>
