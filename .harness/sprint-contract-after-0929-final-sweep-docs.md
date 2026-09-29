@@ -4,7 +4,7 @@ slug: after-0929-final-sweep-docs
 created: "2026-09-29 10:24"
 complexity: "복잡"
 conditions: 25
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:34da4f58f14e406f
 measurement_digest: sha256:e2e8c0f8d4737f10
