@@ -122,20 +122,37 @@
 
   hr.spacer{border:none;height:1px;background:var(--border);margin:32px 0}
 
-  @media (prefers-reduced-motion: reduce) {
-    *,*::before,*::after { transition:none !important; animation:none !important; }
-    html { scroll-behavior:auto }
-  }
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <h1>Seam Recipes — 형상 × 소재 Scarf 매트릭스 + Real-world Findings</h1>
 <p class="subtitle">회전체 / 박스 / 유기적 형상별 seam 전략 + PLA/PETG/PA/CF 소재별 scarf 파라미터 + 실측 검증된 5가지 발견. Bambu Studio H2S v2.6.0 + Codex research run <code style="font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2px 8px;border-radius:4px;color:var(--accent2)">afcf4968339021b29</code> 기준.</p>
 
 <div style="border-left:3px solid #14B8A6;background:rgba(20,184,166,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:32px">
-  <strong style="color:#14B8A6">v2 정책 전환 (2026-05-16):</strong> 회전체 default가 <code>random + entire_loop</code>(분산 전략)에서 <strong>Auto-select 결정 트리</strong>(<code>spiral_mode</code> → painted seam → random fallback)로 전환. 분산이 아닌 <strong>은닉</strong>을 1순위로. Real-world Finding 1의 "random > aligned" 컨텍스트는 (3) FALLBACK 단계 컨텍스트로 보존. 자세한 정책 → <a href="surface-recipes.html" style="color:#5EEAD4;text-decoration:underline">Surface Recipes</a>. Codex run <code>a25261e23b21252b2</code>.
+  <strong style="color:var(--accent)">v2 정책 전환 (2026-05-16):</strong> 회전체 default가 <code>random + entire_loop</code>(분산 전략)에서 <strong>Auto-select 결정 트리</strong>(<code>spiral_mode</code> → painted seam → random fallback)로 전환. 분산이 아닌 <strong>은닉</strong>을 1순위로. Real-world Finding 1의 "random > aligned" 컨텍스트는 (3) FALLBACK 단계 컨텍스트로 보존. 자세한 정책 → <a href="surface-recipes.html" style="color:var(--accent2);text-decoration:underline">Surface Recipes</a>. Codex run <code>a25261e23b21252b2</code>.
 </div>
 
 <!-- ── Section 1: 형상별 seam 전략 ── -->
@@ -719,7 +736,7 @@ seam_slope_entire_loop: 1
   <h3><code>random</code> 을 기본 처방으로 쓰지 마라</h3>
   <p>수치만 보면 <code>random</code> 이 쌓임을 78% → 11% 로 낮춰 최적으로 보이나 실물 결과는 반대다.
   오르카 개발 스레드 실측 보고: <em>&ldquo;random is a disaster, blobs and strings galore.&rdquo;</em>
-  (<a href="https://github.com/OrcaSlicer/OrcaSlicer/pull/3839#issuecomment-1912989343" style="color:#5EEAD4;text-decoration:underline">PR #3839</a>)
+  (<a href="https://github.com/OrcaSlicer/OrcaSlicer/pull/3839#issuecomment-1912989343" style="color:var(--accent2);text-decoration:underline">PR #3839</a>)
   같은 출처가 <code>wipe_before_external_loop</code> 도 경사와 함께 쓰면 <em>&ldquo;significantly worse&rdquo;</em> 라고 보고했다.</p>
 
   <h3>경사 길이는 루프 둘레보다 짧게 — 클램프 주의</h3>
@@ -795,14 +812,14 @@ seam_slope_entire_loop: 1
 </div>
 
 <div class="section">
-  <div class="section-label">Section 6.6 · 붙이는 면이 있는 컵 — 이음매를 가려지는 면으로 (2026-09-19)</div>
+  <div class="section-label">Section 6.6 · 붙이는 면이 있는 컵 — 이음매를 가려지는 면으로 보낸다 (2026-09-19)</div>
 
   <p><strong>사례.</strong> fly-catcher — 바닥이 막힌 원통 컵(바깥 ⌀143 · 높이 75 mm) 한쪽에 벽에 나사로 붙이는 레일이 달렸다.
   이전 출력에서 "심 자국이 보였다" 는 사용자 보고. 랜덤 이음매는 금지다 (MD §0 · <code>user-preferences.md</code>).</p>
   <p><strong>원칙.</strong> 이음매를 없앨 수는 없다. 설치했을 때 <strong>가려지는 면</strong>을 먼저 찾고, 층마다 그 한 자리에 모이는
   설정을 G-code 로 확인해 고른다. 가려지는 면이 없으면 MD §0 결정 트리로 돌아간다.</p>
 
-  <h3>오르카 2.4.2 명령줄로 층 508 개의 이음매 위치를 센 결과</h3>
+  <h3>오르카 2.4.2 명령줄로 같은 모델을 잘라 층 508 개의 이음매 위치를 센 결과</h3>
   <p style="font-size:13px;color:var(--text2)">모델은 원 프로젝트대로 Z 축 14° 회전.</p>
   <div class="table-wrap">
   <table>

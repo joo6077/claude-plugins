@@ -57,7 +57,7 @@ tr:hover td{background:rgba(232,150,90,0.03)}
 td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(--surface2);padding:2px 8px;border-radius:4px}
 
 .code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px 24px;font-family:var(--mono);font-size:13px;line-height:1.7;overflow-x:auto;color:var(--text2);white-space:pre}
-.code-block .kw{color:var(--accent2)}.code-block .prop{color:var(--cyan)}.code-block .val{color:var(--gold)}.code-block .cmt{color:#7b82a8}
+.code-block .kw{color:var(--accent2)}.code-block .prop{color:var(--cyan)}.code-block .val{color:var(--gold)}.code-block .cmt{--dk-ink:#7b82a8;color:var(--dk-ink-out, #7b82a8)}
 
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -181,6 +181,27 @@ footer a{color:var(--accent);text-decoration:none}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 
 <!-- HERO -->
 <section class="hero">

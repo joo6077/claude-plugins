@@ -34,7 +34,7 @@ a:hover{color:var(--text)}
 a:focus-visible{outline:2px solid var(--accent2);outline-offset:4px;border-radius:4px}
 header{
   border-bottom:1px solid var(--border);
-  background:rgba(18,18,28,0.85);
+  --dk-fill:rgba(18,18,28,0.85);background:var(--dk-fill-out, rgba(18,18,28,0.85));
   backdrop-filter:blur(12px);
   position:sticky;top:0;z-index:50;
 }
@@ -133,13 +133,30 @@ footer{border-top:1px solid var(--border);padding-top:24px;margin-top:64px;color
   .path{flex-direction:column;gap:4px}
   h1{font-size:1.8rem}
 }
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{transition-duration:0.01ms!important}
-}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <header>
   <div class="header-inner">
     <a href="../index.html" class="logo-link">Claude Plugins</a>

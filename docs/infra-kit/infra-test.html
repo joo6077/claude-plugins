@@ -143,7 +143,7 @@
     position:relative;
   }
   .card::before{content:"";position:absolute;top:0;left:0;width:3px;height:0;background:var(--accent);transition:height var(--transition)}
-  .card:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 20px 40px rgba(0,0,0,.4),0 0 0 1px var(--accent-dim)}
+  .card:hover{transform:var(--dk-hover-move, translateY(-3px));border-color:var(--border2);box-shadow:0 20px 40px rgba(0,0,0,.4),0 0 0 1px var(--accent-dim)}
   .card:hover::before{height:100%}
   .card-num{font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:10px}
   .card h3{margin-bottom:14px}
@@ -165,7 +165,7 @@
   }
   .card-source::before{content:"\2192";transition:transform var(--transition)}
   .card-source:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-  .card-source:hover::before{transform:translateX(3px)}
+  .card-source:hover::before{transform:var(--dk-hover-move, translateX(3px))}
   .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
   .table-wrap>table{min-width:max-content}
   table{width:100%;border-collapse:collapse}

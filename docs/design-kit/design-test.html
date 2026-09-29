@@ -172,7 +172,7 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.9em
 .check-copy strong{color:var(--text)}
 .feat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;transition:border-color var(--transition),transform var(--transition)}
 .feat-card:hover{border-color:var(--border2)}
-@media (prefers-reduced-motion: no-preference){.feat-card:hover{transform:translateY(-2px)}}
+.feat-card:hover{transform:var(--dk-hover-move, translateY(-2px))}
 .feat-icon{font-size:30px;margin-bottom:14px;display:block}
 .feat-name{font-size:1.05rem;font-weight:700;margin-bottom:8px}
 .feat-desc{font-size:13px;color:var(--text2);line-height:1.7}

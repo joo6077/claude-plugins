@@ -79,7 +79,7 @@ h3.sub::before{content:'';width:3px;height:15px;border-radius:2px;background:var
   transition:border-color var(--transition),transform var(--transition),box-shadow var(--transition);
   display:flex;flex-direction:column;
 }
-.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 40px -20px var(--accent)}
+.card:hover{border-color:var(--accent);transform:var(--dk-hover-move, translateY(-2px));box-shadow:0 12px 40px -20px var(--accent)}
 .card-num{
   display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;
   border-radius:var(--radius-sm);background:var(--accent-dim);color:var(--accent);
@@ -178,7 +178,7 @@ td strong{color:var(--text)}
   padding:17px 20px;border-radius:var(--radius);font-size:13px;color:var(--text2);line-height:1.72;
   transition:border-color var(--transition),transform var(--transition);
 }
-.checklist li:hover{border-color:var(--accent);transform:translateX(4px)}
+.checklist li:hover{border-color:var(--accent);transform:var(--dk-hover-move, translateX(4px))}
 .checklist .check{
   width:22px;height:22px;border-radius:6px;border:2px solid var(--accent);
   flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;
@@ -203,16 +203,30 @@ pre code{white-space:pre}
   th,td{padding:10px 12px}
   .card{padding:22px 18px}
 }
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    animation-duration:0.01ms !important;animation-iteration-count:1 !important;
-    transition-duration:0.01ms !important;scroll-behavior:auto !important;
-  }
-  .card:hover,.checklist li:hover{transform:none}
-}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <!-- ─────────── HERO ─────────── -->

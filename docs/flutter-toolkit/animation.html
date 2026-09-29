@@ -65,7 +65,7 @@
   .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
   .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:26px 28px;transition:border-color var(--transition),transform var(--transition);position:relative;overflow:hidden}
   .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity var(--transition)}
-  .card:hover{border-color:var(--border2);transform:translateY(-2px)}
+  .card:hover{border-color:var(--border2);transform:var(--dk-hover-move, translateY(-2px))}
   .card:hover::before{opacity:1}
   .card-num{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 9px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-weight:700;font-size:14px;margin-bottom:15px;border:1px solid var(--accent)}
   .card h3{font-size:19px;font-weight:700;margin-bottom:12px;letter-spacing:-.01em;overflow-wrap:anywhere}
@@ -126,7 +126,7 @@
   /* GOTCHAS */
   .gotchas{list-style:none;display:grid;gap:14px}
   .gotcha{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:18px 20px;display:flex;gap:14px;transition:background var(--transition),transform var(--transition)}
-  .gotcha:hover{background:var(--surface2);transform:translateX(4px)}
+  .gotcha:hover{background:var(--surface2);transform:var(--dk-hover-move, translateX(4px))}
   .gotcha-check{flex-shrink:0;width:24px;height:24px;border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-weight:800;font-size:13px;background:var(--accent-dim)}
   .gotcha-body{flex:1;min-width:0}
   .gotcha-body strong{display:block;color:var(--text);margin-bottom:4px;font-size:15px}
@@ -138,7 +138,7 @@
   .code-block pre{font-family:var(--mono);font-size:13px;line-height:1.65;color:var(--text2);white-space:pre;margin:0}
   .code-block .kw{color:var(--accent2)}
   .code-block .cm{color:var(--text3);font-style:italic}
-  .code-block .st{color:#fbbf24}
+  .code-block .st{color:var(--warn)}
 
   /* SUMMARY */
   .summary-box{background:linear-gradient(135deg,var(--surface) 0%,var(--bg2) 100%);border:1px solid var(--accent);border-radius:var(--radius-lg);padding:32px 30px;margin-top:24px;position:relative;overflow:hidden}
@@ -162,13 +162,30 @@
     .container{padding:40px 18px 90px}
     th,td{padding:12px 16px}
   }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
-    .card:hover,.gotcha:hover{transform:none}
-  }
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="container">
 
   <header class="hero">

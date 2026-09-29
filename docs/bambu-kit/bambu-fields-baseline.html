@@ -156,13 +156,33 @@
   /* (4) 좁은 뷰포트에서는 단일 컬럼으로 스택 */
   @media(max-width:600px){.grid-2,.grid-3,.grid-4,.field-group{grid-template-columns:1fr}}
 
-  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}
   a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <h1>Bambu Fields Baseline</h1>
@@ -185,11 +205,11 @@
 </div>
 
 <div class="hero-note" style="border-left:3px solid #14B8A6;background:rgba(20,184,166,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px">
-  <strong style="color:#14B8A6">v2 확장 (2026-05-16):</strong> §8 Surface Quality 필드 <strong>19종</strong> 추가 — ironing 5종 (type/flow/spacing/speed/inset), top·bottom 6종 (pattern/speed/accel/flow/bridge_flow/bridge_speed), wall·resolution 3종, spiral·seam 2종, seam_slope 3종 (steps/entire_loop/inner_walls). 정책 결정 트리 → <a href="surface-recipes.html" style="color:#5EEAD4;text-decoration:underline">Surface Recipes</a>. Codex run <code>a25261e23b21252b2</code>.
+  <strong style="color:var(--accent)">v2 확장 (2026-05-16):</strong> §8 Surface Quality 필드 <strong>19종</strong> 추가 — ironing 5종 (type/flow/spacing/speed/inset), top·bottom 6종 (pattern/speed/accel/flow/bridge_flow/bridge_speed), wall·resolution 3종, spiral·seam 2종, seam_slope 3종 (steps/entire_loop/inner_walls). 정책 결정 트리 → <a href="surface-recipes.html" style="color:var(--accent2);text-decoration:underline">Surface Recipes</a>. Codex run <code>a25261e23b21252b2</code>.
 </div>
 
 <div class="hero-note" style="border-left:3px solid #5EEAD4;background:rgba(94,234,212,0.05);padding:14px 18px;border-radius:0 10px 10px 0;font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:32px">
-  <strong style="color:#5EEAD4">v3 확장 (2026-08-13 · 카이젠 Phase 13):</strong> §10 <strong>실측 실패 모드 관련 필드</strong> 추가 — L1 layer height 4종, L2 filament override 7종, L3 brim/raft/첫 레이어/plate 온도/aux fan 13종, 금지·obsolete 4종. <strong>이 절이 키 이름 / 단위 / default 의 정본</strong>이고 정책·게이트·부작용은 <a href="failure-recipes.html" style="color:#5EEAD4;text-decoration:underline">Failure Recipes</a> 가 갖는다 — 두 문서에 같은 수치를 중복 기재하지 마라. 근거: <code>.harness/.meta/evidence/phase13.md</code>.
+  <strong style="color:var(--accent2)">v3 확장 (2026-08-13 · 카이젠 Phase 13):</strong> §10 <strong>실측 실패 모드 관련 필드</strong> 추가 — L1 layer height 4종, L2 filament override 7종, L3 brim/raft/첫 레이어/plate 온도/aux fan 13종, 금지·obsolete 4종. <strong>이 절이 키 이름 / 단위 / default 의 정본</strong>이고 정책·게이트·부작용은 <a href="failure-recipes.html" style="color:var(--accent2);text-decoration:underline">Failure Recipes</a> 가 갖는다 — 두 문서에 같은 수치를 중복 기재하지 마라. 근거: <code>.harness/.meta/evidence/phase13.md</code>.
 </div>
 
 <!-- ── Section 1: 안정 버전 + Base 프로파일 ── -->
@@ -553,7 +573,7 @@ M17 D</pre>
       오르카 시스템 프리셋을 직접 덮어쓰지 않는다 — 오르카를 갱신하면 되돌아간다</li>
     <li>뱀부 원문의 <code>{if(cooling_filter_enabled)} M145.2 P0 F0 {else} M145.2 P0 F1 {endif}</code> 는 오르카 2.4.2 가 모르는 변수다.
       그대로 두면 오르카가 시작 명령 구문 오류로 <strong>슬라이스를 거부한다</strong>(명령줄 실측 exit 156). 뱀부 H2S 기본값
-      <code>cooling_filter_enabled = 0</code> 의 결과인 <code>M145.2 P0 F1</code> 한 줄로 고정한다. G-code 주석으로 이름을 남기는 것은
+      <code>cooling_filter_enabled = 0</code> 의 결과인 <code>M145.2 P0 F1</code> 한 줄로 고정한다. G-code 주석(; cooling_filter_enabled=0 …)으로 이름을 남기는 것은
       괜찮다 — 오르카는 <code>{…}</code> · <code>[…]</code> 안의 변수만 해석한다</li>
     <li>끝 · 필라멘트 교체 · 층 변경 · 타임랩스 명령은 오르카 것을 둔다. 뱀부 필라멘트 교체 명령에는 판마다 오르카가
       모르는 변수가 섞일 수 있어, 한 번에 다 옮기면 위험 범위만 넓어진다</li>

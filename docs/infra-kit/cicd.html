@@ -306,7 +306,7 @@
   }
 
   .card:hover{
-    transform:translateY(-3px);
+    transform:var(--dk-hover-move, translateY(-3px));
     border-color:var(--border2);
     box-shadow:0 20px 40px rgba(0,0,0,0.4),0 0 0 1px var(--accent-dim);
   }
@@ -385,7 +385,7 @@
   }
 
   .card-source:hover::before{
-    transform:translateX(3px);
+    transform:var(--dk-hover-move, translateX(3px));
   }
 
   .source-row{
