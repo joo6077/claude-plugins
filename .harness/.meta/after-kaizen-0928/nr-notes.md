@@ -52,4 +52,12 @@ backend-kit 0.5.1 · planning-kit 0.8.0 · onboarding-kit 0.4.2 는 그대로 �
 - 옛 기록 `docs/backend/research-log.md:17,71` · `docs/planning/research-log.md:22` 의 「규칙으로 올리지 않았다 / 고칠 곳이 없다」 — 그때의 기록이라 고치지 않았다.
 - 네 규칙을 기계로 막는 새 검사 — 글 규칙이라 만들지 않았다(스크립트-00). 글이 제자리에 있는지는 이 계약의 측정 도우미가 잰다.
 - 킷 버전 올리기 · 릴리스 · 합치기 · push — 이 묶음 밖.
-- QA 판정과 계약 `status: done` — 이 세션이 하지 않는다. qa-evaluator 몫이다.
+- QA 판정 — qa-evaluator 가 APPROVE(PASS 21 · N/A 4 · FAIL 0), 계약 `status: done`. 리포트와 함께 `d14ad55c` 로 커밋했다. 독립 검토는 막는 결함 0.
+
+### 독립 검토가 짚은 작은 결함 셋 (막는 결함 아님)
+
+봉인된 계약이 APPROVE 로 닫힌 뒤라 이 가지에서 고치지 않았다. 고치면 판정 뒤에 범위 파일이 바뀌어 리포트가 잰 판과 달라진다. 다음 묶음에서 새 계약으로 한다.
+
+- `docs/planning/prd-patterns.md:4` 의 `last_updated: 2026-09-25` 와 짝 쪽 `docs/planning-kit/prd-patterns.html:311` 머리 날짜를 안 바꿨다. 이번에 새 절과 출처 셋(조회 2026-09-28)을 더했으니 올려야 한다. 이 묶음이 넣은 「조회일과 갱신일을 따로 적는다」 규칙과 같은 종류의 어긋남이라 먼저 고칠 것.
+- `onboarding-kit/skills/setup-guide/SKILL.md:283-287` Gotcha 10 목록이 번호 목록과 ①~⑤ 표지를 같이 써서 「1. ①」 로 그려진다. 둘 중 하나만 남기면 된다. 측정에는 영향이 없다.
+- `docs/onboarding-kit/setup-guide.html` 끝 체크리스트(`final-title` 절)에 두 항목(원문 Last updated 를 조회일과 따로 적었다 · 서비스 계정 키는 대안이 없을 때만)이 있는데, 원본 `SKILL.md` Phase 4(342-351 줄)에는 두 규칙을 확인하는 단계가 없다. 스킬만 따라 하면 완료 전에 확인되지 않는다. Phase 4 에 한 단계를 더하고 쪽과 맞춘다.
