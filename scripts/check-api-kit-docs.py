@@ -44,9 +44,22 @@ EXTERNAL = re.compile(
 )
 # 오버플로 억제 — 내용 손실이므로 금지 (overflow-x:auto 는 허용)
 SUPPRESS = re.compile(r"overflow\s*:\s*hidden|overflow-x\s*:\s*hidden")
-# 움직임 줄이기 규칙은 쪽마다 적지 않고 공통 CSS 가 맡는다 — 그 파일을 연결했는지를 본다. 주석 안 링크는 세지 않는다
+# 움직임 줄이기 규칙은 쪽마다 적지 않고 공통 CSS 가 맡는다 — 그 파일을 연결했는지를 본다. 주석 안 링크는 세지 않는다.
+# rel 에 stylesheet 가 있고 주소가 assets/site.css 로 끝나는 <link> 만 연결이다 — preload 나 site.css.bak 은 스타일을 입히지 않는다
 COMMENT = re.compile(r"<!--.*?-->", re.S)
-SITE_CSS_LINK = re.compile(r"""<link\b[^>]*\bhref\s*=\s*["']?[^"'\s>]*assets/site\.css\b""", re.I)
+LINK_TAG = re.compile(r"<link\b[^>]*>", re.I | re.S)
+ATTR_VALUE = r"""\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))"""
+REL_ATTR = re.compile(r"\brel" + ATTR_VALUE, re.I)
+HREF_ATTR = re.compile(r"\bhref" + ATTR_VALUE, re.I)
+
+
+def links_site_css(body: str) -> bool:
+    for tag in LINK_TAG.findall(COMMENT.sub("", body)):
+        rel, href = REL_ATTR.search(tag), HREF_ATTR.search(tag)
+        if rel and href and "stylesheet" in "".join(rel.groups("")).lower().split() \
+                and "".join(href.groups("")).endswith("assets/site.css"):
+            return True
+    return False
 
 
 def sources_of(md: Path) -> set[str]:
@@ -83,7 +96,7 @@ def check(md: Path, html: Path) -> dict:
         r["fail"].append("외부 리소스 참조")
     if SUPPRESS.search(body):
         r["fail"].append("overflow 억제")
-    if not SITE_CSS_LINK.search(COMMENT.sub("", body)):
+    if not links_site_css(body):
         r["fail"].append("공통 CSS assets/site.css 연결 없음")
     if "dk-theme" not in body:
         r["fail"].append("테마 키 dk-theme 없음")
