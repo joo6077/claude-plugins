@@ -620,6 +620,14 @@ DO UPDATE SET updated_at = now();</code></pre>
     오프셋 없는 <code>2026-09-28T09:30:00</code> 은 <code>date-time</code> 이 아니다.
   </div>
   <div class="callout">
+    <span class="callout-tag">API 표기 — 벽시계 문자열 모양 (이 킷이 고른 형식)</span><br>
+    벽시계 날짜시각은 <code>YYYY-MM-DDTHH:mm:ss[.fraction]</code> 모양 하나로 보내고, OpenAPI 에는
+    <code>type: string</code> · <code>pattern</code> · <code>example</code> 로 적는다.
+    RFC 3339 는 「All times expressed have a stated relationship (offset) to Coordinated Universal Time (UTC).」 라고 적어 오프셋 없는 값을 다루지 않는다.
+    ISO 공개 설명의 예는 「September 27, 2022 at 6 p.m. is represented as 2022-09-27 18:00:00.000.」 처럼 날짜와 시각 사이가 빈칸이다.
+    그래서 <code>T</code> 구분과 소수초 자리는 ISO 8601 의 유일한 권고가 아니라 이 킷이 고른 형식이다.
+  </div>
+  <div class="callout">
     <span class="callout-tag">시간대 칸 — 이 킷 규칙</span><br>
     특정 지역에 묶인 벽시계에 IANA 시간대 이름 칸을 두는 것과 벽시계를 순간 하나로만 저장하지 않는 것은 RFC · IANA 의
     직접 요구가 아니라 이 킷 규칙이다. IANA 는 시간대마다 이름을 주고 그 규칙이 바뀔 수 있다고 적을 뿐, 어느 칸에 저장하라고 하지 않는다.
@@ -640,8 +648,9 @@ DO UPDATE SET updated_at = now();</code></pre>
     <a href="https://www.postgresql.org/docs/current/datatype-datetime.html" target="_blank" rel="noopener">PostgreSQL — Date/Time Types</a> ·
     <a href="https://www.rfc-editor.org/rfc/rfc3339" target="_blank" rel="noopener">RFC 3339</a> ·
     <a href="https://spec.openapis.org/registry/format/date-time" target="_blank" rel="noopener">OpenAPI Format Registry — date-time</a> ·
-    <a href="https://www.iana.org/time-zones/theory" target="_blank" rel="noopener">IANA — Theory and pragmatics of the tz code and data</a>
-    (뒤 셋은 2026-09-28 조회)
+    <a href="https://www.iana.org/time-zones/theory" target="_blank" rel="noopener">IANA — Theory and pragmatics of the tz code and data</a> ·
+    <a href="https://www.iso.org/iso-8601-date-and-time-format.html" target="_blank" rel="noopener">ISO — ISO 8601 date and time format</a>
+    (뒤 넷은 2026-09-28 조회)
   </p>
 </section>
 

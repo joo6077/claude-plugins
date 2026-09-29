@@ -29,6 +29,8 @@ user-invocable: true
 
 "그 시점 최신 정보 기준" 이라는 주장은 **조회 흔적 없이는 성립하지 않는다.** 각 Step 을 쓰기 **전에** 그 Step 의 1차 출처를 fetch 하고, Step 본문에 **출처 URL + 조회일**을 남긴다 (`references/format-checklist.md` §3 의 `**출처:**` 줄). **fetch 하지 않은 Step 은 쓰지 않는다** — 학습 데이터로 채운 뒤 헤더의 대표 URL 하나로 전체를 정당화하는 것이 이 스킬의 대표 실패 형태다.
 
+출처 줄에는 두 날짜를 따로 적는다. 조회일(`조회 YYYY-MM-DD`)은 페이지를 가져와 그 Step 본문의 주장을 다시 확인한 날이고, 원문 갱신일(`Last updated YYYY-MM-DD UTC`)은 원문 페이지가 표시할 때만 글자 그대로 옮긴다. 페이지 갱신일만 새로 보고 Step 본문을 다시 확인하지 않았으면 조회일을 바꾸지 않는다 — 날짜만 옮기면 확인하지 않은 주장을 확인했다고 적게 된다. 원문은 저장소의 기록법을 정하지 않으므로 이 구분은 이 킷의 규칙이다.
+
 fetch 가 끝까지 실패한 항목은 조용히 넘기지 말고 마커와 아래 네 요건을 붙인다. **마커는 접미로 분류한다** — 접미 없는 `[미검증]` 은 정본에서 `INVALID` 로 해석되므로 쓰지 않는다.
 
 | 상황 | 마커 | 카운터 |
@@ -273,6 +275,25 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 - 이 스킬이 「이 가이드는 지금 만들 수 없다」 고 결론 내릴 때도 같다 — 먼저 `harness/docs/guides/skill-design-guide.md` §3.7 조항 3 의 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 적는다
 
 같은 모양의 실측(`/insights` 2026-09-24 F10): 앱이 아직 출시 전이고 실기기가 없다는 이유로 작업을 불가로 선언했다가 사용자가 「앱 올리면 되잖아?」 로 되받았다.
+
+### Gotcha 10: 서비스 계정 키를 기본 경로로 안내하지 마라 — 실행 환경부터 확인하고 이 차례로 고른다
+
+Google Cloud · Firebase 서버 인증에서 사용자가 관리하는 서비스 계정 키(JSON 키 파일)를 먼저 안내하면 가장 덜 안전한 길이 기본값이 된다. 실행 환경을 먼저 확인하고 아래 차례로 고른다.
+
+1. ① Google Cloud 안(Cloud Run · Cloud Functions · Compute Engine 등) — `ADC`(Application Default Credentials, 실행 환경이 자격 증명을 찾아 주는 방식)와 연결된 서비스 계정
+2. ② GKE(Google Kubernetes Engine) — `Workload Identity Federation for GKE`
+3. ③ 혼자 쓰는 개발 환경 — 사용자 자격 증명 또는 `서비스 계정 가장`(impersonation)
+4. ④ Google Cloud 밖에서 지원되는 외부 신원 제공자가 있을 때 — `Workload Identity Federation`
+5. ⑤ 더 안전한 대안을 쓸 수 없을 때만 — `서비스 계정 키`. 그 사유와 키 보호 · 교체 · 폐기 절차를 함께 적는다
+
+근거 (네 문서 모두 조회 2026-09-28 · Last updated 2026-09-24 UTC):
+
+- [Google Cloud — Best practices for using service accounts securely](https://docs.cloud.google.com/iam/docs/best-practices-service-accounts): 「We recommend that you avoid using service account keys whenever possible.」
+- [Google Cloud — Best practices for using Workload Identity Federation](https://docs.cloud.google.com/iam/docs/best-practices-for-using-workload-identity-federation): 「Use Workload Identity Federation whenever an application needs to access Google Cloud and has access to ambient credentials.」
+- [Firebase — Add the Firebase Admin SDK to your server](https://firebase.google.com/docs/admin/setup): 「this way of initializing the SDK is strongly recommended for applications running in Google environments」 — ADC 로 SDK 를 초기화하는 방식을 가리킨다
+- [Google Cloud — Best practices for managing service account keys](https://docs.cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys): 「For client-side applications such as tools, desktop programs, or mobile apps, don't use service accounts.」 — 앱 · 데스크톱 프로그램 · 도구에는 서비스 계정을 넣지 않는다
+
+「키 파일은 서버에만 둔다」 만 적으면 서버라면 키가 기본 경로인 것처럼 읽힌다. 서버에서도 ①~④ 를 먼저 고르고, 키는 예외로 적는다.
 
 ## Process
 
