@@ -85,7 +85,7 @@ SDK 버전은 GitHub Releases 페이지 대신 **패키지 레지스트리**(pub
 > **✅ 현재 권장:** <새 방법 + 이유>
 ```
 
-**역방향 금지:** 1차 출처가 deprecated 라고 하지 않은 것을 deprecated 로 쓰지 않는다. "권장하지 않음(not recommended)" · "레거시" · "제거 예정" 은 서로 다른 강도의 주장이고, 출처보다 강한 주장을 쓰는 것도 날조다. 실측 2026-07-27 · 재확인 2026-08-13: FCM Apple/Flutter 문서는 APNs 인증 키(`.p8`) 를 **안내**하지만 인증서(`.p12`) 를 deprecated 로 표기하지 않는다 — 이 문서에서 deprecated 로 명시된 것은 Instance ID API 다. `.p8` 을 권장한다는 사실로부터 `.p12` 의 deprecation 을 **추론하지 마라.** 이 승격은 `guide_gate` G4 가 기계적으로 잡는다 (SKILL.md §Guide Conformance Gate).
+**역방향 금지:** 1차 출처가 deprecated 라고 하지 않은 것을 deprecated 로 쓰지 않는다. "권장하지 않음(not recommended)" · "레거시" · "제거 예정" 은 서로 다른 강도의 주장이고, 출처보다 강한 주장을 쓰는 것도 날조다. 실측 2026-07-27 · 재확인 2026-08-13: FCM Apple/Flutter 문서는 APNs 인증 키(`.p8`) 를 **안내**하지만 인증서(`.p12`) 를 deprecated 로 표기하지 않는다 — 이 문서에서 deprecated 로 명시된 것은 Instance ID API 다. `.p8` 을 안내한다는 사실로부터 `.p8` 권장이나 `.p12` 의 deprecation 을 **추론하지 마라.** 이 승격은 `guide_gate` G4 가 기계적으로 잡는다 (SKILL.md §Guide Conformance Gate).
 
 ## Fetch 실패 시 fallback 사다리
 
