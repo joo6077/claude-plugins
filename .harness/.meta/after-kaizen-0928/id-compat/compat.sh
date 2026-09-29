@@ -7,7 +7,7 @@ schema=${1:-harness/references/contract-schema.md}
 MEASURE_SCHEMA="$schema" . harness/scripts/measure-common.sh || exit 2
 rx=$(awk '/^contract_digest\(\)/ { getline; print; exit }' "$schema" | sed -E "s/.*grep -E '([^']*)'.*/\1/")
 [ -n "$rx" ] || { echo "정규식을 못 찾았다: $schema" >&2; exit 2; }
-while IFS= read -r f; do
-  printf '%s %s %s %s %s %s\n' "$f" "$(grep -cE "$rx" "$f")" "$(contract_digest "$f")" \
-    "$(measurement_digest "$f")" "$(verify_seal "$f" | cut -d' ' -f1)" "$(verify_measurement "$f" | cut -d' ' -f1)"
+while IFS= read -r contract; do
+  printf '%s %s %s %s %s %s\n' "$contract" "$(grep -cE "$rx" "$contract")" "$(contract_digest "$contract")" \
+    "$(measurement_digest "$contract")" "$(verify_seal "$contract" | cut -d' ' -f1)" "$(verify_measurement "$contract" | cut -d' ' -f1)"
 done < "$here/old-contracts.txt"

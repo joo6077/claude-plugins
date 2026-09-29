@@ -4,7 +4,7 @@
 # 출력: 셸마다 `<셸> sealed=<판정 둘> cond_changed=<판정 둘> measure_changed=<판정 둘>`
 here=$(cd "$(dirname "$0")" && pwd); root=$(pwd)
 schema=${1:-harness/references/contract-schema.md}
-t=$(mktemp -d "${TMPDIR:-/tmp}/sealko.XXXXXX"); trap 'rm -rf "$t"' EXIT
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/sealko.XXXXXX"); trap 'rm -rf "$tmp"' EXIT
 for sh in bash zsh; do
   MEASURE_SCHEMA="$schema" "$sh" -c '
     . "$1/harness/scripts/measure-common.sh" || exit 2
@@ -15,5 +15,5 @@ for sh in bash zsh; do
     sed "s/^- \[ \] 스킬-01: a\$/- [ ] 스킬-01: b/" "$3/c.md" > "$3/cond.md"
     sed "s/^  측정: x\$/  측정: y/" "$3/c.md" > "$3/meas.md"
     printf "%s sealed=%s cond_changed=%s measure_changed=%s\n" "$0" "$(verdict "$3/c.md")" "$(verdict "$3/cond.md")" "$(verdict "$3/meas.md")"
-  ' "$sh" "$root" "$here/fixture-korean.md" "$t"
+  ' "$sh" "$root" "$here/fixture-korean.md" "$tmp"
 done

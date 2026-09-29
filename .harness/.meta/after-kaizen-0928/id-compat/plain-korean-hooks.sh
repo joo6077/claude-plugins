@@ -11,13 +11,13 @@ spec = importlib.util.spec_from_file_location("glossary", sys.argv[1]); mod = im
 data = mod.load(sys.argv[2]); abbr = data["allow_abbr"]
 print(f"abbr={len(abbr)} seven={sum(x in abbr for x in 'SK SC ER AR RE DG AP'.split())} pairs={len(data['pairs'])} words={len(data['allow_word'])}")
 PY
-t=$(mktemp -d "${TMPDIR:-/tmp}/pkhooks.XXXXXX"); mkdir -p "$t/.claude"; trap 'rm -rf "$t"' EXIT
+tmp=$(mktemp -d "${TMPDIR:-/tmp}/pkhooks.XXXXXX"); mkdir -p "$tmp/.claude"; trap 'rm -rf "$tmp"' EXIT
 jq -nc --arg m "조건 SK-01 을 확인했다" '{last_assistant_message: $m}' \
-  | HOME="$t" PLAIN_KOREAN_GLOSSARY="$glossary" PLAIN_KOREAN_PARSER="$parser" CLAUDE_HOOK_LIB="$hooks/_lib-hook-payload.sh" bash "$hooks/check-plain-korean.sh"
+  | HOME="$tmp" PLAIN_KOREAN_GLOSSARY="$glossary" PLAIN_KOREAN_PARSER="$parser" CLAUDE_HOOK_LIB="$hooks/_lib-hook-payload.sh" bash "$hooks/check-plain-korean.sh"
 check_rc=$?
-printf 'check_rc=%s verdict=%s words=%s\n' "$check_rc" "$(jq -r .verdict "$t/.claude/.plain-korean-last.json" 2>/dev/null)" "$(jq -c .words "$t/.claude/.plain-korean-misses.jsonl" 2>/dev/null)"
+printf 'check_rc=%s verdict=%s words=%s\n' "$check_rc" "$(jq -r .verdict "$tmp/.claude/.plain-korean-last.json" 2>/dev/null)" "$(jq -c .words "$tmp/.claude/.plain-korean-misses.jsonl" 2>/dev/null)"
 out=$(printf '{"hook_event_name":"UserPromptSubmit","prompt":"x"}' \
-  | HOME="$t" PLAIN_KOREAN_GLOSSARY="$glossary" PLAIN_KOREAN_PARSER="$parser" CLAUDE_HOOK_LIB="$hooks/_lib-hook-payload.sh" bash "$hooks/remind-plain-korean.sh")
+  | HOME="$tmp" PLAIN_KOREAN_GLOSSARY="$glossary" PLAIN_KOREAN_PARSER="$parser" CLAUDE_HOOK_LIB="$hooks/_lib-hook-payload.sh" bash "$hooks/remind-plain-korean.sh")
 remind_rc=$?
 seven=$(printf '%s\n' "$out" | grep -o '설명 없이 써도 되는 대문자 약자: .*' | tr ' ' '\n' | grep -cxE 'SK|SC|ER|AR|RE|DG|AP')
 printf 'remind_rc=%s remind_seven=%s remind_bytes=%s\n' "$remind_rc" "$seven" "$(printf '%s' "$out" | wc -c | tr -d ' ')"
