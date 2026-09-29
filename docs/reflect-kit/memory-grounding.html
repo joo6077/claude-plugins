@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>memory grounding — Reflect Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#F43F5E;--accent2:#FDA4AF;--accent-dim:rgba(244,63,94,0.12);
+    --accent-line:rgba(244,63,94,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#BE123C;--accent2:#9F1239;--accent-dim:rgba(190,18,60,0.10);
+    --accent-line:rgba(190,18,60,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Reflect Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Reflect Kit · 참고 문서</span>
+  <h1>memory grounding</h1>
+  <p class="orig-title">원본 제목: <strong><code>grounding</code> — 메모리 엔트리의 근거 축 (SSOT)</strong></p>
+  <p class="subtitle">메모리의 <code>feedback</code> 엔트리를 <strong>누가 썼느냐가 아니라 무엇이 그 교훈을 뒷받침하느냐</strong>로 가르는 <code>grounding</code> 4 값의 유일한 정의처다. 아무도 확인하지 않은 자기추론이 영속 규칙으로 굳는 것을 막는다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>reflect-kit/references/memory-grounding.md</code></span>
+    <span class="badge">값 넷</span>
+    <span class="badge">경계 사례 여섯</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><code>user_correction</code></h3>
+      <p>외부 인간 신호 — 사용자의 교정 · 지시 · 불만 발화가 근거다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><code>execution_evidence</code></h3>
+      <p>외부 기계 신호 — QA verdict · 명령 출력 · 로그 · 실측 수치가 근거다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><code>mixed</code></h3>
+      <p>인간 신호와 기계 신호가 둘 다 근거로 적혀 있다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><code>self_inference</code></h3>
+      <p>외부 검증 없음 — 결함 라벨이 아니라 오염 후보 표시다. 소비면이 가중치를 낮춘다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="decide">
+  <div class="section-label" id="decide">판정 한눈에 — 두 신호의 조합</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>인간 신호</th><th>기계 신호</th><th>값</th><th>소비면에서</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>있음</td>
+          <td>있음</td>
+          <td><code>mixed</code></td>
+          <td>우선 주입</td>
+        </tr>
+        <tr>
+          <td>있음</td>
+          <td>없음</td>
+          <td><code>user_correction</code></td>
+          <td>우선 주입</td>
+        </tr>
+        <tr>
+          <td>없음</td>
+          <td>있음</td>
+          <td><code>execution_evidence</code></td>
+          <td>우선 주입</td>
+        </tr>
+        <tr>
+          <td>없음</td>
+          <td>없음</td>
+          <td><code>self_inference</code></td>
+          <td>제외하거나 명시 라벨 — 계약 PASS 근거로 쓰지 않는다</td>
+        </tr>
+        <tr>
+          <td colspan="2">필드 없음</td>
+          <td>미태깅</td>
+          <td><code>self_inference</code> 와 다르다 — 4 값 밖 값은 집계에서 빼고 뺀 건수를 보고한다</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="rel-r">
+  <div class="section-label" id="rel-r">같은 킷의 이웃 문서</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="reflect-promote.html">/reflect-promote</a></h3>
+      <p>승격 파이프라인 — 규칙을 반영할 자리를 고르고 기록 파일에 남긴다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="reflect-digest.html">/reflect-digest</a></h3>
+      <p>집계 파이프라인 — 반복 실수를 모아 승격 후보를 낸다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="schema.html">기록 틀</a></h3>
+      <p>reflections · 승격 기록의 필드 정의.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>왜 저자가 아니라 근거로 가르는가</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>4 값</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>판정 절차</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>소비면 취급 규칙</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>관련</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<p>이 파일이 <code>grounding</code> 4 값의 <strong>유일한 정의처</strong>다. 다른 스킬·에이전트·스크립트는 값을 재정의하지 말고 이 파일을 참조하라. 정의를 복제하면 판정 기준이 갈라진다.</p>
+<p>적용 대상: <code>~/.claude/projects/*/memory/*.md</code> 의 <code>metadata.type: feedback</code> 엔트리.</p>
+<div class="code"><span class="code-lang">yaml</span><pre><code>metadata:
+  type: feedback
+  grounding: &lt;4 값 중 하나&gt;</code></pre></div>
+<hr class="rule">
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>왜 저자가 아니라 근거로 가르는가</h2>
+  <div class="doc-body">
+<p>메모리의 <code>feedback_*</code> 엔트리는 <strong>전부 Claude 가 썼다.</strong> 저자(세션 / 카이젠)로 가르면 모두 같은 쪽에 떨어져 아무것도 끊기지 않는다. 가를 축은 <strong>무엇이 그 교훈을 뒷받침하느냐</strong> 다.</p>
+<p>문헌이 지목한 오염 경로는 <em>"국소적으로 맞지만 이전 불가능한 경험을 과일반화"</em> — 즉 <strong>아무도 확인하지 않은 자기추론</strong>이 영속 규칙으로 증류되는 것이다. QA 가 REJECT 를 냈다거나 명령 출력이 그렇다는 것은 자기주장이 아니라 <strong>기계적 뒷받침</strong>이다. 차단할 것은 "누가 썼다" 가 아니라 <strong>"아무도 확인하지 않았다"</strong> 다.</p>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>4 값</h2>
+  <div class="doc-body">
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">값</div></th>
+  <th><div class="c">근거의 성격</div></th>
+  <th><div class="c">판정 기준</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>user_correction</code></div></td>
+  <td><div class="c">외부 <strong>인간</strong> 신호</div></td>
+  <td><div class="c">사용자의 교정·지시·불만 발화가 그 교훈의 근거다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>execution_evidence</code></div></td>
+  <td><div class="c">외부 <strong>기계</strong> 신호</div></td>
+  <td><div class="c">QA verdict · 명령 출력 · 로그 · 실측 수치가 근거다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>mixed</code></div></td>
+  <td><div class="c">둘 다</div></td>
+  <td><div class="c">인간 신호와 기계 신호가 <strong>둘 다</strong> 근거로 서술돼 있다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>self_inference</code></div></td>
+  <td><div class="c">외부 검증 <strong>없음</strong></div></td>
+  <td><div class="c">근거 서술이 없거나 일반론·추론뿐이다 ← <strong>오염 후보</strong></div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub"><code>user_correction</code> — 인정 신호</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">사용자 발화의 직접 인용 (<code>사용자: "..."</code>, <code>"..." 라고 지적</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">"사용자가 ~하라고 지시/교정/요청했다", "사용자 지적으로", "사용자가 분노/불만"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">사용자가 정한 컨벤션·용어·선호를 그대로 옮긴 것</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">사용자가 제공한 스크린샷·재현 절차로 결함이 드러난 것</div></li>
+</ul>
+<h3 class="sub"><code>execution_evidence</code> — 인정 신호</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">QA / 리뷰 verdict: <code>REJECT</code>, <code>APPROVE</code>, 조건 ID 인용 (<code>AR-03</code>, <code>SC-01</code> 등)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">실제 명령 출력 인용: <code>analyze</code> 결과, 테스트 실패, exit code, 스택 트레이스, 로그 라인</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">실측 수치: "N 건 확인", "27 곳 vs 3 곳", "760 엔트리 중 351 건"</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">런타임 관측: 스크린샷 대조, 렌더 결과, MCP 도구 응답, 프레임워크 소스 확인</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">도구·API 가 실제로 그렇게 동작함을 <strong>확인한</strong> 서술 (문서 인용 포함)</div></li>
+</ul>
+<h3 class="sub"><code>mixed</code></h3>
+<p>위 두 절의 신호가 <strong>각각 하나 이상</strong> 본문에 있다. 흔한 형태: 사용자가 문제를 제기 → 조사·실행으로 원인 확인 → 교훈 도출.</p>
+<h3 class="sub"><code>self_inference</code></h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">근거 절(<code>**Why:**</code> 등)이 없다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">있어도 "~하는 것이 좋다", "~가 일반적이다" 같은 <strong>일반론·모범사례 서술</strong>뿐이다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">실패가 있었다고만 쓰고 무엇이 그것을 드러냈는지(사용자 발화 / 명령 출력)가 없다</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">사후에 스스로 정리한 규칙을 근거 없이 규범화한 것</div></li>
+</ul>
+<blockquote class="quote"><p><code>self_inference</code> 는 <strong>결함 라벨이 아니다.</strong> 맞는 교훈일 수 있다. 다만 <strong>아무도 확인하지 않았다</strong>는 사실을 기록해 소비면이 가중치를 낮출 수 있게 한다.</p></blockquote>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>판정 절차</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body">본문 전체(특히 근거 절)를 읽는다. <code>description</code> 만 보고 판정하지 마라.</div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body">인간 신호 유무 · 기계 신호 유무를 <strong>각각</strong> 본다.</div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body">둘 다 → <code>mixed</code> / 인간만 → 인간 값 / 기계만 → 기계 값 / 둘 다 없음 → <code>self_inference</code>.</div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>근거가 없으면 없는 것이다.</strong> 그럴듯하다는 이유로 다른 값을 주지 마라.</div></li>
+</ul>
+<h3 class="sub">경계 사례</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>어휘 계수는 근거가 아니다.</strong> "사용자" 라는 단어가 있어도 사용자가 <em>무엇을 교정했는지</em> 서술돼 있지 않으면 인간 신호로 치지 않는다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>버그 서술은 그 자체로 기계 신호가 아니다.</strong> "이렇게 하면 깨진다" 는 추론일 수 있다. 깨진 것을 <strong>관측한 흔적</strong>(출력 · 수치 · verdict)이 있어야 한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>프레임워크 동작 설명</strong>은 소스·문서를 실제로 확인한 서술이면 기계 신호, 통념 인용이면 아니다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>사용자가 결정한 정책</strong>(용어·컨벤션·범위)은 검증 대상이 아니라 제약이다 → 인간 신호.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>다른 엔트리에서 빌려온 관측은 이 엔트리의 근거가 아니다.</strong> 본문이 인용한 도구 동작이 *이 사건에서 관측된 것*인지, 다른 교훈의 결론을 참조한 것인지 구분하라. 후자는 안 센다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>물리 세계 결과는 사용자가 유일한 관측 채널이다.</strong> 출력물 품질, 기기 거동, 육안 렌더 판정처럼 어시스턴트가 직접 볼 수 없는 결과를 근거로 쓰면, 귀속 문구가 없어도 <strong>인간 신호로 센다.</strong> (같은 엔트리에 프로파일 값·메시 수치 같은 검증 산출물이 함께 있으면 둘 다 → <code>mixed</code>.)</div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>소비면 취급 규칙</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">데이터 풀·회수 단계는 외부 신호 보유분(인간 · 기계 · 둘 다)을 <strong>우선 주입</strong>한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>self_inference</code> 는 <strong>제외하거나 명시 라벨</strong>을 달아 근거로 삼지 않게 한다. 계약 조건의 PASS 근거로 쓰지 마라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">값이 4 값 밖이면 <strong>집계에서 제외하고 제외 건수를 보고</strong>한다. 조용히 삼키지 마라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">필드 부재(<code>grounding</code> 없음)와 <code>self_inference</code> 는 다르다. 부재는 <strong>미태깅</strong>이다.</div></li>
+</ul>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>관련</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">소급 태깅 감사 기록: <code>.harness/.meta/memory-grounding-audit-2026-08-14.md</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">승격 파이프라인: <code>reflect-kit/skills/reflect-promote/SKILL.md</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">집계 파이프라인: <code>reflect-kit/skills/reflect-digest/SKILL.md</code></div></li>
+</ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>reflect-kit/references/memory-grounding.md</code> 의 기준 판은 커밋 <code>ca1f5f4a</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>
