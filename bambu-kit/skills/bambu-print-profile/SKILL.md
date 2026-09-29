@@ -1935,7 +1935,7 @@ scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) �
 | `evals/gate-fixtures/process-bridge-extruder-mismatch.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2 만 50) | `허공 위 속도` 줄을 `pass` 로 | 첫 칸만 읽어 2·3 번 슬롯이 안 보인다 |
 | `evals/gate-fixtures/process-thin-outer-slot2.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2 만 하향) | `_geometry_class=thin` 줄을 `pass` 로 | 슬롯별 외벽 하향이 안 보인다 |
 | `evals/gate-fixtures/process-bridge-unreadable-slot.json` | bambu | 허공 위 속도 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `허공 위 속도` 줄을 `pass` 로 | 못 읽는 칸 하나가 나머지 슬롯 검사를 통째로 끈다 |
-| `evals/gate-fixtures/process-thin-unreadable-slot.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2) + `[미검증]` 2 줄 (슬롯 1 · 벽 예산 미기록) | `_geometry_class=thin` 줄을 `pass` 로 | 못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다 |
+| `evals/gate-fixtures/process-thin-unreadable-slot.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 2) + `[미검증]` 1 줄 (슬롯 1) | `_geometry_class=thin` 줄을 `pass` 로 | 못 읽은 칸을 말하지 않아 «쟀다» 와 «못 쟀다» 가 섞인다 |
 | `evals/gate-fixtures/filament-unreadable-slot.json` | bambu | FAIL 0 건 + `[미검증]` 1 줄 (슬롯 1) | 못 읽은 칸 알림 줄을 `pass` 로 | 소재 부모값 이탈 검사가 조용히 꺼진다 |
 | `evals/gate-fixtures/filament-scope-process-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`outer_wall_speed` · `process`) | `키 스코프 불일치` 줄을 `pass` 로 | process 키를 소재 설정에 넣어도 통과한다 |
 | `evals/gate-fixtures/process-scope-filament-key.json` | bambu | 키 스코프 불일치 **FAIL 1 건** (`overhang_fan_threshold` · `filament`) | `키 스코프 불일치` 줄을 `pass` 로 | 냉각 키를 process 에 넣어도 통과한다 |
