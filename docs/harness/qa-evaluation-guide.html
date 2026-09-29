@@ -800,7 +800,7 @@ grep -n '^## ' "$CONTRACT"
 awk '/^## /{s=$0} /^- \[ \]/{print FNR": "s}' "$CONTRACT"
 
 # (3) 조건 수 대조 — 두 값이 달라야 할 이유는 없다
-grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CONTRACT"
+grep -cE '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CONTRACT"
 grep -E '^conditions:' "$CONTRACT"</code>
       <div class="note">
         <div class="note-title"><code>$CONTRACT</code> 와 <code>CONTRACT_ROOT</code></div>
@@ -1282,14 +1282,14 @@ grep -E '^conditions:' "$CONTRACT"</code>
         </table>
       </div>
       구별 기준 한 줄: <strong>도구를 구해오면 잴 수 있으면 <code>[미검증]</code>, 도구를 구해와도 잴 것이 없으면 <code>N/A (사유)</code>.</strong> <code>N/A</code> 를 사유 없이 쓰면 그때는 금지 대상이다 — 반드시 괄호 안에 사유를 적는다.</li>
-    <li><span class="check">2</span><strong><code>commands.analyze</code> / <code>commands.test</code> 가 성립하지 않는 프로젝트의 <code>DG-01</code>·<code>DG-02</code> 처리.</strong> markdown·문서 전용 킷처럼 정적 분석기가 없는 스택에서는 <code>DG-01</code>·<code>DG-02</code> 를 억지로 PASS 로 적지 마라 — <strong>매치 0 건을 PASS 로 적는 것은 공허한 0 이다</strong>(§Evidence Validity Gate).
+    <li><span class="check">2</span><strong><code>commands.analyze</code> / <code>commands.test</code> 가 성립하지 않는 프로젝트의 <code>진단-01</code>·<code>진단-02</code>(옛 계약은 <code>DG-01</code>·<code>DG-02</code>) 처리.</strong> markdown·문서 전용 킷처럼 정적 분석기가 없는 스택에서는 <code>진단-01</code>·<code>진단-02</code> 를 억지로 PASS 로 적지 마라 — <strong>매치 0 건을 PASS 로 적는 것은 공허한 0 이다</strong>(§Evidence Validity Gate).
       <ul style="list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:6px">
-        <li>· <code>project.yaml</code> 의 <code>commands.analyze</code> 가 <code>null</code>/빈 문자열이면 <code>DG-01</code> 은 <code>N/A (commands.analyze 미설정 — 이 스택에 정적 분석기 없음)</code> 으로 기록한다</li>
-        <li>· IDE 가 해당 확장자에 진단을 내지 않으면 <code>DG-02</code> 는 <code>N/A (IDE diagnostics 미적용 확장자: .md/.html)</code> 으로 기록한다</li>
+        <li>· <code>project.yaml</code> 의 <code>commands.analyze</code> 가 <code>null</code>/빈 문자열이면 <code>진단-01</code> 은 <code>N/A (commands.analyze 미설정 — 이 스택에 정적 분석기 없음)</code> 으로 기록한다</li>
+        <li>· IDE 가 해당 확장자에 진단을 내지 않으면 <code>진단-02</code> 는 <code>N/A (IDE diagnostics 미적용 확장자: .md/.html)</code> 으로 기록한다</li>
         <li>· 대신 그 킷에 <strong>실제로 성립하는 오라클</strong>을 쓴다: <code>python3 scripts/validate-plugin.py &lt;kit&gt;</code> · <code>commands.lint</code> · 문서 링크 검사. 어느 것도 없으면 계약 결함으로 Sprint Feedback 에 남긴다</li>
-        <li>· <strong>명령은 있는데 이번 변경 파일을 재지 않으면</strong> <code>DG-01</code> · <code>DG-03</code> 도 N/A 다 (2026-09-19 신규) — 예: <code>commands</code> 가 <code>scripts/release.sh</code> 만 재는데 스프린트가 그 파일을 건드리지 않았다. 측정: 명령 대상 경로와 <code>git diff --name-only &lt;기준&gt;...&lt;브랜치&gt;</code> 의 교집합 0 개</li>
-        <li>· <code>DG-04</code> 는 산출물에 구동할 앱 · 서버가 없으면 N/A 다 (설정 파일 · 문서 · 스크립트 조각). 측정: 변경 파일에 실행 진입점 0 개</li>
-        <li>· <code>RE-01</code> · <code>RE-02</code> 는 산출물에 재사용 단위 코드(컴포넌트 · 함수 · 모듈)가 없으면 N/A 다. 측정: 변경 파일이 설정 · 문서 · 데이터뿐</li>
+        <li>· <strong>명령은 있는데 이번 변경 파일을 재지 않으면</strong> <code>진단-01</code> · <code>진단-03</code> 도 N/A 다 (2026-09-19 신규) — 예: <code>commands</code> 가 <code>scripts/release.sh</code> 만 재는데 스프린트가 그 파일을 건드리지 않았다. 측정: 명령 대상 경로와 <code>git diff --name-only &lt;기준&gt;...&lt;브랜치&gt;</code> 의 교집합 0 개</li>
+        <li>· <code>진단-04</code> 는 산출물에 구동할 앱 · 서버가 없으면 N/A 다 (설정 파일 · 문서 · 스크립트 조각). 측정: 변경 파일에 실행 진입점 0 개</li>
+        <li>· <code>재사용-01</code> · <code>재사용-02</code> 는 산출물에 재사용 단위 코드(컴포넌트 · 함수 · 모듈)가 없으면 N/A 다. 측정: 변경 파일이 설정 · 문서 · 데이터뿐</li>
         <li>· 평가자는 사유를 <strong>다시 잰다.</strong> 사유가 거짓이면 FAIL(N/A 남용), 사실이면 N/A 로 따로 센다. 계약 작성 절차는 <code>harness/skills/sprint-contract/SKILL.md</code> Step 4 다</li>
       </ul></li>
     <li><span class="check">3</span><strong><code>[미검증]</code> 은 검증 도구·환경 부재 전용이며, 그 안에서 다시 두 분류로 갈린다.</strong> 대상이 없거나 미구현이거나 <strong>의도적으로 실행하지 않았으면</strong> 그것은 미검증이 아니라 <strong>FAIL</strong> 이다. 나머지는 <code>UNVERIFIED_ENV</code>(구현자 통제 밖 도구·환경 부재 · 남용 방지 4 요건 충족)와 <code>UNVERIFIED_INVALID_EVIDENCE</code>(4 요건 미충족 주장 + 공허한 증거)로 나눈다 (4 분기: FAIL / <code>UNVERIFIED_ENV</code> / 4 요건 미충족 / 증거 무효). 마커 어간은 <code>[미검증]</code> 하나이며 접미 <code>:ENV</code> / <code>:INVALID</code> 는 분류다. <strong>접미 없는 레거시 <code>[미검증]</code> 은 <code>INVALID</code> 로 해석한다.</strong></li>
