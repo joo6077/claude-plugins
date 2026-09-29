@@ -854,6 +854,12 @@ function animateProgress() {
   var bar = document.getElementById('progressBar');
   var label = document.getElementById('progressPercent');
   var pct = 0;
+  // 움직임 줄이기 설정이면 차오르지 않고 다 찬 상태를 바로 보인다
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    bar.style.width = '100%';
+    label.textContent = '100%';
+    return;
+  }
   bar.style.width = '0%';
   label.textContent = '0%';
   progressInterval = setInterval(function() {

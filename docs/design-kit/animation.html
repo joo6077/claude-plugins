@@ -901,6 +901,11 @@ function playSpring() {
       springBall.style.left = target + 'px';
     }
   }
+  // 움직임 줄이기 설정이면 튕기지 않고 끝 자리에 둔다
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    springBall.style.left = target + 'px';
+    return;
+  }
   springAnim = requestAnimationFrame(step);
 }
 
@@ -1058,6 +1063,8 @@ flashSlider.addEventListener('input', () => {
   flashWarning.style.color = 'var(--green)';
   flashWarning.textContent = '안전: 3 Hz 미만';
   flashBox.style.opacity = '1';
+  // 움직임 줄이기 설정이면 깜빡이지 않고 켜진 채로 둔다
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   let on = true;
   flashInterval = setInterval(() => {
