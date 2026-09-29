@@ -49,7 +49,7 @@ body{
 h3.sub{font-size:1rem;font-weight:700;margin:28px 0 12px;color:var(--text);letter-spacing:-0.01em}
 h3.sub::before{content:'▸ ';color:var(--accent)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;margin-bottom:16px}
-.card:hover{border-color:rgba(217,119,87,0.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
+.card:hover{border-color:rgba(217,119,87,0.45);transform:var(--dk-hover-move, translateY(-2px));box-shadow:0 8px 28px rgba(217,119,87,0.08)}
 .card-title{font-size:1.01rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.72}
@@ -141,7 +141,6 @@ code,.code-block{font-family:var(--mono);font-size:12.3px}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 
 /* ═══ 가로 오버플로 4 규칙 (docs-site Gotcha 10) — 자르지 말고 스크롤시킨다 ═══ */
 /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 라 긴 토큰의 최소폭이 트랙 폭으로 전파된다 */
@@ -188,6 +187,27 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <!-- kaizen-cycle: 2026-09-24 · source: harness/docs/guides/skill-design-guide.md (v1.6.0) -->
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <div class="topbar">
