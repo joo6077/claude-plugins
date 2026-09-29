@@ -770,6 +770,20 @@ Good: - [ ] UI-07: 설정 화면에서 차단 목록 화면으로 이동한다 [
     </ul>
     <p><strong>실제 발생 사례 (SK-02 REJECT):</strong> "Neubrutalism 모달의 .ms-card-action box-shadow offset 3px, .ms-badge box-shadow offset 2px" 로 구현되었으나 계약이 "주요 interactive element" 로만 서술되어 badge/decoration 이 범위에 포함되는지 해석이 갈려 REJECT. "버튼·카드·입력" 처럼 인라인 enumerate 했다면 사전에 해소 가능했던 케이스.</p>
   </div>
+  <h3 class="sub">범위 목록과 CI 전용 단계 맞대기 <span class="badge y">2026-09-29 추가</span></h3>
+  <p class="section-desc">계약의 <code># sprint-scope</code> 목록은 구현이 고쳐도 되는 파일을 정한다. 진단 조건이 CI 단계 통과를 요구하면, 그 단계가 부르는 검사 스크립트가 이 목록 안에 있는지 <strong>봉인 전에</strong> 맞대라. 로컬 CI 도구는 돌리지 않고 <code>.github/workflows/ci.yml</code> 에만 있는 단계가 특히 빠진다.</p>
+  <p class="section-desc"><strong>봉인 전 점검:</strong></p>
+  <ul class="checklist">
+    <li><span class="check" aria-hidden="true">1</span><code>.github/workflows/ci.yml</code> 의 <code>run:</code> 줄 가운데 로컬 CI 도구가 돌리지 않는 단계를 뽑아 진단 조건에 명령으로 적는다</li>
+    <li><span class="check" aria-hidden="true">2</span>그 단계마다 부르는 검사 스크립트와 그 스크립트가 읽는 파일 · 글자를 적는다</li>
+    <li><span class="check" aria-hidden="true">3</span>이번 구현이 그 파일이나 글자를 바꿔 검사가 떨어질 수 있는데 스크립트가 <code># sprint-scope</code> 밖이면, 봉인 전에 범위에 넣거나 「하지 않는 것」 에 이유와 함께 적는다</li>
+    <li><span class="check" aria-hidden="true">4</span>교차 진단에 이 대조 결과를 같이 넘긴다</li>
+  </ul>
+  <p class="section-desc">범위 밖 스크립트가 떨어지면 두 조건(CI 통과 · 바뀐 파일이 범위 안)을 원 문구대로 함께 만족하는 구현이 없다. 그때 고칠 길은 조건을 느슨하게 하는 개정뿐이고, 그 개정은 사용자 동의가 따로 있어야 한다.</p>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>실측(2026-09-29) — 범위 밖 검사 하나가 REJECT 를 냈다</div>
+    <p>한 문서 묶음 계약이 CI 에만 있는 단계 13 개를 서술 절에만 적고 범위 목록과 맞대지 않았다. 구현이 움직임 줄이기 규칙을 공통 CSS 한 곳으로 모으자 범위 밖 <code>scripts/check-api-kit-docs.py</code> 가 api-kit 12 쪽을 모두 떨어뜨렸고(<code>0/12 PASS</code>), QA 2 회차가 REJECT 했다. 조건을 느슨하게 하는 개정과 사용자 동의를 거쳐서야 3 회차에 통과했다. 평가자는 2 · 3 회차 리포트에 같은 개선 제안을 적었다 — 같은 제안이 두 번 나오면 <code>contract_ambiguity_notes</code> 로 올리는 규칙(<code>qa-evaluation-guide.md</code> §Recurring Improvement Escalation)에 따라, 작성 단계에서 막도록 이 점검을 여기 둔다.</p>
+  </div>
 </div>
 
 <!-- ═══ 검증 수단 · 측정 타당성 ═══ -->
