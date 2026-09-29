@@ -83,4 +83,6 @@ bambu-kit 은 **minor** 가 맞다 — 완료 검사가 프린터(machine) 설�
 | 가지 올리기 · PR (A14 · C9 의 올리기 몫) | 계약 범위 밖이다. 금지-02 가 오히려 셋 다 안 올렸음을 잰다. 사용자 결정 뒤 다른 묶음이 한다 |
 | 원래 가지 · 2 회차 가지 정리 | 지우지 않았다(구조-04). 이 가지가 합쳐진 뒤 사용자가 지울지 정한다 |
 | bambu-kit 릴리스 (minor) | 범위 밖 |
-| QA 판정 | 이 기록은 구현자 자기 측정이다. qa-evaluator 판정은 따로 받는다 |
+| QA 판정 — 끝남 | qa-evaluator APPROVE, 28/28 통과. 리포트 `.harness/sprint-feedback-after-0929-bambu-orca-rewrite.md` |
+| 교차 진단 | QA 리포트의 `cross_diagnosis_by` 가 `pending-parent` 로 남아 있다. 이 마무리 단계 범위에 없어서 띄우지 않았다. 부모 세션이 띄우거나 `none` 과 사유로 내린다 |
+| 마크다운 경고 검사(진단-02) 독립 재실행 | 독립 검토 쪽 맥에 `markdownlint-cli2` 가 없어 QA 가 잰 값만 있다. 막는 결함은 아니다 |
