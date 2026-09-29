@@ -75,7 +75,7 @@ h2{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-.8px;line-heig
   padding:30px;transition:var(--transition);position:relative;overflow:hidden}
 .card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:var(--transition)}
-.card:hover{transform:translateY(-3px);border-color:var(--border2);background:var(--surface2)}
+.card:hover{transform:var(--dk-hover-move, translateY(-3px));border-color:var(--border2);background:var(--surface2)}
 .card:hover::before{opacity:1}
 .card-num{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;
   background:var(--accent-dim);color:var(--accent);border-radius:10px;font-weight:700;font-size:14px;margin-bottom:18px;
@@ -85,9 +85,9 @@ h2{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-.8px;line-heig
 .card-source{display:inline-flex;align-items:center;gap:6px;margin-top:18px;color:var(--accent);
   text-decoration:none;font-size:12.5px;font-weight:500;padding:6px 12px;border-radius:var(--radius-sm);
   background:var(--accent-dim);border:1px solid rgba(34,211,238,0.2);transition:var(--transition)}
-.card-source:hover{background:rgba(34,211,238,0.2);transform:translateX(2px)}
+.card-source:hover{background:rgba(34,211,238,0.2);transform:var(--dk-hover-move, translateX(2px))}
 .card-source::after{content:"→";transition:var(--transition)}
-.card-source:hover::after{transform:translateX(2px)}
+.card-source:hover::after{transform:var(--dk-hover-move, translateX(2px))}
 
 /* Table */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
@@ -121,7 +121,7 @@ tr:hover td{background:rgba(34,211,238,0.03)}
 .checklist{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .check-item{display:flex;gap:18px;padding:22px 26px;background:var(--surface);
   border:1px solid var(--border);border-radius:var(--radius);transition:var(--transition)}
-.check-item:hover{border-color:var(--border2);background:var(--surface2);transform:translateX(3px)}
+.check-item:hover{border-color:var(--border2);background:var(--surface2);transform:var(--dk-hover-move, translateX(3px))}
 .check-box{flex-shrink:0;width:26px;height:26px;border-radius:8px;background:var(--accent-dim);
   border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;
   color:var(--accent);font-weight:700;font-size:14px}
@@ -134,14 +134,6 @@ code{font-family:"SF Mono",Menlo,Monaco,Consolas,monospace;font-size:.88em;
 footer{padding:64px 0 48px;border-top:1px solid var(--border);text-align:center;color:var(--text3);font-size:13px}
 footer p{margin-bottom:6px}
 
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
-    transition-duration:.01ms!important;scroll-behavior:auto!important}
-  .card:hover{transform:none}
-  .check-item:hover{transform:none}
-  .card-source:hover{transform:none}
-  .card-source:hover::after{transform:none}
-}
 
 @media(max-width:640px){
   .container{padding:0 20px}
