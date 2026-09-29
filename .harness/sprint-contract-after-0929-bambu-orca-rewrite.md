@@ -4,7 +4,7 @@ slug: after-0929-bambu-orca-rewrite
 created: "2026-09-29 09:29"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 conditions_digest: sha256:a92de5fb57acd564
 measurement_digest: sha256:ef4626741ef9b51a
 locked_at: "2026-09-29 09:41"
