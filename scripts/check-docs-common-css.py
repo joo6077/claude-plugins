@@ -9,7 +9,8 @@
     python3 scripts/check-docs-common-css.py <파일...>  # 준 파일만
 
 쪽마다 어긋나면 한 줄로 적는다:
-  - `assets/site.css` 를 가리키는 `<link>` 가 1 개가 아니다 (HTML 주석 안은 세지 않는다)
+  - `assets/site.css` 를 화면 스타일로 불러오는 `<link>` 가 1 개가 아니다 — 판정은 plugin_utils 의
+    `site_css_stylesheet_links` 하나로 check-api-kit-docs 와 같다 (HTML 주석 안 · preload · alternate · print 전용은 세지 않는다)
   - 쪽 `<style>` 에 `prefers-reduced-motion` 규칙을 다시 적었다 — 움직임 줄이기는 공통 파일이 맡는다.
     `<style media="(prefers-reduced-motion: …)">` · `<link media="(prefers-reduced-motion: …)">` 처럼
     태그의 media 속성에 적은 것도 같다. `media="print"` 같은 다른 조건과 HTML · CSS 주석,
@@ -27,11 +28,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+from plugin_utils import site_css_stylesheet_links
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
-LINK_RE = re.compile(r"<link\b[^>]*>", re.I | re.S)
-SITE_CSS_HREF_RE = re.compile(r"""\bhref\s*=\s*(?:"[^"]*assets/site\.css[^"]*"|'[^']*assets/site\.css[^']*'|[^\s"'>]*assets/site\.css[^\s"'>]*)""", re.I)
 TAG_RE = re.compile(r"(<[^>]*>)")
 STYLE_RE = re.compile(r"<style\b[^>]*>(.*?)</style>", re.I | re.S)
 MEDIA_TAG_RE = re.compile(r"<(?:style|link)\b[^>]*>", re.I | re.S)
@@ -52,10 +53,6 @@ def tracked_pages() -> list[Path] | None:
         print(f"ERROR: git ls-files 실패 — {result.stderr.strip()}")
         return None
     return [REPO_ROOT / line for line in result.stdout.splitlines() if line.strip()]
-
-
-def site_css_links(text: str) -> int:
-    return sum(1 for tag in LINK_RE.findall(COMMENT_RE.sub("", text)) if SITE_CSS_HREF_RE.search(tag))
 
 
 def style_motion_rules(text: str) -> int:
@@ -112,7 +109,7 @@ def main(argv: list[str]) -> int:
             print(f"UNREADABLE {shown(page)}: {error}")
             continue
         checked += 1
-        links, splits, motion = site_css_links(text), split_names(text), style_motion_rules(text)
+        links, splits, motion = site_css_stylesheet_links(text), split_names(text), style_motion_rules(text)
         if links != 1 or splits or motion:
             mismatched += 1
             print(f"BAD {shown(page)} site_css_links={links} split_names={splits} style_motion={motion}")
