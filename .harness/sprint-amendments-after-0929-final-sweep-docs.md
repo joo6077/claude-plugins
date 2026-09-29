@@ -110,7 +110,7 @@ dark_pages=200 light_pages=84 changed=0 narrowed_checks=2 narrowed_bad=0 br_rc=0
 - 앵커: 2026-09-29T06:46:43.548Z · session=bda55d45-296c-491f-89ba-b52042d58e72 ·
   cwd=/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak3-fs2
 
-### consent — anchored
+### AM-02 consent — anchored
 
 세션 기록 `~/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/bda55d45-296c-491f-89ba-b52042d58e72.jsonl`
 의 `AskUserQuestion` 쌍을 `tool_use_id` 로 짝지어 뽑았다. 결정 기록
@@ -130,7 +130,7 @@ dark_pages=200 light_pages=84 changed=0 narrowed_checks=2 narrowed_bad=0 br_rc=0
 동의는 이 개정을 담은 커밋과 스크립트를 고친 커밋보다 앞선다 — 이 절을 쓰기 직전 `date -u` 가
 2026-09-29T06:48:23Z 였다.
 
-### amend_direction — 계산
+### AM-02 amend_direction — 계산
 
 두 변경을 각각 스키마 `harness/references/contract-schema.md` 의 헬퍼로 쟀다. zsh · bash 모두 같다.
 
@@ -147,7 +147,7 @@ relaxing measured_removed=12 measured_added=12
 둘 다 완화다. 범위는 넓어지고, 쪽 안의 규칙 글자를 재던 검사가 빠진다(연결 검사가 그 자리에 들어오지만 빠지는
 측정이 있으면 완화로 본다).
 
-### 스크립트 지문 · 대조
+### AM-02 스크립트 지문 · 대조
 
 | 판 | sha256 앞 16 자리 | 결과 |
 | --- | --- | --- |
