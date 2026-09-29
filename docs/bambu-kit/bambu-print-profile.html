@@ -1019,7 +1019,7 @@ done</pre>
       </tbody>
     </table>
   </div>
-  <p class="desc">뱀부 스튜디오로 넘길 때 화면의 예상 시간이 오르카 슬라이스 결과와 같으면 오르카 파일이 그대로 간 것이다. 오르카 H2S 는 프린터 설정도 함께 바꿔야 한다 — <a href="#phase31">Phase 3.1</a>.</p>
+  <p class="desc">뱀부 스튜디오로 넘길 때 화면의 예상 시간이 오르카 슬라이스 결과와 같으면 오르카 파일이 그대로 간 것이다. 오르카 H2S 는 프린터 설정도 함께 바꿔야 한다 — Phase 3.1.</p>
 </div>
 
 <!-- ── Phase 2 ── -->
@@ -1127,7 +1127,7 @@ done</pre>
 
 <div class="section" id="phase31">
   <div class="section-label">Phase 3.1 — 오르카 + H2S 는 프린터 설정도 만든다 (2026-09-19 신규)</div>
-  <p class="desc"><code>TARGET_SLICER=orca</code> 이고 프린터가 H2S 면 process · filament 에 더해 <strong>프린터(machine) 설정 JSON 을 <code>machine/</code> 폴더에 함께 만든다.</strong> 오르카 2.4.2 에 든 H2S 시작 명령은 뱀부보다 낡아서, 그대로 자르면 그 파일로 뽑을 때만 툴헤드 카메라 초기화 실패가 난다 (2026-09-19 fly-catcher 실측 · 원인과 명령 차이는 <a href="bambu-fields-baseline.html"><code>bambu-fields-baseline.md</code> §11.5</a>).</p>
+  <p class="desc"><code>TARGET_SLICER=orca</code> 이고 프린터가 H2S 면 process · filament 에 더해 <strong>프린터(machine) 설정 JSON 을 <code>machine/</code> 폴더에 함께 만든다.</strong> 오르카 2.4.2 에 든 H2S 시작 명령은 뱀부보다 낡아서, 그대로 자르면 그 파일로 뽑을 때만 툴헤드 카메라 초기화 실패가 난다 (2026-09-19 fly-catcher 실측 · 원인과 명령 차이는 <code>bambu-fields-baseline.md</code> §11.5).</p>
   <div class="card">
     <ul class="plain">
       <li><code>inherits</code> 는 <code>Bambu Lab H2S 0.4 nozzle</code> (실제 노즐에 맞춘다). <code>machine_start_gcode</code> 에 뱀부 설치본의 <code>Bambu Lab H2S 0.4 nozzle template machine_start_gcode.json</code> 원문을 넣되, 오르카에 없는 <code>cooling_filter_enabled</code> 조건 블록만 뱀부 기본값 결과로 고정한다 — 절차는 §11.5</li>
