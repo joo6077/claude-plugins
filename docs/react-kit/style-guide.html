@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Result 패턴 (neverthrow) — React Kit</title>
+<title>Style Guide — React Kit</title>
 <link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -28,6 +28,7 @@
     font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
     background:var(--bg);color:var(--text);min-height:100vh;
     background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
   }
   .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
   a{color:var(--accent)}
@@ -147,13 +148,12 @@
 
 <header class="hero">
   <span class="eyebrow">React Kit · 참고 문서</span>
-  <h1>Result 패턴 (neverthrow)</h1>
-  <p class="orig-title">원본 제목: <strong>Result Patterns (neverthrow)</strong></p>
-  <p class="subtitle">react-kit 의 모든 에러 경계는 <code>neverthrow</code> 의 <code>Result&lt;T, E&gt;</code> 로 넘긴다. <strong><code>throw</code> 는 쓰지 않는다</strong> — TanStack Query <code>queryFn</code> 안 한 곳만 예외다. 설치본 플러그인에는 docs/react/ 가 없다 — 이 파일의 docs/... 경로를 열 수 없으면 https://raw.githubusercontent.com/joo6077/claude-plugins/main/ 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.</p>
+  <h1>Style Guide</h1>
+  <p class="subtitle">react-kit 이 생성하는 <strong>모든 코드가 지킬 스타일 규칙</strong>이다. strict TypeScript 설정 · ESLint 금지 사항 · 이름 규칙 · Prettier 설정을 정하고, <code>/react-audit</code> 가 이 규칙을 검증한다.</p>
   <div class="meta">
-    <span class="badge">원본 <code>react-kit/references/result-patterns.md</code></span>
-    <span class="badge">레이어 다섯 줄</span>
-    <span class="badge">안티패턴 넷</span>
+    <span class="badge">원본 <code>react-kit/references/style-guide.md</code></span>
+    <span class="badge">금지 사항 여덟</span>
+    <span class="badge">이름 규칙 여섯</span>
   </div>
 </header>
 
@@ -161,240 +161,239 @@
   <div class="section-label" id="glance">한눈에</div>
   <div class="glance">
     <div class="card glance-card">
-      <h3>동기와 비동기</h3>
-      <p>동기는 <code>ok</code> · <code>err</code>, 비동기는 <code>ResultAsync.fromPromise</code> 로 경계를 바꾸고 <code>andThen</code> 으로 잇는다.</p>
+      <h3>strict TypeScript</h3>
+      <p><code>strict</code> 에 더해 <code>noUncheckedIndexedAccess</code> · <code>exactOptionalPropertyTypes</code> 를 켠다.</p>
     </div>
     <div class="card glance-card">
-      <h3>Failure 유니온</h3>
-      <p><code>kind</code> 필드로 가르는 유니온이다. <code>never</code> 로 모든 경우를 다뤘는지 타입 검사한다.</p>
+      <h3>ESLint error 레벨</h3>
+      <p><code>any</code> · non-null 단언 · <code>export default</code> 를 막고 <code>as</code> 는 <code>as const</code> 만 둔다.</p>
     </div>
     <div class="card glance-card">
-      <h3>레이어별 규칙</h3>
-      <p>domain 은 시그니처만, data 는 경계 변환과 체인, presentation 은 <code>isErr()</code> · <code>isOk()</code> 로 가른다.</p>
+      <h3>이름 규칙</h3>
+      <p>파일은 kebab-case, 컴포넌트 · 타입은 PascalCase, 훅은 <code>use</code> 로 시작한다.</p>
     </div>
     <div class="card glance-card">
-      <h3>하지 않는 것</h3>
-      <p>try/catch 로 Failure 를 감추거나, JSON 문자열로 throw 하거나, <code>any</code> 로 에러 타입을 우회하지 않는다.</p>
+      <h3>설치본에서 읽을 때</h3>
+      <p>설치본 플러그인에는 <code>docs/react/</code> 가 없다 — 못 열면 저장소 원문 주소로 읽고, 그래도 못 읽으면 지어내지 않는다.</p>
     </div>
   </div>
 </section>
 
-<section class="section" aria-labelledby="tb-f">
-  <div class="section-label" id="tb-f">실패가 흘러가는 길</div>
-  <p class="desc">원본 「레이어별 사용 규칙」 표를 데이터가 흐르는 순서로 다시 놓았다.</p>
+<section class="section" aria-labelledby="rules-at-a-glance">
+  <div class="section-label" id="rules-at-a-glance">ESLint error 레벨 규칙 한눈에</div>
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
-          <th><div class="c">단계</div></th>
-          <th><div class="c">레이어</div></th>
-          <th><div class="c">하는 일</div></th>
-          <th><div class="c">돌려주는 것</div></th>
-        </tr>
+        <tr><th>대상</th><th>규칙</th><th>근거 · 대신 쓸 것</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td><div class="c">1</div></td>
-          <td><div class="c">data/datasources/remote</div></td>
-          <td><div class="c">fetch 실패를 Failure 로 바꾼다</div></td>
-          <td><div class="c"><code>ResultAsync</code></div></td>
+          <td><code>any</code></td>
+          <td>금지</td>
+          <td><code>@typescript-eslint/no-explicit-any</code></td>
         </tr>
         <tr>
-          <td><div class="c">2</div></td>
-          <td><div class="c">data/repositories</div></td>
-          <td><div class="c">Zod 로 검사하고 체인으로 잇는다</div></td>
-          <td><div class="c"><code>Result</code></div></td>
+          <td><code>as</code> 타입 단언</td>
+          <td><code>as const</code> 만</td>
+          <td>제한</td>
         </tr>
         <tr>
-          <td><div class="c">3</div></td>
-          <td><div class="c">domain/usecases</div></td>
-          <td><div class="c">시그니처만 선언한다</div></td>
-          <td><div class="c"><code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code></div></td>
+          <td><code>!</code> non-null 단언</td>
+          <td>금지</td>
+          <td><code>@typescript-eslint/no-non-null-assertion</code></td>
         </tr>
         <tr>
-          <td><div class="c">4</div></td>
-          <td><div class="c">presentation/hooks</div></td>
-          <td><div class="c"><code>queryFn</code> 안에서만 <code>throw result.error</code></div></td>
-          <td><div class="c">TanStack Query error</div></td>
+          <td><code>export default</code></td>
+          <td>금지</td>
+          <td><code>no-default-export</code></td>
         </tr>
         <tr>
-          <td><div class="c">5</div></td>
-          <td><div class="c">presentation/components</div></td>
-          <td><div class="c">분기해서 화면에 보인다</div></td>
-          <td><div class="c">—</div></td>
+          <td><code>React.FC</code></td>
+          <td>경고</td>
+          <td><code>(props: Props) =&gt; JSX.Element</code> 또는 <code>forwardRef</code></td>
+        </tr>
+        <tr>
+          <td><code>console.log</code></td>
+          <td>production 경고</td>
+          <td><code>no-console</code></td>
+        </tr>
+        <tr>
+          <td><code>throw new</code></td>
+          <td><code>src/domain/</code> 에서 금지</td>
+          <td>Result 타입을 쓴다</td>
+        </tr>
+        <tr>
+          <td>상대 경로 <code>'../../../'</code></td>
+          <td>금지</td>
+          <td>absolute <code>@/</code> 만</td>
         </tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<section class="section" aria-labelledby="tb-a">
-  <div class="section-label" id="tb-a">안티패턴과 대신 쓸 것</div>
-  <p class="desc">원본 「안티패턴」 목록에 까닭과 대신 쓸 것을 원본의 다른 절에서 찾아 붙였다.</p>
+<section class="section" aria-labelledby="naming-at-a-glance">
+  <div class="section-label" id="naming-at-a-glance">이름 규칙 한눈에</div>
   <div class="table-wrap">
     <table>
       <thead>
-        <tr>
-          <th><div class="c">하지 않는 것</div></th>
-          <th><div class="c">왜</div></th>
-          <th><div class="c">대신</div></th>
-        </tr>
+        <tr><th>무엇</th><th>형식</th><th>예</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td><div class="c"><code>try/catch</code> 로 Failure 감추기</div></td>
-          <td><div class="c">실패가 호출자에게 보이지 않는다</div></td>
-          <td><div class="c">항상 Result 로 바꿔 돌려준다</div></td>
+          <td>File</td>
+          <td>kebab-case</td>
+          <td><code>user-profile-card.tsx</code> · <code>use-drag.ts</code></td>
         </tr>
         <tr>
-          <td><div class="c"><code>throw new Error(JSON.stringify(failure))</code></div></td>
-          <td><div class="c">타입 정보가 사라진다</div></td>
-          <td><div class="c"><code>err(failure)</code></div></td>
+          <td>Component</td>
+          <td>PascalCase</td>
+          <td><code>UserProfileCard</code></td>
         </tr>
         <tr>
-          <td><div class="c"><code>any</code> 로 에러 타입 우회</div></td>
-          <td><div class="c">exhaustiveness 검사가 꺼진다</div></td>
-          <td><div class="c"><code>kind</code> 유니온과 <code>never</code> 검사</div></td>
+          <td>Hook</td>
+          <td><code>use</code> prefix</td>
+          <td><code>useDrag</code> · <code>useUser</code></td>
         </tr>
         <tr>
-          <td><div class="c">domain 레이어에서 throw</div></td>
-          <td><div class="c">domain 은 시그니처만 둔다</div></td>
-          <td><div class="c"><code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code> 선언</div></td>
+          <td>Type</td>
+          <td>PascalCase</td>
+          <td><code>User</code> · <code>UserFailure</code></td>
+        </tr>
+        <tr>
+          <td>Zod schema</td>
+          <td>PascalCase + <code>Schema</code> suffix</td>
+          <td><code>UserSchema</code></td>
+        </tr>
+        <tr>
+          <td>Store</td>
+          <td><code>use&lt;Name&gt;Store</code></td>
+          <td><code>useAuthStore</code></td>
         </tr>
       </tbody>
     </table>
-  </div>
-</section>
-
-<section class="section" aria-labelledby="rel-r">
-  <div class="section-label" id="rel-r">관련 쪽</div>
-  <div class="glance">
-    <div class="card glance-card">
-      <h3><a href="state-data.html">G2 · 상태 & 데이터</a></h3>
-      <p><code>/react-api</code> 의 네 층과 Result 체인.</p>
-    </div>
-    <div class="card glance-card">
-      <h3><a href="quality.html">G4 · 품질</a></h3>
-      <p><code>/react-error</code> 의 심각도 매핑과 화면 표시.</p>
-    </div>
-    <div class="card glance-card">
-      <h3><a href="clean-arch-layout.html">레이어 배치</a></h3>
-      <p>각 레이어의 폴더와 import 방향.</p>
-    </div>
   </div>
 </section>
 
 <nav class="toc" aria-label="목차">
   <div class="section-label">목차</div>
   <ol class="toc-list">
-    <li><a href="#s1"><span class="toc-n">01</span>기본 사용</a></li>
-    <li><a href="#s2"><span class="toc-n">02</span>Failure discriminated union</a></li>
-    <li><a href="#s3"><span class="toc-n">03</span>레이어별 사용 규칙</a></li>
-    <li><a href="#s4"><span class="toc-n">04</span>안티패턴</a></li>
-    <li><a href="#s5"><span class="toc-n">05</span>관련 문서</a></li>
+    <li><a href="#s1"><span class="toc-n">01</span>Strict TypeScript (<code>tsconfig.json</code>)</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>금지 사항 (ESLint error 레벨)</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>Naming</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>Prettier 설정</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>ESLint flat config 최소 구성</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>관련 문서</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
   </ol>
 </nav>
 
 <section class="section lead-block">
   <div class="section-label">원본 머리말</div>
-<p>react-kit 의 모든 에러 경계는 <code>neverthrow</code> 의 <code>Result&lt;T, E&gt;</code> 를 사용. <code>throw</code> 금지.</p>
+<p>설치본 플러그인에는 <code>docs/react/</code> 가 없다 — 이 파일의 <code>docs/...</code> 경로를 열 수 없으면 <code>https://raw.githubusercontent.com/joo6077/claude-plugins/main/</code> 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.</p>
+<p>react-kit 이 생성하는 모든 코드가 준수해야 할 스타일 규칙. <code>/react-audit</code> 가 이 규칙을 검증한다.</p>
 </section>
 
 <section class="section doc" id="s1">
   <div class="section-label">§ 01</div>
-  <h2>기본 사용</h2>
+  <h2>Strict TypeScript (<code>tsconfig.json</code>)</h2>
   <div class="doc-body">
-<div class="code"><span class="code-lang">ts</span><pre><code>import { ok, err, Result, ResultAsync } from 'neverthrow'
-
-// 동기
-function parse(raw: unknown): Result&lt;User, UserFailure&gt; {
-  const parsed = UserSchema.safeParse(raw)
-  if (!parsed.success) return err({ kind: 'user/validation-failed', issues: parsed.error.issues.map(i =&gt; i.message) })
-  return ok(parsed.data)
-}
-
-// 비동기
-function fetchUser(id: string): ResultAsync&lt;User, UserFailure&gt; {
-  return ResultAsync.fromPromise(
-    fetch(`/users/${id}`).then(r =&gt; r.json()),
-    (e) =&gt; ({ kind: 'user/network-error', cause: String(e) })
-  ).andThen(parse)
+<div class="code"><span class="code-lang">jsonc</span><pre><code>{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "paths": { "@/*": ["./src/*"] }
+  }
 }</code></pre></div>
   </div>
 </section>
 
 <section class="section doc" id="s2">
   <div class="section-label">§ 02</div>
-  <h2>Failure discriminated union</h2>
+  <h2>금지 사항 (ESLint error 레벨)</h2>
   <div class="doc-body">
-<div class="code"><span class="code-lang">ts</span><pre><code>export type UserFailure =
-  | { kind: 'user/not-found'; userId: string }
-  | { kind: 'user/unauthorized' }
-  | { kind: 'user/network-error'; cause: string }
-  | { kind: 'user/validation-failed'; issues: string[] }</code></pre></div>
-<p><code>kind</code> 필드로 switch/match 분기. 모든 케이스를 다뤘는지 TypeScript <code>never</code> 타입 exhaustiveness 검증.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>any</code> 사용 금지 (<code>@typescript-eslint/no-explicit-any</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>as</code> 타입 단언 제한 (<code>as const</code> 만 허용)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>!</code> non-null 단언 금지 (<code>@typescript-eslint/no-non-null-assertion</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>export default</code> 금지 (<code>no-default-export</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>React.FC</code> 사용 경고 — 대신 <code>(props: Props) =&gt; JSX.Element</code> 또는 <code>forwardRef</code></div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>console.log</code> production 경고 (<code>no-console</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>throw new</code> in <code>src/domain/</code> — Result 타입 사용</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">상대 경로 <code>'../../../'</code> — absolute <code>@/</code> 만 허용</div></li>
+</ul>
   </div>
 </section>
 
 <section class="section doc" id="s3">
   <div class="section-label">§ 03</div>
-  <h2>레이어별 사용 규칙</h2>
+  <h2>Naming</h2>
   <div class="doc-body">
-<div class="table-wrap"><table>
-<thead><tr>
-  <th><div class="c">레이어</div></th>
-  <th><div class="c">사용</div></th>
-</tr></thead><tbody>
-<tr>
-  <td><div class="c">domain/usecases</div></td>
-  <td><div class="c"><strong>시그니처</strong> <code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code> 로 선언만</div></td>
-</tr>
-<tr>
-  <td><div class="c">data/datasources/remote</div></td>
-  <td><div class="c"><code>ResultAsync.fromPromise(fetch(...), e =&gt; Failure)</code> 로 경계 변환</div></td>
-</tr>
-<tr>
-  <td><div class="c">data/repositories</div></td>
-  <td><div class="c">datasource 호출 + Zod parse → Result 체인</div></td>
-</tr>
-<tr>
-  <td><div class="c">presentation/hooks</div></td>
-  <td><div class="c">TanStack Query <code>queryFn</code> 안에서만 <code>throw result.error</code> (TanStack 이 error 로 포획)</div></td>
-</tr>
-<tr>
-  <td><div class="c">presentation/components</div></td>
-  <td><div class="c"><code>result.isErr()</code> / <code>isOk()</code> 로 분기, throw 금지</div></td>
-</tr>
-</tbody></table></div>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>File</strong>: kebab-case (<code>user-profile-card.tsx</code>, <code>use-drag.ts</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Component</strong>: PascalCase (<code>UserProfileCard</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Hook</strong>: <code>use</code> prefix (<code>useDrag</code>, <code>useUser</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Type</strong>: PascalCase (<code>User</code>, <code>UserFailure</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Zod schema</strong>: PascalCase + <code>Schema</code> suffix (<code>UserSchema</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Store</strong>: <code>use&lt;Name&gt;Store</code> 형태 (<code>useAuthStore</code>)</div></li>
+</ul>
   </div>
 </section>
 
 <section class="section doc" id="s4">
   <div class="section-label">§ 04</div>
-  <h2>안티패턴</h2>
+  <h2>Prettier 설정</h2>
   <div class="doc-body">
-<ul class="md-list">
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>try/catch</code> 로 Failure 감추기 — 항상 Result 로 변환</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>throw new Error(JSON.stringify(failure))</code> — 타입 정보 손실</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>any</code> 로 에러 타입 우회</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ domain 레이어에서 throw</div></li>
-</ul>
+<div class="code"><span class="code-lang">json</span><pre><code>{
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,
+  "tabWidth": 2
+}</code></pre></div>
   </div>
 </section>
 
 <section class="section doc" id="s5">
   <div class="section-label">§ 05</div>
+  <h2>ESLint flat config 최소 구성</h2>
+  <div class="doc-body">
+<p><code>docs/react/kit-design/g1-scaffolding.md</code> §1.6 Gotchas 의 "eslint-plugin-react-hooks flat config 수동 와이어링" 경고를 반드시 지킬 것.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
   <h2>관련 문서</h2>
   <div class="doc-body">
 <ul class="md-list">
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g2-state-data.md</code> §2 <code>/react-api</code> — Clean Arch 4계층 + Result 체인</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g4-quality.md</code> §2 <code>/react-error</code> — Severity 매핑 + UI 표시</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g1-scaffolding.md</code> — <code>/react-init</code> 이 생성하는 초기 설정</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g6-build-audit.md</code> §4.5 — <code>/react-audit</code> 의 Strict TS 카테고리 grep 패턴</div></li>
 </ul>
   </div>
 </section>
 
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 1 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://raw.githubusercontent.com/joo6077/claude-plugins/main/" target="_blank" rel="noopener">&#8599; https://raw.githubusercontent.com/joo6077/claude-plugins/main/</a></li>
+  </ol>
+</section>
+
 <footer class="foot">
-  <p>원본 <code>react-kit/references/result-patterns.md</code> 의 기준 판은 커밋 <code>e500a63</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+  <p>원본 <code>react-kit/references/style-guide.md</code> 의 기준 판은 커밋 <code>cacd9da3</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
 </footer>
 
 </div>
