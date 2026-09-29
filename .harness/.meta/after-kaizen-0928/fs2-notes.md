@@ -47,3 +47,19 @@ AM-01 (커밋 `ccf33dee`).
 - 스크립트로 주는 움직임(`behavior:'smooth'` 스크롤 등) — 공통 파일이 멈출 수 없다
 - 합쳐지지 않은 묶음 fs1 — 합친 뒤 드리프트는 그 판에서 다시 본다
 - 쪽 없는 원본 둘(`reflect-kit/references/memory-grounding.md` · `reflect-kit/skills/reflect-kaizen/SKILL.md`) — 네 항목 밖
+
+## QA 3 회차 APPROVE 뒤 남은 것 (막지 않음)
+
+QA 리포트 `.harness/sprint-feedback-after-0929-final-sweep-docs.md` (커밋 `1ef51c8f`). 독립 검토 BLOCKING 0.
+아래 둘은 검사가 놓치는 틈이다. 전에 잡던 것을 이제 못 잡게 된 경우가 아니고, 지금 204 쪽 가운데 걸리는 쪽도 없어
+이 묶음에서는 고치지 않았다(봉인된 조건 밖이고, 고치면 범위가 넓어진다).
+
+- `scripts/check-docs-common-css.py` 의 `style_motion_rules` 가 `<style media="(prefers-reduced-motion: reduce)">` 처럼
+  태그 속성으로 건 움직임 줄이기 규칙과 `<link media="(prefers-reduced-motion…)">` 를 못 잡는다. 검토자가 scratch 쪽
+  두 개로 확인했다 — 속성 모양은 종료 코드 0, `@media` 모양은 종료 코드 1. 고칠 때는 태그의 `media` 속성도 보고,
+  속성 모양 쪽을 음성 대조 시험 경우로 더한다.
+- `scripts/check-api-kit-docs.py` 의 `SITE_CSS_LINK` 가 `rel` 을 보지 않아 `rel="preload"` 도 연결로 세고, 끝의 `\b`
+  때문에 `assets/site.css.bak` 도 통과시킨다(코드를 읽어서만 확인). 옛 검사(글자 있는지만 봄)와 느슨한 정도는 같다.
+  고칠 때는 `rel="stylesheet"` 와 닫는 따옴표 · 공백 · `>` 까지 맞추고, 두 모양을 음성 대조로 더한다.
+- QA 개선 제안: 「CI 에만 있는 단계 목록과 `# sprint-scope` 목록 교차 대조」가 2 · 3 회차 연속 나왔다.
+  계약 스킬의 `contract_ambiguity_notes` 로 올릴 후보다.
