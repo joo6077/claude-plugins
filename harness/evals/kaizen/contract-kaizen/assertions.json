@@ -10,7 +10,7 @@
     {"type": "file_contains", "file": "harness/skills/sprint-contract/SKILL.md", "pattern": "복잡도.*판단|complexity.*judge"}
   ],
   "vacuous-boilerplate": [
-    {"type": "file_contains", "file": "harness/skills/sprint-contract/SKILL.md", "pattern": "AP-00: N/A"},
+    {"type": "file_contains", "file": "harness/skills/sprint-contract/SKILL.md", "pattern": "금지-00: N/A"},
     {"type": "file_contains", "file": "harness/skills/sprint-contract/SKILL.md", "pattern": "양성 대조"}
   ]
 }

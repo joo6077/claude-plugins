@@ -514,7 +514,7 @@ else
   # 조건 줄 밖(산문)에 무엇이 바뀌었는지 본다.
   # frontmatter 의 status 전환은 빼야 한다 — 평가자 자신이 Step 5.5 에서 하는 일이다
   git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]' \
-    | grep -vE '^[+-][+-]' | grep -vE '^[+-]- \[[ x]\] [A-Z]{2,}-[0-9]{2}' \
+    | grep -vE '^[+-][+-]' | grep -vE '^[+-]- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' \
     | grep -vE '^[+-]status: (active|done)$'
   # 두 지문 가운데 하나라도 바뀌었으면 재봉인이다 (measurement_digest 는 v5.6)
   git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-](conditions|measurement)_digest:'
@@ -589,7 +589,7 @@ BLOCKED: Sprint Contract가 존재하지 않습니다.
 # $CONTRACT 는 Step 1-e 에서 고정한 선택 계약 경로다 (plain 이든 접미형이든 그 경로 그대로).
 grep -n '^## ' "$CONTRACT"                                          # (1) 헤더 2 계층 확인
 awk '/^## /{s=$0} /^- \[ \]/{print FNR": "s}' "$CONTRACT"           # (2) 조건 체크박스가 속한 섹션
-grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CONTRACT"               # (3) 파싱된 조건 수
+grep -cE '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CONTRACT"               # (3) 파싱된 조건 수
 grep -E '^conditions:' "$CONTRACT"                                  # (4) frontmatter 선언 수
 ```
 
