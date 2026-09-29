@@ -35,3 +35,7 @@
 ## 2026-09-29T04:43:11.908Z (세션 bda55d45 기록 6392 번째 줄)
 
 - fs2(after-0929-final-sweep-docs) 구조-03 색 지문 조건 — `docs/index.html` · `docs/bambu-kit/bambu-print-profile.html` 두 쪽에 한해 「새로 더한 요소를 뺀 나머지 요소의 색은 시작 판과 같다」로 좁혀 재는 개정을 사용자가 콕 집어 받아들였다. 나머지 200 쪽은 `changed=0` 그대로. 구조-07(목차 항목 둘) · 구조-08(bambu 쪽 원본 내용 채우기)과 부딪혀서 생긴 개정이다.
+
+## 2026-09-29T06:46:43.548Z (세션 bda55d45 기록 6533 번째 줄)
+
+- fs2 AM-02 — 계약 범위 목록에 `scripts/check-api-kit-docs.py` 를 더하고, 그 83·84 번째 줄 검사(api-kit 12 쪽 본문마다 `prefers-reduced-motion` 글자)를 「공통 CSS 파일 site.css 를 연결했는가」로 바꾸는 개정을 사용자가 콕 집어 받아들였다. 움직임 규칙을 공통 파일로 모은 구조-06 과 부딪혀서 생긴 개정이다.
