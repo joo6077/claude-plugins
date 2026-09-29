@@ -4,7 +4,7 @@ slug: after-0929-leftovers
 created: "2026-09-29 18:40"
 complexity: "복잡"
 conditions: 28
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: "sha256:22e89d143f5d6cdc"
 measurement_digest: "sha256:8b6f09f5db78ab5d"
