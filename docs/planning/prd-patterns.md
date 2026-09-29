@@ -162,6 +162,28 @@ Shape Up 은 No-gos 를 pitch 의 다섯 요소 가운데 하나로 두고, appe
 - <https://agilealliance.org/glossary/invest/>
 - <https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects>
 
+### PRD 와 설계 결정 기록(ADR)의 경계
+
+**요약**: 제품 비범위는 PRD 비범위 절(§폐기한 결정)에 적는다. 구조 · 비기능 특성 · 의존성 · 인터페이스에 걸린 결정 하나는 ADR(설계 결정 기록)에 근거와 결과를 적고, PRD 에는 그 ADR 경로만 적는다. 이 경계는 원문에 직접 근거가 없는 추론이다 — 아래 세 원문은 두 문서의 역할만 설명하고, 둘 가운데 하나를 우선하라고 정하지 않는다.
+
+- Atlassian: 「A product requirements document (PRD) defines the purpose, features, and behavior of a product, aligning stakeholders and guiding development.」
+- adr.github.io: 「An Architectural Decision Record (ADR) captures a single AD and its rationale.」
+- Michael Nygard: 「Each record describes a set of forces and a single decision in response to those forces.」
+
+**핵심 질문/포맷/체크리스트**:
+
+- 비범위 표에 적은 항목이 제품 범위를 정하는가, 아니면 구조 · 비기능 특성 · 의존성 · 인터페이스를 정하는가?
+- 뒤쪽이면 ADR 에 결정 하나와 근거 · 결과를 적고, PRD 에는 그 ADR 경로만 남겼는가?
+- 폐기한 제품 기능이 동시에 구조 결정이면 PRD 비범위 줄과 ADR 을 함께 두되, 결정 근거는 ADR 한 곳에만 적었는가?
+
+**적용 시점**: PRD 비범위 표에 한 줄 더할 때, 기획 도중 구조나 의존성을 고르는 결정이 나왔을 때.
+**한계/주의사항**: PRD 와 ADR 을 직접 비교하거나 폐기한 결정을 반드시 어느 한쪽에 적으라고 정한 원문은 찾지 못했다(2026-09-28 조회). PRD 에서 ADR 경로만 가리키고 내용을 다시 쓰지 않는 방식도 원문의 직접 문장이 아니라 이 킷의 운영 규칙이다.
+**출처**:
+
+- <https://www.atlassian.com/agile/product-management/requirements>
+- <https://adr.github.io/>
+- <https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions>
+
 ## 참고 링크 (전체)
 
 - <https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes> [dated: 2025-10]
@@ -180,3 +202,6 @@ Shape Up 은 No-gos 를 pitch 의 다섯 요소 가운데 하나로 두고, appe
 - <https://www.gv.com/sprint/>
 - <https://agilealliance.org/glossary/invest/>
 - <https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects>
+- <https://www.atlassian.com/agile/product-management/requirements>
+- <https://adr.github.io/>
+- <https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions>
