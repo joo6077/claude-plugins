@@ -769,18 +769,60 @@ seam_slope_entire_loop: 1
   <table>
     <thead><tr><th><code>seam_slope_conditional</code></th><th>경사가 걸린 이음매</th></tr></thead>
     <tbody>
-      <tr><td><code>1</code> (기본값)</td><td><strong>0%</strong></td></tr>
+      <tr><td><code>1</code></td><td><strong>0%</strong></td></tr>
       <tr><td><code>0</code></td><td><strong>98.2%</strong></td></tr>
     </tbody>
   </table>
   </div>
   <p>조건부 판정은 각도 임계(기본 155°)와 하향면 검사를 붙이는데, 루프의 어느 한 지점이라도 걸리면
-  그 루프 전체가 탈락한다. 짧고 각진 래티스 루프는 전멸한다. 기본값이 <code>1</code> 이므로
-  <strong>명시적으로 <code>0</code> 을 쓰지 않으면 경사 설정 전체가 무효</strong>다.</p>
+  그 루프 전체가 탈락한다. 짧고 각진 래티스 루프는 전멸한다. 기본값은 슬라이서마다 다르다
+  (각 태그의 <code>PrintConfig.cpp</code> 스키마 기본값 · 2026-09-19 확인):</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>슬라이서</th><th><code>seam_slope_conditional</code> 기본값</th><th>화면 이름</th></tr></thead>
+    <tbody>
+      <tr><td>뱀부 02.08.02.61</td><td><code>true</code></td><td>Smart scarf seam application</td></tr>
+      <tr><td>오르카 2.4.2</td><td><code>false</code></td><td>Conditional scarf joint</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>뱀부는 기본이 <code>true</code> 라 <strong>명시적으로 <code>0</code> 을 쓰지 않으면 경사 설정 전체가 무효</strong>다.
+  오르카는 스키마 기본이 <code>false</code> 지만 부모 프리셋이나 3mf 가 켰을 수 있다 — 이 형상에서는 양쪽 다 <code>0</code> 을 적는다.</p>
 
   <p>돌기 자체를 더 줄이려면 <strong>압력 보정(pressure advance)이 1 순위</strong>다 —
   공식 문서: <em>&ldquo;The first thing to tune would be pressure advance.&rdquo;</em>
   그다음이 <code>seam_gap</code>, 그다음이 wipe 계열이다.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">Section 6.6 · 붙이는 면이 있는 컵 — 이음매를 가려지는 면으로 (2026-09-19)</div>
+
+  <p><strong>사례.</strong> fly-catcher — 바닥이 막힌 원통 컵(바깥 ⌀143 · 높이 75 mm) 한쪽에 벽에 나사로 붙이는 레일이 달렸다.
+  이전 출력에서 "심 자국이 보였다" 는 사용자 보고. 랜덤 이음매는 금지다 (MD §0 · <code>user-preferences.md</code>).</p>
+  <p><strong>원칙.</strong> 이음매를 없앨 수는 없다. 설치했을 때 <strong>가려지는 면</strong>을 먼저 찾고, 층마다 그 한 자리에 모이는
+  설정을 G-code 로 확인해 고른다. 가려지는 면이 없으면 MD §0 결정 트리로 돌아간다.</p>
+
+  <h3>오르카 2.4.2 명령줄로 층 508 개의 이음매 위치를 센 결과</h3>
+  <p style="font-size:13px;color:var(--text2)">모델은 원 프로젝트대로 Z 축 14° 회전.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th><code>seam_position</code></th><th>바깥 표면 이음매</th><th>안쪽 표면 이음매</th><th>판정</th></tr></thead>
+    <tbody>
+      <tr><td><code>aligned</code> (부모 설정)</td><td>레일 오른옆 294 · 바깥면 99 · 왼옆 57 로 <strong>흩어짐</strong></td><td>홈 옆면 582</td><td>보인다</td></tr>
+      <tr><td><code>aligned_back</code></td><td>레일과 원통이 만나는 부근 원통면에 모임</td><td><strong>컵 안 정면 원통면 580</strong></td><td>안쪽 정면에 한 줄이 보인다 — 쓰지 않았다</td></tr>
+      <tr><td><strong><code>back</code></strong></td><td><strong>레일 바깥면 485</strong> (왼 모서리에서 2.3 mm 안쪽 한 줄)</td><td><strong>홈 속 모서리 옆 466</strong></td><td>채택 — 레일 바깥면은 벽에 붙어 가려진다</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>왜 <code>back</code> 이 레일로 가나</h3>
+  <p><code>back</code> 은 판의 가장 뒤쪽(Y 최대)에 가까운 점을 고른다. 모델이 14° 돌아가 있어 레일 모서리가 판 가장 뒤쪽이 된다.
+  그래서 <strong>모델 회전이 곧 이음매 위치다</strong> — 사용자가 회전을 바꾸면 이음매가 원통면으로 옮겨 간다.
+  notes.md 와 import 안내에 "모델을 돌리지 마라" 를 적는다.</p>
+  <div class="note"><strong><code>aligned_back</code> 을 조심한다.</strong> 바깥 이음매만 보고 고르면 안쪽 이음매가 컵 안 정면에 모이는 것을 놓친다.
+  안쪽이 보이는 형상(컵 · 화분 · 통)은 바깥 · 안쪽을 <strong>따로 센다</strong>.</div>
+  <p>함께 쓴 경사 이음매: <code>seam_slope_type: external</code> · 길이 10 mm (가장 짧은 경사 루프 460.5 mm 의 2 % — Section 6.5 상한 0.15 안) ·
+  시작 높이 0 % · <code>seam_slope_conditional: 0</code> (Section 6.5) · 오르카 <code>staggered_inner_seams: 1</code>.</p>
 </div>
 
   <hr class="spacer">

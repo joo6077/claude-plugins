@@ -1696,7 +1696,7 @@ PY</pre>
   <p class="desc"><code>RESULT: PASS</code> 는 <strong>검사가 돌았다는 증거가 아니다.</strong> 검사가 죽어 있어도 PASS 가 나온다. 검사를 고쳤거나 옵션 목록을 새로 만들었으면 아래 시험 파일을 <strong>전부 실제로 넣어</strong> 기대대로 나오는지 본다.</p>
 
   <div class="stats">
-    <div class="stat"><div class="v">23</div><div class="l">시험 파일 (<code>bambu-kit/evals/gate-fixtures/</code>) — FAIL 기대 20 · <code>[미검증]</code> 만 기대 1 · PASS 기대 2</div></div>
+    <div class="stat"><div class="v">28</div><div class="l">시험 파일 (<code>bambu-kit/evals/gate-fixtures/</code>) — FAIL 기대 23 · <code>[미검증]</code> 만 기대 1 · PASS 기대 4</div></div>
     <div class="stat"><div class="v">7</div><div class="l">숫자 값까지 보는 규칙 — 전부 FAIL 시험 파일이 있다</div></div>
     <div class="stat"><div class="v">8</div><div class="l">폴더에만 있고 한 번도 안 돌던 시험 파일 (2026-09-24)</div></div>
     <div class="stat"><div class="v">1 건</div><div class="l">FAIL 기대 파일이 내야 할 목표 위반 수 — 그 외 위반 0</div></div>
@@ -1734,9 +1734,14 @@ PY</pre>
         <tr><td><code>process-forbidden-key.json</code></td><td>bambu</td><td>금지 키 <strong>FAIL 1 건</strong> (<code>elephant_foot_compensation</code>)</td><td><code>if bad in d:</code> 줄을 <code>pass</code> 로</td><td>오타 키가 조용히 버려진다</td></tr>
         <tr><td><code>filament-lattice-fanfix.json</code></td><td>bambu</td><td><span class="badge badge-ok">PASS</span> · <code>[미검증]</code> 0 줄 — 냉각 키를 소재 설정에 둔 정상 설정</td><td>—</td><td>정상 설정이 FAIL 로 막힌다</td></tr>
         <tr><td><code>process-thin-baseline.json</code></td><td>bambu</td><td><span class="badge badge-ok">PASS</span> (+ 벽 예산 <code>[미검증]</code> 1 줄) — thin 인데 외벽을 안 낮춘 정상 설정</td><td>—</td><td>정상 설정이 FAIL 로 막힌다</td></tr>
+        <tr><td><code>machine-orca-h2s-bs-start.json</code></td><td>orca</td><td><span class="badge badge-ok">PASS</span> — 뱀부 최신 시작 명령을 담은 H2S 프린터 설정</td><td>받는 종류를 process · filament 둘로 되돌림 → FAIL</td><td>프린터 설정을 검사가 아예 받지 않는다</td></tr>
+        <tr><td><code>machine-orca-h2s-no-camera-prep.json</code></td><td>orca</td><td>카메라 준비 블록 없음 <strong>FAIL 1 건</strong> (<code>M1028</code>)</td><td><code>카메라 준비</code> 줄을 <code>pass</code> 로</td><td>오르카 번들 시작 명령이 통과해 툴헤드 카메라 초기화 실패가 다시 난다</td></tr>
+        <tr><td><code>machine-orca-h2s-cooling-filter-var.json</code></td><td>orca</td><td>오르카에 없는 변수 <strong>FAIL 1 건</strong> (<code>cooling_filter_enabled</code>)</td><td><code>오르카에 없는 변수</code> 줄을 <code>pass</code> 로</td><td>오르카가 슬라이스를 거부하는 시작 명령이 통과한다</td></tr>
+        <tr><td><code>machine-orca-x1c.json</code></td><td>orca</td><td><span class="badge badge-ok">PASS</span> — H2S 가 아니면 카메라 준비 블록을 요구하지 않는다</td><td>—</td><td>H2S 규칙이 다른 프린터까지 막는다</td></tr>
       </tbody>
     </table>
   </div>
+  <p class="desc"><code>machine-orca-h2s-no-camera-prep.json</code> 은 시작 명령 없이 <code>inherits</code> 만 둔다. 검사가 오르카 설치본의 부모 프린터 설정에서 시작 명령을 읽으므로, 오르카가 없는 곳(CI)에서는 FAIL 대신 <code>[미검증]</code> 이 나오고 <code>run-gate-fixtures.sh</code> 는 이 파일을 「건너뜀」 으로 적는다.</p>
 
   <div class="grid-2" style="margin-top:24px">
     <div class="card">
@@ -1764,7 +1769,7 @@ sed -n "$((A+1)),$((B-1))p" "$S" &gt; "$GATE"
 <span class="cm"># 빈 파일을 뽑으면 python3 이 빈 스크립트를 exit 0 으로 돌린다 (2026-09-24)</span>
 if [ ! -s "$GATE" ] || ! grep -q 'RESULT' "$GATE"; then echo "STOP"; exit 1; fi
 <span class="cm"># (1) 폴더 ↔ 표 ↔ 실행 줄 짝 맞추기 — 양방향 (MISSING · ORPHAN)</span>
-<span class="cm"># (2) 검사 유지 — 24 개를 TARGET_SLICER=… python3 "$GATE" $FX/&lt;파일&gt; 로</span>
+<span class="cm"># (2) 검사 유지 — 28 개를 TARGET_SLICER=… python3 "$GATE" $FX/&lt;파일&gt; 로</span>
 <span class="cm"># (3) 검사 제거</span>
 drop() {
   sed -E "s/^( *)errs\.append\(f?\"${1} .*$/\1pass/" "$GATE" &gt; "$GATE.${2}"
