@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""check-docs-common-css.py 시험 — 임시 폴더의 사본 쪽으로 여섯 경우를 돌린다. 레포 파일은 건드리지 않는다.
+"""check-docs-common-css.py 시험 — 임시 폴더의 사본 쪽으로 일곱 경우를 돌린다. 레포 파일은 건드리지 않는다.
 
   1. 정상 쪽 + 링크 둘인 쪽 → 종료 코드 1, 둘째 파일 이름만 적힘, 검사한 쪽 2
   2. 본문 `site&#46;css` 쪽 · `prefers&#45;reduced-motion` 쪽, 그리고 이름 글자 참조 `site&period;css` ·
@@ -9,12 +9,16 @@
   5. 검사 사본을 scripts/ 에 넣은, 추적 HTML 이 0 개인 임시 git 저장소에서 인자 없이 → 종료 코드 3
   6. ① `<style>` 에 움직임 줄이기 블록을 다시 적은 쪽 + 정상 쪽 → 종료 코드 1, 앞 쪽 이름만 적힘
      ② 본문 `<code>` · `<script>` 의 `matchMedia` · `<style>` 안 CSS 주석에만 이름이 있는 쪽 → 종료 코드 0
+  7. ① `<style media="(prefers-reduced-motion: reduce)">` 쪽 → 종료 코드 1, 그 쪽 이름 적힘
+     ② `<link rel="stylesheet" media="(prefers-reduced-motion: reduce)" href="…">` 쪽 → 종료 코드 1, 그 쪽 이름 적힘
+     ③ `media="print"` 인 `<style>` · `<link>` 만 있는 쪽 → 종료 코드 0
 
 사용법:
     python3 scripts/test-check-docs-common-css.py [--check <검사 사본 경로>]
 
 --check 는 음성 대조용이다 — 글자 참조 세기를 지운 사본은 경우 2 가, 주석 빼기를 지운 사본은 경우 3 이 실패해야 한다.
 움직임 규칙 세기를 지운 사본은 경우 6 ① 이, CSS 주석 빼기를 지운 사본은 경우 6 ② 가 실패해야 한다.
+media 속성 보기를 지운 사본은 경우 7 ① ② 가 실패해야 한다.
 종료 코드는 harness/evals/gate-exit-codes.md 를 따른다 (0 통과 · 1 실패 · 2 준비 실패).
 """
 
@@ -109,6 +113,21 @@ def case_style_motion(tmp: Path, check: Path) -> tuple[bool, str]:
     return ok, f"rc={rc_again},{rc_mentions}"
 
 
+def case_media_attr(tmp: Path, check: Path) -> tuple[bool, str]:
+    reduce = '"(prefers-reduced-motion: reduce)"'
+    style = write(tmp / "c7/style-media.html", page(LINK + f"<style media={reduce}>*{{transition:none}}</style>"))
+    link = write(tmp / "c7/link-media.html",
+                 page(LINK + f'<link rel="stylesheet" media={reduce} href="../assets/motion.css">'))
+    printed = write(tmp / "c7/print-media.html", page(
+        LINK + '<style media="print">p{color:black}</style><link rel="stylesheet" media="print" href="print.css">'))
+    rc_style, out_style = run(check, style)
+    rc_link, out_link = run(check, link)
+    rc_print, _ = run(check, printed)
+    ok = rc_style == 1 and "style-media.html" in out_style and rc_link == 1 and "link-media.html" in out_link \
+        and rc_print == 0
+    return ok, f"rc={rc_style},{rc_link},{rc_print}"
+
+
 CASES = [
     ("1 링크 둘인 쪽만 적는다", case_two_links),
     ("2 글자 참조로 쪼갠 이름을 잡는다", case_split_names),
@@ -116,6 +135,7 @@ CASES = [
     ("4 못 읽은 쪽은 종료 코드 2 로 함께 적는다", case_unreadable),
     ("5 추적 쪽이 없으면 종료 코드 3", case_no_pages),
     ("6 쪽 <style> 의 움직임 줄이기 규칙만 잡는다", case_style_motion),
+    ("7 태그 media 속성의 움직임 줄이기도 잡고 print 는 통과", case_media_attr),
 ]
 
 
