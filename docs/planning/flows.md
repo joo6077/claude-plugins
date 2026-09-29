@@ -1,7 +1,7 @@
 ---
 name: flows
 description: 사용자 흐름, 여정, 서비스 청사진, IA와 Mermaid 다이어그램 패턴을 정리한 문서
-last_updated: 2026-09-28
+last_updated: 2026-09-29
 version: 0.1.1
 ---
 
@@ -58,7 +58,7 @@ User Flow는 사용자가 목표를 달성하기 위해 밟는 분기/단계에 
 
 **요약**: Mermaid flowchart는 빠른 decision flow, onboarding path, approval branch를 Markdown 안에 직접 넣을 때 유용하다. 공식 문서 기준으로 `flowchart LR` 또는 `graph LR`를 선언하고 노드/엣지를 텍스트로 정의한다.
 
-아래 예시는 flowchart 공식 문서의 문법을 따른다. 2026-09-24 에 확인한 Mermaid 최신 안정판은 12.0.0(2026-09-10 공개)이고, 2026-09-28 에 다시 본 npm `latest` 도 12.0.0 이다 (<https://registry.npmjs.org/mermaid/latest>). 이 예시를 12 에서 렌더해 보지는 않았다.
+아래 예시는 Mermaid 공식 flowchart 문법을 따른다. Mermaid core 12.0.0 은 2026-09-10 공개된 비시험판이며(<https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0>), 2026-09-28 에 가져온 npm `latest` 도 12.0.0 이다(<https://registry.npmjs.org/mermaid/latest>). 이 예시 자체는 Mermaid 12 에서 렌더해 확인하지 않았다.
 
 **핵심 질문/포맷/체크리스트**:
 

@@ -1,7 +1,7 @@
 ---
 name: prd-patterns
 description: PRD와 제품 기획 문서를 작성할 때 참고할 수 있는 대표 패턴과 공개 템플릿 정리
-last_updated: 2026-09-25
+last_updated: 2026-09-29
 version: 0.2.0
 ---
 
