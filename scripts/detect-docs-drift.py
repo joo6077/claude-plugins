@@ -25,6 +25,9 @@ kaizen-orchestrator Step F2 (docs-site 재생성) 에서 서브에이전트에�
     --check-table    이 스크립트의 매핑과 docs-site SKILL.md Step 1 표를 맞댄다.
                      한쪽에만 있는 (원본, 출력 폴더) 짝을 이름으로 대고 exit 1
     --help           사용법 출력
+
+종료 코드: exit 0 = 목록을 냈다 (없으면 no docs drift) · exit 1 = --check-table 어긋남 ·
+exit 2 = git diff 실패 (없는 --since 판 등). git 실패를 변경 0 으로 읽으면 drift 없음으로 잘못 통과한다
 """
 
 import argparse
@@ -235,6 +238,10 @@ def resolve_target(candidate: str, registry: set[str]) -> tuple[str, bool, bool]
     return candidate, False, False
 
 
+class GitError(Exception):
+    pass
+
+
 def run_git(args: list[str]) -> str:
     result = subprocess.run(
         ["git", *args],
@@ -244,7 +251,8 @@ def run_git(args: list[str]) -> str:
         encoding="utf-8",
     )
     if result.returncode != 0:
-        return ""
+        reason = result.stderr.strip().splitlines()[:1]
+        raise GitError(f"git {' '.join(args)} 실패 (종료 코드 {result.returncode}): {' '.join(reason)}")
     return result.stdout
 
 
@@ -432,7 +440,11 @@ def main() -> int:
     if args.check_table:
         return check_table()
 
-    entries, skipped = detect_drift(args.since, args.include_format_only)
+    try:
+        entries, skipped = detect_drift(args.since, args.include_format_only)
+    except GitError as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 2
     if skipped:
         print(f"모양만 바뀐 원본의 짝 {skipped} 개를 뺐다 — 모두 보려면 --include-format-only", file=sys.stderr)
 
