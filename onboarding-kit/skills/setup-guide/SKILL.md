@@ -280,11 +280,11 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 
 Google Cloud · Firebase 서버 인증에서 사용자가 관리하는 서비스 계정 키(JSON 키 파일)를 먼저 안내하면 가장 덜 안전한 길이 기본값이 된다. 실행 환경을 먼저 확인하고 아래 차례로 고른다.
 
-1. ① Google Cloud 안(Cloud Run · Cloud Functions · Compute Engine 등) — `ADC`(Application Default Credentials, 실행 환경이 자격 증명을 찾아 주는 방식)와 연결된 서비스 계정
-2. ② GKE(Google Kubernetes Engine) — `Workload Identity Federation for GKE`
-3. ③ 혼자 쓰는 개발 환경 — 사용자 자격 증명 또는 `서비스 계정 가장`(impersonation)
-4. ④ Google Cloud 밖에서 지원되는 외부 신원 제공자가 있을 때 — `Workload Identity Federation`
-5. ⑤ 더 안전한 대안을 쓸 수 없을 때만 — `서비스 계정 키`. 그 사유와 키 보호 · 교체 · 폐기 절차를 함께 적는다
+- ① Google Cloud 안(Cloud Run · Cloud Functions · Compute Engine 등) — `ADC`(Application Default Credentials, 실행 환경이 자격 증명을 찾아 주는 방식)와 연결된 서비스 계정
+- ② GKE(Google Kubernetes Engine) — `Workload Identity Federation for GKE`
+- ③ 혼자 쓰는 개발 환경 — 사용자 자격 증명 또는 `서비스 계정 가장`(impersonation)
+- ④ Google Cloud 밖에서 지원되는 외부 신원 제공자가 있을 때 — `Workload Identity Federation`
+- ⑤ 더 안전한 대안을 쓸 수 없을 때만 — `서비스 계정 키`. 그 사유와 키 보호 · 교체 · 폐기 절차를 함께 적는다
 
 근거 (네 문서 모두 조회 2026-09-28 · Last updated 2026-09-24 UTC):
 
@@ -349,8 +349,10 @@ Google Cloud · Firebase 서버 인증에서 사용자가 관리하는 서비스
 3. 생성된 가이드의 모든 외부 URL이 공식 도메인인지 + **그 시점 canonical host** 인지 확인 (`references/search-strategy.md`)
 4. 11개 섹션 누락 확인
 5. **막는 요구 세 칸 확인** — 칸이 비었거나 출처 칸에 주소가 없는 행은 게이트 G5 가 잡는다. 사람은 그 출처가 그 요구를 실제로 말하는지 본다 (Gotcha 9). 출처가 요구하지 않는 요구는 지운다
-6. **마커 집계 보고** — 게이트 G2 가 낸 `bare` / `invalid` / `env` 세 숫자를 그대로 쓴다. `invalid` 에 대한 건수별 판정은 정본(`harness/docs/guides/qa-evaluation-guide.md` §카운팅 및 자동 REJECT 임계)을 그대로 적용하고 **여기서 숫자를 재정의하지 않는다.** `env` 는 임계에 합산하지 않고 검증 커버리지로 따로 보고한다.
-7. 사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내. **콘솔 라벨은 공개 문서 기준이며 로그인 뒤 화면과 다를 수 있다**는 점을 함께 알린다 (Gotcha 2).
+6. **출처 줄 두 날짜 확인** — Step 마다 출처 줄에 조회일(`조회 YYYY-MM-DD`)과 원문 갱신일(`Last updated YYYY-MM-DD UTC`, 원문이 표시할 때만)을 따로 적었는지 본다. 원문 갱신일만 새로 옮기고 본문을 다시 확인하지 않았으면 조회일을 바꾸지 않는다
+7. **서비스 계정 키 안내 확인** — 서버 인증에서 `서비스 계정 키`(JSON 키 파일)를 안내했으면, Gotcha 10 의 더 안전한 대안(①~④)을 쓸 수 없는 사유와 키 보호 · 교체 · 폐기 절차를 함께 적었는지 본다. 사유가 없으면 대안으로 바꾼다
+8. **마커 집계 보고** — 게이트 G2 가 낸 `bare` / `invalid` / `env` 세 숫자를 그대로 쓴다. `invalid` 에 대한 건수별 판정은 정본(`harness/docs/guides/qa-evaluation-guide.md` §카운팅 및 자동 REJECT 임계)을 그대로 적용하고 **여기서 숫자를 재정의하지 않는다.** `env` 는 임계에 합산하지 않고 검증 커버리지로 따로 보고한다.
+9. 사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내. **콘솔 라벨은 공개 문서 기준이며 로그인 뒤 화면과 다를 수 있다**는 점을 함께 알린다 (Gotcha 2).
 
 ## References
 
