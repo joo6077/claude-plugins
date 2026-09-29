@@ -1092,7 +1092,7 @@ test.describe('animation.html', () => {
 // templates/mockup.html — 여섯째 시안을 받는지
 // ============================================================
 // 시안 개수에 위 제한이 없으므로 틀은 칸 묶음 하나를 더하면 여섯째 시안을 받아야 한다.
-// 실행할 때마다 지금 틀을 읽어 e 칸 묶음을 f 로 복제한 쪽을 띄운다.
+// 실행할 때마다 지금 틀을 읽어 e 칸 묶음을 f, g … 로 복제한 쪽을 띄운다.
 const MOCKUP_TEMPLATE = path.resolve(__dirname, '../templates/mockup.html');
 
 function replaceOnce(html, pattern, build) {
@@ -1101,20 +1101,23 @@ function replaceOnce(html, pattern, build) {
   return html.replace(match[0], build(match[0]));
 }
 
-function toVariantF(block) {
+function toVariant(block, letter) {
+  const upper = letter.toUpperCase();
   return block
-    .replace(/^(\s*)e: \{/m, '$1f: {')
-    .replace(/'e'/g, "'f'")
-    .replace(/-e\b/g, '-f')
-    .replace(/"e"/g, '"f"')
-    .replace(/tab\.e/g, 'tab.f')
-    .replace(/_E\b/g, '_F')
-    .replace(/시안 E/g, '시안 F')
-    .replace(/>E</g, '>F<');
+    .replace(/^(\s*)e: \{/m, `$1${letter}: {`)
+    .replace(/'e'/g, `'${letter}'`)
+    .replace(/-e\b/g, `-${letter}`)
+    .replace(/"e"/g, `"${letter}"`)
+    .replace(/tab\.e/g, `tab.${letter}`)
+    .replace(/_E\b/g, `_${upper}`)
+    .replace(/시안 E/g, `시안 ${upper}`)
+    .replace(/>E</g, `>${upper}<`);
 }
 
-function buildSixVariantMockup() {
+// e 칸 묶음을 f, g … 로 복제해 시안 count 개짜리 틀을 만든다 (SKILL.md 의 여섯째 시안 안내와 같은 순서).
+function buildMockupWithVariants(count) {
   let html = fs.readFileSync(MOCKUP_TEMPLATE, 'utf8');
+  const letters = 'fghijk'.slice(0, count - 5).split('');
   const blocks = [
     /<button class="mockup-tab"[^>]*\n\s*data-tab="e"[\s\S]*?<\/button>/,
     /<div class="mockup-panel" id="panel-e">[\s\S]*?<\/div>\n\s*<\/div>/,
@@ -1123,29 +1126,37 @@ function buildSixVariantMockup() {
     /\n(\s*)e: \{\n[\s\S]*?\n\s*\},/,
   ];
   for (const pattern of blocks) {
-    html = replaceOnce(html, pattern, (block) => `${block}\n${toVariantF(block).replace(/^\n/, '')}`);
+    html = replaceOnce(html, pattern, (block) =>
+      [block, ...letters.map((letter) => toVariant(block, letter).replace(/^\n/, ''))].join('\n'));
   }
   for (const side of ['compare-left', 'compare-right']) {
     html = replaceOnce(
       html,
       new RegExp(`id="${side}"[\\s\\S]*?<option value="e"[^\\n]*`),
-      (block) => `${block}\n<option value="f" data-i18n="tab.f">시안 F</option>`,
+      (block) => [block, ...letters.map((letter) =>
+        `<option value="${letter}" data-i18n="tab.${letter}">시안 ${letter.toUpperCase()}</option>`)].join('\n'),
     );
   }
-  html = replaceOnce(html, /e: '시안 E' \}/, () => "e: '시안 E', f: '시안 F' }");
-  html = replaceOnce(html, /e: 'Variant E' \}/, () => "e: 'Variant E', f: 'Variant F' }");
-  html = html.replace(/\{\{TAGS_[A-F]\}\}/g, '[]');
+  const koTabs = letters.map((letter) => `, ${letter}: '시안 ${letter.toUpperCase()}'`).join('');
+  const enTabs = letters.map((letter) => `, ${letter}: 'Variant ${letter.toUpperCase()}'`).join('');
+  html = replaceOnce(html, /e: '시안 E' \}/, () => `e: '시안 E'${koTabs} }`);
+  html = replaceOnce(html, /e: 'Variant E' \}/, () => `e: 'Variant E'${enTabs} }`);
+  html = html.replace(/\{\{TAGS_[A-Z]\}\}/g, '[]');
   return html;
+}
+
+function writeMockup(name, count) {
+  const out = test.info().outputPath(name);
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, buildMockupWithVariants(count));
+  return 'file:///' + out.replace(/\\/g, '/');
 }
 
 test.describe('templates/mockup.html 시안 6 개', () => {
   let url;
 
   test.beforeAll(async () => {
-    const out = test.info().outputPath('mockup-six-variants.html');
-    fs.mkdirSync(path.dirname(out), { recursive: true });
-    fs.writeFileSync(out, buildSixVariantMockup());
-    url = 'file:///' + out.replace(/\\/g, '/');
+    url = writeMockup('mockup-six-variants.html', 6);
   });
 
   async function openMockup(page) {
@@ -1192,5 +1203,30 @@ test.describe('templates/mockup.html 시안 6 개', () => {
     await page.locator('button[onclick="clearFeedback()"]').click();
     await expect(page.locator('#note-f')).toHaveValue('');
     expect(errors).toEqual([]);
+  });
+
+  test('비교 화면 왼쪽에 f 를 고르면 이름표가 시안 F 가 된다', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const errors = await openMockup(page);
+    await page.locator('#compare-btn').click();
+    await page.locator('#compare-left').selectOption('f');
+    await expect(page.locator('#compare-left-label')).toHaveText('시안 F');
+    await expect(page.locator('#compare-clone-left')).not.toBeEmpty();
+    expect(errors).toEqual([]);
+  });
+});
+
+// 칸 수를 5 로 박아 두면 여섯째부터 둘째 줄로 떨어진다. 넓은 화면에서는 시안 수만큼 한 줄이어야 한다.
+test.describe('templates/mockup.html 시안 8 개', () => {
+  test('1280 폭에서 투표 카드와 메모 칸이 각각 한 줄에 놓인다', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.route(/^https?:/, (route) => route.abort());
+    await page.goto(writeMockup('mockup-eight-variants.html', 8));
+    for (const selector of ['.mockup-vote-card', '.mockup-note-field']) {
+      const tops = await page.locator(selector).evaluateAll((els) =>
+        els.map((el) => Math.round(el.getBoundingClientRect().top)));
+      expect(tops).toHaveLength(8);
+      expect(new Set(tops).size).toBe(1);
+    }
   });
 });

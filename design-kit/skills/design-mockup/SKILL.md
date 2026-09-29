@@ -115,6 +115,8 @@ references/mockup-guidelines.md를 참조하고 ../../templates/mockup.html 포�
 틀은 시안 칸 A~E 다섯을 기본으로 둔다. 여섯째 시안부터는 칸 묶음을 f, g … 순서로 하나씩 더한다 —
 탭 버튼 · 패널 · 비교 선택 두 곳의 option · 투표 카드 · 메모 칸 · `MOCKUP_CONFIG.variants` 항목 ·
 `T.ko.tab` / `T.en.tab` 글자. 틀 스크립트는 시안 목록을 `MOCKUP_CONFIG.variants` 에서만 읽으므로 스크립트는 고치지 않는다.
+CSS 도 고치지 않는다 — 투표 카드 · 메모 칸 줄은 `grid-auto-flow: column` 이라 넓은 화면에서 시안 수만큼 한 줄에 놓이고,
+768px 이하에서는 두 칸씩, 투표 카드는 400px 이하에서 한 칸씩 줄을 바꾼다.
 
 반응형이 요구사항에 포함된 경우, 각 시안에 mobile/tablet/desktop breakpoint 섹션을 추가하고 컬럼 수·거터·max-width 규칙을 명시한다.
 
@@ -198,4 +200,4 @@ grep -cE '^- (확정 구성|폐기한 대안·이유):' .design/approvals/{파�
 - `references/mockup-guidelines.md` — 시안 생성 기준 상세
 - `../../templates/mockup.html` — 시안 HTML 출력 포맷 (공유 템플릿)
 - `../../references/visual-change-protocol.md` — 시각 우선순위 · 부분 변경 격리 · 승인 기록 규격 · §5 Variant Contract Matrix · §7 Evidence Channels (SSOT)
-- `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget · §3.8 User-Reported Failure Gate — 개수 상한·부대 산출물 금지·사용자 보고 규약의 정본
+- `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget · §3.8 User-Reported Failure Gate — 개수 규칙·부대 산출물 금지·사용자 보고 규약의 기준 원본
