@@ -13,7 +13,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **외부 리소스 금지** — 페이지는 레포 밖 자원 없이 열려야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 스타일은 공통 파일 `docs/assets/site.css` 링크 한 줄(`<style>` 앞)과 `<style>` 안 인라인뿐이다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다 — 움직임 줄이기(`prefers-reduced-motion`)와 본문 행간 1.7 이다. 링크가 하나인지는 `python3 scripts/check-docs-common-css.py` 가 `<link>` 요소를 세어 잰다(CI). 본문에서 이 이름들을 말할 때는 원래 글자로 적는다 — `site&#46;css` · `site&period;css` 같은 글자 참조나 `site<span>.</span>css` 같은 태그 끼우기로 쪼개 적지 마라. 예전 검사가 글자 수를 세던 때 생긴 우회이고, 새 검사는 쪼갠 자리를 위반으로 잡는다. 가리킬 때 위로 들뜨는 카드처럼 `transform` 으로 주는 움직임은 공통 파일이 멈추지 않으므로 쪽이 `@media (prefers-reduced-motion: no-preference)` 안에서만 준다.
+1. **외부 리소스 금지** — 페이지는 레포 밖 자원 없이 열려야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 스타일은 공통 파일 `docs/assets/site.css` 링크 한 줄(`<style>` 앞)과 `<style>` 안 인라인뿐이다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다 — 움직임 줄이기(`prefers-reduced-motion`)와 본문 행간 1.7 이다. 링크가 하나인지는 `python3 scripts/check-docs-common-css.py` 가 `<link>` 요소를 세어 잰다(CI). 본문에서 이 이름들을 말할 때는 원래 글자로 적는다 — `site&#46;css` · `site&period;css` 같은 글자 참조나 `site<span>.</span>css` 같은 태그 끼우기로 쪼개 적지 마라. 예전 검사가 글자 수를 세던 때 생긴 우회이고, 새 검사는 쪼갠 자리를 위반으로 잡는다. 쪽 `<style>` 에 `prefers-reduced-motion` 블록을 다시 적으면 같은 검사가 어긋난 쪽으로 잡는다. 가리킬 때 위로 들뜨는 카드처럼 `transform` 으로 주는 움직임은 값을 `var(--dk-hover-move, 원래 값)` 으로 적는다 — 공통 파일이 움직임 줄이기 설정에서 `--dk-hover-move` 를 `none` 으로 둬 멈춘다.
 2. **index.html 등록 필수** — 페이지를 생성했는데 `docs/index.html`의 `categories` 배열에 등록하지 않으면 네비게이션에 표시되지 않는다. 아이콘도 `getIcon()` 함수에 추가해야 한다.
 3. **플러그인 accent 컬러 준수** — `references/css-tokens.md`의 플러그인별 accent 매핑을 따라라. Harness에 Design Kit 컬러를 쓰면 안 된다.
 4. **iframe 경로는 index.html 기준 상대경로** — `docs/index.html`에서 iframe으로 로드하므로 `file` 값은 `design-kit/typography-scale.html` 형태여야 한다.
@@ -29,7 +29,7 @@ user-invocable: true
     - **좁은 뷰포트 단일 컬럼 스택** — `@media(max-width:600px){ <그리드클래스>{grid-template-columns:1fr} }`.
 11. **오버플로를 잘라서 없애지 마라** — `overflow:hidden` / `overflow-x:hidden` / `display:none` 으로 억제하는 것은 내용 손실이므로 FAIL 이다. 특히 `body`/`html` 에 `overflow-x:hidden` 을 걸면 증상만 가려지고 원인이 남는다. 표·코드는 **끝까지 스크롤 도달 가능**해야 한다.
 12. **경계값 튜닝 금지** — 페이지별 고유 하드코딩 폭(`width:340px` 류)으로 맞추지 마라. CI(Linux)가 로컬(macOS)보다 나쁘게 렌더된다 (실측: 오버플로 CI 11 / 로컬 7). **0px 를 목표로** 하라.
-13. **테마 토글을 넣으면 영속화까지** — `localStorage` 키는 `dk-theme` 로 통일하고 로드 시 복원 IIFE 를 넣는다. 저장값이 없으면 `prefers-color-scheme` 을 따른다. 키를 새로 만들지 마라 (현재 레포에 `dk-theme`/`theme`/`vs-theme`/`cp-theme` 4 종이 갈려 있다).
+13. **테마 토글을 넣으면 영속화까지** — `localStorage` 키는 `dk-theme` 로 통일하고 로드 시 복원 IIFE 를 넣는다. 저장값이 없으면 `prefers-color-scheme` 을 따른다. 키를 새로 만들지 마라 (현재 레포에 `dk-theme`/`theme`/`vs-theme`/`cp-theme` 4 종이 갈려 있다). 쪽 `<style>` 에 밝은 테마 규칙이 없는 쪽은 단추(`class="dk-theme-btn"`)만 달면 공통 파일 `docs/assets/site.css` 가 `:root` 색 변수를 밝은 값으로 바꿔 준다 — 쪽에 밝은 테마 CSS 를 새로 쓰지 마라.
 14. **대비는 토큰에서 터진다** — 실측 2026-09-05: 172 페이지 중 150 개가 WCAG AA 미달이었고,
     실패 1088 건 중 836 건(77%)이 `--text3:#7A6F64` 한 토큰이었다. 다크 `--bg` 위 3.95,
     `--surface2` 위 3.34 다. 현재 값은 `#948779`(5.55 / 4.67)이니 **내리지 마라.**
@@ -53,7 +53,7 @@ user-invocable: true
 | -------- | --------- | --------- |
 | harness | `harness/docs/guides/`, `harness/references/` | `docs/harness/` |
 | flutter-toolkit | `flutter-toolkit/references/`, `docs/flutter/` | `docs/flutter-toolkit/` |
-| design-kit | `design-kit/docs/design/`, `design-kit/references/visual-change-protocol.md`, `design-kit/skills/design-test/SKILL.md`, `design-kit/skills/design-mockup/SKILL.md` | `docs/design-kit/` |
+| design-kit | `design-kit/docs/design/`, `docs/design/`, `design-kit/references/visual-change-protocol.md`, `design-kit/skills/design-test/SKILL.md`, `design-kit/skills/design-mockup/SKILL.md` | `docs/design-kit/` |
 | backend-kit | `docs/backend/` | `docs/backend-kit/` |
 | infra-kit | `docs/infra/`, `infra-kit/skills/infra-test/SKILL.md` | `docs/infra-kit/` |
 | rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
@@ -116,7 +116,7 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 - **Spacing**: 스페이싱 스케일 일관성, 같은 레벨 요소 동일 간격
 - **Accessibility**: 색상 대비 AA, 포커스 인디케이터
 - **Interaction**: 인터랙티브 요소에 시각적 피드백 존재, 상태 전환 가시성
-- **Motion**: 애니메이션 200~500ms 범위. CSS 움직임(전환 · 키프레임 · `scroll-behavior`)의 움직임 줄이기는 공통 파일 `docs/assets/site.css` 가 맡는다. 스크립트로 주는 움직임(`behavior:'smooth'` 스크롤 · 타이머로 도는 표본)은 공통 파일이 못 멈추므로 쪽 스크립트가 `matchMedia('(prefers-reduced-motion: reduce)')` 를 확인해 그 설정에서는 멈춘다
+- **Motion**: 애니메이션 200~500ms 범위. CSS 움직임(전환 · 키프레임 · `scroll-behavior` · 가리킬 때의 `transform`)의 움직임 줄이기는 공통 파일 `docs/assets/site.css` 가 맡는다 — 가리킬 때의 `transform` 은 `var(--dk-hover-move, 원래 값)` 으로 적어야 멈춘다. 스크립트로 주는 움직임(`behavior:'smooth'` 스크롤 · 타이머로 도는 표본)은 공통 파일이 못 멈추므로 쪽 스크립트가 `matchMedia('(prefers-reduced-motion: reduce)')` 를 확인해 그 설정에서는 멈춘다
 - **Authenticity**: 연속 섹션 동일 구조 3회 반복 금지, 레이아웃 변주
 
 ## Step 5: 파일 저장 + index.html 등록
