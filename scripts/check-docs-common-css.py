@@ -10,6 +10,8 @@
 
 쪽마다 어긋나면 한 줄로 적는다:
   - `assets/site.css` 를 가리키는 `<link>` 가 1 개가 아니다 (HTML 주석 안은 세지 않는다)
+  - 쪽 `<style>` 에 `prefers-reduced-motion` 규칙을 다시 적었다 — 움직임 줄이기는 공통 파일이 맡는다.
+    HTML · CSS 주석과 본문 글 · `<script>` 의 `matchMedia` 는 세지 않는다
   - `site.css` · `prefers-reduced-motion` 을 쪼개 적은 자리가 있다 — 숫자 글자 참조(`&#46;` · `&#x2d;`),
     이름 글자 참조(`&period;` · `&dash;` · `&hyphen;`), 태그 끼우기(`site<span>.</span>css`) 모두
 
@@ -29,6 +31,8 @@ COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
 LINK_RE = re.compile(r"<link\b[^>]*>", re.I | re.S)
 SITE_CSS_HREF_RE = re.compile(r"""\bhref\s*=\s*(?:"[^"]*assets/site\.css[^"]*"|'[^']*assets/site\.css[^']*'|[^\s"'>]*assets/site\.css[^\s"'>]*)""", re.I)
 TAG_RE = re.compile(r"(<[^>]*>)")
+STYLE_RE = re.compile(r"<style\b[^>]*>(.*?)</style>", re.I | re.S)
+CSS_COMMENT_RE = re.compile(r"/\*.*?\*/", re.S)
 WATCHED_NAMES = ("site.css", "prefers-reduced-motion")
 # `&dash;` · `&hyphen;` 은 풀면 `-` 가 아니라 U+2010 이다. 보이는 모양이 같은 글자와 보이지 않는 글자를 맞춰 둔다
 LOOKALIKES = str.maketrans({"\u2010": "-", "\u2011": "-", "\u2012": "-", "\u2013": "-", "\u2212": "-",
@@ -48,6 +52,12 @@ def tracked_pages() -> list[Path] | None:
 
 def site_css_links(text: str) -> int:
     return sum(1 for tag in LINK_RE.findall(COMMENT_RE.sub("", text)) if SITE_CSS_HREF_RE.search(tag))
+
+
+def style_motion_rules(text: str) -> int:
+    """`<style>` 안에서 `prefers-reduced-motion` 을 쓴 블록 수. 공통 파일과 겹쳐 적으면 쪽마다 규칙이 갈린다."""
+    blocks = STYLE_RE.findall(COMMENT_RE.sub("", text))
+    return sum(1 for css in blocks if "prefers-reduced-motion" in html.unescape(CSS_COMMENT_RE.sub("", css)).lower())
 
 
 def split_names(text: str) -> int:
@@ -93,10 +103,10 @@ def main(argv: list[str]) -> int:
             print(f"UNREADABLE {shown(page)}: {error}")
             continue
         checked += 1
-        links, splits = site_css_links(text), split_names(text)
-        if links != 1 or splits:
+        links, splits, motion = site_css_links(text), split_names(text), style_motion_rules(text)
+        if links != 1 or splits or motion:
             mismatched += 1
-            print(f"BAD {shown(page)} site_css_links={links} split_names={splits}")
+            print(f"BAD {shown(page)} site_css_links={links} split_names={splits} style_motion={motion}")
 
     print(f"검사한 쪽 {checked} · 어긋난 쪽 {mismatched} · 못 읽은 쪽 {unreadable}")
     if unreadable:

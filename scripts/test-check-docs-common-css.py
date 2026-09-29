@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""check-docs-common-css.py 시험 — 임시 폴더의 사본 쪽으로 다섯 경우를 돌린다. 레포 파일은 건드리지 않는다.
+"""check-docs-common-css.py 시험 — 임시 폴더의 사본 쪽으로 여섯 경우를 돌린다. 레포 파일은 건드리지 않는다.
 
   1. 정상 쪽 + 링크 둘인 쪽 → 종료 코드 1, 둘째 파일 이름만 적힘, 검사한 쪽 2
   2. 본문 `site&#46;css` 쪽 · `prefers&#45;reduced-motion` 쪽, 그리고 이름 글자 참조 `site&period;css` ·
@@ -7,11 +7,14 @@
   3. 링크 하나 + 본문에 원래 글자 이름 + 주석 안 링크 + 작은따옴표 링크 쪽 → 종료 코드 0
   4. 링크 둘인 쪽 + UTF-8 이 아닌 바이트 쪽 → 종료 코드 2, 두 파일 이름이 모두 적힘
   5. 검사 사본을 scripts/ 에 넣은, 추적 HTML 이 0 개인 임시 git 저장소에서 인자 없이 → 종료 코드 3
+  6. ① `<style>` 에 움직임 줄이기 블록을 다시 적은 쪽 + 정상 쪽 → 종료 코드 1, 앞 쪽 이름만 적힘
+     ② 본문 `<code>` · `<script>` 의 `matchMedia` · `<style>` 안 CSS 주석에만 이름이 있는 쪽 → 종료 코드 0
 
 사용법:
     python3 scripts/test-check-docs-common-css.py [--check <검사 사본 경로>]
 
 --check 는 음성 대조용이다 — 글자 참조 세기를 지운 사본은 경우 2 가, 주석 빼기를 지운 사본은 경우 3 이 실패해야 한다.
+움직임 규칙 세기를 지운 사본은 경우 6 ① 이, CSS 주석 빼기를 지운 사본은 경우 6 ② 가 실패해야 한다.
 종료 코드는 harness/evals/gate-exit-codes.md 를 따른다 (0 통과 · 1 실패 · 2 준비 실패).
 """
 
@@ -92,12 +95,27 @@ def case_no_pages(tmp: Path, check: Path) -> tuple[bool, str]:
     return rc == 3, f"rc={rc}"
 
 
+def case_style_motion(tmp: Path, check: Path) -> tuple[bool, str]:
+    rule = "<style>@media (prefers-reduced-motion: reduce){*{transition:none!important}}</style>"
+    again = write(tmp / "c6/again.html", page(LINK + rule))
+    good = write(tmp / "c6/good.html", page(LINK))
+    rc_again, out = run(check, again, good)
+    body = ("<p><code>prefers-reduced-motion</code> 은 공통 파일이 맡는다</p>"
+            "<script>matchMedia('(prefers-reduced-motion: reduce)').matches</script>")
+    style = "<style>/* prefers-reduced-motion 은 공통 파일이 맡는다 */ p{color:red}</style>"
+    mentions = write(tmp / "c6/mentions.html", page(LINK + style, body))
+    rc_mentions, _ = run(check, mentions)
+    ok = rc_again == 1 and "again.html" in out and "good.html" not in out and rc_mentions == 0
+    return ok, f"rc={rc_again},{rc_mentions}"
+
+
 CASES = [
     ("1 링크 둘인 쪽만 적는다", case_two_links),
     ("2 글자 참조로 쪼갠 이름을 잡는다", case_split_names),
     ("3 원래 글자 이름 · 주석 안 링크 · 작은따옴표 링크는 통과", case_plain_names),
     ("4 못 읽은 쪽은 종료 코드 2 로 함께 적는다", case_unreadable),
     ("5 추적 쪽이 없으면 종료 코드 3", case_no_pages),
+    ("6 쪽 <style> 의 움직임 줄이기 규칙만 잡는다", case_style_motion),
 ]
 
 

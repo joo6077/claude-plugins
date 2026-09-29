@@ -50,6 +50,8 @@ SOURCE_TO_HTML: list[tuple[str, str]] = [
     ("docs/flutter/", "docs/flutter-toolkit/"),
     ("flutter-toolkit/references/", "docs/flutter-toolkit/"),
     ("design-kit/docs/design/", "docs/design-kit/"),
+    # 레포 최상위 docs/design/ 에는 연구 기록 research-log.md 하나만 있다 — 다른 킷 연구 기록처럼 쪽 하나로 잇는다
+    ("docs/design/", "docs/design-kit/"),
     # design-kit 의 references/ · skills/ 에는 페이지가 없는 원본이 섞여 있어 짝이 있는 파일만 잇는다
     ("design-kit/references/visual-change-protocol.md", "docs/design-kit/"),
     ("design-kit/skills/design-test/SKILL.md", "docs/design-kit/"),
