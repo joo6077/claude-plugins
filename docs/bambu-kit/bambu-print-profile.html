@@ -1681,7 +1681,7 @@ for k in sorted(d):
 PY</pre>
 
   <p class="desc">오르카 + H2S 면 <code>&lt;output_dir&gt;/machine/*.json</code> 도 인자에 더한다 (Phase 3.1). 폴더가 없을 때 이 인자를 붙이면 zsh 는 명령 전체를 실행하지 않는다 — 있는 폴더만 넘긴다. 검사 본문은 <code>import os, re, sys, json, pathlib, plistlib</code> 로 시작한다.</p>
-  <h3 style="margin-top:20px">프린터 설정을 받는 자리 (발췌 · 2026-09-19)</h3>
+  <h3>프린터 설정을 받는 자리 (발췌 · 2026-09-19)</h3>
 <pre>META = {&quot;type&quot;,&quot;name&quot;,&quot;version&quot;,&quot;from&quot;,&quot;inherits&quot;,&quot;print_settings_id&quot;,&quot;filament_settings_id&quot;,&quot;printer_settings_id&quot;,
         &quot;compatible_printers&quot;,&quot;filament_extruder_variant&quot;,&quot;instantiation&quot;,&quot;setting_id&quot;}
 # 프리셋 종류별 이름 키 — 빠지면 가져오기가 &#x27;Preset type is unknown&#x27; 으로 조용히 건너뛴다
@@ -1828,7 +1828,7 @@ SETTINGS_ID = {&quot;process&quot;:&quot;print_settings_id&quot;,&quot;filament&
   <p class="desc">프린터 설정 시험 파일 넷의 원본 경로 — <code>evals/gate-fixtures/machine-orca-h2s-bs-start.json</code> · <code>evals/gate-fixtures/machine-orca-h2s-no-camera-prep.json</code> · <code>evals/gate-fixtures/machine-orca-h2s-cooling-filter-var.json</code> · <code>evals/gate-fixtures/machine-orca-x1c.json</code>. 오르카가 없는 곳에서는 FAIL 대신 <code>[미검증]</code> 이 나오고, <code>bambu-kit/evals/run-gate-fixtures.sh</code> 는 이 경우를 불일치가 아니라 「건너뜀」 으로 적는다 — 일치로 세지 않는다.</p>
 
   <p class="desc">위 표의 파일을 <strong>실제로 주입해 기대대로 나오는지</strong> 확인한다. FAIL 을 기대하는 줄은 FAIL 이, PASS 를 기대하는 줄은 PASS 가 나와야 한다.</p>
-  <h3 style="margin-top:20px">프린터 설정 시험 파일 — 실행 줄 · 검사 제거 (2026-09-19)</h3>
+  <h3>프린터 설정 시험 파일 — 실행 줄 · 검사 제거 (2026-09-19)</h3>
 <pre>TARGET_SLICER=orca  python3 &quot;$GATE&quot; $FX/machine-orca-h2s-no-camera-prep.json; echo &quot;exit=$?&quot;
 TARGET_SLICER=orca  python3 &quot;$GATE&quot; $FX/machine-orca-h2s-cooling-filter-var.json; echo &quot;exit=$?&quot;
 TARGET_SLICER=orca  python3 &quot;$GATE&quot; $FX/machine-orca-h2s-bs-start.json; echo &quot;exit=$?&quot;   # PASS 여야 한다
