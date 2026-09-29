@@ -43,4 +43,8 @@
 - `scripts/check-docs-common-css.py` 의 `site.css` 링크 세기는 여전히 `rel` 을 보지 않는다 — fs2 가 남긴 두 항목 밖이라 계약 「하지 않는 것」 대로 두었다. api-kit 쪽 검사와 같은 판정(`links_site_css`)으로 맞추면 된다.
 - 본문 배경에 전환 효과가 걸린 쪽이 howto-kit 밖에 40 쪽 남아 있다(api-kit 12 · tone-kit 10 · design-kit 6 · flutter-toolkit 6 · infra-kit 4 · backend-kit 2). 이 쪽들은 이미 단추가 있어 이번 범위가 아니다. 같은 측정(fs2 `br.js theme`)으로 재면 누른 직후 배경이 같다고 나올 수 있다 — 쪽을 고칠지, 측정이 전환 끝을 기다리게 할지 정해야 한다.
 - Mermaid 예시를 12 에서 실제로 렌더해 확인하는 일은 하지 않았다(원본 문장이 그렇게 적는다).
-- QA 판정과 계약 `status: done` 은 이 묶음이 하지 않는다.
+- QA 판정은 APPROVE(28 조건 중 PASS 25 · N/A 3). 리포트와 계약 `status: done` 은 커밋 d2b71d8e 에 담았다.
+- 독립 검토가 넘긴 약점 셋. 막는 결함은 아니라 이번에 고치지 않았다 — 고치기 전 판정도 똑같이 통과시키던 모양이라 전보다 나빠진 것이 없고, 지금 api-kit 13 쪽은 모두 `<link rel="stylesheet" href="../assets/site.css">` 한 모양이라 실제로 틀리게 판정되는 쪽이 없다. 봉인 뒤 판정을 더 좁히면 계약 범위 밖 변경이 된다.
+  - `scripts/check-api-kit-docs.py` 의 `links_site_css` 가 가짜 연결 넷을 연결로 친다. `data-rel="stylesheet" rel="preload"`(정규식 `\brel` 이 `data-rel` 에 먼저 걸린다), `data-href="../assets/site.css" href="x.css"`(같은 이유로 `\bhref`), `rel="alternate stylesheet"`, `media="print"`. 속성 앞에 `(?<![-\w])` 를 붙이고 alternate · media 를 따로 보면 된다. 새 시험 `scripts/test-check-api-kit-docs.py` 에 이 넷을 음성 경우로 더한다.
+  - 같은 판정이 이제 `href="../assets/site.css?v=2"` 처럼 물음표 값이 붙은 주소를 연결 없음으로 본다. 예전엔 연결로 셌다. 판정이 엄격해진 쪽이고 시험 경우 · 문서 어디에도 적혀 있지 않다 — 받아들일지 정해 시험 경우로 못박는다.
+  - `scripts/check-docs-common-css.py` 에 새로 넣은 media 속성 검사는 넣어 본 네 모양(글자 참조로 쪼갠 값 · 따옴표 없는 값 · `<script>` 안 문자열 · `<source media>`)에서 문제가 없었다. 남길 일 없음.
