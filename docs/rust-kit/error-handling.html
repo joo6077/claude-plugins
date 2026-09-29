@@ -97,10 +97,30 @@
   :not(pre)>code{overflow-wrap:anywhere}
   /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
   @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
-  @media(prefers-reduced-motion:reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <a href="../index.html" class="nav-back">&#8592; Rust Kit</a>
@@ -129,7 +149,7 @@
       </div>
       <div class="card-body">
         <p>두 크레이트는 목적이 다르다. <strong class="lead-strong">thiserror</strong>는 라이브러리(domain, adapters) 전용으로, 호출자가 매칭할 수 있는 구체 에러 타입을 생성한다. <strong class="lead-strong">anyhow</strong>는 애플리케이션 바이너리(main.rs, CLI, scripts) 전용으로, 타입 정보를 버리는 대신 컨텍스트를 얹어 빠르게 전파한다.</p>
-        <pre><span style="color:#f08575">// 라이브러리 — thiserror</span>
+        <pre><span style="color:var(--accent2)">// 라이브러리 — thiserror</span>
 #[derive(Debug, thiserror::Error)]
 pub enum DomainError {
     #[error("user not found: {id}")]
@@ -140,7 +160,7 @@ pub enum DomainError {
     Validation { field: String, reason: String },
 }
 
-<span style="color:#f08575">// 애플리케이션 — anyhow</span>
+<span style="color:var(--accent2)">// 애플리케이션 — anyhow</span>
 fn main() -&gt; anyhow::Result&lt;()&gt; {
     let config = Config::load()
         .context("config 로드 실패")?;
@@ -182,7 +202,7 @@ fn main() -&gt; anyhow::Result&lt;()&gt; {
             <div class="flow-label">IntoResponse 책임</div>
           </div>
         </div>
-        <pre><span style="color:#f08575">// Handler: DomainError → HTTP 응답 (axum)</span>
+        <pre><span style="color:var(--accent2)">// Handler: DomainError → HTTP 응답 (axum)</span>
 impl IntoResponse for ApiError {
     fn into_response(self) -&gt; Response {
         let (status, body) = match self {
@@ -212,7 +232,7 @@ impl IntoResponse for ApiError {
         <pre>#[derive(Debug, thiserror::Error)]
 pub enum DomainError {
     #[error("db error: {0}")]
-    Db(#[from] sqlx::Error),   <span style="color:#4ade80">// From&lt;sqlx::Error&gt; 자동 생성</span>
+    Db(#[from] sqlx::Error),   <span style="color:var(--green)">// From&lt;sqlx::Error&gt; 자동 생성</span>
 
     #[error("io error: {0}")]
     Io(#[from] std::io::Error),
@@ -223,7 +243,7 @@ async fn load_user(id: UserId, pool: &amp;PgPool)
 {
     let row = sqlx::query_as!(UserRow, "SELECT * FROM users WHERE id = $1", id.0)
         .fetch_one(pool)
-        .await?; <span style="color:#4ade80">// sqlx::Error → DomainError::Db 자동 변환</span>
+        .await?; <span style="color:var(--green)">// sqlx::Error → DomainError::Db 자동 변환</span>
     Ok(row.into())
 }</pre>
       </div>
@@ -240,13 +260,13 @@ async fn load_user(id: UserId, pool: &amp;PgPool)
       </div>
       <div class="card-body">
         <p>에러 메시지만으로는 원인 파악이 어렵다. <code>.context()</code>(anyhow) 또는 <code>#[error("... {source}")]</code>(thiserror)로 원인 체인을 유지한다. 로그에 남길 때는 <code>{:?}</code>(Debug, cause chain 포함)를 사용한다.</p>
-        <pre><span style="color:#f08575">// anyhow — 컨텍스트 추가</span>
+        <pre><span style="color:var(--accent2)">// anyhow — 컨텍스트 추가</span>
 let user = repo.find(id).await
     .context(format!("user {id} 조회 실패"))?;
 
-<span style="color:#f08575">// 에러 로깅</span>
-tracing::error!(error = %err, "요청 처리 실패");  <span style="color:#4ade80">// Display</span>
-tracing::error!(error = ?err, "요청 처리 실패");  <span style="color:#4ade80">// Debug (cause chain)</span></pre>
+<span style="color:var(--accent2)">// 에러 로깅</span>
+tracing::error!(error = %err, "요청 처리 실패");  <span style="color:var(--green)">// Display</span>
+tracing::error!(error = ?err, "요청 처리 실패");  <span style="color:var(--green)">// Debug (cause chain)</span></pre>
       </div>
       <a href="https://github.com/dtolnay/anyhow" target="_blank" rel="noopener" class="card-source">&#8599; anyhow (dtolnay/anyhow)</a>
     </div>
@@ -261,18 +281,18 @@ tracing::error!(error = ?err, "요청 처리 실패");  <span style="color:#4ade
       </div>
       <div class="card-body">
         <p>프로덕션 <code>.unwrap()</code>/<code>.expect()</code>를 발견했을 때 반사적으로 <code>?</code>로 바꾸면, <strong class="lead-strong">&ldquo;여기서는 절대 <code>None</code>일 리 없다&rdquo;</strong>는 자리는 그대로 남는다. 검증 결과를 버리고 넓은 타입을 계속 들고 다니면 같은 검증을 아래층에서 다시 하게 되고, 그 자리에 panic이 생긴다.</p>
-        <pre><span style="color:#f87171">// ✗ 치환 — 넓은 타입이 그대로 남는다</span>
+        <pre><span style="color:var(--red)">// ✗ 치환 — 넓은 타입이 그대로 남는다</span>
 fn send(to: &amp;str) -&gt; Result&lt;(), Error&gt; {
-    let addr = parse_email(to).ok_or(Error::BadEmail)?;  <span style="color:#f87171">// 호출부마다 반복</span>
+    let addr = parse_email(to).ok_or(Error::BadEmail)?;  <span style="color:var(--red)">// 호출부마다 반복</span>
     ...
 }
 
-<span style="color:#4ade80">// ✓ 설계 — 한 번 파싱하면 이후 층은 검증이 필요 없다</span>
-pub struct Email(String);            <span style="color:#4ade80">// 필드 private</span>
+<span style="color:var(--green)">// ✓ 설계 — 한 번 파싱하면 이후 층은 검증이 필요 없다</span>
+pub struct Email(String);            <span style="color:var(--green)">// 필드 private</span>
 impl Email {
     pub fn parse(s: &amp;str) -&gt; Result&lt;Self, ParseError&gt; { ... }
 }
-fn send(to: &amp;Email) { ... }          <span style="color:#4ade80">// 불변식이 타입에 있다</span></pre>
+fn send(to: &amp;Email) { ... }          <span style="color:var(--green)">// 불변식이 타입에 있다</span></pre>
       </div>
       <a href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/" target="_blank" rel="noopener" class="card-source">&#8599; parse, don&#39;t validate</a>
       <a href="https://docs.rs/nonempty/latest/nonempty/" target="_blank" rel="noopener" class="card-source">&#8599; nonempty</a>
@@ -323,7 +343,7 @@ fn send(to: &amp;Email) { ... }          <span style="color:#4ade80">// 불변�
       <h4>강제는 lint 로 한다 — 문장 규칙만으로는 재발한다</h4>
       <div class="card-body">
         <p>2026-08-12 실측(<code>AP-05</code>)에서 확인된 사항이다. 워크스페이스 lint 테이블에 deny 로 박아 빌드가 막히게 한다.</p>
-        <pre><span style="color:#f08575"># Cargo.toml (workspace root)</span>
+        <pre><span style="color:var(--accent2)"># Cargo.toml (workspace root)</span>
 [workspace.lints.clippy]
 unwrap_used         = "deny"
 expect_used         = "deny"
