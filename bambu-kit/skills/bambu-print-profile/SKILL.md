@@ -777,6 +777,7 @@ Tolerance Analysis 결과
 | bearing OD (압입) | `xy_hole_compensation` | + (소재별 표 §2 참조) |
 | bearing ID (축 fit) | `xy_contour_compensation` | − (소재별 표) |
 | bolt pass hole | `xy_hole_compensation` | + · **`tolerance.md` §3.2 규칙을 따른다** (모델이 이미 3.2-3.4mm 면 수축 보정만, 명목 3.0mm 면 오프셋 `+0.10~+0.20`) |
+| **가로 구멍** (축이 수평 — 벽을 옆으로 관통) | 없음 — `xy_hole_compensation` 이 걸리지 않는다 | `0` 으로 두고 사유를 notes 에 적는다. 치수는 모델·드릴로 맞춘다 (`tolerance.md` §1.3) |
 | heat-set insert hole | hole 명시 (M3=4.0mm) | `xy_hole_compensation` 표 그대로 |
 | slide-fit hole | `xy_hole_compensation` | + (loose 권장) |
 | slide-fit 외경 | `xy_contour_compensation` | − (loose 권장) |
@@ -945,6 +946,23 @@ done
 
 **추측 금지.** 파일 확장자·모델 출처·과거 대화로 슬라이서를 유추하지 마라. 위 표의 4 분기 밖은 없다.
 
+#### 1.95.3 전송 경로 — 그 슬라이서에서 프린터로 보낼 수 있는가 (2026-09-19 신규)
+
+`TARGET_SLICER=orca` 이고 프린터가 H2S 면, **오르카에서 H2S 로 직접 출력을 시작할 수 없다.** 뱀부가 2025 년부터
+신형 프린터에 넣은 권한 제어 때문이다 — 오르카에서 뱀부 계정으로 로그인해도 상태만 보이고 출력 시작은 막힌다
+(뱀부 권한 제어 공지 2025-01 · 오르카 H2D/H2S 지원 PR #10780). 프로파일을 만들기 전에 사용자에게 보낼 길을 알려라.
+실측 2026-09-19: 사용자가 "오르카랑 H2S 가 연결이 안 된다" 고 물었다.
+
+| 경로 | 가능 여부 | 방법 |
+| --- | --- | --- |
+| 뱀부 스튜디오로 넘기기 (권장) | 된다 | 오르카 `Print plate` 옆 화살표 → `Export plate sliced file` 로 `.gcode.3mf` 저장 → 뱀부 스튜디오 `File > Open Project…` → **다시 슬라이스하지 말고** `Print plate`. 다시 자르면 오르카 전용 설정이 빠진다 |
+| Bambu Connect | 된다 | 같은 `.gcode.3mf` 를 Bambu Connect 창에 끌어 넣고 보낸다. 오르카 2.4.2 에는 바로 보내는 메뉴가 없다 (PR #13811 미병합) |
+| USB 드라이브 | 된다 | `.gcode.3mf` 를 USB 에 복사해 프린터 화면 `Print Files` 에서 시작한다. 권한 제어와 무관하다 |
+| 오르카에서 직접 | 조건부 | 프린터 화면 `Settings > LAN Only` 에서 LAN 전용 모드와 `Developer Mode` 를 둘 다 켠다. 뱀부 핸디 앱 · 외부 출력 · 출력 기록이 꺼지고, 같은 공유기의 다른 프로그램도 프린터를 조종할 수 있게 된다 |
+
+뱀부 스튜디오로 넘길 때 화면의 예상 시간이 오르카 슬라이스 결과와 같으면 오르카 파일이 그대로 간 것이다.
+오르카 H2S 는 프린터 설정도 함께 바꿔야 한다 — Phase 3.1.
+
 #### Slicer Gate (Phase 2 진입 조건)
 
 `TARGET_SLICER` 가 확정되거나 `[미검증]` 이 명시적으로 기록돼야 Phase 2 로 진입한다.
@@ -991,6 +1009,7 @@ done
 | L2 스트링잉 — wipe | ✅ 가능 (게이트 통과 시) | `filament_wipe` · `filament_wipe_distance` 2 키 한정 |
 | L2 스트링잉 — retraction 상향 | ⚠️ **coupon 후에만** | Phase 5 coupon 통과 전 본 출력 반영 금지 |
 | L3 박리 — brim / 첫 레이어 | ✅ 가능 | `failure-recipes.md` §3.1 |
+| L3 박리 — **판에서 바로 시작하는 바닥 필렛** | ⚠️ **오르카 + 3mf 로만** | process JSON 으로는 불가. 오르카 `make_overhang_printable` 을 바닥 몇 mm **높이 구간에만** 켠 3mf 를 함께 준다. 모델 전체에 켜면 가로 구멍이 막힌다. 테두리는 끈다 (`failure-recipes.md` §3.5) |
 | L3 박리 — chamber preheat · plate 종류 선택 | ❌ **불가** (장비 조작) | notes only |
 | L3 박리 — plate 온도 · aux fan | ⚠️ **사용자 확인 후에만** | plate-specific 키만. `bed_temperature_initial_layer` 금지 |
 | **Studio UI 페인팅** (seam paint / color paint / fuzzy paint) | ❌ **불가** | 기존 규약 유지 — 사용자 작업으로 안내 |
@@ -1005,6 +1024,25 @@ done
 ```
 
 배수는 **타이핑하지 말고** `기존 layer_height / 새 layer_height` 로 계산해서 적는다.
+
+#### Phase 3.1 — 오르카 + H2S 는 프린터 설정도 만든다 (2026-09-19 신규)
+
+`TARGET_SLICER=orca` 이고 프린터가 H2S 면 process · filament 에 더해 **프린터(machine) 설정 JSON 을
+`machine/` 폴더에 함께 만든다.** 오르카 2.4.2 에 든 H2S 시작 명령은 뱀부보다 낡아서, 그대로 자르면 그 파일로 뽑을 때만
+툴헤드 카메라 초기화 실패가 난다 (2026-09-19 fly-catcher 실측 · 원인과 명령 차이는 `bambu-fields-baseline.md` §11.5).
+
+- `inherits` 는 `Bambu Lab H2S 0.4 nozzle` (실제 노즐에 맞춘다). `machine_start_gcode` 에 뱀부 설치본의
+  `Bambu Lab H2S 0.4 nozzle template machine_start_gcode.json` 원문을 넣되, 오르카에 없는 `cooling_filter_enabled`
+  조건 블록만 뱀부 기본값 결과로 고정한다 — 절차는 §11.5
+- 이름은 `<원 프린터 이름> - BS start <템플릿 날짜>` 로 짓고, process 의 `compatible_printers` 에 그 이름을 더한다
+- 시작 명령만 바꾼다. 끝 · 필라멘트 교체 · 층 변경 · 타임랩스 · 감김 감지 명령은 오르카 것을 둔다 — 뱀부 필라멘트 교체
+  명령에는 오르카가 모르는 변수가 있다
+- 3mf 를 함께 줄 때(높이 구간 설정 등)는 3mf 안의 프린터 설정도 이 이름과 시작 명령으로 맞춘다. 오르카 화면에서
+  프로젝트를 다시 저장하면 3mf 안 프린터가 바뀐 채 돌아올 수 있다 (실측) — 전달 직전에 한 번 더 확인한다
+- H2D · H2C 뱀부 템플릿에는 이 준비 블록이 없다 (2026-09-19 설치본 전수). 날짜가 다르면 차이를 비교해 보고하되
+  카메라 블록을 요구하지 않는다
+
+Phase 4.3 검사가 `machine/*.json` 도 받는다. 준비 블록이 없거나 오르카가 거부할 변수가 남아 있으면 FAIL 이다.
 
 **Designer-stated Constraint Override Rule (v0.4.0 신규, v0.4.1 범위 좁힘):**
 
@@ -1424,9 +1462,11 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 <modelname>.zip
 ├── process/
 │   └── <process name>.json
-└── filament/
-    ├── <filament 1>.json
-    └── <filament 2>.json   (멀티 소재인 경우)
+├── filament/
+│   ├── <filament 1>.json
+│   └── <filament 2>.json   (멀티 소재인 경우)
+└── machine/                (오르카 + H2S 인 경우 — Phase 3.1)
+    └── <printer name>.json
 ```
 
 #### 4.2 notes.md 5섹션 표준 템플릿 (v0.3.0 신규)
@@ -1546,10 +1586,12 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 > **왜 E3 로 올렸나:** silent skip 회귀가 v0.4.0 / v0.4.1 / v0.4.2 에 걸쳐 **3 회 이상 재발**했고, import 실패는 사용자가 뒤늦게 발견하는 신뢰 손상 영역이다. `skill-design-guide.md` §3.7 승급 규칙(3 회 이상 → E2 → **E3 결정론적 게이트**)에 따라, 아래 체크리스트(자기보고)만으로는 부족하고 **LLM 을 호출하지 않는 순수 판정 명령**을 통과해야 한다.
 
 zip 을 만들기 **전에** 생성한 JSON 전부에 대해 아래를 실행하고, **출력 원문을 응답에 붙여라.**
+오르카 + H2S 면 `<output_dir>/machine/*.json` 도 인자에 더한다 (Phase 3.1). 폴더가 없을 때 이 인자를 붙이면
+zsh 는 명령 전체를 실행하지 않는다 — 있는 폴더만 넘긴다.
 
 ```bash
 TARGET_SLICER=<bambu|orca> SKILL_DIR=<이 스킬의 기준 폴더> python3 - <output_dir>/process/*.json <output_dir>/filament/*.json <<'PY'
-import os, sys, json, pathlib, plistlib
+import os, re, sys, json, pathlib, plistlib
 allok=True; unverified=[]
 
 # 시스템 프로파일 인덱스 — 부모 체인 해석용 (유량비 · 부모값 이탈 검사)
@@ -1628,8 +1670,10 @@ if SYS is not None:
             unverified.append(f"{OPTION_KEY_DIR}/{SLICER}-{installed}.tsv 을 읽었지만 canonical {len(CANONICAL)} · 종류 {len(TYPES)} · enum {len(ENUM)} 줄 — "
                               f"목록이 비었거나 깨졌다. {skipped}")
 # 키 판정에서 제외하는 메타 키 — 필수 메타필드 표의 키. 형식 검사는 아래에서 따로 한다
-META = {"type","name","version","from","inherits","print_settings_id","filament_settings_id",
+META = {"type","name","version","from","inherits","print_settings_id","filament_settings_id","printer_settings_id",
         "compatible_printers","filament_extruder_variant","instantiation","setting_id"}
+# 프리셋 종류별 이름 키 — 빠지면 가져오기가 'Preset type is unknown' 으로 조용히 건너뛴다
+SETTINGS_ID = {"process":"print_settings_id","filament":"filament_settings_id","machine":"printer_settings_id"}
 GEOMETRY_CLASSES = ("planar","thin")
 
 def resolve(name, depth=0):
@@ -1683,11 +1727,11 @@ for p in sys.argv[1:]:
     except Exception as e:
         print(f"FAIL {f}: JSON 파싱 실패 {e}"); allok=False; continue
     t=d.get("type")
-    if t not in ("process","filament"): errs.append(f"type={t!r} (process|filament 아님)")
+    if t not in SETTINGS_ID: errs.append(f"type={t!r} (process|filament|machine 아님)")
     for k in ("name","version","inherits"):
         if not d.get(k): errs.append(f"{k} 누락")
     if d.get("from")!="User": errs.append(f'from={d.get("from")!r} — 반드시 "User" (대문자)')
-    idk="print_settings_id" if t=="process" else "filament_settings_id"
+    idk=SETTINGS_ID.get(t,"filament_settings_id")
     if idk not in d: errs.append(f"{idk} 누락 → 'Preset type is unknown'")
     if t=="filament" and not isinstance(d.get(idk),list): errs.append(f"{idk} 는 배열이어야 함")
     # 금지 키 검사 (2026-08-13 신규 · failure-recipes.md §4) — dict 키 정확 일치, substring 아님
@@ -1743,6 +1787,20 @@ for p in sys.argv[1:]:
                 errs.append(f"elefant_foot_compensation={eff!r} 숫자 문자열 아님")
             if str(d.get("raft_layers","0")) not in ("0",""):
                 errs.append(f"raft_layers={d.get('raft_layers')} 이면 elefant_foot 무효화됨")
+    # 오르카 H2S 프린터 설정 (2026-09-19 · bambu-fields-baseline.md §11.5) — 오르카 번들 시작 명령(2025/08/06)은
+    # 툴헤드 카메라 검사 앞뒤 준비 블록이 없어서, 그걸로 자른 출력만 툴헤드 카메라 초기화 실패(0500-8092)가 난다.
+    # H2 계열 뱀부 템플릿 중 이 블록은 H2S 에만 있다 — H2D · H2C 에 요구하면 멀쩡한 설정을 막는다.
+    if t=="machine" and SLICER=="orca" and "Bambu Lab H2S" in str(d.get("inherits","")):
+        start = d.get("machine_start_gcode") or (resolve(d.get("inherits")).get("machine_start_gcode","") if SYSIDX else "")
+        if not start:
+            unverified.append(f"{f}: 시작 명령을 파일에서도 부모에서도 못 읽었다 — 카메라 준비 블록 판정 불가")
+        else:
+            camera_on, camera_check, camera_off = start.find("M1028 S1"), start.find("M972 S31"), start.find("M1028 S0")
+            if camera_check >= 0 and not (0 <= camera_on < camera_check < camera_off):
+                errs.append(f"카메라 준비 블록 없음 — 툴헤드 카메라 검사(M972 S31) 앞에 M1028 S1, 뒤에 M1028 S0 이 있어야 한다. 이대로 자르면 툴헤드 카메라 초기화 실패가 난다 (bambu-fields-baseline.md §11.5)")
+            # 식 안의 변수만 본다 — `; cooling_filter_enabled=0 고정` 같은 G-code 주석은 오르카가 해석하지 않는다
+            if re.search(r"\{[^{}]*\bcooling_filter_enabled\b[^{}]*\}|\[cooling_filter_enabled\]", start):
+                errs.append(f"오르카에 없는 변수 cooling_filter_enabled — 오르카가 시작 명령 구문 오류로 슬라이스를 거부한다. 뱀부 기본값 0 의 결과인 M145.2 P0 F1 로 고정하라 (bambu-fields-baseline.md §11.5)")
     par = resolve(d.get("inherits")) if SYSIDX else {}
     if not SYSIDX:
         unverified.append(f"{f}: 시스템 프로파일 경로 없음 — 유량비/부모값/형상 클래스 검사 미실행")
@@ -1852,7 +1910,8 @@ PY
 #### 음성 대조 — 검사가 살아 있는지 확인 (2026-09-14 신규 · 2026-09-15 옵션 목록 기준으로 갱신 · 2026-09-25 시험 파일 전수)
 
 `RESULT: PASS` 는 **검사가 돌았다는 증거가 아니다.** 검사가 죽어 있어도 PASS 가 나온다. 게이트를
-고쳤거나 옵션 목록을 새로 만들었으면 아래 표의 시험 파일을 **전부 실제로 주입해 FAIL 이 나오는지** 확인하라.
+고쳤거나 옵션 목록을 새로 만들었으면 아래 표의 파일을 **실제로 주입해 기대대로 나오는지** 확인하라.
+FAIL 을 기대하는 줄은 FAIL 이, PASS 를 기대하는 줄은 PASS 가 나와야 한다.
 
 ⚠️ **시험 파일을 새로 만들 때 — 그 키를 보는 규칙이 있는지부터 확인하라.** 옵션 목록은 키 이름 · 받는 프리셋 종류 ·
 **enum 값**만 본다. 숫자 키의 값은 옵션 목록이 판정하지 않으므로, 아무 숫자 키에 말도 안 되는 값을 넣어 만든 시험
@@ -1891,6 +1950,14 @@ scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) �
 | `evals/gate-fixtures/process-forbidden-key.json` | bambu | 금지 키 **FAIL 1 건** (`elephant_foot_compensation`) | `if bad in d:` 줄을 `pass` 로 | 오타 키가 조용히 버려진다 |
 | `evals/gate-fixtures/filament-lattice-fanfix.json` | bambu | **PASS** · `[미검증]` 0 줄 — 냉각 키를 소재 설정에 둔 정상 설정 | — | 정상 설정이 FAIL 로 막힌다 |
 | `evals/gate-fixtures/process-thin-baseline.json` | bambu | **PASS** (+ 벽 예산 `[미검증]` 1 줄) — thin 인데 외벽을 안 낮춘 정상 설정 | — | 정상 설정이 FAIL 로 막힌다 |
+| `evals/gate-fixtures/machine-orca-h2s-bs-start.json` | orca | **PASS** — 뱀부 최신 시작 명령을 담은 H2S 프린터 설정 | 받는 종류를 process · filament 둘로 되돌림 → FAIL | 프린터 설정을 검사가 아예 받지 않는다 |
+| `evals/gate-fixtures/machine-orca-h2s-no-camera-prep.json` | orca | 카메라 준비 블록 없음 **FAIL 1 건** (`M1028`) | `카메라 준비` 줄을 `pass` 로 | 오르카 번들 시작 명령이 통과해 툴헤드 카메라 초기화 실패가 다시 난다 |
+| `evals/gate-fixtures/machine-orca-h2s-cooling-filter-var.json` | orca | 오르카에 없는 변수 **FAIL 1 건** (`cooling_filter_enabled`) | `오르카에 없는 변수` 줄을 `pass` 로 | 오르카가 슬라이스를 거부하는 시작 명령이 통과한다 |
+| `evals/gate-fixtures/machine-orca-x1c.json` | orca | **PASS** — H2S 가 아니면 카메라 준비 블록을 요구하지 않는다 | — | H2S 규칙이 다른 프린터까지 막는다 |
+
+`machine-orca-h2s-no-camera-prep.json` 은 시작 명령 없이 `inherits` 만 둔다. 검사가 오르카 설치본의 부모
+프린터 설정에서 시작 명령을 읽으므로, 오르카가 없는 곳에서는 FAIL 대신 `[미검증]` 이 나온다.
+`bambu-kit/evals/run-gate-fixtures.sh` 는 이 경우를 불일치가 아니라 「건너뜀」 으로 적는다 — 일치로 세지 않는다.
 
 **FAIL 이 났다는 것만으로는 부족하다 — 제거 대조까지 해야 판별력이 증명된다.** 픽스처가 목표 외
 위반(메타필드 누락 · 형상 클래스 충돌 등)을 함께 내면 검사를 지워도 계속 FAIL 해서, "검사가 살아
@@ -1963,6 +2030,10 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-elefant-foot-negative.json; echo
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-forbidden-key.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/filament-lattice-fanfix.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-baseline.json; echo "exit=$?"
+TARGET_SLICER=orca  python3 "$GATE" $FX/machine-orca-h2s-no-camera-prep.json; echo "exit=$?"
+TARGET_SLICER=orca  python3 "$GATE" $FX/machine-orca-h2s-cooling-filter-var.json; echo "exit=$?"
+TARGET_SLICER=orca  python3 "$GATE" $FX/machine-orca-h2s-bs-start.json; echo "exit=$?"   # PASS 여야 한다
+TARGET_SLICER=orca  python3 "$GATE" $FX/machine-orca-x1c.json; echo "exit=$?"            # PASS 여야 한다
 
 # (3) 검사 제거 → PASS · exit 0. 한 판정의 FAIL 줄만 pass 로 바꾸고, 바뀐 줄이 1 개인지 먼저 본다
 drop() {   # drop <FAIL 낱말 — 정규식> <사본 접미> — 그 낱말로 시작하는 errs.append 줄을 pass 로 바꾼다 (f 없는 문자열 포함)
@@ -2011,6 +2082,15 @@ TARGET_SLICER=bambu python3 "$GATE.forbid" $FX/process-forbidden-key.json; echo 
 sed -E 's/^( *)unverified\.append\(f"\{f\}: \{k\} 슬롯 .*$/\1pass/' "$GATE" > "$GATE.slotnote"
 diff "$GATE" "$GATE.slotnote" | grep -c '^>'   # 1 이어야 변이가 먹은 것
 TARGET_SLICER=bambu python3 "$GATE.slotnote" $FX/filament-unreadable-slot.json; echo "exit=$?"
+drop "카메라 준비" camera
+TARGET_SLICER=orca  python3 "$GATE.camera" $FX/machine-orca-h2s-no-camera-prep.json; echo "exit=$?"
+drop "오르카에 없는 변수" cooling
+TARGET_SLICER=orca  python3 "$GATE.cooling" $FX/machine-orca-h2s-cooling-filter-var.json; echo "exit=$?"
+
+# 받는 종류에서 machine 을 빼면 프린터 설정이 FAIL 해야 한다 — 받는 쪽이 살아 있다는 증거
+sed -E 's/^SETTINGS_ID = \{(.*), *"machine":"printer_settings_id"\}$/SETTINGS_ID = {\1}/' "$GATE" > "$GATE.type"
+diff "$GATE" "$GATE.type" | grep -c '^>'   # 1 이어야 변이가 먹은 것
+TARGET_SLICER=orca  python3 "$GATE.type" $FX/machine-orca-h2s-bs-start.json; echo "exit=$?"
 
 # 종류 판정 근거를 옛 방식(번들 프로파일 종류 합집합)으로 되돌린다 — 목록이 막은 구멍이 다시 열려야 한다
 python3 - "$GATE" "$GATE.bundle" <<'MUT'
@@ -2074,6 +2154,17 @@ enum 줄만 빠진 목록도 같다 — `받지 않는 값` FAIL 이 사라지�
 이 줄은 실제로 안 돈 검사만 적는다 — enum 줄만 빠지면 `enum 값 검사 미실행` 이고, 키 존재 · 종류 검사는 그대로 돌아 `키 스코프 불일치` FAIL 을 낸다 (2026-09-26 수정. 그전에는 같은 출력에 종류 FAIL 과 「종류 검사 미실행」 이 함께 나왔다).
 종류 줄만 빠진 목록은 반대다 — 종류 판정을 건너뛰고 `[미검증] … 종류 검사 미실행` 을 남기며, enum 판정은 돌아 `받지 않는 값` FAIL 을 낸다 (2026-09-27 수정. 그전에는 적힌 키마다 거짓 `키 스코프 불일치` FAIL 이 나고 enum FAIL 은 0 건이었다).
 
+실측 2026-09-19 (zsh · 위 블록을 SKILL.md 에서 그대로 뽑아 실행 · 바뀐 줄 수는 전부 1 · 오르카 2.4.2 설치본):
+
+```text
+[검사 유지]  FAIL machine-orca-h2s-no-camera-prep.json: 카메라 준비 블록 없음 — …(M972 S31) 앞에 M1028 S1, 뒤에 M1028 S0 …   exit=1
+             FAIL machine-orca-h2s-cooling-filter-var.json: 오르카에 없는 변수 cooling_filter_enabled — …   exit=1
+             machine-orca-h2s-bs-start.json · machine-orca-x1c.json   RESULT: PASS   exit=0
+[카메라 제거]      RESULT: PASS   exit=0
+[변수 제거]        RESULT: PASS   exit=0
+[machine 종류 제거] FAIL machine-orca-h2s-bs-start.json: type='machine' …   RESULT: FAIL   exit=1
+```
+
 **왜 enum 을 따로 보는가.** 슬라이서는 유효하지 않은 enum 값을 **오류 없이 조용히 기본값으로
 강등**한다. 실측 2026-09-14: `seam_slope_type` 에 `hole` 을 넣으면 exit 0 · 경고 0 으로 슬라이스되고
 스카프가 통째로 사라진다 (유효값은 `none` · `external` · `all` 뿐). 사용자는 설정을 켰다고 믿는데
@@ -2099,7 +2190,7 @@ enum 줄만 빠진 목록도 같다 — `받지 않는 값` FAIL 이 사라지�
 
 #### 4.4 Verify (Import 후 사용자 확인)
 
-생성 후 사용자에게 안내:
+**뱀부 스튜디오 대상** — 생성 후 사용자에게 안내:
 
 1. `File → Import → Import Configs...` → `<modelname>.zip` 선택
 2. 좌측 Process/Filament 드롭다운에 새 preset 보이는지 **반드시 확인**
@@ -2366,6 +2457,19 @@ for feature, (line_mm, arc_mm) in sorted(lengths.items(), key=lambda item: -sum(
 PY
 ```
 
+**오르카 대상 (2026-09-19 신규)** — 3mf 를 함께 줬으면 그 파일로 여는 것이 기본이다.
+
+1. 3mf 를 **더블클릭하지 말고** 오르카 `파일 → 프로젝트 열기` 로 연다. 더블클릭은 운영체제가 연결한 앱
+   (보통 뱀부 스튜디오)으로 열려서, 뱀부가 모르는 오르카 설정을 지운다는 창이 뜬다
+2. 프로젝트를 연 뒤 프리셋을 고르다 설정 전환 창(Transfer · Discard · Save)이 뜨면 **Transfer** 를 누른다 —
+   지금 화면에 걸린 3mf 설정값을 새로 고른 프리셋 위로 옮긴다. Save 는 같은 값을 다른 이름의 프리셋으로
+   하나 더 만들 뿐이다. 높이 구간 설정은 프리셋이 아니라 모델에 붙어 있어서 어느 쪽을 눌러도 남는다
+3. 프린터 드롭다운이 `… - BS start <날짜>` 인지 확인한다 (Phase 3.1). 원 프린터 이름이면 카메라 준비 블록이
+   빠진 시작 명령으로 잘린다
+4. 슬라이스 뒤 `Export plate sliced file` 로 내보내고 Phase 1.95.3 의 전송 경로로 보낸다
+5. zip 만 줬으면 `파일 → 가져오기 → 설정 가져오기` 로 zip 을 넣고, 프린터 · 프로세스 · 필라멘트
+   세 드롭다운에 새 이름이 보이는지 확인한다
+
 ### Phase 5 — Coupon Test (v0.3.0 자동 생성)
 
 **자동 트리거 (이전: 사용자 명시 요청 시):**
@@ -2478,6 +2582,17 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
 - ☐ **(2026-09-08 신규) `_geometry_class` 를 측정으로 정해 process JSON 에 기록했는지** — Phase 1.0 probe 출력의 `planar` | `thin`. `thin` 인데 `outer_wall_speed` 를 낮췄으면 정책 위반이고 Phase 4.3 게이트가 FAIL 한다 (`surface-recipes.md` §2.7).
 - ☐ **(2026-09-08 신규) 키를 넣기 전에 설치본 스코프(process / filament)를 확인했는지** — 냉각 키(`overhang_fan_threshold` 등)는 filament 스코프라 process 에 넣으면 조용히 무시된다. 게이트가 옵션 목록의 프리셋 종류 줄로 검사한다 (`bambu-fields-baseline.md` §10.5 · §11.1).
 - ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
+- ☐ **(2026-09-19 신규) 오르카 + H2S 면 프린터 설정 JSON 을 함께 만들고 시작 명령에 `M1028` 카메라 준비 블록이
+  있는지** — 오르카 번들 시작 명령으로 자르면 그 파일로 뽑을 때만 툴헤드 카메라 초기화 실패가 난다. "다른 파일은
+  괜찮다" 는 사용자 말은 파일 차이라는 신호다 — 파일 무관이라고 답하기 전에 시작 명령 전체를 비교하라 (Phase 3.1 ·
+  `bambu-fields-baseline.md` §11.5).
+- ☐ **(2026-09-19 신규) 판에서 바로 시작하는 바닥 필렛이 있으면 테두리를 껐는지** — 둘째 층이 테두리 안쪽 끝에
+  붙어 튀어나온 선이 생긴다. `brim_ears` 도 같은 자리에 붙으므로 대안이 아니다 (`failure-recipes.md` §3.5).
+- ☐ **(2026-09-19 신규) 가로 구멍을 `xy_hole_compensation` 으로 키우려 하지 않았는지** — 층마다 닫힌 안쪽 윤곽만
+  보정하므로 옆으로 누운 구멍에는 효과가 없고, 컵 안쪽처럼 원치 않는 곳만 넓힌다. 모델에서 지름을 키우거나
+  눈물방울 모양으로 바꾸라고 안내했는지 (`tolerance.md` §1.3).
+- ☐ **(2026-09-19 신규) 다림질 뒤 윗면에 줄이 솟았으면 흐름을 낮췄는지** — 다림질 양은 `층 높이 × 흐름` 이라 간격을
+  바꿔도 양은 그대로다. 솟은 줄은 양이 많은 것, 홈은 적은 것이다 (`surface-recipes.md` §5.3).
 - ☐ **(2026-09-22 신규) 외벽을 낮췄으면 `bridge_speed` 를 `20-30` 으로 같이 넣었는지, ABS · ASA 에 다림질을 기본으로 켜지 않았는지** — 둘 다 부모값·기본값이 조용히 살아남는 자리다. 허공 위 속도는 Phase 4.3 게이트가 FAIL 로 잡는다 (`surface-recipes.md` §4 · §5.1).
 - ☐ **(2026-09-23 신규) 형상을 재서 기록한 설정이면 외벽을 안 낮췄어도 `bridge_speed` 를 넣었는지** — 게이트가 `_geometry_class` 기록만으로도 허공 위 속도를 재고, 값 비교는 압출기 슬롯을 전부 읽는다.
 
