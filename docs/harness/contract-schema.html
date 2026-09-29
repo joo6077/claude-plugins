@@ -492,7 +492,7 @@ fm_get() { # fm_get &lt;file&gt; &lt;key&gt;
     <ul>
       <li><strong>정규화 대상이 조건 줄뿐인 이유</strong> — 평가 진행에 따른 체크박스 토글(<code>- [ ]</code> → <code>- [x]</code>)과 서술 섹션 보강은 계약 변조가 아니다. 이 둘로 봉인이 깨지면 게이트가 정상 작업을 막고, <strong>우회된 게이트는 없는 게이트보다 나쁘다</strong></li>
       <li>조건 <strong>문구 변조</strong>와 <strong>조건 추가·삭제</strong>는 반드시 깨진다. 이것이 봉인의 유일한 목적이다</li>
-      <li>조건 열거 정규식은 조건 수 계산과 <strong>같은 것</strong>을 쓴다(<code>[A-Z]{2,}-[0-9]{2}</code>). 새 패턴을 발명하면 두 게이트가 서로 다른 집합을 세게 된다</li>
+      <li>조건 열거 정규식은 조건 수 계산과 <strong>같은 것</strong>을 쓴다(<code>([A-Z]{2,}|[가-힣]+)-[0-9]{2}</code>). 새 패턴을 발명하면 두 게이트가 서로 다른 집합을 세게 된다</li>
     </ul>
   </div>
   <div class="note warn">
@@ -541,7 +541,7 @@ sha256_16() {  # stdin → sha256 앞 16 자리
 }
 
 contract_digest() {  # contract_digest &lt;계약파일&gt;
-  grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$1" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16
+  grep -E '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$1" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16
 }
 
 verify_seal() {  # verify_seal &lt;계약파일&gt; → SEAL_OK | SEAL_BROKEN | SEAL_ABSENT
@@ -554,7 +554,7 @@ verify_seal() {  # verify_seal &lt;계약파일&gt; → SEAL_OK | SEAL_BROKEN | 
 
 measurement_digest() {  # measurement_digest &lt;계약파일&gt; — 조건 번호 + 그 아래 들여쓴 줄
   awk '
-    /^- \[[ x]\] [A-Z][A-Z]+-[0-9][0-9]/ { inb=1; match($(0), /[A-Z][A-Z]+-[0-9][0-9]/); print substr($(0), RSTART, RLENGTH); next }
+    /^- \[[ x]\] ([A-Z][A-Z]+|[가-힣]+)-[0-9][0-9]/ { inb=1; match($(0), /([A-Z][A-Z]+|[가-힣]+)-[0-9][0-9]/); print substr($(0), RSTART, RLENGTH); next }
     inb &amp;&amp; /^[ \t]+[^ \t]/ { line=$(0); sub(/[ \t]+$/, "", line); print line; next }
     inb &amp;&amp; /^[ \t]*$/      { next }
     { inb=0 }
@@ -718,24 +718,43 @@ fi</code>
       <div class="card-title"><span class="dot"></span>2. Anti-patterns</div>
       <code class="code-block">## Anti-patterns
 - [ ] {id}: {message}</code>
-      <p><code>project.yaml.anti_patterns</code> 에서 <strong>최소 2 개</strong> 선별 — 이번 변경 파일에 걸릴 수 있는 패턴이 그보다 적으면 걸리는 것만 쓰고, 하나도 없으면 <code>AP-00: N/A (사유)</code> 한 줄로 쓴다(<a class="jump" href="#na">해당 없음 마커</a>). 해당 구현에서 발생 가능성이 높은 것을 우선 선택한다.</p>
+      <p><code>project.yaml.anti_patterns</code> 에서 <strong>최소 2 개</strong> 선별 — 이번 변경 파일에 걸릴 수 있는 패턴이 그보다 적으면 걸리는 것만 쓰고, 하나도 없으면 <code>금지-00: N/A (사유)</code> 한 줄로 쓴다(<a class="jump" href="#na">해당 없음 마커</a>). 해당 구현에서 발생 가능성이 높은 것을 우선 선택한다.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>3. Reusability (자동 포함)</div>
       <code class="code-block">## Reusability
-- [ ] RE-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다
-- [ ] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다</code>
+- [ ] 재사용-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다
+- [ ] 재사용-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다</code>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>4. Diagnostics (자동 포함)</div>
       <code class="code-block">## Diagnostics
-- [ ] DG-01: {commands.analyze} 워닝 0개 (변경/생성 파일 대상)
-- [ ] DG-02: IDE diagnostics 워닝/인포 0개 ({diagnostics.ide_exclude} 제외)
-- [ ] DG-03: {commands.test} 콘솔 로그에 에러/예외 0개
-- [ ] DG-04: 실제 앱/서버 구동 시 에러 0개</code>
+- [ ] 진단-01: {commands.analyze} 워닝 0개 (변경/생성 파일 대상)
+- [ ] 진단-02: IDE diagnostics 워닝/인포 0개 ({diagnostics.ide_exclude} 제외)
+- [ ] 진단-03: {commands.test} 콘솔 로그에 에러/예외 0개
+- [ ] 진단-04: 실제 앱/서버 구동 시 에러 0개</code>
       <p>적용 대상이 없으면 ID 를 유지한 채 <code>N/A (사유)</code> — <a class="jump" href="#auto-na">아래</a>.</p>
     </div>
   </div>
+
+  <h3 class="sub">조건 번호 앞자리 — 한국어 (2026-09-29 개정)</h3>
+  <p class="section-desc">새 계약은 조건 번호 앞자리를 한국어로 쓴다. 카테고리 앞자리는 <code>project.yaml</code> 의 <code>prefix</code> 에서, 자동 포함 · 금지 패턴 번호는 위 2~4 에서 가져온다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>옛 앞자리</th><th>새 앞자리</th><th>쓰는 곳</th></tr></thead>
+      <tbody>
+        <tr><td><code>SK</code></td><td><code>스킬</code></td><td>카테고리 <code>Skill</code></td></tr>
+        <tr><td><code>SC</code></td><td><code>스크립트</code></td><td>카테고리 <code>Script</code></td></tr>
+        <tr><td><code>ER</code></td><td><code>오류</code></td><td>카테고리 <code>Error</code></td></tr>
+        <tr><td><code>AR</code></td><td><code>구조</code></td><td>카테고리 <code>Architecture</code></td></tr>
+        <tr><td><code>RE</code></td><td><code>재사용</code></td><td>자동 포함 <code>## Reusability</code></td></tr>
+        <tr><td><code>DG</code></td><td><code>진단</code></td><td>자동 포함 <code>## Diagnostics</code></td></tr>
+        <tr><td><code>AP</code></td><td><code>금지</code></td><td><code>## Anti-patterns</code> 번호 · 해당 없음 줄 <code>금지-00</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-desc">옛 계약(영어 번호)은 고치지 않고 그대로 읽힌다 — 조건 세기 · 봉인 · 측정 줄 봉인 정규식 <code>([A-Z]{2,}|[가-힣]+)-[0-9]{2}</code> 가 두 형식을 같은 뜻으로 읽는다. 봉인된 계약을 새 번호로 바꿔 쓰면 봉인이 깨진다.</p>
+  <p class="section-desc">평가자는 옛 계약의 <code>DG-01</code> 을 <code>진단-01</code> 과 같은 조건으로 판정한다. 한 계약 안에서 두 형식을 섞지 않는다.</p>
 
   <h3 class="sub">조건 태그 (Specificity Tag)</h3>
   <p class="section-desc">모든 계약 조건은 끝에 구체성 태그를 붙여야 한다. 미명시 시 <code>[structural]</code> 로 간주한다. 다수 대상(파일/모듈/키워드) 조건은 태그에 <strong>Aggregation Mode</strong> 를 함께 명시한다.</p>
@@ -756,8 +775,8 @@ fi</code>
       <code class="code-block">- [ ] UI-01: 라우터에 /settings 경로가 등록된다 [exact]
 - [ ] UI-02: 설정 화면에 접근성 라벨이 모든 버튼에 존재한다 [structural]
 - [ ] LO-01: 로그인 실패 시 사용자에게 실패 원인이 전달된다 [goal]</code>
-      <code class="code-block">- [ ] RE-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이 각각 파일명으로 명시된다 [exact, enumerated]
-- [ ] RE-02: References 에 docs/react/kit-design/ 경로가 명시된다 [structural, collective]</code>
+      <code class="code-block">- [ ] 스킬-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이 각각 파일명으로 명시된다 [exact, enumerated]
+- [ ] 스킬-02: References 에 docs/react/kit-design/ 경로가 명시된다 [structural, collective]</code>
     </div>
   </div>
   <p class="section-desc">숫자 레벨 태그(L-one/L-two/L-three)는 <strong>QA 평가 깊이 전용</strong> — 계약 태그로 재사용 금지. 상세한 작성법은 <code>harness/docs/guides/contract-design-guide.md</code> §조건 구체성 태그 참조. 태그는 평가 기준을 명확히 하는 수단이며, LLM 판정 신뢰성 연구는 <strong>기준 품질이 곧 평가 품질</strong>이라고 보고한다.</p>
@@ -1061,8 +1080,8 @@ function flush(   i, p, m, pos, miss, np) {
   }
   id = ""; buf = ""
 }
-match($0, /^- \[[ x]\] [A-Z]{2,}-[0-9]{2}/) {
-  flush(); id = substr($0, RSTART + 6, RLENGTH - 6); sub(/^[^A-Z]*/, "", id); buf = $0; next
+match($0, /^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}/) {
+  flush(); id = substr($0, RSTART + 6, RLENGTH - 6); buf = $0; next
 }
 /^## /  { flush(); next }
 /^- \[/ { flush(); next }
@@ -1132,7 +1151,7 @@ done &lt; "$DUPS"
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span>금지 패턴</div>
-      <p>변경 파일에 걸릴 수 있는 패턴이 하나도 없으면(대상이 레포 밖 · 스택 불일치) 억지로 2 개를 채우지 말고 <code>AP-00: N/A (사유)</code> 로 적는다. 매치될 수 없는 패턴의 0 은 공허한 0 이라 PASS 근거가 아니다(<code>qa-evaluator.md</code> 규칙 10 · Anti-pattern 검증 절). 작성 절차는 SKILL.md Step 3.</p>
+      <p>변경 파일에 걸릴 수 있는 패턴이 하나도 없으면(대상이 레포 밖 · 스택 불일치) 억지로 2 개를 채우지 말고 <code>금지-00: N/A (사유)</code> 로 적는다. 매치될 수 없는 패턴의 0 은 공허한 0 이라 PASS 근거가 아니다(<code>qa-evaluator.md</code> 규칙 10 · Anti-pattern 검증 절). 작성 절차는 SKILL.md Step 3.</p>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>[미검증]</code> 과 다르다</div>
@@ -1318,18 +1337,18 @@ line_of() {  # stdin 의 경고 줄 `경로:줄[:열] …` → 줄 번호 한 �
       <p class="section-desc">허용되는 경우와 판정 의미의 정본은 <code>harness/docs/guides/qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol 2 항, 작성 절차는 <code>harness/skills/sprint-contract/SKILL.md</code> Step 4 다.</p>
       <div class="note warn">
         <div class="note-title">N/A 줄도 조건 줄이다</div>
-        <p>조건 수 계산과 계약 봉인에 그대로 들어간다(봉인 정규식이 <code>[A-Z]{2,}-[0-9]{2}</code> 로 N/A 줄도 뽑는다). 단, v5.5 의 <a class="jump" href="#complexity">복잡도별 조건 수</a>는 기능 조건만 세므로 N/A 줄을 뺀다.</p>
+        <p>조건 수 계산과 계약 봉인에 그대로 들어간다(봉인 정규식이 <code>([A-Z]{2,}|[가-힣]+)-[0-9]{2}</code> 로 N/A 줄도 뽑는다). 단, v5.5 의 <a class="jump" href="#complexity">복잡도별 조건 수</a>는 기능 조건만 세므로 N/A 줄을 뺀다.</p>
       </div>
       <div class="note warn">
         <div class="note-title">자동 생성 블록 안 · 밖을 나눠 잰다 <span class="new">v5.7</span></div>
-        <p>편집기 경고 조건(<code>DG-02</code> 등)이 재는 파일에 <code>&lt;!-- AUTO:* --&gt;</code> 블록이 있으면 경고를 블록 안과 블록 밖으로 나눠 센다. 블록 안 줄은 <code>scripts/sync-docs.py</code> 같은 생성기가 쓰므로 손으로 고치면 다음 동기화에서 되돌아가고, 블록 밖 줄만 이 스프린트가 고칠 수 있다. 봉인 전에 두 수를 각각 재 서술 절에 적는다. 실측(2026-09-26, C4a 계약 DG-02): 바뀔 줄 안 README <code>AUTO:evals</code> 블록의 표 경고를 봉인 전에 재지 않아 개정이 필요했다.</p>
+        <p>편집기 경고 조건(<code>진단-02</code> 등)이 재는 파일에 <code>&lt;!-- AUTO:* --&gt;</code> 블록이 있으면 경고를 블록 안과 블록 밖으로 나눠 센다. 블록 안 줄은 <code>scripts/sync-docs.py</code> 같은 생성기가 쓰므로 손으로 고치면 다음 동기화에서 되돌아가고, 블록 밖 줄만 이 스프린트가 고칠 수 있다. 봉인 전에 두 수를 각각 재 서술 절에 적는다. 실측(2026-09-26, C4a 계약 DG-02): 바뀔 줄 안 README <code>AUTO:evals</code> 블록의 표 경고를 봉인 전에 재지 않아 개정이 필요했다.</p>
       </div>
     </div>
     <code class="code-block">## Diagnostics
-- [ ] DG-01: N/A (commands.analyze 대상 scripts/release.sh 가 이번 변경 파일에 없다. 측정: git diff --name-only &lt;기준&gt;...&lt;브랜치&gt; | grep -c '^scripts/release.sh$' 이 0)
-- [ ] DG-02: IDE diagnostics 워닝/인포 0개 ([] 제외)
-- [ ] DG-03: N/A (commands.test 대상도 같은 파일이라 이번 변경 파일에 없다. 측정: DG-01 과 같은 명령)
-- [ ] DG-04: N/A (산출물이 설정 파일 · 문서뿐이라 구동할 앱이 없다. 측정: 변경 파일에 실행 진입점 0 개)</code>
+- [ ] 진단-01: N/A (commands.analyze 대상 scripts/release.sh 가 이번 변경 파일에 없다. 측정: git diff --name-only &lt;기준&gt;...&lt;브랜치&gt; | grep -c '^scripts/release.sh$' 이 0)
+- [ ] 진단-02: IDE diagnostics 워닝/인포 0개 ([] 제외)
+- [ ] 진단-03: N/A (commands.test 대상도 같은 파일이라 이번 변경 파일에 없다. 측정: 진단-01 과 같은 명령)
+- [ ] 진단-04: N/A (산출물이 설정 파일 · 문서뿐이라 구동할 앱이 없다. 측정: 변경 파일에 실행 진입점 0 개)</code>
   </div>
 </div>
 
@@ -1522,7 +1541,7 @@ print("미응답 호출:", len(calls))' "$S"</code>
 <div class="section" id="complexity">
   <div class="section-label">Condition Count</div>
   <div class="section-title">복잡도별 조건 수 — 기능 조건만 센다 (v5.5 개정)</div>
-  <p class="section-desc">기능 조건은 조건 줄에서 자동 포함 여섯 줄(<code>RE-01</code> · <code>RE-02</code> · <code>DG-01</code>~<code>DG-04</code>), <code>## Anti-patterns</code> 절의 줄, <code>N/A (사유)</code> 줄을 뺀 나머지다. 옛 표는 전체 조건 줄을 셌는데, 그러면 이 레포(카테고리 4 개)에서 가장 작은 계약도 카테고리마다 한 줄 · 금지 패턴 한 줄 · 자동 포함 여섯 줄로 11 줄이라 단순 작업의 「4-6 개」를 지킬 수 없었다. 실측(2026-09-19): 한 줄 훅 수정이 무거운 계약 · QA 절차에 묻혔다.</p>
+  <p class="section-desc">기능 조건은 조건 줄에서 자동 포함 여섯 줄(<code>재사용-01</code> · <code>재사용-02</code> · <code>진단-01</code>~<code>진단-04</code>), <code>## Anti-patterns</code> 절의 줄, <code>N/A (사유)</code> 줄을 뺀 나머지다. 옛 표는 전체 조건 줄을 셌는데, 그러면 이 레포(카테고리 4 개)에서 가장 작은 계약도 카테고리마다 한 줄 · 금지 패턴 한 줄 · 자동 포함 여섯 줄로 11 줄이라 단순 작업의 「4-6 개」를 지킬 수 없었다. 실측(2026-09-19): 한 줄 훅 수정이 무거운 계약 · QA 절차에 묻혔다.</p>
   <div class="compare">
     <div class="compare-bad">
       <div class="compare-label">옛 표 (v5.4 까지) — 전체 조건 줄</div>
@@ -1555,7 +1574,7 @@ print("미응답 호출:", len(calls))' "$S"</code>
   </div>
   <p class="section-desc">수는 레포 내부 정책이다. 외부 근거는 조건을 짧게, 한 조건에 한 규칙만 재라고 권할 뿐 개수를 주지 않는다. 세는 명령은 SKILL.md Step 6.2 의 두 번째 명령이다(같은 식).</p>
   <a class="card-source" href="https://github.com/andredesousa/gherkin-best-practices">Gherkin Best Practices</a>
-  <code class="code-block">awk '/^## /{s=$(0)} /^- \[[ x]\] [A-Z]{2,}-[0-9]{2}/{ if (s=="## Anti-patterns") next; if ($(0) ~ /^- \[[ x]\] (RE-0[12]|DG-0[1-4]):/) next; if ($(0) ~ /: N\/A \(/) next; n++ } END{print n+0}' "$CF"</code>
+  <code class="code-block">awk '/^## /{s=$(0)} /^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}/{ if (s=="## Anti-patterns") next; if ($(0) ~ /^- \[[ x]\] (RE-0[12]|DG-0[1-4]|재사용-0[12]|진단-0[1-4]):/) next; if ($(0) ~ /: N\/A \(/) next; n++ } END{print n+0}' "$CF"</code>
 </div>
 
 <!-- ═══ 버전 ═══ -->

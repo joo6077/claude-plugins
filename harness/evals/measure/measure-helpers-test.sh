@@ -122,5 +122,20 @@ check M4-함수빠진규약 "rc=2 names_fn=1" "rc=$rc names_fn=$(grep -c 'verify
 MEASURE_SCHEMA="$work/no-such-schema.md" bash -c '. "$1"' _ "$common" >/dev/null 2>&1; rc=$?
 check M5-규약없음 "rc=2" "rc=$rc"
 
+# 한국어 조건 번호도 규약 함수가 읽는다 (계약 after-0928-korean-condition-ids 스크립트-03).
+# 기대 지문은 파이썬 hashlib 로 조건 줄 7 줄 · 번호와 들여쓴 줄 8 줄을 따로 해시한 값이다.
+# 옛 규약 정규식은 한국어 번호를 못 읽어 두 지문이 빈 입력의 지문 e3b0c44298fc1c14 가 된다
+printf -- '---\nstatus: active\n---\n\n## Skill\n\n- [ ] 스킬-01: a\n  측정: x\n- [ ] 스크립트-02: b\n- [ ] 오류-03: c\n- [ ] 구조-04: d\n- [ ] 재사용-01: e\n- [ ] 진단-01: f\n- [ ] 금지-00: N/A (g)\n' >"$work/korean.md"
+for sh in bash zsh; do
+  # shellcheck disable=SC2016  # 안쪽 셸이 풀 변수다
+  got=$(MEASURE_SCHEMA=$schema_env MC=$common $sh -c '
+    [ -n "$MEASURE_SCHEMA" ] || unset MEASURE_SCHEMA
+    . "$MC" >/dev/null 2>&1 || exit 2
+    printf "%s %s" "$(contract_digest "$1")" "$(measurement_digest "$1")"' _ "$work/korean.md" 2>&1)
+  check "K1-한국어번호지문-$sh" "8b52386c713a6054 c51d48673b5caeee" "$got"
+done
+rx=$(awk '/^contract_digest\(\)/ { getline; print; exit }' "$schema" | sed -E "s/.*grep -E '([^']*)'.*/\1/")
+check K2-한국어번호조건수 "conditions=7" "conditions=$(grep -cE "$rx" "$work/korean.md")"
+
 echo "실패 $fails 건"
 [ "$fails" = 0 ]
