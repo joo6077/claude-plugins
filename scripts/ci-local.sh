@@ -8,12 +8,13 @@
 # 끝 줄: steps=<run 단계 수> run=<돌린 수> skip=<건너뛴 수> unsupported=<못 다룬 수> [failed=<실패 수>]
 #
 # SKIP 은 준비 단계다 — 명령이 pip install · npm ci · playwright install · apt-get install 인 단계. 로컬에는 미리 해 둔다.
-# UNSUPPORTED 는 name · run 밖의 열쇠(if · working-directory · env · shell 등)가 든 단계다. 뜻을 흉내 내지 않고 알린다.
+# UNSUPPORTED 는 name · run 밖의 열쇠(if · working-directory · env · shell 등)가 든 단계와, 작업 전체의 if · env · defaults 나
+# 워크플로 전체의 env · defaults 아래에 있는 단계다. 뜻을 흉내 내지 않고 알린다.
 # 종료 코드는 harness/evals/gate-exit-codes.md — 0 모두 통과 · 1 실패나 못 다룬 단계가 있음 · 2 CI 파일이 없거나 못 읽음
 
 list_only=0
 case ${1:-} in
-  -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  -h|--help) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
   --list) list_only=1; shift ;;
 esac
 repo=${1:-}
@@ -30,11 +31,19 @@ import re, sys
 import yaml
 
 SETUP = re.compile(r"\b(pip install|npm ci|playwright install|apt-get install)\b")
+# 단계 밖에서 단계의 실행을 바꾸는 열쇠 — 이것이 걸린 단계는 레포 뿌리에서 그냥 돌리면 CI 와 다르게 돈다
+WORKFLOW_KEYS = ("env", "defaults")
+JOB_KEYS = ("if", "env", "defaults")
 workflow, work = sys.argv[1], sys.argv[2]
 with open(workflow, encoding="utf-8") as handle:
-    jobs = yaml.safe_load(handle)["jobs"]
+    document = yaml.safe_load(handle)
+jobs = document.get("jobs") if isinstance(document, dict) else None
+if not isinstance(jobs, dict):
+    sys.exit("jobs 가 사전이 아니다")
+workflow_extra = sorted(key for key in WORKFLOW_KEYS if key in document)
 index = 0
 for job, body in jobs.items():
+    job_extra = sorted(key for key in JOB_KEYS if key in body)
     for step in body.get("steps", []):
         if "run" not in step:
             continue
@@ -44,8 +53,15 @@ for job, body in jobs.items():
         with open(command_file, "w", encoding="utf-8") as out:
             out.write(step["run"])
         extra = sorted(set(step) - {"name", "run"})
+        reasons = []
         if extra:
-            kind, reason = "UNSUPPORTED", "다루지 않는 열쇠: " + ", ".join(extra)
+            reasons.append("다루지 않는 열쇠: " + ", ".join(extra))
+        if job_extra:
+            reasons.append("다루지 않는 작업 열쇠: " + ", ".join(job_extra))
+        if workflow_extra:
+            reasons.append("다루지 않는 워크플로 열쇠: " + ", ".join(workflow_extra))
+        if reasons:
+            kind, reason = "UNSUPPORTED", " · ".join(reasons)
         elif SETUP.search(step["run"]):
             kind, reason = "SKIP", "준비 단계 — 로컬에는 미리 해 둔다"
         else:

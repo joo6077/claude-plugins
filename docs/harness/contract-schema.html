@@ -1251,6 +1251,9 @@ done &lt; "$DUPS"
       <li><span class="check">✓</span><strong>커밋 메시지 끝 줄을 <code>git log --format=%B | tail</code> 로 재지 않는다.</strong> <code>%B</code> 출력 끝에 빈 줄이 붙어 <code>tail -2</code> 가 서명 줄 하나와 빈 줄을 잡는다 — cx3 <code>AR-02</code> 에서 여덟 커밋이 모두 헛 FAIL 했다. 서명 줄은 <code>git log -1 --format='%(trailers:key=Co-Authored-By,valueonly)'</code> 로 뽑는다. 모델 이름은 바뀌므로 한 벌과 글자로 맞대지 말고 <code>Claude … &lt;noreply@anthropic.com&gt;</code> 모양으로 잰다</li>
       <li><span class="check">✓</span><strong>기대 출력 글자는 봉인 전 실제 실행 출력에서 옮긴다.</strong> 손으로 적으면 빈칸 수가 달라진다 — dr1a <code>SC-01</code> 은 출력이 빈칸 둘인데 계약은 한 칸이라 헛 FAIL 했다</li>
       <li><span class="check">✓</span><strong>정렬은 <code>LC_ALL=C sort</code> 로 한다.</strong> 로캘 없는 <code>sort -u</code> 는 이 맥과 CI 에서 차례가 갈린다 — k4 <code>DG-02</code> 가 이 규칙과 다르게 정렬했다. 겹친 줄을 지울 때도 <code>LC_ALL=C sort -u</code> 로 쓴다</li>
+      <li><span class="check">✓</span><strong>원문 대조 계약은 항목마다 「레포 전체에서 같은 주장」 줄을 둔다.</strong> 한 파일에서 찾은 틀린 주장은 다른 파일에도 옮겨져 있기 쉽다. 같은 주장을 <code>git grep</code> 으로 레포 전체에서 찾아, 고칠 자리 · 기록이라 두는 자리 · 시험 입력이라 두는 자리를 나눠 적는다 — ex2 에서 <code>.p8</code> 권장 전제가 원본 md 한 곳과 페이지 두 곳에 있었다</li>
+      <li><span class="check">✓</span><strong>설치본이 있어야 도는 검사는 설치본을 지운 사본으로도 잰다.</strong> 이 맥에는 슬라이서가 깔려 있어 슬라이서 설치본을 읽는 검사가 돌지만 CI 에는 설치본이 없다. 설치본 경로를 지운 사본으로 한 번 더 돌려 불일치 0 과 건너뛴 수를 같이 잰다 — k1 의 bambu 완료 검사 시험</li>
+      <li><span class="check">✓</span><strong>경로 목록을 따옴표 없는 변수로 넘기지 않는다.</strong> zsh 는 따옴표 없는 변수를 빈칸에서 쪼개지 않아 목록 전체가 경로 하나로 넘어간다. 경로를 낱낱이 적거나, <code>xargs</code> 로 넘기거나, 배열에 담아 <code>"${paths[@]}"</code> 로 넘긴다 — lt 기록 · §셸 이식성 규약</li>
     </ul>
     <code class="code-block"># 두 판 풀기 · 경고 줄 번호 — zsh · bash 동일
 with_two() {  # with_two &lt;저장소&gt; &lt;판1&gt; &lt;판2&gt; &lt;명령&gt; [인자...] — 명령 뒤에 두 폴더를 붙여 부르고 그 종료 코드를 돌려준다

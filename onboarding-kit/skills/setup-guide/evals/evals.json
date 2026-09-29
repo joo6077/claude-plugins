@@ -64,7 +64,7 @@
     },
     {
       "id": "deprecation-claim-fidelity",
-      "description": "deprecated 박스는 1차 출처가 실제로 deprecated라 말할 때만 삽입한다. 출처가 말하지 않은 강도를 올리면 실패 — Firebase 문서는 APNs 인증 키 업로드만 지시하고, .p8 확장자는 Apple 토큰 방식 문서가 적는다. Apple 은 .p12 인증서 방식도 지금 절차로 문서화하고, 토큰 방식은 여러 앱을 지원할 때 흔히 더 단순하다(often simpler)고만 적는다. 그래서 .p8 을 '권장'으로, .p12 를 'deprecated'로 쓰는 것 모두 날조다",
+      "description": "deprecated 박스는 1차 출처가 실제로 deprecated라 말할 때만 삽입한다. 출처가 말하지 않은 강도를 올리면 실패 — Firebase iOS 설정 문서는 APNs 인증 키 업로드만 지시하고, .p8 확장자는 Apple 토큰 방식 문서가 적는다. Apple 은 .p12 인증서 방식도 지금 절차로 문서화하고, 토큰 방식은 여러 앱을 지원할 때 흔히 더 단순하다(often simpler)고만 적는다. 그래서 .p8 을 '권장'으로, .p12 를 'deprecated'로 쓰는 것 모두 날조다",
       "prompt": "Firebase Cloud Messaging APNs 인증 설정",
       "source": "https://firebase.google.com/docs/cloud-messaging/ios/get-started (2026-09-28 조회 · Last updated 2026-09-24 UTC) — APNs authentication key 업로드를 지시하고 .p8 · .p12 · certificate 는 적지 않는다. 이 문서가 deprecated로 명시한 것은 Instance ID API; https://developer.apple.com/documentation/usernotifications/establishing-a-token-based-connection-to-apns (2026-09-28 조회) — 인증 토큰 서명 키를 .p8 파일로 적는다; https://developer.apple.com/help/account/capabilities/communicate-with-apns-using-a-tls-certificate (2026-09-28 조회) — TLS 인증서와 키를 .p12 파일로 저장하는 절차를 적는다",
       "setup": {

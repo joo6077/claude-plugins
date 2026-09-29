@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # scripts/ci-local.sh 를 손으로 답을 아는 작은 CI 파일 넷과 CI 파일 없는 폴더에 돌려 출력 전체와 종료 코드를 맞댄다.
-# 계약 after-0928-harness-checks 의 SC-11 · SC-12 · ER-02 를 따른다. CI_LOCAL 로 대상 스크립트를 바꿀 수 있다.
+# 계약 after-0928-harness-checks 의 SC-11 · SC-12 · ER-02 와 after-0929-final-sweep-rules 의 스크립트-05 를 따른다.
+# CI_LOCAL 로 대상 스크립트를 바꿀 수 있다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 target=${CI_LOCAL:-$here/ci-local.sh}
@@ -79,6 +80,57 @@ YAML
 out=$(bash "$target" --list "$work/wd" 2>&1); rc=$?
 check 못다루는열쇠 "$(printf '%s\n' "RUN a Plain" "UNSUPPORTED a Moved (다루지 않는 열쇠: working-directory)" \
   "steps=2 run=1 skip=0 unsupported=1" "rc=1")" "$out
+rc=$rc"
+
+# 작업 전체에 걸린 if · env · defaults — 레포 뿌리에서 그냥 돌리면 CI 와 다르게 도니 돌리지 않고 알린다
+workflow jobkeys <<'YAML'
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sub
+    env:
+      MUST: "yes"
+    steps:
+      - name: Where
+        run: test "$MUST" = yes
+  b:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - name: Never
+        run: exit 3
+  c:
+    runs-on: ubuntu-latest
+    needs: a
+    steps:
+      - name: Plain
+        run: echo ok
+YAML
+out=$(bash "$target" "$work/jobkeys" 2>&1); rc=$?
+check 작업열쇠 "$(printf '%s\n' "UNSUPPORTED a Where (다루지 않는 작업 열쇠: defaults, env)" \
+  "UNSUPPORTED b Never (다루지 않는 작업 열쇠: if)" "PASS c Plain rc=0" \
+  "steps=3 run=1 skip=0 unsupported=2 failed=0" "rc=1")" "$out
+rc=$rc"
+
+# 워크플로 전체에 걸린 env · defaults — 모든 단계에 걸리므로 모든 단계를 알린다
+workflow wfkeys <<'YAML'
+env:
+  MUST: "yes"
+defaults:
+  run:
+    working-directory: sub
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+      - name: One
+        run: test "$MUST" = yes
+YAML
+out=$(bash "$target" --list "$work/wfkeys" 2>&1); rc=$?
+check 워크플로열쇠 "$(printf '%s\n' "UNSUPPORTED a One (다루지 않는 워크플로 열쇠: defaults, env)" \
+  "steps=1 run=0 skip=0 unsupported=1" "rc=1")" "$out
 rc=$rc"
 
 # CI 파일이 없는 폴더 — 단계 0 으로 통과시키면 안 된다
