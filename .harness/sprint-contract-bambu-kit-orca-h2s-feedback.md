@@ -4,7 +4,7 @@ slug: bambu-kit-orca-h2s-feedback
 created: "2026-09-19 09:40"
 complexity: "복잡"
 conditions: 31
-status: active
+status: done
 owner_session: bcf7a121-42d2-47cf-a372-a4e8cb48fbe5
 conditions_digest: sha256:3888c2d2c799092a
 locked_at: "2026-09-19 10:16"
