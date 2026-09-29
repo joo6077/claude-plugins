@@ -15,6 +15,8 @@ body{line-height:1.7}
      모든 :hover 의 transform 을 덮으면 가리킨 요소의 조상까지 가만히 있을 때의 transform 을 잃는다.
      가만히 있을 때도 transform 이 있는 요소는 그 값을 --dk-rest-transform 에 적어 둔다 */
   *,*::before,*::after{--dk-hover-move:var(--dk-rest-transform,none)}
+  /* 0.01ms 전환도 한 번은 그려야 끝난다 — 테마 단추를 누른 직후 본문 배경이 옛 색으로 읽히지 않게 전환을 없앤다 */
+  html,body{transition-duration:0s !important}
 }
 
 /* 밝은 테마 — 어두운 색만 가진 쪽에 붙인 테마 단추(.dk-theme-btn)가 있는 쪽에만 건다.
