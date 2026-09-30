@@ -137,5 +137,15 @@ done
 rx=$(awk '/^contract_digest\(\)/ { getline; print; exit }' "$schema" | sed -E "s/.*grep -E '([^']*)'.*/\1/")
 check K2-한국어번호조건수 "conditions=7" "conditions=$(grep -cE "$rx" "$work/korean.md")"
 
+# 우분투 CI 의 GNU grep 은 C.UTF-8 에서 한글 범위식을 오류로 거부한다. 맥 grep 은 받아 주므로 식에 ASCII 밖 글자가 없는지도 본다
+# shellcheck disable=SC2016  # 안쪽 셸이 풀 변수다
+got=$(LC_ALL=C.UTF-8 MEASURE_SCHEMA=$schema_env MC=$common bash -c '
+  [ -n "$MEASURE_SCHEMA" ] || unset MEASURE_SCHEMA
+  . "$MC" >/dev/null 2>&1 || exit 2
+  printf "%s %s" "$(contract_digest "$1")" "$(measurement_digest "$1")"' _ "$work/korean.md" 2>&1)
+n=$(LC_ALL=C.UTF-8 grep -cE "$rx" "$work/korean.md" 2>&1)
+wide=$({ awk '/^contract_digest\(\)/ { getline; print; exit }' "$schema"; awk '/^measurement_digest\(\)/ { f = 1 } f && /match\(/ { print; exit }' "$schema"; } | LC_ALL=C grep -c '[^ -~]')
+check K3-C.UTF-8한국어번호 "8b52386c713a6054 c51d48673b5caeee conditions=7 non_ascii_lines=0" "$got conditions=$n non_ascii_lines=$wide"
+
 echo "실패 $fails 건"
 [ "$fails" = 0 ]

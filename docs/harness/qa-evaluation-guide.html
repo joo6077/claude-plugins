@@ -820,7 +820,7 @@ grep -n '^## ' "$CONTRACT"
 awk '/^## /{s=$0} /^- \[ \]/{print FNR": "s}' "$CONTRACT"
 
 # (3) 조건 수 대조 — 두 값이 달라야 할 이유는 없다
-grep -cE '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CONTRACT"
+grep -cE '^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' "$CONTRACT"
 grep -E '^conditions:' "$CONTRACT"</code>
       <div class="note">
         <div class="note-title"><code>$CONTRACT</code> 와 <code>CONTRACT_ROOT</code></div>
