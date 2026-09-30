@@ -18,7 +18,7 @@ sync-evals.py — 각 플러그인 evals/evals.json 과 skills/ 디렉토리 동
 Exit codes:
     0 — no drift (check-only) 또는 동기화 완료
     1 — drift detected (check-only 모드만)
-    2 — 구조적 에러 (evals.json 파싱 실패 포함)
+    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 포함)
 """
 
 import argparse
@@ -53,6 +53,10 @@ def load_evals(kit: str) -> dict | None:
         return None
     try:
         return json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        # 권한 등으로 못 읽은 파일을 없는 파일처럼 넘기면 --check-only 가 통과한다
+        print(f"UNREADABLE {path} ({exc.strerror})", file=sys.stderr)
+        sys.exit(2)
     except json.JSONDecodeError as exc:
         # 없는 파일처럼 SKIP 하면 깨진 평가 파일이 --check-only 를 통과한다
         print(f"ERROR: {path} parse error: {exc}", file=sys.stderr)

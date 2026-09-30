@@ -19,7 +19,7 @@ run-evals.py — evals.json 기반 플러그인 assertion 검증 러너
 Exit codes:
     0 — 전체 PASS
     1 — FAIL 있음
-    2 — 구조적 에러 (evals.json 파싱 실패 · eval 항목 0 개)
+    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 · eval 항목 0 개, 이름으로 준 킷이 없는 킷이거나 평가 파일이 없음)
 """
 
 import argparse
@@ -67,6 +67,10 @@ def load_evals(kit: str) -> dict | None:
         return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         return None
+    except OSError as exc:
+        # 권한 등으로 못 읽은 파일을 통과로 치지 않는다 — 파싱 실패와 같은 구조 오류다
+        print(f"UNREADABLE {path} ({exc.strerror})", file=sys.stderr)
+        sys.exit(2)
     except json.JSONDecodeError as exc:
         print(f"  ERROR: {path} parse error: {exc}", file=sys.stderr)
         print(f"  FATAL: evals.json structural error — exit 2", file=sys.stderr)
@@ -177,6 +181,12 @@ def main() -> int:
     parser.add_argument("--verbose", "-v", action="store_true", help="상세 출력")
     args = parser.parse_args()
 
+    if args.plugin and args.plugin not in SKIP_KITS \
+            and not (REPO_ROOT / args.plugin / "evals" / "evals.json").is_file():
+        # 이름으로 준 킷은 꼭 재라는 뜻이다. 없는 킷 · 평가 파일 없는 킷을 SKIP 하고 0 을 내면 오타가 통과한다
+        reason = "킷 폴더 없음" if not (REPO_ROOT / args.plugin).is_dir() else "evals/evals.json 없음"
+        print(f"ERROR: 이름으로 준 킷 {args.plugin} — {reason}", file=sys.stderr)
+        return 2
     kits = [args.plugin] if args.plugin else eval_kits()
     grand_pass = 0
     grand_fail = 0
@@ -184,10 +194,6 @@ def main() -> int:
     for kit in kits:
         if kit in SKIP_KITS:
             print(f"SKIP {kit} ({SKIP_KITS[kit]})")
-            continue
-        kit_path = REPO_ROOT / kit
-        if not kit_path.exists():
-            print(f"SKIP: {kit} (디렉토리 없음)")
             continue
 
         print(f"→ {kit}")

@@ -35,7 +35,7 @@ jobs:
         run: python3 scripts/sync-evals.py --check-only
 
       # 깨진 evals.json 을 없는 파일처럼 넘겨 위 단계가 통과하던 결함(2026-09-29 Codex 점검)을 다시 들이지 않게 한다
-      - name: Sync evals broken file test (깨진 evals.json 은 2)
+      - name: Sync evals broken file test (깨진 · 못 읽는 evals.json 은 2)
         run: python3 scripts/test-sync-evals.py
 
       # marketplace.json 의 description 은 README 표와 kaizen-orchestrator AUTO 블록으로 흘러간다.
@@ -51,7 +51,7 @@ jobs:
         run: python3 scripts/run-evals.py --verbose
 
       # eval 항목 0 개를 경고만 하고 통과시키던 결함(2026-09-29 Codex 점검)
-      - name: Run evals empty list test (빈 목록 · 목록 열쇠 없음은 2)
+      - name: Run evals empty list test (빈 목록 · 목록 열쇠 없음 · 없는 킷 이름 · 못 읽는 파일은 2)
         run: python3 scripts/test-run-evals.py
 
       # 카이젠 회귀 패턴(harness/evals/kaizen/*/assertions.json)은 evals.json 규칙 밖이라 위 단계가 읽지 않는다.
@@ -208,7 +208,7 @@ jobs:
       # 문서 쪽 Mermaid 예시는 글로만 실려 있어 그려지는지 아무도 안 봤다(2026-09-29). 못박은 Mermaid 로 예시마다 그려 본다
       - name: Docs Mermaid render check (예시가 그림으로 그려지는가)
         run: node scripts/check-docs-mermaid.js
-      - name: Docs Mermaid render check test (여덟 경우)
+      - name: Docs Mermaid render check test (아홉 경우)
         run: node scripts/test-check-docs-mermaid.js
       # 잴 HTML 이 0 개인데 0/0 PASS 로 끝나던 결함(2026-09-29 Codex 점검)
       - name: Docs accessibility no-page test (HTML 0 개는 2)
