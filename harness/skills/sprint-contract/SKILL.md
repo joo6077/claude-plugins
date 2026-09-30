@@ -367,7 +367,10 @@ superseded_by: <새 슬러그>
   ```
 
   `MISSING_BY` · `MISSING_TARGET` · `CHAIN` 이 나오면 가리킴을 고친다 — 규칙 정의는
-  `harness/references/contract-schema.md` §v5 신규 필드 의 `superseded_by` 행이다
+  `harness/references/contract-schema.md` §v5 신규 필드 의 `superseded_by` 행이다.
+  읽기 권한 등으로 계약을 못 읽으면 `UNREADABLE <계약>`, 가리킨 새 판을 못 읽으면 `UNREADABLE <계약> -> <새 판>` 이
+  나온다. 못 읽은 것은 통과로 치지 않는다 — 끝 줄 `checked=` · `violations=` · `unreadable=` 을 보고, `UNREADABLE` 이
+  있어 종료 코드 2 가 나오면 권한을 고친 뒤 다시 돌려 종료 코드 0 을 확인한다
 
 **결과: 같은 슬러그를 두 세션이 동시에 생성해도 어느 쪽도 상대의 계약 파일을 덮어쓰지 않는다.**
 선점에 실패한 세션은 BLOCKED 되거나 다른 접미의 새 경로로 이동할 뿐, 기존 파일을 건드리지 않는다.
