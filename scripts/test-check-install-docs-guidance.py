@@ -4,6 +4,7 @@
 임시 git 저장소에 킷 하나와 레포 뿌리 docs/ 칸 하나, 도구 사본을 두고 돌린다.
   1. 뿌리 docs/ 를 가리키는 킷 파일을 읽기 권한 없이 두면 → 종료 코드 2, 출력에 그 경로
   2. 같은 파일에 안내 줄이 있고 읽히면 → 종료 코드 0
+  3. 추적 중인데 작업 폴더에서 지운 킷 파일은 → 종료 코드 0, 출력에 `SKIP <그 경로>` (커밋 전 삭제는 실패가 아니다)
 
 사용법:
     python3 scripts/test-check-install-docs-guidance.py [--tool <도구 사본 경로>]
@@ -79,6 +80,15 @@ def main() -> int:
         make_repo(Path(tmp) / "good", args.tool, GUIDED)
         rc, _ = run_tool(Path(tmp) / "good")
         results.append(("2 읽히고 안내가 붙은 파일은 종료 코드 0", rc == 0, rc))
+        deleted_root = Path(tmp) / "deleted"
+        make_repo(deleted_root, args.tool, GUIDED)
+        # 안내 없는 글이라 읽으면 NEED 로 1 이 된다 — 0 이면 지운 파일을 읽지 않고 넘긴 것이다
+        (deleted_root / "k/gone.md").write_text("참고: docs/foo/x.md\n", encoding="utf-8")
+        git(deleted_root, "add", "k/gone.md")
+        git(deleted_root, "commit", "-qm", "gone")
+        (deleted_root / "k/gone.md").unlink()
+        rc, output = run_tool(deleted_root)
+        results.append(("3 추적 중 지운 파일은 SKIP 하고 종료 코드 0", rc == 0 and "SKIP k/gone.md" in output, rc))
     for label, ok, rc in results:
         print(f"{'PASS' if ok else 'FAIL'} 경우 {label} (rc={rc})")
     passed = sum(ok for _, ok, _ in results)
