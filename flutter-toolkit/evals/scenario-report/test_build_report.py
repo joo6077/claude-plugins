@@ -40,17 +40,17 @@ VALID = {
     "background": ["Bob2 가 방장이다"],
     "scenarios": [
         {"name": "그룹 고르는 창에서 취소한다",
-         "steps": [{"kw": "만일", "text": "방장 넘기기를 누른다"},
-                   {"kw": "그리고", "text": "취소를 누른다"},
-                   {"kw": "그러면", "text": "방장은 그대로다", "result": "pass", "seen": "데이터베이스 방장 Bob2"}],
+         "steps": [{"kw": "만일", "text": "방장 넘기기를 누른다", "do": ["⋯ 버튼 탭", "방장 넘기기 탭"]},
+                   {"kw": "그리고", "text": "취소를 누른다", "do": ["취소 탭"]},
+                   {"kw": "그러면", "text": "방장은 그대로다", "result": "pass", "seen": "프로필 방장 표시 Bob2"}],
          "shots": [{"file": "01-picker.png", "caption": "그룹 고르는 창"}]},
         {"name": "확인 창에서 취소한다",
-         "steps": [{"kw": "만일", "text": "확인 창을 연다"},
+         "steps": [{"kw": "만일", "text": "확인 창을 연다", "do": ["PGA 브라보 탭"]},
                    {"kw": "그러면", "text": "제목이 다 보인다", "result": "fail", "seen": "제목 둘째 줄이 가려졌다",
                     "zoom": {"file": "02-title.png", "caption": "잘린 제목"}}],
          "shots": [{"file": "02-confirm.png", "caption": "확인 창"}]},
         {"name": "다시 연다",
-         "steps": [{"kw": "만일", "text": "다시 연다"}, {"kw": "그러면", "text": "창이 뜬다"}],
+         "steps": [{"kw": "만일", "text": "다시 연다", "do": ["방장 넘기기 탭"]}, {"kw": "그러면", "text": "창이 뜬다"}],
          "skipped": "앞 시나리오 결함을 먼저 고친다."},
     ],
     "run": [["MCP 서버", "app-mobile"]],
@@ -102,19 +102,25 @@ class BuildReportTest(unittest.TestCase):
         self.assertIn("templates/report.html", stderr)
         self.assertFalse((self.root / "index.html").exists())
 
+    def case_page(self, folder="TC-001-transfer"):
+        return (self.root / folder / "index.html").read_text(encoding="utf-8")
+
+    def html_pages(self):
+        return {path.relative_to(self.root): path.read_bytes() for path in sorted(self.root.rglob("index.html"))}
+
     def test_builds_report(self):
         self.make_case(VALID)
         code, stdout, stderr = self.run_script()
         self.assertEqual(code, 0, stderr)
         self.assertIn("보고서:", stdout)
-        page = (self.root / "index.html").read_text(encoding="utf-8")
-        self.assertIn('src="TC-001-transfer/01-picker.png" width="3" height="7"', page)
+        page = self.case_page()
+        self.assertIn('src="01-picker.png" width="3" height="7"', page)
         self.assertNotIn("data:image", page)
 
     def test_status_is_computed_from_steps(self):
         self.make_case(VALID)
         self.run_script()
-        page = (self.root / "index.html").read_text(encoding="utf-8")
+        page = self.case_page()
         states = re.findall(r'<section class="scn (\w+)"', page)
         self.assertEqual(states, ["pass", "fail", "skip"])
         self.assertIn('<span class="pill fail">❌ 실패</span>', page)
@@ -128,7 +134,27 @@ class BuildReportTest(unittest.TestCase):
         self.make_case(VALID)
         self.run_script()
         page = (self.root / "index.html").read_text(encoding="utf-8")
-        self.assertEqual(re.findall(r'<article class="case" id="([^"]+)"', page), ["TC-001", "TC-000"])
+        self.assertEqual(re.findall(r'<a href="(TC-[^"]+)/index.html"', page), ["TC-001-transfer", "TC-000-ok"])
+        self.assertIn('<span class="pill fail">❌ 실패</span><span class="id">TC-001</span>', page)
+        self.assertIn(f'<span class="t">{VALID["title"]}</span>', page)
+
+    def test_case_pages_and_list(self):
+        passing = copy.deepcopy(VALID)
+        passing["id"] = "TC-000"
+        passing["scenarios"] = passing["scenarios"][:1]
+        self.make_case(passing, folder="TC-000-ok")
+        self.make_case(VALID)
+        code, _, stderr = self.run_script()
+        self.assertEqual(code, 0, stderr)
+        for folder, case_id in (("TC-000-ok", "TC-000"), ("TC-001-transfer", "TC-001")):
+            page = self.case_page(folder)
+            self.assertEqual(re.findall(r'<article class="case" id="([^"]+)"', page), [case_id])
+            self.assertIn('src="01-picker.png"', page)
+            self.assertNotIn(f'src="{folder}/', page)
+        root = (self.root / "index.html").read_text(encoding="utf-8")
+        self.assertEqual(root.count('<section class="scn'), 0)
+        self.assertEqual(root.count('href="TC-000-ok/index.html"'), 1)
+        self.assertEqual(root.count('href="TC-001-transfer/index.html"'), 1)
 
     def test_error_invalid_json(self):
         self.assert_rejected('{"id": "TC-001",', "JSON 문법 오류")
@@ -204,10 +230,10 @@ class BuildReportTest(unittest.TestCase):
     def test_rerun_is_identical(self):
         self.make_case(VALID)
         self.run_script()
-        first = (self.root / "index.html").read_bytes()
+        first = self.html_pages()
         files = sorted(self.root.rglob("*"))
         self.run_script()
-        self.assertEqual(first, (self.root / "index.html").read_bytes())
+        self.assertEqual(first, self.html_pages())
         self.assertEqual(files, sorted(self.root.rglob("*")))
 
     def test_error_template_missing(self):
@@ -221,10 +247,85 @@ class BuildReportTest(unittest.TestCase):
 
     def test_example_report_is_current(self):
         shutil.copytree(EXAMPLE, self.root, dirs_exist_ok=True)
-        (self.root / "index.html").unlink()
+        committed = self.html_pages()
+        for page in self.root.rglob("index.html"):
+            page.unlink()
         code, _, stderr = self.run_script()
         self.assertEqual(code, 0, stderr)
-        self.assertEqual((self.root / "index.html").read_bytes(), (EXAMPLE / "index.html").read_bytes())
+        folders = [path for path in EXAMPLE.iterdir() if (path / "record.json").is_file()]
+        self.assertEqual(len(committed), len(folders) + 1)
+        self.assertEqual(committed, self.html_pages())
+
+    def test_error_action_step_without_do(self):
+        record = copy.deepcopy(VALID)
+        del record["scenarios"][0]["steps"][0]["do"]
+        self.assert_rejected(record, "TC-001-transfer/record.json 시나리오 1 단계 1.do", "조작 순서")
+
+    def test_error_do_not_list(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][1]["do"] = "취소 탭"
+        self.assert_rejected(record, "시나리오 1 단계 2.do")
+
+    def test_error_do_empty(self):
+        for actions in ([], ["취소 탭", " "]):
+            with self.subTest(actions=actions):
+                record = copy.deepcopy(VALID)
+                record["scenarios"][0]["steps"][1]["do"] = actions
+                self.assert_rejected(record, "시나리오 1 단계 2.do", "비어 있지 않은 조작 문장")
+
+    def test_error_do_on_checked_step(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][2]["do"] = ["방장 표시 확인"]
+        self.assert_rejected(record, "시나리오 1 단계 3.do", "판정한 단계")
+
+    def test_do_optional_on_setup(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"].insert(0, {"kw": "조건", "text": "Bob2 가 방장이다"})
+        record["scenarios"][1]["steps"].insert(0, {"kw": "먼저", "text": "프로필을 연다", "do": ["프로필 탭"]})
+        record["scenarios"][1]["steps"].append({"kw": "그리고", "text": "목록이 보인다"})
+        self.make_case(record)
+        code, _, stderr = self.run_script("--check")
+        self.assertEqual(code, 0, stderr)
+
+    def test_do_rendered_as_list(self):
+        self.make_case(VALID)
+        self.run_script()
+        page = self.case_page()
+        self.assertIn('<span class="tx">방장 넘기기를 누른다</span><span class="mk"></span>'
+                      '<ol class="do"><li>⋯ 버튼 탭</li><li>방장 넘기기 탭</li></ol>', page)
+
+    def test_fix_rendered_in_case_header(self):
+        record = copy.deepcopy(VALID)
+        record["fix"] = {"note": "확인 창 제목을 두 줄로 늘렸다", "commit": "9ab12cd"}
+        self.make_case(record)
+        self.run_script()
+        page = self.case_page()
+        self.assertIn('<p class="fix">고친 뒤 다시 돌린 결과 — 확인 창 제목을 두 줄로 늘렸다 · 커밋 9ab12cd</p>', page)
+        self.assertLess(page.index('class="fix"'), page.index('class="case-body"'))
+
+    def test_error_fix_without_note(self):
+        record = copy.deepcopy(VALID)
+        record["fix"] = {"commit": "9ab12cd"}
+        self.assert_rejected(record, "fix.note", "빠졌다")
+
+    def test_error_fix_unknown_key(self):
+        record = copy.deepcopy(VALID)
+        record["fix"] = {"note": "고쳤다", "reason": "제목"}
+        self.assert_rejected(record, "fix.reason", "모르는 키다")
+
+    def test_error_writes_no_page(self):
+        good = copy.deepcopy(VALID)
+        good["id"] = "TC-000"
+        self.make_case(good, folder="TC-000-ok")
+        bad = copy.deepcopy(VALID)
+        del bad["summary"]
+        self.make_case(bad)
+        for page in (self.root / "index.html", self.root / "TC-000-ok" / "index.html", self.root / "TC-001-transfer" / "index.html"):
+            page.write_text("옛 페이지", encoding="utf-8")
+        before = self.html_pages()
+        code, _, stderr = self.run_script()
+        self.assertEqual(code, 1, stderr)
+        self.assertEqual(before, self.html_pages())
 
     def test_format_doc_example_passes(self):
         doc = FORMAT_DOC.read_text(encoding="utf-8")
@@ -241,7 +342,8 @@ class BuildReportTest(unittest.TestCase):
         spec.loader.exec_module(module)
         doc = FORMAT_DOC.read_text(encoding="utf-8")
         keys = set()
-        for fields in (module.CASE_FIELDS, module.META_FIELDS, module.SCENARIO_FIELDS, module.STEP_FIELDS, module.IMAGE_FIELDS):
+        for fields in (module.CASE_FIELDS, module.META_FIELDS, module.FIX_FIELDS, module.SCENARIO_FIELDS, module.STEP_FIELDS,
+                       module.IMAGE_FIELDS):
             keys |= fields.keys()
         self.assertEqual(sorted(key for key in keys if f"`{key}`" not in doc), [])
 
