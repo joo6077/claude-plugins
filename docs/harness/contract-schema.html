@@ -463,7 +463,7 @@ locked_at: "{YYYY-MM-DD HH:mm}"     # v5.3 — 봉인 시각</code>
           <tbody>
             <tr><td><code>slug</code></td><td>슬러그 규칙을 만족하는 문자열</td><td>파일명 접미와 <strong>동일</strong>해야 한다. plain 모드면 필드 자체를 생략</td></tr>
             <tr><td><code>status</code></td><td><code>active</code> | <code>done</code> | <code>superseded</code></td><td>작성 시 <code>active</code>. <code>done</code> 전환 주체·시점은 <a class="jump" href="#status">아래</a> 참조. <code>superseded</code> 는 같은 일을 새 판 계약으로 다시 쓸 때 옛 판에 붙인다</td></tr>
-            <tr><td><code>superseded_by</code></td><td>새 판 계약의 슬러그</td><td><code>status: superseded</code> 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(<code>sprint-contract-&lt;슬러그&gt;.md</code>)이 있어야 하고 그 계약이 다시 <code>superseded</code> 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다. 기계 확인은 <code>bash harness/scripts/check-superseded.sh &lt;.harness 폴더&gt;</code> (CI 가 레포 <code>.harness</code> 에 돈다)</td></tr>
+            <tr><td><code>superseded_by</code></td><td>새 판 계약의 슬러그</td><td><code>status: superseded</code> 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(<code>sprint-contract-&lt;슬러그&gt;.md</code>)이 있어야 하고 그 계약이 다시 <code>superseded</code> 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다. 기계 확인은 <code>bash harness/scripts/check-superseded.sh &lt;.harness 폴더&gt;</code> (CI 가 레포 <code>.harness</code> 에 돈다). 못 읽는 계약 · 새 판은 <code>UNREADABLE</code> 줄로 적고 통과로 치지 않는다 — 그때 종료 코드 2</td></tr>
             <tr><td><code>owner_session</code></td><td><code>$CLAUDE_CODE_SESSION_ID</code> 값</td><td>환경변수가 비어 있으면 <strong>필드를 쓰지 마라.</strong> 빈 문자열·<code>unknown</code> 같은 placeholder 금지</td></tr>
           </tbody>
         </table>

@@ -265,7 +265,7 @@ fm_get() { # fm_get <file> <key>
 | ------ | ------ | ------ |
 | `slug` | 슬러그 규칙을 만족하는 문자열 | 파일명 접미와 **동일**해야 한다. plain 모드면 필드 자체를 생략 |
 | `status` | `active` \| `done` \| `superseded` | 작성 시 `active`. `done` 전환 주체·시점은 §`status: done` 전환 주체 참조. `superseded` 는 같은 일을 새 판 계약으로 다시 쓸 때 옛 판에 붙인다 |
-| `superseded_by` | 새 판 계약의 슬러그 | `status: superseded` 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(`sprint-contract-<슬러그>.md`)이 있어야 하고 그 계약이 다시 `superseded` 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다. 기계 확인은 `bash harness/scripts/check-superseded.sh <.harness 폴더>` (CI 가 레포 `.harness` 에 돈다) |
+| `superseded_by` | 새 판 계약의 슬러그 | `status: superseded` 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(`sprint-contract-<슬러그>.md`)이 있어야 하고 그 계약이 다시 `superseded` 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다. 기계 확인은 `bash harness/scripts/check-superseded.sh <.harness 폴더>` (CI 가 레포 `.harness` 에 돈다). 못 읽는 계약 · 새 판은 `UNREADABLE` 줄로 적고 통과로 치지 않는다 — 그때 종료 코드 2 |
 | `owner_session` | `$CLAUDE_CODE_SESSION_ID` 값 | 환경변수가 비어 있으면 **필드를 쓰지 마라.** 빈 문자열·`unknown` 같은 placeholder 금지 |
 
 ### 계약 봉인 — `conditions_digest` / `locked_at` (v5.3 신규 · E3)
