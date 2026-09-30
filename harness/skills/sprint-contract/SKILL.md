@@ -310,7 +310,7 @@ REC=$(read_fm conditions_digest "$CF"); REC=${REC#sha256:}
 if [ -z "$REC" ]; then
   echo "SEAL_ABSENT $CF (레거시 — 경고이지 실패가 아니다. 소급 봉인 금지)"
 else
-  ACT=$(grep -E '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
+  ACT=$(grep -E '^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
   [ "$REC" = "$ACT" ] && echo "SEAL_OK $CF" \
     || echo "SEAL_BROKEN $CF recorded=$REC actual=$ACT"
 fi
@@ -700,7 +700,7 @@ locked_at: "{YYYY-MM-DD HH:mm}"
 frontmatter 에 그대로 전사한다.
 
 ```bash
-grep -cE '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CF"
+grep -cE '^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' "$CF"
 ```
 
 사람이 세면 Anti-patterns · Reusability · Diagnostics 를 빠뜨린다 — 한 세션에서 18→22, 19→27,
@@ -710,7 +710,7 @@ grep -cE '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CF"
 두 번째 명령은 **기능 조건 수**다 — Step 2 의 조건 수 가이드와 대조하는 값이며 `conditions:` 에 넣지 않는다.
 
 ```bash
-awk '/^## /{s=$(0)} /^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}/{ if (s=="## Anti-patterns") next; if ($(0) ~ /^- \[[ x]\] (RE-0[12]|DG-0[1-4]|재사용-0[12]|진단-0[1-4]):/) next; if ($(0) ~ /: N\/A \(/) next; n++ } END{print n+0}' "$CF"
+awk '/^## /{s=$(0)} /^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}/{ if (s=="## Anti-patterns") next; if ($(0) ~ /^- \[[ x]\] (RE-0[12]|DG-0[1-4]|재사용-0[12]|진단-0[1-4]):/) next; if ($(0) ~ /: N\/A \(/) next; n++ } END{print n+0}' "$CF"
 ```
 
 ### 6.5. 저장 검사 게이트 (E3)
@@ -727,7 +727,7 @@ awk '/^## /{s=$(0)} /^- \[ \]/{print FNR": "s" -> "$(0)}' "$CF"
 
 # (3) frontmatter conditions 값 == 실제 조건 수 (Step 6.2 재확인)
 FM=$(awk -F'[: ]+' '/^conditions:/{print $(2); exit}' "$CF")
-N=$(grep -cE '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CF")
+N=$(grep -cE '^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' "$CF")
 [ "$FM" = "$N" ] && echo "OK conditions=$N" || echo "MISMATCH frontmatter=$FM actual=$N"
 ```
 
@@ -765,7 +765,7 @@ Step 6.5 를 통과한 직후, 조건을 **봉인**한다. 계산·검증 함수
 ```bash
 # (a) digest 계산 — 조건 체크박스 줄만, 체크 상태를 정규화해서 해시.
 #     MD 는 조건 번호와 그 아래 들여쓴 줄(측정 · 음성 대조 · 픽스처)의 지문이다 (v5.6)
-D=$(grep -E '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
+D=$(grep -E '^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
 MD=$(measurement_digest "$CF")
 
 # (b) frontmatter 3 필드 기록 (없으면 추가, 있으면 치환)
@@ -774,7 +774,7 @@ printf 'conditions_digest=sha256:%s measurement_digest=sha256:%s locked_at=%s\n'
 
 # (c) 기록 직후 자기 검증 — 출력을 인용한다. 두 줄 다 OK 여야 한다
 REC=$(read_fm conditions_digest "$CF"); REC=${REC#sha256:}
-ACT=$(grep -E '^- \[[ x]\] ([A-Z]{2,}|[가-힣]+)-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
+ACT=$(grep -E '^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' "$CF" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16)
 [ "$REC" = "$ACT" ] && echo "SEAL_OK $CF" || echo "SEAL_BROKEN $CF recorded=$REC actual=$ACT"
 verify_measurement "$CF"
 ```
