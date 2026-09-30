@@ -19,7 +19,7 @@ run-evals.py — evals.json 기반 플러그인 assertion 검증 러너
 Exit codes:
     0 — 전체 PASS
     1 — FAIL 있음
-    2 — 구조적 에러
+    2 — 구조적 에러 (evals.json 파싱 실패 · eval 항목 0 개)
 """
 
 import argparse
@@ -151,8 +151,10 @@ def validate_kit(kit: str, verbose: bool) -> tuple[int, int]:
 
     entries = get_eval_list(data)
     if not entries:
-        print(f"  WARN: evals.json에 eval 엔트리가 없음")
-        return (0, 0)
+        # 검사한 항목이 0 개면 통과가 아니다 — {"evals": []} 나 목록 열쇠 없는 {} 가 여기로 온다
+        path = REPO_ROOT / kit / "evals" / "evals.json"
+        print(f"  ERROR: {path} 에 eval 항목이 없다 (evals · tests · cases 모두 비었거나 없음) — exit 2", file=sys.stderr)
+        sys.exit(2)
 
     total_pass = 0
     total_fail = 0

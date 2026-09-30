@@ -4,6 +4,7 @@
 # 다른 사본을 잴 때: BAMBU_GATE_SKILL=<SKILL.md 사본> bash run-gate-fixtures.sh
 # 표가 `[미검증]` 줄 수를 적은 행은 그 수까지 맞아야 일치다 — FAIL 줄과 종료 코드만 보면 못 읽은 칸 알림이 빠지거나 늘어도 모른다.
 # 슬라이서가 없는 기계(리눅스 CI)에서는 설치본이 있어야 판정되는 FAIL 기대 파일과, 판정은 맞았는데 `[미검증]` 줄 수만 잴 수 없는 경우를 「건너뜀」 으로 적는다 — 일치로 세지 않는다. 판정이 틀리면 슬라이서가 없어도 불일치다.
+# 같은 시험 파일의 표 행이나 실행 줄이 둘 이상이면 불일치다 — 표는 첫 행만 읽혀 나머지 기대가 한 번도 안 재진다.
 # 종료 코드: 0 불일치 없음 · 1 불일치 있음 · 2 완료 검사 · 표 · 실행 줄을 못 읽음
 set -u
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -54,6 +55,8 @@ awk '{print $1}' "$T/runs.txt" | sort -u > "$T/in-runs.txt"
 while read -r name; do miss "표에 없음 $name"; done < <(comm -23 "$T/folder.txt" "$T/in-table.txt")
 while read -r name; do miss "실행 줄에 없음 $name"; done < <(comm -23 "$T/folder.txt" "$T/in-runs.txt")
 while read -r name; do miss "폴더에 없음 $name"; done < <(sort -u "$T/in-table.txt" "$T/in-runs.txt" | comm -23 - "$T/folder.txt")
+while read -r count name; do miss "$name — 표 행 중복 $count 줄"; done < <(cut -f1 "$T/table.tsv" | sort | uniq -c | awk '$1 > 1')
+while read -r count name; do miss "$name — 실행 줄 중복 $count 줄"; done < <(awk '{print $1}' "$T/runs.txt" | sort | uniq -c | awk '$1 > 1')
 
 while read -r name slicer; do
   [ -f "$FX/$name" ] || continue

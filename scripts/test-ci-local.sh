@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# scripts/ci-local.sh 를 손으로 답을 아는 작은 CI 파일 넷과 CI 파일 없는 폴더에 돌려 출력 전체와 종료 코드를 맞댄다.
-# 계약 after-0928-harness-checks 의 SC-11 · SC-12 · ER-02 와 after-0929-final-sweep-rules 의 스크립트-05 를 따른다.
+# scripts/ci-local.sh 를 손으로 답을 아는 작은 CI 파일 일곱과 CI 파일 없는 폴더에 돌려 출력 전체와 종료 코드를 맞댄다.
+# 계약 after-0928-harness-checks 의 SC-11 · SC-12 · ER-02, after-0929-final-sweep-rules 의 스크립트-05,
+# after-0929-codex-silent-pass 의 스크립트-03 을 따른다.
 # CI_LOCAL 로 대상 스크립트를 바꿀 수 있다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -131,6 +132,35 @@ YAML
 out=$(bash "$target" --list "$work/wfkeys" 2>&1); rc=$?
 check 워크플로열쇠 "$(printf '%s\n' "UNSUPPORTED a One (다루지 않는 워크플로 열쇠: defaults, env)" \
   "steps=1 run=0 skip=0 unsupported=1" "rc=1")" "$out
+rc=$rc"
+
+# 돌릴 run 단계가 0 개 — uses 만 있거나 run 단계가 모두 준비 단계면 아무것도 안 돌렸으니 2
+workflow usesonly <<'YAML'
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+YAML
+zero_msg="돌릴 run 단계가 0 개다 — 아무것도 돌리지 않았으니 통과가 아니다: $work/usesonly/.github/workflows/ci.yml"
+out=$(bash "$target" "$work/usesonly" 2>&1); rc=$?
+check run단계없음-실행 "$(printf '%s\n' "steps=0 run=0 skip=0 unsupported=0 failed=0" "$zero_msg" "rc=2")" "$out
+rc=$rc"
+out=$(bash "$target" --list "$work/usesonly" 2>&1); rc=$?
+check run단계없음-목록 "$(printf '%s\n' "steps=0 run=0 skip=0 unsupported=0" "$zero_msg" "rc=2")" "$out
+rc=$rc"
+workflow allskip <<'YAML'
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install
+        run: pip install pyyaml
+YAML
+out=$(bash "$target" "$work/allskip" 2>&1); rc=$?
+check 모두준비단계 "$(printf '%s\n' "SKIP a Install (준비 단계 — 로컬에는 미리 해 둔다)" \
+  "steps=1 run=0 skip=1 unsupported=0 failed=0" \
+  "돌릴 run 단계가 0 개다 — 아무것도 돌리지 않았으니 통과가 아니다: $work/allskip/.github/workflows/ci.yml" "rc=2")" "$out
 rc=$rc"
 
 # CI 파일이 없는 폴더 — 단계 0 으로 통과시키면 안 된다

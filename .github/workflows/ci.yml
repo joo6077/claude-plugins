@@ -34,6 +34,10 @@ jobs:
       - name: Sync evals check
         run: python3 scripts/sync-evals.py --check-only
 
+      # 깨진 evals.json 을 없는 파일처럼 넘겨 위 단계가 통과하던 결함(2026-09-29 Codex 점검)을 다시 들이지 않게 한다
+      - name: Sync evals broken file test (깨진 evals.json 은 2)
+        run: python3 scripts/test-sync-evals.py
+
       # marketplace.json 의 description 은 README 표와 kaizen-orchestrator AUTO 블록으로 흘러간다.
       # 둘 다 CI 게이트가 없어서 릴리스 drift 를 아무도 못 잡고 있었다
       # (실측 2026-09-06: bambu-kit v0.7.0 릴리스 후 orchestrator 가 v0.6.0 설명을 들고 있었다).
@@ -45,6 +49,10 @@ jobs:
 
       - name: Run eval assertions
         run: python3 scripts/run-evals.py --verbose
+
+      # eval 항목 0 개를 경고만 하고 통과시키던 결함(2026-09-29 Codex 점검)
+      - name: Run evals empty list test (빈 목록 · 목록 열쇠 없음은 2)
+        run: python3 scripts/test-run-evals.py
 
       # 카이젠 회귀 패턴(harness/evals/kaizen/*/assertions.json)은 evals.json 규칙 밖이라 위 단계가 읽지 않는다.
       # 2026-03-31 에 만든 패턴 하나가 대상 문서 21 판 내내 0 건이었는데 아무도 몰랐다
@@ -107,6 +115,10 @@ jobs:
       - name: Install docs guidance check (설치본에서 못 여는 docs/ 경로 안내)
         run: python3 scripts/check-install-docs-guidance.py
 
+      # 못 읽는 킷 파일을 건너뛰고 통과하던 결함(2026-09-29 Codex 점검)
+      - name: Install docs guidance unreadable test (못 읽는 파일은 2)
+        run: python3 scripts/test-check-install-docs-guidance.py
+
       # 원문 덩어리 끝을 마지막 경우 줄로 잡았을 때 그 뒤에 더한 줄을 못 봤다(2026-09-28). 다섯 경우로 검사 자체를 잰다
       - name: Cause table copy check test (원문 덩어리 끝 표지)
         run: python3 scripts/test-check-cause-table-copies.py
@@ -157,6 +169,10 @@ jobs:
           bash bambu-kit/evals/run-gate-fixtures.sh
           bash bambu-kit/evals/makerworld-fetch-test.sh
 
+      # 음성 대조 표의 같은 시험 파일 행 · 실행 줄 중복을 첫 행만 보고 넘기던 결함(2026-09-29 Codex 점검)
+      - name: Bambu-kit gate fixtures duplicate test (표 행 · 실행 줄 중복)
+        run: bash bambu-kit/evals/run-gate-fixtures-test.sh
+
   playwright:
     name: Playwright Visual Tests
     runs-on: ubuntu-latest
@@ -194,6 +210,9 @@ jobs:
         run: node scripts/check-docs-mermaid.js
       - name: Docs Mermaid render check test (네 경우)
         run: node scripts/test-check-docs-mermaid.js
+      # 잴 HTML 이 0 개인데 0/0 PASS 로 끝나던 결함(2026-09-29 Codex 점검)
+      - name: Docs accessibility no-page test (HTML 0 개는 2)
+        run: bash scripts/test-check-docs-a11y.sh
 
       - name: Upload test results
         if: failure()

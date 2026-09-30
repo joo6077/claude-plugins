@@ -8,8 +8,10 @@
 raw 주소가 있어야 하고, `../` 로 적은 칸이면 그 줄에 `../` 도 있어야 한다(떼고 붙이라는 안내).
 킷 안(`<킷>/docs/<칸>/`)에 있는 경로는 설치본에서 열리므로 대상이 아니다. evals/ 아래는 보지 않는다.
 
-출력: 빠진 파일마다 `NEED <파일> missing=<칸>` 줄, 끝 줄 `TOTAL files=<n> ok=<n> need=<n> exempt=<n>`
-종료 코드: 0 빠진 것 없음 · 1 빠진 파일 있음 · 2 git ls-files 실패
+출력: 빠진 파일마다 `NEED <파일> missing=<칸>` 줄, 못 읽은 파일마다 `UNREADABLE <파일> (<까닭>)` 줄,
+추적 중인데 작업 폴더에서 지운 파일마다 `SKIP <파일> (작업 폴더에서 지워짐)` 줄(실패로 치지 않는다),
+끝 줄 `TOTAL files=<n> ok=<n> need=<n> exempt=<n> unreadable=<n>`
+종료 코드: 0 빠진 것 없음 · 1 빠진 파일 있음 · 2 git ls-files 실패 또는 킷 파일을 못 읽음 (1 보다 앞선다)
 """
 import os
 import re
@@ -80,12 +82,26 @@ def main():
 
     kits = sorted({manifest.split("/")[0] for manifest in tracked
                    if manifest.endswith("/.claude-plugin/plugin.json") and manifest.count("/") == 2})
-    total = ok = need = exempt = 0
+    total = ok = need = exempt = unreadable = 0
     for path in sorted(candidate for candidate in tracked
                        if candidate.split("/")[0] in kits and "/evals/" not in candidate):
         try:
             text = open(path, encoding="utf-8").read()
-        except (OSError, UnicodeDecodeError):
+        except UnicodeDecodeError as error:
+            # 그림 같은 바이너리만 건너뛴다. 글자 파일을 못 읽고 넘기면 안내가 빠져도 통과한다
+            with open(path, "rb") as handle:
+                if b"\0" in handle.read():
+                    continue
+            unreadable += 1
+            print(f"UNREADABLE {path} ({error})")
+            continue
+        except FileNotFoundError:
+            # 추적 중인데 작업 폴더에서 지운 파일은 다음 커밋에서 빠질 파일이라 잴 글이 없다. 커밋 전 삭제는 흔한 상태다
+            print(f"SKIP {path} (작업 폴더에서 지워짐)")
+            continue
+        except OSError as error:
+            unreadable += 1
+            print(f"UNREADABLE {path} ({error.strerror})")
             continue
         dirs, relative_dirs = repo_only_dirs(path, text, path.split("/")[0], is_tracked)
         if not dirs:
@@ -108,9 +124,11 @@ def main():
             print(f"NEED {path} missing={','.join(missing)}")
         else:
             ok += 1
-    print(f"TOTAL files={total} ok={ok} need={need} exempt={exempt}")
+    print(f"TOTAL files={total} ok={ok} need={need} exempt={exempt} unreadable={unreadable}")
     if need:
         print(f"안내 줄 모양: 설치본 플러그인에는 `docs/<칸>/` 가 없다 — … `{RAW}` 뒤에 … 붙여 읽고, 그래도 못 읽으면 … 못 읽었다고 적는다.")
+    if unreadable:
+        return 2
     return 1 if need else 0
 
 

@@ -6,11 +6,13 @@
      → 기본 출력 없음, --include-format-only 1 줄
   2. 낱말 하나 · 표 칸 부등호 · 코드 안 연산자 · 울타리처럼 생긴 본문 줄을 바꾼 커밋 → 변형마다 기본 출력 1 줄
   3. 기준 판에 없던 매핑된 원본을 더한 커밋 → 기본 출력 1 줄
+  4. 없는 기준 판 → 종료 코드 2, 「no docs drift」 없음
 
 사용법:
     python3 scripts/test-detect-docs-drift.py [--tool <도구 사본 경로>]
 
---tool 은 음성 대조용이다 — 가름을 망가뜨린 사본을 주면 경우 1 이, 낱말만 맞대는 옛 사본을 주면 경우 2 가 실패해야 한다.
+--tool 은 음성 대조용이다 — 가름을 망가뜨린 사본을 주면 경우 1 이, 낱말만 맞대는 옛 사본을 주면 경우 2 가,
+git 실패를 변경 0 으로 읽는 옛 사본을 주면 경우 4 가 실패해야 한다.
 종료 코드는 harness/evals/gate-exit-codes.md 의 값을 쓴다 (0 통과 · 1 실패 · 2 준비 실패).
 """
 
@@ -163,10 +165,21 @@ def case_new_source(workdir: Path, tool: Path) -> tuple[bool, str]:
     return len(default) == 1 and "docs/tone/extra.md" in default[0], f"default={len(default)}"
 
 
+def case_missing_base(workdir: Path, tool: Path) -> tuple[bool, str]:
+    repo, _ = fresh_repo(workdir, "missing-base", tool)
+    result = subprocess.run(
+        ["python3", "scripts/detect-docs-drift.py", "--since", "refs/heads/no-such-base"],
+        cwd=repo.root, capture_output=True, text=True, encoding="utf-8",
+    )
+    nodrift = "no docs drift" in result.stdout
+    return result.returncode == 2 and not nodrift, f"rc={result.returncode} nodrift={int(nodrift)}"
+
+
 CASES = [
     ("1 모양만 바뀐 원본은 기본에서 빠진다", case_format_only),
     ("2 낱말 · 기호가 바뀐 원본은 기본에 남는다", case_content_change),
     ("3 새로 더한 원본은 기본에 남는다", case_new_source),
+    ("4 없는 기준 판은 drift 없음이 아니라 종료 코드 2", case_missing_base),
 ]
 
 

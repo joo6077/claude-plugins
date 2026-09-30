@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # harness/scripts/check-superseded.sh 를 손으로 답을 아는 폴더 둘과 없는 폴더에 돌려 기대 출력과 맞댄다.
-# 계약 after-0928-harness-checks 의 SC-02 를 따른다. CHECK_SUPERSEDED 로 대상 스크립트를 바꿀 수 있다.
+# 계약 after-0928-harness-checks 의 SC-02 와 after-0929-codex-silent-pass 의 스크립트-05 를 따른다. 못 읽은 파일은 한 번만 센다. CHECK_SUPERSEDED 로 대상 스크립트를 바꿀 수 있다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 root=$(cd "$here/../../.." && pwd)
@@ -33,7 +33,7 @@ check A-넷중셋위반 "$(printf '%s\n' \
   "MISSING_BY $dir_a/sprint-contract-c.md" \
   "MISSING_TARGET $dir_a/sprint-contract-d.md -> no-such" \
   "CHAIN $dir_a/sprint-contract-e.md -> a" \
-  "checked=4 violations=3" \
+  "checked=4 violations=3 unreadable=0" \
   "rc=1")" "$out
 rc=$rc"
 
@@ -42,7 +42,53 @@ dir_b=$work/b/.harness; mkdir -p "$dir_b"
 contract "$dir_b" x 'status: superseded' 'superseded_by: y'
 contract "$dir_b" y 'status: done'
 out=$(bash "$target" "$dir_b" 2>&1); rc=$?
-check B-위반없음 "$(printf '%s\n' "OK $dir_b/sprint-contract-x.md -> y" "checked=1 violations=0" "rc=0")" "$out
+check B-위반없음 "$(printf '%s\n' "OK $dir_b/sprint-contract-x.md -> y" "checked=1 violations=0 unreadable=0" "rc=0")" "$out
+rc=$rc"
+
+# 못 읽는 계약 — 가리킨 새 판이든 superseded 계약 자신이든 OK 로 치지 않고 2.
+# fm_get 이 내는 읽기 오류는 표준 오류로 가니 표준 출력만 맞댄다. root 로 돌면 권한을 빼도 읽혀 이 경우를 만들 수 없다
+dir_c=$work/c/.harness; mkdir -p "$dir_c"
+contract "$dir_c" a 'status: superseded' 'superseded_by: b'
+contract "$dir_c" b 'status: active'
+chmod 000 "$dir_c/sprint-contract-b.md"
+[ -r "$dir_c/sprint-contract-b.md" ] && { echo "권한을 빼도 파일이 읽힌다 (root 로 도는가)" >&2; exit 2; }
+out=$(bash "$target" "$dir_c" 2>"$work/err-c"); rc=$?
+chmod 644 "$dir_c/sprint-contract-b.md"
+check C-새판못읽음 "$(printf '%s\n' "UNREADABLE $dir_c/sprint-contract-a.md -> b" "checked=1 violations=0 unreadable=1" "rc=2")" "$out
+rc=$rc"
+
+dir_d=$work/d/.harness; mkdir -p "$dir_d"
+contract "$dir_d" a 'status: superseded' 'superseded_by: b'
+contract "$dir_d" b 'status: active'
+chmod 000 "$dir_d/sprint-contract-a.md"
+out=$(bash "$target" "$dir_d" 2>"$work/err-d"); rc=$?
+chmod 644 "$dir_d/sprint-contract-a.md"
+check D-계약못읽음 "$(printf '%s\n' "UNREADABLE $dir_d/sprint-contract-a.md" "checked=0 violations=0 unreadable=1" "rc=2")" "$out
+rc=$rc"
+
+# 못 읽는 새 판 하나를 옛 판 둘이 가리키면 줄은 둘, 수는 1
+dir_e=$work/e/.harness; mkdir -p "$dir_e"
+contract "$dir_e" a 'status: superseded' 'superseded_by: b'
+contract "$dir_e" b 'status: active'
+contract "$dir_e" c 'status: superseded' 'superseded_by: b'
+chmod 000 "$dir_e/sprint-contract-b.md"
+out=$(bash "$target" "$dir_e" 2>"$work/err-e"); rc=$?
+chmod 644 "$dir_e/sprint-contract-b.md"
+check E-같은새판한번 "$(printf '%s\n' \
+  "UNREADABLE $dir_e/sprint-contract-a.md -> b" \
+  "UNREADABLE $dir_e/sprint-contract-c.md -> b" \
+  "checked=2 violations=0 unreadable=1" \
+  "rc=2")" "$out
+rc=$rc"
+
+# 폴더 인자 끝 빗금 — 새 판 경로와 목록 경로가 갈려 같은 파일을 두 번 세면 안 된다
+dir_f=$work/f/.harness; mkdir -p "$dir_f"
+contract "$dir_f" a 'status: superseded' 'superseded_by: b'
+contract "$dir_f" b 'status: active'
+chmod 000 "$dir_f/sprint-contract-b.md"
+out=$(bash "$target" "$dir_f/" 2>"$work/err-f"); rc=$?
+chmod 644 "$dir_f/sprint-contract-b.md"
+check F-끝빗금한번 "$(printf '%s\n' "UNREADABLE $dir_f/sprint-contract-a.md -> b" "checked=1 violations=0 unreadable=1" "rc=2")" "$out
 rc=$rc"
 
 # 없는 폴더 — 위반 0 으로 통과시키면 안 된다

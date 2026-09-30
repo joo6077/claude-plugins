@@ -28,7 +28,7 @@
  *   node scripts/check-docs-a11y.js            # docs 전체
  *   VERBOSE=1 node scripts/check-docs-a11y.js <files>   # 면제 항목까지 출력
  *
- * exit 0 = 전부 통과, 1 = 하나라도 실패. 종료 코드 의미: harness/evals/gate-exit-codes.md
+ * exit 0 = 전부 통과, 1 = 하나라도 실패, 2 = 잴 HTML 이 0 개. 종료 코드 의미: harness/evals/gate-exit-codes.md
  */
 const { chromium } = require('playwright-core');
 const path = require('path');
@@ -44,7 +44,12 @@ function walk(dir) {
     return d.name.endsWith('.html') ? [full] : [];
   });
 }
-const files = process.argv.slice(2).length ? process.argv.slice(2) : walk('docs').sort();
+const files = process.argv.slice(2).length ? process.argv.slice(2) : (fs.existsSync('docs') ? walk('docs').sort() : []);
+// 잰 페이지가 0 개인데 0/0 PASS 로 끝내면 docs 경로가 틀려도 통과한다
+if (files.length === 0) {
+  console.error('잴 HTML 이 0 개다 — docs/ 가 없거나 그 아래 .html 이 없다. 아무것도 재지 않았으니 통과가 아니다');
+  process.exit(2);
+}
 const VERBOSE = process.env.VERBOSE === '1';
 
 (async () => {

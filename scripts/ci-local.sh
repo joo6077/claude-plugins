@@ -10,11 +10,12 @@
 # SKIP 은 준비 단계다 — 명령이 pip install · npm ci · playwright install · apt-get install 인 단계. 로컬에는 미리 해 둔다.
 # UNSUPPORTED 는 name · run 밖의 열쇠(if · working-directory · env · shell 등)가 든 단계와, 작업 전체의 if · env · defaults 나
 # 워크플로 전체의 env · defaults 아래에 있는 단계다. 뜻을 흉내 내지 않고 알린다.
-# 종료 코드는 harness/evals/gate-exit-codes.md — 0 모두 통과 · 1 실패나 못 다룬 단계가 있음 · 2 CI 파일이 없거나 못 읽음
+# 종료 코드는 harness/evals/gate-exit-codes.md — 0 모두 통과 · 1 실패나 못 다룬 단계가 있음 · 2 CI 파일이 없거나 못 읽음,
+# 또는 돌릴 run 단계가 0 개 (uses 만 있거나 모두 SKIP). 못 다룬 단계만 있으면 1 이다. --list 도 같다
 
 list_only=0
 case ${1:-} in
-  -h|--help) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+  -h|--help) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
   --list) list_only=1; shift ;;
 esac
 repo=${1:-}
@@ -92,5 +93,9 @@ if [ "$list_only" = 1 ]; then
   echo "steps=$steps run=$ran skip=$skipped unsupported=$unsupported"
 else
   echo "steps=$steps run=$ran skip=$skipped unsupported=$unsupported failed=$failed"
+fi
+if [ "$ran" = 0 ] && [ "$unsupported" = 0 ]; then
+  echo "돌릴 run 단계가 0 개다 — 아무것도 돌리지 않았으니 통과가 아니다: $workflow" >&2
+  exit 2
 fi
 [ "$failed" = 0 ] && [ "$unsupported" = 0 ]
