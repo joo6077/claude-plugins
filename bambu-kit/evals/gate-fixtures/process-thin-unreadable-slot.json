@@ -10,6 +10,7 @@
   ],
   "_geometry_class": "thin",
   "_thin_loop_share": "1.00",
+  "_wall_budget_short_share": "0.00",
   "layer_height": "0.12",
   "wall_loops": "2",
   "outer_wall_speed": [

@@ -48,7 +48,7 @@ exit 0 (`V6 code-fence 0 bare — OK`) **+** 변경된 `docs/flutter` 5 개 md �
      주석은 HTML 주석이라 렌더 산출물에 나타나지 않는다.
   - `performance.md` · `research-log.md` 는 코드 블록이 0 개라 이미 0 건이었다 — 측정 대상 5 개
     파일 전부가 0 이다 (한 곳만 고친 것이 아니다).
-  - 레포에 4 백틱 펜스 선례가 이미 있다 (`harness/docs/guides/plugin-validation-guide.md:328` ·
+  - 레포에 4 백틱 펜스 선례가 이미 있다 (`harness/docs/guides/plugin-validation-guide.md:356` ·
     `docs/superpowers/plans/*.md`), 틸드 펜스 선례도 flutter-toolkit 안에 있다
     (`flutter-toolkit/skills/flutter-kaizen/references/pr-template.md`). 4 백틱을 고른 이유는
     `startswith("```")` 로 펜스를 인식하는 레포 자체 도구
@@ -79,7 +79,7 @@ exit 0 (`V6 code-fence 0 bare — OK`) **+** 변경된 `docs/flutter` 5 개 md �
 
 - **대상 조건**: AP-03 (근본원인)
 - **관측**: 계약 측정문이 퇴행한 근본원인은 **쓰기 측 가이드가 아직 나이브 오라클을 가르치기
-  때문**이다. `harness/docs/guides/skill-design-guide.md:887` 은 지금도 이렇게 규정한다 —
+  때문**이다. `harness/docs/guides/skill-design-guide.md:895` 은 지금도 이렇게 규정한다 —
   *"검증법: SKILL.md 저장 후 `` rg -n '^```\s*$' <file> `` 로 bare fence 탐지 … 0 건이어야 한다"*.
   `\s*` 가 붙었을 뿐 닫는 펜스를 세는 것은 동일하다. 계약을 쓰는 주체가 이 문장을 그대로 옮기면
   Phase 5 와 같은 퇴행이 반복된다.
@@ -88,13 +88,13 @@ exit 0 (`V6 code-fence 0 bare — OK`) **+** 변경된 `docs/flutter` 5 개 md �
   `flutter-toolkit/{skills,agents,references}` · `docs/flutter/` 4 개 디렉토리다. 여기서 harness
   가이드를 고치면 범위 위반이 새 blocking 이 된다.
 - **권고 (Phase 1 · 설계 가이드 소관)**:
-  1. `skill-design-guide.md:887` 의 검증법을 **펜스 길이 인식 검출기**로 교체한다 (여는 펜스만
+  1. `skill-design-guide.md:895` 의 검증법을 **펜스 길이 인식 검출기**로 교체한다 (여는 펜스만
      판정 · 미닫힘 펜스 별도 보고). 같은 문서 §8.7 의 "bare fence(``` 단독) 금지" 서술도 "여는
      펜스" 로 한정한다.
   2. 검출기를 계약마다 손으로 재서술하지 말고 **공유 스크립트 1 개**로 착지시킨다. 현재는 Phase
      1·2·3·4 가 각자 "펜스 길이 인식 검출기" 라는 **말**만 공유하고 구현은 매번 즉석에서 만든다 —
      SSOT 가 없어서 Phase 5 가 나이브판으로 되돌아갈 수 있었다. `scripts/validate-plugin.py` 의
      V6 로직(이미 여는 펜스 인식)을 임의 경로에도 적용 가능한 형태로 노출하는 것이 가장 싸다.
-  3. `.claude/kaizen-input/per-project-feedback.md:187` 에도 같은 나이브 근거
+  3. `.claude/kaizen-input/per-project-feedback.md:192` 에도 같은 나이브 근거
      (`` grep -Pn '^```\s*$' ``)가 QA 증거로 박제돼 있다. 입력 데이터라 수정 대상은 아니지만,
      다음 사이클이 이걸 근거 템플릿으로 재사용하지 않게 표시해 둔다.

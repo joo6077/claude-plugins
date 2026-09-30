@@ -51,39 +51,39 @@ Grep/Read/실행하여 얻은 독립적 결론이다 (아래 근거 참조). 3�
 - [x] AR-02: qa-evaluation-guide.md 버전 정보 3행이 실제 값과 일치 — PASS
   - 근거: 추출 스니펫 실행(bash·zsh 동일) → `skill-design-guide 1.5.0` / `agent-design-guide 1.6.0` / `contract-design-guide v5.0` / `contract-schema v5.3`. 문서의 Parity with(`1.5.0`·`1.6.0`·`v5.0`) 및 Schema link(`v5.3`)와 4/4 문자열 일치. `harness/docs/guides/contract-design-guide.md:1-4` frontmatter 신설 확인. L3.
 - [x] AR-03: 평가자 등급표가 §3.7 등급 원장을 복제하지 않음 — PASS
-  - 근거: `skill-design-guide.md` §3.7 원장 8원칙명(Enumerate-before-Act, Pre-Edit Batch Audit, Rule-by-Rule Audit, Scope-Bound Edits, Completion Evidence Gate, Counterpart Enumeration, Variant Budget, User-Reported Failure Gate) vs `qa-evaluation-guide.md:168-185` 평가자 등급표 16행 원칙명 — 교집합 0건. 같은 절(`qa-evaluation-guide.md:156`)에 "원장"과 "§3.7" 공존 확인. L3.
+  - 근거: `skill-design-guide.md` §3.7 원장 8원칙명(Enumerate-before-Act, Pre-Edit Batch Audit, Rule-by-Rule Audit, Scope-Bound Edits, Completion Evidence Gate, Counterpart Enumeration, Variant Budget, User-Reported Failure Gate) vs `qa-evaluation-guide.md:172-189` 평가자 등급표 16행 원칙명 — 교집합 0건. 같은 절(`qa-evaluation-guide.md:160`)에 "원장"과 "§3.7" 공존 확인. L3.
 - [x] AR-04: 신규 원칙 4종(UNVERIFIED_ENV 분리, 검증 커버리지 게이트, Discriminating Evidence Gate, 계약 봉인 검증) 전부 등급 표기 — PASS
-  - 근거: `qa-evaluation-guide.md:170-184` 표에서 4종 각 1행 확인, 등급 값 각각 E2/E3/E2/E3. L3.
+  - 근거: `qa-evaluation-guide.md:174-188` 표에서 4종 각 1행 확인, 등급 값 각각 E2/E3/E2/E3. L3.
 - [x] AR-05: parity 표에 User-Reported Failure Gate 행 추가 + 행수 계산값 일치 — PASS
-  - 근거: `qa-evaluation-guide.md:1703-1714` Parity Table awk 계산 결과 8행(item 1,2,3,4,5,11,12,14), 캡션 "8 개 parity item"과 일치, item 14 = User-Reported Failure Gate 확인. L3.
+  - 근거: `qa-evaluation-guide.md:1720-1731` Parity Table awk 계산 결과 8행(item 1,2,3,4,5,11,12,14), 캡션 "8 개 parity item"과 일치, item 14 = User-Reported Failure Gate 확인. L3.
 
 ### Skill (8/8)
 - [x] SK-01: 증거 분류 triage 4분기 + 분류어 2종 — PASS
-  - 근거: `qa-evaluation-guide.md:728-733` triage 표 4행(A/B1/B2/C), `UNVERIFIED_ENV`(guide 14회·agent 2회) / `UNVERIFIED_INVALID_EVIDENCE`(guide 9회·agent 1회) 양쪽 파일 존재, FAIL(A행)에 "미구현"·"의도적" 명시. L3.
+  - 근거: `qa-evaluation-guide.md:733-738` triage 표 4행(A/B1/B2/C), `UNVERIFIED_ENV`(guide 14회·agent 2회) / `UNVERIFIED_INVALID_EVIDENCE`(guide 9회·agent 1회) 양쪽 파일 존재, FAIL(A행)에 "미구현"·"의도적" 명시. L3.
 - [x] SK-02: UNVERIFIED_ENV 남용 방지 4요건 + 미충족 강등 규칙 — PASS
-  - 근거: `qa-evaluation-guide.md:748-756` 번호 목록 4항(1차 도구 시도/fallback 시도/실패 로그/통제불가사유+재검증명령), "하나라도 없으면 B2 강등" 명시. L3.
+  - 근거: `qa-evaluation-guide.md:753-761` 번호 목록 4항(1차 도구 시도/fallback 시도/실패 로그/통제불가사유+재검증명령), "하나라도 없으면 B2 강등" 명시. L3.
 - [x] SK-03: 검증 커버리지 게이트 4요소 — PASS
-  - 근거: `qa-evaluation-guide.md:787-798` 산식(`(conditions_total − env_gaps)/conditions_total`), 임계 0.60, 미달 시 BLOCKED, 재조정 트리거(3회 누적) 전부 확인. L3.
+  - 근거: `qa-evaluation-guide.md:792-803` 산식(`(conditions_total − env_gaps)/conditions_total`), 임계 0.60, 미달 시 BLOCKED, 재조정 트리거(3회 누적) 전부 확인. L3.
 - [x] SK-04: Discriminating Evidence Gate — 적용범위/금지/절차 — PASS
-  - 근거: `qa-evaluation-guide.md:1163-1198` 적용 9항, 금지 3항, 절차 3단계(번호 매김) 전부 확인. L3.
+  - 근거: `qa-evaluation-guide.md:1176-1211` 적용 9항, 금지 3항, 절차 3단계(번호 매김) 전부 확인. L3.
 - [x] SK-05: Canonical User-Reported Failure Protocol 5조 + 상위 가이드 정합 — PASS
-  - 근거: `qa-evaluation-guide.md:1070-1101` 5조 확인, `REOPENED`·"반박"·6축 이름 확인, `skill-design-guide.md:322-325`(원본) 6축 명칭과 문자열 대응, `qa-evaluation-guide.md:1056-1068` Evidence Validity Gate와의 차이 서술 존재. L3.
+  - 근거: `qa-evaluation-guide.md:1083-1114` 5조 확인, `REOPENED`·"반박"·6축 이름 확인, `skill-design-guide.md:326-329`(원본) 6축 명칭과 문자열 대응, `qa-evaluation-guide.md:1069-1081` Evidence Validity Gate와의 차이 서술 존재. L3.
 - [x] SK-06: Amendment 소비 규칙 direction×consent 2축 재작성 — PASS
-  - 근거: `qa-evaluator.md:614-628` direction/consent 낱말 존재, 2×2 표 존재, narrowing×unanchored = "PASS 근거 가능". "앵커 없으면 unknown" 잔존 검색 결과 전부 금지 조항의 인용(`qa-evaluator.md:632`, `qa-evaluation-guide.md:438,462` — "~적지 마라" 문형)이며 실사용 0건. L3(grep 오탐 구분 수행).
+  - 근거: `qa-evaluator.md:617-634` direction/consent 낱말 존재, 2×2 표 존재, narrowing×unanchored = "PASS 근거 가능". "앵커 없으면 unknown" 잔존 검색 결과 전부 금지 조항의 인용(`qa-evaluator.md:638`, `qa-evaluation-guide.md:443,462` — "~적지 마라" 문형)이며 실사용 0건. L3(grep 오탐 구분 수행).
 - [x] SK-07: 계약 봉인 소비 규약 평가 절차 착지 — PASS
-  - 근거: `qa-evaluator.md:433-462` `verify_seal` 호출 존재, SEAL_OK/SEAL_ABSENT/SEAL_BROKEN 3값 각각 verdict 영향 명시, SEAL_ABSENT "경고이지 실패가 아니다" 명시. L3.
+  - 근거: `qa-evaluator.md:436-465` `verify_seal` 호출 존재, SEAL_OK/SEAL_ABSENT/SEAL_BROKEN 3값 각각 verdict 영향 명시, SEAL_ABSENT "경고이지 실패가 아니다" 명시. L3.
 - [x] SK-08: Canonical Unverified-Evidence Protocol 5조 갱신 + 전파 지시 — PASS
-  - 근거: `qa-evaluation-guide.md:1015-1041` 5개 번호 항목, 3항 신규 분류어 사용, "각 kit 카이젠 Phase 소관" 전파 문구 존재. L3.
+  - 근거: `qa-evaluation-guide.md:1024-1054` 5개 번호 항목, 3항 신규 분류어 사용, "각 kit 카이젠 Phase 소관" 전파 문구 존재. L3.
 
 ### Error (4/4)
 - [x] ER-01: scoring bias 논문(2506.22316)의 binary 근거 결부 0건 — PASS
-  - 근거: `qa-evaluation-guide.md:33,126,1665` 3개소 전부 grep, 전부 "binary PASS/FAIL 을 주장하지 않는다"는 정정 disclaimer 문형. 이진 채점의 근거로 결부한 표현 0건. qa-evaluator.md/contract-design-guide.md 0건. L3(grep 오탐 구분 — 정정 서술과 실제 결부 구분).
+  - 근거: `qa-evaluation-guide.md:37,126,1665` 3개소 전부 grep, 전부 "binary PASS/FAIL 을 주장하지 않는다"는 정정 disclaimer 문형. 이진 채점의 근거로 결부한 표현 0건. qa-evaluator.md/contract-design-guide.md 0건. L3(grep 오탐 구분 — 정정 서술과 실제 결부 구분).
 - [x] ER-02: binary/decomposed 직접 근거 CheckEval 명시 — PASS
-  - 근거: `qa-evaluation-guide.md:120` scoring bias 행 완화전략 셀에 `2403.18771` + `0.45` 동시 존재. L3.
+  - 근거: `qa-evaluation-guide.md:124` scoring bias 행 완화전략 셀에 `2403.18771` + `0.45` 동시 존재. L3.
 - [x] ER-03: 신규 서술의 evidence-미출처 URL 0건 — PASS
   - 근거: `git diff b9e911f..b161d80` 추가줄에서 URL 13개 추출, 12개는 `.harness/.meta/evidence/phase3.md`에 존재, 1개(`2606.09863`)는 `git show b9e911f:harness/docs/guides/qa-evaluation-guide.md` 원본에 기존재(1782줄 원본의 804/1239행) — 신규 미출처 URL 0건. L3.
 - [x] ER-04: UNVERIFIED_ENV 세탁 방지 — PASS
-  - 근거: `qa-evaluation-guide.md:730` FAIL(A)행에 "미구현"·"의도적 미실행" 공존, `:744` "애매하면 A(FAIL) 쪽 엄격 해석" 문장 확인. L3.
+  - 근거: `qa-evaluation-guide.md:735` FAIL(A)행에 "미구현"·"의도적 미실행" 공존, `:744` "애매하면 A(FAIL) 쪽 엄격 해석" 문장 확인. L3.
 
 ### Anti-patterns (2/2)
 - [x] AP-03: 신규 코드 펜스 bare-open 0건 — PASS
@@ -93,9 +93,9 @@ Grep/Read/실행하여 얻은 독립적 결론이다 (아래 근거 참조). 3�
 
 ### Reusability (2/2)
 - [x] RE-01: SSOT 함수 재정의 0건 — PASS
-  - 근거: `verify_seal() {`/`contract_digest() {`/`amend_direction() {` 3함수 정의 grep 결과 2개 scope 파일 0건. `qa-evaluator.md:439-441,637-638` 에 contract-schema 참조 존재(같은 절). L3.
+  - 근거: `verify_seal() {`/`contract_digest() {`/`amend_direction() {` 3함수 정의 grep 결과 2개 scope 파일 0건. `qa-evaluator.md:442-444,637-638` 에 contract-schema 참조 존재(같은 절). L3.
 - [x] RE-02: 금지 동의어 6종 0건 — PASS
-  - 근거: `SEAL_MISSING`/`seal_ok`/`방향성`/`동의여부`/`REOPEN 단독형` 0건, `미확인` 1건(`qa-evaluation-guide.md:1015`) 검출했으나 Read로 맥락 확인 결과 "동의어(...)를 만들지 않는다"는 금지 문장 자체의 예시 인용이며 실사용 0건. L3(grep 오탐 구분 수행). **주의**: 이 오탐 패턴이 2회째 관측(세션 내 3라운드 QA에서도 동일 관측) — 아래 Improvement Suggestions 참조.
+  - 근거: `SEAL_MISSING`/`seal_ok`/`방향성`/`동의여부`/`REOPEN 단독형` 0건, `미확인` 1건(`qa-evaluation-guide.md:1024`) 검출했으나 Read로 맥락 확인 결과 "동의어(...)를 만들지 않는다"는 금지 문장 자체의 예시 인용이며 실사용 0건. L3(grep 오탐 구분 수행). **주의**: 이 오탐 패턴이 2회째 관측(세션 내 3라운드 QA에서도 동일 관측) — 아래 Improvement Suggestions 참조.
 
 ### Diagnostics (4/4)
 - [x] DG-01: `validate-plugin.py harness` FAIL 0건 — PASS

@@ -83,9 +83,9 @@ ER-05 를 뺀 27 조건이 notes 전에 전부 요구값이었다(`p4build/run1.
 | `feedback-schema.yaml` | 다음 사이클 Phase 2 · 3 | true 가 「문제가 있다」 인 뜻과 새 키 둘(`measure_premise_unrun` · `known_answer_missing`). harness-kaizen Gotcha 가 이 파일 수정을 막는다 |
 | `# sprint-scope` | 쓰는 쪽 다음 사이클 Phase 2 · 읽는 쪽 다음 사이클 Phase 4 | 쓰는 쪽은 contract-schema 절 · sprint-contract Step 6. 읽는 쪽은 커밋 훅이 훅 입력 `session_id` 와 계약 `owner_session` 으로 이번 세션의 계약을 찾는다 — 그때 실측한다 |
 | `assertions.json 실행기` | 다음 사이클 (Phase 3 넘김) | 이번에 만들지 않았다. 처리 배정표 밖이다. contract-kaizen · evaluator-kaizen 두 벌을 도는 실행기 |
-| `agent-design-guide.md:79` | 다음 사이클 Phase 1 | `model` 을 생략했을 때의 동작 — 근거 파일 §3 |
-| `create-agent/SKILL.md:25` | 다음 사이클 Phase 1 · 4 | 「`model` 을 생략하면 `inherit`」 (`:80` 도 같다). `agent-design-guide.md:79` 와 함께 고친다 — 스킬만 고치면 가이드와 갈린다 |
-| `create-skill/SKILL.md:27` | 다음 사이클 Phase 1 · 4 | 「공식 필수는 `name` 과 `description`」 · 「다른 플랫폼에서는 무시된다」. skill-design-guide §frontmatter 규칙과 함께 고친다 |
+| `agent-design-guide.md:83` | 다음 사이클 Phase 1 | `model` 을 생략했을 때의 동작 — 근거 파일 §3 |
+| `create-agent/SKILL.md:25` | 다음 사이클 Phase 1 · 4 | 「`model` 을 생략하면 `inherit`」 (`:80` 도 같다). `agent-design-guide.md:83` 와 함께 고친다 — 스킬만 고치면 가이드와 갈린다 |
+| `create-skill/SKILL.md:29` | 다음 사이클 Phase 1 · 4 | 「공식 필수는 `name` 과 `description`」 · 「다른 플랫폼에서는 무시된다」. skill-design-guide §frontmatter 규칙과 함께 고친다 |
 | `sprint-contract Step 6.7 (a)` | 다음 사이클 Phase 1 · 2 | 같은 작업 폴더에서 `checkout -b` 하지 않는다는 문장을 skill-design-guide §9 와 함께 넣는다 — `/sprint` Step 0 워크트리 문단과 맞춘다 |
 | `backend-family:P3` · `backend-family:P4` | Phase 8 · 9 | `/sprint` Step 3 의 판정 세 줄을 옮겨 적는다 (아래 블록). 플러그인이 따로 설치돼 경로로 가리킬 수 없다 |
 | `flutter-preflight` · `react-preflight` | Phase 5 · 10 | 기준 커밋 비교가 없다 — 필요하면 같은 판정 세 줄을 쓴다 |

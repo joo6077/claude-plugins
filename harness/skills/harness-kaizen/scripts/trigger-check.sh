@@ -74,10 +74,10 @@ check_repeated_antipatterns() {
 
   [ "${#all_feedbacks[@]}" -eq 0 ] && return 0
 
-  # Anti-pattern ID 추출 후 3회 이상 반복 감지
+  # Anti-pattern ID(옛 AP- · 새 금지-) 추출 후 3회 이상 반복 감지
   local repeated
-  repeated=$(grep -h "AP-[0-9]*.*FAIL" "${all_feedbacks[@]}" 2>/dev/null \
-    | grep -oE 'AP-[0-9]+' \
+  repeated=$(grep -hE "(AP|금지)-[0-9]+.*FAIL" "${all_feedbacks[@]}" 2>/dev/null \
+    | grep -oE '(AP|금지)-[0-9]+' \
     | sort | uniq -c | sort -rn \
     | awk '$1 >= 3 { print $2 " (" $1 "회)" }') || true
 

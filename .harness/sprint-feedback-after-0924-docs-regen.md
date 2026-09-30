@@ -60,7 +60,7 @@ Iteration: 1
 - [x] SK-06: infra-test.html 검사 스크립트가 새 규칙 1(YAML 구조 읽기)을 담고 옛 글 둘이 없다 — PASS
   - 근거: `m SK-06` → `units_ok=39/39 miss=[]` / 옛 글 둘 모두 `=0` (기대: 39/39 · 0 · 0)
 - [x] SK-07: plugin-validation.html 이 V8 따옴표 규칙과 V10 1.4.1 판을 모두 담는다 — PASS
-  - 근거: `m SK-07` → `units_ok=18/18 miss=[]` / 옛 명령 예 둘 `=0` / `label=1 vtitle=1` (기대: 18/18·0·0·1·1). L3: docs/harness/plugin-validation.html:277-278(v-badge/v-title "따옴표"), :405(section-label), :484-501(V10 1.4.1 다섯 단순화 항목 전문)을 Read로 대조 — 원본 harness/docs/guides/plugin-validation-guide.md:391-424·455-475 와 의미 일치
+  - 근거: `m SK-07` → `units_ok=18/18 miss=[]` / 옛 명령 예 둘 `=0` / `label=1 vtitle=1` (기대: 18/18·0·0·1·1). L3: docs/harness/plugin-validation.html:277-278(v-badge/v-title "따옴표"), :405(section-label), :484-501(V10 1.4.1 다섯 단순화 항목 전문)을 Read로 대조 — 원본 harness/docs/guides/plugin-validation-guide.md:423-456·455-475 와 의미 일치
 - [x] SK-08: kaizen-flow.html 킷 카드 13개 파일 표시가 원본 범위 줄과 정확히 같다 — PASS
   - 근거: `m SK-08` → `phases=13 cards_equal=13/13 bad=[]` / `units_ok=1/1` (기대: 13/13 · 1/1). 알려진 답 대조(옛 원본 f81568d 판 대비 13/13, 시작 판 대비 1/13)는 계약 봉인 전 실측에 이미 기록됨
 - [x] SK-09: design-mockup.html 이 c4d-notes R4 세 자리를 담고 옛 자리표시자가 없다 — PASS

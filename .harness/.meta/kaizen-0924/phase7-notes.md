@@ -72,7 +72,7 @@ Phase 1 가이드 변경 셋 (backend-kaizen Gotcha 8):
 
 | 대상 | 누가 | 할 일 |
 | --- | --- | --- |
-| `rust-model` | Phase 9 | 타입 대응을 ORM 별로 나눈다 — 근거 파일 §2: SQLx 는 `DateTime<Utc>` + `TIMESTAMPTZ`, SeaORM Entity 는 `DateTimeWithTimeZone`. `rust-kit/skills/rust-model/SKILL.md:90` 입력 표 「타임스탬프 타입」 에 시각 종류 구분을 붙인다. 원칙 본문은 이 Phase 의 database.md 원칙 10 이다 |
+| `rust-model` | Phase 9 | 타입 대응을 ORM 별로 나눈다 — 근거 파일 §2: SQLx 는 `DateTime<Utc>` + `TIMESTAMPTZ`, SeaORM Entity 는 `DateTimeWithTimeZone`. `rust-kit/skills/rust-model/SKILL.md:94` 입력 표 「타임스탬프 타입」 에 시각 종류 구분을 붙인다. 원칙 본문은 이 Phase 의 database.md 원칙 10 이다 |
 | `docs/backend-kit/database.html` · `docs/backend-kit/api-design.html` | Final F2 | 원칙 10 이 없고 OpenAPI 3.2.0 이 남아 있다. 두 페이지를 다시 만든다 |
 | `.harness/stale-values.yaml` | Final | 지금 OpenAPI 항목은 `old: "3.1.1"` · `new: "3.2.0"` 이다. `old: "3.2.0"` · `new: "3.2.1"` 항목을 더해 3.2.0 이 다시 들어오면 잡히게 한다. `docs/backend/research-log.md` 는 이력이라 3.2.0 이 남는다 — allow 에 넣는다 |
 | `plugin.json` | Final | backend-kit 버전(지금 0.3.1). 새 Gotcha 둘과 감사 기준 두 행이 더해졌다 |
@@ -81,7 +81,7 @@ Phase 1 가이드 변경 셋 (backend-kaizen Gotcha 8):
 | `OpenAPI 3.1` | 열린 질문 | backend-system Step 2 · backend-audit Step 3 · audit-criteria §2 의 3.1 표기 — 최소 지원선인지 최신판 뜻인지 툴체인 호환 확인이 먼저다(근거 파일 §5). 그대로 두었다 |
 | `F20` | Phase 11 | 폐기 결정 기록 자리를 하나로 정한다 |
 
-그대로 둔 곳: `backend-kit/skills/backend-audit/SKILL.md:114` 의 「미검증 1 건: [체크항목] — [이유]」 — backend-reviewer 복제 조항 5 의 보고 모양과 같아 그대로 둔다(backend-kaizen Gotcha 8 — 복제 조항은 문구를 바꾸지 않는다).
+그대로 둔 곳: `backend-kit/skills/backend-audit/SKILL.md:119` 의 「미검증 1 건: [체크항목] — [이유]」 — backend-reviewer 복제 조항 5 의 보고 모양과 같아 그대로 둔다(backend-kaizen Gotcha 8 — 복제 조항은 문구를 바꾸지 않는다).
 README `:59` 2026-04-24 이력의 draft-15 와 research-log 의 옛 항목도 이력이라 그대로다(SK-06 예외).
 
 ER-03 셋째 값(공유 파일 · 다른 Phase 파일을 건드린 커밋 가운데 다른 Phase 서명이 없는 커밋 수)이 0 이 아니면 QA 가 그 커밋 목록부터 보고 판정한다 —

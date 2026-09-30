@@ -468,6 +468,7 @@ h1,h2,h3,h4{margin:0; font-weight:600; line-height:var(--lh-tight)}
 .badge[data-t="info"]{color:var(--info);background:var(--info-soft);border-color:var(--info-line)}
 .badge[data-t="muted"]{color:var(--tx-2);background:var(--muted-soft);border-color:var(--muted-line)}
 .badge[data-t="unj"]{color:var(--unj);background:var(--unj-soft);border-color:var(--unj-line)}
+.fail-mark{flex:0 0 auto;min-height:20px;padding:1px 8px}
 
 /* ---------- PANES ---------- */
 #panes-b02{display:grid;grid-template-columns:var(--split) 7px 1fr;min-height:0;overflow:hidden}
@@ -1510,7 +1511,7 @@ const EP = {
     diff:[{ k:'rm', path:'$.meta.total', note:'이전 스냅샷에 있던 <code>integer</code> 필드가 사라졌습니다. 옵션 필드라 계약 실패는 아닙니다.' }]
   },
   'products.inventory':{
-    method:'GET', path:'/v1/products/{sku}/inventory', state:'fail', contract:'partial',
+    method:'GET', path:'/v1/products/{sku}/inventory', state:'fail', contract:'partial', failMark:'flaky',
     pins:[{p:'$.data.availableQty',c:'≥ 0'},{p:'$.data.onHand',c:'≥ $.data.availableQty'}],
     resp:{ code:503, text:'Service Unavailable', ms:1204, size:'0.1KB', expected:'200 OK' },
     pathParams:[{ name:'sku', type:'string', value:'SF-1042', desc:'상품 SKU' }],
@@ -1532,7 +1533,7 @@ const EP = {
     body:null, diff:[]
   },
   'users.me':{
-    method:'GET', path:'/v1/users/me', state:'fail', contract:'full',
+    method:'GET', path:'/v1/users/me', state:'fail', contract:'full', failMark:'보류',
     pins:[{p:'$.tier',c:'∈ gold·silver·bronze'}],
     resp:{ code:200, text:'OK', ms:88, size:'0.1KB' },
     pathParams:[], params:[],
@@ -1703,6 +1704,7 @@ function renderTree(){
             <button class="ep-btn" data-ep="${id}" aria-current="${sel}">
               <span class="meth" data-m="${d.method}">${d.method}</span>
               <span class="ep-path"><bdi>${esc(d.path)}</bdi></span>
+              ${failMarkHTML(d)}
               <span class="st" data-s="${d.state}" title="${stText(d.state)}">${stIcon(d.state)}<span class="sr">${stText(d.state)}</span></span>
             </button></li>`;
         }).join('')}
@@ -2112,7 +2114,7 @@ function renderResponse(d, writeBlocked){
   }
 
   const tabs = [];
-  if (d.state === 'fail') tabs.push({ k:'fail', label:'실패 원인', dot:true });
+  if (d.state === 'fail') tabs.push({ k:'fail', label:'실패 원인', dot:true, mark:failMarkHTML(d) });
   tabs.push({ k:'body',    label:'본문' });
   tabs.push({ k:'headers', label:'헤더' });
   tabs.push({ k:'timing',  label:'타이밍' });
@@ -2256,8 +2258,19 @@ function respTabHTML(t, selected){
       aria-controls="rp-${t.k}" aria-selected="${selected}" tabindex="${selected?0:-1}">
       ${t.dot?'<span class="tab-dot" aria-hidden="true"></span>':''}
       ${t.label}
+      ${t.mark || ''}
       ${t.badge ? `<span class="tab-badge">${t.badge}</span>` : ''}
     </button>`;
+}
+
+/* 보류 · flaky 는 state 를 'fail' 로 두고 글자 표지만 단다 — FAIL 칩과 트리 수에서 빠지지 않게 (viewer-spec §3.2) */
+const FAIL_MARK_LABEL = {
+  '보류': '실패 · 보류 — 게이트를 깨지 않음',
+  'flaky': '실패 · flaky — 재실행에서 뒤집힘',
+};
+function failMarkHTML(d){
+  const label = d.state === 'fail' ? FAIL_MARK_LABEL[d.failMark] : undefined;
+  return label ? `<span class="badge fail-mark" data-t="warn" data-mark="${d.failMark}" role="img" aria-label="${label}">${d.failMark}</span>` : '';
 }
 function bindRespTabs(){
   $$('#response-tabs-af4 .tab').forEach(t => {

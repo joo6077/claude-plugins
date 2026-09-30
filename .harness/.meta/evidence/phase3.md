@@ -85,7 +85,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 - self-preference 연구는 GPT-4가 인간보다 low-perplexity, 즉 더 친숙한 출력에 높은 평가를 주었고 이것이 자기 생성 여부와 무관하게 나타났다고 보고한다. generator와 evaluator 분리 및 구현자 서술 배제에는 보조 근거가 된다. [arXiv 2410.21819](https://arxiv.org/abs/2410.21819)
 - survey는 position, self-enhancement, length/verbosity 등 여러 bias와 prompt swap 완화법을 다룬다. 또한 swap 후 충돌을 tie로 처리하거나 점수를 평균하는 방식도 소개한다. [arXiv 2411.15594](https://arxiv.org/html/2411.15594v6)
 - scoring-bias 논문이 정의한 것은 score-rubric order, score ID, reference-answer score perturbation이다. binary PASS/FAIL 강제를 주장하지 않는다. [arXiv 2506.22316](https://arxiv.org/html/2506.22316v1)
-- 이 점은 현행 문서의 정정과 일치한다: [qa-evaluation-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:124), [qa-evaluation-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:1824).
+- 이 점은 현행 문서의 정정과 일치한다: [qa-evaluation-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:128), [qa-evaluation-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:1845).
 - binary 분해의 직접 근거는 scoring-bias 논문이 아니라 CheckEval이다. 단, CheckEval도 “최종 verdict는 반드시 단 하나의 PASS/FAIL이어야 한다”고 말한 것은 아니며 세부 기준을 yes/no로 분해한 연구다. [arXiv 2403.18771](https://arxiv.org/abs/2403.18771)
 
 ### user-setup:P4
@@ -144,14 +144,14 @@ Git 공식 문서는 `--name-status`가 경로와 상태 문자를 출력하며 
 외부 도구의 고정 버전이 낡은 곳은 찾지 못했다. 다만 내부 버전 메타데이터는 본문 날짜와 이미 어긋난다.
 
 - [qa-evaluation-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:3): 현재 `version: v5.0`.
-- [qa-evaluation-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:1912): 현재 “2026-08-13 · v5.0”.
-- 같은 파일에는 이미 2026-09 추가 내용이 있다. 예: parity item 15는 [1874행](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:1874)에 있다.
-- [contract-design-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:3) 및 [1292행](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:1292)도 `v5.0 · 2026-08-13`이지만, 본문에는 2026-09-23 추가 절이 있다([759행](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:759)).
+- [qa-evaluation-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:1933): 현재 “2026-08-13 · v5.0”.
+- 같은 파일에는 이미 2026-09 추가 내용이 있다. 예: parity item 15는 [1874행](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:1895)에 있다.
+- [contract-design-guide.md](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:3) 및 [1292행](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:1308)도 `v5.0 · 2026-08-13`이지만, 본문에는 2026-09-23 추가 절이 있다([759행](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:775)).
 - 추론: 이번 Phase가 실제 개정을 넣을 때 두 frontmatter와 두 버전 정보 절을 함께 올려야 한다. 다음 버전 번호는 레포 정책·병렬 브랜치 선점 여부에 따라 정해야 하므로 여기서 지어내지 않는다.
 
 출처 정확성 점검:
 
-- [qa-evaluation-guide.md:132](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:132)의 “12개 이상의 편향”은 이번에 조회한 survey 본문에서 정확한 숫자를 확인하지 못했다. survey가 여러 bias를 분류한다는 사실은 확인했지만 “12개 이상”이라는 수치는 이번 조회만으로 재확인되지 않았다. [Survey](https://arxiv.org/html/2411.15594v6)
+- [qa-evaluation-guide.md:136](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:136)의 “12개 이상의 편향”은 이번에 조회한 survey 본문에서 정확한 숫자를 확인하지 못했다. survey가 여러 bias를 분류한다는 사실은 확인했지만 “12개 이상”이라는 수치는 이번 조회만으로 재확인되지 않았다. [Survey](https://arxiv.org/html/2411.15594v6)
 
 ## 4. 권장안
 
@@ -197,11 +197,11 @@ Git 공식 문서는 `--name-status`가 경로와 상태 문자를 출력하며 
    - 결과가 같으면 dead checker로 보고 조건 FAIL.
    - 이는 외부 표준의 직역이 아니라 CheckEval/RRD 판별력 원칙을 적용한 레포 계약임을 명시한다.
 
-7. Step 3.5에는 현재 1~9 뒤에 명시적 10번으로 “산출물이 검사라면 다섯 시험의 실행 결과를 모두 남겼는가”를 추가한다. 현재 위치는 [qa-evaluator.md:786](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:786)이다.
+7. Step 3.5에는 현재 1~9 뒤에 명시적 10번으로 “산출물이 검사라면 다섯 시험의 실행 결과를 모두 남겼는가”를 추가한다. 현재 위치는 [qa-evaluator.md:798](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:798)이다.
 
-8. 교차 진단 요청은 현재 두 질문([qa-evaluator.md:1023](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:1023)) 뒤에 “산출물이 검사일 때 다섯 가지 중 실행하지 않은 것이 있는가?”를 셋째 질문으로 추가한다.
+8. 교차 진단 요청은 현재 두 질문([qa-evaluator.md:1035](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:1035)) 뒤에 “산출물이 검사일 때 다섯 가지 중 실행하지 않은 것이 있는가?”를 셋째 질문으로 추가한다.
 
-9. `qa-evaluation-guide`에는 동일 목록을 독립 소절로 두되, parity 표에는 한 행만 추가한다. 현재 표는 [qa-evaluation-guide.md:1862](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:1862)에 있다.
+9. `qa-evaluation-guide`에는 동일 목록을 독립 소절로 두되, parity 표에는 한 행만 추가한다. 현재 표는 [qa-evaluation-guide.md:1883](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/qa-evaluation-guide.md:1883)에 있다.
 
 10. 계약 작성자 측 Gotcha는 다음 의미로 고정하는 것이 좋다.
 

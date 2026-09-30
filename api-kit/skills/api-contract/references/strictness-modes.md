@@ -1,5 +1,7 @@
 # 계약 강도 모드 — partial · pin · exact
 
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 `/api-contract` 가 모드를 배정할 때 쓰는 유일한 기준. 각 모드가 **어떤 회귀를 잡고 어떤 회귀를 놓치는지**,
 승격 자격이 무엇인지, 어떤 assertion 어휘를 쓰는지 정의한다.
 원 규칙은 `../../../../docs/api/contract/contract-extraction-modes.md` 이고, 여기서는 실행 판정용으로만 정리한다.

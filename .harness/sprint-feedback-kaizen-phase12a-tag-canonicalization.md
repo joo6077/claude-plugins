@@ -45,11 +45,11 @@ Iteration: 1 (v2 재평가 — SC-04 음성 대조 제거 대상 누락 결함�
 - [x] SK-02: reflect-digest 클러스터링이 tag_canon_groups를 1차 근거로 지정 — PASS
   - 근거: `reflect-kit/skills/reflect-digest/SKILL.md:30` "클러스터링은 눈대중이 아니라 **결정론적 pass**로 한다 — ... 실행은 `hooks/_lib-tag-canon.sh`의 `tag_canon_groups`다" (같은 문장에 두 문자열 공존, L3)
 - [x] SK-03: reflect-promote §B-0에 9개 점검 항목 — PASS
-  - 근거: `reflect-kit/skills/reflect-promote/SKILL.md:148` `### B-0.` 헤더 1개 + 161-171행 표에 9개 토큰(hook installed/event type/matcher/path normalization/exit code/timeout/executable/dependency/fired/blocked) 전부 개별 확인 (L3, enumerated 9/9)
+  - 근거: `reflect-kit/skills/reflect-promote/SKILL.md:151` `### B-0.` 헤더 1개 + 161-171행 표에 9개 토큰(hook installed/event type/matcher/path normalization/exit code/timeout/executable/dependency/fired/blocked) 전부 개별 확인 (L3, enumerated 9/9)
 - [x] SK-04: reflect-kaizen이 calibration_confidence:low에서 demote-candidate 산출 금지 — PASS
   - 근거: `blocked-low-confidence` 4회 등장(35, 65, 94, 138행), 138행이 `verdict` 열거 정의 줄(`demote-candidate / keep / ... / blocked-low-confidence`) (L3)
 - [x] SK-05: reflect-digest에 family 섹션 — PASS
-  - 근거: `reflect-kit/skills/reflect-digest/SKILL.md:309` `## 원인 계열 (family) — 병합하지 않음 (합산 금지)`, 1회 (L3, 내용도 stale-context-reference family 예시 포함 확인)
+  - 근거: `reflect-kit/skills/reflect-digest/SKILL.md:313` `## 원인 계열 (family) — 병합하지 않음 (합산 금지)`, 1회 (L3, 내용도 stale-context-reference family 예시 포함 확인)
 - [x] SK-06: 구 임계 1.5가 스킬3종+references에서 0건 — PASS
   - 근거: `grep -rn '1\.5' reflect-kit/skills reflect-kit/references` 0행. enumerated 개별 확인(reflect-digest/reflect-kaizen/reflect-promote/codex-kaizen SKILL.md 4개 + tag-canonicalization.md + tag-lemma-map.tsv 전부 0건, L3)
 - [x] SK-07: reflect-promote가 PostToolUse를 예방 surface로 쓰지 말라 명시 — PASS

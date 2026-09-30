@@ -38,11 +38,11 @@ v0.10.0 은 이 단계를 살리려고 두 가지를 했다 — tools 줄에 `Ag
 
 - 이 세션의 실측 — 부모 기록 `f5b7f3a5-...jsonl` 의 `Agent` 호출 3건, 평가자 자백,
   정정된 피드백 `~/.harness/feedback/evaluator/1a3bcba6-2026-09-22T145712-f5b7f3a5-99568.yaml`
-- `harness/agents/qa-evaluator.md:938-949` — 폐기 대상 Step 7
+- `harness/agents/qa-evaluator.md:950-961` — 폐기 대상 Step 7
 - `harness/references/feedback-schema.yaml:46-48` — `cross_diagnosis_by` enum 정의
 - `harness/skills/sprint/SKILL.md:79-84` — Step 4 QA 뒤에 단계를 넣을 자리
-- `harness/docs/guides/agent-design-guide.md:247-261, 675` — 숙제 2 대상
-- `harness/docs/guides/qa-evaluation-guide.md:1771` — 숙제 3 대상 (대응 표 15번)
+- `harness/docs/guides/agent-design-guide.md:251-265, 675` — 숙제 2 대상
+- `harness/docs/guides/qa-evaluation-guide.md:1792` — 숙제 3 대상 (대응 표 15번)
 
 ## 범위 경계
 

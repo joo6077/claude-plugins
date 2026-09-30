@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **기존 shadcn 컴포넌트 직접 수정 금지** — shadcn은 "코드 소유" 모델이라 수정이 가능하지만, `/react-widget`은 래핑해서 확장한다. 직접 수정은 shadcn CLI 업데이트 시 충돌. shadcn v2 (CLI v4, 2026-03) 는 `--dry-run`/`--diff` 플래그로 설치 전 미리보기 가능.
 2. **`cn` 유틸리티 경로 고정** — `@/presentation/shared/lib/utils`의 `cn(...)`을 import한다. `@/lib/utils` 같은 다른 경로 사용 금지 (Clean Arch 준수).
 3. **`React.FC` 금지** — 제네릭 추론이 약하고 children이 암묵적으로 포함된다. 대신 `(props: Props) => JSX.Element` 또는 React 19 `ref as prop` 패턴 사용.

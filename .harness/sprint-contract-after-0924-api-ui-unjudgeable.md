@@ -12,7 +12,7 @@ locked_at: "2026-09-26 15:10"
 
 ## 배경
 
-`/api-verify` 는 경로 간 불변식의 한쪽 경로가 없으면 그 판정 줄을 `판정 불가` 로 따로 센다(`api-kit/skills/api-verify/SKILL.md:136`, 실패 분류 `failure-taxonomy.md:107` · `:159`).
+`/api-verify` 는 경로 간 불변식의 한쪽 경로가 없으면 그 판정 줄을 `판정 불가` 로 따로 센다(`api-kit/skills/api-verify/SKILL.md:144`, 실패 분류 `failure-taxonomy.md:107` · `:159`).
 그런데 결과 화면을 만드는 `/api-ui` 는 상태를 PASS · FAIL · 미실행 셋만 안다(`api-kit/skills/api-ui/SKILL.md:64` · `:123` · `:208`, 뷰어 스펙 `viewer-spec.md:77` · `:86` · `:225` · `:340`).
 그래서 판정 불가 엔드포인트를 화면에 옮길 자리가 없고, 만드는 쪽이 PASS 에 합치기 쉽다 — `/api-verify` 가 「판정 불가 를 PASS 에 합치면 경로가 사라진 회귀가 조용히 지나간다」 고 막아 둔 바로 그 일이다.
 
@@ -44,7 +44,7 @@ locked_at: "2026-09-26 15:10"
 정한 것 (판단과 근거):
 
 1. **범례는 새 영역이 아니다.** 요약 칩 네 개와 스펙의 상태 ↔ 글자 대응(§3.2 상태 아이콘 · §8 텍스트 대응물)에 네 번째를 넣는다. 근거: `SKILL.md:118` 「시안에 없는 영역을 발명하지 마라」, v7 에 상태 범례 영역이 0 이다(`.legend` 는 `api-ui-v7.html:2335-2336` 의 「정규화됨 · 추가 검사」 둘뿐).
-2. **상태는 위에서부터 먼저 맞는 줄로 정한다 — 미실행 > FAIL > 판정 불가 > PASS.** FAIL 이 판정 불가를 이긴다. 판정 불가는 그 자체로 게이트를 깨지 않고(`api-verify/SKILL.md:136`) 계약 실패만 게이트를 깨기 때문이다(`:151`). FAIL 로 분류된 엔드포인트에 판정 불가 줄이 있으면 `실패 원인` 탭에 함께 둔다 — 줄을 버리지 않는다.
+2. **상태는 위에서부터 먼저 맞는 줄로 정한다 — 미실행 > FAIL > 판정 불가 > PASS.** FAIL 이 판정 불가를 이긴다. 판정 불가는 그 자체로 게이트를 깨지 않고(`api-verify/SKILL.md:144`) 계약 실패만 게이트를 깨기 때문이다(`:151`). FAIL 로 분류된 엔드포인트에 판정 불가 줄이 있으면 `실패 원인` 탭에 함께 둔다 — 줄을 버리지 않는다.
 3. **요약 칩 숫자는 엔드포인트 수다(판정 줄 수가 아니다).** 칩을 누르면 트리를 그 상태로 거른다(`viewer-spec.md:77`) — 칩 숫자와 걸러진 줄 수가 같아야 한다. 숫자는 데이터에서 센다. v7 은 손으로 적었다(`api-ui-v7.html:1183` `<b>11</b>` · `:1890` `14`).
 4. **판정 불가 칩은 0 이어도 보인다.** 빼면 커버리지 착시가 생긴다는 원칙이 이미 있다(`SKILL.md:34`).
 5. **좁은 폭에서도 네 칩 모두 접근 이름에 상태 글자가 든다.** v7 은 1120px 아래에서 칩 글자를 `display:none` 으로 숨겨(`api-ui-v7.html:897` · `:927`) 375 에서 칩 이름이 숫자뿐이다(측정기 실측 `chip[PASS] chips=0`). 새 칩만 고치면 같은 칩에 두 방식이 생긴다(RE-02) — 네 칩을 같은 방식으로 고친다.
@@ -53,14 +53,14 @@ locked_at: "2026-09-26 15:10"
 8. **새 색은 토큰(CSS 변수)으로 둔다** — `viewer-spec.md:300` 「역할로 참조한다 — 하드코딩 색을 컴포넌트에 직접 쓰지 마라」. 네 상태 색이 서로 달라야 칸을 따로 둔 뜻이 산다.
 9. **팔레트 스코프는 그대로 4 종이다.** `fail` 은 FAIL 만 모은다(`viewer-spec.md:193`). 판정 불가 스코프는 요청 밖이라 더하지 않는다.
 10. **판정 불가 줄은 응답 pane 의 맨 앞 탭에 둔다.** FAIL 이면 `실패 원인` 탭 안(정한 것 2), 판정 불가 단독이면 `본문` 탭 맨 위 알림 상자다. 근거: v7 이 본문 위 경고를 이미 같은 자리에 둔다(`api-ui-v7.html:2339` `pinBreakHTML`). 새 영역이 아니라 있는 알림 상자(`.callout`)에 `data-t` 값 하나를 더한다(RE-02).
-11. **`api-kit/README.md` 는 `<!-- AUTO:evals -->` 블록만 바뀐다.** 교차 진단 뒤 실측으로 찾았다 — `api-kit/README.md:140-141` 에 빈 AUTO:evals 블록이 있어 `api-kit/evals/` 를 만들면 `python3 scripts/sync-docs.py --check-only` 가 종료 코드 1 을 내고(`scripts/sync-docs.py:418-420` · `:494-497`), CI `Sync docs check` 단계가 떨어진다. 그래서 `python3 scripts/sync-docs.py api-kit` 가 쓴 표만 받아들이고 블록 밖은 그대로 둔다(AR-01 의 `readme_outside_auto`).
+11. **`api-kit/README.md` 는 `<!-- AUTO:evals -->` 블록만 바뀐다.** 교차 진단 뒤 실측으로 찾았다 — `api-kit/README.md:144-145` 에 빈 AUTO:evals 블록이 있어 `api-kit/evals/` 를 만들면 `python3 scripts/sync-docs.py --check-only` 가 종료 코드 1 을 내고(`scripts/sync-docs.py:418-420` · `:494-497`), CI `Sync docs check` 단계가 떨어진다. 그래서 `python3 scripts/sync-docs.py api-kit` 가 쓴 표만 받아들이고 블록 밖은 그대로 둔다(AR-01 의 `readme_outside_auto`).
 
 ## 리서치 소스
 
 웹 검색 · 외부 문서 가져오기는 하지 않았다. 저장소 안 근거만 썼다.
 
-- `api-kit/skills/api-verify/SKILL.md:133-137` — 판정 줄 모양 `$.meta.total=(없음) · len($.data)=10 → 판정 불가`, 판정 조건 「한쪽 경로라도 없으면 `판정 불가` 다」, PASS 에 합치지 말 것
-- `api-kit/skills/api-verify/SKILL.md:171` · `:177` · `:206-208` — 집계에 `판정 불가` 를 따로 센다
+- `api-kit/skills/api-verify/SKILL.md:141-145` — 판정 줄 모양 `$.meta.total=(없음) · len($.data)=10 → 판정 불가`, 판정 조건 「한쪽 경로라도 없으면 `판정 불가` 다」, PASS 에 합치지 말 것
+- `api-kit/skills/api-verify/SKILL.md:179` · `:185` · `:214-216` — 집계에 `판정 불가` 를 따로 센다
 - `api-kit/skills/api-verify/references/failure-taxonomy.md:107` · `:159` — JUnit 에서는 `skipped` + 없는 경로 이름, 게이트 미파괴
 - `api-kit/skills/api-ui/SKILL.md` · `references/viewer-spec.md` · `api-kit/references/api-layout.md:52` — 지금 규칙
 - `/Users/jackson/Hub/10_Dev/claude-plugins/.mockups/api-ui-v7.html` (git 밖, sha256 `c4bd563ec8b71a95f804ae1f96a0eda2d17bda8256ca9fbc327a527c3a81ca7a`) — 확정 시안
@@ -87,8 +87,8 @@ Pre-Edit Audit (Step 1.4) — 대상 파일을 실제로 열어 본 자리:
 - 바꾸는 경로는 AR-01 기대 집합과 같다: `api-kit/skills/api-ui/SKILL.md` · `api-kit/skills/api-ui/references/viewer-spec.md` · `api-kit/references/api-layout.md` · `api-kit/README.md` (`<!-- AUTO:evals -->` 블록 안만 — 정한 것 11) · `.github/workflows/ci.yml` · `api-kit/evals/` 아래 새 파일. 그리고 git 밖 `/Users/jackson/Hub/10_Dev/claude-plugins/.mockups/api-ui-v8.html` 한 파일 — v7 을 **복사**해 만든다. v7 은 건드리지 않는다. 본 체크아웃에 쓰는 것은 이 한 파일뿐이다.
 - 시험 배치: `api-kit/evals/evals.json` 에 `runner` (CI 에 넣은 명령과 같은 글자) 와 `cases` 를 둔다. api-ui 경우 하나 이상에 `skill: "api-ui"` · `fixture` (`api-kit/evals/fixtures/<이름>`, 그 안에 `.api/`) · `example` (그 입력으로 `/api-ui` 절차를 따라 만든 `ui.html`, `api-kit/evals/fixtures/` 아래) · `expect` (네 상태 이름을 키로 한 엔드포인트 수와 `fail_with_unjudged`) · `assertions` 를 둔다. 시험 파일은 `api-kit/evals/` 아래 Playwright 시험이다.
 - 안 바꾸는 것: api-kit 다른 스킬(`api-verify` · `api-contract` · `api-probe` · `api-init`) · `api-kit/agents/` · `api-kit/README.md` 의 AUTO:evals 블록 밖 · `plugin.json` 판 번호(릴리스는 합친 뒤 다음 단계) · `docs/` · `scripts/`(run-evals · sync-evals 목록 포함).
-- 드리프트(그대로 둔다 — notes 로 넘김): `docs/api/verification/static-evidence-viewer-contract.md:9` · `:82` · `:86`, `docs/api-kit/static-evidence-viewer-contract.html:269` · `:351` · `:541` · `:565` · `:639`, `docs/superpowers/specs/2026-09-02-api-kit-design.md:476` · `:588` 가 확정 시안을 v7 이라 적는다. `docs/api/research-log.md:179` 는 날짜 붙은 기록이라 고칠 대상이 아니다.
-- 보류 · 들쭉날쭉(flaky) 을 지금 화면이 다루는 방식(바꾸지 않는다): 뷰어 state 는 세 값(`viewer-spec.md:225`)이고 `SKILL.md:64` 가 리포트를 PASS · FAIL · 미실행 으로만 옮긴다. `/api-verify` 가 따로 세는 보류(환경 실패 종료 코드 3 · 인증 실패 · 데이터 부재 — `api-verify/SKILL.md:100` · `:151`, `failure-taxonomy.md:47-49`)와 `flaky-confirmed`(`api-verify/SKILL.md:18` · `:160`)는 뷰어 규칙에 자리가 없어 만드는 쪽이 짐작한다. 이번에는 판정 불가 한 칸만 더한다.
+- 드리프트(그대로 둔다 — notes 로 넘김): `docs/api/verification/static-evidence-viewer-contract.md:10` · `:83` · `:87`, `docs/api-kit/static-evidence-viewer-contract.html:269` · `:351` · `:541` · `:565` · `:639`, `docs/superpowers/specs/2026-09-02-api-kit-design.md:476` · `:588` 가 확정 시안을 v7 이라 적는다. `docs/api/research-log.md:179` 는 날짜 붙은 기록이라 고칠 대상이 아니다.
+- 보류 · 들쭉날쭉(flaky) 을 지금 화면이 다루는 방식(바꾸지 않는다): 뷰어 state 는 세 값(`viewer-spec.md:225`)이고 `SKILL.md:64` 가 리포트를 PASS · FAIL · 미실행 으로만 옮긴다. `/api-verify` 가 따로 세는 보류(환경 실패 종료 코드 3 · 인증 실패 · 데이터 부재 — `api-verify/SKILL.md:108` · `:159`, `failure-taxonomy.md:47-49`)와 `flaky-confirmed`(`api-verify/SKILL.md:22` · `:168`)는 뷰어 규칙에 자리가 없어 만드는 쪽이 짐작한다. 이번에는 판정 불가 한 칸만 더한다.
 - v7 에 CSP `<meta>` 가 없는 것(`phase16-notes.md:146`)은 v8 에서도 그대로 둔다. 생성 예시는 스펙(`viewer-spec.md:29-32`)대로 CSP 를 넣는다(SK-08).
 - 기준 커밋: 이 작업 폴더는 `f81568d8fbf58382172281388ec5d7756f9f46b2` 에서 시작했다. origin/main 은 그 뒤 `88ddfe5` (#111 V10 · #112 harness 릴리스)로 움직였다 — api-kit 변경 0, `scripts/validate-plugin.py` 만 바뀌었다. DG-05 가 두 판 검사기를 다 돌린다. 가지를 main 에 맞출지는 오케스트레이터 몫이다.
 - **측정 공통 전제 (조건마다 반복하지 않는다):** 모든 측정은 `cd /Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/ak-c4a` 뒤 `. .harness/.meta/after-0924-api-ui-unjudgeable/m.sh` 를 읽고 `m <이름>` 으로 부른다(아래 `$D` 는 그 폴더). `m` 은 상한 U 를 스스로 정한다 — 가지가 합쳐졌으면 origin/main 병합 커밋의 둘째 부모(합친 가지 끝), 아니면 가지 `chore/ak-c4a` 끝이다. 정하지 못하면 `UNRESOLVED` 로 멈춘다(`HEAD` 로 떨어지지 않는다). 바뀐 파일은 `BASE..U` 의 첫째 부모 줄에 있는 병합 아닌 커밋만 모은다 — 가지에 main 을 합쳐 넣거나 다시 얹어도 남의 변경이 섞이지 않는다. 글자 · 검사기 측정은 `git archive` 로 푼 U 판 사본에서 돈다(작업 폴더의 커밋 안 된 변경이 섞이지 않게). 측정기 출력은 먼저 두 번 받아 둔다 — `m PROBE v8 "$V8" > "$D/probe-v8.txt"` 와 `m PROBE example "<m EVALS 의 example= 값>" > "$D/probe-example.txt"`. 캡처는 `$D/cap/` 에 쌓인다. 끝나면 `m CLEAN`. `m CILOCAL` 은 따로 만든 사본에서 돌므로 도는 동안 `m CLEAN` 을 불러도 된다.

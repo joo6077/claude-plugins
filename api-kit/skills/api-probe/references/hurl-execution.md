@@ -1,5 +1,7 @@
 # Hurl 실행 규약
 
+설치본 플러그인에는 `docs/api/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 `/api-probe` 가 `.hurl` 을 합성하고 실행할 때의 게이트 순서, 파일 규칙, 커맨드 배선, 시크릿 처리.
 
 엔진은 Hurl `8.0.1` (릴리스 2026-04-28) 기준이다. 근거는 `docs/api/execution/probe-synthesis-hurl-semantics.md`, `docs/api/execution/environment-safety-gates.md`, `docs/api/execution/auth-secret-lifecycle.md` 다.

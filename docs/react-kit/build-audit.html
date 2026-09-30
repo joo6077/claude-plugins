@@ -198,6 +198,8 @@
     <li><a href="#s12"><span class="toc-n">12</span>10. 감사 규칙 중요도 레벨</a></li>
     <li><a href="#s13"><span class="toc-n">13</span>현행화 기록</a></li>
     <li><a href="#s14"><span class="toc-n">14</span>11. 변경 이력</a></li>
+    <li><a href="#hand1"><span class="toc-n">+</span>감사 실패를 유발하는 패턴 vs 올바른 패턴</a></li>
+    <li><a href="#hand2"><span class="toc-n">+</span>빌드·감사 스킬 공통 주의사항</a></li>
     <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
   </ol>
 </nav>
@@ -593,8 +595,8 @@ research_sources:
   <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">ast_check: <code>eslint-plugin-jsx-a11y/accessible-name</code></div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>keyboard 경로 누락</strong> (드래그앤드롭) → ⚠️ 경고 (G5b §5)</div></li>
   <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">ast_check: <code>useDrag</code> 훅 호출하는 컴포넌트에 <code>onKeyDown</code> 또는 <code>role="button"</code> + tabIndex 없음</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>prefers&#45;reduced-motion</code> 가드 누락</strong> → ⚠️ 경고</div></li>
-  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">grep_pattern: 파일에 <code>animate-</code> 또는 <code>transition-</code> 클래스 있는데 <code>motion-reduce:</code> 또는 <code>@media (prefers&#45;reduced-motion</code> 없음</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>prefers-reduced-motion</code> 가드 누락</strong> → ⚠️ 경고</div></li>
+  <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">grep_pattern: 파일에 <code>animate-</code> 또는 <code>transition-</code> 클래스 있는데 <code>motion-reduce:</code> 또는 <code>@media (prefers-reduced-motion</code> 없음</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Error Boundary 없음</strong> (최상위) → ❌ 실패</div></li>
   <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">grep_pattern: <code>src/main.tsx</code> 또는 <code>src/app.tsx</code> 에 <code>ErrorBoundary</code> 없음</div></li>
   <li class="lv1"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">ast_check: RouterProvider 또는 App 루트에 Error Boundary 컴포넌트 있는지</div></li>
@@ -924,6 +926,87 @@ G5b Animation              ─┘
   </ol>
 </section>
 
+<section class="section doc" id="hand1">
+  <div class="section-label">손 글 · 되살림</div>
+  <h2>감사 실패를 유발하는 패턴 vs 올바른 패턴</h2>
+  <div class="doc-body">
+<p><code>/react-audit</code> 여섯 카테고리에서 자주 걸리는 위반 셋을 나쁜 예 · 좋은 예로 비교한다. 옛 쪽(<code>38cccd1</code>)의 손 글을 지금 스킬 문서에 맞춰 다시 썼다.</p>
+<h3 class="sub">Library Policy — 빌드 게이트급</h3>
+<p><strong>나쁜 예</strong> — 금지 목록 import 는 경고 없이 즉각 REJECT 다.</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>import { motion } from 'framer-motion'
+
+export function Card() {
+  return &lt;motion.div animate={{ x: 100 }} /&gt;
+}</code></pre></div>
+<p><strong>좋은 예</strong> — Tailwind + CSS / View Transitions API / 직접 만든 Pointer 기본 동작 세 단계로 모든 상호작용을 만든다 (<a href="animation.html">G5b</a>).</p>
+<div class="code"><span class="code-lang">tsx</span><pre><code>export function Card() {
+  return &lt;div className="transition-transform duration-300 hover:translate-x-2"&gt;…&lt;/div&gt;
+}</code></pre></div>
+<h3 class="sub">Architecture — 레이어 경계 위반</h3>
+<p><strong>나쁜 예</strong> — domain 은 외부 의존성 0 개다. HTTP 는 data 레이어의 datasource 가 맡는다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/domain/usecases/fetch-user.ts
+import axios from 'axios'
+export async function fetchUser(id: string) {
+  const res = await axios.get(`/users/${id}`)
+  return res.data
+}</code></pre></div>
+<p><strong>좋은 예</strong> — <a href="clean-arch-layout.html">레이어 배치</a>의 금지 방향을 Architecture 카테고리가 grep 으로 잡는다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/domain/usecases/fetch-user.ts
+import type { Result } from 'neverthrow'
+import type { User } from '@/domain/entities/user'
+import type { UserFailure } from '@/domain/failures/user'
+export type FetchUser = (id: string) =&gt; Promise&lt;Result&lt;User, UserFailure&gt;&gt;
+// 구현: src/data/repositories/ · HTTP: src/data/datasources/remote/</code></pre></div>
+<h3 class="sub">Strict TypeScript — any · ! · as</h3>
+<p><strong>나쁜 예</strong> — 셋 다 Strict TypeScript 카테고리 위반이다. <code>pnpm eslint . --max-warnings=0</code> 에서도 실패한다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>const users: any = await fetchUsers()
+const first = users[0]!
+return &lt;div&gt;{first.name as string}&lt;/div&gt;</code></pre></div>
+<p><strong>좋은 예</strong> — 경계에서 <code>unknown</code> 을 Zod 로 검사한 뒤 믿는다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>const raw: unknown = await response.json()
+const parsed = UserSchema.safeParse(raw)
+if (!parsed.success) return err({ kind: 'user/validation-failed', issues: parsed.error.issues.map(i =&gt; i.message) })
+return ok(parsed.data)</code></pre></div>
+  </div>
+</section>
+<section class="section doc" id="hand2">
+  <div class="section-label">손 글 · 되살림</div>
+  <h2>빌드·감사 스킬 공통 주의사항</h2>
+  <div class="doc-body">
+<p>G6 스킬 넷(<code>/react-run</code> · <code>/react-build</code> · <code>/react-preflight</code> · <code>/react-audit</code>)을 돌릴 때 지킬 것이다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>빌드 순서</strong> — <code>/react-build</code> 는 wasm-pack → tsc → vite build 순서다. <code>tsc</code> 와 vite 가 <code>src/wasm/core/</code> 를 import 하므로 WASM 산출물이 먼저 있어야 한다. 한 단계라도 실패하면 즉시 멈춘다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>커밋 전 검사 일곱 단계</strong> — <code>/react-preflight</code> 는 fix → codegen → lint → tsc → test → wasm-build → vite-build 순서를 바꾸지 않고, 실패한 단계에서 즉시 멈춘다. 그 뒤 단계는 돌리지 않았다고 보고한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>--no-verify</code> 안내 금지</strong> — git hook 이 실패하면 원인을 고친다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>test 는 <code>vitest run</code></strong> — watch 모드 <code>vitest</code> 는 쓰지 않는다. 보고에 passed · skipped 두 수를 적는다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>감사 모드</strong> — 인자가 없으면 변경 파일 수로 고른다. quick 은 변경 파일 5 개 이하가 기본이고, deep 은 react-reviewer 셋(Architecture + Strict TS · Performance + Anti-patterns · Accessibility + Library Policy)과 widget-inspector-react 하나를 병렬로 돌린다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Library Policy 는 빌드 게이트급</strong> — 금지 목록 열한 종 import 는 경고가 아니라 즉각 REJECT 다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>/react-run</code> 은 서브커맨드부터</strong> — 첫 인자로 dev · build · lint · test · wasm-build · format · codegen 가운데 하나를 준다. lint 는 <code>--max-warnings=0</code> 로 돈다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>큰 기존 프로젝트</strong> — 처음 도입할 때는 <code>.react-audit-baseline.json</code> 으로 「지금보다 나빠지지 않음」 만 잡는 모드를 쓴다.</div></li>
+</ul>
+  </div>
+</section>
+<section class="section" aria-labelledby="sib">
+  <div class="section-label" id="sib">같은 킷의 이웃 쪽</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="scaffolding.html">G1 · Scaffolding</a></h3>
+      <p><code>/react-init</code> · <code>/react-screen</code> · <code>/react-feature</code> · <code>/react-widget</code>.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="animation.html">G5b · 애니메이션</a></h3>
+      <p>라이브러리 0 개 3-Tier 애니메이션.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="wasm-catalog.html">WASM 판정 카탈로그</a></h3>
+      <p>이식할지 말지 가르는 카테고리와 휴리스틱 다섯.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="integration.html">통합 명세</a></h3>
+      <p>harness 설정 · 플러그인 구조 · 공통 주의사항.</p>
+    </div>
+  </div>
+</section>
 <footer class="foot">
   <p>원본 <code>docs/react/kit-design/g6-build-audit.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
 </footer>

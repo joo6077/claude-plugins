@@ -230,12 +230,12 @@ String _cacheKey(String id) => 'item:$id';
 ```
 
 doc이 다루는 것은 계약이다 — 파라미터 의미, 반환값, 오용을 유발하는 규칙(옵션 A를 넘기면 옵션 B가 무시됨 등).
-공개 API에 문서 주석을 다는 것은 공식 강제 항목(`DO use /// for public APIs` 계열)이다.
+원문 강도는 Effective Dart 의 PREFER 다 — `PREFER writing doc comments for public APIs`, 모든 멤버가 아니라 대부분을 문서화하라고 한다. 린트 `public_member_api_docs` 는 재정의하지 않은 공개 멤버를 모두 문서화하라고 DO 로 적지만, 그것은 켜고 끄는 린트의 설명이라 이 원칙의 강도는 `SHOULD` 로 둔다 (2026-09-28 조회).
 반대로 로컬 구현 세부를 문서 주석으로 감싸지 않는 쪽은 `관측 컨벤션`이라 프로젝트별로 완화할 수 있다.
 
-**강도:** MUST
+**강도:** SHOULD
 
-> **출처:** [Effective Dart: Documentation](https://dart.dev/effective-dart/documentation)
+> **출처:** [Effective Dart: Documentation](https://dart.dev/effective-dart/documentation) · [Effective Dart — 강도 정의](https://dart.dev/effective-dart) · [린트 public_member_api_docs](https://dart.dev/tools/linter-rules/public_member_api_docs) (2026-09-28 조회)
 
 ### 7. 주석으로 복잡도를 덮지 않는다 `[코어]`
 

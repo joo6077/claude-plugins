@@ -20,7 +20,7 @@ Iteration: 1
 - [x] CC-01: 4개 파일 전부 8/V1~V8 갱신 확인 — PASS
   - 근거: plugin-validation-guide.md(8-카테고리·라인10,27,64), validate-plugin.py(8-카테고리·라인760), CLAUDE.md(8-카테고리·라인51), README.md(8-카테고리·V1~V8·라인314)
 - [x] CC-02: §7.4 SSOT 템플릿 "전 카테고리" number-agnostic — PASS
-  - 근거: `plugin-validation-guide.md:569` "전 카테고리 상태를 확인하고"
+  - 근거: `plugin-validation-guide.md:601` "전 카테고리 상태를 확인하고"
 - [x] CC-03: §3.8 V8 섹션 + v1.1.0 엔트리 + V9/V10 로드맵 renumber — PASS
   - 근거: 라인396 섹션, 라인595 v1.1.0 엔트리, 라인599-600 V9/V10
 

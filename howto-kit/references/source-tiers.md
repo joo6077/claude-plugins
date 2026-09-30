@@ -1,5 +1,7 @@
 # 출처 등급제 (Provenance Tier)
 
+설치본 플러그인에는 `docs/howto/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 **"검증 불가 → 침묵" 의 대체물이다.** 정직성이 요구하는 것은 침묵이 아니라 등급 표시다.
 
 ## 4 등급

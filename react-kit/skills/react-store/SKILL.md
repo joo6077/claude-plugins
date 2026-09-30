@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **Zustand = 클라이언트 상태 전용** — UI 토글, 편집 중 임시 데이터, WASM 진행 상태, 사용자 선호도가 Zustand 도메인. 서버 응답을 Zustand에 복사하면 두 개의 진실 공급원이 생겨 동기화 버그가 발생한다. 서버 상태는 TanStack Query(react-query)가 단일 진실 공급원.
 2. **`create<Store>()(...)` 이중 괄호 필수** — `create()` 안에 제네릭을 넣는 Zustand v5+ 권장 패턴. `create<Auth>(...)` 단일 괄호는 타입 추론이 깨진다.
 3. **selector 없이 전체 구독 금지** — `const store = useAuthStore()` 처럼 인자 없이 호출하면 모든 state 키에 구독되어 불필요한 리렌더가 폭증한다. 반드시 selector 경유: `useAuthStore((s) => s.user)`.

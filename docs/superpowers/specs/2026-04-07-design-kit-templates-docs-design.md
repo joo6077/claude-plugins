@@ -297,7 +297,7 @@ standalone HTML. 구조:
 
 ## 3. index.html 업데이트
 
-사이드바 `categories` 배열에서 "Design Kit — 접근성" 카테고리 바로 뒤 (Backend Kit 카테고리 앞, `docs/index.html:333` 부근)에 삽입:
+사이드바 `categories` 배열에서 "Design Kit — 접근성" 카테고리 바로 뒤 (Backend Kit 카테고리 앞, `docs/index.html:339` 부근)에 삽입:
 
 ```javascript
 {

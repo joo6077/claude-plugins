@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +15,18 @@
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
   }
+[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe7e0;--border:#e0dcd4;--border2:#cfc9bf;
+  --text:#1a1a24;--text2:#5a5248;--text3:#6b6259;
+  --accent:#4338CA;--accent2:#3730A3;--accent-dim:rgba(67,56,202,0.10);--accent-glow:rgba(67,56,202,0.05);
+  --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#0369A1;
+  --error:#b91c1c;--success:#146B32;--warn:#7A4A05;--info:#0369A1;
+}
+[data-theme="light"] .compare li code{background:var(--surface2)}
+.theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+  background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   html{font-size:16px;scroll-behavior:smooth}
   body{
     font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
@@ -148,6 +160,7 @@
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
 <div class="page">
 
 <a href="../index.html" target="_top" class="nav-back">&#8592; Onboarding Kit</a>
@@ -447,13 +460,13 @@
 <!-- ── 4. Step 4단 구조 ── -->
 <div class="section">
   <div class="section-label">§3 설정 단계 — Step 4단 구조</div>
-  <p class="desc">맨 위 <code>**출처:**</code> 줄이 출처 원장(Step 마다 근거 URL 과 조회일을 남기는 기록 — SKILL.md §출처 원장)의 실물이다. 이 줄을 채울 수 없으면 그 Step 은 fetch 없이 학습 데이터로 쓴 것이니 아직 쓸 준비가 안 된 것이다.</p>
+  <p class="desc">맨 위 <code>**출처:**</code> 줄이 출처 원장(Step 마다 근거 URL 과 조회일을 남기는 기록 — SKILL.md §출처 원장)의 실물이다. 이 줄을 채울 수 없으면 그 Step 은 fetch 없이 학습 데이터로 쓴 것이니 아직 쓸 준비가 안 된 것이다. 두 날짜의 뜻은 SKILL.md §출처 원장을 따른다.</p>
 
   <div class="card" style="margin-bottom:20px">
     <h4 style="margin-top:0">Step 템플릿 (마크다운)</h4>
     <pre><code>## Step N — &lt;단계 제목&gt;
 
-**출처:** &lt;이 Step 의 근거 1차 출처 URL — 조회 YYYY-MM-DD&gt;
+**출처:** &lt;이 Step 의 근거 1차 출처 URL — 조회 YYYY-MM-DD · Last updated YYYY-MM-DD UTC (원문에 표시가 있을 때만)&gt;
 
 **어디서:** &lt;URL 또는 터미널 위치&gt;
 
@@ -925,5 +938,22 @@ done</code></pre>
 </div>
 
 </div>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

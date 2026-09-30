@@ -12,6 +12,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 1. **비동기 에러는 Error Boundary 가 못 잡음** — `useEffect` 안의 throw, Promise reject 는 Error Boundary 에 도달하지 않는다. 반드시 Result 로 감쌀 것. Error Boundary 는 **렌더 중 throw** 만 포획한다.

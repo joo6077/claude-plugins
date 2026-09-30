@@ -24,9 +24,9 @@ locked_at: "2026-09-24 20:35"
 세 가지를 함께 고친다.
 
 1. **못 한다고 말하기 전 네 칸.** 지금 생성 측 문구는 `[미검증]` 마커와 사유 한 줄뿐이다
-   (`skill-design-guide.md:300`). 평가 측(`harness/agents/qa-evaluator.md:65`)은 이미 네 요건 — 1 차 도구 시도 ·
+   (`skill-design-guide.md:304`). 평가 측(`harness/agents/qa-evaluator.md:66`)은 이미 네 요건 — 1 차 도구 시도 ·
    대안 검증 시도 · 실패 로그 · 통제 불가 사유와 재검증 명령 — 을 요구하고 `[미검증:ENV]` · `[미검증:INVALID]` 로
-   가른다. 그런데 agent 가이드 §10 정책 4 항(`agent-design-guide.md:569-575`)은 옛 구성(마커 · 2 건 REJECT ·
+   가른다. 그런데 agent 가이드 §10 정책 4 항(`agent-design-guide.md:582-588`)은 옛 구성(마커 · 2 건 REJECT ·
    조용한 PASS 금지 · 생성자 주장 배제)에 머물러 평가자와도 어긋난다. 작업 자체를 불가로 선언한 사고(F10)는
    검증 불가와 같은 모양이다 — 막는 것의 실제 출력도, 시도한 우회도 없이 결론부터 냈다.
 2. **알려진 답 대조 생성 측.** §3.7 에는 0 이 기대값인 측정의 양성 대조만 있다. 새로 짠 측정 스크립트가 0 이 아닌
@@ -38,7 +38,7 @@ locked_at: "2026-09-24 20:35"
 GAP 분석 중에 근거 파일 밖의 결함 둘을 더 찾았다 (둘 다 파일 안 모순이라 외부 근거가 필요 없다).
 
 - skill 가이드 `:334` 가 「§11 parity 표 15 번째 항목」을 인용하는데 §11 표는 14 행이다. 15 행은
-  `qa-evaluation-guide.md:1874` 에만 있다(`Zero-Result Positive Control`). agent 가이드 §12 표에도 없다.
+  `qa-evaluation-guide.md:1895` 에만 있다(`Zero-Result Positive Control`). agent 가이드 §12 표에도 없다.
 - skill 가이드 `:315` 가 「현재 등급: E2 (§3.7 등급 원장 참조)」라고 적었는데 `#### 등급 원장` 표 8 행에 그 원칙 행이 없다.
 
 ## 리서치 소스
@@ -101,18 +101,18 @@ GAP 분석 중에 근거 파일 밖의 결함 둘을 더 찾았다 (둘 다 파�
 
 | 파일 | 인용 | 이번 처리 |
 | --- | --- | --- |
-| `react-kit/references/render-evidence-protocol.md:125` | 「§3.7 5 조 3 항」 2 건 이상 부분 완료 | 번호 · 문구 유지 (ER-02) |
+| `react-kit/references/render-evidence-protocol.md:129` | 「§3.7 5 조 3 항」 2 건 이상 부분 완료 | 번호 · 문구 유지 (ER-02) |
 | `planning-kit/skills/plan-audit/SKILL.md:25` | 「§3.7 조항 4」 | 번호 · 문구 유지 (ER-02) |
-| `flutter-toolkit/references/visual-evidence-protocol.md:169` | 「5 조항 SSOT」 | 조항 수 5 유지 (ER-02) |
-| `harness/docs/guides/qa-evaluation-guide.md:1868` | 「§10 Unverifiable (4 항)」 | 항 수 4 유지 (ER-02) |
-| `harness/agents/qa-evaluator.md:65` | 네 요건 원본 | 이미 맞다 — 편집 없음 (ER-04) |
+| `flutter-toolkit/references/visual-evidence-protocol.md:173` | 「5 조항 SSOT」 | 조항 수 5 유지 (ER-02) |
+| `harness/docs/guides/qa-evaluation-guide.md:1889` | 「§10 Unverifiable (4 항)」 | 항 수 4 유지 (ER-02) |
+| `harness/agents/qa-evaluator.md:66` | 네 요건 원본 | 이미 맞다 — 편집 없음 (ER-04) |
 | `harness/skills/create-agent/SKILL.md:25,33,81,106` | 「15 종」 · 「4항: (2) 2건 이상 자동 REJECT」 | Phase 4 범위 — 명시적 미완으로 넘김 (ER-04) |
 | `harness/skills/sprint/SKILL.md:77` | 「`[미검증]` + 사유 한 줄」 | Phase 4 범위 (처리 배정표 비고 「sprint/SKILL.md 3 단계 부분은 Phase 4 와 맞춘다」) — 넘김 (ER-04) |
-| `harness/skills/create-skill/SKILL.md:24` | 「1500-2000 words 타깃 — Anthropic 기준」 (근거 파일: 확인 못 함) | Phase 4 범위 — 넘김 (ER-04) |
-| `react-kit/references/render-evidence-protocol.md:59` | 「`[미검증]` 마커와 사유 한 줄 … 부분 완료로 보고」(3 항 옛 문구) | Phase 10 범위 — 넘김 (ER-04) |
-| `flutter-toolkit/references/visual-evidence-protocol.md:136` | 「`[미검증]` 마커 + 사유 한 줄」 | Phase 5 범위 — 넘김 (ER-04) |
+| `harness/skills/create-skill/SKILL.md:26` | 「1500-2000 words 타깃 — Anthropic 기준」 (근거 파일: 확인 못 함) | Phase 4 범위 — 넘김 (ER-04) |
+| `react-kit/references/render-evidence-protocol.md:63` | 「`[미검증]` 마커와 사유 한 줄 … 부분 완료로 보고」(3 항 옛 문구) | Phase 10 범위 — 넘김 (ER-04) |
+| `flutter-toolkit/references/visual-evidence-protocol.md:140` | 「`[미검증]` 마커 + 사유 한 줄」 | Phase 5 범위 — 넘김 (ER-04) |
 | `onboarding-kit/skills/setup-guide/SKILL.md:30` | 「마커 + 사유 한 줄」 | Phase 14 범위 — 넘김 (ER-04) |
-| `infra-kit/skills/infra-test/SKILL.md:37` | 「`[미검증] TOOL_OR_ENV_MISSING` … 재검증」 — 시도한 우회 칸 없음 | Phase 8 범위 — 넘김 (ER-04) |
+| `infra-kit/skills/infra-test/SKILL.md:41` | 「`[미검증] TOOL_OR_ENV_MISSING` … 재검증」 — 시도한 우회 칸 없음 | Phase 8 범위 — 넘김 (ER-04) |
 | `rust-kit/agents/rust-reviewer.md:137` | 「agent-design-guide §10」 접미 없는 `[미검증]` | Phase 9 범위 — 넘김 (ER-04) |
 
 위 다섯 줄은 1 차 검토가 찾았다. 조항 번호가 아니라 3 항 옛 문구와 agent §10 을 내용째 베낀 곳이다 — 찾은 명령:
@@ -207,7 +207,7 @@ agent 가이드:
 - **이 Phase 의 커밋 메시지에는 전부 `Co-Authored-By` 줄 바로 위에 `Kaizen-Phase: kaizen-0924-p01-guides` 한 줄을 넣는다** (봉인 커밋 포함 — 6.7 의 `-m` 뒤에 `-m` 을 하나 더 준다). AR-04 · `mine` 이 이 줄로 이 Phase 커밋을 가린다. 제목이나 본문에 슬러그를 적는 것은 가림에 쓰이지 않는다
 - 측정이 기대는 제목은 이름을 바꾸지 않는다: `## 3.7.` · `### 스킬이 지켜야 할 5 조항` · `#### 0 이 기대값인 검증의 양성 대조` · `#### 등급 원장` · `### 전수 대상 parity items` · `### frontmatter 전체 필드` · `- **Unverifiable 조건 정책` · `- **사용자 실패 보고 우선`
 - 공유 파일(`marketplace.json` · `plugin.json` 버전 · 루트 README · 루트 CLAUDE.md · `docs/` HTML · 처리 배정표 · 감사 로그)은 건드리지 않는다. 문서 사이트 재생성은 Final F2 몫이라 DG-06 에서 `docs-site-regen` 을 뺀다
-- 넘기는 것 (notes 에 적는다): 위 Counterpart 표의 Phase 4 범위 3 파일과 옛 문구를 베낀 다른 킷 5 곳(`react-kit/references/render-evidence-protocol.md:59` Phase 10 · `flutter-toolkit/references/visual-evidence-protocol.md:136` Phase 5 · `onboarding-kit/skills/setup-guide/SKILL.md:30` Phase 14 · `infra-kit/skills/infra-test/SKILL.md:37` Phase 8 · `rust-kit/agents/rust-reviewer.md:137` Phase 9 — 이번 편집 뒤 옛 규칙을 들고 남는다). 근거 파일 `phase4.md` 에만 있고 이 Phase 근거 파일에는 없는 agent 가이드 `:59`(배치 우선순위) · `:79`(model 생략 시 동작) · skill 가이드 `:393`(`name` 필수 여부) · `:806`(다른 플랫폼 호환) — 다음 사이클. 오케스트레이터 `references/phase-research-templates.md` 의 「500 라인 상한」 표기 — 이 Phase 범위 밖
+- 넘기는 것 (notes 에 적는다): 위 Counterpart 표의 Phase 4 범위 3 파일과 옛 문구를 베낀 다른 킷 5 곳(`react-kit/references/render-evidence-protocol.md:63` Phase 10 · `flutter-toolkit/references/visual-evidence-protocol.md:140` Phase 5 · `onboarding-kit/skills/setup-guide/SKILL.md:30` Phase 14 · `infra-kit/skills/infra-test/SKILL.md:41` Phase 8 · `rust-kit/agents/rust-reviewer.md:137` Phase 9 — 이번 편집 뒤 옛 규칙을 들고 남는다). 근거 파일 `phase4.md` 에만 있고 이 Phase 근거 파일에는 없는 agent 가이드 `:59`(배치 우선순위) · `:79`(model 생략 시 동작) · skill 가이드 `:393`(`name` 필수 여부) · `:806`(다른 플랫폼 호환) — 다음 사이클. 오케스트레이터 `references/phase-research-templates.md` 의 「500 라인 상한」 표기 — 이 Phase 범위 밖
 - 두 가이드에 새 셸 코드 블록을 넣지 않는다 (AP-03). 예시가 필요하면 `text` 블록이나 산문으로 쓴다
 - 오라클 해소: SK-01 · SK-02 · SK-03 · SK-04 · ER-02 · AR-02 · AP-03 — 산출물이 설계 가이드의 문장 · 표 자체라 정해진 절 구간에 정해진 문구 · 행 · 번호가 있는지가 곧 산출물 판정이다. 실행할 동작이 없고, 새 셸 스니펫은 AP-03 이 막는다. 각 측정은 절 구간을 잘라 재므로 파일 다른 곳의 같은 낱말로 통과하지 않고, 편집 전 파일에서 전부 0 이 나오는 것을 봉인 전에 확인했다
 - 오라클 해소: ER-04 — 넘김 기록(notes)의 경로 문자열이 곧 산출물이고, 편집 금지는 커밋 파일 목록(`mine`)으로 잰다
@@ -318,7 +318,7 @@ echo "total_warning_lines=$(printf '%s\n' "$LINES" | grep -c .) added_lines=$(pr
 [ER-02] 조항 5 · 3 항 「2 건 이상」 1 · 「부분 완료」 1 · 4 항 「검증 실패 신호」 1 · 정책 번호 항목 4
 [ER-03] 1 · 2 · 1 · 1 · 1 · (0, 1) · 1 · 1
 [ER-04] notes 파일 없음 (구현이 만들 파일 — 면제) · 가짜 notes 11 값 전부 1, 한 줄 지우면 그 값 0
-        qa-evaluator.md:65 네 요건 토큰 4 · qa-evaluation-guide.md:1874 Zero-Result 1
+        qa-evaluator.md:66 네 요건 토큰 4 · qa-evaluation-guide.md:1895 Zero-Result 1
 [ER-05] 더한 줄 0 · 양성 대조(「훅에 의해 적용된다」 · 「그것에 대해 말한다」 두 줄) UTF-8 2 · C 로케일 1
 [AR-01] 차집합 3 (experimental · initialPrompt · omitClaudeMd) · initialPrompt 행 0 · 미확인 0 · 불릿 1 · 15 종 4 · 18 종 0
 [AR-02] 2 건 1, 나머지 10 토큰(규칙 11 · env_gaps · 세는 대상 포함) 0 · 요약 행 0 · §12 세는 대상 0

@@ -119,10 +119,10 @@ Iteration: 4
     | 항목 | 처리 | 근거 파일:라인 |
     |---|---|---|
     | 체크리스트 방법론 1차출처 | (b) [미확인] | `howto-kit/references/step-contract.md:117-121` "근거 등급 [미확인]... 1 차 출처를 확보하지 못했다" |
-    | MS Learn 권한 인용 2건 | (a) 재확인+대체 | `howto-kit/references/navigation-anchors.md:83,85` 원 미확인 인용 대신 새로 확인된 2개 URL을 "(확인 2026-09-08)" 표기로 인용, `provenance-notes.md` §2에 원 실패 URL 기록 |
+    | MS Learn 권한 인용 2건 | (a) 재확인+대체 | `howto-kit/references/navigation-anchors.md:87,85` 원 미확인 인용 대신 새로 확인된 2개 URL을 "(확인 2026-09-08)" 표기로 인용, `provenance-notes.md` §2에 원 실패 URL 기록 |
     | RSS 피드 실측 | (b) provenance-notes에 등급 원장 | `howto-kit/references/provenance-notes.md` §3, 4건 확인/2건 확인실패 구분. `docs/howto/changelog-feeds.md`(소비처)는 아직 미생성이라 확정사실로 소비되지 않음 |
     | 이름충돌 검사 | (b) [미확인] | `provenance-notes.md` §4 "## 4. howto-kit 이름 충돌 검사 — [미확인]" |
-  - 교차확인: `grep -rn "충돌 없\|npm" howto-kit/ .claude/skills/howto-*/ docs/howto/` → design-brief.md:392만 매치, "검사를 하지 않았다"로 미확정임을 명시 (확정사실로 오용 없음)
+  - 교차확인: `grep -rn "충돌 없\|npm" howto-kit/ .claude/skills/howto-*/ docs/howto/` → design-brief.md:397만 매치, "검사를 하지 않았다"로 미확정임을 명시 (확정사실로 오용 없음)
 - [x] ER-02: 존재하지않는 파일→GATE_BLOCKED exit0, 빈파일→6줄+안죽음, zsh/bash — PASS
   - 근거: `howto_gate /nonexistent/x.md` 양쪽 셸 `GATE_BLOCKED no_such_file=/nonexistent/x.md` EXIT=0. 빈파일(`empty.md`) 양쪽 셸 6개 게이트줄 + `GATE_FAIL` EXIT=0
   - 음성대조 실행(규칙12 — 입력검증 카테고리 해당, 안전조건 3개 충족: 파일 clean·1지점 변형·diff 범위 내): `[ -f "$g" ]` 가드라인(45번째 줄) 삭제 후 재실행 → `awk: can't open file`, `grep: ... No such file or directory` 에러 출력으로 오염됨 (GATE_BLOCKED 대신). 계약의 음성대조 서술과 일치. `git diff --exit-code -- howto-kit/scripts/howto-gate.sh` 로 원상복구 확인
@@ -133,7 +133,7 @@ Iteration: 4
 - [x] AR-01: plugin.json 파싱, name=howto-kit, version/description 비어있지 않음 — PASS
   - 근거: `python3 -c "..."` → `howto-kit 0.1.0 77`
 - [x] AR-02: Step Contract 필드정의가 step-contract.md 1곳에만 — PASS
-  - 근거: `grep -rn 'if_not_found\|target_label\|source.tier' howto-kit/` 전체 매치 중 필드정의 형태(`target_label: string`, `if_not_found:`, 표 행 `source.tier`)는 `step-contract.md:22,23,28,42,46,47,48`뿐. 다른 6개 파일의 매치는 전부 `../../references/source-tiers.md`/`step-contract.md` 파일 경로 참조. `howto-kit/skills/howto/SKILL.md:232` "step-contract.md — Step Contract 스키마 정본 (여기서만 정의한다)"로 설계 의도 명시적 확인
+  - 근거: `grep -rn 'if_not_found\|target_label\|source.tier' howto-kit/` 전체 매치 중 필드정의 형태(`target_label: string`, `if_not_found:`, 표 행 `source.tier`)는 `step-contract.md:22,23,28,42,46,47,48`뿐. 다른 6개 파일의 매치는 전부 `../../references/source-tiers.md`/`step-contract.md` 파일 경로 참조. `howto-kit/skills/howto/SKILL.md:236` "step-contract.md — Step Contract 스키마 정본 (여기서만 정의한다)"로 설계 의도 명시적 확인
 - [x] AR-03: marketplace.json entry + 버전태그 + 버전일치 — PASS
   - 근거: `python3 scripts/validate-plugin.py howto-kit --check=plugin-json` → "V7 plugin-json v0.1.0 matches marketplace — OK". entry description "[v0.1.0 · 2026-09-08] ..."로 시작 확인
 - [x] AR-04: CLAUDE.md Repository Overview + Skills Reference 4개 열거 — PASS

@@ -17,7 +17,7 @@ locked_at: "2026-09-26 17:02"
 2026-09-19 커밋 `4c1867c` 다. 사본은 옛 판 둘로 갈라져 있다.
 
 - design · planning · react · api 넷은 2026-07-27 판이다. 못 잰 항목을 한 장부로 세어 2 건이면 불합격이고, 「도구가 없어 못 잰 것」 과 「증거가 비어 있는 것」 을
-  가르지 않는다(`design-kit/agents/design-reviewer.md:29-30` · `planning-kit/agents/planning-reviewer.md:30-35` · `react-kit/agents/react-reviewer.md:171-176` ·
+  가르지 않는다(`design-kit/agents/design-reviewer.md:29-30` · `planning-kit/agents/planning-reviewer.md:39-44` · `react-kit/agents/react-reviewer.md:171-176` ·
   `api-kit/agents/api-reviewer.md:59-62`, api 는 문구까지 줄였다)
 - backend · rust · infra 셋은 2026-08-13 판이다. 두 장부로 나눴지만 원문 조항 1 의 N/A 구분표와 새 조항 2(정적 분석기가 없는 스택에서 DG 조건 처리)가 없고
   (`rust-kit/agents/rust-reviewer.md:51` 이 「옮기지 않았다」 고 적었다), 남용 방지 4 요건은 낱말을 킷에 맞게 바꿔 옮겼다
@@ -36,12 +36,12 @@ locked_at: "2026-09-26 17:02"
 
 **판단 기록** — 저장소 안 근거로 정했다.
 
-1. 사본 범위 — 원문 조항 덩어리(`qa-evaluation-guide.md:1244-1295`)와 남용 방지 4 요건(`:891-897`)을 글자 그대로 옮긴다. 4 요건까지 옮기는 까닭:
+1. 사본 범위 — 원문 조항 덩어리(`qa-evaluation-guide.md:1257-1308`)와 남용 방지 4 요건(`:891-897`)을 글자 그대로 옮긴다. 4 요건까지 옮기는 까닭:
    조항 3(앞쪽)이 「남용 방지 4 요건 충족」 을 조건으로 쓰는데 그 뜻이 같은 절에 없고, 킷은 따로 설치되므로 사본이 뜻을 들고 있어야 한다(70 행이 짚은 결함).
 2. 원문 번호 — 원문 조항 번호가 1 · 2 · 3 · 3 · 4 · 5 다(3 이 둘, `:1275` · `:1282`). 원문 고치기는 이 계약 범위 밖이라 사본도 그대로 옮긴다. 그래서
    (a) 킷 글이 사본 조항을 「조항 2」 로 가리키면 이제 DG 조항을 가리키게 되므로 그런 곳은 조항 첫머리 글(예: 「`[미검증]` 은 검증 도구·환경 부재 전용이며」)로 바꾸고,
    「조항 3」 은 사본 안에 3 이 둘이라 어느 쪽인지 알 수 없으므로 reviewer 일곱의 사본 밖 글에서는 같은 방식으로 첫머리 글(예: 「임계값 2 는」)로 바꾼다
-   (시작 판 여섯 곳: `backend-kit/agents/backend-reviewer.md:68` · `:127` · `design-kit/agents/design-reviewer.md:178` · `planning-kit/agents/planning-reviewer.md:117` ·
+   (시작 판 여섯 곳: `backend-kit/agents/backend-reviewer.md:68` · `:127` · `design-kit/agents/design-reviewer.md:188` · `planning-kit/agents/planning-reviewer.md:130` ·
    `react-kit/agents/react-reviewer.md:327` · `rust-kit/agents/rust-reviewer.md:166`, 교차 진단이 짚었다)
    (b) 마크다운 검사가 번호마다 MD029 경고를 3 개씩 내므로(원문에도 `:1282` · `:1288` · `:1293` 세 개가 있다) 사본 앞뒤를 MD029 끄기 · 켜기 주석 쌍
    (`<!-- markdownlint-disable MD029 -->` · `<!-- markdownlint-enable MD029 -->`)으로 감싸 경고를 늘리지 않는다. 원문 번호 정리는 넘긴다.
@@ -49,26 +49,26 @@ locked_at: "2026-09-26 17:02"
    같은 풀이를 붙인다. backend · rust · infra 가 전에 낱말을 바꿔 옮긴 까닭을 이 한 줄이 대신한다. 출처 줄은 원문 경로 · `v5.1` · 「계약」 풀이를 한 줄에 함께 담는다.
    설명을 다음 줄로 이어 써도 되지만 그 줄에는 세 낱말을 한꺼번에 넣지 않는다(SK-01 이 세 낱말이 함께 든 줄을 정확히 1 줄로 센다)
 4. 판정값 대응 — 킷마다 판정 이름이 다르다. 새 판의 세 결과(증거 무효 2 건 → 불합격 · 잰 비율 0.60 미만 → 보류 · 증거 무효 1 건 → 경고와 함께 통과)를
-   `## GAP 분석` 의 판정 대응표대로 옮긴다. planning 은 불합격 자리를 지금처럼 `NEEDS_VERIFICATION` 으로 둔다(`planning-kit/skills/plan-audit/SKILL.md:133` 이 이미 그렇게 쓴다).
+   `## GAP 분석` 의 판정 대응표대로 옮긴다. planning 은 불합격 자리를 지금처럼 `NEEDS_VERIFICATION` 으로 둔다(`planning-kit/skills/plan-audit/SKILL.md:138` 이 이미 그렇게 쓴다).
    보류는 원문 · 다른 여섯 킷과 같은 `BLOCKED` 에 사유 `insufficient_verified_coverage` 를 붙인다 — 한 판정 이름에 사유 둘을 쓰는 선례가 `infra-kit/agents/infra-reviewer.md:133` · `:136` 이다.
    react 는 판정값이 APPROVE · REJECT 둘뿐이라 `BLOCKED` 를 더하고, 이를 받아 쓰는 react-audit 리포트 틀도 같이 바꾼다.
-5. 기계 대조 시험을 둔다 — 사본이 원문을 못 따라간 기록이 셋이다: 원문 머리말의 「현재 drift (2026-07-27 실측)」(`qa-evaluation-guide.md:1238-1242`),
+5. 기계 대조 시험을 둔다 — 사본이 원문을 못 따라간 기록이 셋이다: 원문 머리말의 「현재 drift (2026-07-27 실측)」(`qa-evaluation-guide.md:1251-1255`),
    backend 가 「"문구 변형 없이 복제" 주장이 사실과 달랐다」 고 적은 2026-08-13 재동기화(`backend-kit/agents/backend-reviewer.md:74-76`),
    2026-09-24 Phase 8 이 일곱 모두 새 판이 없다고 적은 기록(`phase8-notes.md:92`). 레포 규칙은 같은 실수가 세 번이면 사람 다짐이 아니라 기계 검사로 올린다
    (`harness/docs/guides/skill-design-guide.md` §3.7 강제 등급 표, `.claude/skills/infra-kaizen/SKILL.md:34` 가 옮겨 적은 「2 회 재발 → E2, 3 회 → E3」).
    그래서 `scripts/check-reviewer-protocol-copies.py` 를 새로 두고 CI `validate` 묶음에 한 단계로 넣는다. `scripts/validate-plugin.py` 에 검사를 더하지 않는 까닭:
    등록 검사 수가 문서 여러 곳(문서 사이트 포함)에 적혀 있어 범위 밖 문서까지 고쳐야 한다.
 6. 새로 찾은 소비면 — backend-audit · rust-audit 는 두 장부로 이미 나눴지만 APPROVE 조건이 「전 카테고리(row) PASS」 라 도구 부재(`[미검증:ENV]`) 항목이 하나라도
-   있으면 어느 판정에도 걸리지 않는다(`backend-kit/skills/backend-audit/SKILL.md:113` · `rust-kit/skills/rust-audit/SKILL.md:125` · `rust-kit/agents/rust-reviewer.md:168`).
-   「ENV 는 불합격 셈에서 뺀다」 와 어긋나므로 같이 맞춘다. infra-audit 는 우선순위 목록(`infra-kit/skills/infra-audit/SKILL.md:103-108`)이 이미 새 판과 같아 고치지 않는다.
+   있으면 어느 판정에도 걸리지 않는다(`backend-kit/skills/backend-audit/SKILL.md:118` · `rust-kit/skills/rust-audit/SKILL.md:133` · `rust-kit/agents/rust-reviewer.md:168`).
+   「ENV 는 불합격 셈에서 뺀다」 와 어긋나므로 같이 맞춘다. infra-audit 는 우선순위 목록(`infra-kit/skills/infra-audit/SKILL.md:109-114`)이 이미 새 판과 같아 고치지 않는다.
    api-kit 스킬에는 api-reviewer 를 부르는 글이 없다(`grep -rlF api-reviewer api-kit/skills` 0 파일) — 소비면 없음.
 7. design-kit 시험 파일 한 줄 — `design-kit/evals/evals.json:451` 이 「미검증 2건 이상이면 FAIL 0이어도 REJECT로 판정한다」 로 옛 규칙을 적고 있다. 소비면이라 같이 고친다.
 8. 같은 문구를 쓰는 다른 파일 — 교차 진단이 「미검증 2 건 이상」 문구로 저장소 전체를 찾아 다섯 곳을 더 짚었다. 둘로 갈린다.
-   - 만드는 쪽(스킬이 자기 완료를 보고하는 쪽) 규칙이라 맞는 것 넷: `infra-kit/skills/infra-test/SKILL.md:449` · `react-kit/references/render-evidence-protocol.md:205` ·
-     `flutter-toolkit/references/visual-evidence-protocol.md:141-142` · `onboarding-kit/skills/setup-guide/evals/evals.json:87` 의 「2 건 이상이면 부분 완료」 는
+   - 만드는 쪽(스킬이 자기 완료를 보고하는 쪽) 규칙이라 맞는 것 넷: `infra-kit/skills/infra-test/SKILL.md:454` · `react-kit/references/render-evidence-protocol.md:209` ·
+     `flutter-toolkit/references/visual-evidence-protocol.md:145-146` · `onboarding-kit/skills/setup-guide/evals/evals.json:87` 의 「2 건 이상이면 부분 완료」 는
      `harness/docs/guides/skill-design-guide.md` §3.7 5 조항 3 항이 정본이고, 그 절이 `:308` 에서 「2 건 기준은 양쪽이 세는 대상이 다르다 — 생성 측은 `[미검증]` 전체로
      부분 완료를 가르고, 평가 측은 `INVALID` 만으로 REJECT 를 가른다」 고 적었다. 평가 쪽 규칙을 바꾸는 이 계약이 고칠 글이 아니다
-   - 평가 쪽 옛 사본인 것 하나: `flutter-toolkit/skills/flutter-audit/SKILL.md:32-49` 가 옛 다섯 조항(3 분기 · 「임계값은 2 다」)을 들고 있다. flutter-toolkit 에는
+   - 평가 쪽 옛 사본인 것 하나: `flutter-toolkit/skills/flutter-audit/SKILL.md:36-53` 가 옛 다섯 조항(3 분기 · 「임계값은 2 다」)을 들고 있다. flutter-toolkit 에는
      `agents/*-reviewer.md` 가 없어 사용자가 고른 일곱 밖이고 새 검사도 이 파일을 보지 않는다 — `## 범위 경계` 에 넘김으로 적는다
 
 **사용자 승인(Step 5).** 사용자가 「다음 세션에서 직접할 일을 다 실행하고 이어질것도 실행해」(세션 기록
@@ -137,7 +137,7 @@ locked_at: "2026-09-26 17:02"
 | `harness/docs/guides/qa-evaluation-guide.md` (읽기만) | `:1231-1299` 원문 · `:1275` · `:1282` 번호 3 둘 · `:889-897` 4 요건 | 원문 번호 겹침은 넘김 | SK-01 |
 | `howto-kit/agents/howto-reviewer.md` (읽기만) | `:30` · `:79-81` `[미검증:ENV]` · `[미검증:INVALID]` 를 쓰나 사본은 없다 | 여덟째 reviewer — 이번 결정(일곱)의 범위 밖 | ER-01 (제외 목록) |
 | `harness/docs/guides/skill-design-guide.md` (읽기만) | `:298-308` 스킬이 지켜야 할 5 조항 3 항 · `:308` 「2 건 기준은 양쪽이 세는 대상이 다르다」 | 만드는 쪽 「부분 완료」 규칙의 정본 | 판단 기록 8 |
-| `infra-kit/skills/infra-test/SKILL.md` · `react-kit/references/render-evidence-protocol.md` · `flutter-toolkit/references/visual-evidence-protocol.md` · `onboarding-kit/skills/setup-guide/evals/evals.json` (읽기만) | `:449` · `:205` · `:141-142` · `:87` 「2 건 이상이면 부분 완료」 | 만드는 쪽 규칙이라 맞다. `render-evidence-protocol.md:205` 의 「정본 조항 3」 표기만 원문 번호 겹침과 함께 넘김 | 고치지 않음 |
+| `infra-kit/skills/infra-test/SKILL.md` · `react-kit/references/render-evidence-protocol.md` · `flutter-toolkit/references/visual-evidence-protocol.md` · `onboarding-kit/skills/setup-guide/evals/evals.json` (읽기만) | `:449` · `:205` · `:141-142` · `:87` 「2 건 이상이면 부분 완료」 | 만드는 쪽 규칙이라 맞다. `render-evidence-protocol.md:209` 의 「정본 조항 3」 표기만 원문 번호 겹침과 함께 넘김 | 고치지 않음 |
 | `flutter-toolkit/skills/flutter-audit/SKILL.md` (읽기만) | `:33` 「5 조항은 정본을 **문구 변형 없이** 복제」 · `:40` 「3 분기」 · `:41` 「임계값은 2 다」 | 평가 쪽 옛 사본 — reviewer 일곱 밖 | 넘김 |
 
 구현 후보는 하나다(사본 교체 + 판정 글 맞춤 + 기계 대조). 사본을 원문 링크로만 두는 안은 킷이 따로 설치돼 원문을 못 읽으므로 뺐다(과제 지시).
@@ -209,15 +209,15 @@ scripts/check-reviewer-protocol-copies.py
 - 넘김 (고치지 않고 받을 곳을 적는다):
   - 원문 `harness/docs/guides/qa-evaluation-guide.md` 의 조항 번호 겹침(3 이 둘, `:1275` · `:1282`)과 머리말 「5 조항」 · 「현재 drift (2026-07-27 실측)」 문단 — 원문은 이 계약 범위 밖. 다음 사이클 Phase 3(C2 묶음).
     원문이 번호를 고치면 일곱 사본도 같이 바뀌어야 하며, 그때는 새 검사가 그것을 잡는다. backend-audit · rust-audit · infra-audit 의 「정본 조항 3」 표기(원문을 직접 가리킴)와
-    `react-kit/references/render-evidence-protocol.md:205` 의 「정본 조항 3」(만드는 쪽 문서가 원문을 가리킴)도 그때 함께 본다
-  - `flutter-toolkit/skills/flutter-audit/SKILL.md:32-49` 의 옛 다섯 조항 사본 — flutter-toolkit 에는 `agents/*-reviewer.md` 가 없어 사용자가 고른 일곱 밖이다. 다음 사이클 Phase 5(flutter-kaizen).
-    만드는 쪽 「2 건 이상이면 부분 완료」 넷(판단 기록 8)은 정본 `skill-design-guide.md:308` 과 맞아 넘김도 아니고 고칠 것이 없다
+    `react-kit/references/render-evidence-protocol.md:209` 의 「정본 조항 3」(만드는 쪽 문서가 원문을 가리킴)도 그때 함께 본다
+  - `flutter-toolkit/skills/flutter-audit/SKILL.md:36-53` 의 옛 다섯 조항 사본 — flutter-toolkit 에는 `agents/*-reviewer.md` 가 없어 사용자가 고른 일곱 밖이다. 다음 사이클 Phase 5(flutter-kaizen).
+    만드는 쪽 「2 건 이상이면 부분 완료」 넷(판단 기록 8)은 정본 `skill-design-guide.md:312` 과 맞아 넘김도 아니고 고칠 것이 없다
   - `harness/agents/qa-evaluator.md` — 범위 밖(과제 지시)
-  - `howto-kit/agents/howto-reviewer.md` — 원문은 `*-kit/agents/*-reviewer.md` 모두가 사본을 들라고 하지만(`qa-evaluation-guide.md:1233`) 사용자 결정은 일곱이다. 새 검사는 이 파일을 이유와 함께 제외 목록에 둔다. 다음 사이클 Phase 17
+  - `howto-kit/agents/howto-reviewer.md` — 원문은 `*-kit/agents/*-reviewer.md` 모두가 사본을 들라고 하지만(`qa-evaluation-guide.md:1246`) 사용자 결정은 일곱이다. 새 검사는 이 파일을 이유와 함께 제외 목록에 둔다. 다음 사이클 Phase 17
   - design-reviewer `:185` 의 「미검증 0 건 · L3 10 개 미만 → CONDITIONAL APPROVE (L3 부분 커버리지)」 가 원문 「CONDITIONAL APPROVE 는 1 건 + FAIL 0 에서만」 과 어긋나는 것 — 옛 판부터 있던 design-kit 의 L3 규칙이고 미검증 규칙이 아니다. 다음 사이클 Phase 6
   - 옛 문턱을 설명하는 문서 사이트 쪽 세 쪽 `docs/harness/contract-design-guide.html` · `docs/harness/qa-evaluation-guide.html` · `docs/harness/skill-design-guide.html` — `docs/` HTML 은 범위 밖(과제 지시). 원문 쪽 문서라 C2 묶음 · 문서 사이트 재생성 때
   - `harness/evals/gate-exit-codes.md` 소비처 표에 새 스크립트 행 — harness 폴더 파일이고 표가 이미 모든 사용처를 담지 않는다(`scripts/check-stale-values.py` 도 없다). 다음 사이클 Phase 4
-  - design · backend · planning · react 카이젠 스킬(`.claude/skills/design-kaizen/SKILL.md:24` · `backend-kaizen/SKILL.md:37` · `planning-kaizen/SKILL.md:21` · `react-kaizen/SKILL.md:122`)의 「5 조항을 문구 변형 없이 복제」 문장 — 사본이 원문과 글자까지 같아지면 사실이 되는 문장이라 고치지 않는다
+  - design · backend · planning · react 카이젠 스킬(`.claude/skills/design-kaizen/SKILL.md:24` · `backend-kaizen/SKILL.md:37` · `planning-kaizen/SKILL.md:21` · `react-kaizen/SKILL.md:132`)의 「5 조항을 문구 변형 없이 복제」 문장 — 사본이 원문과 글자까지 같아지면 사실이 되는 문장이라 고치지 않는다
 - 함께 도는 다른 묶음: `chore/ak-c4c` 가 `rust-kit/skills/rust-audit/SKILL.md` 의 다른 줄(`:20` · `:27` · `:100` · `:103` · `:113`)을, `chore/ak-c1-harness-scripts` 가 `.github/workflows/ci.yml` 에 다른 단계를 더한다.
   이 계약의 수정 자리(rust-audit `:123-128` · ci.yml `Stale value check` 근처)와 겹치지 않게 하고, 합칠 때 생기는 글자 충돌은 부모가 푼다
 - 판정 한계: 판정 대응표(SK-05 · SK-07)는 결정론 측정이 없다 — QA 가 판정 글을 읽어 칸을 채우고, `m SK-05` · `m SK-07` 의 판정값 글자 존재(`labels_ok`)는 보조다.

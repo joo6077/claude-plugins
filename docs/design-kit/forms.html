@@ -95,7 +95,7 @@
     font-size:14px;font-weight:700;border:2px solid var(--border);background:var(--surface);
     transition:all var(--transition);color:var(--text3)}
   .step-circle.active{border-color:var(--green);background:rgba(74,222,128,0.15);color:var(--green)}
-  .step-circle.done{border-color:var(--green);background:var(--green);color:#0a0a0f}
+  .step-circle.done{border-color:var(--green);background:var(--green);color:var(--dk-on-color, #0a0a0f)}
   .step-title{font-size:11px;font-weight:600;color:var(--text3);white-space:nowrap;transition:color var(--transition)}
   .step-title.active{color:var(--green)}
   .step-title.done{color:var(--text2)}
@@ -103,7 +103,7 @@
   .step-line.done{background:var(--green)}
   .step-content{min-height:160px}
   .step-nav{display:flex;justify-content:space-between;margin-top:20px}
-  .btn-primary{background:var(--green);color:#0a0a0f;border-color:var(--green);font-weight:700}
+  .btn-primary{background:var(--green);color:var(--dk-on-color, #0a0a0f);border-color:var(--green);font-weight:700}
   .btn-primary:hover{background:#5eec9a;border-color:#5eec9a}
 
   /* Funnel chart */
@@ -147,6 +147,27 @@
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <header>

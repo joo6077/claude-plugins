@@ -12,3 +12,10 @@ schema:
     "$.tier":   { type: string, required: true, enumCandidate: [gold, silver, bronze], confirmed: true, description: 회원 등급 }
 pin:
   - { path: "$.tier", assert: "in [gold, silver, bronze]" }
+# 첫 성공 검증 전이라 pending. 값은 snapshots/dev/users.me.json 의 manifest 에서 옮겼다
+baseline:
+  normalizedDigest: sha-256:8b9866b585780dc942e2c739c021d7bcd27fb9dbca8d5cbbaf48d46027b3d797
+  mediaType: application/json
+  extractionMode: pin
+  lineage: { env: dev, branch: main, capturedAt: "2026-09-02T14:22:00+09:00" }
+  state: pending

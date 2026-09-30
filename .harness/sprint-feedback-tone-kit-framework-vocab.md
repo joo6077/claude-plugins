@@ -59,12 +59,12 @@ frontmatter(`status: active`, `conditions: 20`)를 붙이는 것을 권장한다
 
 ### FC — 정합 (4/4)
 - [x] FC-01: 운영 문서(references/)와 근거 문서(docs/tone/)가 같은 규칙을 말함 — PASS
-  - 근거: `docs/tone/templates.md:143` ↔ `docs/tone-kit/templates.html:540` `{Event}` 설명 문구 완전 일치(`onChanged`·`onTapDown`·`onLongPressStart`·`onSubmitted`, N-12·D-15 인용) — Iteration 3 FAIL 재현 안 됨
+  - 근거: `docs/tone/templates.md:147` ↔ `docs/tone-kit/templates.html:540` `{Event}` 설명 문구 완전 일치(`onChanged`·`onTapDown`·`onLongPressStart`·`onSubmitted`, N-12·D-15 인용) — Iteration 3 FAIL 재현 안 됨
   - 전수 스윕: `grep -rn "Blur" tone-kit/ docs/tone/ docs/tone-kit/` → 0건. `Changed…Tap…(Blur|Submit)` 나열형 패턴 → 0건. (git HEAD 버전에서는 동일 패턴이 매치되어 grep 자체의 유효성 확인됨 — 공허한 0 아님)
 - [x] FC-02: 어댑터 슬롯 표가 references ↔ docs/tone/dart-flutter-idioms.md 양쪽 일치 (event_vocabulary 포함) — PASS
-  - 근거: `naming_suffix`·`event_vocabulary` 두 슬롯 행 모두 `tone-kit/references/adapter-dart-flutter.md:27-28` ↔ `docs/tone/dart-flutter-idioms.md:634-635` 문자 단위 대조 완료(내용 일치, 표현만 references가 terse·docs가 확장형인 기존 패턴 유지)
+  - 근거: `naming_suffix`·`event_vocabulary` 두 슬롯 행 모두 `tone-kit/references/adapter-dart-flutter.md:27-28` ↔ `docs/tone/dart-flutter-idioms.md:641-642` 문자 단위 대조 완료(내용 일치, 표현만 references가 terse·docs가 확장형인 기존 패턴 유지)
 - [x] FC-03: naming-taxonomy 의 "taxonomy 는 업계 표준이 아니다" 경고와 모순 없음 — 컴포넌트 접미사(합성)와 이벤트 어휘(프레임워크가 정함)를 구분해 설명 — PASS
-  - 근거: `docs/tone/naming-taxonomy.md:27` "합성이 필요한 자리와 그렇지 않은 자리는 다르다. 컴포넌트 접미사(...)는 단일 권위가 없어서... 합성했다. 반면 이벤트 콜백 어휘는 프레임워크가 이미 정해 뒀다 — 합성할 자리가 아니다." / `:437` 기존 "업계 표준 아니다" 경고문 그대로 보존 (삭제 없음)
+  - 근거: `docs/tone/naming-taxonomy.md:28` "합성이 필요한 자리와 그렇지 않은 자리는 다르다. 컴포넌트 접미사(...)는 단일 권위가 없어서... 합성했다. 반면 이벤트 콜백 어휘는 프레임워크가 이미 정해 뒀다 — 합성할 자리가 아니다." / `:437` 기존 "업계 표준 아니다" 경고문 그대로 보존 (삭제 없음)
 - [x] FC-04: HTML 2페이지가 갱신된 md 를 반영 (제스처 표 실림) — PASS
   - 근거: `docs/tone-kit/dart-flutter-idioms.html:1134-1246` 제스처별 공식 콜백 표 + `58개(3.38.4)` source-badge 존재. `docs/tone-kit/naming-taxonomy.html:592` N-12/D-15/event_vocabulary 인용 확인. 두 HTML 모두 div 태그 밸런스 정상(balanced=True, python re 카운트)
 

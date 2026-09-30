@@ -12,6 +12,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/backend/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 - **SQLx와 SeaORM 중 프로젝트가 이미 사용하는 ORM을 먼저 감지** — 둘을 한 프로젝트에 섞지 마라. `HAS_SEAORM`이면 SeaORM 경로, `HAS_SQLX` only면 SQLx 경로를 따른다. 둘 다 있는 "hybrid"는 대형 실사용 프로젝트에서도 안티패턴이다.

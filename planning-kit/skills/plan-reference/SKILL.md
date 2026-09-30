@@ -14,6 +14,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **기능 베끼기 금지 (Feature Parity Trap)** — 레퍼런스 기능을 모두 구현하면 너도 평범해진다. Feature Matrix 는 "따라할 것 / 의도적 제외 / 우리만의 것" 3분할이 목적이지, 체크리스트 복제가 아니다. 출처: [April Dunford — Positioning](https://www.aprildunford.com/).
 2. **성공한 레퍼런스만 보기 금지 (Survivorship Bias)** — 실패한/사라진 경쟁자도 teardown 대상. Notion 보면서 Roam 을 놓치지 마라. 실패 원인이 가장 값비싼 인사이트다. 출처: [The Decision Lab — Survivorship Bias](https://thedecisionlab.com/fr-CA/biases/survivorship-bias).
 3. **기능만 보고 맥락 무시 금지** — "ComfyUI 노드 연결 UX 똑같이" 가 아니라 "ComfyUI 사용자가 그 UX 를 고용한 이유"를 분해. JTBD 관점으로 재정의. 출처: [Alan Klement — JTBD](https://www.alanklement.com/).

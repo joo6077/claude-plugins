@@ -79,7 +79,7 @@ evidence 가 지적한 것은 세 축(H1/H2/H3) + 멱등 계약이고, 넷 다 b
 | H3b | 핵심 guard 음성 대조 부재 | `grep -rniE "음성 대조\|negative control\|판별력" backend-kit docs/backend \| wc -l` → **0** | 프로토콜 §5b (정본 인용) + backend-test Gotcha 17 |
 | H4 | 멱등 계약이 상태코드에서 멈춤 | `audit-criteria` §2 에 replay/409/422/400 은 있으나 킷 전체에서 `payload fingerprint` **0** · `key 범위` **0** · 계약용 `expiry` **0** | 프로토콜 §4 6 항목 (상태코드는 재정의하지 않고 audit-criteria §2 를 SSOT 로 인용) |
 | F1 | outbox 전달 보장 오기 | `grep -rn "exactly-once 보장" docs/backend` → **1 건** (`research-log.md:151`). 같은 킷 `event-driven.md` 원칙 4 와 자기모순 | 정정 + `[정정 2026-08-13]` 주석 |
-| F2 | Stripe 멱등 서술 불완전 | `event-driven.md:47` 이 payload 비교·만료 시맨틱 누락, "24 시간 동안 같은 응답" 으로 오해 유발 | 정정 (결과 저장 + payload 비교 + 24h pruning) |
+| F2 | Stripe 멱등 서술 불완전 | `event-driven.md:48` 이 payload 비교·만료 시맨틱 누락, "24 시간 동안 같은 응답" 으로 오해 유발 | 정정 (결과 저장 + payload 비교 + 24h pruning) |
 | P1 | Phase 1 서브에이전트 스펙 거짓 서술 | `grep -rniE "subagent\|서브에이전트\|중첩\|nest\|frontmatter" backend-kit` → 관련 3 행 전부 정상(호출 방법·섹션 제목) · **거짓 서술 0 건** | **정정 불필요** — 확인 완료, 변경 없음 |
 
 ## 범위 경계

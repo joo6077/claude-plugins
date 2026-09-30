@@ -15,6 +15,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 - **`pin` 은 '값 고정' 이 아니다 — 경로별 명시 assertion 이다.** 값 고정(`const`)은 pin 이 표현할 수 있는 assertion 한 종류일 뿐이고, 안정 필드(discriminator·통화 코드·고정 status)에만 쓴다. `total`·`cursor`·`id`·`timestamp` 처럼 매 호출 변하는 필드에는 범위·패턴·불변식을 건다 (`$.meta.total >= len($.data)` · `$.orderId ^ord_`). pin 을 payload value freeze 로 구현하면 매 실행 실패한다. **그리고 타입 변경은 pin 이 아니라 partial 이 잡는다** — pin 이 잡는 것은 타입은 멀쩡한 채 값만 망가진 회귀다 (`"Bearer"` → `"bearer"`, `47` → `-1`, `"active"` → `"ACTIVE"` 는 전부 타입이 그대로라 partial 을 통과한다). 이 귀속을 헷갈리면 실패 원인을 잘못 보고하고 엉뚱한 모드를 올려 오탐을 만든다. 출처: `docs/api/contract/contract-extraction-modes.md` §2 · 안티패턴 4행, 설계문서 §9.2.

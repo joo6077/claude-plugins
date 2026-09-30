@@ -96,7 +96,7 @@ Phase 1.9 라는 **경로**를 만들어야 한다.
 
 **evidence 기반 정정 3 건:**
 
-1. **`layer_height` `0.08` 의 근거가 없다.** `surface-recipes.md:107` 이 `0.08` 을
+1. **`layer_height` `0.08` 의 근거가 없다.** `surface-recipes.md:108` 이 `0.08` 을
    "0.12mm High Quality @BBL H2S.json" 을 근거로 제시하는데, 0.12 프로파일은 0.08 의 근거가 될 수 없다.
    evidence: `0.08` 은 `min_layer_height 0.07` 위이지만 **H2S 공식 0.08 process 근거는 미확인**.
    → `0.12` 를 1 차 권장으로 올리고 `0.08` 은 `[미확인]` 라벨 + 사용자 확인 후로 강등.
@@ -132,7 +132,7 @@ bambu-kit 은 에이전트 0 개인 1 스킬 킷이다.
 | F3 | L3 키 13 종(brim/raft/initial_layer/plate temp/aux fan)이 킷 전체에 부재 | `brim_type` · `brim_object_gap` · plate temp 3 종 · aux fan 2 종 등 전부 **0** | AR-02 |
 | F4 | 실패 모드 인테이크 경로 부재 | `grep -c 'Phase 1.9\|Failure-Mode\|Supportability' SKILL.md` → **0** | SK-01 · SK-02 |
 | F5 | Phase 4.3 E3 게이트의 금지 키 검사 | `elephant_foot_compensation` **만** 존재 · 나머지 3 종 **0** | SK-03 |
-| F6 | `surface-recipes.md:107` 의 `0.08` 근거 오귀속 | 옛 행 매치 **1** | ER-01 |
+| F6 | `surface-recipes.md:108` 의 `0.08` 근거 오귀속 | 옛 행 매치 **1** | ER-01 |
 | F7 | `SKILL.md:614` `enable_arc_fitting` 을 튜닝 카드로 제시 | 옛 문자열 `- ✅ \`enable_arc_fitting\` (원통 모델)` **1** | ER-02 |
 | F8 | L2 대응 시 온도/fan 자동 변경 금지 규약 | 기존 `❌ retraction/fan/cooling 안 건드림` 1 행 — **게이트 예외 경로 없음** (자동 과상향 위험은 막지만 정당한 wipe 경로도 없음) | SK-04 |
 

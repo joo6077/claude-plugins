@@ -41,7 +41,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 - 반대·한계: `command -v`는 외부 실행 파일만이 아니라 셸 내장·예약어·함수도 보고할 수 있다. 단순한 `PATH` 축소가 모든 명령 종류를 숨긴다는 일반화는 틀리다. `jq`처럼 외부 유틸리티임이 확실한 대상에는 적합하지만, 일반 도구에는 출력의 종류까지 확인해야 한다. [POSIX `command -v`](https://pubs.opengroup.org/onlinepubs/9799919799/utilities/command.html)
 
-- 레포 실측 근거도 방향이 같다. 2026-09-22에는 따옴표 없는 셸 변수가 파일을 못 찾은 오류를 `2>/dev/null`이 삼켜 0처럼 보이게 했다. 즉 기대 “값”과 별개로 입력 경로·대상 수·명령 성공 여부를 먼저 검증해야 했다. [skill-design-guide.md:325](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:325)
+- 레포 실측 근거도 방향이 같다. 2026-09-22에는 따옴표 없는 셸 변수가 파일을 못 찾은 오류를 `2>/dev/null`이 삼켜 0처럼 보이게 했다. 즉 기대 “값”과 별개로 입력 경로·대상 수·명령 성공 여부를 먼저 검증해야 했다. [skill-design-guide.md:329](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:329)
 
 - 추론: 스키마 면제를 “구현이 만들 값”으로 한정하고, PATH·파일 경로·환경변수·빈 입력 구성 같은 준비 단계는 면제하지 않는 설계가 외부 명령 의미와 잘 맞는다.
 
@@ -69,7 +69,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 - LLM 평가 연구에서는 모든 중간 점수 설명보다 양끝 점수 설명만 둔 구성이 인간 평가와 가장 높은 상관을 보이면서 일관성을 유지했다. 더 많은 기준 설명이 항상 더 신뢰성 높다는 근거는 아니다. [arXiv 2506.13639](https://arxiv.org/html/2506.13639v1)
 
-- 레포에는 실제 충돌이 있다. Gotcha는 안티패턴 최소 2개를 강제하지만, Step 3과 스키마는 `AP-00: N/A (사유)`를 허용한다. [sprint-contract/SKILL.md:38](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:38), [sprint-contract/SKILL.md:498](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:498)
+- 레포에는 실제 충돌이 있다. Gotcha는 안티패턴 최소 2개를 강제하지만, Step 3과 스키마는 `AP-00: N/A (사유)`를 허용한다. [sprint-contract/SKILL.md:38](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:38), [sprint-contract/SKILL.md:504](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:504)
 
 - 추론: 자동 포함 RE 2개·DG 4개와 형식상 필요한 `N/A` 줄은 기능 크기 지표에서 빼고, 4축 복잡도 결과에 따라 기능 조건만 1~3개부터 확장하는 방식이 더 일관된다. 정확한 구간 자체에는 외부 정량 근거가 없다.
 
@@ -81,7 +81,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 - 반대·한계: `date '+%Y-%m-%d %H:%M'`만으로는 시간대와 초가 사라진다. 현재 스키마와의 호환을 위해 그 형식을 유지할 수 있지만, 서로 다른 시간대의 기록을 비교한다면 오프셋을 가진 원본 타임스탬프도 보존해야 한다. [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
 
-- 현재 스키마는 이미 동의 앵커의 두 번째 출처로 세션 기록의 AskUserQuestion 쌍과 답변 시각을 규정하지만, 평가자 정의에는 prompt-log만 남아 있다. [contract-schema.md:989](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:989), [qa-evaluator.md:693](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:693)
+- 현재 스키마는 이미 동의 앵커의 두 번째 출처로 세션 기록의 AskUserQuestion 쌍과 답변 시각을 규정하지만, 평가자 정의에는 prompt-log만 남아 있다. [contract-schema.md:989](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:989), [qa-evaluator.md:705](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:705)
 
 ### user-setup:P5 — 셸 이식성 규약
 
@@ -133,9 +133,9 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 | 위치 | 현재 값 | 최신 확인 값 | 판정 |
 |---|---|---|---|
-| [skill-design-guide.md:10](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:10) | “Anthropic 공식 문서(2026-04 최신)” | 현재 Skills 문서는 최소 Claude Code v2.1.273까지의 동작을 기술하고, 새 `arguments`, `${CLAUDE_SKILL_DIR}`, `${CLAUDE_PROJECT_DIR}` 등의 규약을 포함한다. [Claude Code Skills](https://code.claude.com/docs/en/skills) | **낡음**. “2026-04 최신”이라는 최신성 표시는 제거하거나 조회일 2026-09-24로 갱신해야 한다. |
+| [skill-design-guide.md:14](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/skill-design-guide.md:14) | “Anthropic 공식 문서(2026-04 최신)” | 현재 Skills 문서는 최소 Claude Code v2.1.273까지의 동작을 기술하고, 새 `arguments`, `${CLAUDE_SKILL_DIR}`, `${CLAUDE_PROJECT_DIR}` 등의 규약을 포함한다. [Claude Code Skills](https://code.claude.com/docs/en/skills) | **낡음**. “2026-04 최신”이라는 최신성 표시는 제거하거나 조회일 2026-09-24로 갱신해야 한다. |
 | [sprint-contract/SKILL.md:74](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/skills/sprint-contract/SKILL.md:74) | `$N = $ARGUMENTS[N]`, 누락된 indexed argument는 그대로 남고 `\\$1`로 literal escape | 현행 공식 문서도 동일 | 최신. [Claude Code Skills](https://code.claude.com/docs/en/skills) |
-| [qa-evaluator.md:1223](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:1223) | `${CLAUDE_PLUGIN_ROOT}`는 설치 디렉터리 절대경로 | 현행 공식 문서도 동일 | 최신. [Plugins Reference](https://code.claude.com/docs/en/plugins-reference) |
+| [qa-evaluator.md:1235](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:1235) | `${CLAUDE_PLUGIN_ROOT}`는 설치 디렉터리 절대경로 | 현행 공식 문서도 동일 | 최신. [Plugins Reference](https://code.claude.com/docs/en/plugins-reference) |
 | [harness/README.md:63](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/README.md:63) | jq 버전 미지정 | 최신 확인 안정 릴리스 `jq-1.8.2`, 2026-06-20. 보안 수정 다수 포함 | 낡은 버전 표기는 없지만 최소 버전 정책도 없다. [jq 1.8.2](https://github.com/jqlang/jq/releases/tag/jq-1.8.2) |
 | contract/schema 셸 스니펫 | zsh 기본 1-base 가능성을 아직 명시하지 않음 | zsh 기본 1-base, `KSH_ARRAYS`에서는 0-base; Bash는 0-base | **규약 누락**. [zsh](https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Parameters), [Bash](https://www.gnu.org/software/bash/manual/html_node/Arrays.html) |
 
@@ -145,8 +145,8 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 외부 버전 문제는 아니지만 Phase 2 편집 시 그대로 두면 문서 정합성이 깨진다.
 
-- [contract-design-guide.md:1293](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:1293): Schema version `v5.3` → 현재 스키마 선언은 [contract-schema.md:1126](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:1126)의 `v5.4`.
-- [qa-evaluator.md:1217](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:1217): contract-design-guide `v4` → 실제 frontmatter는 [contract-design-guide.md:3](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:3)의 `v5.0`.
+- [contract-design-guide.md:1309](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:1309): Schema version `v5.3` → 현재 스키마 선언은 [contract-schema.md:1126](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:1126)의 `v5.4`.
+- [qa-evaluator.md:1229](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/agents/qa-evaluator.md:1229): contract-design-guide `v4` → 실제 frontmatter는 [contract-design-guide.md:3](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/docs/guides/contract-design-guide.md:3)의 `v5.0`.
 - [contract-schema.md:817](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/insights-0924-kaizen/harness/references/contract-schema.md:817)에는 “v5.5 추가”가 있으나 같은 파일의 현재 버전은 `v5.4`다. 버전 bump 누락인지 미래 버전 라벨 오기인지 결정이 필요하다.
 
 ## 4. 권장안

@@ -26,22 +26,22 @@ gd 「뒤따를 일」 · dcb 「다른 묶음과 부딪히는 곳」. 「처리
 | 같은 raw 안내가 api · design · flutter · howto · onboarding · planning · react · reflect 에도 없음 (이번에 찾음) | 이 묶음 밖 | 파일 69 개이고 그 가운데 사용자 프로젝트의 `docs/` 를 뜻하는 경로가 섞여 있어 하나씩 가려야 한다. k2 notes 가 짚은 범위만 고친다 — notes 에 넘김 |
 | OpenAPI 최소 지원선 문구 (k2 독립 검토 1) | 계약에 넣음 | SK-06. `docs/backend/research-log.md` 는 날짜 기록이라 두고, 문서 페이지는 부모 몫 |
 | design-mockup Step 0 이 대상 전에 관례 표 (k2 독립 검토 2) | 계약에 넣음 | SK-07 — 관례 표 줄만 Step 1 뒤로 미룬다 |
-| bambu references 4종 (vsb) · 루트 README 나무 그림 (vsb) | 계약에 넣음 | SK-08. `.claude/skills/bambu-research/SKILL.md:5` · `bambu-kit/README.md:39` 의 「4종」 은 research 가 고치는 대상 넷(`.claude/skills/bambu-research/SKILL.md:29-32` 표)이라 맞는 말 — 그대로 둔다 |
+| bambu references 4종 (vsb) · 루트 README 나무 그림 (vsb) | 계약에 넣음 | SK-08. `.claude/skills/bambu-research/SKILL.md:5` · `bambu-kit/README.md:39` 의 「4종」 은 research 가 고치는 대상 넷(`.claude/skills/bambu-research/SKILL.md:33-36` 표)이라 맞는 말 — 그대로 둔다 |
 | AP-04 정규식이 닫는 `---` 에 걸림 (us) | 계약에 넣음 | SC-07 |
 | 피드백 `project_hash` 재계산 경고 (k2) | 계약에 넣음 | SC-06 · SK-09 — 스크립트가 아니라 설명과 조각이 뒤처졌다 |
 | 검사기 단추 id `theme-btn` 만 봄 (dca) | 이 묶음 밖 | 고치면 `docs/design-kit/visual-styles.html` 단추가 63x33 이라 CI 가 빨개진다(흉내 판 실측, `color-palette` 87x48 · `korean-technical-writing` 80x44 는 통과). 페이지 손질이 같이 있어야 해 문서 페이지 차례로 넘긴다 |
 | `check-stale-values` 가 오케스트레이터 참고 폴더를 안 봄 (dcb) | 처리됨 | `scripts/check-stale-values.py:56` 에 `.claude/skills/kaizen-orchestrator/references` 가 있다(vsa VS-27) |
-| 매핑 표 `process (공유)` 행 부딪힘 (dcb) | 처리됨 | `.claude/skills/docs-site/SKILL.md:64` 에 원본 둘, `detect-docs-drift.py --check-table` 어긋남 0 |
-| docs-site 스킬 「line-height 1.2~1.6배」 (k2) · KD-2 · VS-18 (dca) | 처리됨 | `.claude/skills/docs-site/SKILL.md:103` 이 「행간 1.7 은 공통 파일」, `design-audit/references/audit-criteria.md:10` 이 문자 체계별 범위, 오케스트레이터에 `standalone` 0 줄 |
+| 매핑 표 `process (공유)` 행 부딪힘 (dcb) | 처리됨 | `.claude/skills/docs-site/SKILL.md:68` 에 원본 둘, `detect-docs-drift.py --check-table` 어긋남 0 |
+| docs-site 스킬 「line-height 1.2~1.6배」 (k2) · KD-2 · VS-18 (dca) | 처리됨 | `.claude/skills/docs-site/SKILL.md:110` 이 「행간 1.7 은 공통 파일」, `design-audit/references/audit-criteria.md:10` 이 문자 체계별 범위, 오케스트레이터에 `standalone` 0 줄 |
 | KD-3 다섯 자리가 화면 규약 숫자 재정의 (gd · k2) | 처리됨 | design-kit 에 `2 개 이상` · `3 회` 0 줄, `§8.9` 인용 다섯 파일 |
 | reflect-digest 드리프트 [NEW] (vsa) | 처리됨 | 페이지 `docs/reflect-kit/reflect-digest.html` 이 생겨 이제 다시 맞출 쪽으로 나온다 — 다시 만들기는 부모 몫 |
 | DG-05 가 평가자 `status:` 편집으로 깨짐 (pd · dca DG-05) | 처리됨 | 규칙과 도우미 `dirty_except_status` 가 v5.7 에 들어갔다(`contract-schema.md:678-692`). 도우미 결함은 SC-05 가 고친다 |
-| design-mockup Step 2 가 폐기 칸 경로를 따라 읽기 (pd) | 처리됨 | pd2 가 넣었다(`design-mockup/SKILL.md:56`) |
+| design-mockup Step 2 가 폐기 칸 경로를 따라 읽기 (pd) | 처리됨 | pd2 가 넣었다(`design-mockup/SKILL.md:57`) |
 | AR-02 `exact` · `old_left` 칸 나누기 제안 (dca QA 3 회차) | 이 묶음 밖 | 한 계약의 도우미 짜임 제안이라 규칙 문장이 아니다 — 다음 계약을 쓸 때의 관례. contract-kaizen 몫 |
 | 원래 있던 편집기 경고 (cs · VS-26) | 이 묶음 밖 | 기존 마크다운 경고 정리는 부모가 다음 차례에 한다 |
 | 문서 사이트 페이지 다시 만들기 (cs · gd · hs · k1 · pd · pd2 · vsa · vsb · dcb 의 KT-1 · KRf-1) | 이 묶음 밖 | 부모가 다음 차례에 한다. 이 계약이 원본을 고친 쪽(가이드 둘 · design-mockup · api-design · 스키마)도 그때 다시 맞춘다 |
 | SK-11 · SK-13 머리 모양 되돌릴지 (k1) · KD-4 design:P2 (k2) · 폐기 칸 이름 남길지 (pd · pd2) · 핸드오프 틀 모델 이름 (us) | 이 묶음 밖 | 사용자 판단 몫으로 남은 항목 |
-| `docs/flutter/research-log.md:19` 2.16 문장 (k1 KF-4) | 이 묶음 밖 | 2026-09-24 조사 기록이라 그날 문장을 둔다. 규칙 본문은 이미 2.7.0 기준(`flutter-build/SKILL.md:16`) |
+| `docs/flutter/research-log.md:20` 2.16 문장 (k1 KF-4) | 이 묶음 밖 | 2026-09-24 조사 기록이라 그날 문장을 둔다. 규칙 본문은 이미 2.7.0 기준(`flutter-build/SKILL.md:20`) |
 | `spawn-kaizen-phase.sh:71` 최댓값 17 (vsa) | 이 묶음 밖 | 아래 `case` 표가 Phase 마다 손으로 적혀 있어 상한만 뽑아도 새 킷 Phase 는 `case` 에 없다. 표 전체를 바꾸는 개편이라 최소 변경 밖 |
 | `run-evals.py` `ALL_KITS` · `sync-evals.py` `TARGET_KITS` 손 목록 (vsa) | 이 묶음 밖 | 「evals 가 있는 킷」 목록이라 마켓 목록과 뜻이 다르다. 결함이 아니라 설계 개편 |
 | 두 번째 검색 줄 머리 조건 넓히기 (pd2) · 다른 폐기 표기 (pd) | 이 묶음 밖 | 넓히면 규칙 인용 줄을 폐기 결정으로 잘못 잡는 쪽이 커진다(pd2 ER-01 과 같은 모양) — 판단이 먼저다 |
@@ -185,6 +185,6 @@ AR-02 는 이 notes 커밋 뒤에 잰다.
   안 따라가도 통과한다(scratch 사본에 한 줄 넣어 `checked=2 violations=0` 확인). SC-02 가 덩어리를 그렇게 정의했으므로 계약
   위반은 아니고 설계 한계다. 끝 표시를 덩어리 뒤 빈 줄이나 다음 절 머리로 옮길지 판단이 필요하다
 - `harness/docs/guides/contract-design-guide.md:759` — 「작성 시점 패턴(조건 패턴 5 종)」 이 옛 수로 남았다. 같은 가지가
-  `harness/skills/sprint-contract/SKILL.md:471` 을 「조건 패턴 8 종 (v5.7)」 로 올렸다. 옮겨 간 문장
+  `harness/skills/sprint-contract/SKILL.md:477` 을 「조건 패턴 8 종 (v5.7)」 로 올렸다. 옮겨 간 문장
   `docs/harness/contract-design-guide.html:1013` 에도 같은 말이 있어 문서 페이지 다시 만들 때 같이 맞춘다
 - `docs/harness/contract-schema.html` 은 목차(`docs/index.html`)만 v5.7 이고 페이지는 아직 옛 판 — 위 문서 페이지 차례에 포함

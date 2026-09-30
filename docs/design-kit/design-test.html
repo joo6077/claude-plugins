@@ -31,6 +31,24 @@
   --radius-lg:20px;
   --transition:0.25s cubic-bezier(.4,0,.2,1);
 }
+[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe7e0;--border:#e0dcd4;--border2:#cfc9bf;
+  --text:#1a1a24;--text2:#5a5248;--text3:#6b6259;
+  --accent:#9A4A12;--accent2:#7C3A0E;--accent-dim:rgba(154,74,18,0.10);--accent-glow:rgba(154,74,18,0.05);
+  --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#0369A1;
+  --error:#b91c1c;--success:#146B32;--warn:#7A4A05;--info:#0369A1;
+}
+[data-theme="light"] .hero h1{background:linear-gradient(135deg,var(--text) 0%,var(--accent) 60%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text}
+[data-theme="light"] .badge.pass{background:rgba(20,107,50,.10);color:#146B32}
+[data-theme="light"] .badge.fail{background:rgba(185,28,28,.08);color:#b91c1c}
+[data-theme="light"] .badge.info{background:rgba(3,105,161,.08);color:#0369A1}
+[data-theme="light"] .badge.warn{background:rgba(122,74,5,.10);color:#7A4A05}
+[data-theme="light"] .bad .code-inline{background:rgba(185,28,28,.06);color:#991b1b}
+[data-theme="light"] .good .code-inline{background:rgba(20,107,50,.06);color:#14532d}
+.theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+  background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
@@ -153,7 +171,8 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.9em
 .check-copy{font-size:14px;color:var(--text2);line-height:1.65}
 .check-copy strong{color:var(--text)}
 .feat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;transition:border-color var(--transition),transform var(--transition)}
-.feat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.feat-card:hover{border-color:var(--border2)}
+.feat-card:hover{transform:var(--dk-hover-move, translateY(-2px))}
 .feat-icon{font-size:30px;margin-bottom:14px;display:block}
 .feat-name{font-size:1.05rem;font-weight:700;margin-bottom:8px}
 .feat-desc{font-size:13px;color:var(--text2);line-height:1.7}
@@ -204,6 +223,7 @@ code{font-family:'Cascadia Code','Fira Code','Consolas',monospace;font-size:.9em
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
 <main class="page">
 
 <!-- HERO -->
@@ -983,5 +1003,22 @@ npx playwright install chromium</code></pre>
 </section>
 
 </main>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

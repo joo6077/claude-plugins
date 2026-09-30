@@ -1,5 +1,7 @@
 # Step Contract — 스키마 정본
 
+설치본 플러그인에는 `docs/bambu-calibration/` · `docs/howto/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 **이 파일이 Step Contract 필드 정의의 유일한 정본이다.** 다른 스킬·에이전트·evals 는 이 파일을
 참조만 하고 필드 목록을 재서술하지 않는다. 재서술은 반드시 갈라진다 — 같은 규칙이 두 문서에
 적히면 하나만 갱신되고 나머지가 조용히 옛 규칙으로 남는다.

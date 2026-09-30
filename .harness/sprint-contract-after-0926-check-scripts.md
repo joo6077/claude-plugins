@@ -62,10 +62,10 @@ locked_at: "2026-09-26 20:23"
 | `harness/docs/guides/plugin-validation-guide.md` | `:3` `version: 1.4.1` · `:126` V2 SKIP 글 · `:151-170` V3 · `:293-321` V6(옛 토글 의사 코드 `:310`) · `:391-426` V8 · `:476-485` V10 범위(「V6 는 같은 범위로 넓히지 않았다」 `:483-484`) · `:694-695` 이력 | 코드 바뀌면 설명이 옛 글이 된다 | SC-14 |
 | `scripts/sync-docs.py` · `scripts/plugin_utils.py` | `sync-docs.py:41-46` 표지 정규식이 빈칸 든 꼴만 · `:67-71` `first_line` · `:110` · `:123` · `:236-273` 표 구분 줄 `\|------\|` · `:288` 루트 플러그인 표 · `plugin_utils.py:77-89` 설명은 첫 줄만 | 빈칸 없는 표지는 조용히 무시(실측 `rc=0`), 설명 33 칸이 첫 문장과 다름, AUTO 블록 안 MD060 107 건 | ER-02 · SC-05 · SC-06 |
 | `scripts/spawn-kaizen-phase.sh` | `:30` 도움말 「1 ~ 10」 · `:64-67` 범위 막기 · `:73-84` 이름 표 1~10 · `:116-118` 공통 선언 「모든 Phase 는 §1 (feedback) + §5 (validate-plugin) 공통 참조」 · `:119-121` 5~10 에 §2 · §3 | 수집기 §6 표(`scripts/collect-kaizen-data.py:1700-1716`, 17 행)와 어긋남 — 17 개 중 4 개만 맞음 | SC-07 |
-| `scripts/detect-docs-drift.py` · `.claude/skills/docs-site/SKILL.md` | `detect-docs-drift.py:32-70` `SOURCE_TO_HTML` · `:74-96` `SOURCE_OVERRIDES` · `docs-site/SKILL.md:45-64` 사람용 표(「표를 고치면 스크립트도 같은 커밋에서」) | 넷 짝 없음(d1 실측), 표 ↔ 스크립트를 재는 검사 없음 | SC-08 · SC-09 · SK-01 |
+| `scripts/detect-docs-drift.py` · `.claude/skills/docs-site/SKILL.md` | `detect-docs-drift.py:32-70` `SOURCE_TO_HTML` · `:74-96` `SOURCE_OVERRIDES` · `docs-site/SKILL.md:49-68` 사람용 표(「표를 고치면 스크립트도 같은 커밋에서」) | 넷 짝 없음(d1 실측), 표 ↔ 스크립트를 재는 검사 없음 | SC-08 · SC-09 · SK-01 |
 | `scripts/check-api-kit-docs.py` | `:33-34` `EXTERNAL` 이 `<link\s` 를 통째로 잡음 | 12 쪽 모두 `../assets/site.css` 한 줄로 실패(실측 `0/12 PASS`, 사유 12 건 모두 외부 리소스) | SC-10 |
 | `scripts/run-evals.py` · `scripts/sync-evals.py` · `api-kit/evals/evals.json` · `.github/workflows/ci.yml` | `run-evals.py:32-35` · `:64-65` · `sync-evals.py:32` · `:65-71` · `evals.json` 은 `cases` 열쇠에 `api-ui` 한 사례 · `ci.yml:133` 「run-evals.py 킷 목록 밖」 | 두 목록에 api-kit 없음, 넣기만 하면 `cases` 를 못 읽어 0 건 통과, 스킬 넷은 사례 없음 | SC-11 |
-| `scripts/collect-kaizen-data.py` · `reflect-kit/hooks/_lib-project-id.sh` · `reflect-kit/skills/reflect-digest/SKILL.md` | `collect-kaizen-data.py:403-421` · `_lib-project-id.sh:63-78` `project_root` · `:229-233` 설명 · `:261` 비교 · `reflect-digest/SKILL.md:58` | 여섯 경로 종류 중 둘이 다름 — 지운 워크트리(수집기 `repo` · reflect `gone`), bare 레포 워크트리(수집기가 bare 폴더의 부모 이름) | SC-12 · SK-02 |
+| `scripts/collect-kaizen-data.py` · `reflect-kit/hooks/_lib-project-id.sh` · `reflect-kit/skills/reflect-digest/SKILL.md` | `collect-kaizen-data.py:403-421` · `_lib-project-id.sh:63-78` `project_root` · `:229-233` 설명 · `:261` 비교 · `reflect-digest/SKILL.md:59` | 여섯 경로 종류 중 둘이 다름 — 지운 워크트리(수집기 `repo` · reflect `gone`), bare 레포 워크트리(수집기가 bare 폴더의 부모 이름) | SC-12 · SK-02 |
 | `scripts/check-stale-values.py` | `:47-54` `SOURCE_DIRS` | 문서 사이트 표의 원본 가운데 `docs/onboarding-kit/examples` · `docs/flutter` · `docs/howto` 를 안 읽음 — 심은 옛 값 셋 모두 못 잡음. 킷 폴더 `onboarding-kit/` 은 이미 읽는다(`:57-59` `kit_dirs`, 2026-09-25) | SC-13 |
 | `scripts/sync-orchestrator.py` | `:125-148` `infer_research_docs_dir` — 킷 → 원본 폴더 짝 열 개 | V10 이 같은 짝을 써야 한다 — 사본을 또 만들지 않는다 | RE-02 |
 
@@ -88,12 +88,12 @@ locked_at: "2026-09-26 20:23"
 
 | 바뀌는 것 (producer) | 받아 쓰는 쪽 (consumer) | 처리 |
 | --- | --- | --- |
-| V2 없음 줄 글자 | `harness/docs/guides/plugin-validation-guide.md:126` · `docs/harness/plugin-validation.html:308` · 끝난 옛 계약 측정 꼴 | 가이드는 SC-14. 페이지는 부모가 드리프트 목록으로 모아 다시 만든다 — 이번 계약의 **미완 쪽**으로 notes 에 적는다(AR-03). 옛 계약은 고치지 않는다 |
+| V2 없음 줄 글자 | `harness/docs/guides/plugin-validation-guide.md:136` · `docs/harness/plugin-validation.html:308` · 끝난 옛 계약 측정 꼴 | 가이드는 SC-14. 페이지는 부모가 드리프트 목록으로 모아 다시 만든다 — 이번 계약의 **미완 쪽**으로 notes 에 적는다(AR-03). 옛 계약은 고치지 않는다 |
 | sync-docs 표 구분 줄 · 설명 칸 | 킷 README 14 개 · 루트 `README.md` 플러그인 표 | 같은 가지에서 다시 만든다 — SC-05 · SC-06 이 `--check-only` 종료 코드 0 과 표 칸을 잰다 |
 | 드리프트 도구 새 검사 | `.github/workflows/ci.yml` 새 단계 · `.claude/skills/docs-site/SKILL.md` 표 | SC-09 · SK-01 |
 | Phase 부트스트랩 범위 | 도움말 · `.claude/skills/kaizen-orchestrator/SKILL.md` (실측 grep: 범위 숫자가 있는 줄 `:25` · `:173` · `:583` 모두 이미 「1~17」 — 고칠 것 없음) | SC-07 이 도움말을 잰다 |
 | run-evals · sync-evals 킷 목록 | `ci.yml:133` 설명 · `api-kit/evals/api-ui.spec.js:33` (`skill === 'api-ui'` 만 거름 — 사례를 더해도 안 깨짐) | SC-11 이 CI 설명 줄과 시험 통과(DG-05 `api-ui-viewer`)를 잰다 |
-| reflect-kit `project_root` 의 git 밖 동작 | `compute_project_id` (`:85`) · `facets_unmatched` (`:261`) · `reflect-digest/SKILL.md:58` | SC-12 · SK-02, reflect-kit 시험 셋은 DG-05 |
+| reflect-kit `project_root` 의 git 밖 동작 | `compute_project_id` (`:85`) · `facets_unmatched` (`:261`) · `reflect-digest/SKILL.md:59` | SC-12 · SK-02, reflect-kit 시험 셋은 DG-05 |
 | 옛 값 검사 범위 | 없음 — 결과만 CI 가 본다 | SC-13 |
 
 ### 조건 작성 자문

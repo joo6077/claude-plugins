@@ -12,6 +12,8 @@ user-invocable: true
 allowed-tools: Read, Write, Grep, Glob, Bash, WebFetch, WebSearch
 ---
 
+# 절차를 문서 파일로 남기기
+
 절차를 **영속 아티팩트**로 남긴다. 대화는 사라지지만 문서는 남아서 계속 읽히므로, 대화 모드보다
 판정 기준이 강하다.
 

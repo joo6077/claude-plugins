@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **isTauri() gating 필수** — `infrastructure/tauri/` 의 모든 함수는 첫 줄에 `if (!isTauri())` 가드를 선언해야 한다. 브라우저 환경에서 `window.__TAURI_INTERNALS__` 가 없으면 `invoke`가 throw한다. 가드 없이 브라우저에서 실행하면 crash.
 2. **레이어 경계 엄수** — `@tauri-apps/api/*` import는 오직 `src/infrastructure/tauri/` 에서만 허용. `data/`, `domain/`, `presentation/` 에서 직접 import하면 레이어 경계 위반. `/react-audit` G6이 이 패턴을 grep으로 강제 검출한다.
 3. **capabilities 등록 누락** — Rust command를 추가하고 Builder에 등록해도 `src-tauri/capabilities/*.json` 에 권한이 없으면 런타임에 "not allowed" 에러 발생. 이 스킬은 capabilities 파일을 자동 수정한다.

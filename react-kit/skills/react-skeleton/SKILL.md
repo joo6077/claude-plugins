@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **스피너/Spinner 사용 금지** — `<Spinner />`, `<CircularProgressIndicator />` 같은 전통적 로딩 인디케이터 대신 항상 레이아웃 매칭 skeleton을 사용한다. Skeleton이 콘텐츠 구조를 예고하여 체감 로딩 시간을 줄인다.
 2. **`bg-muted` 없으면 skeleton이 안 보임** — shadcn Skeleton은 `animate-pulse rounded-md bg-muted`로 구성된다. `bg-muted` 없이 `className`만 덮어쓰면 투명해서 shimmer 효과가 사라진다 (shadcn-ui/ui#5809).
 3. **Skeleton 크기를 실제 레이아웃과 맞추지 않으면 레이아웃 shift** — skeleton 조각의 `h-*`, `w-*`이 실제 콘텐츠와 다르면 로딩→콘텐츠 전환 시 화면이 뛴다. 동일한 padding, gap, border-radius 유지.
@@ -36,11 +38,11 @@ user-invocable: true
 - `components.json` 존재 여부 (shadcn 초기화 확인)
 - `src/presentation/shared/components/ui/skeleton.tsx` 존재 여부
   - 없으면 설치 안내 후 중단:
-
+    <!-- markdownlint-disable-next-line MD031 -->
     ```bash
     pnpm dlx shadcn@latest add skeleton
     ```
-
+    <!-- markdownlint-disable-next-line MD031 -->
 - `src/presentation/shared/lib/utils.ts`의 `cn` 헬퍼 확인
 
 ## 2. 입력 수집

@@ -39,7 +39,7 @@ backend · rust 감사의 APPROVE 조건이 「전 row PASS」 라 `[미검증:E
 | ---- | ---- |
 | AR-01 이 history 포함이라 적고 `sprint-contract*.md` 로 재 104 개를 빠뜨렸다 | `*sprint-contract*.md` 로 넓히고 잰 파일 수 `seals` 를 출력에 넣었다. 시작 판 186 · 끝 판 187, `SEAL_BROKEN` 0 |
 | SK-03 이 「조항 3」 을 안 쟀다 | `scan.py` 에 `num3_ref` 를 더했다. reviewer 사본 밖은 0 을 요구, 시작 판 6 곳이 양성 대조. 감사 스킬 셋의 「정본 조항 3」 은 넘김이라 SK-06 은 거른다 |
-| 범위 밖 다섯 파일 | 넷은 만드는 쪽 「부분 완료」 규칙이라 정본 `skill-design-guide.md:308` 과 맞다(고치지 않음). flutter-audit 옛 사본 하나는 넘김 |
+| 범위 밖 다섯 파일 | 넷은 만드는 쪽 「부분 완료」 규칙이라 정본 `skill-design-guide.md:312` 과 맞다(고치지 않음). flutter-audit 옛 사본 하나는 넘김 |
 | SK-01 출처 줄 한 줄 요구 | 세 낱말은 한 줄에 함께 두고 이어 쓴 줄에는 한꺼번에 넣지 않는다고 조건에 적었다 |
 | SK-03 (a) 순우리말만 쓴 임계 줄 | 새 임계 줄에도 `invalid_evidence` · `INVALID` 이름을 같은 줄에 적게 했다 |
 | SK-05 · SK-07 태그 | 양면 조건은 `[exact, enumerated]` 여야 한다는 규칙(contract-schema §Counterpart 조건)을 들어 그대로 두고 이유를 범위 경계에 적었다 |
@@ -95,8 +95,8 @@ QA 뒤 다시 돌림(끝 판 `112dca8`, `TMPDIR=<스크래치>/c4b-impl/citmp2`)
 ## 넘긴 것
 
 - 원문 `qa-evaluation-guide.md` 의 조항 번호 겹침(3 이 둘) · 머리말 「5 조항」 · 「현재 drift」 문단 — 원문은 범위 밖, C2 · 다음 사이클 Phase 3.
-  backend-audit · rust-audit · infra-audit 의 「정본 조항 3」 과 `react-kit/references/render-evidence-protocol.md:205` 의 「정본 조항 3」 도 그때 함께 본다
-- `flutter-toolkit/skills/flutter-audit/SKILL.md:32-49` 의 옛 다섯 조항 사본 — reviewer 일곱 밖, 다음 사이클 Phase 5
+  backend-audit · rust-audit · infra-audit 의 「정본 조항 3」 과 `react-kit/references/render-evidence-protocol.md:209` 의 「정본 조항 3」 도 그때 함께 본다
+- `flutter-toolkit/skills/flutter-audit/SKILL.md:36-53` 의 옛 다섯 조항 사본 — reviewer 일곱 밖, 다음 사이클 Phase 5
 - `howto-kit/agents/howto-reviewer.md` — 새 검사가 이유와 함께 `EXCLUDED` 로 출력한다. 다음 사이클 Phase 17
 - design-reviewer 의 「미검증 0 건 · L3 10 개 미만 → CONDITIONAL APPROVE」 — design-kit 고유 L3 규칙이라 다음 사이클 Phase 6
 - `docs/harness/*.html` 세 쪽의 옛 문턱 설명, `harness/evals/gate-exit-codes.md` 사용처 표에 새 검사 행 — 범위 밖

@@ -382,6 +382,16 @@ run_s 'git commit -m x' "$r" S; expect SCOPE-s22-empty-block 0 empty
 nr; printf -- '---\nstatus: active\n---\n\n## 범위 경계\n\n%stext\n# sprint-scope\nd1/f001\n%s\n' "$fence" "$fence" >"$r/.harness/sprint-contract-s.md"
 git -C "$r" add .harness; git -C "$r" commit -qm noowner; echo z >>"$r/a.txt"; git -C "$r" add a.txt
 run_s 'git commit -m x' "$r" S; expect SCOPE-s23-no-owner 0 empty
+# 머리 값 뒤 줄 끝 주석은 값이 아니다 — 평가자의 fm_get 과 같은 값을 읽어야 한다 (계약 형식 문서 §값 따옴표 규약)
+nr; contract "$r/.harness/sprint-contract-s.md" 'active   # 진행 중' 'S  # 이 세션' d1/f001
+git -C "$r" add .harness; git -C "$r" commit -qm cmt; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s24-trailing-comment 2 '' 'a.txt'
+nr; contract "$r/.harness/sprint-contract-s.md" '"active"	# 탭 뒤 주석' "'S'" d1/f001
+git -C "$r" add .harness; git -C "$r" commit -qm qcmt; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s25-quoted-comment 2 '' 'a.txt'
+nr; contract "$r/.harness/sprint-contract-s.md" active 'S#1' d1/f001
+git -C "$r" add .harness; git -C "$r" commit -qm hash; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" 'S#1'; expect SCOPE-s26-hash-in-value 2 '' 'a.txt'
 
 # ── NOADD 목록을 바꾸지 않는 add · 삭제를 싣지 않는 add (독립 검토 결함 1) ──
 r=$work/n1; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt

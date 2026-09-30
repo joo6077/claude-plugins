@@ -1,0 +1,3 @@
+  25 api-kit/skills/api-ui/SKILL.md
+ 120 bambu-kit/skills/bambu-print-profile/SKILL.md
+   2 onboarding-kit/skills/setup-guide/SKILL.md

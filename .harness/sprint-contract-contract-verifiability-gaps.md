@@ -42,11 +42,11 @@ locked_at: "2026-09-23 09:44"
 
 ## 리서치 소스
 
-- `harness/references/contract-schema.md:930` · `harness/docs/guides/qa-evaluation-guide.md:426`
+- `harness/references/contract-schema.md:930` · `harness/docs/guides/qa-evaluation-guide.md:431`
   — 동의 근거 2 축 표 (같은 표가 두 곳에 복제돼 있다)
 - `harness/references/contract-schema.md:256` · `:994` ·
-  `harness/skills/sprint-contract/SKILL.md:702` — 봉인이 덮는 범위 서술 3 곳
-- `harness/docs/guides/contract-design-guide.md:749-755` — 0 기대 조건 절
+  `harness/skills/sprint-contract/SKILL.md:709` — 봉인이 덮는 범위 서술 3 곳
+- `harness/docs/guides/contract-design-guide.md:765-771` — 0 기대 조건 절
 - 이 세션의 실측 — 개정 3건(A-01 정정 · A-02 · A-03), QA 2 회차,
   교차 진단 1 회 (`.harness/sprint-feedback-cross-diagnosis-to-parent.md`)
 - 선행 스프린트 계약 2건 — `validate-check-count-sync` · `cross-diagnosis-to-parent`

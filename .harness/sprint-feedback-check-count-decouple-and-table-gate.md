@@ -82,7 +82,7 @@ Iteration: 4
   - 근거: L3. `.claude/skills/design-kaizen/SKILL.md`, `.claude/skills/rust-kaizen/SKILL.md`,
     `.claude/skills/tone-kaizen/SKILL.md` 3개 파일에 `check_v[0-9]` 패턴 각 1건 재확인
 - [x] SK-03: sprint-contract/SKILL.md 의 병합 서술이 재배치를 인정하고 위험을 구별 — PASS
-  - 근거: L3. `harness/skills/sprint-contract/SKILL.md:746-752` 직접 Read.
+  - 근거: L3. `harness/skills/sprint-contract/SKILL.md:753-759` 직접 Read.
     `재배치` 4건, "main 이 앞서 있으면" · "해시가 바뀌어" 문맥 확인. 이 파일은 2831bcb의
     변경 대상이 아니므로 변동 없음
 
@@ -100,7 +100,7 @@ Iteration: 4
 ### Error (2/2)
 - [x] ER-01: V10 대상 범위가 V6보다 넓고 이유가 적혀 있다 — PASS
   - 근거: L3. `check_v10_table_integrity` 함수 안 `docs` 문자열 3회(glob 1곳 + docstring 2곳).
-    `harness/docs/guides/plugin-validation-guide.md:450-453`에 정정된 이유 서술 확인
+    `harness/docs/guides/plugin-validation-guide.md:482-485`에 정정된 이유 서술 확인
     (2831bcb가 건드린 줄은 그 바로 다음 문단의 "136→84줄" 수치뿐, 이유 서술 문장은 무변경)
 - [x] ER-02: 개수 표기를 지운 자리가 "등록된 검사 전부" 식으로 바뀌었다(개수 신규 박기 없음) — PASS
   - 근거: L3 (amendment A-03 적용). 좁힌 측정(`grep -c 'V1~V10\|V1-V10'`)을 20개 파일에

@@ -163,7 +163,7 @@ section+section{border-top:1px solid var(--border)}
   padding:28px;
   transition:border-color var(--transition),transform var(--transition);
 }
-.card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.card:hover{border-color:var(--border2);transform:var(--dk-hover-move, translateY(-1px))}
 .card-title{
   font-size:1.0625rem;
   font-weight:700;
@@ -375,8 +375,8 @@ pre code{white-space:pre;background:transparent;padding:0;color:inherit;overflow
   <h1>디자인 목업</h1>
   <p>특정 화면을 위한 하이파이 HTML 시안을 만들되, 먼저 개수와 차별화 축을 계약하고 선택 이후의 수정·승인·전송까지 추적 가능하게 운영한다.</p>
   <div class="hero-meta" aria-label="핵심 규칙">
-    <span class="pill">미지정 3안</span>
-    <span class="pill">승인 시 최대 5안</span>
+    <span class="pill">미지정 최소 5안</span>
+    <span class="pill">위 제한 없음</span>
     <span class="pill">standalone HTML</span>
     <span class="pill">전역 유니크 ID</span>
   </div>
@@ -441,8 +441,8 @@ pre code{white-space:pre;background:transparent;padding:0;color:inherit;overflow
       </thead>
       <tbody>
         <tr><td>사용자 지정 시안</td><td>정확히 N개</td><td>초과와 미달 모두 계약 위반</td></tr>
-        <tr><td>개수 미지정</td><td>3개</td><td>자체 판단으로 늘리지 않음</td></tr>
-        <tr><td>추가 승인 상한</td><td>최대 5개</td><td>6개 이상이면 배치를 나누어 제안</td></tr>
+        <tr><td>개수 미지정</td><td>최소 5개</td><td>비교에 더 필요하면 더 낸다</td></tr>
+        <tr><td>위 제한</td><td>없음</td><td>위 제한 없이 필요한 만큼. 여섯째부터 틀에 칸 묶음을 더한다</td></tr>
         <tr><td>구별성: 지정 축 3개 이상</td><td>모든 쌍의 Hamming distance ≥ 2</td><td>겹치는 시안은 제출 전 재설계</td></tr>
         <tr><td>구별성: 지정 축 2개 이하</td><td>모든 쌍의 Hamming distance ≥ 1</td><td>카피·아이콘·색 변경은 축으로 세지 않음</td></tr>
         <tr><td>텍스트 대비</td><td>WCAG 2.2 AA 4.5:1</td><td>하이파이 시안에도 동일 적용</td></tr>
@@ -512,14 +512,13 @@ pre code{white-space:pre;background:transparent;padding:0;color:inherit;overflow
   <p class="section-desc">파일을 만들기 전에 개수와 차별화 축을 고정하고, 구별성 게이트를 통과한 시안만 생성한다.</p>
 
   <h3 class="subhead">Step 2-a · 개수와 축을 먼저 고정한다 (파일을 만들기 전에)</h3>
-  <p class="section-desc"><code>../../references/visual-change-protocol.md</code> §5 Variant Contract Matrix 를 채워 사용자와 합의한다. 정본 규칙(상한·축 개수·부대 산출물 금지)은 <code>harness/docs/guides/skill-design-guide.md</code> §5.6 이다.</p>
+  <p class="section-desc"><code>../../references/visual-change-protocol.md</code> §5 Variant Contract Matrix 를 채워 사용자와 합의한다. 개수 규칙 · 축 개수 · 부대 산출물 금지의 기준 원본은 <code>harness/docs/guides/skill-design-guide.md</code> §5.6 이다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>상황</th><th>산출 개수</th></tr></thead>
       <tbody>
         <tr><td>사용자가 개수를 말함</td><td><strong>정확히 그 수</strong> — 초과도 미달도 위반</td></tr>
-        <tr><td>미지정</td><td><strong>3</strong></td></tr>
-        <tr><td>자체 판단으로 늘리기</td><td>금지. 승인받으면 <strong>최대 5</strong>, 6 개 이상은 배치를 나눠 제안</td></tr>
+        <tr><td>미지정</td><td><strong>최소 5</strong> — 비교에 더 필요하면 더 낸다. 위 제한 없음</td></tr>
       </tbody>
     </table>
   </div>
@@ -568,16 +567,17 @@ pre code{white-space:pre;background:transparent;padding:0;color:inherit;overflow
       <p>반응형이 요구사항에 포함된 경우, 각 시안에 mobile/tablet/desktop breakpoint 섹션을 추가하고 컬럼 수·거터·max-width 규칙을 명시한다.</p>
     </article>
   </div>
+  <div class="note"><strong>여섯째 시안부터:</strong> 틀은 시안 칸 A~E 다섯을 기본으로 둔다. 여섯째 시안부터는 칸 묶음을 f, g … 순서로 하나씩 더한다 — 탭 버튼 · 패널 · 비교 선택 두 곳의 option · 투표 카드 · 메모 칸 · <code>MOCKUP_CONFIG.variants</code> 항목 · <code>T.ko.tab</code> / <code>T.en.tab</code> 글자. 틀 스크립트는 시안 목록을 <code>MOCKUP_CONFIG.variants</code> 에서만 읽으므로 스크립트는 고치지 않는다. CSS 도 고치지 않는다 — 투표 카드 · 메모 칸 줄은 <code>grid-auto-flow: column</code> 이라 넓은 화면에서 시안 수만큼 한 줄에 놓이고, 768px 이하에서는 두 칸씩, 투표 카드는 400px 이하에서 한 칸씩 줄을 바꾼다.</div>
 
   <h3 class="subhead">전략 레이블 후보 풀</h3>
-  <p class="section-desc"><code>strategy_label</code> 후보 풀이다. 합의된 개수만큼 <strong>골라 쓴다</strong> — 다섯 개를 전부 내라는 목록이 아니다.</p>
+  <p class="section-desc"><code>strategy_label</code> 후보 풀이다. 합의된 개수만큼 <strong>골라 쓴다</strong>. 합의한 수가 풀보다 많으면 요청 화면에 맞는 풀 밖 전략을 더 만든다 — 이 목록은 예시이지 한계가 아니다.</p>
   <div class="grid-3">
     <article class="card"><span class="tag">전환 최적화형</span><p style="margin-top:12px">사이드바 네비게이션 + 메인 콘텐츠, 주요 CTA를 상단 고정.</p></article>
     <article class="card"><span class="tag">탐색성 강화형</span><p style="margin-top:12px">탑바 + 카드 그리드, 필터/정렬 전면 배치.</p></article>
     <article class="card"><span class="tag">정보 밀도형</span><p style="margin-top:12px">탭 기반 + 리스트 뷰, 스캔 가능한 텍스트 계층 강조.</p></article>
     <article class="card"><span class="tag">브랜드 임팩트형</span><p style="margin-top:12px">풀스크린 히어로 + 스크롤 섹션, 비주얼 중심 진입.</p></article>
     <article class="card"><span class="tag">대시보드/제어형</span><p style="margin-top:12px">위젯 패널 레이아웃, 상태 요약 + 빠른 액션 우선.</p></article>
-    <article class="card"><span class="tag">선택해서 사용</span><p style="margin-top:12px">다섯 개 전부를 만드는 목록이 아니라 합의된 개수만큼 골라 쓰는 후보 풀이다.</p></article>
+    <article class="card"><span class="tag">풀 밖 전략</span><p style="margin-top:12px">합의한 수가 다섯보다 많으면 요청 화면에 맞는 전략을 새로 더한다. 새 전략도 구별성 검사를 똑같이 통과해야 한다.</p></article>
   </div>
 
   <h3 class="subhead">반응형 구현 원칙</h3>
@@ -756,7 +756,7 @@ grep -cE '^- (확정 구성|폐기한 대안·이유):' .design/approvals/{파�
     <li><span class="check">13</span><span><strong>확정 = 승인 기록 파일 생성 (대화 로그로 끝내지 마라)</strong> — 사용자가 시안을 확정하면 Step 5 에서 <code>.design/approvals/{YYYYMMDD}-{화면명}.md</code> 를 생성한다. 여기에 선택된 안, 산출물 경로, <strong>확정된 시각 값(색상·타이포·간격)</strong>, 원문 근거를 남긴다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(시안 승인 기록) 확인 불가" 로 REJECT 된다 — 2026-07-13 글로벌 REJECT <code>UI-06</code> 의 실제 사유다. <strong>자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시</strong>하라. 규격: <code>../../references/visual-change-protocol.md</code> §4.</span></li>
     <li><span class="check">14</span><span><strong>승인된 시안 값을 토큰으로 치환하지 마라 (Visual Source of Truth Precedence)</strong> — 사용자가 브라우저로 확인하고 승인한 시안의 색상·간격은 프로젝트 팔레트 토큰보다 <strong>우선한다</strong>. 시안 수정 요청을 처리할 때 승인된 값을 "토큰 체계에 맞춰" 단일 tint 나 기존 accent 로 정규화하지 마라. 토큰화가 필요하면 값을 바꾸는 게 아니라 <strong>그 값으로 토큰을 정의</strong>하고 별도 제안하라. 프로젝트에 이미 색상 체계가 있으면 새 팔레트를 도입하기 전에 기존 값을 먼저 열거해 제시한다. 우선순위 표: <code>../../references/visual-change-protocol.md</code> §1.</span></li>
     <li><span class="check">15</span><span><strong>부분 수정 요청은 그 속성만 — Change Manifest 필수</strong> — "이 카드 보더만 진하게", "색은 지금이 맞는데 그라디언트만 이전으로" 같은 요청에서 지목되지 않은 시각 속성(background, fill, radius, shadow, spacing, typography)을 함께 바꾸지 마라. 편집 전에 <code>변경 / 보존</code> 두 목록을 응답에 남기고, 수정 후 보존 목록의 값이 그대로인지 확인한다. 의도 외 영역이 변했으면 성공이 아니라 실패이므로 되돌리고 다시 적용한다. 부분 롤백 요청은 지목된 축만 되돌린다. 상세: <code>../../references/visual-change-protocol.md</code> §2.</span></li>
-    <li><span class="check">16</span><span><strong>산출 전에 Variant Contract Matrix 를 합의하라 (개수 계약 + 구별성 게이트)</strong> — 시안을 하나라도 만들기 전에 <code>../../references/visual-change-protocol.md</code> §5 Variant Contract Matrix 6 열을 채워 사용자와 합의한다. 개수는 <strong>사용자가 말하면 정확히 그 수</strong>, 미지정이면 3, 자체 판단으로 그 이상 늘리지 않으며 승인 시 최대 5 다. 개수 상한·primary axis 개수·부대 산출물(토큰 파일·디자인 시스템·서페이스 레인·카탈로그) 금지의 정본은 <code>harness/docs/guides/skill-design-guide.md</code> §5.6 Variant Budget 이며 여기서 재정의하지 않는다. "몇 개 목업" 요청에 수십 타일과 토큰 파일을 함께 만들면 사용자가 전부 지우게 된다 — 실제로 그랬다.</span></li>
+    <li><span class="check">16</span><span><strong>산출 전에 Variant Contract Matrix 를 합의하라 (개수 계약 + 구별성 게이트)</strong> — 시안을 하나라도 만들기 전에 <code>../../references/visual-change-protocol.md</code> §5 Variant Contract Matrix 6 열을 채워 사용자와 합의한다. 개수는 <strong>사용자가 말하면 정확히 그 수</strong>, 말하지 않으면 <strong>최소 5 개부터 위 제한 없이 필요한 만큼</strong> 낸다. 개수 규칙·primary axis 개수·부대 산출물(토큰 파일·디자인 시스템·서페이스 레인·카탈로그) 금지의 기준 원본은 <code>harness/docs/guides/skill-design-guide.md</code> §5.6 Variant Budget 이며 여기서 재정의하지 않는다. "몇 개 목업" 요청에 수십 타일과 토큰 파일을 함께 만들면 사용자가 전부 지우게 된다 — 실제로 그랬다.</span></li>
     <li><span class="check">17</span><span><strong>시안 캡처는 <code>artifact_snapshot</code> 이다 — 앱 화면 정상을 주장하지 마라</strong> — 목업 HTML 이 잘 열리는 것과 사용자가 실제 앱에서 그 화면을 보는 것은 다른 명제다. 증거를 인용할 때 채널 이름을 함께 적고, PASS 문장에 viewport · route/state · visible locator · count/height · screenshot id 5 요소를 넣어라. 채널 정의: <code>../../references/visual-change-protocol.md</code> §7 Evidence Channels. 사용자가 "아직 깨져 있다" 고 보고하면 반박하지 말고 재현하라 — 규약 정본은 <code>harness/docs/guides/skill-design-guide.md</code> §3.8 User-Reported Failure Gate 다.</span></li>
   </ol>
 </section>

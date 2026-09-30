@@ -1,5 +1,7 @@
 # 입력 소스 우선순위
 
+설치본 플러그인에는 `docs/api/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 `/api-init` 이 여러 입력을 하나의 operation 인벤토리로 합칠 때 쓰는 탐색 경로, 신뢰도, 충돌 판정 절차.
 
 근거는 `docs/api/discovery/api-inventory-normalization.md` 와 `docs/api/discovery/artifact-interop-import-export.md` 다. 이 문서는 그 규칙을 초기화 실행 순서로 옮긴 것이다.

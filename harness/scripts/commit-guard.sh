@@ -224,7 +224,14 @@ scope_blocks() {
   find "$1/.harness" -maxdepth 1 -type f -name 'sprint-contract*.md' 2>/dev/null | while IFS= read -r f; do
     [ -r "$f" ] || continue
     awk -v s="$2" '
-      function val(l) { sub(/^[^:]*:[[:space:]]*/, "", l); sub(/[[:space:]]+$/, "", l); gsub("^[\"" SQ "]|[\"" SQ "]$", "", l); return l }
+      # 계약 형식 문서 §값 따옴표 규약의 fm_get 과 같게 읽는다 — 따옴표 벗기기 · 빈칸이나 탭 뒤 # 부터는 주석
+      function val(l,  c, e) {
+        sub(/^[^:]*:[[:space:]]*/, "", l); c = substr(l, 1, 1); e = index(substr(l, 2), c)
+        if ((c == "\"" || c == SQ) && e > 0) return substr(l, 2, e - 1)
+        if (c == "#") return ""
+        if (match(l, /[ \t]#/)) l = substr(l, 1, RSTART - 1)
+        sub(/[[:space:]]+$/, "", l); return l
+      }
       BEGIN { SQ = sprintf("%c", 39) }
       NR == 1 { if ($0 ~ /^---[[:space:]]*$/) { fm = 1; next } exit }
       fm && /^---[[:space:]]*$/ { fm = 0; if (st != "active" || ow != s) exit; next }

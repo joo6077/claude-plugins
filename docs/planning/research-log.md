@@ -1,11 +1,27 @@
 ---
 title: Planning Kaizen Research Log
-version: 1.1.0
-last_updated: 2026-09-25
+version: 1.1.1
+last_updated: 2026-09-28
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Planning Kaizen Research Log
+
+## [2026-09-28] — PRD · ADR 비교 (원문 대조 A10)
+
+2026-09-24 절의 결정(폐기한 결정의 원문은 PRD 비범위 절 한 곳)은 비교 자료를 조회하지 않고 내렸다. 그 비교를 Codex 원문 대조
+`.harness/.meta/after-kaizen-0928/ex/A10.md`(2026-09-28 조회)로 채웠다.
+
+| 원문 | 하는 말 |
+| --- | --- |
+| [Atlassian — What is a Product Requirements Document?](https://www.atlassian.com/agile/product-management/requirements) | PRD 는 제품의 목적 · 기능 · 행동을 정해 이해관계자와 개발을 맞추는 문서다 |
+| [adr.github.io — Architectural Decision Records](https://adr.github.io/) | ADR 은 결정 하나와 그 근거를 남긴다 |
+| [Michael Nygard — Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) | 기록마다 여러 힘(forces)과 그에 대한 결정 하나를 적는다 |
+
+결론: 세 원문은 두 문서의 역할을 가를 근거는 주지만, PRD 와 ADR 을 맞대어 하나를 우선하라는 원문은 찾지 못했다. 2026-09-24 에 PRD 를 고른 이유
+(새 파일 · 새 흐름이 필요 없다)는 이 저장소의 선택이지 원문이 뒷받침하는 일반 원칙이 아니다. 킷 문장에는 PRD · ADR 우열 단정이 없어 고칠 곳이 없다.
+
+Mermaid 는 2026-09-28 에 npm `latest` 가 여전히 12.0.0 인 것을 다시 확인해 `flows.md` 버전 문장에 날짜를 더했다.
 
 ## [2026-09-24] — Phase 11 kaizen (폐기한 결정 기록 자리)
 

@@ -23,7 +23,7 @@ locked_at: "2026-09-25 06:04"
 | 근거 파일 §3 현행화 | OAuth 2.1 `draft-15` → `draft-16` · OpenAPI 3.2.0 → 3.2.1 · AsyncAPI 3.1.0 기록 · SeaORM 2.0.3 | OAuth 는 SK-06, OpenAPI 는 SK-07. AsyncAPI 는 킷 파일에 「최신판」 으로 적힌 버전이 없어 research-log 에 기록만 한다. SeaORM 과 rust-kit 버전 표는 Phase 9 몫(ER-03) |
 | `docs/backend/research-log.md` 2026-08-13 미반영 | `audit-criteria.md` §8 CDC 행의 「Outbox+CDC 조합으로 exactly-once 보장 가능」 — 그때 범위 밖이라 backend-audit Gotcha 16 으로 무효 표시만 했다 | 반영 — SK-08. 근거 파일 §2 가 microservices.io 로 at-least-once 를 다시 확인했다 |
 | Phase 1 가이드 변경 (`harness/docs/guides/skill-design-guide.md` §3.7 3 항 · `agent-design-guide.md` §10 정책 2 항) | `[미검증]` 에 사유 한 줄이 아니라 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령). `phase1-notes.md` 넘김 표에 backend-kit 줄이 없다 | 반영 — SK-09. backend-kit 안 옛 표기 열 자리(아홉 줄)를 전부 고친다 |
-| 편집 전 감사 (`backend-kit/README.md:54`) | 검증 절 「7 카테고리 구조 감사」 — `scripts/validate-plugin.py` 의 검사는 V1 ~ V10 열 가지다. 바로 윗줄(`:53`)을 SK-05 가 고친다 | 반영 — SK-05. 숫자를 박지 않고 개수는 `harness/docs/guides/plugin-validation-guide.md` 가 정한다고 적는다. 같은 줄이 `infra-kit/README.md:54` 에도 있어 Phase 8 로 넘긴다(ER-03) |
+| 편집 전 감사 (`backend-kit/README.md:57`) | 검증 절 「7 카테고리 구조 감사」 — `scripts/validate-plugin.py` 의 검사는 V1 ~ V10 열 가지다. 바로 윗줄(`:53`)을 SK-05 가 고친다 | 반영 — SK-05. 숫자를 박지 않고 개수는 `harness/docs/guides/plugin-validation-guide.md` 가 정한다고 적는다. 같은 줄이 `infra-kit/README.md:57` 에도 있어 Phase 8 로 넘긴다(ER-03) |
 
 글로벌 평가 피드백(`~/.harness/feedback/evaluator/`)에서 backend-kit 을 가리킨 기록 셋을 봤다. 2026-09-06 REJECT 는 `docs/backend/fundamentals/api-design.md`
 의 OpenAPI 옛 값을 한 자리만 고치고 다른 자리를 남겨서 났다 — 그래서 SK-07 은 새 값이 아니라 옛 값 `3.2.0` 이 파일에 0 개인지를 먼저 잰다.
@@ -202,7 +202,7 @@ backend-kit/README.md
 - 커버리지 해소: AR-01 — `docs/backend/` 는 `unsigned_on` 의 인자, `.harness/` 는 `scope` 블록 줄과 `verify_seal` 이 도는 폴더, `harness/references/contract-schema.md` 는 권장 형태의 출처다
 - 검출기는 공백 든 코드 조각 안의 인자를 읽지 못한다 — 위 해소 줄이 전부 그 경우다
 - 편집 전부터 있던 경고(markdownlint MD060 · MD025 · MD032 등)는 범위 밖이다 — DG-02 는 더한 줄의 새 경고만 잰다
-- notes 에 함께 적는다(조건으로는 재지 않는다): 「그대로 둔 곳」 에 `backend-kit/skills/backend-audit/SKILL.md:114` 의 「미검증 1 건: [체크항목] — [이유]」 —
+- notes 에 함께 적는다(조건으로는 재지 않는다): 「그대로 둔 곳」 에 `backend-kit/skills/backend-audit/SKILL.md:119` 의 「미검증 1 건: [체크항목] — [이유]」 —
   reviewer 복제 조항 5 의 보고 모양과 같아 그대로 둔다(backend-kaizen Gotcha 8). Phase 1 가이드 변경 셋(네 칸 · 작업 불가 전 네 칸 · 알려진 답 대조)을
   반영 · 해당 없음으로 나눈 짧은 표(backend-kaizen Gotcha 8). ER-03 셋째 값이 0 이 아니면 QA 가 그 커밋 목록부터 보고 판정한다는 한 줄 —
   그 값은 다른 Phase 가 서명 줄을 단다는 전제에 기댄다(지금까지 서명 없는 커밋은 오케스트레이터의 근거 파일 커밋뿐이다). 「다음 사이클 메모」 에 harness 과제 한 줄 —

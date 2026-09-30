@@ -46,7 +46,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
   https://basecamp.com/shapeup/1.5-chapter-06
 - GitHub Projects 공식 지침은 정보 불일치를 막기 위해 정보를 여러 필드에 중복하지 말고 단일 source of truth에 두라고 한다. 공식 예시는 목표 출시일이지만, “기록 자리를 하나로 정한다”는 운영 원칙 자체는 명시돼 있다.  
   https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects
-- 현행 내부 문서도 강한 PRD가 범위/비범위를 분리해야 한다고 정리한다. [docs/planning/prd-patterns.md:11](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/planning/prd-patterns.md:11)
+- 현행 내부 문서도 강한 PRD가 범위/비범위를 분리해야 한다고 정리한다. [docs/planning/prd-patterns.md:12](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/planning/prd-patterns.md:12)
 
 추론:
 
@@ -81,10 +81,10 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 확인된 내부 불일치:
 
 - Gotcha 5는 최소 3개 Non-goal을 요구한다. [plan-prd/SKILL.md:19](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:19)
-- Step 4도 Non-goals 3개 이상을 검사한다. [plan-prd/SKILL.md:124](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:124)
-- Shape Up 템플릿에는 `## No-gos`가 있다. [plan-prd/SKILL.md:87](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:87)
-- PR/FAQ 템플릿에는 Non-goals 입력 자리가 없다. [plan-prd/SKILL.md:59](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:59)
-- Linear-style 템플릿에도 없다. [plan-prd/SKILL.md:112](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:112)
+- Step 4도 Non-goals 3개 이상을 검사한다. [plan-prd/SKILL.md:128](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:128)
+- Shape Up 템플릿에는 `## No-gos`가 있다. [plan-prd/SKILL.md:91](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:91)
+- PR/FAQ 템플릿에는 Non-goals 입력 자리가 없다. [plan-prd/SKILL.md:63](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:63)
+- Linear-style 템플릿에도 없다. [plan-prd/SKILL.md:116](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-prd/SKILL.md:116)
 
 외부 근거:
 
@@ -101,8 +101,8 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 확인된 사실:
 
-- `plan-data-model` Step 0은 원칙 문서만 읽고 PRD를 자동 로드하지 않는다. [plan-data-model/SKILL.md:33](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-data-model/SKILL.md:33)
-- `plan-flow` Step 0도 원칙 문서만 읽는다. [plan-flow/SKILL.md:29](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-flow/SKILL.md:29)
+- `plan-data-model` Step 0은 원칙 문서만 읽고 PRD를 자동 로드하지 않는다. [plan-data-model/SKILL.md:37](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-data-model/SKILL.md:37)
+- `plan-flow` Step 0도 원칙 문서만 읽는다. [plan-flow/SKILL.md:33](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-flow/SKILL.md:33)
 - Mermaid 공식 문서는 ERD가 추상적 논리 모델부터 물리 테이블 모델까지 쓰일 수 있으며, 논리 모델에서는 FK 속성을 생략하는 편이 나을 수도 있다고 명시한다. 즉 코드·DB 흔적을 개념 요구로 그대로 복제하는 것은 공식 문서가 요구하는 동작이 아니다.  
   https://mermaid.js.org/syntax/entityRelationshipDiagram.html
 
@@ -115,8 +115,8 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 확인된 사실:
 
-- `plan-stories`는 이미 `.planning/prd-*.md`를 읽는다. [plan-stories/SKILL.md:31](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-stories/SKILL.md:31)
-- 그러나 Step 1에는 Problem/User/Solution 식별만 있고 No-go 충돌 검사가 없다. [plan-stories/SKILL.md:41](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-stories/SKILL.md:41)
+- `plan-stories`는 이미 `.planning/prd-*.md`를 읽는다. [plan-stories/SKILL.md:35](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-stories/SKILL.md:35)
+- 그러나 Step 1에는 Problem/User/Solution 식별만 있고 No-go 충돌 검사가 없다. [plan-stories/SKILL.md:45](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-stories/SKILL.md:45)
 - INVEST의 `Negotiable`은 스토리를 특정 기능의 고정 계약으로 보지 않는다.  
   https://agilealliance.org/glossary/invest/
 
@@ -129,8 +129,8 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 확인된 사실:
 
-- `plan-audit`의 Non-goals PASS 조건은 현재 최소 3개 존재 여부만 본다. [plan-audit/SKILL.md:72](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-audit/SKILL.md:72)
-- `planning-reviewer`도 Non-goals의 출처 매핑만 있고 하류 산출물의 부활 여부는 검사하지 않는다. [planning-reviewer.md:92](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/agents/planning-reviewer.md:92)
+- `plan-audit`의 Non-goals PASS 조건은 현재 최소 3개 존재 여부만 본다. [plan-audit/SKILL.md:77](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-audit/SKILL.md:77)
+- `planning-reviewer`도 Non-goals의 출처 매핑만 있고 하류 산출물의 부활 여부는 검사하지 않는다. [planning-reviewer.md:101](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/agents/planning-reviewer.md:101)
 
 추론:
 
@@ -141,9 +141,9 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 | 파일:줄 | 현재 값 | 최신 값·상태 | 판단 |
 |---|---|---|---|
-| [plan-sync-github/SKILL.md:18](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-sync-github/SKILL.md:18), [동일 파일:171](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-sync-github/SKILL.md:171) | Projects REST 링크가 `apiVersion=2022-11-28` | 최신 REST API 버전은 `2026-03-10`. `2022-11-28`도 2028-03-10까지 지원 예정 | 낡았지만 아직 깨지지는 않음. 최신 문서 URL 및 버전으로 옮기려면 breaking-change 검토와 테스트 필요. https://docs.github.com/en/rest/about-the-rest-api/api-versions |
-| [docs/planning/flows.md:53](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/planning/flows.md:53) | “공식 문법 10.x+ / 11.x 계열” | 최신 안정판 `12.0.0`, 2026-09-10 공개 | 버전 설명이 한 major 뒤처짐. https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0 |
-| [plan-data-model/SKILL.md:24](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-data-model/SKILL.md:24), [docs/planning/data-modeling.md:156](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/planning/data-modeling.md:156) | Mermaid 버전 미기재 | Mermaid 12.0.0부터 ERD 기본 theme/look가 바뀌고 레이아웃이 Dagre에서 ELK로 변경됨 | 문법 오류는 아니지만 렌더 결과가 달라질 수 있는 호환성 공백. 버전 또는 렌더 환경을 계약해야 함. https://mermaid.js.org/syntax/entityRelationshipDiagram.html |
+| [plan-sync-github/SKILL.md:18](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-sync-github/SKILL.md:18), [동일 파일:171](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-sync-github/SKILL.md:183) | Projects REST 링크가 `apiVersion=2022-11-28` | 최신 REST API 버전은 `2026-03-10`. `2022-11-28`도 2028-03-10까지 지원 예정 | 낡았지만 아직 깨지지는 않음. 최신 문서 URL 및 버전으로 옮기려면 breaking-change 검토와 테스트 필요. https://docs.github.com/en/rest/about-the-rest-api/api-versions |
+| [docs/planning/flows.md:61](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/planning/flows.md:61) | “공식 문법 10.x+ / 11.x 계열” | 최신 안정판 `12.0.0`, 2026-09-10 공개 | 버전 설명이 한 major 뒤처짐. https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0 |
+| [plan-data-model/SKILL.md:24](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-data-model/SKILL.md:24), [docs/planning/data-modeling.md:175](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/docs/planning/data-modeling.md:175) | Mermaid 버전 미기재 | Mermaid 12.0.0부터 ERD 기본 theme/look가 바뀌고 레이아웃이 Dagre에서 ELK로 변경됨 | 문법 오류는 아니지만 렌더 결과가 달라질 수 있는 호환성 공백. 버전 또는 렌더 환경을 계약해야 함. https://mermaid.js.org/syntax/entityRelationshipDiagram.html |
 
 추가 점검 결과:
 
@@ -151,7 +151,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
   https://docs.github.com/en/rest/about-the-rest-api/api-versions
 - `2026-03-10`에는 breaking changes가 있으므로 날짜만 기계적으로 교체해서는 안 된다. 공식 지침도 changelog 검토와 통합 테스트를 요구한다.  
   https://docs.github.com/en/rest/about-the-rest-api/breaking-changes
-- GitHub CLI 최신 안정 릴리스는 조사 시점 기준 `2.101.0`(2026-09-15)이다. 킷은 특정 버전을 고정하지 않고 실행 시 `gh --version`을 확인하므로, 이 부분은 낡은 고정값이 없다. [plan-sync-github/SKILL.md:33](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-sync-github/SKILL.md:33)  
+- GitHub CLI 최신 안정 릴리스는 조사 시점 기준 `2.101.0`(2026-09-15)이다. 킷은 특정 버전을 고정하지 않고 실행 시 `gh --version`을 확인하므로, 이 부분은 낡은 고정값이 없다. [plan-sync-github/SKILL.md:35](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/planning-kit/skills/plan-sync-github/SKILL.md:35)  
   https://github.com/cli/cli/releases/tag/v2.101.0
 - Cucumber 문서는 여전히 “시나리오당 3–5 steps 권장”, `Then`은 DB 내부가 아니라 시스템 밖의 관찰 가능한 출력이어야 한다고 명시한다. 현행 Gotcha 5/9의 정정 내용과 어긋나는 새 변경은 확인되지 않았다.  
   https://cucumber.io/docs/gherkin/reference

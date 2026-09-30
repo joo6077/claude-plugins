@@ -14,6 +14,8 @@ user-invocable: true
 allowed-tools: Read, Grep, Glob, Bash, Agent
 ---
 
+# 이미 나간 절차 문서 다시 재기
+
 이미 나간 절차 문서를 **다시 잰다.** 고치지 않는다 — 판정과 근거만 낸다.
 
 ## 왜 필요한가

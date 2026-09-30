@@ -81,7 +81,7 @@ SANER 2025 논문의 OpenReview 항목(<https://openreview.net/forum?id=uO8ix6tn
 
 | 출처 | URL | 상태 |
 | --- | --- | --- |
-| 국립국어원 공공언어 자료 | <https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663> | 승계 |
+| 국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」 | <https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663> | 확인됨 (2026-09-28) — 첨부 PDF 본문 확인. 보도자료의 `-다` 종결 권고(55쪽)와 한글 우선 · 어렵거나 불필요한 외래어 다듬기(63 · 64쪽)만 있다. K-02 · K-03 번역투 규칙과 K-05 의 API 이름 · 음역 세칙은 이 자료에 없고 이 킷의 컨벤션이다 |
 | 한국어 번역투 연구 (KCI) | <https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002178732> | 승계 |
 | LINE — 엔지니어의 글쓰기 | <https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/> | 승계 |
 | LY 엔지니어링 블로그 | <https://techblog.lycorp.co.jp/ko/> | 승계 |

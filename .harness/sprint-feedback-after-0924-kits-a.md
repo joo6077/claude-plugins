@@ -55,7 +55,7 @@ Iteration: 2
 - [x] SK-01: widget-inspector §7 제목/본문 정합 — PASS
   - 근거: `flutter-toolkit/agents/widget-inspector.md` diff — 제목에서 "관례 표를 받았을 때" 제거, 본문에 "건너뜀 — 관례 표 없는 호출"(밝힌 경우) / "[미검증] 관례 표 없음"(안 밝힌 경우) 분기 추가, `## Rules` MUST 항목도 동일 갱신. 직접 재실행 `m SK-01` → `0 1 1 1` (a=0, b=1≥1, c=1≥1, d=1≥1 — 전부 충족)
 - [x] SK-02: flutter-feature 호출측 고지 — PASS
-  - 근거: `flutter-toolkit/skills/flutter-feature/SKILL.md:193` "이 스킬은 보일러플레이트만 만들어 관례 표를 만들지 않으므로, 호출 프롬프트에 「관례 표 없는 호출」이라고 밝힌다" 추가. flutter-widget/flutter-screen 문구는 그대로. 직접 재실행 `m SK-02` → `1 1 1`
+  - 근거: `flutter-toolkit/skills/flutter-feature/SKILL.md:199` "이 스킬은 보일러플레이트만 만들어 관례 표를 만들지 않으므로, 호출 프롬프트에 「관례 표 없는 호출」이라고 밝힌다" 추가. flutter-widget/flutter-screen 문구는 그대로. 직접 재실행 `m SK-02` → `1 1 1`
 - [x] SK-03: build_runner 플래그 유지 + Gotcha 근거 — PASS
   - 근거: `flutter-toolkit/skills/flutter-build/SKILL.md` Gotchas 절 2.16 줄 안에 2.7.0 이상/미만 구분과 "빼지 않는다" 결론을 한 줄에 이어씀(교차 진단 반영 이력 확인). 직접 재실행 `m SK-03` → `1 1 1 2 2 2`(a=1,b=1,j=1, 명령 줄 2/2/2 유지)
 - [x] SK-04: scenario-report MCP 우선 진행 — PASS

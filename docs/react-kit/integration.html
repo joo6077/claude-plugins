@@ -192,6 +192,8 @@
     <li><a href="#s7"><span class="toc-n">07</span>7. 스캐폴딩 시 생성되는 .harness/project.yaml 의 커스터마이징</a></li>
     <li><a href="#s8"><span class="toc-n">08</span>현행화 기록</a></li>
     <li><a href="#s9"><span class="toc-n">09</span>8. 변경 이력</a></li>
+    <li><a href="#hand1"><span class="toc-n">+</span>Bad vs Good — 통합 설계 실수 패턴</a></li>
+    <li><a href="#hand2"><span class="toc-n">+</span>21 스킬 교차 공통 주의사항</a></li>
     <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
   </ol>
 </nav>
@@ -787,6 +789,126 @@ src-tauri/               # Tauri 백엔드
   </ol>
 </section>
 
+<section class="section doc" id="hand1">
+  <div class="section-label">손 글 · 되살림</div>
+  <h2>Bad vs Good — 통합 설계 실수 패턴</h2>
+  <div class="doc-body">
+<p>이 절은 옛 쪽(<code>38cccd1</code>)의 손 글을 지금 스킬 문서에 맞춰 다시 쓴 것이다. 규칙 번호 대신 <code>/react-audit</code> 의 여섯 카테고리 이름을 쓴다.</p>
+<h3 class="sub">1. 라이브러리 도입 vs 순수 구현</h3>
+<p><strong>나쁜 예</strong> — <code>motion</code> · <code>@dnd-kit/*</code> 는 <code>/react-audit</code> Library Policy 금지 목록이라 경고 없이 즉각 REJECT 다. 금지 목록은 더하기만 하고 지우지 않는다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// Library Policy 카테고리 — 빌드 게이트급 실패
+import { motion } from 'motion/react'
+import { useDraggable } from '@dnd-kit/core'
+
+function DraggableCard() {
+  return &lt;motion.div drag&gt;콘텐츠&lt;/motion.div&gt;
+}</code></pre></div>
+<p><strong>좋은 예</strong> — Tailwind + CSS → View Transitions API → 직접 만든 Pointer 기본 동작 순서로 판정한다. 공용 훅은 <code>presentation/shared/hooks/</code> 에 둔다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// Tier 1: Tailwind 트랜지션 — 외부 의존성 0 개
+function FadeCard({ visible }: { visible: boolean }) {
+  return (
+    &lt;div className={`transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}&gt;
+      콘텐츠
+    &lt;/div&gt;
+  )
+}
+// Tier 3: Pointer Events 로 만든 공용 훅
+import { useDrag } from '@/presentation/shared/hooks/use-drag'</code></pre></div>
+<h3 class="sub">2. 레이어 경계 위반 vs infrastructure 래퍼</h3>
+<p><strong>나쁜 예</strong> — <code>src/infrastructure/tauri/</code> 밖의 <code>@tauri-apps/</code> import 는 Library Policy 카테고리 ❌ 실패다. 브라우저에는 <code>window.__TAURI_INTERNALS__</code> 가 없어 <code>invoke</code> 가 throw 한다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// presentation 에서 @tauri-apps/* 를 직접 import — 웹 빌드에서 crash
+import { invoke } from '@tauri-apps/api/core'
+
+function SettingsScreen() {
+  const save = async (path: string) =&gt; { await invoke('save_config', { path }) }
+}</code></pre></div>
+<p><strong>좋은 예</strong> — <code>infrastructure/tauri/</code> 의 모든 함수는 첫 줄에 <code>isTauri()</code> 가드를 둔다. 같은 <code>dist/</code> 를 웹과 Tauri 양쪽에서 쓰므로 빌드 타임 분기를 쓰지 않는다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// src/infrastructure/tauri/config.ts
+import { invoke, isTauri } from '@tauri-apps/api/core'
+
+export async function saveConfig(path: string): Promise&lt;boolean&gt; {
+  if (!isTauri()) return false
+  await invoke('save_config', { path })
+  return true
+}
+// presentation 은 래퍼만 부른다
+import { saveConfig } from '@/infrastructure/tauri/config'</code></pre></div>
+<h3 class="sub">3. domain 에서 throw vs Result 시그니처</h3>
+<p><strong>나쁜 예</strong> — domain 은 외부 의존성 0 개이고 throw 하지 않는다. <code>as</code> 단언은 Strict TypeScript 카테고리 위반이다.</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// domain/usecases/fetch-user.ts
+export async function fetchUser(id: string): Promise&lt;User&gt; {
+  const res = await fetch(`/users/${id}`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return (await res.json()) as User
+}</code></pre></div>
+<p><strong>좋은 예</strong> — domain 은 <code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code> 시그니처만 선언하고, data 레이어가 <code>ResultAsync.fromPromise</code> 로 경계를 바꾼다 (<a href="result-patterns.html">Result 패턴</a>).</p>
+<div class="code"><span class="code-lang">ts</span><pre><code>// domain/usecases/fetch-user.ts — 시그니처만
+export type FetchUser = (id: string) =&gt; Promise&lt;Result&lt;User, UserFailure&gt;&gt;
+
+// data/datasources/remote — 경계에서 Result 로 바꾼다
+function fetchUser(id: string): ResultAsync&lt;User, UserFailure&gt; {
+  return ResultAsync.fromPromise(
+    fetch(`/users/${id}`).then(r =&gt; r.json()),
+    (e) =&gt; ({ kind: 'user/network-error', cause: String(e) })
+  ).andThen(parse)
+}</code></pre></div>
+  </div>
+</section>
+<section class="section doc" id="hand2">
+  <div class="section-label">손 글 · 되살림</div>
+  <h2>21 스킬 교차 공통 주의사항</h2>
+  <div class="doc-body">
+<p>G1 ~ G6 스킬 전체를 관통하는 반복 실수다. 구현 착수 전에 이 목록을 확인한다. 스킬별 세부 Gotchas 는 각 그룹 쪽에 있다.</p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>any</code> · <code>as</code> · <code>!</code> 금지</strong> — <code>/react-audit</code> Strict TypeScript 카테고리가 잡는다. Zod <code>safeParse</code> 나 타입 가드로 바꾼다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>domain 에서 throw 금지</strong> — domain 은 Result 시그니처만 둔다. 예외는 data 경계에서 받아 Failure 로 바꾼다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Tauri API 는 <code>infrastructure/tauri/</code> 경유</strong> — 함수 첫 줄에 <code>isTauri()</code> 가드. 밖에서 import 하면 Library Policy ❌ 실패.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>WASM 이식 전 카탈로그</strong> — <code>docs/react/wasm-catalog.md</code> §1 / §2 카테고리를 먼저 맞추고, 맞는 칸이 없으면 §5 휴리스틱 다섯 가운데 셋 이상일 때만 이식을 제안한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>애니메이션 라이브러리 금지</strong> — <code>motion</code>, <code>framer-motion</code>, <code>@dnd-kit/*</code>, <code>react-spring</code>, <code>react-dnd</code>, <code>react-beautiful-dnd</code>, <code>react-transition-group</code>, <code>gsap</code>, <code>lottie-react</code>, <code>@formkit/auto-animate</code>, <code>animate.css</code>.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>여러 파일 생성이 실패하면 전체 되돌리기</strong> — <code>/react-feature</code> 는 하나라도 실패하면 이번 실행이 만든 파일을 모두 지우고, <code>/react-extract</code> 는 <code>tsc --noEmit</code> 실패 시 만든 파일과 고친 import 를 되돌린다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Zod 검증은 경계에서</strong> — <code>data/datasources/remote/</code> 가 fetch 결과를 Zod 로 검사한다. 안쪽 레이어는 검증된 타입만 넘긴다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Skeleton 은 <code>isPending</code> 에서만</strong> — <code>bg-muted</code> 를 지우지 않고, <code>isPending → isError → empty → success</code> 순서로 가른다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>계약 먼저</strong> — 파일 둘 이상을 바꾸는 구현은 <code>/sprint-contract</code> 로 완료 조건을 정하고 qa-evaluator APPROVE 로 끝낸다 (레포 harness 규칙).</div></li>
+</ul>
+  </div>
+</section>
+<section class="section" aria-labelledby="sib">
+  <div class="section-label" id="sib">같은 킷의 이웃 쪽</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="scaffolding.html">G1 · Scaffolding</a></h3>
+      <p><code>/react-init</code> · <code>/react-screen</code> · <code>/react-feature</code> · <code>/react-widget</code>.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="state-data.html">G2 · 상태 & 데이터</a></h3>
+      <p>스토어 · 네 층 API · 쿼리 · 폼.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="performance.html">G3 · 성능</a></h3>
+      <p>WASM 바인딩과 Tauri 경계.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="quality.html">G4 · 품질</a></h3>
+      <p>테스트 · 에러 처리 · 번역.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="ui-patterns.html">G5 · UI 패턴</a></h3>
+      <p>반응형 · Skeleton · 컴포넌트 추출.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="animation.html">G5b · 애니메이션</a></h3>
+      <p>라이브러리 0 개 3-Tier 애니메이션.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="build-audit.html">G6 · 빌드 & 감사</a></h3>
+      <p>빌드 · 커밋 전 검사 · 여섯 카테고리 감사.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="wasm-catalog.html">WASM 판정 카탈로그</a></h3>
+      <p>이식할지 말지 가르는 카테고리와 휴리스틱 다섯.</p>
+    </div>
+  </div>
+</section>
 <footer class="foot">
   <p>원본 <code>docs/react/kit-design/final-integration.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
 </footer>

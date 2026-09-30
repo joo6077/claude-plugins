@@ -19,7 +19,7 @@ rust-kit 문서 14 개에 특정 앱 이름(`fit-pal` · `fitpal`)이 66 줄 · 
 사용자가 이 세션(`bda55d45-296c-491f-89ba-b52042d58e72`, AskUserQuestion)에서 **일괄 치환**을 골랐다.
 
 이 계약은 그 결정을 대응표 하나로 옮긴다. 코드 이름(크레이트 이름 · DB(데이터베이스) 주소 예시)은 rust-kit 이 이미 쓰는 중립 이름 `myapp`
-(`rust-kit/skills/rust-grpc/SKILL.md:27` 의 `package myapp.v1;`)으로, 「출처: fit-pal `server/CLAUDE.md`」 같은 출처 문장은
+(`rust-kit/skills/rust-grpc/SKILL.md:35` 의 `package myapp.v1;`)으로, 「출처: fit-pal `server/CLAUDE.md`」 같은 출처 문장은
 앱 이름 없이 「실사용 프로젝트의 서버 규칙」 으로 바꾼다. 대응표는 아래 `## GAP 분석` 의 표이고, 적용은 `## 회귀 게이트` 의 `apply-map.py` 한 번이다.
 대응표 밖에서 손으로 고치는 곳은 없다.
 
@@ -34,7 +34,7 @@ rust-kit 문서 14 개에 특정 앱 이름(`fit-pal` · `fitpal`)이 66 줄 · 
 
 - `.harness/handoff/2026-09-26-0110.md` §C3 rust-kit 줄 · §C4 4 번
 - `.harness/.meta/kaizen-0924/phase9-notes.md:130` · `f1-kit-followups-notes.md:82` · `:156`
-- 대상 파일 14 개 (아래 Pre-Edit 표) · 중립 이름 근거 `rust-kit/skills/rust-grpc/SKILL.md:27`
+- 대상 파일 14 개 (아래 Pre-Edit 표) · 중립 이름 근거 `rust-kit/skills/rust-grpc/SKILL.md:35`
 - 규칙: `harness/references/contract-schema.md` (봉인 · 범위 조건 · 양성 대조 · 알려진 답 대조) · `tone-kit/references/locale-korean.md` §2 · §8
 
 ## GAP 분석 · 대응표 · 개선안
@@ -114,7 +114,7 @@ rust-run `:18` ~ `:26` · rust-preflight `:60` ~ `:70` · project-detection `:13
 
 판단 기록 (사용자 결정 밖에서 정한 것 — 저장소 안 근거):
 
-- 중립 이름은 `myapp` 계열 하나다. rust-kit 에 이미 `package myapp.v1;` (`rust-grpc/SKILL.md:27`)가 있고 작업 지시 예시도 `myapp` · `myapp-api` 다.
+- 중립 이름은 `myapp` 계열 하나다. rust-kit 에 이미 `package myapp.v1;` (`rust-grpc/SKILL.md:35`)가 있고 작업 지시 예시도 `myapp` · `myapp-api` 다.
   rust-test `:338` ~ `:344` 의 `my-api` · `my-lib` 는 다른 예시 블록이라 대응표 밖이며 건드리지 않는다
 - 크레이트 이름은 지난 실측 기록 문장(rust-preflight `:21` 「2026-06 실측 … `cargo run -p fitpal-migration` 후 통과」, project-detection `:147`) 안에서도 바꾼다.
   사용자 결정이 「앱 이름 0 건」 이고, 원래 이름은 `.harness/.meta/evidence/phase9.md` (7 건) 같은 기록에 남아 있어 추적할 수 있다

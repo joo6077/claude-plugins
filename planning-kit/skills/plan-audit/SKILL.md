@@ -13,6 +13,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **단일 에이전트 판정에 의존 금지** — planning-reviewer 에이전트를 Agent 도구로 호출하여 **독립 평가** 수행. 본 스킬은 오케스트레이션만 담당.
 2. **산출물 없는 항목을 FAIL 로 처리** — 해당 파일이 없으면 "NOT_FOUND" 가 아니라 "FAIL (missing)" 로 기록. discovery 가 없는 PRD 는 기반이 없다.
 3. **주관 평가 금지** — 모든 항목은 docs/planning/ 원칙 문서 기준 객관 검증. "좋다/나쁘다" 금지, "포함됨/누락됨" 만.

@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **낙관적 시나리오만 확인 금지** — 기획자는 본능적으로 성공을 가정한다. Pre-mortem 은 의도적으로 "6개월 후 실패했다. 왜?" 로 시작한다.
 2. **일반론 금지** — "시장이 바뀔 수 있다" 는 리스크가 아니다. 구체적이고 검증 가능한 시나리오만 기록.
 3. **확률/영향 없는 리스크 목록 무의미** — 각 리스크에 Probability(1-5) × Impact(1-5) 점수 필수.

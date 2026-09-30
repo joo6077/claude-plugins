@@ -114,7 +114,7 @@ rep(RV, "production Kafka broker 접근 불가 — 4 요건 충족(호출 로그
 `회귀 게이트` 표 SK-09 행과 「문장 삭제 사본」 수(SK-09 18 → 20, 전체 67 → 69)도 BUILD 가 `del.sh` 를 다시 돌려 고친다. 새 토큰 둘은 내가 먼저 돌려 봤다 —
 reviewer 예시 행을 옛 문구로 되돌리면 여섯째 줄 `1 1 0` · 마지막 값 1, Gotcha 11 본문을 옛 문구로 되돌리면 셋째 줄 첫 값 0 · 마지막 값 2.
 
-notes 「그대로 둔 곳」에 권장: `backend-kit/skills/backend-audit/SKILL.md:114` 「미검증 1 건: [체크항목] — [이유]」 — reviewer 복제 조항 5 의 보고 모양과 같아 그대로 둔다.
+notes 「그대로 둔 곳」에 권장: `backend-kit/skills/backend-audit/SKILL.md:119` 「미검증 1 건: [체크항목] — [이유]」 — reviewer 복제 조항 5 의 보고 모양과 같아 그대로 둔다.
 
 ### ER-01
 
@@ -192,7 +192,7 @@ VERDICT: CHANGES
 | 배경 · 1.4 · 개선안 · 대조 표 · 문장 삭제 수 | 23 · 88 · 89 · 117 · 128 · 130 · 489 · 505 행 | 들어감. 문장 삭제 70 = 67 + SK-09 둘 + SK-05 README 하나 |
 | ER-01 조건 줄 · 둘째 줄 · `m.sh` | 542 ~ 545 · 388 ~ 391 행 | 들어감. 제안보다 하나 낫다 — notes 가 없으면 `NOTES_MISSING` 을 찍는다(제안대로면 조용히 0) |
 | 권장 1 「사용자가 할 일: 없음」 | 207 행 | 들어감 |
-| 권장 2 README 「7 카테고리 구조 감사」 | 24 행 · SK-05 셋째 줄 · ER-03 토큰 `infra-kit/README.md` | 이번에 고치는 쪽으로 들어감. 레포 전체에 같은 줄은 `backend-kit/README.md:54` 와 `infra-kit/README.md:54` 둘뿐이다(시작 커밋 판 `git grep`) |
+| 권장 2 README 「7 카테고리 구조 감사」 | 24 행 · SK-05 셋째 줄 · ER-03 토큰 `infra-kit/README.md` | 이번에 고치는 쪽으로 들어감. 레포 전체에 같은 줄은 `backend-kit/README.md:57` 와 `infra-kit/README.md:57` 둘뿐이다(시작 커밋 판 `git grep`) |
 | 권장 3 Gotcha 16 문장 | SK-08 둘째 토큰 | 「행도 같은 기준으로 판정한다」 로 들어감 |
 | 권장 4 · 5 · 참고(봉인 값이 첫 줄만 덮음) | 201 ~ 205 행 notes 할 일 | 들어감 |
 | 권장 6 `TMPDIR` | 218 ~ 219 행 | 들어갔지만 효과가 없다 — 위 결론 |

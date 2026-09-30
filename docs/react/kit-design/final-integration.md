@@ -325,7 +325,7 @@ release 스크립트는 아래 파일들을 자동 갱신한다:
 
 `react-kit/README.md` 는 기존 rust-kit, flutter-toolkit README 의 구조를 모방:
 
-```markdown
+````markdown
 # react-kit
 
 React + Vite + Tauri 2 + Rust WASM 전용 개발 워크플로우 플러그인.
@@ -449,12 +449,12 @@ src-tauri/               # Tauri 백엔드
 5. **Result 타입**: throw 금지, neverthrow Result<T, Failure> 로 타입 안전 에러
 6. **WASM 결정은 카탈로그 기반**: 측정 없이도 research-backed 판정 (G0 wasm-catalog.md)
 
-```text
+````
 
 ### 4.1 문서 위치 구분
 
 | 위치 | 역할 |
-|------|------|
+| ---- | ---- |
 | `react-kit/README.md` | 플러그인 사용자 대상 — 스킬 목록, 퀵스타트, 철학 |
 | `react-kit/references/*.md` | 스킬 내부가 읽는 공유 레퍼런스 (사용자 직접 안 봄) |
 | `docs/react/*.md` (이 레포) | **레포 개발용 리서치 문서** — 카이젠 루프가 갱신. `wasm-catalog.md` 등 |

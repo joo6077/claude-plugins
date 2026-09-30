@@ -38,10 +38,10 @@
 
 | # | 위치 | 지적 | 올바른 값 |
 | --- | --- | --- | --- |
-| 1 | `bambu-fields-baseline.md:388-391` | "뱀부 전용" 7 개 중 5 개가 오르카에도 있다 | `filament_scarf_seam_type`(뱀부 7/오르카 89) · `filament_scarf_height`(10/66) · `filament_scarf_gap`(12/67) · `filament_scarf_length`(5/54) · `override_filament_scarf_seam_setting`(1/2) · `seam_placement_away_from_overhangs`(1/2) · `seam_slope_gap`(1/2). 실제 뱀부 전용은 `monotonic_travel_into_wall` · `reduce_infill_retraction_mode` 둘뿐 |
-| 2 | `bambu-fields-baseline.md:376` | "`wall_sequence` 는 뱀부에 없다" 가 틀림 | 프로파일 명시 0 건이지만 **바이너리에 존재**. 같은 문제가 `seam_slope_steps` · `wall_distribution_count` · `wall_transition_length` · `wall_transition_angle` · `wall_transition_filter_deviation` 에도 있다 |
-| 3 | `bambu-fields-baseline.md:209-213` ↔ `:376` | **자기모순** — 209 줄이 "프로파일 0 건이어도 키가 없는 게 아니다" 라고 이미 써놨다. `:62-64` 도 뱀부 신규 JSON 에 `wall_sequence` 를 쓰라고 한다 | 표현 통일 |
-| 4 | `bambu-fields-baseline.md:371` · `seam-recipes.md:298` | "`scarf_joint_speed` 가 없어서 뱀부에선 짧은 루프에 경사를 못 쓴다" 가 과장 | "경사 구간 속도를 **따로 제어할 수 없다**". 뱀부에도 `seam_slope_type` · `seam_slope_min_length` · `filament_scarf_*` 가 있다 |
+| 1 | `bambu-fields-baseline.md:402-405` | "뱀부 전용" 7 개 중 5 개가 오르카에도 있다 | `filament_scarf_seam_type`(뱀부 7/오르카 89) · `filament_scarf_height`(10/66) · `filament_scarf_gap`(12/67) · `filament_scarf_length`(5/54) · `override_filament_scarf_seam_setting`(1/2) · `seam_placement_away_from_overhangs`(1/2) · `seam_slope_gap`(1/2). 실제 뱀부 전용은 `monotonic_travel_into_wall` · `reduce_infill_retraction_mode` 둘뿐 |
+| 2 | `bambu-fields-baseline.md:390` | "`wall_sequence` 는 뱀부에 없다" 가 틀림 | 프로파일 명시 0 건이지만 **바이너리에 존재**. 같은 문제가 `seam_slope_steps` · `wall_distribution_count` · `wall_transition_length` · `wall_transition_angle` · `wall_transition_filter_deviation` 에도 있다 |
+| 3 | `bambu-fields-baseline.md:224-228` ↔ `:376` | **자기모순** — 209 줄이 "프로파일 0 건이어도 키가 없는 게 아니다" 라고 이미 써놨다. `:62-64` 도 뱀부 신규 JSON 에 `wall_sequence` 를 쓰라고 한다 | 표현 통일 |
+| 4 | `bambu-fields-baseline.md:385` · `seam-recipes.md:308` | "`scarf_joint_speed` 가 없어서 뱀부에선 짧은 루프에 경사를 못 쓴다" 가 과장 | "경사 구간 속도를 **따로 제어할 수 없다**". 뱀부에도 `seam_slope_type` · `seam_slope_min_length` · `filament_scarf_*` 가 있다 |
 | 5 | `SKILL.md:723` ↔ `:1327` ↔ `:1338` | **`TARGET_SLICER` 전달 경로가 없다.** Phase 1.95 가 값을 정해도 실행 명령이 Python 에 안 넘겨서 `globals().get("TARGET_SLICER")` 가 항상 `None` → 늘 뱀부로 폴백. **오르카 산출물을 뱀부 스코프로 검사하는 회귀** | 실행 명령에 인자 추가 |
 | 6 | `gate-fixtures/*.json` 2 종 | **음성 대조 역할을 못 한다.** 두 픽스처가 각각 오류 7 건·6 건을 내는데 `version`·`from`·`print_settings_id` 누락과 `thin` 인데 외벽 하향 등 목표 외 위반이 섞였다. **검사를 지워도 계속 떨어져** 판별력이 없다 | 목표 위반 1 개만 남기고 나머지 필드를 정상값으로 채운다 |
 

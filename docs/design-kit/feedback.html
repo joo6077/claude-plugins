@@ -106,7 +106,7 @@
   .dur-label{min-width:110px;font-size:13px;font-weight:600;color:var(--text2)}
   .dur-track{flex:1;height:32px;background:var(--surface2);border-radius:6px;position:relative;overflow:hidden}
   .dur-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;
-    font-size:11px;font-weight:700;color:rgba(255,255,255,0.9);font-family:var(--mono);transition:width 0.6s ease}
+    font-size:11px;font-weight:700;color:var(--dk-on-bright, rgba(255,255,255,0.9));font-family:var(--mono);transition:width 0.6s ease}
 
   /* Modal overlay */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:2000;
@@ -166,7 +166,7 @@
   .timing-label{min-width:100px;font-size:13px;font-weight:600;color:var(--text2)}
   .timing-bar-track{flex:1;height:40px;background:var(--surface2);border-radius:8px;position:relative;overflow:hidden}
   .timing-bar-fill{height:100%;border-radius:8px;display:flex;align-items:center;padding:0 14px;
-    font-size:12px;font-weight:700;color:rgba(255,255,255,0.9);font-family:var(--mono)}
+    font-size:12px;font-weight:700;color:var(--dk-on-bright, rgba(255,255,255,0.9));font-family:var(--mono)}
 
   /* Onboarding cards */
   .onboarding-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;
@@ -185,6 +185,27 @@
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <!-- ==================== HERO ==================== -->

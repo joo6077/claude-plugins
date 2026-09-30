@@ -78,7 +78,7 @@ Iteration: 2
 - [x] AR-01: PASS
   - 근거: `grep -c '^measurement_digest: sha256:{16hex}' contract-schema.md` = 1. §계약 봉인 절 자르기에 `들여쓴` 4 · `빈 줄` 1 · `MEASURE_BROKEN` 3 (각 ≥ 1). `mk_fixtures.sh` 가 `STOP` 없이 exit 0 — 두 함수가 그 블록 안에 있음 확인
 - [x] AR-02: PASS (A-01 요구 포함)
-  - 근거: 1-e-2 절 자르기에 `verify_measurement` 2 · `MEASURE_OK` 1 · `MEASURE_ABSENT` 1 · `MEASURE_BROKEN` 3 (전부 ≥ 1). `grep -c '^- measure_status:' qa-evaluator.md` = 1. `qa-evaluator.md:824` 자기 점검 9 항에 `verify_measurement` 존재
+  - 근거: 1-e-2 절 자르기에 `verify_measurement` 2 · `MEASURE_OK` 1 · `MEASURE_ABSENT` 1 · `MEASURE_BROKEN` 3 (전부 ≥ 1). `grep -c '^- measure_status:' qa-evaluator.md` = 1. `qa-evaluator.md:836` 자기 점검 9 항에 `verify_measurement` 존재
   - **A-01 검증**: `bash $M/reseal_probe.sh harness/agents/qa-evaluator.md` (가지 끝 판) → 1-e-3 코드 블록 출력에 재봉인 검출 전용 줄 `-measurement_digest:sha256:734474... / +measurement_digest:sha256:fbf750...` 이 (산문 차이 목록과 별개로) 한 번 더 나옴. 음성 대조로 기준판(커밋 `1922551`, A-01 수정 전)의 1-e-3 블록을 같은 조작본에 돌리면 그 두 번째 줄이 나오지 않고 산문 차이 목록에만 한 번 등장 — 개정이 요구한 차이가 실제로 존재함을 실행으로 확인
 - [x] AR-03: PASS
   - 근거: `grep -c 'MEASURE_ABSENT' qa-evaluation-guide.md` = 1, `MEASURE_BROKEN` = 1, `grep -c 'measurement_digest' contract-design-guide.md` = 1

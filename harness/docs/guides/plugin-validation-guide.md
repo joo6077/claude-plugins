@@ -536,7 +536,7 @@ howto-kit `docs/howto` (design-kit 의 `design-kit/docs/design` 은 원래 킷 �
 FAIL 출력은 이런 형태다.
 
 ```text
-FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
+FAIL harness/references/contract-schema.md:1369 — 헤더 없이 끊긴 표 행
   (절을 표 중간에 끼워 넣었는지 보라): | `unknown` | PASS 근거 불가 — 표면화 | …
 ```
 
@@ -566,8 +566,8 @@ FAIL harness/references/contract-schema.md:1036 — 헤더 없이 끊긴 표 행
   V1 frontmatter       21 skills + 3 agents — OK
   V2 templates         5 parsed, 4 skipped (ts/js) — OK
   V3 refs              89 links, 2 BROKEN — FAIL
-    FAIL react-kit/skills/react-skeleton/SKILL.md:42 → references/shadcn-skeleton.md (not found)
-    FAIL react-kit/skills/react-skeleton/SKILL.md:67 → ../design-kit/references/token-schema.md (not found)
+    FAIL react-kit/skills/react-skeleton/SKILL.md:51 → references/shadcn-skeleton.md (not found)
+    FAIL react-kit/skills/react-skeleton/SKILL.md:77 → ../design-kit/references/token-schema.md (not found)
   V4 triggers          58 keywords, 1 duplicate — WARN
     WARN "새 화면 추가" — react-kit / planning-kit (cross-kit)
   V5 placeholders      0 found — OK

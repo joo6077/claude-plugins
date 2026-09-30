@@ -25,9 +25,9 @@ user-invocable: true
 5. **CI 파이프라인 테스트에서 시크릿 노출 주의** — `act` (GitHub Actions 로컬 실행) 사용 시 `.secrets` 파일을 .gitignore에 포함. CI 테스트 결과에 환경 변수 덤프를 남기지 마라
 6. **K8s manifest 검증 도구 혼용 주의** — kubeval은 deprecated. kubeconform 또는 `kubectl --dry-run=server`를 사용하라. Helm 차트는 `helm template | kubeconform` 파이프라인으로
 7. **보안 스캔을 테스트로 대체하지 마라** — Trivy/Snyk/Checkov는 보안 스캔 도구이지 테스트가 아니다. 스캔 결과를 CI에 게이트로 넣되, 별도 단계로 분리하라
-8. **OpenTofu/Terraform 호환성 주의** — OpenTofu 1.7+는 `tofu test`에서 mocking 지원. Terraform은 1.6+에서 `terraform test` 지원. 프로젝트가 어떤 걸 쓰는지 확인하라
+8. **OpenTofu/Terraform 호환성 주의** — OpenTofu 는 1.8+ 부터 `tofu test` 에서 provider mocking 을 지원한다 ([v1.8.0 릴리스](https://github.com/opentofu/opentofu/releases/tag/v1.8.0), 2026-09-28 조회). Terraform은 1.6+에서 `terraform test` 지원. 프로젝트가 어떤 걸 쓰는지 확인하라
 9. **Sibling Consistency (backend-test parity)** — Step 0 스택 감지 독립 단계 + 기존 테스트 패턴 탐색 + 외부 실환경 강제 금지 세 항목은 infra-test / backend-test 공통으로 유지해야 한다. 한쪽만 변경하면 sibling drift 로 평가 불일치 발생 (Phase 7/8 동기화 규칙).
-10. **Ephemeral values 기반 테스트 fixture (Phase 8 리서치)** — Terraform 1.10+ `ephemeral` 블록이나 OpenTofu 1.7+ write-only 인수로 시크릿을 다루는 모듈은 `terraform test` fixture 에서 평문 주입 금지. 테스트도 동일하게 `run "xxx" { variables { secret = ... } }` 블록 대신 환경변수/Vault dev 모드를 사용하라. 출처: [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral).
+10. **Ephemeral values 기반 테스트 fixture (Phase 8 리서치)** — Terraform 1.10+ `ephemeral` 블록이나 OpenTofu 1.11+ write-only 인수([v1.11.0 릴리스](https://github.com/opentofu/opentofu/releases/tag/v1.11.0), 2026-09-28 조회)로 시크릿을 다루는 모듈은 `terraform test` fixture 에서 평문 주입 금지. 테스트도 동일하게 `run "xxx" { variables { secret = ... } }` 블록 대신 환경변수/Vault dev 모드를 사용하라. 출처: [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral).
 
 11. **셸 검증 스크립트는 결과 상태를 exit code 로 전파해야 한다** — 이 스킬이 생성하는 스크립트는 CI 게이트로 쓰인다. 결함을 발견하고도 `echo "WARN: ..."` 만 하고 0 으로 끝나면 파이프라인은 항상 통과하고, 스크립트는 검증하는 척만 한다. **상태어 5 종(`PASS` · `VIOLATION` · `SKIP_NO_TARGET` · `TOOL_OR_ENV_MISSING` · `EXECUTION_ERROR`)과 exit 매핑, 머리말 4 카운터, 핵심/선택 도구 분리는 `../../references/gate-result-taxonomy.md` 가 SSOT 다 — 여기서 다시 정의하지 마라.** 그 위에 아래 4 가지를 **생성하는 모든 셸 스크립트에 동시에** 적용하라.
 

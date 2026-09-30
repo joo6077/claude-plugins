@@ -581,7 +581,7 @@ kit followups 서른셋:
 - `F1K-43` — P13 `[미검증]` 네 칸 다섯 자리 등. 다음 사이클 Phase 13
 - `F1K-44` — 올리지 않은 가지 `feat/bambu-kit-orca-h2s-feedback` 과의 충돌 자리
 - `F1K-48` — P14 `guide_gate` 세 칸 검사 · AUTO 표지 등. 다음 사이클 Phase 14
-- `F1K-50` — tone `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:633` 같은 모양 칸
+- `F1K-50` — tone `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:640` 같은 모양 칸
 - `F1K-51` — P15 연구 기록 「죽은 이름 검사 넷」 서술(표 칸 둘이 더 있었다)
 - `F1K-52` — P15 C-06 강도 · `etc_seq=663` · `locale-korean.md` §2 grep 열 등. 근거 재확인이 먼저
 - `F1K-53` — P16 뷰어에 「판정 불가」 자리 없음. 기준 시안 사용자 확인이 먼저

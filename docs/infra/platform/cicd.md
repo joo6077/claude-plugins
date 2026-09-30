@@ -92,7 +92,7 @@ done
 GitHub Actions 라면 기준 커밋의 실행 기록은 `gh run list --commit <sha>` 로 찾는다. 최근 성공 커밋에서 가지를 자를 때
 `gh run list --branch <가지> --status success --limit 1 --json headSha` 를 그대로 쓰지 마라 — `--workflow` 가 없어 문서 빌드처럼 필수가 아닌 workflow
 하나만 성공한 커밋도 나온다. 그 커밋에서 보호 가지의 필수 검사가 전부 성공 · skipped · neutral 인지 확인하고, 옛 커밋에서 잘랐으면
-`<고른 커밋>..origin/<기준 가지>` 로 빠지는 커밋 범위를 함께 보고한다. GitHub 밖 CI 의 같은 조회 명령은 이 문서의 근거에 없다.
+`<고른 커밋>..origin/<기준 가지>` 로 빠지는 커밋 범위를 함께 보고한다. GitHub 밖에서는 GitLab Pipelines API 의 `sha` 매개변수와 Buildkite Builds API 의 `commit` 매개변수(전체 SHA 만 받는다)로 특정 커밋의 실행을 찾는다 ([GitLab — Pipelines API](https://docs.gitlab.com/api/pipelines/) · [Buildkite — Builds API](https://buildkite.com/docs/apis/rest-api/builds), 2026-09-28 조회). 이 조회는 실행을 찾아 줄 뿐, 필수 검사 전체가 통과했는지나 실패 원인까지 혼자 증명하지는 않는다.
 
 > **출처:** [Git — git merge-base](https://git-scm.com/docs/git-merge-base) · [GitHub CLI — gh run list](https://cli.github.com/manual/gh_run_list) · [GitHub — Re-running workflows and jobs](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs) · [GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) · [GitHub — About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 

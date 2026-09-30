@@ -42,7 +42,7 @@ Iteration: 1
 
 ### Skill (10/10)
 - [x] SK-01: codegen 필터 자동 미부착 + l10n/감지절차/transition§5 반영 — PASS
-  - 근거: `flutter-toolkit/skills/flutter-run/SKILL.md:41-43`(필터 미부착 문구) · (a) `--build-filter=`/띄어쓴 필터/`app-codegen-filter FILTER=` 킷 전체 0 · 0 (측정: `grep -rnE` 실행값 `0`, `0`) · (b) 11 값 전부 1(RUN/BLD/PRF/L10N/PD/TRN 각 절 실측) · transition `### 5. Codegen` 옛 `build_runner build` 줄 0. L3: `flutter-run/SKILL.md:41` 문장을 직접 Read 하여 "필터 없이 전체를 돌리고 전후 삭제 수를 센다" 의미 확인
+  - 근거: `flutter-toolkit/skills/flutter-run/SKILL.md:45-47`(필터 미부착 문구) · (a) `--build-filter=`/띄어쓴 필터/`app-codegen-filter FILTER=` 킷 전체 0 · 0 (측정: `grep -rnE` 실행값 `0`, `0`) · (b) 11 값 전부 1(RUN/BLD/PRF/L10N/PD/TRN 각 절 실측) · transition `### 5. Codegen` 옛 `build_runner build` 줄 0. L3: `flutter-run/SKILL.md:45` 문장을 직접 Read 하여 "필터 없이 전체를 돌리고 전후 삭제 수를 센다" 의미 확인
 - [x] SK-02: 세 스킬 전후 삭제 수 블록 동일·경로집합 세기·재실행 시 첫기준 비교·종료코드로 실패/잔여 드러냄 — PASS
   - 근거: (a) 세 블록 해시 1 종 `15839f98ccc530a0` · (b) `delgate.sh` 를 flutter-run/build/preflight bash 3회 + `bash -e` + `zsh` 총 5회 실행, 25줄 전부 알려진 답(K1~K5)과 정확히 일치(직접 실행 확인, 위 결과 로그) · (c) 13개 문장 전부 1
 - [x] SK-03: `--delete-conflicting-outputs` 필수 규칙 제거, build_runner 2.16 사실로 교체 — PASS

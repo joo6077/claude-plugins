@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **다이어그램 종류 혼동 금지** — User Flow(사용자 관점 화면 전환) ≠ Sequence(시스템 간 통신) ≠ State(단일 엔티티 상태) ≠ Journey(감정 포함). 목적에 맞는 것 선택.
 2. **Mermaid 문법 오류 방치 금지** — 작성 후 반드시 문법 검증. 노드 이름에 특수문자(괄호, 콜론) 쓸 때 따옴표 처리. 예: `A["로그인 (OAuth)"]`.
 3. **해피 패스만 그리기 금지** — 에러/취소/타임아웃 경로 최소 2개 포함. flow 의 50% 는 edge case 다.

@@ -73,10 +73,30 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 :not(pre)>code{overflow-wrap:anywhere}.desc,.subtitle,.card-body,.callout,.checklist li{overflow-wrap:anywhere}
 @media(max-width:720px){.compare{grid-template-columns:1fr}}
 @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <main class="page">
 <a href="../index.html" class="nav-back">← Bambu Kit</a>
 <header class="hero">
@@ -688,6 +708,42 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface2);padding:2
 <h3>무의미</h3>
 <div class="card-body">top_shell_layers=0 강제</div>
 </article>
+</div>
+
+<h3 class="subhead">5.3. 다림질 뒤 윗면에 줄이 솟았을 때 — 흐름을 먼저 본다 (2026-09-19 신규)</h3>
+<p class="desc"><strong>사례.</strong> fly-catcher 컵 안쪽 바닥(다림질 <code>top</code> · 흐름 12% · 간격 0.12 · 속도 20 · inset 0.21)에 "줄·돌기가 올라왔다" 는 사용자 보고. 컵은 5.2 에서 회전체지만 <strong>안쪽 바닥은 윗면</strong>이라 다림질이 걸린다.</p>
+<div class="callout">
+<strong>면적당 다림질 재료는 <code>층 높이 × 흐름</code> 으로 정해진다 — 간격은 상쇄된다.</strong> 두 슬라이서 <code>Fill.cpp</code> 는 선 하나의 양을 <code>층 높이 × 흐름 × 간격</code> 으로 잡고, 선 개수가 <code>1 ÷ 간격</code> 이라 면적당 양에서 간격이 지워진다 (오르카 2.4.2 · 뱀부 02.08 같은 식). 그래서 "간격을 넓혀 재료를 줄인다" 는 틀린 설명이다. 간격은 한 줄의 굵기와 노즐이 같은 자리를 다시 지나는 횟수를 바꾼다.
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>0.12 mm 층</th><th>흐름 12% · 간격 0.12</th><th>흐름 10% · 간격 0.15</th><th>변화</th></tr></thead>
+<tbody>
+<tr><td>면적당 재료</td><td>0.0144 mm³/mm²</td><td>0.0120</td><td><strong>−16.7 %</strong> (흐름만의 효과)</td></tr>
+<tr><td>한 줄당 재료</td><td>0.001728 mm³/mm</td><td>0.001800</td><td>+4.2 %</td></tr>
+<tr><td>줄 개수</td><td>1/0.12</td><td>1/0.15</td><td>−20 %</td></tr>
+</tbody>
+</table>
+</div>
+<p class="desc"><strong>판별 — 솟은 것과 파인 것은 반대 처방이다.</strong></p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>보이는 것</th><th>뜻</th><th>먼저 할 것</th></tr></thead>
+<tbody>
+<tr><td>줄을 따라 <strong>솟은</strong> 능선 · 옆으로 밀린 재료</td><td>재료가 많다</td><td>흐름을 1~2 %p 씩 내린다</td></tr>
+<tr><td>줄 사이의 <strong>홈</strong> · 원래 윗면 줄이 비침</td><td>재료가 적다</td><td>흐름을 올리거나, 간격을 좁혀 다시 지나는 횟수를 늘린다</td></tr>
+<tr><td>가장자리에만 쌓임</td><td>벽 쪽 겹침</td><td><code>ironing_inset</code> 을 선 폭(0.42)까지 늘린다 — 안쪽 전체 돌기에는 효과 없다</td></tr>
+<tr><td>줄 끝 · 방향 바뀌는 곳에만 뭉침</td><td>가감속 때 압력 지연</td><td>흐름보다 압력 보정(Flow Dynamics) 재보정이 먼저다</td></tr>
+<tr><td>다림질을 끈 출력부터 솟아 있음</td><td>바탕 윗면이 과압출</td><td>다림질이 아니라 소재 흐름 비율 · 윗면 속도부터</td></tr>
+</tbody>
+</table>
+</div>
+<p class="desc">한 번에 한 값만 바꾼다. 흐름과 간격을 같이 바꾸면 어느 쪽 효과인지 가를 수 없다.</p>
+<div class="callout info">
+<strong>속도 · 가속 키의 적용 범위.</strong> <code>top_surface_speed</code> · <code>top_surface_acceleration</code> 은 다림질 <strong>직전 윗면</strong>을 만드는 속도다. 다림질 경로(<code>erIroning</code>)에는 <code>top_surface_acceleration</code> 이 걸리지 않고 일반 가속으로 떨어진다 (오르카 <code>GCode.cpp</code>). 윗면을 낮춘 속도로 고르게 까는 것은 바탕을 고르게 하는 효과이지 다림질 자체를 느리게 하는 것이 아니다.
+</div>
+<div class="callout">
+<strong>패턴 값 이름이 다르다.</strong> 같은 직선 다림질을 뱀부는 <code>ironing_pattern: zig-zag</code>(화면 표시는 Rectilinear), 오르카는 <code>rectilinear</code> 로 저장한다. 한쪽 값을 다른 슬라이서에 옮기면 게이트가 <code>받지 않는 값</code> 또는 <code>옛 값</code> 으로 알린다. 원형 바닥은 <code>concentric</code> 도 비교해 볼 만하지만, 흐름을 직선 패턴으로 먼저 정한 뒤 바꾼다.
 </div>
 </section>
 

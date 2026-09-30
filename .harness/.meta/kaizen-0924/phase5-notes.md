@@ -59,7 +59,7 @@ QA 는 `cd <작업 폴더> && bash -c "K=<p5build>/K; . <p5build>/common.sh; . <
 | `F31` (UI 관례 대조 부분 · Phase 3 넘김) | 위 행과 같은 자리 (SK-04) |
 | `F24` · `flutter:P-TEST-locale-buildmod` | flutter-test Gotcha 둘 (SK-06) |
 | `F22` · `flutter:P-CATALOG-tile-height` | 타일 높이 부분만 — flutter-widget 카탈로그 등록 절, 안쪽 스크롤을 의도하지 않은 타일로 범위를 좁히고 높이 숫자 대신 내용 아래 끝을 잰다 (SK-07) |
-| `visual-evidence-protocol.md:136` (Phase 1 넘김) | 같은 모양 여덟 줄을 같이 찾아 아홉 줄 전부 설계 가이드 §3.7 네 칸으로. 규약 판 1.2.0 (SK-09) |
+| `visual-evidence-protocol.md:140` (Phase 1 넘김) | 같은 모양 여덟 줄을 같이 찾아 아홉 줄 전부 설계 가이드 §3.7 네 칸으로. 규약 판 1.2.0 (SK-09) |
 | 러닝북 Phase 5 과제 셋 | 필터 방향(위 `F06` 행) · 인사이트 스프린트가 넣은 것(편집 파일 포맷 훅 · flutter-ui-verify · 규약 보강)을 다시 넣지 않음 · `flutter-transition` 앱 이름(킷 파일 전부에서 앱 · 프로젝트 · 화면 조종 도구 이름 빼기, SK-08) |
 
 그 밖에 받은 것 — 근거 파일 §3 현행화 가운데 지금 틀린 문장 아홉 줄(Freezed 「최신 stable 3.2.5」 여섯 → 4.0.2, Flutter 「현재 stable 3.47.0」 셋 → 3.47.5, SK-10)과
@@ -77,8 +77,8 @@ build_runner 2.16 에서 `--delete-conflicting-outputs` 를 필수로 두던 두
 | `flutter-preflight` | 다음 사이클 Phase 5 | Phase 4 넘김(「필요하면」) — 기준 커밋 비교 근거가 이 Phase 근거 파일에 없어 미반영. 근거 파일에 기준 커밋 비교 근거가 오면 `/sprint` Step 3 판정 세 줄을 옮긴다 |
 | `go_router` · `auto_route` | 다음 사이클 Phase 5 | 근거 §3 의 새 내용(go_router 18 · auto_route 11.1)을 더하는 일 — 지금 틀린 문장이 아니라 이번 묶음에서 뺐다. Riverpod 3.4.1 두 줄은 조회 날짜가 붙어 틀리지 않았다 |
 | `--delete-conflicting-outputs` | 다음 사이클 Phase 5 | 명령 줄 열한 곳에서 이 플래그를 판에 따라 뺄지 — build_runner 2.16 에서 이 옵션이 경고인지 오류인지 근거 파일이 밝히지 않아 규칙 두 줄만 고쳤다 |
-| `flutter-audit/SKILL.md:50` | 다음 사이클 (평가 쪽 가이드와 함께) | 평가 측 `[미검증]` 형식(이 줄과 widget-inspector 의 `[미검증]` 줄)은 생성 측과 모양이 달라 이번 네 칸 정리에서 뺐다 |
-| `flutter-feature/SKILL.md:151` | 다음 사이클 Phase 5 | 사용자에게 보여 주는 codegen 안내 셋(`flutter-api/SKILL.md:336` · `flutter-feature/SKILL.md:151` · `flutter-screen/SKILL.md:272`)은 전후 삭제 수 블록을 가리키지 않는다 — 킷이 직접 돌리지 않는 안내라 이번에 바꾸지 않았다 |
+| `flutter-audit/SKILL.md:54` | 다음 사이클 (평가 쪽 가이드와 함께) | 평가 측 `[미검증]` 형식(이 줄과 widget-inspector 의 `[미검증]` 줄)은 생성 측과 모양이 달라 이번 네 칸 정리에서 뺐다 |
+| `flutter-feature/SKILL.md:157` | 다음 사이클 Phase 5 | 사용자에게 보여 주는 codegen 안내 셋(`flutter-api/SKILL.md:351` · `flutter-feature/SKILL.md:157` · `flutter-screen/SKILL.md:282`)은 전후 삭제 수 블록을 가리키지 않는다 — 킷이 직접 돌리지 않는 안내라 이번에 바꾸지 않았다 |
 | `$DART test` | 다음 사이클 Phase 5 | evals 사례 18 의 「생성 후 $DART test로 검증한다」 가 flutter-test Step 4 의 `$FLUTTER test` 와 어긋난다 |
 | `docs/kaizen/flutter-changelog.md` · `docs/kaizen/flutter-research-log.md` | Final | 아래 changelog 단락 · 킷 로그 단락으로 Phase 5 항목을 쓴다 |
 | `plugin.json` | Final | flutter-toolkit 버전(지금 0.8.0). 카이젠 스킬 버전 판단표로 스킬 프롬프트 · eval 기준 변경이라 minor |

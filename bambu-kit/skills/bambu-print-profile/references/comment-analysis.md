@@ -150,11 +150,11 @@ MakerWorld 댓글은 JSON 주소(SKILL.md 「MakerWorld 읽는 순서」)로 **�
 **JSON 을 못 받았을 때만 — 브라우저 스냅샷 경로.** 페이지 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" 정렬 옵션이 있다.
 
 1. **첫 스냅샷**: 브라우저 도구로 스냅샷을 찍고 댓글 카운트 헤딩 확인
-
+   <!-- markdownlint-disable-next-line MD031 -->
    ```yaml
    - heading "Comment & Rating (N)"
    ```
-
+   <!-- markdownlint-disable-next-line MD031 -->
 2. **N ≤ 20**: 단일 스냅샷으로 충분.
 3. **20 < N ≤ 50**: `window.scrollBy(0, 2000)` 3-5회 실행 후 재스냅샷.
 4. **N > 50**:

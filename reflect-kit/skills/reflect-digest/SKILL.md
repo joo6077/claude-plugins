@@ -136,7 +136,7 @@ approach_note: <str>
 6. **태그 클러스터링** — 원시 태그 빈도로 곧장 집계하지 않는다 (Gotcha #8). 순서를 지켜라: **결정론 먼저, 판단은 그다음**.
 
    **6-a. 결정론적 pass (기계)** — 이 단계에서 눈대중을 섞지 마라.
-
+   <!-- markdownlint-disable-next-line MD031 -->
    ```bash
    # 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
    . "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
@@ -240,7 +240,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 - **Given** `/reflect-digest project=all period=30d` 호출,
 - **When** digest가 `~/.claude/logs/*/reflections-*.md` 를 순회하고 (내부 디렉토리 제외),
 - **Then** 리포트 상단에 아래 형태의 메타라인이 정확히 표시된다:
-
+  <!-- markdownlint-disable-next-line MD031 -->
   ```text
   # Reflect Digest — project=all (30d)
   대상 프로젝트: N개 (basename B개 / hash-fallback H개) / 총 엔트리: M개
@@ -251,7 +251,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
   원시 태그 J개 → 클러스터 C개 / singleton S개 (singleton_share 0.NNN · 임계 0.70) · fold_ratio F
   ⚠️ 편중: <pid> 가 전체의 X% (N/M 엔트리) — 글로벌 판정(rule #3) 신뢰도 낮음
   ```
-
+  <!-- markdownlint-disable-next-line MD031 -->
 - `basename B개` = hash suffix 없는 Hybrid 기본 포맷 bucket 수
 - `hash-fallback H개` = `<basename>-<6자 hex>` 충돌 fallback + v0.2.0 레거시 bucket 수
 - `집계 실패 프로젝트` / `파싱 실패` / 파편화 지표 라인은 값이 0 이어도 생략하지 않고 `0` 으로 명시한다 (검증 용이성).

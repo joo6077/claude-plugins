@@ -84,7 +84,7 @@ tbody tr:hover{background:rgba(34,211,238,0.04)}
 .flow-step{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 20px;
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);min-width:150px;
   text-align:center;transition:var(--transition)}
-.flow-step:hover{border-color:var(--accent);transform:translateY(-2px)}
+.flow-step:hover{border-color:var(--accent);transform:var(--dk-hover-move, translateY(-2px))}
 .flow-step strong{font-size:0.88rem}
 .flow-step span:last-child{font-size:0.78rem;color:var(--text3)}
 .flow-arrow{font-size:1.3rem;color:var(--accent);padding:0 6px;flex-shrink:0}
@@ -180,12 +180,30 @@ a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
   .decision-file{min-width:0;width:100%}
   .decision-cmd{margin-left:0;white-space:normal;width:100%}
 }
-@media(prefers-reduced-motion:reduce){
-  *{transition:none !important;scroll-behavior:auto !important}
-}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <main class="page">
 
 <header class="hero">
