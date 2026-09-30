@@ -49,7 +49,7 @@ Iteration: 2
 
 ### Skill (16/16)
 - [x] SK-01: flutter-audit 미검증 규칙 사본이 원문 v5.1 과 같다 — PASS
-  - 근거: evaluator 독립 실행(계약 측정 도우미, `scripts/check-reviewer-protocol-copies.py` 의 `canonical_blocks`/`contains_block` 그대로 사용) `clauses=1 req=1 prov=1 old=0 md029=1/1`. `flutter-toolkit/skills/flutter-audit/SKILL.md:30-93` Read 로 react-reviewer.md:169-178 과 문자 대조(`diff` 로 일치 확인). L3.
+  - 근거: evaluator 독립 실행(계약 측정 도우미, `scripts/check-reviewer-protocol-copies.py` 의 `canonical_blocks`/`contains_block` 그대로 사용) `clauses=1 req=1 prov=1 old=0 md029=1/1`. `flutter-toolkit/skills/flutter-audit/SKILL.md:34-97` Read 로 react-reviewer.md:169-178 과 문자 대조(`diff` 로 일치 확인). L3.
 - [x] SK-02: flutter-audit 자기 규칙·보고 틀이 v5.1 두 카운터를 쓴다 — PASS
   - 근거: evaluator 독립 실행 `env_gaps=6 invalid=7 rep_env=1 rep_inv=1 rule_old=0 rule_inv=1 l3_4req=1`. `SKILL.md:465,469,470,484` Read 로 `Total: N errors, N warnings | env_gaps N · invalid_evidence N`·결론 줄·Rules MUST 줄 확인. L3.
 - [x] SK-03: 「관례 표 없는 호출」 평가 사례 추가 — PASS
@@ -69,17 +69,17 @@ Iteration: 2
 - [x] SK-10: react-preflight 동일 절 — PASS
   - 근거: evaluator 독립 실행 `sec=24 prov=1 rows=5/5 merge_base=2 wt=1 prep=2`. `react-kit/skills/react-preflight/SKILL.md` 절 전문 Read 확인. L3.
 - [x] SK-11: react-animation·animation-architect-react 가 React 19.3 `<ViewTransition>` 반영 — PASS
-  - 근거: evaluator 독립 실행 `gotcha=1 wrapper=6/8 agent=1`(w=8≥6 요건 충족, wrapper 등장 수가 시작 판 6 이상으로 유지). Gotcha 15 전문 Read(안정 API·19.3·startTransition·원문 URL 모두 기재). Tier 표 T2 칸에 두 경로(`withViewTransition` 래퍼·`<ViewTransition>`) 명시 확인(SK-16 관련 §3.4·§5.1 추가분과 함께 L3 의미 추적 — §5.1 에 `<ViewTransition>` 경로가 래퍼 가드를 거치지 않는다는 명시와 확인 절차, 바깥 근거 없음 표기까지 포함). `animation-architect-react.md:55` Read 확인. `## Gotchas` 헤더 레벨을 `# Gotchas`→`## Gotchas` 로 낮춘 것은 조건 문장이 요구하는 리터럴(「`## Gotchas` 절에」)과 정확히 일치 — MD041 방지용 H1 제목 줄 추가 확인. **사용자 확인 필요**(FAIL 아님, 계약 조건 미포함 부수효과): planning-kit 12개 스킬 중 plan-sync-github 만 헤더 레벨이 달라졌다. L3.
+  - 근거: evaluator 독립 실행 `gotcha=1 wrapper=6/8 agent=1`(w=8≥6 요건 충족, wrapper 등장 수가 시작 판 6 이상으로 유지). Gotcha 15 전문 Read(안정 API·19.3·startTransition·원문 URL 모두 기재). Tier 표 T2 칸에 두 경로(`withViewTransition` 래퍼·`<ViewTransition>`) 명시 확인(SK-16 관련 §3.4·§5.1 추가분과 함께 L3 의미 추적 — §5.1 에 `<ViewTransition>` 경로가 래퍼 가드를 거치지 않는다는 명시와 확인 절차, 바깥 근거 없음 표기까지 포함). `animation-architect-react.md:57` Read 확인. `## Gotchas` 헤더 레벨을 `# Gotchas`→`## Gotchas` 로 낮춘 것은 조건 문장이 요구하는 리터럴(「`## Gotchas` 절에」)과 정확히 일치 — MD041 방지용 H1 제목 줄 추가 확인. **사용자 확인 필요**(FAIL 아님, 계약 조건 미포함 부수효과): planning-kit 12개 스킬 중 plan-sync-github 만 헤더 레벨이 달라졌다. L3.
 - [x] SK-12: react-kit 감지 절차가 project-detect.sh 를 부른다 — PASS
   - 근거: evaluator 독립 실행 `call=1 keys_same=1 nkeys=11 script_changed=0`. `project-detection.md:23-24,27` Read — 「시험이 11 키를 지킨다」 는 허위 서술이 「`project-detect-test.sh` 는 `tanstackRouter` 값만 잰다」 로 사실대로 정정된 것을 직접 확인. `react-kit/evals/scripts/project-detect-test.sh` 원문 Read 로 실제로 `tanstackRouter` 하나만 재는 것을 대조(스크립트 자체가 `check()` 함수에서 `tanstackRouter` 필드만 비교). `final-integration.md:237` 트리 주석도 같은 뜻으로 수정됨을 확인. L3.
 - [x] SK-13: plan-sync-github Gotchas 에 GitHub 문서 버전 날짜 사실 — PASS
   - 근거: `planning-kit/skills/plan-sync-github/SKILL.md:20` Read — 4 토큰 모두 한 줄에 포함. `apiVersion=2022-11-28` 2회 그대로(evaluator 직접 grep, 시작 판과 동일). L3.
 - [x] SK-14: research-log backlog 줄이 19.3 안정화를 반영 — PASS
-  - 근거: evaluator 독립 실행 `row=2 canary_wait=0 v193=2`. `docs/react/research-log.md:437,496` Read 확인(둘 다 19.3 언급, "canary 대기" 없음). L3.
+  - 근거: evaluator 독립 실행 `row=2 canary_wait=0 v193=2`. `docs/react/research-log.md:435,496` Read 확인(둘 다 19.3 언급, "canary 대기" 없음). L3.
 - [x] SK-15: 설계 문서 8개 현행화(last_updated·현행화 기록 절이 커밋 47개 모두 포함) — PASS
   - 근거: evaluator 독립 실행 — 8줄 전부 `lu=1 ... miss=0`, commits 9·7·2·6·3·5·9·6=47. `g3-performance.md` 머리(`last_updated: 2026-09-26`)와 「현행화 기록」 절 실제 내용(서술+표, 실제 커밋 해시와 영향 서술) Read 로 확인, 플레이스홀더 아님. L3.
 - [x] SK-16: 설계 문서가 지금 스킬 사실을 담는다 — PASS
-  - 근거: evaluator 독립 실행 첫 줄 `dev_strict=1 step8=0 passed=1 skipped=1 split=1 verdict=1`, 둘째 줄 `g1_tpl=1 g1_strict=4 vt=4 fi_link=2 rep=2,2,2,2,2,3`. `g6-build-audit.md` §3 Read(7단계 실행 순서·dev 표 strictPort·`passed`·`skipped`·merge-base 원인 가르기·`verdict: APPROVE | REJECT | BLOCKED` 전부 확인, 8번째 단계 없음), `g5b-animation.md:190-194` §2.1b `<ViewTransition>` Read 확인, `final-integration.md:249` Read(project-detect.sh·project-detection.md 동일 줄) 확인. L3.
+  - 근거: evaluator 독립 실행 첫 줄 `dev_strict=1 step8=0 passed=1 skipped=1 split=1 verdict=1`, 둘째 줄 `g1_tpl=1 g1_strict=4 vt=4 fi_link=2 rep=2,2,2,2,2,3`. `g6-build-audit.md` §3 Read(7단계 실행 순서·dev 표 strictPort·`passed`·`skipped`·merge-base 원인 가르기·`verdict: APPROVE | REJECT | BLOCKED` 전부 확인, 8번째 단계 없음), `g5b-animation.md:191-195` §2.1b `<ViewTransition>` Read 확인, `final-integration.md:249` Read(project-detect.sh·project-detection.md 동일 줄) 확인. L3.
 
 ### Script (1/1, N/A 1건 별도)
 - [ ] SC-00: N/A (이 계약은 scripts/release.sh·marketplace.json·plugin.json 버전을 건드리지 않는다)

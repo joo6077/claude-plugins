@@ -392,7 +392,7 @@ research_sources:
 <ul class="md-list">
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>transition-*</code> 는 </strong>변화하는 속성<strong>에 걸 것</strong>: <code>transition-all</code> 은 편하지만 예상 못 한 속성 전환으로 성능 저하. <code>transition-transform</code> / <code>transition-colors</code> 처럼 명시</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>will-change</code> 남용 금지</strong>: 성능을 위해 GPU 레이어로 올리는 힌트지만 남용하면 오히려 메모리 낭비. hover 시작 시 JS 로 동적 추가/제거가 더 정확</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Reduced motion 존중</strong>: <code>@media (prefers&#45;reduced-motion: reduce)</code> 에서 애니메이션 disable. Tailwind 는 <code>motion-reduce:transition-none</code> 같은 variant 제공. <code>/react-audit</code> 이 reduced-motion 가드 누락 검출</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Reduced motion 존중</strong>: <code>@media (prefers-reduced-motion: reduce)</code> 에서 애니메이션 disable. Tailwind 는 <code>motion-reduce:transition-none</code> 같은 variant 제공. <code>/react-audit</code> 이 reduced-motion 가드 누락 검출</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>data-state 변경은 React 렌더마다</strong>: 너무 자주 바뀌면 애니메이션이 재시작. 상태 머신으로 전환 타이밍 제어</div></li>
 </ul>
   </div>
@@ -526,7 +526,7 @@ export function TaskList({ tasks }: { tasks: Task[] }) {
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>contain: layout</code> 필요</strong>: 복잡한 요소는 <code>contain: layout</code> CSS 를 추가해야 정확히 전환됨</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>scroll position 보존</strong>: 전환 후 스크롤 위치가 의도치 않게 리셋될 수 있음. <code>scroll-behavior</code> 와 함께 조정</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Firefox 144+ types 미지원</strong>: 위 fallback 필수</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Reduced motion</strong>: <code>prefers&#45;reduced-motion: reduce</code> 에서 startViewTransition 을 건너뛰는 로직 추가 권장</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Reduced motion</strong>: <code>prefers-reduced-motion: reduce</code> 에서 startViewTransition 을 건너뛰는 로직 추가 권장</div></li>
 </ul>
   </div>
 </section>
@@ -993,7 +993,7 @@ function KanbanCard({ card }: { card: Card }) {
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">[ ] <code>aria-grabbed</code> 는 deprecated — 대신 <code>aria-describedby</code> 로 상태 안내</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">[ ] Space/Enter 로 pickup, 화살표 키로 이동, Esc 로 cancel 구현</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">[ ] <code>aria-live="polite"</code> 영역에 "아이템 이동 중", "완료" 메시지 업데이트</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">[ ] <code>prefers&#45;reduced-motion</code> 대응 — 애니메이션 없이 즉시 이동</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">[ ] <code>prefers-reduced-motion</code> 대응 — 애니메이션 없이 즉시 이동</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">[ ] 포커스 관리 — drop 후 포커스가 새 위치의 아이템에 머무르도록</div></li>
 </ul>
 <h3 class="sub">출처</h3>
@@ -1147,7 +1147,7 @@ animation-architect-react  (분석 + 자문)
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>view-transition-name</code> 중복</strong>: 같은 이름이 여러 요소에 동시 할당 → 경고</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>touch-action</code> 누락된 드래그</strong>: pointer event 핸들러가 있는 요소에 <code>touch-action</code> CSS 가 없음 → 경고</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong><code>setPointerCapture</code> 누락</strong>: <code>onPointerMove</code> 핸들러가 있는데 <code>onPointerDown</code> 에서 캡처 안 함 → 경고</div></li>
-  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>reduced-motion 가드 없음</strong>: 애니메이션이 있는데 <code>@media (prefers&#45;reduced-motion: reduce)</code> 또는 <code>motion-reduce:*</code> 가 없음 → 경고</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>reduced-motion 가드 없음</strong>: 애니메이션이 있는데 <code>@media (prefers-reduced-motion: reduce)</code> 또는 <code>motion-reduce:*</code> 가 없음 → 경고</div></li>
   <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>Error Boundary 없는 최상위 <code>Connector</code></strong>: SVG 좌표 계산 중 에러 발생 가능 → 경고</div></li>
 </ul>
   </div>
@@ -1253,6 +1253,27 @@ animation-architect-react  (분석 + 자문)
   </ol>
 </section>
 
+<section class="section" aria-labelledby="sib">
+  <div class="section-label" id="sib">같은 킷의 이웃 쪽</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="scaffolding.html">G1 · Scaffolding</a></h3>
+      <p><code>/react-init</code> · <code>/react-screen</code> · <code>/react-feature</code> · <code>/react-widget</code>.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="ui-patterns.html">G5 · UI 패턴</a></h3>
+      <p>반응형 · Skeleton · 컴포넌트 추출.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="build-audit.html">G6 · 빌드 & 감사</a></h3>
+      <p>빌드 · 커밋 전 검사 · 여섯 카테고리 감사.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="integration.html">통합 명세</a></h3>
+      <p>harness 설정 · 플러그인 구조 · 공통 주의사항.</p>
+    </div>
+  </div>
+</section>
 <footer class="foot">
   <p>원본 <code>docs/react/kit-design/g5b-animation.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
 </footer>

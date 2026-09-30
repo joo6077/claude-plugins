@@ -49,11 +49,11 @@ Iteration: 1
 
 ### Skill (4/4)
 - [x] SK-01: api-contract 「## 2. I-JSON 게이트」 절 코드 블록에 `-0` 줄 없음, noncharacter 줄 있음, 블록 밖에 `-0` 전용 문장이 7920·7493 담아 존재 — PASS
-  - 근거: `api-kit/skills/api-contract/SKILL.md:60-75` (코드 블록 5줄에 `-0` 없음, "lone surrogate / noncharacter → 실패" 줄 있음; 블록 밖 74행 "그다음 -0 검사: ... RFC 7493(I-JSON)에는 없는 규칙이다 ... RFC 8785 정정 7920"). 측정: `SK-01 gate_block_neg0=0 nonchar_in_block=1 prose_neg0_7920=1 prose_neg0_7493=1` (api0-measure.py, before 대비 `gate_block_neg0=1→0 prose_neg0_7920=0→1 prose_neg0_7493=0→1` 양성 대조 확인)
+  - 근거: `api-kit/skills/api-contract/SKILL.md:64-79` (코드 블록 5줄에 `-0` 없음, "lone surrogate / noncharacter → 실패" 줄 있음; 블록 밖 74행 "그다음 -0 검사: ... RFC 7493(I-JSON)에는 없는 규칙이다 ... RFC 8785 정정 7920"). 측정: `SK-01 gate_block_neg0=0 nonchar_in_block=1 prose_neg0_7920=1 prose_neg0_7493=1` (api0-measure.py, before 대비 `gate_block_neg0=1→0 prose_neg0_7920=0→1 prose_neg0_7493=0→1` 양성 대조 확인)
 - [x] SK-02: 세 목록 줄(api-contract·api-verify·api-probe) 모두 「-0 검사」 표시 + I-JSON 목록에 낱개 `-0` 없음 + noncharacter 있음 [enumerated 3/3] — PASS
-  - 근거: `api-kit/skills/api-contract/SKILL.md:20`, `api-kit/skills/api-verify/SKILL.md:117`, `api-kit/skills/api-probe/SKILL.md`(I-JSON 검문 줄). 측정: 세 줄 모두 `found=1 mark=1 neg0_in_ijson=0 nonchar=1` (before 는 세 줄 모두 `mark=0 neg0_in_ijson=1 nonchar=0` — 양성 대조 확인)
+  - 근거: `api-kit/skills/api-contract/SKILL.md:24`, `api-kit/skills/api-verify/SKILL.md:125`, `api-kit/skills/api-probe/SKILL.md`(I-JSON 검문 줄). 측정: 세 줄 모두 `found=1 mark=1 neg0_in_ijson=0 nonchar=1` (before 는 세 줄 모두 `mark=0 neg0_in_ijson=1 nonchar=0` — 양성 대조 확인)
 - [x] SK-03: api-verify 파이프라인 줄이 `I-JSON 게이트 → -0 검사 → JCS 직렬화` 순서, `-0` 검사 실패도 「비교 불가」 분류 — PASS
-  - 근거: `api-kit/skills/api-verify/SKILL.md:114`("redaction → masks/*.yaml 적용 → I-JSON 게이트 → -0 검사 → JCS 직렬화"), `:117`("I-JSON 게이트 실패(...)와 -0 검사 실패(`-0`)는 계약 실패가 아니라 비교 불가로 분류한다"). 측정: `pipe_found=1 order_ok=1 neg0_class_noncomparable=1` (before `order_ok=0 neg0_class_noncomparable=0`)
+  - 근거: `api-kit/skills/api-verify/SKILL.md:122`("redaction → masks/*.yaml 적용 → I-JSON 게이트 → -0 검사 → JCS 직렬화"), `:117`("I-JSON 게이트 실패(...)와 -0 검사 실패(`-0`)는 계약 실패가 아니라 비교 불가로 분류한다"). 측정: `pipe_found=1 order_ok=1 neg0_class_noncomparable=1` (before `order_ok=0 neg0_class_noncomparable=0`)
 - [x] SK-04: 킷 검사 통과 — PASS
   - 근거: `python3 scripts/validate-plugin.py api-kit` exit=0 (V1~V10 전부 OK), `python3 scripts/sync-docs.py --check-only` exit=0 ("모든 README가 동기화 상태입니다")
 
@@ -62,7 +62,7 @@ Iteration: 1
 
 ### Error (1/1)
 - [x] ER-01: 분류 불변 — `-0` 도 「봉인 불가」 문장의 적용 범위에 든다 [goal] — PASS
-  - 근거: `api-kit/skills/api-contract/SKILL.md:74` "게이트 실패와 -0 검사 실패는 계약 실패가 아니라 **봉인 불가**다." — 같은 문장 안에 두 실패 유형을 함께 묶어 "-0 검사 실패" 가 별도 분류로 빠지지 않았음을 확인 (L3 의미 추적: §2 전체를 읽어 코드 경로가 아니라 문서 규칙이므로 원문 대조로 판정)
+  - 근거: `api-kit/skills/api-contract/SKILL.md:78` "게이트 실패와 -0 검사 실패는 계약 실패가 아니라 **봉인 불가**다." — 같은 문장 안에 두 실패 유형을 함께 묶어 "-0 검사 실패" 가 별도 분류로 빠지지 않았음을 확인 (L3 의미 추적: §2 전체를 읽어 코드 경로가 아니라 문서 규칙이므로 원문 대조로 판정)
 
 ### Architecture (4/4)
 - [x] AR-01: 원본 문서 §3 목록에서 `-0` 빠지고 noncharacter 포함(Unicode 표현 불가 문자열과 병합), `-0` 전용 문장이 7493(없음)·7920(근거) 담음 — PASS

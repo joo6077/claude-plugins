@@ -83,14 +83,14 @@ Codex 지적은 조건 수를 늘리지 않으려고 그 킷의 기존 조건에
 | `infra-kit/references/gate-result-taxonomy.md` | `:42` 「같은 원칙이 **규칙 소스**에도 적용된다」 | 번역투(K-02 `(표시\|적용\|…)(됩니다\|된다)`). 같은 문장을 infra-audit Gotcha 12 는 「해당한다」 로 고쳤다 | ER-02 |
 | `rust-kit/skills/rust-audit/SKILL.md` · `rust-model/SKILL.md` | `rust-audit:36` Gotcha 16 · `rust-model:31` | 네 칸 없는 `[미검증]` 두 자리 — rust-run (c) 와 같은 상황인데 이번 사이클 전수 감사가 놓쳤다 | SK-04 |
 | `react-kit/skills/react-init/SKILL.md` · `react-run/SKILL.md` | `react-init:61` ~ `:88` 단계 2 · `:203` · `react-run:21` · `templates/vite.config.template.ts:24` ~ `:28` (`port: 5173` · `strictPort: true`) | react-init 이 템플릿을 쓰지 않아 `strictPort` 가 실제 프로젝트에 안 들어간다 — 두 자리의 「템플릿이 strictPort: true 라」 단정이 틀리다 | SK-05 |
-| `reflect-kit/docs/SCHEMA.md` · `DESIGN.md` | `SCHEMA.md:123` §3 · `:145` · `DESIGN.md:172` · `:189` · 훅 `log-reflection.sh:147` · `:149` | 훅이 적는 `warn:lemma-map-unreadable` · `vocab:…` 가 두 문서 태그 목록에 없다 (손으로 센 답 2) | SK-06 |
+| `reflect-kit/docs/SCHEMA.md` · `DESIGN.md` | `SCHEMA.md:123` §3 · `:145` · `DESIGN.md:179` · `:197` · 훅 `log-reflection.sh:147` · `:149` | 훅이 적는 `warn:lemma-map-unreadable` · `vocab:…` 가 두 문서 태그 목록에 없다 (손으로 센 답 2) | SK-06 |
 | `bambu-kit/skills/bambu-print-profile/SKILL.md` | `:1600` 완료 검사 · `:1892` ~ `:1898` 음성 대조 블록 (1) · `:1992` ~ `:1994` 빈 목록 변이 · `:2015` | enum 줄만 빠진 목록이면 enum 검사가 조용히 꺼지고 `RESULT: PASS`. (1) 은 폴더 → 표 · 실행 줄 한 방향만 본다 | SK-07 |
 | `onboarding-kit/skills/setup-guide/SKILL.md` · `evals/evals.json` | `SKILL.md:198` Gotcha 8 의 1 번 · `:202` 값 든 `.env` 문단 · `evals.json:124` | Grep 목록에 `.env*` · `**/*.p8` 이 있다(내용이 출력된다). 평가 항목이 여전히 `.env` 를 기준으로 삼는다 | SK-08 (a)(b) |
 | `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `:5` · `:28` ~ `:31` · `:46` · `:370` · `:381` · `:384` · `:385` · `:392` | 낡은 Xcode · iOS 값, 근거 없는 시뮬레이터 수신 주장 셋, 막는 요구가 한 줄, 특정 앱 이름 다섯 줄 | SK-08 (c) |
 | `tone-kit/references/core-antipatterns.md` | `:22` 2 단계 「E · F · I 는 grep 으로」 · `:36` E 행 grep 칸 · `:110` E 절 코드 블록 | 표 칸이 `\|` 로 적혀 붙여 넣으면 0 줄 — 죽은 검사 | SK-09 |
 | `api-kit/skills/api-ui/SKILL.md` · `api-verify/SKILL.md` · `docs/api/contract/snapshot-sealing-canonicalization.md` | `api-ui:168` · `api-verify:117` · `api-probe:183`(대조용) · 캐노니컬 `:35` · `:74` ~ `:81` 수치 기준 표 | 서버를 앞에서 띄워 셸이 묶인다 · 포트가 차 있을 때 할 일이 없다. api-verify 목록에 Infinity · binary64 가 없다. 수치 기준 표에 `-0` 행이 없다 | SK-10 |
 | `howto-kit/evals/run-evals.sh` · `README.md` · `evals/evals.json` | `run-evals.sh:34` 한 글자 변수 · `:129` `bash` 펜스만 · `README.md:122` · `evals.json:3` | `sh` 펜스 블록은 수 대조와 실행에서 함께 빠진다 | SK-11 |
-| `backend-kit/skills/backend-audit/references/audit-criteria.md` · `backend-system/references/system-principles.md` · `docs/backend/fundamentals/api-design.md` | `audit-criteria:20` · `system-principles:21` · `api-design:35` 원칙 3 · `:102` 수치 표 | 다섯 필드 필수를 RFC 9457 요구로 적었다 — 같은 레포 `docs/api/contract/error-status-contracts.md:25` 는 `type` 누락을 위반으로 보지 않는다. 원칙 3(`:35`)은 이 킷 규칙으로 다섯 필드를 요구한다 | SK-12 (a) (Codex r2-1) |
+| `backend-kit/skills/backend-audit/references/audit-criteria.md` · `backend-system/references/system-principles.md` · `docs/backend/fundamentals/api-design.md` | `audit-criteria:20` · `system-principles:21` · `api-design:35` 원칙 3 · `:102` 수치 표 | 다섯 필드 필수를 RFC 9457 요구로 적었다 — 같은 레포 `docs/api/contract/error-status-contracts.md:26` 는 `type` 누락을 위반으로 보지 않는다. 원칙 3(`:35`)은 이 킷 규칙으로 다섯 필드를 요구한다 | SK-12 (a) (Codex r2-1) |
 | `infra-kit/skills/infra-test/SKILL.md` | `:253` 규칙 1 · `:255` `grep -q 'actions/checkout'` | 주석 한 줄 `# uses: actions/checkout@v4` 로도 PASS (실행 재현) | SK-12 (b) (Codex r2-5) |
 | `rust-kit/skills/rust-preflight/SKILL.md` | `:16` Gotcha 2 · `:34` · `:50` ~ `:51` Step 1 · `:158` 결과 표 `FIXED` | `:34` 만 「사용자에게 안내」 — 나머지 셋은 자동 적용 | SK-04 둘째 줄 (Codex r2-6) |
 | `design-kit/references/visual-change-protocol.md` | `:369` ~ `:385` 스키마 · `:387` · `:389` 두 줄 규칙 · `:404` ~ `:440` 게이트 | 표면 없는 결정이 `decisions=1 surfaces=0 violations=0` · 종료 코드 0 (실행 재현). id 형식 · source · 이유 없는 제외도 안 본다 | SK-03 (d) (Codex r2-2) |
@@ -135,7 +135,7 @@ Codex 지적은 조건 수를 늘리지 않으려고 그 킷의 기존 조건에
   (`:1236` · `:1250` · `:1267` · `:1274` · `:1280` · `:1285`) reviewer 들이 적은 「5 조항 문구 변형 없이」 가 지금은 성립하지 않는다. 같은 옛 사본이 react-kit · api-kit reviewer 에도 있고(`임계값은 2 다` 각 1 줄),
   옮기면 design-audit · plan-audit 의 REJECT 문턱까지 같이 바뀐다(Phase 6 · 11 notes 「미반영」). 기준 원본 정리(harness 쪽)가 먼저라 다음 사이클 Phase 3 뒤 킷 넷을 한 번에
 - api-kit `-0` 을 「I-JSON 게이트」 에서 떼어 이름을 나누지 않는다(Codex r3-6) — 「RFC 7493 은 `-0` 을 금지하지 않는다」 는 근거 파일에 없는 바깥 문서 주장이다(`phase16.md:37` S12 는 RFC 7493 상태만 적었다).
-  킷의 `-0` 줄은 이유를 JCS 로 적었다(`api-contract/SKILL.md:67`). SK-10 (b) 는 세 자리 목록을 같게 맞추는 일이라 그대로 둔다
+  킷의 `-0` 줄은 이유를 JCS 로 적었다(`api-contract/SKILL.md:71`). SK-10 (b) 는 세 자리 목록을 같게 맞추는 일이라 그대로 둔다
 - onboarding G1 음성 입력(한 Step 에 출처 둘)을 킷 픽스처로 넣지 않는다 — 새 파일과 `gate_cases` 등록이 함께 필요하다. 이 계약은 SK-08 (d) 가 임시 파일로 재고, 킷 러너 등록은 다음 사이클 Phase 14(notes 메모 `misplaced`)
 
 ## 범위 경계
@@ -282,7 +282,7 @@ howto-kit/evals/evals.json
 | 4 | 같은 결함 — planning 연구 기록 `:37` (FT · XD P11 (1)) | 조건으로 다룸 — SK-01 |
 | 5 | P12 ~ 17 도 규칙별 비교로 전수 확인 (FT) | 조건으로 다룸 — SK-01 (c): 사이클 동안 바뀐 킷 쪽 마크다운 전부(P5 · P6 · P10 포함)를 사이클 개시 판과 비교 |
 | 6 | P5 `project-detection.md:59` 묶음 타겟 (FT · XD P5 결함 1) | 조건으로 다룸 — SK-02 (a) |
-| 7 | P5 `visual-evidence-protocol.md:151-154` 빈칸 넷 (FT · XD P5 (2) · 결함 2) | 조건으로 다룸 — SK-02 (b) |
+| 7 | P5 `visual-evidence-protocol.md:155-158` 빈칸 넷 (FT · XD P5 (2) · 결함 2) | 조건으로 다룸 — SK-02 (b) |
 | 8 | P5 flutter-build · flutter-preflight 실패 틀 삭제 줄 (FT · XD P5 결함 3) | 조건으로 다룸 — SK-02 (c) |
 | 9 | P5 `flutter-l10n:15` slang 경로 (FT · XD P5 결함 5) | 조건으로 다룸 — SK-02 (d) |
 | 10 | P5 `widget-inspector.md` §7 제목 · 본문 (XD P5 결함 4) | 고치지 않음 — P5 계약 SK-05 (c) 가 일부러 둔 자리이고, flutter-feature 가 표 없이 부르는 흐름을 바꿀지부터 정해야 한다 |
@@ -294,8 +294,8 @@ howto-kit/evals/evals.json
 | 16 | P6 `design-kit/README.md` 버전 줄 (N P6 → Final) | 조건으로 다룸 — SK-03 (c) · AP-01 |
 | 17 | P6 `docs/design/research-log.md` 킷 로그 옮기기 (N P6 → Final) | 다른 계약 몫 — `kaizen-0924-final` (`docs/*/research-log.md` 새 항목) |
 | 18 | P6 design:P2 방향 · `UNVERIFIED_ENV` · design-mockup Step 0 · design-reviewer `[미검증]` 네 칸 · Material 3 · token-principles OKLCH (N P6) | 고치지 않음 — 사용자 확인 · 판정 문턱 변경 · 근거 없음(notes 사유). 다음 사이클 Phase 6. `UNVERIFIED_ENV` 는 Codex r2-3 과 같은 일 — 69 행 |
-| 19 | P7 rust-model 시각 타입 대응 (N P7 → Phase 9) | 이미 반영 — `rust-kit/skills/rust-model/SKILL.md:35` Gotcha |
-| 20 | P7 `infra-kit/README.md:54` 「7 카테고리 구조 감사」 (N P7 → Phase 8) | 이미 반영 — 그 문구 0 줄 |
+| 19 | P7 rust-model 시각 타입 대응 (N P7 → Phase 9) | 이미 반영 — `rust-kit/skills/rust-model/SKILL.md:39` Gotcha |
+| 20 | P7 `infra-kit/README.md:57` 「7 카테고리 구조 감사」 (N P7 → Phase 8) | 이미 반영 — 그 문구 0 줄 |
 | 21 | P7 OpenAPI 3.1 표기 · 벽시계 문자열 · 시간대 저장 · AsyncAPI 3.1.0 (N P7) | 고치지 않음 — 열린 질문 · 근거 없음(notes 사유) |
 | 22 | P7 `.harness/stale-values.yaml` OpenAPI 항목 (N P7 → Final) · P8 등록 여부 (N P8 → Final) | 다른 계약 몫 — `kaizen-0924-final` (`.harness/`) |
 | 23 | P8 `gate-result-taxonomy.md:42` 번역투 (FT · XD P8 결함 1) | 조건으로 다룸 — ER-02 `tax_old` |
@@ -324,8 +324,8 @@ howto-kit/evals/evals.json
 | 46 | P14 `evals.json:124` `.env` 기준 평가 항목 (XD P14 결함 2) | 조건으로 다룸 — SK-08 (b). `setup.env_contains` 는 둔다 — 값 든 `.env` 가 있어야 「열지 않는다」 항목이 잴 거리가 생긴다 |
 | 47 | P14 `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` 옛 값 · 시뮬레이터 · 세 칸 · 앱 이름 (N P14 → Final) | 조건으로 다룸 — SK-08 (c) |
 | 48 | P14 `guide_gate` 세 칸 검사 · AUTO 표지 · CocoaPods → SPM · 서비스 계정 키 · 평가 날짜 (N P14) | 고치지 않음 — notes 사유(예제를 고친 뒤 다음 사이클 · 표가 바뀜 · 근거 파일이 미루라 함) |
-| 49 | P15 `core-antipatterns.md:36` 죽은 grep 칸 (XD P15) | 조건으로 다룸 — SK-09 |
-| 50 | P15 `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:633` 같은 모양 (XD P15) | 고치지 않음 — 값을 설명하는 칸이고 실제로 도는 명령은 따로 있다(`adapter-dart-flutter.md:245` 코드 블록) |
+| 49 | P15 `core-antipatterns.md:40` 죽은 grep 칸 (XD P15) | 조건으로 다룸 — SK-09 |
+| 50 | P15 `adapter-dart-flutter.md:26` · `docs/tone/dart-flutter-idioms.md:640` 같은 모양 (XD P15) | 고치지 않음 — 값을 설명하는 칸이고 실제로 도는 명령은 따로 있다(`adapter-dart-flutter.md:245` 코드 블록) |
 | 51 | P15 연구 기록 「죽은 이름 검사 넷」 서술 (XD P15) | 고치지 않음 — 날짜 붙은 이력 기록이라 고치지 않고, 표 칸 둘이 더 있었다는 사실을 notes 메모에 남긴다 |
 | 52 | P15 C-06 강도 · `etc_seq=663` 이름표 · `__` 예시 · 기준 버전 3.38.4 · go_router 링크 · 위키 이전 · `material_ui` · `locale-korean.md` §2 grep 열 · `sources.md` 「마지막 세 행」 (N P15) | 고치지 않음 — 근거 재확인이 필요하다. `locale-korean.md` §2 grep 열은 여러 계약이 번역투 정규식 원문으로 베낀 자리라 열을 없애면 인용이 끊긴다 — 다음 사이클 |
 | 53 | P16 뷰어에 「판정 불가」 자리 없음 (XD P16 결함 1) | 고치지 않음 — 위 「하지 않기로 한 것」 둘째 줄 |
@@ -335,17 +335,17 @@ howto-kit/evals/evals.json
 | 57 | P16 `/api-contract` §9 예시 · CSP · §7 식 · 판정 불가를 검사에 넣는 일 (N P16) | 고치지 않음 — hurl 로 먼저 재야 하거나 사용자 확인이 먼저다(notes 사유) |
 | 58 | P17 러너가 `bash` 펜스만 봄 (XD P17 결함 1) | 조건으로 다룸 — SK-11 |
 | 59 | P17 러너 `for c in data['cases']` (N P17 메모 「러너를 고칠 때 같이」) | 조건으로 다룸 — SK-11 |
-| 60 | P17 howto-audit 리포트 미검증 칸 · DITA 2.0 · 러너 음성 대조를 킷 안에 · 러너 시간 · `design-brief.md:385` (N P17) | 고치지 않음 — notes 사유 그대로 |
+| 60 | P17 howto-audit 리포트 미검증 칸 · DITA 2.0 · 러너 음성 대조를 킷 안에 · 러너 시간 · `design-brief.md:390` (N P17) | 고치지 않음 — notes 사유 그대로 |
 | 61 | P1 넘김 — 킷 다섯 자리의 옛 `[미검증]` 문구 (N P1 → Phase 5 · 8 · 9 · 10 · 14) | 이미 반영 — 다섯 파일에서 옛 문구 0 줄(`infra-test:37` · `rust-reviewer.md:160` 은 네 칸) |
-| 62 | P4 넘김 — 판정 세 줄 (N P4 → Phase 8 · 9) · F20 (→ Phase 11) · P6 넘김 — react 규약 되말하기 · 관례 표 · 3 회 (→ Phase 10) | 이미 반영 — `docs/infra/platform/cicd.md:77` · `rust-preflight/SKILL.md:113` · plan-prd Gotcha 14 · `render-evidence-protocol.md:54` · `:59` · `:106` |
+| 62 | P4 넘김 — 판정 세 줄 (N P4 → Phase 8 · 9) · F20 (→ Phase 11) · P6 넘김 — react 규약 되말하기 · 관례 표 · 3 회 (→ Phase 10) | 이미 반영 — `docs/infra/platform/cicd.md:78` · `rust-preflight/SKILL.md:124` · plan-prd Gotcha 14 · `render-evidence-protocol.md:58` · `:63` · `:110` |
 | 63 | DG-02 교차 진단 기록 · Phase 7 · 8 · 9 · 11 개정 파일 줄 (FT · Final 지침) | 다른 계약 몫 — `kaizen-0924-final`. 이 계약은 notes `## Final 에 넘기는 것` 에 커밋 sha 를 적는다(ER-03) |
 | 64 | `check-stale-values.py` `SOURCE_DIRS` · validate-plugin V 줄 · V6 범위 · 평가자 사용자 교정 대조 (FT · XD P3 · P6 · P13) | 다른 계약 몫 — `kaizen-0924-f1-harness-followups`. 이 계약 DG-05 는 옛 값을 마흔한 파일에 직접 세고 validate-plugin 을 종료 코드와 V 줄로 함께 잰다 |
 | 65 | `.claude/skills/*-kaizen/` 고칠 것 (N P6 · P7 · P8 · P9 · P10 · P13 · P14 · P15 · P17) · `ci.yml` 줄 (N P10 · P12 · P14 · P17) · `detect-docs-drift.py` (N P14 · P16) · `save-feedback.sh` (N 여러 Phase) | 다른 계약 몫 — `kaizen-0924-f1-harness-followups` |
 | 66 | 문서 사이트 HTML · 킷 `plugin.json` 버전 · marketplace · changelog · end_sha 덧붙임 커밋 세기 · QA 리포트 수 오기 (N 전 Phase · FT) | 다른 계약 몫 — `kaizen-0924-final` |
-| 67 | Codex r2-1 · 높음 — backend `audit-criteria.md:20` · `api-design.md:102` 가 RFC 9457 다섯 멤버를 필수로 적음 | 조건으로 다룸 — SK-12 (a). 확인: 같은 레포 `docs/api/contract/error-status-contracts.md:25` 가 1 차 출처 대조로 「`type` 이 없으면 `about:blank` — 누락 자체는 위반이 아니다」 라 적었다. 같은 결함이 `backend-system/references/system-principles.md:21` 에도 있어 함께. 다섯 필드 규칙 자체는 원칙 3(`api-design.md:35`)의 킷 규칙이라 남기고 출처만 가른다. 나머지 네 멤버가 선택이라는 RFC 본문은 근거 파일에 없어 적지 않는다 |
+| 67 | Codex r2-1 · 높음 — backend `audit-criteria.md:20` · `api-design.md:103` 가 RFC 9457 다섯 멤버를 필수로 적음 | 조건으로 다룸 — SK-12 (a). 확인: 같은 레포 `docs/api/contract/error-status-contracts.md:26` 가 1 차 출처 대조로 「`type` 이 없으면 `about:blank` — 누락 자체는 위반이 아니다」 라 적었다. 같은 결함이 `backend-system/references/system-principles.md:21` 에도 있어 함께. 다섯 필드 규칙 자체는 원칙 3(`api-design.md:36`)의 킷 규칙이라 남기고 출처만 가른다. 나머지 네 멤버가 선택이라는 RFC 본문은 근거 파일에 없어 적지 않는다 |
 | 68 | Codex r2-2 · 높음 — design 결정 전파 게이트가 표면 없는 결정을 통과 | 조건으로 다룸 — SK-03 (d). 확인: 시작 커밋 판 게이트에 `decision_id` · `status` 만 있는 결정을 넣으면 `decisions=1 surfaces=0 violations=0` · 종료 코드 0. `status` 는 값 목록이 규약에 없어 검사하지 않는다 |
 | 69 | Codex r2-3 · 중간 — `design-reviewer.md:26` 미검증 사본이 2026-08-13 개정 전 판 | 고치지 않음 — 확인은 됐다(`design-reviewer.md` 의 `UNVERIFIED_ENV` 0 줄 · `임계값은 2 다` 1 줄). 기준 원본이 여섯 항목이라 「5 조항 복제」 가 성립하지 않고, 옮기면 design-audit Gotcha 11 · Step 4 · Step 5 · evals id 21 의 REJECT 문턱이 같이 바뀐다 — 「하지 않기로 한 것」 다섯째 줄. 다음 사이클 Phase 3 뒤 (18 행과 같은 일) |
-| 70 | Codex r2-4 · 중간 — `planning-reviewer.md:22` 같은 옛 사본 · `:117` 없는 「4 요건」 가리킴 | 고치지 않음 — 69 행과 같은 이유. `docs/planning/research-log.md:39` 와 Phase 11 notes `:68` · `:86` 이 이미 넘겼다(33 행). react-kit · api-kit reviewer 도 같은 옛 사본이라 넷을 한 번에 |
+| 70 | Codex r2-4 · 중간 — `planning-reviewer.md:29` 같은 옛 사본 · `:117` 없는 「4 요건」 가리킴 | 고치지 않음 — 69 행과 같은 이유. `docs/planning/research-log.md:56` 와 Phase 11 notes `:68` · `:86` 이 이미 넘겼다(33 행). react-kit · api-kit reviewer 도 같은 옛 사본이라 넷을 한 번에 |
 | 71 | Codex r2-5 · 중간 — infra-test checkout 검사가 주석 줄로도 PASS | 조건으로 다룸 — SK-12 (b). 확인: `printf '# uses: actions/checkout@v4\n' \| grep -q 'actions/checkout'` 종료 코드 0, 규칙 1 을 뽑아 주석만 있는 워크플로에 돌리면 `PASS`. PyYAML 로 바꾸라는 제안 대신 `uses:` 키 줄만 세는 식으로 고친다 — python3 가 없을 때도 규칙 1 이 돌아야 한다(규칙 2 는 없으면 `[미검증]`) |
 | 72 | Codex r2-6 · 중간 — rust-preflight `:16` 자동 적용 vs `:34` 사용자 안내 | 조건으로 다룸 — SK-04 둘째 줄. 확인: `:16` Gotcha 2 · `:50` ~ `:51` Step 1 · `:158` 결과 표 `FIXED` 셋이 자동 적용이고 `:34` 하나만 반대. 제안(16 행을 바꾸기)과 달리 한 줄만 고치는 쪽 — 셋을 바꾸는 것보다 작다 |
 | 73 | Codex r2-7 · 낮음 — flutter-build `--delete-conflicting-outputs` 설명의 판 번호(2.7.0 주장) · 명령에서 빼기 | 고치지 않음 — 심각도 낮음. 2.7.0 동작은 설치된 `~/.pub-cache/hosted/pub.dev/build_runner-2.13.1/CHANGELOG.md` `:149` · `:150`(2.7.0 항목 「Ignore `-d` flag: always delete files as if `-d` was passed.」)으로 확인된다. 킷 문장(2.16 에서 제거된 호환 옵션 목록으로 옮겨짐, `phase5.md:41`)과 어긋나지 않고, 명령의 플래그는 효과 없는 인자다. 명령에서 뺄지는 Phase 5 notes `:79` 가 다음 사이클로 보냈다 — 그 notes 가 막힌 이유로 든 「경고인지 오류인지」 가운데 2.7.0 ~ 2.13.1 은 이 파일이 답한다(무시한다). 2.16 쪽은 설치본이 없어 모른다(이 맥의 설치본은 2.3.3 ~ 2.13.1). notes 다음 사이클 메모에 `build_runner-2.13.1` 로 적는다 |
@@ -355,7 +355,7 @@ howto-kit/evals/evals.json
 | 77 | Codex r3-3 · 중간 — onboarding G1 이 전체 수만 비교 | 조건으로 다룸 — SK-08 (d). 확인: Step 1 출처 둘 · Step 2 출처 0 인 입력이 `G1_LEDGER PASS steps=2 ledger=2`(bash · zsh 같음). 킷 픽스처 추가는 「하지 않기로 한 것」 일곱째 줄 |
 | 78 | Codex r3-4 · 중간 — bambu 댓글 받기가 앞 실행 페이지를 함께 읽음 | 조건으로 다룸 — SK-07 (e). 확인: 가짜 `curl` 로 `comments-100.json`(59 개)이 남은 폴더에서 돌리면 `받은 hits 61 (페이지 2)` · `WARN` |
 | 79 | Codex r3-5 · 중간 — bambu 자기 검사 블록이 정의 안 된 `SKILL_DIR` 사용 | 조건으로 다룸 — SK-07 (d). 확인: `SKILL_DIR` 없이 돌리면 `/SKILL.md` 를 읽어 빈 측정 코드로 `IndexError`. 같은 줄이 `:2191` 두 스크립트 자기 검사에도 있어 둘 다. 제안의 `${CLAUDE_PLUGIN_ROOT}` 대신 킷의 다른 블록(`:923` · `:1531`)과 같은 `SKILL_DIR=<이 스킬의 기준 폴더>` 로 둔다 |
-| 80 | Codex r3-6 · 낮음 — api-kit `-0` 을 「I-JSON 게이트」 로 분류 | 고치지 않음 — 확인 불가. RFC 7493 이 `-0` 을 금지하지 않는다는 본문이 근거 파일에 없다(`phase16.md:37` S12 는 상태만). 킷의 `-0` 줄은 이유를 JCS 로 적었다(`api-contract/SKILL.md:67`) — 「하지 않기로 한 것」 여섯째 줄. 다음 사이클 Phase 16 이 RFC 7493 §2.2 원문을 근거 파일에 넣은 뒤 이름을 가른다 |
+| 80 | Codex r3-6 · 낮음 — api-kit `-0` 을 「I-JSON 게이트」 로 분류 | 고치지 않음 — 확인 불가. RFC 7493 이 `-0` 을 금지하지 않는다는 본문이 근거 파일에 없다(`phase16.md:37` S12 는 상태만). 킷의 `-0` 줄은 이유를 JCS 로 적었다(`api-contract/SKILL.md:71`) — 「하지 않기로 한 것」 여섯째 줄. 다음 사이클 Phase 16 이 RFC 7493 §2.2 원문을 근거 파일에 넣은 뒤 이름을 가른다 |
 
 - 기능 조건 20 · 전체 조건 줄 30 (6.2 두 명령으로 셌다)
 - 사용자가 할 일: 없음

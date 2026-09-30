@@ -127,17 +127,17 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 | `backend-kit/skills/backend-system/SKILL.md:26` | OAuth 2.1 `draft-15`, 2026-09-03 만료 | `draft-16`, 2027-03-07 만료 | 명백히 낡음. 여전히 Active Internet-Draft이며 최종 RFC가 아니다. [Datatracker](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) |
 | `backend-kit/skills/backend-guide/SKILL.md:24` | `draft-15`, 2026-09 만료 | `draft-16`, 2027-03-07 만료 | 명백히 낡음. [Datatracker](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) |
 | `backend-kit/agents/backend-reviewer.md:62` | OAuth 2.1 draft-15 | draft-16 | 버전명 낡음. [Datatracker](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) |
-| `backend-kit/skills/backend-audit/SKILL.md:89` | OAuth 2.1 draft-15 | draft-16 | 버전명 낡음. [Datatracker](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) |
-| `backend-kit/README.md:59` | OAuth 2.1 draft-15 | draft-16 | 리서치 이력이라면 역사적 값으로 유지 가능하나, 현행 기능 목록이라면 낡음. [Datatracker](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) |
+| `backend-kit/skills/backend-audit/SKILL.md:94` | OAuth 2.1 draft-15 | draft-16 | 버전명 낡음. [Datatracker](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) |
+| `backend-kit/README.md:62` | OAuth 2.1 draft-15 | draft-16 | 리서치 이력이라면 역사적 값으로 유지 가능하나, 현행 기능 목록이라면 낡음. [Datatracker](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/) |
 | `backend-kit/skills/backend-system/SKILL.md:27` | AsyncAPI 3.0.0 | 최신 안정 3.1.0 | 3.0.0이 폐기됐다는 근거는 없지만 최신판 표기는 아님. 3.1.0의 확인된 추가 기능은 ROS 2 binding이다. [3.1.0 release](https://github.com/asyncapi/spec/releases/tag/v3.1.0) |
 | `backend-kit/skills/backend-audit/references/audit-criteria.md:28` | AsyncAPI 3.0.0 | 최신 안정 3.1.0 | 인용하려는 receiver 규범은 실제 조회한 3.0.0에도 존재하므로 의미상 유효하다. 최신판 링크로 바꿀지는 별도 결정 사항이다. [3.0.0 spec](https://www.asyncapi.com/docs/reference/specification/v3.0.0), [3.1.0 release](https://github.com/asyncapi/spec/releases/tag/v3.1.0) |
-| `docs/backend/fundamentals/api-design.md:80-82` | OpenAPI 3.2.0 | OpenAPI 3.2.1 | 명백히 한 패치 뒤처짐. 3.2.1은 2026-09-10 공개됐고 release note는 중대한 변경 없이 명세 문구 교정·명확화 중심이라고 밝힌다. [3.2.1 release](https://github.com/OAI/OpenAPI-Specification/releases/tag/3.2.1) |
-| `backend-kit/skills/backend-system/SKILL.md:50` | OpenAPI 3.1 | 최신 3.2.1 | 최신판보다 낮지만, 최소 호환 기준으로 의도한 것이라면 반드시 낡았다고 볼 수 없다. [최신 OAS](https://spec.openapis.org/oas/latest.html) |
-| `backend-kit/skills/backend-audit/SKILL.md:77` | OpenAPI 3.1 | 최신 3.2.1 | 위와 동일. “3.1 이상” 정책이면 유지 가능하고, “최신판” 의미라면 갱신 필요. [최신 OAS](https://spec.openapis.org/oas/latest.html) |
+| `docs/backend/fundamentals/api-design.md:81-83` | OpenAPI 3.2.0 | OpenAPI 3.2.1 | 명백히 한 패치 뒤처짐. 3.2.1은 2026-09-10 공개됐고 release note는 중대한 변경 없이 명세 문구 교정·명확화 중심이라고 밝힌다. [3.2.1 release](https://github.com/OAI/OpenAPI-Specification/releases/tag/3.2.1) |
+| `backend-kit/skills/backend-system/SKILL.md:55` | OpenAPI 3.1 | 최신 3.2.1 | 최신판보다 낮지만, 최소 호환 기준으로 의도한 것이라면 반드시 낡았다고 볼 수 없다. [최신 OAS](https://spec.openapis.org/oas/latest.html) |
+| `backend-kit/skills/backend-audit/SKILL.md:82` | OpenAPI 3.1 | 최신 3.2.1 | 위와 동일. “3.1 이상” 정책이면 유지 가능하고, “최신판” 의미라면 갱신 필요. [최신 OAS](https://spec.openapis.org/oas/latest.html) |
 | `backend-kit/skills/backend-audit/references/audit-criteria.md:22,26` | OpenAPI 3.1.x / 3.1.1 | 최신 3.2.1 | JSON Schema/format 설명을 3.1.1에 고정 인용할 수는 있으나 최신판 표기는 아니다. [최신 OAS](https://spec.openapis.org/oas/latest.html) |
 | `rust-kit/references/project-detection.md:82-86` | 2026-08-13 최신 SeaORM 2.0.1 | SeaORM 2.0.3, 2026-09-13 | 현행성 표가 낡음. [2.0.3 release](https://github.com/SeaQL/sea-orm/releases/tag/2.0.3) |
-| `rust-kit/skills/rust-model/SKILL.md:47,52,62-66` | SeaORM 1.1 계열 예시 | 최신 안정 2.0.3 | 신규 스캐폴딩 기준으로는 낡음. 다만 기존 프로젝트 고정 버전을 우선한다는 현재 주석은 유지해야 한다. [2.0.3 release](https://github.com/SeaQL/sea-orm/releases/tag/2.0.3) |
-| `rust-kit/skills/rust-init/SKILL.md:69` | `sea-orm = "1.1"` | 최신 안정 2.0.3 | 신규 프로젝트 기본 예시라면 갱신 후보. 2.0은 entity/relation 정의, raw SQL API, PostgreSQL identity 기본값, feature 이름 등에 깨지는 변경이 있다. [2.0.0 release](https://github.com/SeaQL/sea-orm/releases/tag/2.0.0) |
+| `rust-kit/skills/rust-model/SKILL.md:51,52,62-66` | SeaORM 1.1 계열 예시 | 최신 안정 2.0.3 | 신규 스캐폴딩 기준으로는 낡음. 다만 기존 프로젝트 고정 버전을 우선한다는 현재 주석은 유지해야 한다. [2.0.3 release](https://github.com/SeaQL/sea-orm/releases/tag/2.0.3) |
+| `rust-kit/skills/rust-init/SKILL.md:77` | `sea-orm = "1.1"` | 최신 안정 2.0.3 | 신규 프로젝트 기본 예시라면 갱신 후보. 2.0은 entity/relation 정의, raw SQL API, PostgreSQL identity 기본값, feature 이름 등에 깨지는 변경이 있다. [2.0.0 release](https://github.com/SeaQL/sea-orm/releases/tag/2.0.0) |
 | `rust-kit/templates/rust-init.toml.template:40` | `sea-orm = "1.1"` | 최신 안정 2.0.3 | 신규 템플릿이면 갱신 후보이나 단순 버전 치환은 금물이다. [2.0.0 breaking changes](https://github.com/SeaQL/sea-orm/releases/tag/2.0.0) |
 | 해당 버전 리터럴 없음 | Chrono 타입만 언급 | Chrono 0.4.45 | 버전 때문에 낡은 대상은 찾지 못했다. [0.4.45 release](https://github.com/chronotope/chrono/releases/tag/v0.4.45) |
 

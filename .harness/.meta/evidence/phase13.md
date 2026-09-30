@@ -71,7 +71,7 @@ note: 이 파일이 이 Phase 의 유일한 외부 근거다. 바깥 자료를 �
 
 `Just a moment...` 또는 HTTP 403에서 기다리지 말라는 동작을 직접 뒷받침하는 공식 MakerWorld 문서는 찾지 못했다. 이는 재시도 정책에 관한 운영 규칙으로 표시해야 한다.
 
-“Cloudflare 우회” 표현은 삭제가 적절하다. 실제 우회 능력을 보장하는 1차 출처를 찾지 못했고, 현재 문구는 [comment-analysis.md:318](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/comment-analysis.md:318)에도 중복된다.
+“Cloudflare 우회” 표현은 삭제가 적절하다. 실제 우회 능력을 보장하는 1차 출처를 찾지 못했고, 현재 문구는 [comment-analysis.md:340](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/comment-analysis.md:340)에도 중복된다.
 
 ### bambu:P3 — Codex에는 브라우저 대신 셸 `curl`
 
@@ -106,7 +106,7 @@ JSON·선택적 브라우저·셸 `curl`이 모두 실패했을 때 사용자에
 - 각 항목의 답글 배열도 별도로 읽어야 한다.
 - `design.commentCount`와 댓글 API `total`이 다르면 오류로 중단하기보다 두 값을 함께 기록하고 불일치를 보고한다.
 
-현재 [SKILL.md:381-386](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/SKILL.md:381)과 [comment-analysis.md:137-148](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/comment-analysis.md:137)은 UI 헤딩·스크롤·50개 초과 sampling을 사용한다. API가 200인 경우에는 전수 페이지네이션이 가능하므로 이 규칙은 1차 경로로는 낡았다.
+현재 [SKILL.md:381-386](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/SKILL.md:381)과 [comment-analysis.md:145-158](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/comment-analysis.md:145)은 UI 헤딩·스크롤·50개 초과 sampling을 사용한다. API가 200인 경우에는 전수 페이지네이션이 가능하므로 이 규칙은 1차 경로로는 낡았다.
 
 ### bambu:P6 — 형상 측정에 정답을 아는 입력 추가
 
@@ -138,10 +138,10 @@ JSON·선택적 브라우저·셸 `curl`이 모두 실패했을 때 사용자에
 | [bambu-fields-baseline.md:3](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md:3) | Last updated `2026-05-15` | 2026-09-24 조사 필요 상태 | 메타데이터가 실제 9월 검증 내용보다 낡음 |
 | [bambu-fields-baseline.md:10](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md:10) | 최신 beta `2.7.0` | 최신 공개 항목은 `2.8.4.57 beta`(2026-09-22) | [릴리스 API](https://api.github.com/repos/bambulab/BambuStudio/releases), [2.8.4.57](https://github.com/bambulab/BambuStudio/releases/tag/v02.08.04.57) |
 | [bambu-fields-baseline.md:16-17](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md:16) | 안정판 `2.6.0.51` | 최신 안정판 `2.8.2.61`, 2026-08-21 | [2.8.2.61](https://github.com/bambulab/BambuStudio/releases/tag/v02.08.02.61) |
-| [bambu-fields-baseline.md:250](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md:250) | “master는 2.6.0 이후 142 commits” | 고정 숫자는 더 이상 현행 근거가 아님 | 안정 태그가 이미 2.8.2.61이며 master에는 이후 변경이 있음. 태그↔master 비교 절차만 남기는 편이 안전 |
-| [materials.md:140](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/materials.md:140) | PLA Pure는 2.7 beta뿐, 2.6 stable 미포함이므로 보류 | 2.8.2.61 안정 태그에 `Bambu PLA Pure @BBL H2S.json` 및 H2S 노즐별 프로파일 존재 | [v02.08.02.61 프로파일 트리](https://github.com/bambulab/BambuStudio/tree/v02.08.02.61/resources/profiles/BBL/filament) |
-| [materials.md:152](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/materials.md:152) | 로컬 `02.06.00.51`만 출처로 기재 | 안정판 `02.08.02.61` | [2.8.2.61](https://github.com/bambulab/BambuStudio/releases/tag/v02.08.02.61) |
-| [comment-analysis.md:335](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/comment-analysis.md:335) | API endpoint 존재 여부 미해결 | 세 API 모두 200, 댓글 페이지네이션도 확인 | 위 MakerWorld 관측 URL |
+| [bambu-fields-baseline.md:264](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md:264) | “master는 2.6.0 이후 142 commits” | 고정 숫자는 더 이상 현행 근거가 아님 | 안정 태그가 이미 2.8.2.61이며 master에는 이후 변경이 있음. 태그↔master 비교 절차만 남기는 편이 안전 |
+| [materials.md:147](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/materials.md:147) | PLA Pure는 2.7 beta뿐, 2.6 stable 미포함이므로 보류 | 2.8.2.61 안정 태그에 `Bambu PLA Pure @BBL H2S.json` 및 H2S 노즐별 프로파일 존재 | [v02.08.02.61 프로파일 트리](https://github.com/bambulab/BambuStudio/tree/v02.08.02.61/resources/profiles/BBL/filament) |
+| [materials.md:159](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/materials.md:159) | 로컬 `02.06.00.51`만 출처로 기재 | 안정판 `02.08.02.61` | [2.8.2.61](https://github.com/bambulab/BambuStudio/releases/tag/v02.08.02.61) |
+| [comment-analysis.md:358](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/references/comment-analysis.md:358) | API endpoint 존재 여부 미해결 | 세 API 모두 200, 댓글 페이지네이션도 확인 | 위 MakerWorld 관측 URL |
 | [SKILL.md:63](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/SKILL.md:63) | Playwright 1차·고정 서버명·“Cloudflare 우회” | JSON `curl` 1차가 관측상 작동 | MakerWorld 관측 URL |
 | [SKILL.md:381-386](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/SKILL.md:381) | UI 헤딩 댓글 수, 50+ sampling | API `total`과 offset 전수 순회 가능 | commentandrating 관측 |
 | [SKILL.md:2097-2104](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/release-0924/bambu-kit/skills/bambu-print-profile/SKILL.md:2097) | Playwright → Codex → WebFetch → 사용자 | JSON curl → 선택적 브라우저 → Codex 셸 curl → 사용자 | MakerWorld 관측 URL |

@@ -38,9 +38,9 @@ baseline-change amendment"*.
 ## 리서치 소스
 
 - `harness/references/contract-schema.md:781-789` — `amend_direction()` 현행 정의 (SSOT)
-- `harness/agents/qa-evaluator.md:645-649` — 평가자 측 사용 규칙 ("집합형은 comm 으로 계산, 정의는 스키마")
+- `harness/agents/qa-evaluator.md:651-655` — 평가자 측 사용 규칙 ("집합형은 comm 으로 계산, 정의는 스키마")
 - `harness/skills/sprint-contract/SKILL.md:69` — 작성자 측 Gotcha (같은 취지)
-- `harness/docs/guides/qa-evaluation-guide.md:445-448` — 스키마가 SSOT 임을 재확인. 여기는 고치지 않는다
+- `harness/docs/guides/qa-evaluation-guide.md:450-453` — 스키마가 SSOT 임을 재확인. 여기는 고치지 않는다
 - `.harness/sprint-amendments-howto-kit-implementation.md` (feat/howto-kit) — A-01 원문과 comm 산출
 - `.harness/sprint-feedback-howto-kit-implementation.md` (feat/howto-kit) — 평가자가 판정 반전으로 relaxing 을 확정한 기록
 

@@ -146,7 +146,7 @@ Iteration 1은 `~/.claude/logs/claude-plugins/2026-09.md` 에서 이 세션의 �
 - [x] AR-02: `agent-design-guide` 에 괄호 제한의 한계와 실측 반영 — PASS
   - 근거: 재실행. (a) `Restrict which subagents` 1건 (b) `2026-09-22` 1건 (c) 696행 `Agent 스코핑` 행에 "서브에이전트로 불릴 때는 무시된다" 명시.
 - [x] AR-03: 대응 표 15번 두 칸이 채워졌고 생성 측 짝 실재 — PASS
-  - 근거: 재실행. (a)(b) `qa-evaluation-guide.md:1784` `| 15 |` 행 — `DEFERRED` 0건, 생성 측 칸 `§3.7 (0 이 기대값인 검증의 양성 대조 — 생성 측 짝)` 실제 내용 (c) `skill-design-guide.md`의 `^#+ .*양성 대조` 헤더 1건.
+  - 근거: 재실행. (a)(b) `qa-evaluation-guide.md:1805` `| 15 |` 행 — `DEFERRED` 0건, 생성 측 칸 `§3.7 (0 이 기대값인 검증의 양성 대조 — 생성 측 짝)` 실제 내용 (c) `skill-design-guide.md`의 `^#+ .*양성 대조` 헤더 1건.
 - [x] AR-04: 손대지 않기로 한 것이 변경되지 않았다 — PASS (Iteration 1의 FAIL을 뒤집음, 상세는 위 절 참조)
   - 근거: STALE_HEAD 아님. (i)(ii)(iii) 0행 초과. (iv) 3건 전부 허용 목록(원 3개 + amendment A-01의 4번째) 안. A-01의 consent 를 세션 원본에서 독립 재확인 — `anchored`, `relaxing`. 2축 표상 `relaxing × anchored` 는 PASS 근거 가능.
 - [x] AR-05: `expected-improvements.md` 29행 항목에 대체 사실 1~2줄만 추가 — PASS

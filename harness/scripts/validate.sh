@@ -69,7 +69,8 @@ for cmd in analyze test; do
 done
 
 # ── anti_patterns 개수 ──
-AP_COUNT=$(grep -c "id: AP-" "$CONFIG" 2>/dev/null || echo "0")
+# 옛 번호 AP- 와 새 번호 금지- 를 함께 센다. 0 건이면 grep -c 가 0 을 찍고 1 로 끝나므로 || echo 를 붙이면 0 이 두 번 찍힌다
+AP_COUNT=$(grep -cE "id: (AP|금지)-" "$CONFIG" 2>/dev/null) || AP_COUNT=0
 if [ "$AP_COUNT" -lt 2 ]; then
   echo "⚠️ anti_patterns ${AP_COUNT}개 — 최소 2개 권장"
   WARN=$((WARN + 1))

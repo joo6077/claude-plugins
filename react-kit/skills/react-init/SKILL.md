@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **pnpm workspace ↔ Cargo workspace 혼동 금지** — `pnpm-workspace.yaml`의 `packages` 목록과 `Cargo.toml`의 `workspace.members`는 별개다. 전자는 npm 패키지, 후자는 Rust crate. `crates/core`는 두 파일 모두에 등재한다.
 2. **Tailwind v4 설치 방식 변경 (2025-01 stable)** — v3 문서의 `npx tailwindcss init`은 v4에서 없어짐. `@tailwindcss/vite` 플러그인과 `@import "tailwindcss";` 만 사용한다. **CSS-first 설정**: `tailwind.config.ts` 대신 CSS 파일의 `@theme { --color-*: oklch(...); }` directive 로 토큰을 정의한다 (Tailwind v4 announcement).
 3. **shadcn 패키지 리네임 + CLI v4 (2026-03)** — `shadcn-ui` npm 패키지는 deprecated. 현재는 `pnpm dlx shadcn@latest init --template vite`를 사용한다. v4 CLI 는 `--dry-run`/`--diff`/`--view` 플래그로 설치 전 미리보기 가능, `components.json` 의 `tailwind.config` 필드는 **Tailwind v4 에서 공란으로 둔다** (shadcn tailwind-v4 docs).

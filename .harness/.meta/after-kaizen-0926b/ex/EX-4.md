@@ -19,7 +19,7 @@
 모두 2026-09-26에 가져왔다.
 
 - 저장소 근거: [phase3.md:154](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/.harness/.meta/evidence/phase3.md:154)
-- 저장소 주장: [qa-evaluation-guide.md:143](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/harness/docs/guides/qa-evaluation-guide.md:143)
+- 저장소 주장: [qa-evaluation-guide.md:147](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/harness/docs/guides/qa-evaluation-guide.md:147)
 - 원문: [A Survey on LLM-as-a-Judge, arXiv:2411.15594v6](https://arxiv.org/html/2411.15594v6)
 - 원문: [Justice or Prejudice? Quantifying Biases in LLM-as-a-Judge, arXiv:2410.02736v1](https://arxiv.org/html/2410.02736v1)
 
@@ -88,7 +88,7 @@ Table 1과 Table 2에 제시된 12개는 다음과 같다.
   - 현재 v6 본문에는 CALM이 “12 distinct types”를 다룬다는 문장이 있다.
   - 다만 “Survey 자체의 총 분류 수가 12가 아니다”라는 문제의식은 맞다.
 
-- [qa-evaluation-guide.md:143](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/harness/docs/guides/qa-evaluation-guide.md:143): 두 논문 “에서 12개 이상의 편향을 분류”한다고 적었다.
+- [qa-evaluation-guide.md:147](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/harness/docs/guides/qa-evaluation-guide.md:147): 두 논문 “에서 12개 이상의 편향을 분류”한다고 적었다.
   - **판정: 틀림.**
   - 둘째 논문은 정확히 12개를 분류한다.
   - 첫째 논문의 자체 taxonomy는 2개 상위 클래스이며 대표 세부 항목 8개를 서술한다. 첫째 논문에 등장하는 12라는 수치는 둘째 논문 CALM을 소개한 것이다.

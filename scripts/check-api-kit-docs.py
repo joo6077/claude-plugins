@@ -20,6 +20,8 @@ import re
 import sys
 from pathlib import Path
 
+from plugin_utils import site_css_stylesheet_links
+
 REPO = Path(__file__).resolve().parent.parent
 SRC_DIR = REPO / "docs" / "api"
 OUT_DIR = REPO / "docs" / "api-kit"
@@ -44,8 +46,6 @@ EXTERNAL = re.compile(
 )
 # 오버플로 억제 — 내용 손실이므로 금지 (overflow-x:auto 는 허용)
 SUPPRESS = re.compile(r"overflow\s*:\s*hidden|overflow-x\s*:\s*hidden")
-
-
 def sources_of(md: Path) -> set[str]:
     text = md.read_text(encoding="utf-8")
     urls: set[str] = set()
@@ -80,8 +80,9 @@ def check(md: Path, html: Path) -> dict:
         r["fail"].append("외부 리소스 참조")
     if SUPPRESS.search(body):
         r["fail"].append("overflow 억제")
-    if "prefers-reduced-motion" not in body:
-        r["fail"].append("prefers-reduced-motion 없음")
+    # 움직임 줄이기 규칙은 쪽마다 적지 않고 공통 CSS 가 맡는다
+    if not site_css_stylesheet_links(body):
+        r["fail"].append("공통 CSS assets/site.css 연결 없음")
     if "dk-theme" not in body:
         r["fail"].append("테마 키 dk-theme 없음")
     return r

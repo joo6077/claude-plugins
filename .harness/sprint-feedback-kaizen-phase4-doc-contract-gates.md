@@ -101,7 +101,7 @@ Iteration: 1 (재평가 — 원 판정은 2026-08-13 APPROVE였으나 피드백 
 - [x] SK-01: 공식/레포 정책 필드 구분 서술, invisible 오서술 0건 — PASS
   - 근거: `create-agent/SKILL.md:25` "공식 필수는 name·description 2종… 에이전트가 invisible
     처리되지는 않는다"(명시적 부정), 레포는 4종(name/description/tools/model) 요구를
-    `scripts/validate-plugin.py` 출처로 명기. `create-skill/SKILL.md:27,103` 도 동일 패턴
+    `scripts/validate-plugin.py` 출처로 명기. `create-skill/SKILL.md:29,103` 도 동일 패턴
     (공식 2종 vs 레포 3종). `grep -n invisible` → create-skill 0건, create-agent 1건(부정 서술,
     Read로 맥락 확인 — "invisible 처리되지 않는다"는 긍정 주장이 아니라 정정).
 - [x] SK-02: `docs-contract` YAML 선언 블록 — PASS

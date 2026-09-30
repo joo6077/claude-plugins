@@ -110,9 +110,7 @@ Expected: `references/` 디렉토리가 없음. 파일 생성 시 자동 생성�
 
 - [ ] **Step 2: contract-schema.md 작성**
 
-<!-- markdownlint-disable MD031 MD060 -->
-
-```markdown
+````markdown
 # Sprint Contract 스키마
 
 > sprint-contract와 qa-evaluator가 공유하는 계약 포맷 정의.
@@ -183,7 +181,7 @@ conditions: {총 조건 수}
 ## 스키마 버전
 
 현재: v1
-```text
+````
 
 - [ ] **Step 3: feedback-schema.yaml 작성**
 
@@ -271,8 +269,6 @@ example:
   user_comment: null
 ```
 
-<!-- markdownlint-enable MD031 MD060 -->
-
 - [ ] **Step 4: 커밋**
 
 ```bash
@@ -291,7 +287,7 @@ git commit -m "feat(harness): 공유 참조 파일 생성 — contract-schema + 
 
 - [ ] **Step 1: contract-design-guide.md 작성**
 
-```markdown
+````markdown
 # Contract Design Guide
 
 > sprint-contract 스킬이 참조하는 계약 작성 원칙.
@@ -344,13 +340,13 @@ Design by Contract (Meyer, 1992) 구조를 참고:
 
 BDD(Behavior-Driven Development) 패턴으로 조건을 구조화할 수 있다:
 
-```
+```text
 
 Given {전제 조건}
 When {동작}
 Then {기대 결과}
 
-```text
+```
 
 모든 조건에 강제는 아니지만, 복잡한 조건일수록 이 구조가 모호성을 줄인다.
 
@@ -426,11 +422,11 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 - `category_coverage`: project.yaml 카테고리 대비 커버 비율
 - `anti_pattern_count`: 선택된 안티패턴 수
 - `complexity`: 판단된 복잡도
-```
+````
 
 - [ ] **Step 2: qa-evaluation-guide.md 작성**
 
-```markdown
+````markdown
 # QA Evaluation Guide
 
 > qa-evaluator 에이전트가 참조하는 평가 방법론.
@@ -489,14 +485,14 @@ Independent Verification & Validation (IV&V) 원칙:
 
 각 계약 조건을 boolean 서브체크로 분해한다 (CheckEval 패턴):
 
-```
+```text
 
 조건: "로그인 실패 시 HTTP 401을 반환한다"
 ├── 서브체크 1: 로그인 실패 경로가 존재하는가? (L1)
 ├── 서브체크 2: 해당 경로에서 401을 반환하는 코드가 있는가? (L2)
 └── 서브체크 3: 잘못된 credential 입력 시 실제로 401 경로를 타는가? (L3)
 
-```text
+```
 
 서브체크 하나라도 FAIL이면 해당 조건은 FAIL.
 
@@ -575,7 +571,7 @@ evaluator-kaizen이 주기적으로 수행:
 - `conditions_passed`: PASS 조건 수
 - `l3_coverage`: L3 검증 도달 비율
 - `reject_reasons`: REJECT 시 사유 목록
-```
+````
 
 - [ ] **Step 3: 커밋**
 
@@ -1748,10 +1744,10 @@ user-invocable: true
 
 기존 Phase 의존성 섹션을 다음으로 교체:
 
-```markdown
+````markdown
 ## Phase 의존성
 
-```
+```text
 
 Phase 1: 설계 가이드 카이젠
     ↓
@@ -1767,7 +1763,7 @@ Phase 6: Design-kit 카이젠 (design-kaizen)
     ↓
 Final: 전체 정합성 검증
 
-```text
+```
 
 ### Phase 순서 논리
 
@@ -1777,18 +1773,18 @@ Final: 전체 정합성 검증
 4. Harness 카이젠 — sprint-contract, qa-evaluator **제외**한 나머지 harness 스킬/설정 (sprint-feedback, init, project.yaml, procedures)
 5. Flutter-toolkit 카이젠 — Flutter 스킬 개선
 6. Design-kit 카이젠 — UI/UX 디자인 스킬 개선
-```
+````
 
 - [ ] **Step 3: 공유 리서치 Step 0 제거 + 각 Phase 자체 리서치로 교체**
 
 기존 "Step 0: RESEARCH" 섹션을 제거하고, 각 Phase 실행 패턴을 다음으로 교체:
 
-```markdown
+````markdown
 ## 각 Phase 공통 실행 패턴
 
 각 Phase는 **새 서브에이전트**로 실행한다 (Agent tool). 이전 Phase의 변경사항이 디스크에 커밋되어 있으므로 fresh load로 반영된다.
 
-```
+```text
 
 1. Triage: 피드백 읽기 → 개선 필요? → 불필요 시 SKIP + 로그
    ⚠ 피드백이 0건이면 SKIP하지 않고 리서치 전용 모드로 진행
@@ -1802,8 +1798,8 @@ Final: 전체 정합성 검증
 9. Regression 실패 → git revert (kaizen-phase-N-pre 태그) → BLOCKED
 10. 다음 Phase → 새 서브에이전트 (fresh load)
 
-```text
 ```
+````
 
 - [ ] **Step 4: Gotchas 업데이트**
 

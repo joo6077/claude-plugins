@@ -18,7 +18,7 @@ sync-evals.py — 각 플러그인 evals/evals.json 과 skills/ 디렉토리 동
 Exit codes:
     0 — no drift (check-only) 또는 동기화 완료
     1 — drift detected (check-only 모드만)
-    2 — 구조적 에러
+    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 포함)
 """
 
 import argparse
@@ -28,8 +28,23 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# 대상 플러그인 (evals.json 을 가진 것만)
-TARGET_KITS = ["flutter-toolkit", "rust-kit", "react-kit", "design-kit", "backend-kit", "infra-kit", "tone-kit", "api-kit"]
+# 대상은 마켓 목록의 킷 가운데 evals/evals.json 이 있는 것이다. 손 목록은 새 킷을 조용히 빠뜨린다.
+# 스킬마다 사례를 두는 규칙이 맞지 않는 킷만 이유와 함께 뺀다 — 빼는 줄은 `SKIP <킷> (<사유>)` 로 찍는다
+SKIP_KITS = {
+    "harness": "evals.json 이 스킬 사례 목록이 아니다 — sprint · refactor-checklist 가 사례 없음으로 나온다",
+    "howto-kit": "게이트 픽스처 형식 — CI 가 sh howto-kit/evals/run-evals.sh 로 따로 돈다",
+}
+
+
+def target_kits() -> list[str]:
+    marketplace = REPO_ROOT / ".claude-plugin" / "marketplace.json"
+    names = [plugin["name"] for plugin in json.loads(marketplace.read_text(encoding="utf-8")).get("plugins", [])]
+    have = [name for name in names if (REPO_ROOT / name / "evals" / "evals.json").is_file()]
+    # 평가 파일이 없는 킷도 이름을 찍는다 — 다른 이름으로 둔 킷이 소리 없이 빠지지 않게
+    absent = [name for name in names if name not in have]
+    if absent:
+        print(f"평가 파일(evals/evals.json) 없는 킷 {len(absent)} 개 — 대상 아님: {', '.join(absent)}")
+    return have
 
 
 def load_evals(kit: str) -> dict | None:
@@ -38,9 +53,14 @@ def load_evals(kit: str) -> dict | None:
         return None
     try:
         return json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        # 권한 등으로 못 읽은 파일을 없는 파일처럼 넘기면 --check-only 가 통과한다
+        print(f"UNREADABLE {path} ({exc.strerror})", file=sys.stderr)
+        sys.exit(2)
     except json.JSONDecodeError as exc:
+        # 없는 파일처럼 SKIP 하면 깨진 평가 파일이 --check-only 를 통과한다
         print(f"ERROR: {path} parse error: {exc}", file=sys.stderr)
-        return None
+        sys.exit(2)
 
 
 def save_evals(kit: str, data: dict) -> None:
@@ -161,7 +181,10 @@ def main() -> int:
     total_orphans = 0
     total_missing_preview = 0
 
-    for kit in TARGET_KITS:
+    for kit in target_kits():
+        if kit in SKIP_KITS:
+            print(f"SKIP {kit} ({SKIP_KITS[kit]})")
+            continue
         print(f"→ {kit}")
         data = load_evals(kit)
         if data is None:

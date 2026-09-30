@@ -35,23 +35,23 @@ Iteration: 3
 
 ### Skill (8/8)
 - [x] SK-01: 회전체·원통 결정 트리 v4 재작성, `random` 이 default top 아님 — PASS
-  - 근거(좁은 측정절): `references/seam-recipes.md:34-58` §0 v4 트리, `references/surface-recipes.md:40-56` §2.1 — 둘 다 "(4) random → fallback 전용" 이고 "DEFAULT" 표기 0건 (L3, Grep+Read)
+  - 근거(좁은 측정절): `references/seam-recipes.md:34-58` §0 v4 트리, `references/surface-recipes.md:41-57` §2.1 — 둘 다 "(4) random → fallback 전용" 이고 "DEFAULT" 표기 0건 (L3, Grep+Read)
   - 근거(iteration 2 가 발견한 SKILL.md 자체 인라인 트리 재검증): `git diff -- SKILL.md` 확인 결과 옛 v3 블록("DEFAULT — random 분산 전략", "spiral 불가 회전체는 (2) random fallback이 default") 이 있던 936-964 라인이 v4 트리로 전면 재작성됨. 현재 SKILL.md:937-958 은 "회전체·원통 결정 트리 (정본: seam-recipes.md §0 v4 — 여기서 재정의하지 마라)" 로 시작해 (1)vase→(2)painted→(3)360도 노출→(4)random fallback 순서이고, 962행에 "v4 정정 (2026-09-05). 이전 판은 (2) random 을 default top 에 뒀다 ... 그 원칙을 만족하는 최선은 random 이 아니라 vase 였다" 로 옛 정책을 명시 대체함 (L3)
-  - 근거(킷 **전체** 재sweep, `grep -rn -i "random" bambu-kit/skills/bambu-print-profile/` 27건 전수 분류): 전부 아래 4유형 중 하나 — (a) "fallback 전용"/"default 아님" 명시 (SKILL.md:952, surface-recipes.md:51/63, seam-recipes.md:56-57/175) (b) 정책 변경 이력 서술 v1/v2/v3 명기 (seam-recipes.md:62-67, bambu-fields-baseline.md:240) (c) 명시적 폐기 표기 "v4 로 폐기" (seam-recipes.md:246 — iteration 1 이 잔존을 지적했던 바로 그 줄이 이번엔 "**적용 권장 (2026-09-05 v4 로 폐기)**: ... v4 는 vase 를 1 순위로 두므로 이 결론을 default 정책으로 쓰지 마라" 로 수정 확인됨) (d) 과거 실측 사례 로그(SKILL.md:1441-1442, "검증된 실측 사례" 표 — 과거 dogfood 기록이지 현재 정책 서술이 아님) + 범위 밖 외부 메모리 파일 인용(SKILL.md:1424, `~/.claude/projects/.../bambu_print_profile_skill.md`— "v1 학습 환류"로 명시적 역사 표기, 킷 자신의 파일도 아님). "random 이 현재 정책의 default/권장"으로 읽히는 문장 **0건** (측정: `wc -l` 로 27건 확인 → 27건 분류 완료, `[미검증]` 0건)
+  - 근거(킷 **전체** 재sweep, `grep -rn -i "random" bambu-kit/skills/bambu-print-profile/` 27건 전수 분류): 전부 아래 4유형 중 하나 — (a) "fallback 전용"/"default 아님" 명시 (SKILL.md:952, surface-recipes.md:52/63, seam-recipes.md:56-57/175) (b) 정책 변경 이력 서술 v1/v2/v3 명기 (seam-recipes.md:62-67, bambu-fields-baseline.md:254) (c) 명시적 폐기 표기 "v4 로 폐기" (seam-recipes.md:256 — iteration 1 이 잔존을 지적했던 바로 그 줄이 이번엔 "**적용 권장 (2026-09-05 v4 로 폐기)**: ... v4 는 vase 를 1 순위로 두므로 이 결론을 default 정책으로 쓰지 마라" 로 수정 확인됨) (d) 과거 실측 사례 로그(SKILL.md:1441-1442, "검증된 실측 사례" 표 — 과거 dogfood 기록이지 현재 정책 서술이 아님) + 범위 밖 외부 메모리 파일 인용(SKILL.md:1424, `~/.claude/projects/.../bambu_print_profile_skill.md`— "v1 학습 환류"로 명시적 역사 표기, 킷 자신의 파일도 아님). "random 이 현재 정책의 default/권장"으로 읽히는 문장 **0건** (측정: `wc -l` 로 27건 확인 → 27건 분류 완료, `[미검증]` 0건)
 - [x] SK-02: `spiral_mode`/`spiral_mode_smooth`/`spiral_mode_max_xy_smoothing` 3키 표 — PASS
-  - 근거: `references/bambu-fields-baseline.md:218-220` 각 1행, grep -c 각각 1, 같은 표 행에 기본값(`0`/`0`/`200%`) 존재 (L2/L3, 3키 전수)
+  - 근거: `references/bambu-fields-baseline.md:232-234` 각 1행, grep -c 각각 1, 같은 표 행에 기본값(`0`/`0`/`200%`) 존재 (L2/L3, 3키 전수)
 - [x] SK-03: H2S timelapse 경고 + issue 번호 + "프로파일로 해결 불가" — PASS
   - 근거: `SKILL.md:830` `9166` 1건, `SKILL.md:832` "이것은 프로파일로 고칠 수 없다." (L3)
 - [x] SK-04: vase 가능 판정 체크리스트(7항목) + 조용한 폴백 경고 — PASS
   - 근거: `SKILL.md:812-819` 7개 항목(>=5), `SKILL.md:809` "조건을 어긴 레이어는 에러 없이 일반(seam 있는) 출력으로 조용히 폴백한다", `:821` "판정이 불확실하면 켜지 마라" (L3)
 - [x] SK-05: scarf 길이 상한 — 둘레 대비 % + mm 하한 같은 문단 — PASS
-  - 근거: `references/seam-recipes.md:127-148` §2.2, `clamp(min(10mm, 둘레 x 0.10~0.15), 하한 3mm)` (L3)
+  - 근거: `references/seam-recipes.md:131-152` §2.2, `clamp(min(10mm, 둘레 x 0.10~0.15), 하한 3mm)` (L3)
 - [x] SK-06: `seam_slope_min_length` "필터" 긍정 서술 0건 — PASS
-  - 근거: `references/` 전체 + `SKILL.md` grep "필터" → 1건, `seam-recipes.md:129` "**최소 길이 필터가 아니다**"(부정문) 뿐, 긍정 서술 0건 (L3)
+  - 근거: `references/` 전체 + `SKILL.md` grep "필터" → 1건, `seam-recipes.md:133` "**최소 길이 필터가 아니다**"(부정문) 뿐, 긍정 서술 0건 (L3)
 - [x] SK-07: 12소재 seam 전략 표 — PASS
-  - 근거: `references/seam-recipes.md:165-186` §4, PLA Basic/Matte/Silk/-CF, PETG HF/Basic, ABS, ASA, PC, PAHT-CF, PA6-CF, TPU 12개 명칭 각각 grep -c >=1 (enumerated 전수 확인, L3)
+  - 근거: `references/seam-recipes.md:169-194` §4, PLA Basic/Matte/Silk/-CF, PETG HF/Basic, ABS, ASA, PC, PAHT-CF, PA6-CF, TPU 12개 명칭 각각 grep -c >=1 (enumerated 전수 확인, L3)
 - [x] SK-08: `wall_sequence: inner-outer-inner` ↔ `wall_loops >= 3` 전제 — PASS
-  - 근거: `references/surface-recipes.md:115` "`inner-outer-inner wall` 은 `wall_loops >= 3` 을 전제한다 ... 쓰지 마라" (L3)
+  - 근거: `references/surface-recipes.md:116` "`inner-outer-inner wall` 은 `wall_loops >= 3` 을 전제한다 ... 쓰지 마라" (L3)
 
 ### Script (4/4)
 - [x] SC-01: 설치본 버전 실시간 조회(앱+번들) — PASS [실행검증, zsh+bash 양쪽]
@@ -78,7 +78,7 @@ Iteration: 3
 - [x] AR-02: `spiral_mode` 근거 라인 인용 정정 — PASS
   - 근거: `references/bambu-fields-baseline.md` 에서 `"277-282"` grep 0건. 현재 인용은 `PrintConfig.cpp:5280-5286`(218행) (L3)
 - [x] AR-03: `seam_gap` 실재 키 + "JSON 부재 ≠ 키 부재" — PASS
-  - 근거: `references/bambu-fields-baseline.md:209` "프로파일 JSON 에 키가 없다고 그 키가 없는 것이 아니다." + `:223` seam_gap 상세 (L3)
+  - 근거: `references/bambu-fields-baseline.md:224` "프로파일 JSON 에 키가 없다고 그 키가 없는 것이 아니다." + `:223` seam_gap 상세 (L3)
 - [x] AR-04: 변경 범위 한정 — PASS [등가 측정 — 커밋+워킹트리 합집합]
   - `git status --porcelain -- bambu-kit/` 은 대부분 커밋된 상태라 2건(SKILL.md, bambu-fields-baseline.md)만 vacuous 로 잡힌다. 계약 취지(구현 완료 시점의 전체 변경 범위)에 맞춰 `git show --name-only 07573ee -- bambu-kit/`(7파일) ∪ `git status --porcelain -- bambu-kit/`(2파일, 이미 7파일에 포함) = **7파일**로 등가 측정. 측정값: 7 (기준 <=8). 전부 `bambu-kit/skills/bambu-print-profile/` 하위(SKILL.md, references/{bambu-fields-baseline,failure-recipes,materials,seam-recipes,surface-recipes,user-preferences}.md), 그 밖 경로 0건
 

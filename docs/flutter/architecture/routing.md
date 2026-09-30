@@ -82,10 +82,10 @@ final router = GoRouter(
     return null; // no redirect
   },
   routes: [
-    GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-    GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+    GoRoute(path: '/', builder: (_, _) => const HomeScreen()),
+    GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
     ShellRoute(
-      builder: (_, __, child) => MainShell(child: child),
+      builder: (_, _, child) => MainShell(child: child),
       routes: [ /* nested tabs */ ],
     ),
   ],
@@ -117,7 +117,7 @@ GoRoute(
   pageBuilder: (context, state) => CustomTransitionPage(
     key: state.pageKey,
     child: DetailPage(id: state.pathParameters['id']!),
-    transitionsBuilder: (_, animation, __, child) =>
+    transitionsBuilder: (_, animation, _, child) =>
         FadeTransition(opacity: animation, child: child),
   ),
 )

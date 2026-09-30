@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clean Architecture 레이어 배치 — React Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+    --accent-line:rgba(56,189,248,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#0369A1;--accent2:#075985;--accent-dim:rgba(3,105,161,0.10);
+    --accent-line:rgba(3,105,161,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; React Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">React Kit · 참고 문서</span>
+  <h1>Clean Architecture 레이어 배치</h1>
+  <p class="orig-title">원본 제목: <strong>Clean Architecture Layer Layout</strong></p>
+  <p class="subtitle">react-kit 의 모든 스킬이 함께 쓰는 <strong>네 레이어의 폴더 배치와 import 방향 규칙</strong>이다. 금지 방향은 <code>/react-audit</code> 의 Architecture 카테고리가 빌드 게이트급 실패로 잡는다. 설치본 플러그인에는 docs/react/ 가 없다 — 이 파일의 docs/... 경로를 열 수 없으면 https://raw.githubusercontent.com/joo6077/claude-plugins/main/ 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>react-kit/references/clean-arch-layout.md</code></span>
+    <span class="badge">레이어 넷</span>
+    <span class="badge">금지 방향 여섯</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>domain</h3>
+      <p>외부 의존성 0 개. 순수 TS 와 Zod 만 쓴다. 엔티티 · 유스케이스 시그니처 · Failure 를 둔다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>data</h3>
+      <p>domain 만 안다. fetch · 로컬 저장 · WASM 데이터 소스와 DTO · 저장소 구현을 둔다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>presentation</h3>
+      <p>기능 폴더 · 공용 컴포넌트 · 라우트 · 스타일. 기능끼리 직접 import 하지 않는다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>infrastructure</h3>
+      <p>브라우저 · Tauri · OS 래퍼. <code>@tauri-apps/*</code> 를 import 하는 유일한 자리다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="tb-m">
+  <div class="section-label" id="tb-m">import 허용표</div>
+  <p class="desc">원본 「레이어 정의」 표와 「금지 import 방향」 목록을 한 표로 겹쳐 본 것이다. 상대 경로 import 와 <code>export default</code> 컴포넌트는 레이어와 상관없이 금지다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><div class="c">부르는 쪽 ↓ / 불리는 쪽 →</div></th>
+          <th><div class="c">domain</div></th>
+          <th><div class="c">data</div></th>
+          <th><div class="c">presentation</div></th>
+          <th><div class="c">infrastructure</div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="c">domain</div></td>
+          <td><div class="c">—</div></td>
+          <td><div class="c">금지</div></td>
+          <td><div class="c">금지</div></td>
+          <td><div class="c">금지</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">data</div></td>
+          <td><div class="c">허용</div></td>
+          <td><div class="c">—</div></td>
+          <td><div class="c">금지</div></td>
+          <td><div class="c">금지 (<code>infrastructure/tauri/</code>)</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">presentation</div></td>
+          <td><div class="c">허용</div></td>
+          <td><div class="c"><code>data/repositories/</code> 만</div></td>
+          <td><div class="c">같은 기능 안 · <code>shared/</code></div></td>
+          <td><div class="c">허용</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">infrastructure</div></td>
+          <td><div class="c">허용</div></td>
+          <td><div class="c">금지</div></td>
+          <td><div class="c">금지</div></td>
+          <td><div class="c">—</div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="rel-r">
+  <div class="section-label" id="rel-r">관련 쪽</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3><a href="scaffolding.html">G1 · Scaffolding</a></h3>
+      <p>스캐폴딩 때 이 폴더를 만든다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="state-data.html">G2 · 상태 & 데이터</a></h3>
+      <p>데이터 레이어 패턴.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="build-audit.html">G6 · 빌드 · 감사</a></h3>
+      <p>경계 위반을 잡는 감사 패턴.</p>
+    </div>
+    <div class="card glance-card">
+      <h3><a href="result-patterns.html">Result 패턴</a></h3>
+      <p>레이어마다 에러를 Result 로 넘기는 규칙.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>레이어 정의</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>하위 디렉토리</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>금지 import 방향</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span><code>/react-audit</code> 감사 규칙</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>관련 문서</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<p>react-kit 의 모든 스킬이 공유하는 레이어 배치 + 의존성 방향 규칙.</p>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>레이어 정의</h2>
+  <div class="doc-body">
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">레이어</div></th>
+  <th><div class="c">경로</div></th>
+  <th><div class="c">의존성 방향</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><strong>domain</strong></div></td>
+  <td><div class="c"><code>src/domain/</code></div></td>
+  <td><div class="c">외부 의존성 <strong>0개</strong>. 오직 순수 TS + Zod</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>data</strong></div></td>
+  <td><div class="c"><code>src/data/</code></div></td>
+  <td><div class="c"><code>domain/</code> 만 알고, <code>presentation/</code>, <code>infrastructure/</code> 모름</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>presentation</strong></div></td>
+  <td><div class="c"><code>src/presentation/</code></div></td>
+  <td><div class="c"><code>domain/</code>, <code>data/repositories/</code>, <code>shared/</code>, <code>infrastructure/</code> 알 수 있음</div></td>
+</tr>
+<tr>
+  <td><div class="c"><strong>infrastructure</strong></div></td>
+  <td><div class="c"><code>src/infrastructure/</code></div></td>
+  <td><div class="c">브라우저/Tauri/OS API 래퍼. <code>domain/</code> 만 참조 가능</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>하위 디렉토리</h2>
+  <div class="doc-body">
+<h3 class="sub">domain</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>entities/</code> — Zod 스키마 + <code>z.infer</code> 파생 타입</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>usecases/</code> — 함수 시그니처 (<code>Promise&lt;Result&lt;T, Failure&gt;&gt;</code>)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>failures/</code> — <code>&lt;Feature&gt;Failure</code> discriminated union</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>types/</code> — 공유 타입 (WASM 경계 포함)</div></li>
+</ul>
+<h3 class="sub">data</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>datasources/remote/</code> — fetch + Zod parse (boundary 검증)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>datasources/local/</code> — localStorage, IndexedDB</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>datasources/wasm/</code> — Comlink Worker 래퍼 + WASM 바인딩</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>models/</code> — DTO 스키마 + 도메인 변환 함수</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>repositories/</code> — UseCase 구현 (의존성 주입)</div></li>
+</ul>
+<h3 class="sub">presentation</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>features/&lt;feature&gt;/</code> — components/, hooks/, store.ts, screens/, index.ts</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>shared/components/ui/</code> — shadcn 원본 (수정 금지)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>shared/components/</code> — 공용 위젯</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>shared/components/skeletons/</code> — 공용 skeleton</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>shared/hooks/</code> — useDrag, useDrop, useSortable, 기타 공용 훅</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>shared/stores/</code> — cross-feature Zustand 스토어 (drag-store 등)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>shared/lib/</code> — cn 유틸, display-failure, view-transition 래퍼</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>routes/</code> — TanStack Router 파일 기반 라우트</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>styles/</code> — globals.css (@theme @keyframes)</div></li>
+</ul>
+<h3 class="sub">infrastructure</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>tauri/</code> — <code>@tauri-apps/*</code> 유일한 import 위치, <code>isTauri()</code> 가드 래퍼</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>storage/</code> — localStorage 어댑터</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>http/</code> — fetch 클라이언트 (Zod 검증 + Result 반환)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>i18n/</code> — Lingui setup + locale catalog</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>금지 import 방향</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>domain/</code> 이 <code>data/</code>, <code>presentation/</code>, <code>infrastructure/</code> 중 아무거나 import</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>data/</code> 가 <code>presentation/</code> 또는 <code>infrastructure/tauri/</code> import</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>presentation/features/a</code> 가 <code>presentation/features/b</code> 직접 import</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>presentation/</code> 이나 <code>data/</code> 에서 <code>@tauri-apps/*</code> 직접 import (<code>infrastructure/tauri/</code> 경유 필수)</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ 모든 상대 경로 (<code>'../../../'</code>) — absolute <code>@/</code> import 만 허용</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">❌ <code>export default</code> 컴포넌트 — named export 로 통일</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2><code>/react-audit</code> 감사 규칙</h2>
+  <div class="doc-body">
+<p>이 레퍼런스의 금지 규칙은 G6 <code>/react-audit</code> 의 Architecture 카테고리 grep 패턴으로 번역되어 빌드 게이트급 실패로 강제된다. 상세 패턴은 <code>docs/react/kit-design/g6-build-audit.md</code> §4.5 Architecture 섹션 참조.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>관련 문서</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g1-scaffolding.md</code> — 스캐폴딩 시 디렉토리 생성</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g2-state-data.md</code> — 데이터 레이어 패턴</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g6-build-audit.md</code> — 경계 위반 감사</div></li>
+</ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>react-kit/references/clean-arch-layout.md</code> 의 기준 판은 커밋 <code>e500a63</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>

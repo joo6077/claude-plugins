@@ -34,7 +34,7 @@
 | KRe-1 `project-detect.sh` | 계약대로 고침 — `1f2bcd0` | `react-kit/references/project-detection.md` 가 `bash "$REACT_KIT/scripts/project-detect.sh"` 를 부른다. 스크립트는 안 바꿨다. 결정은 「참조 문서가 부른다」 — 스킬마다 실행 줄을 따로 넣지 않았다(범위 경계의 의도한 좁힘) |
 | KRe-1 · UD-6 설계 문서 | 계약대로 고침 — `afb07b7` | 여덟 문서 `last_updated: 2026-09-26` · 「현행화 기록」 절에 커밋 47 개. g6 strictPort · 7 단계 · passed/skipped · 실패 원인 가르기 · BLOCKED, g1 strictPort · 13 단계 틀, g5b `<ViewTransition>`, final-integration 트리 |
 | KP-1 GitHub 문서 날짜 | 계약대로 고침 — `1198668` | plan-sync-github Gotcha 4 에 `2022-11-28` 지원 기한 2028-03-10 · 최신 `2026-03-10`. 링크의 `apiVersion=2022-11-28` 두 곳은 그대로 |
-| KP-1 Mermaid 12 | 처리됨 | 커밋 `bbdebaf` 가 `docs/planning/flows.md:53` · `data-modeling.md:78` 을 고쳤고 EX-10 이 「맞음」 으로 판정. 열린 질문 하나 — `flows.md:53` 의 「최신 안정판」 수식어는 원문 직접 인용이 아니다(EX-10 §4) |
+| KP-1 Mermaid 12 | 처리됨 | 커밋 `bbdebaf` 가 `docs/planning/flows.md:61` · `data-modeling.md:90` 을 고쳤고 EX-10 이 「맞음」 으로 판정. 열린 질문 하나 — `flows.md:61` 의 「최신 안정판」 수식어는 원문 직접 인용이 아니다(EX-10 §4) |
 | KP-1 PRD 와 결정 기록(ADR) 비교 | 바깥 근거 없음 | EX-10 이 이 비교 자료를 다루지 않았다 |
 | UD-1 | 그대로 유지 | build_runner `--delete-conflicting-outputs` 는 세 스킬에 각 2 줄 그대로(SK-08 `flags=[2/2 2/2 2/2]`). `react-kit/templates/` 는 안 바꿨다 |
 | UD-3 | 계약대로 고침 — `59e0577` · `1f2bcd0` | flutter-preflight · react-preflight 에 `## 실패 원인 가르기` — `harness/skills/sprint/SKILL.md` Step 3 판정 표 다섯 줄 사본 + 준비 명령(`$FLUTTER pub get` · `pnpm install --frozen-lockfile`) |
@@ -43,7 +43,7 @@
 ## 넘긴 것 (범위 경계 약속 셋)
 
 - KF-2: `scripts/check-reviewer-protocol-copies.py` 의 `REVIEWERS` 목록에 flutter-audit 를 넣는 일은 `scripts/` 라 이 묶음 밖이다 — scripts 묶음으로 넘긴다. 지금은 계약 SK-01 이 같은 함수로 사본 일치를 한 번 쟀을 뿐, CI 는 flutter-audit 사본을 지키지 않는다
-- KF-4: `docs/flutter/research-log.md:19` 의 2026-09-24 조사 기록(「2.16 부터 … 제거된 호환 옵션 목록으로 옮겨졌다」)은 그날 기록이라 두었다. EX-5 판정으로는 무시 전환이 2.7.0 이다 — `docs/flutter/` 는 이 계약 범위 밖이라 고치지 않았다
+- KF-4: `docs/flutter/research-log.md:20` 의 2026-09-24 조사 기록(「2.16 부터 … 제거된 호환 옵션 목록으로 옮겨졌다」)은 그날 기록이라 두었다. EX-5 판정으로는 무시 전환이 2.7.0 이다 — `docs/flutter/` 는 이 계약 범위 밖이라 고치지 않았다
 - UD-3: 두 preflight 절은 시작 판 `harness/skills/sprint/SKILL.md` Step 3 의 사본이다. 다른 묶음이 원문 조각이나 판정 표를 바꾸면 두 사본 동기화는 그 묶음 몫이다
 
 ## 바깥 근거 인용
@@ -155,5 +155,5 @@ QA 가 끝점 `e4f63d8` 에서 찾은 여섯 건과 처리. 커밋은 `729c110`(
 - **SK-11 · SK-13 머리 모양(1 차 독립 검토 5 번 · QA 2 차가 사용자 확인 항목으로 두 번째 기록).** react-animation · plan-sync-github 의 `# Gotchas` 를 `## Gotchas` 로 낮추고 H1 을 새로 넣은 것은 요청 밖의 구조 변경이다. planning-kit 은 12 스킬 중 plan-sync-github 만 머리 모양이 다르다. 되돌리려면 측정을 `# Gotchas` 로 바꾸는 개정이 필요하고, 그 개정은 조건이 느슨해지는 쪽이라 사용자 동의가 있어야 한다. 마크다운 경고 수는 변경 전후 같다
 - **SK-11 · SK-13 측정이 시작 판에서 죽어 있었다.** 두 조건의 측정은 `secx '## Gotchas'` 인데 react-animation · plan-sync-github 의 머리는 `# Gotchas` 였다. 그래서 시작 판 `gotcha=0` · `0` 은 「줄이 없다」 가 아니라 「절을 못 찾았다」 였다(양성 대조가 없던 조건). 조건 문장이 「`## Gotchas` 절에」 라고 적었으므로, 측정을 바꾸는 개정(통과 집합이 넓어지는 쪽이라 위임으로 동의할 수 없다) 대신 두 파일의 머리를 `## Gotchas` 로 낮추고 MD041 이 새로 걸리지 않게 H1 제목 줄(`# React Animation` · `# Plan Sync GitHub`)을 앞에 뒀다. QA 가 이 처리를 받아들일지, planning-kit 12 스킬의 머리 모양과 달라진 것을 되돌리고 개정으로 갈지 판단해야 한다
 - flutter-audit 사본은 CI 가 지키지 않는다 — 위 「넘긴 것」 KF-2 줄
-- `docs/flutter/research-log.md:19` 의 2.16 문장 — 위 「넘긴 것」 KF-4 줄
+- `docs/flutter/research-log.md:20` 의 2.16 문장 — 위 「넘긴 것」 KF-4 줄
 - 문서 사이트 페이지 열 개 재생성 · 기존 여덟 페이지와의 이름 대응 — 위 드리프트 절

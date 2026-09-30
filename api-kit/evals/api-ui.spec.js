@@ -9,6 +9,11 @@ const EVALS = JSON.parse(fs.readFileSync(path.join(__dirname, 'evals.json'), 'ut
 const LABELS = ['PASS', 'FAIL', '미실행', '판정 불가'];
 const UNJUDGED = '판정 불가';
 const UNJUDGED_LINE = /\(없음\).*→ 판정 불가/;
+// 표지 글자와 aria-label 은 viewer-spec §3.2 의 문장 그대로다
+const FAIL_MARKS = {
+  '보류': '실패 · 보류 — 게이트를 깨지 않음',
+  'flaky': '실패 · flaky — 재실행에서 뒤집힘',
+};
 const COMBOS = [
   { width: 1280, height: 720, colorScheme: 'light' },
   { width: 1280, height: 720, colorScheme: 'dark' },
@@ -88,6 +93,34 @@ for (const evalCase of EVALS.cases.filter(item => item.skill === 'api-ui')) {
         }
         expect(failWithUnjudged).toBe(evalCase.expect.fail_with_unjudged);
       });
+
+      for (const [mark, ariaLabel] of Object.entries(FAIL_MARKS)) {
+        test(`${mark} 실패는 트리 줄과 실패 원인 탭 옆에 표지가 붙고 FAIL 칩에 든다`, async ({ page }) => {
+          await page.goto(url);
+          const markedRows = page.locator('[data-ep] [aria-label^="실패 · "]');
+          await expect(markedRows).toHaveCount(Object.keys(evalCase.expect.fail_marks).length);
+
+          const row = page.locator(`[data-ep="${evalCase.expect.fail_marks[mark]}"]`);
+          const rowMark = row.locator(`[aria-label="${ariaLabel}"]`);
+          await expect(rowMark).toHaveCount(1);
+          await expect(rowMark).toHaveText(mark);
+          await expect(rowMark).toBeVisible();
+
+          await row.click();
+          const failTab = page.getByRole('tab', { name: '실패 원인' });
+          const tabMark = failTab.locator(`[aria-label="${ariaLabel}"]`);
+          await expect(tabMark).toHaveCount(1);
+          await expect(tabMark).toHaveText(mark);
+          await expect(tabMark).toBeVisible();
+
+          const chip = page.locator('header').getByRole('button', { name: 'FAIL' });
+          const chipNum = Number((await chip.textContent()).match(/\d+/)[0]);
+          const failRows = page.locator('[data-ep]', { hasText: 'FAIL' });
+          expect(chipNum).toBe(evalCase.expect.FAIL);
+          await expect(failRows).toHaveCount(chipNum);
+          await expect(failRows.filter({ has: page.locator(`[aria-label="${ariaLabel}"]`) })).toHaveCount(1);
+        });
+      }
     });
   }
 }

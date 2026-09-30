@@ -94,6 +94,27 @@
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <h1>Material Design 3</h1>
@@ -253,8 +274,11 @@ md.sys.shape.corner.medium  = 12dp</pre>
 
 <!-- ── 6. M3 Expressive ── -->
 <div class="section">
-  <div class="section-label">6 · M3 Expressive (2025, Android 16)</div>
+  <div class="section-label">6 · M3 Expressive (2025, Android 16 후속 업데이트)</div>
   <p class="desc">M3 의 미니멀 톤에서 벗어나 과감한 색상 · 형태 · 모션을 도입. 기존 M3 와 하위 호환 — Expressive 컴포넌트를 점진적 도입 가능.</p>
+  <p class="desc">Google 은 2025-05-13 에 <q>Material 3 Expressive will be coming to Android 16 later this year.</q> 라고 발표했다 — Android 16 첫 출시가 아니라 그해 뒤 업데이트로 들어온다는 뜻이다. 실무 영향: Google 은 Android 16 이 M3 Expressive 변경의 기반을 놓고, 2025년 3분기(Q3) 업데이트가 관련 시각 변경의 상당 부분을 가져온다고 설명했다 ("The Q3 update in-between the API releases is providing much of the new visual polish associated with Material Expressive.", 2025-06-10 글). 2026-09-28 조회.</p>
+  <a class="card-source" href="https://android-developers.googleblog.com/2025/05/the-android-show-io-edition.html">The Android Show: I/O Edition</a>
+  <a class="card-source" href="https://android-developers.googleblog.com/2025/06/android-16-is-here.html">Android 16 is here</a>
 
   <div class="table-wrap">
     <table>

@@ -15,6 +15,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **발산 전 수렴 금지** — "이거 좋아 보인다" 로 바로 시작하면 편향된 단일 방향만 파게 된다. 반드시 발산 단계에서 최소 8개 이상의 후보 아이디어를 만든 뒤 수렴하라. 출처: [Design Council UK — Double Diamond](https://www.designcouncil.org.uk/our-resources/the-double-diamond/).
 2. **HMW 질문을 해결책으로 쓰지 마라** — "How Might We 푸시 알림을 더 자주 보낼까?" 는 해결책이 박힌 질문이다. "사용자가 중요한 순간을 놓치지 않도록 어떻게 도울 수 있을까?" 가 올바른 HMW. 명사(기능) 가 아니라 동사(결과) 중심. 출처: [Stanford d.school — Design Resources](https://dschool.stanford.edu/resources).
 3. **Crazy 8s 시간 제한 지키기** — 8분 8개. 시간을 늘리면 자기검열이 시작된다. 초안은 황당해도 적어야 한다. 출처: [Google Ventures — Design Sprint](https://www.gv.com/sprint/).

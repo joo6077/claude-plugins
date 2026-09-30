@@ -123,7 +123,7 @@ HAS_RIVERPOD = false
 3. **반환타입**: 단일 값이면 해당 타입, 복합 값이면 Record `({Type a, Type b})`
 4. **의존성**: 외부 값에 의존하면 파라미터로 받고, `useEffect`의 `keys`에 포함
 5. **이름 충돌 주의**: 커스텀 Hook 이름이 `flutter_hooks` 패키지의 표준 Hook과 겹칠 수 있다 (예: `useDebounced`). 이 경우 import 시 `hide`로 충돌을 해결해야 한다:
-
+   <!-- markdownlint-disable-next-line MD031 -->
    ```dart
    import 'package:flutter_hooks/flutter_hooks.dart' hide useDebounced;
    import 'package:my_app/core/hooks/use_debounced.dart';

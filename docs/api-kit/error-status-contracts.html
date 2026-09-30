@@ -216,10 +216,6 @@
     .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
     .flow-step{flex:1 1 100%}
   }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
-  }
 
   /* ════ 페이지 전용 — status class 버킷 ════ */
   .bucket{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;margin-top:16px}

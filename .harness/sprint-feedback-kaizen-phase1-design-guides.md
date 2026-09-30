@@ -44,10 +44,10 @@ Iteration: 1 (독립 재평가 — 원판정 아티팩트 글로벌 미저장으
 
 ### Architecture (4/4)
 - [x] AR-01: agent frontmatter 표 필드 집합이 공식 15종과 양방향 차집합 0 — PASS
-  - 근거: `harness/docs/guides/agent-design-guide.md:75-89` 표 1열 15개 필드 추출 →
+  - 근거: `harness/docs/guides/agent-design-guide.md:79-93` 표 1열 15개 필드 추출 →
     `comm -3` 대조 결과 양쪽 잔여 0행
 - [x] AR-02: `initialPrompt` 표 내 0건 + 표 바깥 서술 1건 이상 — PASS
-  - 근거: 표 구간(66-98) grep 0건, `agent-design-guide.md:95` "표에 없는 이름들" 각주에 1건
+  - 근거: 표 구간(66-98) grep 0건, `agent-design-guide.md:99` "표에 없는 이름들" 각주에 1건
 - [x] AR-03: 중첩 금지 단언 문구 7종 0건 — PASS
   - 근거: `grep -nE` 7패턴 전체 매치 0건 (skill-design-guide.md, agent-design-guide.md)
 - [x] AR-04: 스프린트 변경이 정확히 3경로 — PASS `[상태-전제 프록시 사용]`
@@ -59,21 +59,21 @@ Iteration: 1 (독립 재평가 — 원판정 아티팩트 글로벌 미저장으
 
 ### Skill (8/8)
 - [x] SK-01: 유형 표 11행 "탐색형 생성" + 주석 `10~11` 갱신 — PASS
-  - 근거: `skill-design-guide.md:62` 표 행, `:64` 주석 "10~11"
+  - 근거: `skill-design-guide.md:66` 표 행, `:64` 주석 "10~11"
 - [x] SK-02: Variant Budget 섹션 5요소 전부 — PASS
-  - 근거: `skill-design-guide.md:650-703` §5.6 — 상한3(677) · axis 1(+1)(678) ·
+  - 근거: `skill-design-guide.md:658-711` §5.6 — 상한3(677) · axis 1(+1)(678) ·
     Variant Matrix 표(685-689) · 부대산출물 금지(681) · 축값 자가검사(691)
 - [x] SK-03: agent §7 Exploration Budget과 명시적 구분 — PASS
-  - 근거: `skill-design-guide.md:664` 같은 표 행에 "Exploration Budget"과 "§7" 공존
+  - 근거: `skill-design-guide.md:672` 같은 표 행에 "Exploration Budget"과 "§7" 공존
 - [x] SK-04: User-Reported Failure Gate 4요소 전부 — PASS
-  - 근거: `skill-design-guide.md:308-347` §3.8 — REOPENED(318) · 재현축 6종 표(322-329) ·
+  - 근거: `skill-design-guide.md:312-351` §3.8 — REOPENED(318) · 재현축 6종 표(322-329) ·
     반박금지(331) · 해제조건 3택(332-335)
 - [x] SK-05: E1/E2/E3 초기 등급 선택 기준 — PASS
-  - 근거: `skill-design-guide.md:256-264` "초기 등급 선택 기준" 표
+  - 근거: `skill-design-guide.md:260-268` "초기 등급 선택 기준" 표
 - [x] SK-06: 등급 원장 표 8행(≥6), 빈 셀 0 — PASS
-  - 측정값: 8행 (기준: ≥6) — 근거: `skill-design-guide.md:272-281`
+  - 측정값: 8행 (기준: ≥6) — 근거: `skill-design-guide.md:276-285`
 - [x] SK-07: E3 한계 서술 + URL 2개 동일 문단 — PASS
-  - 근거: `skill-design-guide.md:283-287` 두 URL(`arxiv.org/html/2607.07405`,
+  - 근거: `skill-design-guide.md:287-291` 두 URL(`arxiv.org/html/2607.07405`,
     `anthropic.com/research/trustworthy-agents`) 동일 구간 존재
 - [x] SK-08: 두 가이드 요약 표에 신규 원칙 각 2행 — PASS
   - 근거: skill `:1108-1109` (Variant Budget, User-Reported Failure Gate),
@@ -98,7 +98,7 @@ Iteration: 1 (독립 재평가 — 원판정 아티팩트 글로벌 미저장으
   - 근거: `git show d8df8d6` diff 추가라인(186행) 중 `[0-9]+\.[0-9]+\.[0-9]+` 매치 2건 모두
     frontmatter `version:` 필드(제외 대상) — 그 외 0건
 - 프로젝트 anti_patterns(project.yaml) AP-02 "git push --force" 문자열 1건 검출
-  (`skill-design-guide.md:731`)이나 **오탐**: pre-edit(line 598)에 이미 존재하던 "위험 명령
+  (`skill-design-guide.md:739`)이나 **오탐**: pre-edit(line 598)에 이미 존재하던 "위험 명령
   차단 예시" 목록 항목(`/careful` 안전모드 설명)이며 이번 diff에 포함되지 않음 — Read로
   맥락 확인, 실제 force-push 수행 아님
 

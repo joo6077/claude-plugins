@@ -75,12 +75,30 @@ button.active,.btn.active{background:rgba(232,150,90,0.15);border-color:var(--ac
   .tab-bar{flex-wrap:wrap}
   .tab-bar button{flex:none;width:calc(50% - 2px)}
 }
-@media(prefers-reduced-motion:reduce){
-  *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
-}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <!-- ==================== HERO ==================== -->
@@ -254,12 +272,12 @@ button.active,.btn.active{background:rgba(232,150,90,0.15);border-color:var(--ac
     </div>
     <div class="demo-area" style="min-height:200px;overflow:hidden" id="transitionDemo">
       <div id="transPage1" style="text-align:center;transition:all 0.35s cubic-bezier(0.05,0.7,0.1,1)">
-        <div style="width:64px;height:64px;background:var(--accent);border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#0d0d14" id="morphEl">A</div>
+        <div style="width:64px;height:64px;background:var(--accent);border-radius:12px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--dk-on-color, #0d0d14)" id="morphEl">A</div>
         <div style="font-size:14px;font-weight:600">페이지 A</div>
         <div style="font-size:12px;color:var(--text3);margin-top:4px">리스트 뷰</div>
       </div>
       <div id="transPage2" aria-hidden="true" style="text-align:center;position:absolute;opacity:0;transform:translateX(100%);transition:all 0.35s cubic-bezier(0.05,0.7,0.1,1)">
-        <div style="width:120px;height:80px;background:var(--accent2);border-radius:16px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#0d0d14" id="morphEl2">B</div>
+        <div style="width:120px;height:80px;background:var(--accent2);border-radius:16px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:var(--dk-on-color, #0d0d14)" id="morphEl2">B</div>
         <div style="font-size:14px;font-weight:600">페이지 B</div>
         <div style="font-size:12px;color:var(--text3);margin-top:4px">상세 뷰</div>
       </div>
@@ -883,6 +901,11 @@ function playSpring() {
       springBall.style.left = target + 'px';
     }
   }
+  // 움직임 줄이기 설정이면 튕기지 않고 끝 자리에 둔다
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    springBall.style.left = target + 'px';
+    return;
+  }
   springAnim = requestAnimationFrame(step);
 }
 
@@ -1040,6 +1063,8 @@ flashSlider.addEventListener('input', () => {
   flashWarning.style.color = 'var(--green)';
   flashWarning.textContent = '안전: 3 Hz 미만';
   flashBox.style.opacity = '1';
+  // 움직임 줄이기 설정이면 깜빡이지 않고 켜진 채로 둔다
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   let on = true;
   flashInterval = setInterval(() => {

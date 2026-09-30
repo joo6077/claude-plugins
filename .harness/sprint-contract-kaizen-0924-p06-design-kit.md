@@ -38,7 +38,7 @@ locked_at: "2026-09-25 06:16"
 
 ### 결정 넷
 
-1. **숫자 — 같은 역할의 서로 다른 기존 화면 2 개 이상 · 스스로 고치기 최대 3 회.** flutter 규약(`flutter-toolkit/references/visual-evidence-protocol.md:52` ·
+1. **숫자 — 같은 역할의 서로 다른 기존 화면 2 개 이상 · 스스로 고치기 최대 3 회.** flutter 규약(`flutter-toolkit/references/visual-evidence-protocol.md:56` ·
    `:91`)이 이미 이 값으로 돈다. 근거 파일 §5 는 「정확히 2 개/3 개」 · 「정확히 3 회/5 회」 를 정하는 외부 표준을 찾지 못했다고 적었다 — 숫자는 형제 규약
    정합과 운영 비용으로 고른 레포 결정이다(근거 파일 §2 P1 · P6 추론). 세 번째 화면이 있으면 더 읽어도 되지만 필수로 두지 않는다
 2. **세 규약의 정본 — 세 규약(design-kit visual-change-protocol · flutter-toolkit visual-evidence-protocol · react-kit render-evidence-protocol)이 같이 쓰는

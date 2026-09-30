@@ -82,7 +82,7 @@
 
 ## 남은 것
 
-- `harness/README.md:473` 「추적 규칙」 절이 아직 `kaizen:` 머리 커밋 규칙을 적고 있다. GD-12 가 harness-kaizen SKILL.md `:194` · `:233` 을
+- `harness/README.md:477` 「추적 규칙」 절이 아직 `kaizen:` 머리 커밋 규칙을 적고 있다. GD-12 가 harness-kaizen SKILL.md `:194` · `:233` 을
   「바꾼 종류 머리 + 서명 줄 `Kaizen-Phase:`」 로 바꿨으니 README 한 줄도 같은 규칙으로 맞춘다. AUTO 표지 밖이라 `sync-docs.py --check-only` 가 못 잡는다
   (독립 검토, 막지 않는 결함. 재현: `git ls-files | grep -v '^\.harness' | xargs /usr/bin/grep -n 'kaizen: sprint-contract few-shot'`)
 - 문서 페이지 재생성 — 위 목록. 문서 사이트 묶음이 모아서 한다

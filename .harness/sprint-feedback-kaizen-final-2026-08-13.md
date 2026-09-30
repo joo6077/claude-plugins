@@ -42,13 +42,13 @@ Iteration: 6
 
 ### Skill (7/7)
 - [x] SK-01: 스키마 버전 인용 일치 — PASS
-  - 근거: `contract-schema.md:828` `현재: **v5.3**` / `qa-evaluation-guide.md:12` `참조 스키마: contract-schema.md (v5.3)` — 명령 추출 후 문자열 동일 [L3, exact]
+  - 근거: `contract-schema.md:828` `현재: **v5.3**` / `qa-evaluation-guide.md:16` `참조 스키마: contract-schema.md (v5.3)` — 명령 추출 후 문자열 동일 [L3, exact]
 - [x] SK-02: "서브에이전트 중첩 불가" 계열 단정 잔존 0건 — PASS
-  - 근거: `command grep` + 독립 python re 교차검증, 총 14~15건 매치 전부 Read 로 맥락 확인. 전부 (a) 정정 서술 자체(`agent-design-guide.md:237,525` 및 HTML 미러) (b) 무관 도메인(Flutter 위젯 트리 중첩, VPC CIDR 비중첩) (c) 무관 주제(호출 반환 최소화). 실제 "중첩 불가" 잔존 단정 0건 [L3, exact]
+  - 근거: `command grep` + 독립 python re 교차검증, 총 14~15건 매치 전부 Read 로 맥락 확인. 전부 (a) 정정 서술 자체(`agent-design-guide.md:241,525` 및 HTML 미러) (b) 무관 도메인(Flutter 위젯 트리 중첩, VPC CIDR 비중첩) (c) 무관 주제(호출 반환 최소화). 실제 "중첩 불가" 잔존 단정 0건 [L3, exact]
 - [x] SK-03: WCAG 터치타겟 레벨 귀속 정확 — PASS
   - 근거: `command grep -rn "44" design-kit/ docs/` 매치 8건 전부 Read 확인 — 전부 24×24=AA(SC 2.5.8) / 44×44=Apple HIG 또는 AAA(SC 2.5.5) 로 정확히 귀속. "44×44=AA" 로 오귀속한 줄 0건 (design-kit/docs/design 소스 3곳 + HTML 미러 5곳) [L3, exact]
 - [x] SK-04: Freezed when/map 영구 제거 단정 잔존 0건 — PASS
-  - 근거: `flutter-ai-rules.md:86`, `flutter-hooks/SKILL.md:28` 모두 "영구 제거된 것은 아니다 — 3.1.0 재추가" 명시. `docs/flutter/research-log.md` 의 historical 4줄은 전부 `[정정 2026-08-13]` 인라인 태그 보유 (라인 21,157,292,334,362) — 잔존 계산 제외 대상 [L3, exact]
+  - 근거: `flutter-ai-rules.md:87`, `flutter-hooks/SKILL.md:32` 모두 "영구 제거된 것은 아니다 — 3.1.0 재추가" 명시. `docs/flutter/research-log.md` 의 historical 4줄은 전부 `[정정 2026-08-13]` 인라인 태그 보유 (라인 21,157,292,334,362) — 잔존 계산 제외 대상 [L3, exact]
 - [x] SK-05: sqlx::test 격리 단위 오설명 잔존 0건 — PASS
   - 근거: `command grep -rn 'sqlx::test' rust-kit docs/rust | grep -E '트랜잭션|롤백' | grep -v '새 테스트 DB'` → 0행 (exit 1). 사전 확인: `sqlx::test` 매치 33건 존재(패턴 공허하지 않음), `트랜잭션|롤백` 언급 3건 전부 "새 테스트 DB" 정정 문구 동반 확인 [L3, exact]
 - [x] SK-06: scoring bias(2506.22316) 이진 채점 근거 오인용 잔존 0건 — PASS
@@ -111,4 +111,4 @@ Iteration: 6
 ## Improvement Suggestions
 - [ER-01] 범위-미명시 — 측정문에 "§범위 경계의 Step F2(docs-site) 산출물 제외 조항이 이 조건에도 적용되는지" 를 명시하지 않아 evaluator가 매 iteration 자체 해석해야 했다. 다음 개정에서 ER-01 측정문 말미에 "docs/*.html(Step F2 산출물)은 이 조건의 grep 스캔 대상에서 제외한다" 를 ER-02/DG-02 처럼 「측정 공통 전제」인스턴스로 명시 추가 권장
 - [ER-02] 측정-상태-모호 — phase10-react-currency 는 로컬 `.harness/sprint-feedback-kaizen-phase10-react-currency.md` 파일이 커밋되지 않았다(status:done 전환만 stash에 있었고 1c6216b 로 별도 커밋됨, 피드백 로컬 파일 자체는 애초에 생성되지 않은 것으로 보임). AR-04(b) 의 글로벌 아티팩트로 실체는 확인되나, ER-02 의 로컬 파일 enumerate 방식은 이런 "로컬 저장 누락" 케이스를 놓칠 수 있다. 다음 개정에서 ER-02 측정문에 "AR-04(b) 글로벌 아티팩트와 로컬 파일 존재 여부를 상호 대조" 절 추가 권장
-- [문서 정합성 — 비차단] `harness/docs/guides/qa-evaluation-guide.md:1781` 의 "하위 전파 대기: *-kit/agents/*-reviewer.md 6종 ... 본 Phase는 수정하지 않았다" 메모가 6760e8d 로 전파 완료된 현재 상태와 어긋나 stale 하다. RE-01 조건 자체와는 무관(reviewer 파일만 측정 대상)하므로 FAIL 처리하지 않았으나, 다음 Phase 3 관련 개정 시 이 메모를 "전파 완료 (6760e8d)" 로 갱신 권장
+- [문서 정합성 — 비차단] `harness/docs/guides/qa-evaluation-guide.md:1802` 의 "하위 전파 대기: *-kit/agents/*-reviewer.md 6종 ... 본 Phase는 수정하지 않았다" 메모가 6760e8d 로 전파 완료된 현재 상태와 어긋나 stale 하다. RE-01 조건 자체와는 무관(reviewer 파일만 측정 대상)하므로 FAIL 처리하지 않았으나, 다음 Phase 3 관련 개정 시 이 메모를 "전파 완료 (6760e8d)" 로 갱신 권장

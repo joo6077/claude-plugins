@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **바로 해결책으로 점프 금지** — 사용자가 "X 만들고 싶다" 하면 What/How 가 아니라 Why/Who/When 부터 묻는다. 해결책 수렴은 PRD 단계에서 한다.
 2. **한 번에 모든 질문 금지** — 질문 묶음을 단계별로 제시하고 답을 받은 뒤 다음 단계로 넘어간다. 10개 질문을 한꺼번에 던지면 사용자가 지친다.
 3. **답변 누락 시 진행 거부** — Problem / User / Job / Success Metric 중 하나라도 비어 있으면 PRD 로 넘어가지 마라. "이 정보 없이 PRD 쓰면 추측이 된다"를 명시하고 재질문.

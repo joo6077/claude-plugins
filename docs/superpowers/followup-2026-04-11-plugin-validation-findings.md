@@ -40,7 +40,7 @@ status: 기록만 — 이 세션에서 fix 하지 않음
 #### V5 — placeholder 1건 (ERROR)
 
 ```text
-harness/agents/qa-evaluator.md:42
+harness/agents/qa-evaluator.md:46
 "6. **주석은 증거가 아니다** — 구현자가 작성한 주석, TODO, 커밋 메시지..."
 ```
 
@@ -124,7 +124,7 @@ flutter-toolkit ↔ rust-kit / react-kit 간 공통 키워드. "빌드해줘", "
 **V6 — bare code fence 1건 (ERROR)**
 
 ```text
-infra-kit/skills/infra-init/SKILL.md:51
+infra-kit/skills/infra-init/SKILL.md:78
 ```
 
 수정 방향: `--fix` 자동 수정 가능
@@ -136,20 +136,20 @@ infra-kit/skills/infra-init/SKILL.md:51
 #### V5 — placeholder 7건 (ERROR)
 
 ```text
-rust-kit/skills/rust-api/SKILL.md:108  — todo!()
-rust-kit/skills/rust-api/SKILL.md:112  — todo!()
-rust-kit/skills/rust-auth/SKILL.md:127 — todo!("refresh_token_store 연동 필요")
-rust-kit/skills/rust-auth/SKILL.md:131 — todo!("refresh_token_store 연동 필요")
-rust-kit/skills/rust-auth/SKILL.md:135 — todo!("refresh_token_store 연동 필요")
-rust-kit/skills/rust-l10n/SKILL.md:161 — # TODO: 번역 필요
-rust-kit/skills/rust-l10n/SKILL.md:199 — 3. TODO 주석이 있는 로케일...
+rust-kit/skills/rust-api/SKILL.md:134  — todo!()
+rust-kit/skills/rust-api/SKILL.md:138  — todo!()
+rust-kit/skills/rust-auth/SKILL.md:159 — todo!("refresh_token_store 연동 필요")
+rust-kit/skills/rust-auth/SKILL.md:163 — todo!("refresh_token_store 연동 필요")
+rust-kit/skills/rust-auth/SKILL.md:167 — todo!("refresh_token_store 연동 필요")
+rust-kit/skills/rust-l10n/SKILL.md:172 — # TODO: 번역 필요
+rust-kit/skills/rust-l10n/SKILL.md:210 — 3. TODO 주석이 있는 로케일...
 ```
 
 분석:
 
 - `todo!()` / `todo!("...")`: Rust 코드 예시 템플릿에 미완성 구현 마커. 사용자에게 노출되는 코드 스니펫이므로 실제 구현 예시로 교체해야 함.
 - `# TODO: 번역 필요`: 실제 번역 미완성 마커. 한국어 번역 내용으로 교체 필요.
-- `rust-l10n/SKILL.md:199`: "TODO 주석이 있는 로케일" 이라는 설명 텍스트로 V5 패턴 매칭. 단어 자체가 설명에 사용된 경우이므로 예외 처리 검토 가능.
+- `rust-l10n/SKILL.md:210`: "TODO 주석이 있는 로케일" 이라는 설명 텍스트로 V5 패턴 매칭. 단어 자체가 설명에 사용된 경우이므로 예외 처리 검토 가능.
 
 수정 방향:
 
@@ -176,7 +176,7 @@ rust-kit ↔ flutter-toolkit / react-kit 간 공통 키워드. flutter-toolkit �
 **V6 — bare code fence 1건 (ERROR)**
 
 ```text
-react-kit/README.md:76
+react-kit/README.md:75
 ```
 
 수정 방향: `--fix` 자동 수정 가능

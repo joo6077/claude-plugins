@@ -418,8 +418,8 @@ cd / && rm -rf "$d"
 [DG-02]     더한 줄 0                                      EV 0 · QG 0 · EI 0 (새 경고 줄) · 양성 대조: 굵은 글씨 줄 뒤 빈 줄을 뺀 평가자 사본 1 (MD032), 펜스 · 표를 더한 가이드 사본 2
 [DG-05]     validate-plugin harness V1~V10 OK · check-stale-values 「되살아난 옛 값 없음」 exit 0 · sync-docs --check-only 0 · sync-evals --check-only 0 · run-evals 0
             모의본을 시작 커밋 판 스크래치 사본(`git archive` → `p3draft/rh`)에 얹어 돌려도 같음
-            양성 대조: 같은 사본 평가자 끝에 언어 힌트 없는 펜스 → V6 `1 bare` · `FAIL harness/agents/qa-evaluator.md:1251`,
-            가이드 Enforcement 표 중간에 문단을 끼운 사본 → V10 `1 broken table row(s)` · `FAIL harness/docs/guides/qa-evaluation-guide.md:201`
+            양성 대조: 같은 사본 평가자 끝에 언어 힌트 없는 펜스 → V6 `1 bare` · `FAIL harness/agents/qa-evaluator.md:1263`,
+            가이드 Enforcement 표 중간에 문단을 끼운 사본 → V10 `1 broken table row(s)` · `FAIL harness/docs/guides/qa-evaluation-guide.md:205`
 [DG-06]     15 checks — 12 PASS / 0 FAIL / 0 ERROR / 3 SKIP (scope-isolation PASS · doc-contracts PASS · docs-site-regen SKIP)
 [DG-07]     l3-miss 3 · false-approve 6 · reject-loop 5 · vacuous-zero 7 · 0 (min 0 · n 5 — 지금 회귀 확인은 떨어진다)
                                                            3 · 7 · 5 · 7 · 1 · silent-check 2 · 1 · 1 (min 1 · n 8)

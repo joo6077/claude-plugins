@@ -256,10 +256,30 @@ footer code { color: var(--text2); }
   .grid-2, .grid-4, .quad, .split, .split.rev, .split.even, .trio, .lanes, .when-limit, .compare-grid, .ref-list { grid-template-columns: 1fr; }
   .layers li { grid-template-columns: 1fr; gap: 2px; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="container">
 
   <header class="hero">
@@ -272,9 +292,9 @@ footer code { color: var(--text2); }
     </p>
     <div class="meta-row">
       <span>원본 <code>docs/planning/flows.md</code></span>
-      <span>last_updated 2026-09-25</span>
+      <span>last_updated 2026-09-29</span>
       <span>절 여섯 · 출처 여덟</span>
-      <span>Mermaid 최신 안정판 12.0.0 (2026-09-24 확인)</span>
+      <span>Mermaid core 12.0.0 비시험판 (2026-09-10 공개)</span>
     </div>
   </header>
 
@@ -435,23 +455,23 @@ footer code { color: var(--text2); }
     </div>
 
     <div class="notice">
-      <span class="notice-tag">예시 문법의 기준 · Mermaid 최신 안정판 12.0.0 (2026-09-10 공개)</span>
-      <h3>예시는 flowchart 공식 문서의 문법을 따른다 — 12 에서 렌더해 보지는 않았다</h3>
+      <span class="notice-tag">예시 문법의 기준 · Mermaid core 12.0.0 비시험판 (2026-09-10 공개)</span>
+      <h3>예시는 Mermaid 공식 flowchart 문법을 따르고, 검사가 12.0.0 으로 그려 본다</h3>
       <p>
-        원본은 아래 flowchart 예시의 기준을 공식 문서의 문법으로 적는다.
-        2026-09-24 에 확인한 Mermaid 최신 안정판은 12.0.0(2026-09-10 공개)이다.
-        <strong>이 예시를 12 에서 렌더해 보지는 않았다.</strong>
-        그래서 이 쪽의 예시는 렌더 결과를 확인한 그림이 아니라 문법 예시로 읽는다.
+        아래 예시는 Mermaid 공식 flowchart 문법을 따른다.
+        Mermaid core 12.0.0 은 2026-09-10 공개된 비시험판이며(<a href="https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0" target="_blank" rel="noopener">github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0</a>),
+        2026-09-28 에 가져온 npm <code>latest</code>(<a href="https://registry.npmjs.org/mermaid/latest" target="_blank" rel="noopener">registry.npmjs.org/mermaid/latest</a>)도 12.0.0 이다.
+        <strong>문서 사이트 쪽에 옮긴 이 예시는 <code>scripts/check-docs-mermaid.js</code> 가 Mermaid 12.0.0 으로 그려 보고, CI 가 그 검사를 돌린다.</strong>
       </p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>항목</th><th>원본이 적은 값</th></tr></thead>
           <tbody>
             <tr><td><strong>예시 문법의 기준</strong></td><td>Mermaid flowchart 공식 문서</td></tr>
-            <tr><td><strong>최신 안정판을 확인한 날</strong></td><td>2026-09-24</td></tr>
-            <tr><td><strong>확인한 최신 안정판</strong></td><td>Mermaid 12.0.0</td></tr>
+            <tr><td><strong>npm <code>latest</code> 를 가져온 날</strong></td><td>2026-09-28</td></tr>
+            <tr><td><strong>Mermaid core 판</strong></td><td>12.0.0 (비시험판)</td></tr>
             <tr><td><strong>12.0.0 공개일</strong></td><td>2026-09-10</td></tr>
-            <tr><td><strong>12 에서 렌더해 봤나</strong></td><td>해 보지 않았다</td></tr>
+            <tr><td><strong>12.0.0 으로 그려 보는 검사</strong></td><td><code>scripts/check-docs-mermaid.js</code> (CI)</td></tr>
           </tbody>
         </table>
       </div>
@@ -898,8 +918,8 @@ footer code { color: var(--text2); }
       <div class="checklist-item">
         <div class="checklist-icon">!</div>
         <div class="checklist-body">
-          <strong>Mermaid 예시를 렌더 확인을 거친 그림으로 믿는다</strong>
-          <p>원본은 flowchart 예시를 공식 문서 문법에 맞췄을 뿐, 2026-09-24 에 확인한 최신 안정판 12.0.0 에서 렌더해 보지는 않았다고 적는다.</p>
+          <strong>검사가 그려 봤으니 뜻까지 맞다고 믿는다</strong>
+          <p>검사는 예시가 Mermaid core 12.0.0 에서 오류 없이 그림이 되는지만 본다. 분기 · 순서가 제품 흐름과 맞는지는 사람이 읽어 확인한다.</p>
           <span class="from">03 · flowchart 예시 앞 문단</span>
         </div>
       </div>
@@ -941,7 +961,7 @@ footer code { color: var(--text2); }
   </section>
 
   <footer>
-    Planning Kit · 문서 v0.1.1 · last updated 2026-09-25 ·
+    Planning Kit · 문서 v0.1.1 · last updated 2026-09-29 ·
     원본 <code>docs/planning/flows.md</code>
   </footer>
 

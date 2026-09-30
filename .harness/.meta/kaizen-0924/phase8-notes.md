@@ -52,7 +52,7 @@ DG-05 만 다시 돌려 요구값(`10 0` · `1 0` · `stale_rc=0 0`)이 나왔�
 | `backend-family:P3` | 공용 가지의 빨간 CI 를 이번 변경 탓으로 단정하기 전에 원인을 이번 커밋 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패 · 환경 · 미확정으로 가른다. 원칙 본문은 cicd.md 원칙 7 한 곳(RE-02), infra-guide 는 그곳을 가리키는 Gotcha 14, 키워드 두 자리, 평가 사례 하나 (SK-01 ~ SK-04 · AR-02) |
 | `F09` 비고 (Phase 4 행) | 기준 커밋 가르기 규칙 세 곳을 하나로 — Phase 4 가 정한 harness `/sprint` Step 3 을 기준 원본으로 두고 판정 세 줄 · 코드 블록을 글자 그대로 옮겼다(SK-01 이 원문과 같은지 잰다). CI 에서만 보이는 두 경우는 원문 표를 바꾸지 않고 표 밖 목록으로 붙였다 |
 
-그 밖에 받은 것 — 앞 Phase 넘김 셋(Phase 1 `infra-kit/skills/infra-test/SKILL.md:37` 네 칸 · Phase 4 판정 세 줄 · Phase 7 README `:54` 「7 카테고리 구조 감사」),
+그 밖에 받은 것 — 앞 Phase 넘김 셋(Phase 1 `infra-kit/skills/infra-test/SKILL.md:41` 네 칸 · Phase 4 판정 세 줄 · Phase 7 README `:54` 「7 카테고리 구조 감사」),
 근거 파일 §3 · §5 의 사실 정정(kubeconform 고정 `1.30.0` · README OTel 이력 줄 · 「OpenTofu 1.7+ native state encryption」).
 
 Phase 1 가이드 변경 셋 (infra-kaizen Gotcha 8):

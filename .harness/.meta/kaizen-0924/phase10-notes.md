@@ -54,10 +54,10 @@
 | `F03` · `other-kits:P1` | 규약 §2 비교 반복 순서 — 주소 대조 · 표식으로 판정 · 새로고침 → 서버 다시 띄우기 → wasm-build · 확인 전 「갱신했다」 금지 · 최대 3 회. 템플릿 `strictPort: true`, react-run `dev` 포트 Gotcha, react-init devUrl 줄 (SK-02 · SK-06 · SK-07) |
 | `F05` | 규약 §2 「도구가 고장이라 말하기 전에」 세 확인 — 인자 이름 · 연 페이지가 내 서버인지 · 따로 뜨는 층 (SK-03) |
 | `F01` (리액트 쪽) | 규약 §1 되말하기 · 화면 자체 · 관례 표 (SK-01). 배정 행 자체는 Phase 6 몫 |
-| `other-kits:P2` | `project-detect.sh` 를 지우지 않고 고쳤다 — 설계 문서 `docs/react/kit-design/final-integration.md:243` · `:482` 가 킷 구성으로 적는다. 알려진 답 시험이 두 번째 결함(역슬래시 붙은 jq 경로)을 찾았다 (ER-01) |
+| `other-kits:P2` | `project-detect.sh` 를 지우지 않고 고쳤다 — 설계 문서 `docs/react/kit-design/final-integration.md:243` · `:483` 가 킷 구성으로 적는다. 알려진 답 시험이 두 번째 결함(역슬래시 붙은 jq 경로)을 찾았다 (ER-01) |
 | `other-kits:P5` | react-run · react-preflight 에 passed · skipped 두 수, 0 passed · skipped 1 이상은 `[미검증]`, `.only` 세기. react-build 는 test 단계가 없어 그대로 (SK-08) |
 | `other-kits:P6` | react-l10n 기본 흐름에서 `lingui extract --clean` 을 빼고 요청할 때만 도는 §4-1 · Gotcha 12 (SK-09) |
-| Phase 1 넘김 `render-evidence-protocol.md:59` | 「`[미검증]` 마커와 사유 한 줄」 을 여덟 자리(규약 · 다섯 UI 스킬 · react-test · common-gotchas)에서 네 칸으로 (SK-04) |
+| Phase 1 넘김 `render-evidence-protocol.md:63` | 「`[미검증]` 마커와 사유 한 줄」 을 여덟 자리(규약 · 다섯 UI 스킬 · react-test · common-gotchas)에서 네 칸으로 (SK-04) |
 | Phase 6 넘김 | 되말하기 · 관례 표 · 반영 확인 · 캡처 점검 · 3 회 상한 — 숫자는 flutter · design 규약과 같게 규약 한 곳에만 (SK-01 ~ SK-05 · RE-02) |
 | 근거 §3 현행화 | 지금 틀린 문장 여섯 줄만 조회값으로(React 19.3.0 · resolvers 5.9.1 · Lingui 6.8.0 · RHF 7 라인). Lingui v5 pin 은 그대로 (SK-10) |
 
@@ -71,7 +71,7 @@
 
 그대로 둔 곳과 이유:
 
-- `react-kit/skills/react-audit/SKILL.md:279` 의 「<사유> / 시도한 fallback」 과 `react-kit/agents/react-reviewer.md:183` — 복제 조항 5 의 보고 모양이라 그대로 둔다. 평가 측이 네 칸으로 옮길지는 위 `UNVERIFIED_ENV` 줄과 같이 정한다
+- `react-kit/skills/react-audit/SKILL.md:287` 의 「<사유> / 시도한 fallback」 과 `react-kit/agents/react-reviewer.md:183` — 복제 조항 5 의 보고 모양이라 그대로 둔다. 평가 측이 네 칸으로 옮길지는 위 `UNVERIFIED_ENV` 줄과 같이 정한다
 - `react-kit/scripts/project-detect.sh` 를 부르는 스킬이 없다. 킷이 이 스크립트를 쓰게 할지(`react-kit/references/project-detection.md` 절차와 합칠지)는 다음 사이클 판단이다
 - react-run · react-preflight 의 시험 수 `[미검증]` 은 네 칸을 붙이지 않았다 — 규약 §3 (b)(c) 의 「비어 있는 증거 범위」 표시이고, 네 칸은 §2 의 환경상 불가에 붙는다
 

@@ -7,7 +7,7 @@
       "id": "flutter-fcm-ios",
       "description": "Flutter 프로젝트에서 FCM iOS 가이드 생성. flutterfire CLI + Dart 초기화 흐름이 정확해야 하고, 네이티브 Swift 흐름이 섞이면 안 됨 (Gotcha 1 stack-first)",
       "prompt": "FCM iOS 설정해줘",
-      "source": "https://firebase.google.com/docs/flutter/setup (2026-07-27 조회 · Last updated 2026-07-20 UTC) — Flutter 는 dart pub global activate flutterfire_cli → flutterfire configure → Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform). AppDelegate 의 FirebaseApp.configure() 는 Flutter 셋업 절차에 등장하지 않는다",
+      "source": "https://firebase.google.com/docs/flutter/setup (2026-09-28 조회 · Last updated 2026-09-24 UTC) — Flutter 는 dart pub global activate flutterfire_cli → flutterfire configure → Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform). AppDelegate 의 FirebaseApp.configure() 는 Flutter 셋업 절차에 등장하지 않는다",
       "setup": {
         "project_files": [
           "pubspec.yaml",
@@ -64,20 +64,24 @@
     },
     {
       "id": "deprecation-claim-fidelity",
-      "description": "deprecated 박스는 1차 출처가 실제로 deprecated라 말할 때만 삽입한다. 출처가 '권장'만 한 것을 'deprecated'로 승격하면 실패 (날조 방지)",
+      "description": "deprecated 박스는 1차 출처가 실제로 deprecated라 말할 때만 삽입한다. 출처가 말하지 않은 강도를 올리면 실패 — Firebase iOS 설정 문서는 APNs 인증 키 업로드만 지시하고, .p8 확장자는 Apple 토큰 방식 문서가 적는다. Apple 은 .p12 인증서 방식도 지금 절차로 문서화하고, 토큰 방식은 여러 앱을 지원할 때 흔히 더 단순하다(often simpler)고만 적는다. 그래서 .p8 을 '권장'으로, .p12 를 'deprecated'로 쓰는 것 모두 날조다",
       "prompt": "Firebase Cloud Messaging APNs 인증 설정",
-      "source": "https://firebase.google.com/docs/cloud-messaging/ios/client (2026-07-27 조회 · Last updated 2026-07-20 UTC) — .p8 APNs 인증 키를 권장하지만 .p12 인증서를 deprecated로 표기하지 않는다. 이 문서가 deprecated로 명시한 것은 Instance ID API",
+      "source": "https://firebase.google.com/docs/cloud-messaging/ios/get-started (2026-09-28 조회 · Last updated 2026-09-24 UTC) — APNs authentication key 업로드를 지시하고 .p8 · .p12 · certificate 는 적지 않는다. 이 문서가 deprecated로 명시한 것은 Instance ID API; https://developer.apple.com/documentation/usernotifications/establishing-a-token-based-connection-to-apns (2026-09-28 조회) — 인증 토큰 서명 키를 .p8 파일로 적는다; https://developer.apple.com/help/account/capabilities/communicate-with-apns-using-a-tls-certificate (2026-09-28 조회) — TLS 인증서와 키를 .p12 파일로 저장하는 절차를 적는다",
       "setup": {
         "fetched_source_states": {
-          "apns_auth_key_p8": "recommended",
-          "apns_certificate_p12": "not_marked_deprecated",
+          "apns_auth_key": "documented",
+          "apns_auth_key_p8_in_firebase_source": "not_mentioned",
+          "apns_auth_key_p8_in_apple_source": "documented",
+          "apns_certificate_p12_in_firebase_source": "not_mentioned",
+          "apns_certificate_p12_in_apple_source": "documented",
           "instance_id_api": "deprecated"
         }
       },
       "assertions": [
-        "guide_includes('.p8')",
-        "guide_recommends('APNs 인증 키(.p8)') == true",
-        "guide_does_not_claim_deprecated('.p12') — 출처에 없는 deprecation 날조 금지",
+        "guide_includes('.p8') — 확장자 근거는 Apple 토큰 방식 문서다 (Firebase 문서에는 없다)",
+        "guide_instructs_upload('APNs 인증 키') == true",
+        "guide_does_not_claim_recommended('.p8') — 출처 상태가 documented 라 '권장' 표현은 근거가 없다",
+        "guide_does_not_claim_deprecated('.p12') — Apple 이 인증서 방식을 지금도 절차로 문서화한다",
         "deprecated_box_inserted_only_when_source_says_deprecated == true",
         "if guide_includes('❌ Deprecated') then cited_source_contains_deprecation_keyword(any of: 'deprecated', 'sunset', 'removed', '지원 종료', '폐지', '중단', '서비스 종료', '단종') == true — 한국어 1 차 출처의 표기도 근거다"
       ]
@@ -322,6 +326,160 @@
         "GATE_FAIL"
       ],
       "note": "출처 칸에 http 주소가 없는 행이 있으면 G5 FAIL"
+    },
+    {
+      "id": "blocking-empty-lead-space",
+      "fixture": "fixtures/gate-fail-blocking-empty-lead-space.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "줄 앞 공백 세 칸 표 — 표를 못 알아봐 rows=0 으로 통과하던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-nbsp-head-crlf",
+      "fixture": "fixtures/gate-fail-blocking-empty-nbsp-head-crlf.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "머리 칸 U+00A0 · CRLF — 두 모양이 겹쳐도 표를 알아봐야 한다"
+    },
+    {
+      "id": "blocking-empty-ideo-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-ideo-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "머리 칸 U+3000 — 전각 공백을 못 지워 머리를 놓치던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-nbsp-cell",
+      "fixture": "fixtures/gate-fail-blocking-empty-nbsp-cell.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "U+00A0 하나뿐인 칸 — 빈 칸을 찬 칸으로 세던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-bold-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-bold-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "굵은 머리 — 머리 낱말 비교가 ** 때문에 빗나가던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-under-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-under-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "__ 로 감싼 굵은 머리 — ** 만 지워 표 머리를 놓치고 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-italic-head",
+      "fixture": "fixtures/gate-fail-blocking-empty-italic-head.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "* 로 감싼 기울인 머리 — 표 머리를 놓치고 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-no-edge-pipe",
+      "fixture": "fixtures/gate-fail-blocking-empty-no-edge-pipe.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "줄 양 끝 | 가 없는 표 — | 로 시작하지 않는 줄을 버려 rows=0 PASS 로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-empty-quote-crlf",
+      "fixture": "fixtures/gate-fail-blocking-empty-quote-crlf.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=2 empty=1 nourl=0",
+        "GATE_FAIL"
+      ],
+      "note": "인용 속 표 · CRLF — > 로 시작하는 줄을 표로 안 보던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-five-col",
+      "fixture": "fixtures/gate-fail-blocking-five-col.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=1 ledger=1",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING FAIL rows=0 empty=0 nourl=0 unrecognized=1",
+        "GATE_FAIL"
+      ],
+      "note": "알아보지 못한 막는 요구 표 — 표 없음과 같은 PASS rows=0 으로 흘리던 결함의 음성 입력"
+    },
+    {
+      "id": "blocking-plain-unrelated",
+      "fixture": "fixtures/gate-ok-plain-unrelated.md",
+      "stack": "flutter",
+      "expect": [
+        "G1_LEDGER PASS steps=2 ledger=2",
+        "G2_MARKER PASS bare=0 invalid=0 env=0",
+        "G3_STACKMIX PASS stack=flutter swift_fence=0",
+        "G4_DEPRECATION PASS unsourced_boxes=0",
+        "G5_BLOCKING PASS rows=0",
+        "GATE_PASS"
+      ],
+      "note": "막는 요구 표가 아닌 표(요구 사항 · 설명)만 있으면 G5 는 막지 않는다 — 과하게 막는지 보는 양성 입력"
     }
   ]
 }

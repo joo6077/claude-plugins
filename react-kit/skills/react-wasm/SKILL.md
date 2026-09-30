@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **G0 카탈로그 우선** — 사용자 요청만으로 이식 결정 금지. 반드시 `docs/react/wasm-catalog.md` §1/§2 카테고리 매칭을 1단계로 실행한다. 카탈로그가 비권장으로 판정하면 `--force` 없이 진행하지 않는다.
 2. **경계 비용 수치 인식** — JS↔WASM 호출 오버헤드 약 50~100 ns/call, 문자열 마샬링 약 600~2,500 ns/call (unverified secondary source). 고빈도 콜백(>1만/sec)이나 tiny 함수(<100 μs)는 경계 비용이 본 작업 비용을 압도한다. 이 두 유형은 카탈로그 §2 비권장에 명시적으로 포함되어 있다.
 3. **Rust panic → Result 변환 필수** — Rust 함수는 반드시 `Result<T, JsError>`를 반환해야 한다. `?` 연산자로 에러 전파, `JsError::new(&format!("..."))` 로 JS Error 객체 변환. panic이 JS 경계를 넘는 것을 허용하지 않는다. `console_error_panic_hook`으로 패닉 메시지를 콘솔에 표시하고, Worker 경계에서 Comlink가 throw를 Promise reject로 전달하면 `ResultAsync.fromPromise`로 포획한다.

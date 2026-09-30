@@ -45,17 +45,17 @@ main 에 merge 됨 (PR #32, 커밋 f2fcef4). 이 브랜치는 이 스프린트�
   - 근거: `harness/README.md:133` (`command: "명령"  # 선택 — 정규식으로 판정 불가한 검사를 도구에 위임`),
     `harness/README.md:144-147` (관계 규칙: "둘 중 최소 하나는 있어야 한다... 둘 다 있으면 `command` 가 판정 권위다")
 - [x] SK-02: 언제 `command` 를 쓰는지 판단 기준 + 코드펜스 실례 — PASS
-  - 근거: `harness/README.md:149-159` ("줄 단위 정규식으로 판정할 수 없을 때" 문단, 코드펜스 예시 292건 실측 인용)
+  - 근거: `harness/README.md:149-160` ("줄 단위 정규식으로 판정할 수 없을 때" 문단, 코드펜스 예시 292건 실측 인용)
 - [x] SK-03: `harness/templates/project.yaml` 주석 예시에 `command` 포함 — PASS
   - 근거: `harness/templates/project.yaml:39` (`#   command: "python3 scripts/validate-plugin.py --check=code-fence"`)
 - [x] SK-04: qa-evaluator 가 `command` 항목을 명령 실행으로 분기 — PASS
-  - 근거: `harness/agents/qa-evaluator.md:569-578` (`command` 유무 분기, "Grep 으로 대체하지 마라" 명시)
+  - 근거: `harness/agents/qa-evaluator.md:572-581` (`command` 유무 분기, "Grep 으로 대체하지 마라" 명시)
 
 ### Script (4/4)
 - [x] SC-01: 수정된 AP-03 오탐 없음 + 음성 대조 — PASS
   - 근거: `python3 scripts/validate-plugin.py --check=code-fence` 실행 결과 "Total: 13 plugins, 13 OK / Exit: 0"
   - 음성 대조 실행: harness/README.md 말미에 언어 힌트 없는 fence 1개 임시 삽입 후 재실행 →
-    `FAIL harness/README.md:470 — bare \`\`\` (no language hint)`, `Total: 13 plugins, 12 OK, 1 ERROR`, exit 2.
+    `FAIL harness/README.md:474 — bare \`\`\` (no language hint)`, `Total: 13 plugins, 12 OK, 1 ERROR`, exit 2.
     이후 백업본으로 복원 후 `diff` 로 byte-identical 확인, 재실행 결과 exit 0 원복 확인 (Discrimination 검증 완료)
 - [x] SC-02: 기존 `pattern` 전용 3종 하위호환 — PASS [exact, enumerated 3/3]
   - 근거: `.harness/project.yaml` AP-01(`pattern: "hardcoded.*version"`, command 없음),
@@ -71,11 +71,11 @@ main 에 merge 됨 (PR #32, 커밋 f2fcef4). 이 브랜치는 이 스프린트�
 
 ### Error (2/2)
 - [x] ER-01: `command` 실행 불가 환경 처리(도구 부재 시 `[미검증]`) 명시 — PASS
-  - 근거: `harness/agents/qa-evaluator.md:574-575` ("명령을 실행할 수 없으면(도구 부재·권한) 조용히 PASS 로
+  - 근거: `harness/agents/qa-evaluator.md:577-578` ("명령을 실행할 수 없으면(도구 부재·권한) 조용히 PASS 로
     넘기지 말고 `[미검증]` 으로 기록하고 그 사유를 적는다")
 - [x] ER-02: `command`/`pattern` 둘 다 없으면 설정 오류 명시 — PASS
   - 근거: `harness/README.md:145-146` ("둘 다 없으면 설정 오류이며 그 항목은 판정 불가다"),
-    `harness/agents/qa-evaluator.md:578` ("둘 다 없으면 설정 오류다. PASS 로 넘기지 말고 계약/설정 결함으로 보고한다")
+    `harness/agents/qa-evaluator.md:581` ("둘 다 없으면 설정 오류다. PASS 로 넘기지 말고 계약/설정 결함으로 보고한다")
 
 ### Architecture (3/3)
 - [x] AR-01: 대상 4파일 baseline 이후 수정 확인 — PASS [exact, enumerated 4/4]
@@ -109,7 +109,7 @@ main 에 merge 됨 (PR #32, 커밋 f2fcef4). 이 브랜치는 이 스프린트�
   - 근거: 실행 결과 무출력, exit 0
 - [x] DG-02: N/A (사유: IDE diagnostics 미적용 확장자 .md/.yaml 만 변경) — PASS(N/A 정당)
   - 근거: 변경 대상 4파일 전부 .md 2개/.yaml 2개, `commands.lint: null`(project.yaml)로 이 스택엔 별도
-    린터 미설정. `qa-evaluation-guide.md:1036` 의 정본 예시(`N/A (IDE diagnostics 미적용 확장자: .md/.html)`)와
+    린터 미설정. `qa-evaluation-guide.md:1049` 의 정본 예시(`N/A (IDE diagnostics 미적용 확장자: .md/.html)`)와
     동일 패턴 — "잴 수 있는데 회피"가 아니라 "잴 것이 없음". 추가로 두 yaml 파일의 문법 유효성을
     `python3 -c "import yaml; yaml.safe_load(...)"` 로 별도 확인(VALID) — 숨은 진단 누락 없음 재확인
 - [x] DG-03: 콘솔 에러/예외 0개 — PASS

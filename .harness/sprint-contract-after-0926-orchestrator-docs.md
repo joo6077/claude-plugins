@@ -26,10 +26,10 @@ locked_at: "2026-09-27 10:07"
 
 - 바깥 문서는 새로 찾지 않았다. 열두 항목 모두 저장소 안 동작과 기록만 다룬다 — 바깥 근거 없음.
 - 저장소 안 근거:
-  - VS-3 — `.harness/.meta/after-kaizen-0926/c1a-notes.md:118` (V8 설명 옛 글), 현행 설명 `harness/docs/guides/plugin-validation-guide.md:391-424`
+  - VS-3 — `.harness/.meta/after-kaizen-0926/c1a-notes.md:118` (V8 설명 옛 글), 현행 설명 `harness/docs/guides/plugin-validation-guide.md:423-456`
   - VS-7 · VS-8 — `c1a-notes.md:32` · `:114`, `kaizen-0924/final-notes.md:216-218` (계약 밖 결함 2 — 감시 목록이 실패 목록에서만 만들어진다)
   - VS-11 — `c1b-notes.md:41` · `:197` (N7)
-  - VS-16 — `c3c-notes.md:110-111`, 정본 `api-kit/skills/api-verify/SKILL.md:133` (「`.hurl` 에도 적을 수는 있다 … 한쪽 경로가 없으면 Hurl 이 종료 코드 `3` … 판정 불가를 표현할 곳이 없다」)
+  - VS-16 — `c3c-notes.md:110-111`, 정본 `api-kit/skills/api-verify/SKILL.md:141` (「`.hurl` 에도 적을 수는 있다 … 한쪽 경로가 없으면 Hurl 이 종료 코드 `3` … 판정 불가를 표현할 곳이 없다」)
   - VS-17 — `c4c-notes.md:145-151`
   - VS-18 — `d2-notes.md:34`, 현행 원칙 `.claude/skills/docs-site/SKILL.md:16` (공통 파일 `docs/assets/site.css` 링크 한 줄 + 인라인 `<style>`)
   - VS-19 — `kaizen-0924/phase6-notes.md:128` · `phase7-notes.md:80` · `phase9-notes.md:92`, F1H-44 (`f1-harness-followups-notes.md:117`)
@@ -64,14 +64,14 @@ locked_at: "2026-09-27 10:07"
 
 | 대상 파일 | 읽은 증거 (`파일:줄`) | 발견한 갭 | 조건 |
 | --------- | --------------------- | --------- | ---- |
-| `.claude/skills/react-kaizen/SKILL.md` | `:97` `\| V8 hook-exec \| hooks.json 이 직접 실행하는 .sh 의 실행 비트(0755) \|` | 따옴표 검사가 빠진 옛 글. 전수 찾기(`grep -rn 'V8' .claude/skills harness/skills`)는 이 한 줄뿐, 킷 쪽 `flutter-toolkit/skills/flutter-kaizen/SKILL.md:248` 은 「hook-exec 회귀 가드」 라고만 해 틀린 글이 아니다 | SK-01 |
+| `.claude/skills/react-kaizen/SKILL.md` | `:97` `\| V8 hook-exec \| hooks.json 이 직접 실행하는 .sh 의 실행 비트(0755) \|` | 따옴표 검사가 빠진 옛 글. 전수 찾기(`grep -rn 'V8' .claude/skills harness/skills`)는 이 한 줄뿐, 킷 쪽 `flutter-toolkit/skills/flutter-kaizen/SKILL.md:264` 은 「hook-exec 회귀 가드」 라고만 해 틀린 글이 아니다 | SK-01 |
 | `scripts/append-audit-log.py` | `:137-141` 소제목 꼬리 `{오늘} — {사이클}` · `:153` · `:164` · `:176` 하위 제목 셋이 같은 꼬리 · `:239-241` 기록 없음 종료 코드 2 · `:246-253` phase 인자 모자람 종료 코드 2 · `:282-288` 덧붙이기만 | 같은 날 같은 사이클로 두 번 부르면 제목 넷이 겹친다(사본 실측 `dup=4 md024=4`) | SC-01 · ER-01 |
 | `.claude/skills/kaizen-orchestrator/SKILL.md` | `:33` 「Step 11 Final 종료 시」 · `:303` · `:307` `fit-pal` · `:362` 「Step 11 이후에 기록」 · `:581` `### Step F1` (구 Step 11) · `:583-603` F1 조건 목록(판 번호 목록을 뽑는 법 없음) · `:620` F2 「standalone」 · `:702-784` F4 (감사 기록 도구 호출 없음) | Final 이 감사 기록 도구를 `--watch` 로 부르는 걸음이 없다. 옛 단계 이름 둘 · 앱 이름 둘 · 옛 원칙 낱말 하나 | SK-02 · SK-05 · SK-06 · SK-10 |
 | `scripts/sync-orchestrator.py` | `:37-39` `KIT_SCOPE_DIRS` 여섯(`references/` · `skills/*/references/` · `agents/` · `hooks/` · `docs/` · `evals/`) · `:99-110` 있는 폴더만 적음 | 킷 `scripts/` · `templates/` 없음. 있는 킷: scripts 여섯(flutter-toolkit · design-kit · react-kit · reflect-kit · bambu-kit · howto-kit), templates 다섯(flutter-toolkit · design-kit · rust-kit · react-kit · tone-kit) — `test -d` 실측 | SC-02 · ER-02 |
 | `.claude/skills/kaizen-orchestrator/references/phase-dependencies.md` | `:23-86` Phase 5~17 블록 | 같은 열한 폴더가 없다 | SK-03 |
 | `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md` | `:78` `fit-pal/` · `:130` `fit-pal server` · `:261-262` 「경로 간 불변식은 Hurl 로 표현할 수 없다」 | 앱 이름 둘, 바로잡힌 단정 하나 | SK-04 · SK-05 |
 | `scripts/collect-kaizen-data.py` | `:1704` · `:1708` 데이터 풀 §6 표의 Flutter · Rust 행에 `fit-pal` | 오케스트레이터 표와 같은 글의 사본 — 이것을 두면 데이터 풀로 앱 이름이 다시 들어간다 | SK-05 |
-| `.claude/skills/design-kaizen/SKILL.md` · `backend-kaizen/SKILL.md` · `rust-kaizen/SKILL.md` | Gotcha 6 표 `design-kaizen:21-29` · `backend-kaizen:22-30` · `rust-kaizen:23-32` | 새 행 없음. 형제 쪽 실재: `design-kit/references/visual-change-protocol.md:19` · `:145` · `:161`, `flutter-toolkit/references/visual-evidence-protocol.md:106`, `react-kit/references/render-evidence-protocol.md:88` · `:110`, `backend-kit` 의 `시각 종류`(system · guide · audit-criteria), `rust-kit/skills/rust-preflight/SKILL.md:87` · `:169-176`, `rust-audit/SKILL.md:123` · `rust-reviewer` 의 `UNVERIFIED_INVALID_EVIDENCE` · `env_gaps` | SK-07 |
+| `.claude/skills/design-kaizen/SKILL.md` · `backend-kaizen/SKILL.md` · `rust-kaizen/SKILL.md` | Gotcha 6 표 `design-kaizen:21-29` · `backend-kaizen:22-30` · `rust-kaizen:23-32` | 새 행 없음. 형제 쪽 실재: `design-kit/references/visual-change-protocol.md:19` · `:145` · `:161`, `flutter-toolkit/references/visual-evidence-protocol.md:110`, `react-kit/references/render-evidence-protocol.md:92` · `:114`, `backend-kit` 의 `시각 종류`(system · guide · audit-criteria), `rust-kit/skills/rust-preflight/SKILL.md:98` · `:181-188`, `rust-audit/SKILL.md:131` · `rust-reviewer` 의 `UNVERIFIED_INVALID_EVIDENCE` · `env_gaps` | SK-07 |
 | `.claude/skills/bambu-kaizen/SKILL.md` · `.claude/skills/bambu-research/SKILL.md` | `bambu-kaizen:52` 「MakerWorld Cloudflare」 · `:67-75` Step 4 에 음성 대조 실행 줄 없음 · `bambu-research:17` · `:45-48` 브라우저 서버 이름 `mcp__playwright__` 셋 · 「Cloudflare bot challenge 우회」 | 킷의 현행 순서(JSON 주소 먼저 · 서버 이름 박지 않기 · 403 에서 기다리지 않기)와 어긋남 | SK-08 · SK-09 |
 | `.claude/skills/tone-kaizen/SKILL.md` | `:38-52` Step 2 격차 표 (`:43` 「강도 정합」 행) 「강도 정합」 · 판정 방법 없음 | 강도 칸에 글이 덧붙은 줄(`tone-kit/references/adapter-dart-flutter.md:40` D-04)을 못 읽는 판정이 되풀이될 수 있다 | SK-11 |
 | `README.md` | `:137-260` 킷 절 열(harness ~ bambu-kit), AUTO 스킬 블록 넷(`:148` · `:166` · `:206` · `:220`), `:254` 「references 4종」 | onboarding · tone · api · howto 절 없음, 블록 열 개 없음, bambu 참조 문서는 9 개(`find … -name '*.md'` 실측) | AR-03 |

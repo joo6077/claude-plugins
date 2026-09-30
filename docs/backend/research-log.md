@@ -158,8 +158,8 @@ Enumeration · 빈 상태 상태코드 · timestamp 타임존 · mock-only 통�
 | 위치 | 이전 서술 | 정정 |
 | ------ | ------ | ------ |
 | `backend-kit/agents/backend-reviewer.md` §Canonical [정정 2026-08-13] | "정본을 **문구 변형 없이 복제**한 것" 이라 선언하면서 v4.0 의 3 분기 · 단일 임계 서술을 유지 | 정본 v5.0(카운터 2 분리 · 임계 2 는 `INVALID` 에만 · `env_gaps` 커버리지 게이트 · 남용 방지 4 요건)으로 재동기화. 조항 1~3 문자 단위 일치 확인 |
-| `docs/backend/research-log.md:151` [정정 2026-08-13] | "Outbox + CDC 조합 … **exactly-once 보장**" | 이중쓰기는 막지만 전달 보장은 **at-least-once**. relay 중복 발행 → consumer idempotency 필수. 같은 킷의 `patterns/event-driven.md` 원칙 4 와 자기모순이었다 |
-| `docs/backend/patterns/event-driven.md:47` | "서버가 **24시간 동안 동일 key 에 대해 같은 응답을 반환**한다" | Stripe 는 결과 저장 + **payload 비교** + **24h pruning** 을 문서화한다. 24 시간은 응답 보장 기간이 아니라 **키 보관 기간**이며, 만료 후 같은 키는 새 요청으로 처리된다 |
+| `docs/backend/research-log.md:221` [정정 2026-08-13] | "Outbox + CDC 조합 … **exactly-once 보장**" | 이중쓰기는 막지만 전달 보장은 **at-least-once**. relay 중복 발행 → consumer idempotency 필수. 같은 킷의 `patterns/event-driven.md` 원칙 4 와 자기모순이었다 |
+| `docs/backend/patterns/event-driven.md:48` | "서버가 **24시간 동안 동일 key 에 대해 같은 응답을 반환**한다" | Stripe 는 결과 저장 + **payload 비교** + **24h pruning** 을 문서화한다. 24 시간은 응답 보장 기간이 아니라 **키 보관 기간**이며, 만료 후 같은 키는 새 요청으로 처리된다 |
 
 ### Phase 7 변경 요약
 
@@ -177,10 +177,10 @@ Enumeration · 빈 상태 상태코드 · timestamp 타임존 · mock-only 통�
 
 ### 미반영 (근거 부족 · 범위 밖)
 
-- `backend-kit/skills/backend-audit/references/audit-criteria.md:93` 의 "Outbox+CDC 조합으로 exactly-once 보장 가능" [정정 2026-08-13 대상 · 미반영] 은
+- `backend-kit/skills/backend-audit/references/audit-criteria.md:97` 의 "Outbox+CDC 조합으로 exactly-once 보장 가능" [정정 2026-08-13 대상 · 미반영] 은
   같은 오류이나 **Phase 7 Scope 밖 경로**라 이번에 고치지 않았다.
   backend-audit Gotcha 16 으로 무효화 조항을 걸어 두었고, 문구 정정은 downstream 으로 넘긴다.
-- `docs/backend/fundamentals/database.md:78` 의 `ALTER TABLE ... ADD COLUMN` 재작성 조건 서술은
+- `docs/backend/fundamentals/database.md:82` 의 `ALTER TABLE ... ADD COLUMN` 재작성 조건 서술은
   PostgreSQL 버전에 따라 달라질 수 있으나 evidence 파일에 근거가 없어 **미반영**. 다음 사이클
   리서치 대상.
 - evidence §4 열린 질문(DB-specific annex 를 별도 문서로 뺄지)은 이번엔 "PostgreSQL 감지 시"

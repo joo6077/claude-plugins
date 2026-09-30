@@ -49,7 +49,7 @@ body{
 h3.sub{font-size:1rem;font-weight:700;margin:28px 0 12px;color:var(--text);letter-spacing:-0.01em}
 h3.sub::before{content:'▸ ';color:var(--accent)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;margin-bottom:16px}
-.card:hover{border-color:rgba(217,119,87,0.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
+.card:hover{border-color:rgba(217,119,87,0.45);transform:var(--dk-hover-move, translateY(-2px));box-shadow:0 8px 28px rgba(217,119,87,0.08)}
 .card-title{font-size:1.01rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.72}
@@ -141,7 +141,6 @@ code,.code-block{font-family:var(--mono);font-size:12.3px}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 
 /* ═══ 가로 오버플로 4 규칙 (docs-site Gotcha 10) — 자르지 말고 스크롤시킨다 ═══ */
 /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 라 긴 토큰의 최소폭이 트랙 폭으로 전파된다 */
@@ -188,6 +187,27 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <!-- kaizen-cycle: 2026-09-24 · source: harness/docs/guides/skill-design-guide.md (v1.6.0) -->
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <div class="topbar">
@@ -1097,7 +1117,7 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
         <thead><tr><th>용어</th><th>정의</th><th>위치</th></tr></thead>
         <tbody>
           <tr><td><strong>Exploration Budget</strong></td><td>산출 <strong>이전</strong>의 read-only 탐색에 쓰는 turn·비용 상한 (과탐색 stall 방지)</td><td>agent-design-guide §7</td></tr>
-          <tr><td><strong>Variant Budget</strong></td><td>산출 <strong>자체</strong>의 개수 상한과 변주 축 고정 (탐색 발산 방지)</td><td>이 절</td></tr>
+          <tr><td><strong>Variant Budget</strong></td><td>산출 <strong>자체</strong>의 개수 상한(시안은 최소 5 · 위 제한 없음)과 변주 축 고정 (탐색 발산 방지)</td><td>이 절</td></tr>
         </tbody>
       </table>
     </div>
@@ -1108,7 +1128,7 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
   <p class="section-desc">실측: 글로벌 REJECT <code>UI-04</code> 는 <strong>계약이 4 축(버블 컨테이너 유무 / 정렬 컬럼 수 / 메타 위치 / 묶음 단위)을 이미 명시</strong>했는데도 variant 두 개가 4 축 전부에서 같은 값이었다. 즉 축을 선언해도 구현이 무시한다. <strong>축 값의 상이성이 기계적으로 검사 가능해야</strong> 조항이 작동한다.</p>
   <p class="section-desc">DOE 의 factor / level / design matrix 가 그 형태다 — 입력 factor 와 그 level 을 먼저 정하고, design matrix 로 조합을 제한한다. 디자인 제약 연구도 같은 방향을 지지한다: 제약은 탐색을 막는 것이 아니라 특정 방향으로 유도한다.</p>
   <div class="pattern-grid">
-    <div class="pattern"><div class="pattern-num">1</div><h4>기본 산출물 상한 3 개</h4><p>4 개 이상은 사용자 승인이 선행되어야 한다. &#8220;많이 뽑아 놓고 고르게 하자&#8221; 는 수량으로 품질을 대체하려는 시도이며, 실제로는 사용자가 전부 지우게 만든다.</p></div>
+    <div class="pattern"><div class="pattern-num">1</div><h4>개수 — 시안과 그 밖을 나눈다</h4><p><strong>시안</strong>(화면·컨셉을 눈으로 비교하는 시각 변주안)은 최소 5 개부터 위 제한 없이 필요한 만큼 낸다. 사용자가 개수를 말하면 정확히 그 수다(2026-09-28 레포 결정).</p><p><strong>그 밖의 탐색형 산출물</strong>(후보안·네이밍 후보 등)은 기본 상한 3 개, 4 개 이상은 사용자 승인이 선행되어야 한다. &#8220;많이 뽑아 놓고 고르게 하자&#8221; 는 수량으로 품질을 대체하려는 시도이며, 실제로는 사용자가 전부 지우게 만든다.</p></div>
     <div class="pattern"><div class="pattern-num">2</div><h4>primary axis 1 개 고정 (+ secondary 1 개까지)</h4><p>3 축 이상 동시 변주는 비교 불가능한 산출물을 만든다.</p></div>
     <div class="pattern"><div class="pattern-num">3</div><h4>축 값은 서로 다르고 나머지는 constants</h4><p>같은 축 값 조합이 2 개 이상이면 그 세트는 실패다.</p></div>
     <div class="pattern"><div class="pattern-num">4</div><h4>실행 전에 Variant Matrix 합의</h4><p>아래 5 열(id · axis · axis value · constants · 생성·수정 파일)을 채운다.</p></div>
@@ -1120,6 +1140,7 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
   </div>
 
   <h3 class="sub">Variant Matrix (실행 전 산출 · E2 아티팩트)</h3>
+  <p class="section-desc">아래 예시는 <strong>시안</strong>(<code>mock/a*.html</code>)이라 조항 1 의 시안 규칙대로 최소 5 행이다. 시안이 아닌 탐색형 산출물은 같은 표를 쓰되 기본 상한 3 행이다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>id</th><th>axis</th><th>axis value</th><th>constants</th><th>생성·수정 파일</th></tr></thead>
@@ -1127,6 +1148,8 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
         <tr><td>A1</td><td>버블 컨테이너</td><td>없음</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a1.html</code></td></tr>
         <tr><td>A2</td><td>버블 컨테이너</td><td>카드 테두리</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a2.html</code></td></tr>
         <tr><td>A3</td><td>버블 컨테이너</td><td>채움 배경</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a3.html</code></td></tr>
+        <tr><td>A4</td><td>버블 컨테이너</td><td>그림자만</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a4.html</code></td></tr>
+        <tr><td>A5</td><td>버블 컨테이너</td><td>왼쪽 띠</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a5.html</code></td></tr>
       </tbody>
     </table>
   </div>
@@ -1136,8 +1159,8 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
   </div>
   <div class="flow"><pre>Bad:  "목업 몇 개" 요청 → 9~40 타일 + 토큰 파일 + 서페이스 레인 생성 → 사용자가 전부 삭제 요구
 Bad:  variant 6 개를 냈으나 B3 와 B6 가 지정된 4 축 전부에서 같은 값 → 구별 불가 → REJECT
-Good: Variant Matrix 3 행 합의 → axis value 3 종이 서로 다름 · constants 동일 → 3 파일만 생성</pre></div>
-  <p class="section-desc"><strong>트레이드오프:</strong> 상한 3 개는 과잉 생성을 막지만 <strong>탐색 폭을 줄인다.</strong> 축 고정은 비교 가능성을 높이지만 <strong>의외의 조합을 놓친다.</strong> 부대 산출물 금지는 scope creep 을 막지만 <strong>장기적으로 유용한 인프라 생성을 늦춘다.</strong> 그래서 이 조항은 상한을 없애는 대신 <strong>승인 경로</strong>를 둔다 — 4 개 이상도, 3 축 변주도, 토큰 파일 생성도 사용자가 승인하면 정상 경로다. 금지되는 것은 승인 없는 확장뿐이다.</p>
+Good: 시안 Variant Matrix 5 행 합의 → axis value 5 종이 서로 다름 · constants 동일 → 5 파일만 생성</pre></div>
+  <p class="section-desc"><strong>트레이드오프:</strong> 시안 밖 산출물의 상한 3 개는 과잉 생성을 막지만 <strong>탐색 폭을 줄인다.</strong> 시안은 반대로 최소 5 개로 폭을 넓히고, 과잉은 조항 3 의 구별성 검사로 거른다. 축 고정은 비교 가능성을 높이지만 <strong>의외의 조합을 놓친다.</strong> 부대 산출물 금지는 scope creep 을 막지만 <strong>장기적으로 유용한 인프라 생성을 늦춘다.</strong> 그래서 이 조항은 상한을 없애는 대신 <strong>승인 경로</strong>를 둔다 — 시안 밖 산출물의 4 개 이상도, 3 축 변주도, 토큰 파일 생성도 사용자가 승인하면 정상 경로다. 금지되는 것은 승인 없는 확장뿐이다.</p>
   <p class="section-desc"><strong>Cross-Surface Parity:</strong> §11 parity 표 13 번째 항목 — agent-design-guide §7 과 <strong>짝이 아니라 구분 대상</strong>이다. 두 절은 서로를 참조하여 이름 혼동을 막는다.</p>
 </div>
 
@@ -1351,7 +1374,7 @@ rust-init/SKILL.md     Gotchas: ["Composition Root 단일화 원칙", "domain ev
 <!-- ═══ 8.9 화면 규약 숫자 ═══ -->
 <div class="section" id="s8-9">
   <div class="section-label">Shared Numbers</div>
-  <div class="section-title">§8.9 화면 규약 세 벌이 같이 쓰는 숫자</div>
+  <div class="section-title">§8.9. 화면 규약 세 벌이 같이 쓰는 숫자</div>
   <p class="section-desc">화면을 만들거나 고치는 킷 셋은 규약을 따로 든다 — design-kit <code>references/visual-change-protocol.md</code> · flutter-toolkit <code>references/visual-evidence-protocol.md</code> · react-kit <code>references/render-evidence-protocol.md</code>. 채널 · 도구 · 명령은 스택마다 다르지만 아래 두 숫자는 셋이 같이 쓴다. 두 숫자의 기준 원본은 이 절이다.</p>
   <div class="table-wrap">
     <table>
@@ -1582,7 +1605,7 @@ Good: 세션 시작 → git fetch + log 검사 → 병행 흔적 확인
         <tr><td><strong>Rule-by-rule audit</strong></td><td>완료 선언 전 규칙 전수 대조 패스 의무</td></tr>
         <tr class="new-row"><td><strong>Completion Evidence Gate</strong></td><td>도구 출력 증거 없는 완료 선언 금지 · 검증 불가 시 <code>[미검증]</code> 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령) · 작업 불가 선언 전에도 같은 네 칸</td></tr>
         <tr><td><strong>Enforcement 등급</strong></td><td>E1 문장 → E2 아티팩트 → E3 결정론적 게이트. 재발 시 문장을 다듬지 말고 §3.7 등급 원장에서 등급을 올려라</td></tr>
-        <tr><td><strong>Variant Budget</strong></td><td>탐색형 산출물은 상한 3 · 축 1(+1) 고정 · Variant Matrix 합의 후 생성</td></tr>
+        <tr><td><strong>Variant Budget</strong></td><td>시안은 최소 5 · 위 제한 없음, 그 밖의 탐색형 산출물은 상한 3 · 축 1(+1) 고정 · Variant Matrix 합의 후 생성</td></tr>
         <tr><td><strong>User-Reported Failure Gate</strong></td><td>사용자 실패 보고는 <code>REOPENED</code> — 반박 금지, 오라클 유효성부터 의심</td></tr>
         <tr><td>Eval 먼저</td><td>최소 3 개 평가를 문서보다 먼저 작성</td></tr>
         <tr><td>MCP 도구 풀네임</td><td><code>ServerName:tool_name</code> 필수</td></tr>

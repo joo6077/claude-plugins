@@ -46,15 +46,15 @@ Iteration: 1
 
 ### Skill (9/9)
 - [x] SK-01: flutter-preflight·react-preflight 판정 표 사본이 원문과 글자까지 같고 CI 에서만 실패 두 경우 포함, 원문 쪽 안내 있음 — PASS
-  - 근거: `flutter-toolkit/skills/flutter-preflight/SKILL.md:149` 사본 출처 줄에 `scripts/check-cause-table-copies.py`·`CI 에서만` 확인(L2). `m SK-01` → `flutter=1/8 react=1/8 src_note=11 canon_note=1` (계약 기대값과 완전 일치, 시작 판 `flutter=0/8 react=0/8`) (L3, 도우미 직접 실행)
+  - 근거: `flutter-toolkit/skills/flutter-preflight/SKILL.md:153` 사본 출처 줄에 `scripts/check-cause-table-copies.py`·`CI 에서만` 확인(L2). `m SK-01` → `flutter=1/8 react=1/8 src_note=11 canon_note=1` (계약 기대값과 완전 일치, 시작 판 `flutter=0/8 react=0/8`) (L3, 도우미 직접 실행)
 - [x] SK-02: sprint-contract 조건 패턴 표가 v5.7 새 패턴 8종을 담음 — PASS
-  - 근거: `harness/skills/sprint-contract/SKILL.md:471` `**조건 패턴 8 종 (v5.7)**` 확인, 표 8행 직접 Read 로 확인(L3). `m SK-02` → `hdr=1 hdr_old=0 rows=8 new=111` (기대값 일치)
+  - 근거: `harness/skills/sprint-contract/SKILL.md:477` `**조건 패턴 8 종 (v5.7)**` 확인, 표 8행 직접 Read 로 확인(L3). `m SK-02` → `hdr=1 hdr_old=0 rows=8 new=111` (기대값 일치)
 - [x] SK-03: 판 번호 다섯 자리가 스키마 현재 판(v5.7)과 같고 2026-09-24 갱신 기록 셋은 그대로, 한계 문단이 짝 위치를 가리킴 — PASS
   - 근거: `qa-evaluation-guide.md` `> **참조 스키마**:` 등 4곳 Read 로 확인(L3). `m SK-03` → `cur=v5.7 ref=1 list=1 link=1 cdg=1 index=1 hist=111 old_cs3=0 cs3=1` (기대값 일치, 양성 대조: 시작 판 `ref=0…old_cs3=1`)
 - [x] SK-04: 옛 규칙 이름 세 자리를 지금 이름으로 변경 — PASS
   - 근거: `harness/README.md` 추적 규칙 절에 `Kaizen-Phase:` 확인, `.claude/skills/meta-kaizen/SKILL.md:16` 에 `Step F1~F4` 확인, `scripts/detect-docs-drift.py:8` 에 `Step F2` 확인(L3). `m SK-04` 기대값 일치
 - [x] SK-05: 설치본 docs/ 경로 raw 안내가 backend·rust·infra 전체 파일에 있음 — PASS
-  - 근거: `backend-kit/skills/backend-guide/SKILL.md:85`, `infra-kit/skills/infra-guide/SKILL.md:77` 등 직접 Read 확인(L3). `m SK-05` → `backend=5/0 rust=3/0 infra=6/0` (기대값 일치, 양성 대조: 시작 판 9곳 누락)
+  - 근거: `backend-kit/skills/backend-guide/SKILL.md:93`, `infra-kit/skills/infra-guide/SKILL.md:85` 등 직접 Read 확인(L3). `m SK-05` → `backend=5/0 rust=3/0 infra=6/0` (기대값 일치, 양성 대조: 시작 판 9곳 누락)
 - [x] SK-06: OpenAPI 판 번호 글이 「3.1 이상 — 최소 지원선」으로 읽힘 — PASS
   - 근거: `backend-kit/skills/backend-system/references/system-principles.md:23`, `docs/backend/fundamentals/api-design.md` Read 로 문구 직접 확인(L3). `m SK-06` → `sp=11 sp_old=0 ad_old=0 ad=11 src=1` (기대값 일치)
 - [x] SK-07: design-mockup 관례 표가 대상 화면 정한 뒤(Step 1 뒤)로 이동 — PASS
@@ -62,7 +62,7 @@ Iteration: 1
 - [x] SK-08: bambu references 수(9)와 루트 README 나무 그림이 실제와 일치 — PASS
   - 근거: `find bambu-kit/skills/bambu-print-profile/references -name '*.md' | wc -l` → 9(직접 실행), `README.md` 나무 그림에 onboarding-kit·tone-kit·api-kit·howto-kit 확인(L3). `m SK-08` 기대값 완전 일치
 - [x] SK-09: 피드백 초안 project_hash 설명이 워크트리 규칙을 적음 — PASS
-  - 근거: `harness/agents/qa-evaluator.md:1098-1100`, `harness/skills/sprint-contract/SKILL.md` `### 9.` 절 Read 로 「워크트리」 문구 확인(L3). `m SK-09` → `qa_wt=1 skill_wt=3 old=0`
+  - 근거: `harness/agents/qa-evaluator.md:1110-1112`, `harness/skills/sprint-contract/SKILL.md` `### 9.` 절 Read 로 「워크트리」 문구 확인(L3). `m SK-09` → `qa_wt=1 skill_wt=3 old=0`
 
 ### Script (7/7)
 - [x] SC-01: api-kit 문서 검사 외부 스타일 판정이 대소문자·따옴표 뒤 빈칸 무관하게 잡음, 상대 경로만 제외 — PASS

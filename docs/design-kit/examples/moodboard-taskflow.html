@@ -16,10 +16,10 @@
   :root {
     /* Primary — Warm Neutral */
     --bg: #0d0d14;
-    --surface-1: #131320;
-    --surface-2: #181825;
+    --surface-1: var(--bg2, #131320);
+    --surface-2: var(--surface, #181825);
     --border: #252538;
-    --elevated: #1e1e30;
+    --elevated: var(--surface2, #1e1e30);
 
     /* Accent — Amber */
     --amber-50: #FFF8F0;
@@ -40,9 +40,9 @@
     --info-bg: rgba(96,165,250,0.10);
 
     /* Text */
-    --text-primary: #F5F0E8;
-    --text-secondary: #A89A8F;
-    --text-tertiary: #9A8FA6;
+    --text-primary: var(--text, #F5F0E8);
+    --text-secondary: var(--text2, #A89A8F);
+    --text-tertiary: var(--text3, #9A8FA6);
     --text-disabled: #4A4358;
   }
 
@@ -92,7 +92,8 @@
     letter-spacing: 0.02em;
     background: rgba(232,150,90,0.08);
     border: 1px solid rgba(232,150,90,0.20);
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
   }
   .header-meta {
     text-align: right;
@@ -120,7 +121,8 @@
     height: 28px;
     border-radius: 8px;
     background: rgba(232,150,90,0.12);
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
     font-size: 0.8rem;
     font-weight: 700;
     flex-shrink: 0;
@@ -152,7 +154,8 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
     margin-bottom: 1rem;
   }
 
@@ -289,7 +292,8 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
     margin-bottom: 0.35rem;
   }
   .dark-rationale p {
@@ -322,7 +326,8 @@
   .type-scale-table .level-name {
     font-size: 0.78rem;
     font-weight: 600;
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
     white-space: nowrap;
   }
   .type-scale-table .sample { color: var(--text-primary); }
@@ -419,7 +424,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--dk-on-bright, white);
     font-size: 0.75rem;
     font-weight: 800;
   }
@@ -444,7 +449,8 @@
   }
   .mock-nav-item.active {
     background: rgba(232,150,90,0.10);
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
     font-weight: 550;
   }
   .mock-nav-icon {
@@ -484,7 +490,7 @@
     justify-content: center;
     font-size: 0.7rem;
     font-weight: 700;
-    color: white;
+    color: var(--dk-on-bright, white);
   }
   .mock-user-name {
     font-size: 0.8rem;
@@ -534,7 +540,7 @@
     padding: 0.45rem 0.85rem;
     border-radius: 8px;
     background: var(--amber-500);
-    color: var(--bg);
+    color: #0d0d14;
     font-size: 0.78rem;
     font-weight: 600;
     border: none;
@@ -609,7 +615,8 @@
   }
   .mock-tab.active {
     background: rgba(232,150,90,0.10);
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
   }
   .mock-task-row {
     display: grid;
@@ -706,7 +713,8 @@
     white-space: nowrap;
   }
   .decision-table .chosen {
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
     font-weight: 600;
   }
   .decision-table .alternative {
@@ -743,7 +751,8 @@
   }
   .ref-url {
     font-size: 0.7rem;
-    color: var(--amber-500);
+    --dk-ink: var(--amber-500);
+    color: var(--dk-ink-out, var(--amber-500));
     font-family: 'SF Mono', 'Fira Code', monospace;
     text-decoration: none;
   }
@@ -804,6 +813,27 @@
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
   <!-- ════ Header ════ -->

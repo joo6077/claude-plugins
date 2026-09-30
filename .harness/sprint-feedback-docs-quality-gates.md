@@ -87,14 +87,14 @@ Iteration: 3
 
 ### Architecture (3/4)
 - [ ] **AR-01: 생성 HTML을 고칠 때 소스 .md도 함께 고쳤다 (측정: 옛 값이 매핑표의 모든 소스 디렉토리에 남아있지 않다) — FAIL**
-  - **근거[exact][L3]**: `docs/backend/fundamentals/api-design.md:82` 에 여전히 옛 값이 남아있다.
+  - **근거[exact][L3]**: `docs/backend/fundamentals/api-design.md:83` 에 여전히 옛 값이 남아있다.
     ```
     > **출처:** [OpenAPI Specification 3.1.1](https://spec.openapis.org/oas/v3.1.1.html)
     ```
     같은 파일 80행(프로즈)과 103행(표)은 이미 "3.2.0"으로 고쳐져 있는데, **82행의 출처 인용 링크만 옛 값(3.1.1 / v3.1.1.html)** 그대로다. 반면 대응 HTML `docs/backend-kit/api-design.html:524`는 이미 `<a class="card-source" href="https://spec.openapis.org/oas/v3.2.0.html">OpenAPI Specification 3.2.0</a>` 로 고쳐져 있다 — **HTML은 고쳤는데 소스 .md의 이 인용 줄만 못 고친, 정확히 AR-01이 금지하는 패턴**이다.
   - 이것은 **같은 파일 안에서의 3번째 재발**이다: 1차(iteration 1) 디렉토리 누락 → 2차(iteration 2, 38254cc) 같은 파일 안 프로즈(80행) 누락 → 3차(이번) 같은 파일 안 인용 링크(82행) 누락.
   - 38254cc 커밋 메시지는 "이번 세션이 고친 값 15개를 `grep -rn "<구값>" <매핑된 전 소스> | wc -l == 0` 방법으로 전수 확인했고 전부 0"이라 주장하지만, 값 "3.1.1"에 대해 `grep -rn "3.1.1" docs/backend/`을 실행하면 이 82행이 매칭되므로 그 결과가 실제로는 0이 아니라 최소 2건(연구로그의 `[dated:]` 예외 1건 + 이 위반 1건)이었을 것이다. **주장된 grep이 실행되지 않았거나, 결과를 오독했다.**
-  - 수정: `docs/backend/fundamentals/api-design.md:82`를 `> **출처:** [OpenAPI Specification 3.2.0](https://spec.openapis.org/oas/v3.2.0.html)` 로 고치고, 앞으로는 파일 전체를 `grep -n "<구값>" <파일>`로 훑어 발생 횟수(occurrence count)를 먼저 세고 그 수만큼 다 고쳤는지 확인하는 절차로 바꿀 것.
+  - 수정: `docs/backend/fundamentals/api-design.md:83`를 `> **출처:** [OpenAPI Specification 3.2.0](https://spec.openapis.org/oas/v3.2.0.html)` 로 고치고, 앞으로는 파일 전체를 `grep -n "<구값>" <파일>`로 훑어 발생 횟수(occurrence count)를 먼저 세고 그 수만큼 다 고쳤는지 확인하는 절차로 바꿀 것.
 - [x] AR-02: 날짜 박힌 역사 기록 미수정 — PASS
   - 근거[exact][L3]: `git diff --name-only 8b4dc49~1 38254cc | grep -E '\.harness/history/|docs/superpowers/(plans|specs)/'` 0건. research-log.md 변경분(죽은 외부링크 URL 교체)에서 `[dated:]` 태그 붙은 행이 제거된 사례 0건(`git diff ... | grep -E '^-.*\[dated:'` 0건) — 날짜 태그 있는 행은 건드리지 않음 확인.
 - [x] AR-03: 색을 바꿔 대비 수치를 맞추지 않음 — PASS
@@ -121,7 +121,7 @@ Iteration: 3
 - Total: 24/25 conditions passed
 - Verdict: **REJECT**
 - AR-01이 이번에도(3회 연속, 같은 파일 안에서만 2회 연속) 재발했다. 원인은 매번 같다 — "고친 자리"를 확인하고 "옛 값이 남았는지"는 전수 확인하지 않은 것. 이번엔 한 파일 안에 같은 사실(OpenAPI 버전)이 3곳(요약표·프로즈·출처 인용)에 흩어져 있었는데 그중 인용 링크 1곳을 또 놓쳤다.
-- 수정 우선순위: (1) `docs/backend/fundamentals/api-design.md:82`의 출처 링크를 3.2.0/v3.2.0.html로 수정 (2) 수정 후 `grep -n "3\.1\.1" docs/backend/fundamentals/api-design.md`가 0건인지 재확인 (3) 이번 기회에 15개 값 전부를 파일별 occurrence count 방식(`grep -c`)으로 재확인 — 이번 조사에서 다른 14개 값은 위반을 찾지 못했으나, "첫 발생만 확인"하는 습관이 반복되고 있어 전수 count 확인을 습관화할 것.
+- 수정 우선순위: (1) `docs/backend/fundamentals/api-design.md:83`의 출처 링크를 3.2.0/v3.2.0.html로 수정 (2) 수정 후 `grep -n "3\.1\.1" docs/backend/fundamentals/api-design.md`가 0건인지 재확인 (3) 이번 기회에 15개 값 전부를 파일별 occurrence count 방식(`grep -c`)으로 재확인 — 이번 조사에서 다른 14개 값은 위반을 찾지 못했으나, "첫 발생만 확인"하는 습관이 반복되고 있어 전수 count 확인을 습관화할 것.
 
 ## Improvement Suggestions
 - [AR-01] 측정-방법-불충분 — "값 하나당 `grep -rn "<구값>" <파일>` 결과가 0" 이 아니라 "먼저 `grep -c "<구값>" <파일>`로 그 파일 안의 발생 횟수 N을 구하고, N개 발생 위치를 전부 Read로 열어 고쳤는지 개별 확인"으로 방법을 구체화할 것. "고친 자리만 재확인"하는 뒤집힌 검증(옛 값이 아니라 새 값의 존재만 확인)이 3회 연속 재발의 근본 원인이다.

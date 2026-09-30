@@ -174,6 +174,27 @@ body{
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 
 <!-- Overlay -->
 <div class="overlay" id="overlay"></div>
@@ -239,6 +260,7 @@ body{
         { id: 'contract-schema',    title: 'Sprint Contract 스키마 v5.7',   file: 'harness/contract-schema.html' },
         { id: 'feedback-system',    title: '피드백 시스템',           file: 'harness/feedback-system.html' },
         { id: 'plugin-validation',  title: '플러그인 검증 가이드',   file: 'harness/plugin-validation.html' },
+        { id: 'cross-kit-principles', title: '킷 공통 원칙 적용표', file: 'harness/cross-kit-principles.html' },
       ]
     },
     {
@@ -247,6 +269,8 @@ body{
       pages: [
         { id: 'project-detection', title: '프로젝트 감지',         file: 'flutter-toolkit/project-detection.html' },
         { id: 'visual-evidence-protocol', title: '시각 증거 프로토콜', file: 'flutter-toolkit/visual-evidence-protocol.html' },
+        { id: 'figma-parity-self-verify', title: 'Figma 일치 자가검증 루프', file: 'flutter-toolkit/figma-parity-self-verify.html' },
+        { id: 'flutter-research-log', title: 'Research Log (연구 기록)', file: 'flutter-toolkit/research-log.html' },
         { id: 'flutter-patterns',  title: 'Flutter 코드 패턴',     file: 'flutter-toolkit/flutter-patterns.html' },
         { id: 'flutter-ai-rules',  title: '공식 AI Rules · 2026 생태계', file: 'flutter-toolkit/flutter-ai-rules.html' },
       ]
@@ -350,6 +374,7 @@ body{
         { id: 'moodboard-example',  title: '예시 — TaskFlow 무드보드 (design-concept 산출물)', file: 'design-kit/examples/moodboard-taskflow.html' },
         { id: 'design-test',      title: '디자인 테스트 자동 생성', file: 'design-kit/design-test.html' },
         { id: 'visual-change-protocol', title: '시각 변경 프로토콜', file: 'design-kit/visual-change-protocol.html' },
+        { id: 'design-research-log', title: 'Research Log (연구 기록)', file: 'design-kit/research-log.html' },
       ]
     },
     {
@@ -418,6 +443,7 @@ body{
         { id: 'planning-risks',             title: 'Risks (Pre-mortem, 4-risks, FMEA)',       file: 'planning-kit/risks.html' },
         { id: 'planning-cognitive-biases',  title: 'Cognitive Biases (PM 관점)',               file: 'planning-kit/cognitive-biases.html' },
         { id: 'planning-github-integration',title: 'GitHub Integration (Projects v2, gh CLI)',file: 'planning-kit/github-integration.html' },
+        { id: 'planning-research-log', title: 'Research Log (연구 기록)', file: 'planning-kit/research-log.html' },
       ]
     },
     {
@@ -479,6 +505,7 @@ body{
         { id: 'observability-rust',    title: '관측성',              file: 'rust-kit/observability.html' },
         { id: 'concurrency-guard-protocol', title: '동시성 가드 프로토콜', file: 'rust-kit/concurrency-guard-protocol.html' },
         { id: 'project-detection-rust', title: 'Rust 프로젝트 감지', file: 'rust-kit/project-detection.html' },
+        { id: 'rust-research-log', title: 'Research Log (연구 기록)', file: 'rust-kit/research-log.html' },
       ]
     },
     {
@@ -496,6 +523,10 @@ body{
         { id: 'react-integration',  title: 'Final Integration',       file: 'react-kit/integration.html' },
         { id: 'render-evidence-protocol', title: '렌더 증거 프로토콜', file: 'react-kit/render-evidence-protocol.html' },
         { id: 'react-project-detection', title: '프로젝트 감지 규칙', file: 'react-kit/project-detection.html' },
+        { id: 'react-clean-arch-layout', title: 'Clean Architecture 레이어 배치', file: 'react-kit/clean-arch-layout.html' },
+        { id: 'react-result-patterns', title: 'Result 패턴 (neverthrow)', file: 'react-kit/result-patterns.html' },
+        { id: 'react-common-gotchas', title: '공통 Gotchas (G1 ~ G11)', file: 'react-kit/common-gotchas.html' },
+        { id: 'react-style-guide', title: 'Style Guide (스타일 규칙)', file: 'react-kit/style-guide.html' },
         { id: 'react-research-log', title: 'Research Log (연구 기록)', file: 'react-kit/research-log.html' },
       ]
     },
@@ -509,6 +540,9 @@ body{
         { id: 'reflect-codex-kaizen', title: 'Codex Kaizen (Auto-log · Method · Approval Gate)', file: 'reflect-kit/codex-kaizen.html' },
         { id: 'tag-canonicalization', title: '태그 정규화', file: 'reflect-kit/tag-canonicalization.html' },
         { id: 'reflect-digest', title: 'reflect-digest (반복 실수 집계)', file: 'reflect-kit/reflect-digest.html' },
+        { id: 'reflect-promote', title: 'reflect-promote (승격 · 재발 · 되돌리기)', file: 'reflect-kit/reflect-promote.html' },
+        { id: 'reflect-kaizen', title: 'reflect-kaizen (분류 품질 · 30 일 재발 · 임계값)', file: 'reflect-kit/reflect-kaizen.html' },
+        { id: 'memory-grounding', title: 'memory grounding (교훈의 근거 네 값)', file: 'reflect-kit/memory-grounding.html' },
       ]
     },
     {
@@ -522,6 +556,9 @@ body{
         { id: 'bambu-surface-recipes', title: 'Surface Recipes (Surface-first 정책 v2)',  file: 'bambu-kit/surface-recipes.html' },
         { id: 'bambu-kaizen-sources',  title: 'Kaizen Sources (데이터 소스 Top 10)',      file: 'bambu-kit/kaizen-sources.html' },
         { id: 'bambu-failure-recipes', title: 'Failure Recipes (실측 실패 대응)', file: 'bambu-kit/failure-recipes.html' },
+        { id: 'bambu-comment-analysis', title: 'Comment Analysis (MakerWorld 댓글 분석)', file: 'bambu-kit/comment-analysis.html' },
+        { id: 'bambu-tolerance', title: 'Tolerance (공차 · 맞춤)', file: 'bambu-kit/tolerance.html' },
+        { id: 'bambu-user-preferences', title: 'User Preferences (지속 선호)', file: 'bambu-kit/user-preferences.html' },
       ]
     },
     {
@@ -553,6 +590,7 @@ body{
         { id: 'adapter-dart-flutter', title: 'dart-flutter 어댑터 (슬롯 값 · grep 10종)', file: 'tone-kit/adapter-dart-flutter.html' },
         { id: 'locale-korean', title: '한국어 축 운영 규칙 (locale-korean)', file: 'tone-kit/locale-korean.html' },
         { id: 'tone-sources', title: '출처 목록 (축별 근거)', file: 'tone-kit/sources.html' },
+        { id: 'tone-research-log', title: 'Research Log (연구 기록)', file: 'tone-kit/research-log.html' },
       ]
     },
     {
@@ -665,12 +703,29 @@ body{
       'api-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
       'backend-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
       'infra-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'design-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'react-style-guide': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h13"/><path d="M18 14l3 3-3 3"/></svg>',
       'react-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
       'react-project-detection': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/><path d="M9 11h4M11 9v4"/></svg>',
       'tone-sources': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/><path d="M9 8h6M9 12h4"/></svg>',
       'bambu-failure-recipes':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
       'tag-canonicalization': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8h7l4 4-4 4H3z"/><path d="M14 12h7"/><circle cx="19" cy="8" r="1.5"/><circle cx="19" cy="16" r="1.5"/></svg>',
       'reflect-digest': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>',
+      'cross-kit-principles': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>',
+      'figma-parity-self-verify': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="8" height="12" rx="1"/><rect x="13" y="5" width="8" height="12" rx="1"/><path d="M7 20h10"/><path d="M15 11l1.5 1.5L19 10"/></svg>',
+      'flutter-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'planning-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'rust-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'tone-research-log': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/><circle cx="17" cy="17" r="0.8" fill="currentColor"/></svg>',
+      'react-clean-arch-layout': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="2"/></svg>',
+      'react-result-patterns': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12h6"/><path d="M10 12l4-5h6"/><path d="M10 12l4 5h6"/></svg>',
+      'react-common-gotchas': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
+      'reflect-kaizen': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20h16"/><path d="M7 16v-4M12 16V8M17 16v-7"/><path d="M5 7l5-3 4 3 5-3"/></svg>',
+      'memory-grounding': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 20h16"/><path d="M7 17h10"/></svg>',
+      'reflect-promote': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20V6"/><path d="M6 12l6-6 6 6"/><path d="M4 21h16"/></svg>',
+      'bambu-comment-analysis': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-5.5A8 8 0 0 1 11 4h2a8 8 0 0 1 8 8z"/><path d="M9 11h6M9 15h3"/></svg>',
+      'bambu-tolerance': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3"/></svg>',
+      'bambu-user-preferences': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M4 12h6M4 18h12"/><circle cx="17" cy="6" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="19" cy="18" r="2"/></svg>',
       'gate-result-taxonomy': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v6"/><circle cx="12" cy="11" r="2"/><path d="M12 13v3M6 21v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3"/></svg>',
       'concurrency-guard-protocol':'<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M10 7h4a3 3 0 0 1 3 3v4"/></svg>',
       'project-detection-rust': '<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/><path d="M9 11h4M11 9v4"/></svg>',

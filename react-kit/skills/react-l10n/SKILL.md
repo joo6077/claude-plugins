@@ -13,6 +13,8 @@ user-invocable: true
 
 ## Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 <!-- markdownlint-enable MD041 -->
 
 1. **하드코딩된 문자열 금지** — 모든 사용자 표시 문자열은 반드시 `t` 매크로 또는 `<Trans>` 컴포넌트를 경유해야 한다. 하드코딩된 한국어/영어 문자열은 `/react-audit` 이 검출한다.

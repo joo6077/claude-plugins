@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **breakpoint 하드코딩 금지** — `min-width: 768px` 같은 인라인 스타일 대신 Tailwind 토큰(`md:`, `lg:`)만 사용. 매직 픽셀값이 코드베이스에 퍼지면 디자인 시스템과 단절된다.
 2. **`@container` vs 페이지 breakpoint 혼동** — 재사용 컴포넌트(Card, Modal 내부, 사이드바 아이템)는 `@container`, 앱 최상위 레이아웃(사이드바 펼침, 네비 분기)은 페이지 breakpoint. 둘을 뒤바꾸면 재사용 시 레이아웃이 깨진다.
 3. **Tailwind v3에서 `@container` 사용 시도** — Tailwind v3 프로젝트는 `@tailwindcss/container-queries` 플러그인 + `tailwind.config.ts` 등록이 필요하다. v4는 내장. 프로젝트 버전을 먼저 확인한다.

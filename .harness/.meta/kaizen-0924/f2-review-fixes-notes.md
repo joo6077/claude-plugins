@@ -48,11 +48,11 @@
 - C L3 `scripts/detect-docs-drift.py:65` — howto 접두 매핑과 SKILL 폴더 이름 규칙이 겹쳐 초안 파일을 새 페이지 대상으로 낸다. F2 는 이번 사이클에 끝났다
 - C L7 `scripts/sync-orchestrator.py:121` — 범위 줄 추론이 planning docs · 킷과 스킬 references 둘 다 가진 킷을 놓친다. 생성기를 고치면 AUTO 영역 전체가 다시 만들어진다
 - B12 의 생성기 쪽 — 이번에는 AUTO 밖 한 줄(넘기는 범위 = AUTO 줄 + phase-dependencies 목록)로 막았다. 생성기 고치기는 C L7 과 같은 자리
-- C L10 · Codex R2-5 `infra-kit/skills/infra-test/SKILL.md:256` — checkout 검사가 줄 글자로 판정한다(`run: |` 안 줄에 PASS · 흐름 표기 진짜 checkout 에 VIOLATION, 재현됨). 막으려면 YAML 을 구조로 읽어야 하는데 python3 없는 환경에서 규칙 1 이 빠진다 — 새 동작 설계
+- C L10 · Codex R2-5 `infra-kit/skills/infra-test/SKILL.md:261` — checkout 검사가 줄 글자로 판정한다(`run: |` 안 줄에 PASS · 흐름 표기 진짜 checkout 에 VIOLATION, 재현됨). 막으려면 YAML 을 구조로 읽어야 하는데 python3 없는 환경에서 규칙 1 이 빠진다 — 새 동작 설계
 - C L14 `flutter-toolkit/skills/flutter-scenario-report/SKILL.md:44` — `VISUAL_CHANNEL` 우선순위 표에서 golden 프로젝트는 MCP 가 있어도 이 스킬 완료 기준을 못 채운다. project-detection Step 8 규칙을 바꾸는 일
 - C L17 `bambu-kit/skills/bambu-print-profile/SKILL.md:1603` — enum 줄만 빠진 옵션 목록에서 `[미검증]` 문구가 「키 존재 · 종류 · enum 값 검사 미실행」 이라고 적는다(실제로는 키 · 종류 검사는 돈다). 출력 문구 낮음
 - C L19 `tone-kit/references/adapter-dart-flutter.md:26` — 표 칸의 `\|` 정규식이 그대로 grep 에 넣으면 0 건이다. 어댑터 슬롯 값 형식을 정하는 일
-- C L20 `api-kit/skills/api-verify/SKILL.md:117` — 목록에 noncharacter 가 없다. 낮음
+- C L20 `api-kit/skills/api-verify/SKILL.md:125` — 목록에 noncharacter 가 없다. 낮음
 - C R1 flutter-l10n slang 명령 경로 · C R2 project-detection Makefile 타겟마다 확인 — 반박 검토 셋 가운데 둘이 기각
 - C R3 · Codex R2-3 · R2-4 design-reviewer · planning-reviewer 미검증 규칙 옛 사본 — 옮기면 여러 스킬 · evals 의 REJECT 문턱이 같이 바뀌는 판정 동작 변경이라 PR 직전 사실 오류 고치기를 넘는다
 - Codex R3-6 api-kit `-0` 을 「I-JSON 게이트」 로 분류 — 레포 안에서는 어긋나지 않는다(킷의 검문 단계 이름). RFC 7493 이 `-0` 을 금지하지 않는다는 주장은 근거 파일 밖

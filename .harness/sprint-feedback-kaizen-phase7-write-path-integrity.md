@@ -58,7 +58,7 @@ Iteration: 1
       (b17fef3^ 기준) Database=2·Testing=3·총26 확인 → +3/+2/+5 계산 일치 — PASS [L3, exact]
 - [x] SK-08: "DB 엔진도 함께 확정한다" 1건 + 같은 문단에 "엔진을 확정하지 못하면 그 rule 은
       `[미검증]` + 사유(엔진 미확정)로 처리한다" — PASS [L3, exact]
-- [x] SK-09: `| write-path-integrity |` 카테고리 행 1건(backend-guide/SKILL.md:52) + Step 2 문단에
+- [x] SK-09: `| write-path-integrity |` 카테고리 행 1건(backend-guide/SKILL.md:56) + Step 2 문단에
       "principle-index 가 아니라" 예외 문구 1건(line 67) — PASS [L3, exact]
 - [x] SK-10: `| 쓰기 경로 무결성 |` 행 1건, 그 행에 산출물 3토큰(invariant 분류 3 줄·제약↔upsert
       대조 표·멱등 계약 6 항목) 전부 존재 — PASS [L3, exact]

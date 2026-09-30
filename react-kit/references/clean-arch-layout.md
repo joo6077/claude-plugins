@@ -1,5 +1,7 @@
 # Clean Architecture Layer Layout
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 react-kit 의 모든 스킬이 공유하는 레이어 배치 + 의존성 방향 규칙.
 
 ## 레이어 정의

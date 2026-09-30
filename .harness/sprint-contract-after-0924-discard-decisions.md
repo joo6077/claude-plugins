@@ -75,11 +75,11 @@ locked_at: "2026-09-26 13:31"
 | `design-kit/references/visual-change-protocol.md` | `:206` 틀의 폐기 칸 · `:218-222` 규칙 둘 — 「제품 요구 수준의 폐기 결정 … 그 결정이 적힌 파일 경로를 폐기 칸에 적는다」 | 승인 기록 규격은 이미 경로만 적게 한다. 바꾸지 않는다. 같은 파일 §6(`:386-441`)은 다른 워크트리 `ak-c3` 가 고치고 있다 | 범위 경계 (그대로) |
 | `design-kit/skills/design-concept/SKILL.md` | `:97` · `:103` · `:219` · `:228` | 컨셉 안(무드 · 색 방향)만 버리는 칸이다 — 기능·설정 항목이 아니다. 바꾸지 않는다 | 범위 경계 (그대로) |
 | `harness/skills/sprint/SKILL.md` Step 0.5 | `:56-75` 절 · `:60-64` bash 블록 · `:68-73` text 블록 · `:75` 불일치 문장 | 재개할 때 폐기한 결정을 읽는 줄이 없다(F1H-41 뒷절반 · `user-setup:P2` 의 「폐기 결정 줄」 · `phase4-notes.md:92` · `phase11-notes.md:85`) | SK-04 · SC-01 · ER-01 |
-| 같은 파일 Step 3 | `:111-115` 원인 가르기 판정 표 | F1H-41 앞절반(CI 에서만 보이는 두 경우 `phase8-notes.md:94` · 첫 줄 문턱 `phase9-notes.md:94`)은 폐기 결정과 다른 일이다. 표는 두 킷이 글자 그대로 옮겨 갔다(`docs/infra/platform/cicd.md:76` · `rust-kit/skills/rust-preflight/SKILL.md:112`) | 넘김 (범위 경계) |
+| 같은 파일 Step 3 | `:111-115` 원인 가르기 판정 표 | F1H-41 앞절반(CI 에서만 보이는 두 경우 `phase8-notes.md:94` · 첫 줄 문턱 `phase9-notes.md:94`)은 폐기 결정과 다른 일이다. 표는 두 킷이 글자 그대로 옮겨 갔다(`docs/infra/platform/cicd.md:77` · `rust-kit/skills/rust-preflight/SKILL.md:123`) | 넘김 (범위 경계) |
 | `harness/skills/sprint-contract/SKILL.md` | `:622-633` 포맷 규칙 · `:627` 서술 섹션 목록의 `범위 경계` · `:629` 목록 밖 헤더 금지 줄 | 계약 `범위 경계` 에 폐기 결정을 어떻게 적을지 없다 | SK-05 |
 | `.claude/kaizen-input/insights-report.md` | `:77` F20 · `:94` design:P5 · `:123` backend-family:P1 · `:134` user-setup:P2 · `:138` user-setup:P6 · `:44` 델타 요약 · `:55-56` 표 머리 | 다섯 행이 「카이젠에서 하나로 정한다」(user-setup:P6 은 「카이젠 뒤 사용자 설정 처리 목록」)로 남아 있다. `:44` 는 입력 요약이라 그대로 둔다 | AR-02 |
 | `scripts/check-insights-tracking.py` | `:18-23` 필수 열 · `:119-122` 칸 수가 머리와 다르면 읽기 실패 | 비고 칸에 `\|` 가 새로 들어가면 표가 깨진다 | AR-02 (검사로 부른다) |
-| `planning-kit/skills/plan-stories/SKILL.md:44` · `plan-flow/SKILL.md:33` · `plan-data-model/SKILL.md:37` | 각 줄 | 기획 뒤 단계 셋은 이미 PRD 비범위 표를 읽는다 — 바꾸지 않는다 | 범위 경계 (소비자 근거) |
+| `planning-kit/skills/plan-stories/SKILL.md:48` · `plan-flow/SKILL.md:37` · `plan-data-model/SKILL.md:41` | 각 줄 | 기획 뒤 단계 셋은 이미 PRD 비범위 표를 읽는다 — 바꾸지 않는다 | 범위 경계 (소비자 근거) |
 | `design-kit/evals/evals.json` | `:539` 「승인 기록에 확정 구성과 폐기한 대안·이유 칸을 포함한다」 | 칸 이름을 그대로 두므로 맞는 채로 남는다 | SK-01 (c) |
 | `docs/design-kit/design-mockup.html` | `grep -c -E '폐기\|승인 기록'` 10 줄 | 원본이 바뀌면 페이지가 옛 글이 된다 — 문서 사이트는 이 계약 밖 | 넘김 (AR-03 notes) |
 
@@ -128,7 +128,7 @@ user-setup:P6     · 처리(…) — 핸드오프 틀의 폐기 절은 세션 �
 | planning-kit 이 없는 프로젝트(가리킬 표가 없을 때) | 계약에 넣음 | SK-02 한 줄. 네 칸 이름을 그대로 쓰고 `PRD 없음` 을 붙인다 — 폐기 기록만 담은 PRD 는 `plan-prd:15` Gotcha 1 때문에 만들 수 없다. `PRD 없음` 은 `/sprint` 재검증이 grep 으로 모으는 표시다(SC-01) |
 | design-mockup Step 2 가 PRD 비범위 표를 읽기 | 계약에 넣음 (이 계약의 판단) | SK-03. 과제 문구에는 없지만, 가리키는 칸만 고치면 기획에서 버린 항목(승인 기록에 없는 것)을 시안이 모른다 — F20 이 실제로 그렇게 났다. 기획 뒤 단계 셋은 이미 같은 표를 읽는다(`plan-stories:44` · `plan-flow:33` · `plan-data-model:37`). 두 줄만 더한다 |
 | F1H-41 뒷절반 — `/sprint` 재검증 블록의 폐기 결정 자리 | 계약에 넣음 | SK-04 · SC-01 · ER-01. `user-setup:P2` 의 「폐기 결정 줄」 과 같은 일이다 |
-| F1H-41 앞절반 — `/sprint` Step 3 판정 표 (CI 에서만 보이는 두 경우 · 첫 줄 문턱) | 넘김 | 폐기 결정과 다른 일이다(`phase8-notes.md:94` · `phase9-notes.md:94`). 표를 바꾸면 글자 그대로 옮긴 사본 둘(`docs/infra/platform/cicd.md:76` · `rust-kit/skills/rust-preflight/SKILL.md:112`)도 함께 바뀌어야 해 「다른 킷」 범위 밖이다. 다음 사이클 Phase 4 로 — notes 에 적는다(AR-03 `판정 표`) |
+| F1H-41 앞절반 — `/sprint` Step 3 판정 표 (CI 에서만 보이는 두 경우 · 첫 줄 문턱) | 넘김 | 폐기 결정과 다른 일이다(`phase8-notes.md:94` · `phase9-notes.md:94`). 표를 바꾸면 글자 그대로 옮긴 사본 둘(`docs/infra/platform/cicd.md:77` · `rust-kit/skills/rust-preflight/SKILL.md:123`)도 함께 바뀌어야 해 「다른 킷」 범위 밖이다. 다음 사이클 Phase 4 로 — notes 에 적는다(AR-03 `판정 표`) |
 | sprint-contract 가 폐기 결정을 적을 때 같은 표를 가리키게 | 계약에 넣음 | SK-05 한 줄. 자리는 Step 6 포맷 규칙의 서술 섹션 목록 아래 — 폐기 결정이 들어갈 계약 자리가 `범위 경계` 이기 때문이다(`:627`) |
 | 처리 배정표 design:P5 · backend-family:P1 · user-setup:P2 · user-setup:P6 | 계약에 넣음 | AR-02. user-setup:P6 행에는 핸드오프 틀 절이 세션 인계용이라 따로 둔다는 것까지 적는다(사용자 선택지 설명 원문) |
 | 처리 배정표 F20 행 | 계약에 넣음 (이 계약의 판단) | AR-02. 과제는 네 행을 적었지만 F20 행 비고(`:77`)가 같은 「네 곳이다 — 카이젠에서 하나로 정한다」 문장을 갖고 있다. 남기면 처리 뒤에도 미정으로 읽힌다 |

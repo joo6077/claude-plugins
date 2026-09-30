@@ -19,7 +19,7 @@ run-evals.py — evals.json 기반 플러그인 assertion 검증 러너
 Exit codes:
     0 — 전체 PASS
     1 — FAIL 있음
-    2 — 구조적 에러
+    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 · eval 항목 0 개, 이름으로 준 킷이 없는 킷이거나 평가 파일이 없음)
 """
 
 import argparse
@@ -27,12 +27,23 @@ import json
 import sys
 from pathlib import Path
 
-from plugin_utils import REPO_ROOT
+from plugin_utils import REPO_ROOT, load_marketplace
 
-ALL_KITS = [
-    "harness", "flutter-toolkit", "rust-kit", "react-kit",
-    "design-kit", "backend-kit", "infra-kit", "tone-kit", "api-kit",
-]
+# 평가 대상은 마켓 목록의 킷 가운데 evals/evals.json 이 있는 것이다. 손 목록은 새 킷을 조용히 빠뜨린다.
+# 형식이 달라 이 러너로 못 도는 킷만 이유와 함께 뺀다 — 빼는 줄은 `SKIP <킷> (<사유>)` 로 찍는다
+SKIP_KITS = {
+    "howto-kit": "게이트 픽스처 형식 — CI 가 sh howto-kit/evals/run-evals.sh 로 따로 돈다",
+}
+
+
+def eval_kits() -> list[str]:
+    names = [plugin["name"] for plugin in load_marketplace().get("plugins", [])]
+    have = [name for name in names if (REPO_ROOT / name / "evals" / "evals.json").is_file()]
+    # 평가 파일이 없는 킷도 이름을 찍는다 — 다른 이름으로 둔 킷이 소리 없이 빠지지 않게
+    absent = [name for name in names if name not in have]
+    if absent:
+        print(f"평가 파일(evals/evals.json) 없는 킷 {len(absent)} 개 — 대상 아님: {', '.join(absent)}")
+    return have
 
 PLACEHOLDER_PATTERNS = [
     "(placeholder)",
@@ -56,6 +67,10 @@ def load_evals(kit: str) -> dict | None:
         return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         return None
+    except OSError as exc:
+        # 권한 등으로 못 읽은 파일을 통과로 치지 않는다 — 파싱 실패와 같은 구조 오류다
+        print(f"UNREADABLE {path} ({exc.strerror})", file=sys.stderr)
+        sys.exit(2)
     except json.JSONDecodeError as exc:
         print(f"  ERROR: {path} parse error: {exc}", file=sys.stderr)
         print(f"  FATAL: evals.json structural error — exit 2", file=sys.stderr)
@@ -140,8 +155,10 @@ def validate_kit(kit: str, verbose: bool) -> tuple[int, int]:
 
     entries = get_eval_list(data)
     if not entries:
-        print(f"  WARN: evals.json에 eval 엔트리가 없음")
-        return (0, 0)
+        # 검사한 항목이 0 개면 통과가 아니다 — {"evals": []} 나 목록 열쇠 없는 {} 가 여기로 온다
+        path = REPO_ROOT / kit / "evals" / "evals.json"
+        print(f"  ERROR: {path} 에 eval 항목이 없다 (evals · tests · cases 모두 비었거나 없음) — exit 2", file=sys.stderr)
+        sys.exit(2)
 
     total_pass = 0
     total_fail = 0
@@ -164,14 +181,19 @@ def main() -> int:
     parser.add_argument("--verbose", "-v", action="store_true", help="상세 출력")
     args = parser.parse_args()
 
-    kits = [args.plugin] if args.plugin else ALL_KITS
+    if args.plugin and args.plugin not in SKIP_KITS \
+            and not (REPO_ROOT / args.plugin / "evals" / "evals.json").is_file():
+        # 이름으로 준 킷은 꼭 재라는 뜻이다. 없는 킷 · 평가 파일 없는 킷을 SKIP 하고 0 을 내면 오타가 통과한다
+        reason = "킷 폴더 없음" if not (REPO_ROOT / args.plugin).is_dir() else "evals/evals.json 없음"
+        print(f"ERROR: 이름으로 준 킷 {args.plugin} — {reason}", file=sys.stderr)
+        return 2
+    kits = [args.plugin] if args.plugin else eval_kits()
     grand_pass = 0
     grand_fail = 0
 
     for kit in kits:
-        kit_path = REPO_ROOT / kit
-        if not kit_path.exists():
-            print(f"SKIP: {kit} (디렉토리 없음)")
+        if kit in SKIP_KITS:
+            print(f"SKIP {kit} ({SKIP_KITS[kit]})")
             continue
 
         print(f"→ {kit}")

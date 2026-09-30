@@ -35,8 +35,8 @@ PYTHONDONTWRITEBYTECODE=1 python3 -c \
 위치:
 
 - 정본: [harness/skills/sprint/SKILL.md:123](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/harness/skills/sprint/SKILL.md:123)
-- Flutter 사본: [flutter-toolkit/skills/flutter-preflight/SKILL.md:149](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/flutter-toolkit/skills/flutter-preflight/SKILL.md:149), [동 파일:169](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/flutter-toolkit/skills/flutter-preflight/SKILL.md:169)
-- React 사본: [react-kit/skills/react-preflight/SKILL.md:81](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/react-kit/skills/react-preflight/SKILL.md:81), [동 파일:101](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/react-kit/skills/react-preflight/SKILL.md:101)
+- Flutter 사본: [flutter-toolkit/skills/flutter-preflight/SKILL.md:153](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/flutter-toolkit/skills/flutter-preflight/SKILL.md:153), [동 파일:169](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/flutter-toolkit/skills/flutter-preflight/SKILL.md:173)
+- React 사본: [react-kit/skills/react-preflight/SKILL.md:85](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/react-kit/skills/react-preflight/SKILL.md:85), [동 파일:101](/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/after-0926b/react-kit/skills/react-preflight/SKILL.md:105)
 
 두 preflight 문서는 “판정 표를 글자 그대로 옮긴 사본”이라고 선언했지만, 같은 가지에서 정본은 다음처럼 강화됐다.
 

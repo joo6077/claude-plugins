@@ -272,10 +272,30 @@ footer code { color: var(--text2); }
   .pick-row { grid-template-columns: 1fr; gap: 6px; }
   .pick-arrow { transform: rotate(90deg); justify-self: start; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="container">
 
   <header class="hero">
@@ -288,8 +308,8 @@ footer code { color: var(--text2); }
     </p>
     <div class="meta-row">
       <span>원본 <code>docs/planning/prd-patterns.md</code></span>
-      <span>last_updated 2026-09-25</span>
-      <span>패턴 6 가지 · 원칙 1 가지 · 출처 16 개</span>
+      <span>last_updated 2026-09-29</span>
+      <span>패턴 6 가지 · 원칙 1 가지 · 출처 19 개</span>
     </div>
   </header>
 
@@ -644,6 +664,28 @@ footer code { color: var(--text2); }
         </table>
       </div>
 
+      <h4>PRD 와 설계 결정 기록(ADR)의 경계</h4>
+      <p>
+        제품 비범위는 PRD 비범위 절에 적는다. 구조 · 비기능 특성 · 의존성 · 인터페이스에 걸린 결정 하나는
+        ADR(설계 결정 기록)에 근거와 결과를 적고, PRD 에는 그 ADR 경로만 적는다.
+        <strong>이 경계는 원문에 직접 근거가 없는 추론이다</strong> — 아래 세 원문은 두 문서의 역할만 설명하고,
+        둘 가운데 하나를 우선하라고 정하지 않는다. PRD 에서 ADR 경로만 가리키는 방식도 이 킷의 운영 규칙이다.
+      </p>
+      <p>Atlassian: 「A product requirements document (PRD) defines the purpose, features, and behavior of a product, aligning stakeholders and guiding development.」</p>
+      <p>adr.github.io: 「An Architectural Decision Record (ADR) captures a single AD and its rationale.」</p>
+      <p>Michael Nygard: 「Each record describes a set of forces and a single decision in response to those forces.」</p>
+      <p><strong>이 경계의 핵심 질문</strong></p>
+      <ul>
+        <li>비범위 표에 적은 항목이 제품 범위를 정하는가, 아니면 구조 · 비기능 특성 · 의존성 · 인터페이스를 정하는가?</li>
+        <li>뒤쪽이면 ADR 에 결정 하나와 근거 · 결과를 적고, PRD 에는 그 ADR 경로만 남겼는가?</li>
+        <li>폐기한 제품 기능이 동시에 구조 결정이면 PRD 비범위 줄과 ADR 을 함께 두되, 결정 근거는 ADR 한 곳에만 적었는가?</li>
+      </ul>
+      <p>
+        <strong>적용 시점</strong> — PRD 비범위 표에 한 줄 더할 때, 기획 도중 구조나 의존성을 고르는 결정이 나왔을 때.
+        <strong>한계</strong> — PRD 와 ADR 을 직접 비교하거나 폐기한 결정을 반드시 어느 한쪽에 적으라고 정한 원문은 찾지 못했다(2026-09-28 조회).
+        PRD 에서 ADR 경로만 가리키고 내용을 다시 쓰지 않는 방식도 원문의 직접 문장이 아니라 이 킷의 운영 규칙이다.
+      </p>
+
       <div class="when-limit">
         <div class="when"><b>적용 시점</b><span>PRD 작성, 기획 도중 사용자가 기능이나 설정 항목을 없애기로 한 때, 스토리 · 흐름 · 데이터 모델을 PRD 에서 이어 만들 때</span></div>
         <div class="limit"><b>한계 · 주의</b><span>폐기는 영구 금지가 아니다. Shape Up 의 No-gos 는 그 pitch 와 appetite 안의 결정이고, INVEST 의 Negotiable 은 스토리를 특정 기능의 고정 계약으로 보지 않는다. 그래서 뒤 단계 산출물이 표의 항목과 겹치면 되살리지 말고 먼저 묻는다. PRD 가 없는 프로젝트의 기록 자리는 이 절이 정하지 않는다.</span></div>
@@ -654,6 +696,9 @@ footer code { color: var(--text2); }
         <a class="card-source" href="https://basecamp.com/shapeup/1.5-chapter-06" target="_blank" rel="noopener">Shape Up — 1.5 Write the Pitch (No-gos)</a>
         <a class="card-source" href="https://agilealliance.org/glossary/invest/" target="_blank" rel="noopener">Agile Alliance — INVEST</a>
         <a class="card-source" href="https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects" target="_blank" rel="noopener">GitHub Docs — Best practices for Projects</a>
+        <a class="card-source" href="https://www.atlassian.com/agile/product-management/requirements" target="_blank" rel="noopener">Atlassian — Product Requirements Document</a>
+        <a class="card-source" href="https://adr.github.io/" target="_blank" rel="noopener">adr.github.io — Architectural Decision Records</a>
+        <a class="card-source" href="https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions" target="_blank" rel="noopener">Michael Nygard — Documenting Architecture Decisions</a>
       </div>
     </div>
   </section>
@@ -930,7 +975,7 @@ footer code { color: var(--text2); }
     <div class="section-header">
       <span class="section-label">08 · References</span>
       <h2>참고 링크 (전체)</h2>
-      <p>원본이 인용한 출처 열여섯 개. 날짜 표시는 원본의 <code>[dated: …]</code> 를 옮긴 것이다.</p>
+      <p>원본이 인용한 출처 열아홉 개. 날짜 표시는 원본의 <code>[dated: …]</code> 를 옮긴 것이다.</p>
     </div>
     <ul class="ref-list">
       <li><span class="ref-name">Amazon — culture and processes<span class="dated">dated 2025-10</span></span><a href="https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes" target="_blank" rel="noopener">aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes</a></li>
@@ -949,6 +994,9 @@ footer code { color: var(--text2); }
       <li><span class="ref-name">GV — Design Sprint</span><a href="https://www.gv.com/sprint/" target="_blank" rel="noopener">gv.com/sprint/</a></li>
       <li><span class="ref-name">Agile Alliance — INVEST</span><a href="https://agilealliance.org/glossary/invest/" target="_blank" rel="noopener">agilealliance.org/glossary/invest/</a></li>
       <li><span class="ref-name">GitHub Docs — Best practices for Projects</span><a href="https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects" target="_blank" rel="noopener">docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects</a></li>
+      <li><span class="ref-name">Atlassian — Product Requirements Document</span><a href="https://www.atlassian.com/agile/product-management/requirements" target="_blank" rel="noopener">atlassian.com/agile/product-management/requirements</a></li>
+      <li><span class="ref-name">adr.github.io — Architectural Decision Records</span><a href="https://adr.github.io/" target="_blank" rel="noopener">adr.github.io</a></li>
+      <li><span class="ref-name">Michael Nygard — Documenting Architecture Decisions</span><a href="https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions" target="_blank" rel="noopener">cognitect.com/blog/2011/11/15/documenting-architecture-decisions</a></li>
     </ul>
   </section>
 
@@ -971,7 +1019,7 @@ footer code { color: var(--text2); }
   </section>
 
   <footer>
-    Planning Kit · 문서 v0.2.0 · last updated 2026-09-25 ·
+    Planning Kit · 문서 v0.2.0 · last updated 2026-09-29 ·
     원본 <code>docs/planning/prd-patterns.md</code>
   </footer>
 

@@ -1,5 +1,7 @@
 # react-kit 공통 Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 react-kit 스킬/에이전트를 작성하거나 개선할 때 반복되는 실수 패턴.
 이번 세션(2026-04-10) QA REJECT 사례에서 추출한 원칙이다.
 

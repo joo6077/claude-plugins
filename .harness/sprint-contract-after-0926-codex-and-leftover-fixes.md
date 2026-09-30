@@ -58,19 +58,19 @@ Step 2.5 짝 조건: 만드는 쪽은 SC-01(판정) · SC-02 · ER-01(새 검사
 | `react-kit/skills/react-preflight/SKILL.md` | `:79` 절 머리 · `:81` 사본 출처 · `:99-103` 표 | 같은 결함(`react=0/8`) | SK-01 |
 | `scripts/check-reviewer-protocol-copies.py` | `:2` 머리 설명 · `:35-43` `REVIEWERS` 일곱 · `:52` 정규화 · `:84` 덩어리 비교 함수 | flutter-audit 사본을 재지 않는다(k1 KF-2). 메모리 안에서 목록에 더해 재면 `MISMATCH … 조항` — 원문이 둘째 「3.」 을 3 항 안 문단으로 바꿨는데 사본은 옛 번호다 | SC-04 · RE-01 · RE-02 |
 | `flutter-toolkit/skills/flutter-audit/SKILL.md` | `:36` 사본 출처(「3 이 둘이다」) · `:38` · `:93` MD029 끄고 켜기 · `:78` `3. **임계값 2 는` | 위 결함의 사본 쪽 | SC-04 |
-| `harness/docs/guides/qa-evaluation-guide.md` | `:12` 참조 스키마 `(v5.5)` · `:15` · `:22` · `:2054`(2026-09-24 갱신 기록) · `:1210` 「다음 사이클 Phase 1 · 2 로 넘긴다」 · `:1257-1258` 사본 일곱 · `:1984` 참조 목록 · `:2063` Schema link | 스키마는 v5.7(`contract-schema.md:1465`). 넘긴다던 짝은 이미 생겼다(`skill-design-guide.md:388` · `contract-schema.md:1030`) | SK-03 · SC-04 |
+| `harness/docs/guides/qa-evaluation-guide.md` | `:12` 참조 스키마 `(v5.5)` · `:15` · `:22` · `:2054`(2026-09-24 갱신 기록) · `:1210` 「다음 사이클 Phase 1 · 2 로 넘긴다」 · `:1257-1258` 사본 일곱 · `:1984` 참조 목록 · `:2063` Schema link | 스키마는 v5.7(`contract-schema.md:1465`). 넘긴다던 짝은 이미 생겼다(`skill-design-guide.md:392` · `contract-schema.md:1030`) | SK-03 · SC-04 |
 | `harness/docs/guides/contract-design-guide.md` | `:1311` `\| Schema version \| v5.5 \|` | 같은 판 번호 뒤처짐 | SK-03 |
 | `docs/index.html` | `:239` `'Sprint Contract 스키마 v5.5'` | 페이지 다시 만들기에 딸려 오지 않는 목차 제목(cs notes) | SK-03 |
 | `harness/references/contract-schema.md` | `:678` 규칙 · `:686-692` `dirty_except_status` — `:689-690` awk 가 `status:` 로 시작하는 줄을 본문까지 뺀다 | 본문 `status:` 변경을 못 센다(알려진 답 k6=0 · k7=0, 맞는 값 1 · 2) | SC-05 |
 | `harness/skills/sprint-contract/SKILL.md` | `:471-480` 조건 패턴 표 「5 종 (v5.5)」 · `:846-859` 피드백 초안 `project_hash` 글과 bash 조각 | 표에 v5.7 새 패턴 셋이 없다(cs notes). 조각이 `CONTRACT_ROOT` 를 그대로 해시해 워크트리에서 `save-feedback.sh` 재계산값과 늘 다르다(k2 notes — 이 W 에서 `70da29df` 대 `1a3bcba6`) | SK-02 · SC-06 · SK-09 |
 | `harness/scripts/save-feedback.sh` | `:149-162` `identity_root_of` · `:200-` `hash8` · `:232` `PROJ_HASH` | 워크트리면 본 레포 폴더를 해시한다 — 기준(고치지 않는다) | SC-06 |
 | `harness/agents/qa-evaluator.md` | `:1098-1100` 「`CONTRACT_ROOT` 기준으로 다시 계산」 | 워크트리 규칙이 없다 | SK-09 |
-| `harness/README.md` | `:472` 추적 규칙 · `:474` 「`kaizen:` prefix」 | harness-kaizen 은 이미 「바꾼 종류 머리 + 서명 줄 `Kaizen-Phase:`」(`harness/skills/harness-kaizen/SKILL.md:194` · `:233`) — gd notes | SK-04 |
+| `harness/README.md` | `:472` 추적 규칙 · `:474` 「`kaizen:` prefix」 | harness-kaizen 은 이미 「바꾼 종류 머리 + 서명 줄 `Kaizen-Phase:`」(`harness/skills/harness-kaizen/SKILL.md:206` · `:245`) — gd notes | SK-04 |
 | `.claude/skills/meta-kaizen/SKILL.md` · `scripts/detect-docs-drift.py` | `:16` 「Step 11, Step 11.5, Step 11.6, Step 12」 · `:8` 「Step 11.5」 | 단계 이름이 F1 ~ F4 로 바뀌었다(`.claude/skills/kaizen-orchestrator/SKILL.md:581` · `:620` · `:643` · `:715`) — vsb notes | SK-04 |
-| `backend-kit` 다섯 · `rust-kit` 셋 · `infra-kit/skills/infra-guide/SKILL.md` | backend `principle-index.md:1-8` 등 · rust `rust-init/SKILL.md:317` · infra-guide `:27` · `:31` · 짝 `infra-kit/skills/infra-guide/references/principle-index.md:5` | 설치본에 `docs/` 가 없어 경로를 못 여는데 raw 주소 안내가 없다(k2 notes). 시작 판 `backend=5/5 rust=3/3 infra=6/1` | SK-05 |
+| `backend-kit` 다섯 · `rust-kit` 셋 · `infra-kit/skills/infra-guide/SKILL.md` | backend `principle-index.md:1-8` 등 · rust `rust-init/SKILL.md:331` · infra-guide `:27` · `:31` · 짝 `infra-kit/skills/infra-guide/references/principle-index.md:5` | 설치본에 `docs/` 가 없어 경로를 못 여는데 raw 주소 안내가 없다(k2 notes). 시작 판 `backend=5/5 rust=3/3 infra=6/1` | SK-05 |
 | `backend-kit/skills/backend-system/references/system-principles.md` · `docs/backend/fundamentals/api-design.md` | `:21` 「OpenAPI 3.1 JSON Schema 호환」 · `:80` 「OpenAPI 3.2.1 스펙을 단일 소스로」 · 바깥 대조 `ex/EX-7.md:61` | 최소 지원선 문구(`backend-audit/references/audit-criteria.md:22`)와 반대로 읽힌다(k2 독립 검토 1) | SK-06 |
 | `design-kit/skills/design-mockup/SKILL.md` | `:37` Step 0 · `:57` 「앱 코드 존재 → §0 관례 표」 · `:60` Step 1 · `:68-70` 대상 · 되말하기 | 관례 표가 대상을 정하기 전에 「같은 역할」 화면을 고른다(k2 독립 검토 2) | SK-07 |
-| `bambu-kit/README.md` · `CLAUDE.md` · `README.md` | bambu `:11` · `:23` 「4종」 · `:21` 절의 표 7 행 · `:39`(research 대상 4 — 맞다) · `CLAUDE.md:263` · `README.md:403` 나무 그림 · `:340-415` 구조 절 | references 는 9 개(`find … -name '*.md'`). `CLAUDE.md:263` 은 시작 판부터 MD060(표 정렬) 두 건이 걸린 줄이다 — 그 줄을 고치면 DG-02 에 걸리므로 같은 표의 구분 줄 `:262` 도 맞춘다. 나무 그림에 `onboarding-kit` · `tone-kit` · `api-kit` · `howto-kit` 이 없다 — vsb notes | SK-08 |
+| `bambu-kit/README.md` · `CLAUDE.md` · `README.md` | bambu `:11` · `:23` 「4종」 · `:21` 절의 표 7 행 · `:39`(research 대상 4 — 맞다) · `CLAUDE.md:263` · `README.md:404` 나무 그림 · `:340-415` 구조 절 | references 는 9 개(`find … -name '*.md'`). `CLAUDE.md:263` 은 시작 판부터 MD060(표 정렬) 두 건이 걸린 줄이다 — 그 줄을 고치면 DG-02 에 걸리므로 같은 표의 구분 줄 `:262` 도 맞춘다. 나무 그림에 `onboarding-kit` · `tone-kit` · `api-kit` · `howto-kit` 이 없다 — vsb notes | SK-08 |
 | `.harness/project.yaml` | `:39-41` AP-04 `pattern: "^---\\s*\\n(?![^-]*name:)"` | 앞머리를 닫는 `---` 에도 걸린다(us notes, 교차 진단 실측). 판정은 message 대로 validate-plugin V1 이 권위다 | SC-07 |
 | `.github/workflows/ci.yml` · `harness/evals/gate-exit-codes.md` | ci `:77-78` reviewer 사본 단계(첫 작업 `validate`) · 종료 코드 표 `:62-73`(`:69` reviewer 사본 검사) | 새 검사를 들일 자리 | SC-03 |
 
@@ -110,22 +110,22 @@ Step 2.5 짝 조건: 만드는 쪽은 SC-01(판정) · SC-02 · ER-01(새 검사
 | 같은 raw 안내가 api · design · flutter · howto · onboarding · planning · react · reflect 에도 없음 (이번에 찾음) | 이 묶음 밖 | 파일 69 개이고 그 가운데 사용자 프로젝트의 `docs/` 를 뜻하는 경로가 섞여 있어 하나씩 가려야 한다. k2 notes 가 짚은 범위만 고친다 — notes 에 넘김 |
 | OpenAPI 최소 지원선 문구 (k2 독립 검토 1) | 계약에 넣음 | SK-06. `docs/backend/research-log.md` 는 날짜 기록이라 두고, 문서 페이지는 부모 몫 |
 | design-mockup Step 0 이 대상 전에 관례 표 (k2 독립 검토 2) | 계약에 넣음 | SK-07 — 관례 표 줄만 Step 1 뒤로 미룬다 |
-| bambu references 4종 (vsb) · 루트 README 나무 그림 (vsb) | 계약에 넣음 | SK-08. `.claude/skills/bambu-research/SKILL.md:5` · `bambu-kit/README.md:39` 의 「4종」 은 research 가 고치는 대상 넷(`.claude/skills/bambu-research/SKILL.md:29-32` 표)이라 맞는 말 — 그대로 둔다 |
+| bambu references 4종 (vsb) · 루트 README 나무 그림 (vsb) | 계약에 넣음 | SK-08. `.claude/skills/bambu-research/SKILL.md:5` · `bambu-kit/README.md:39` 의 「4종」 은 research 가 고치는 대상 넷(`.claude/skills/bambu-research/SKILL.md:33-36` 표)이라 맞는 말 — 그대로 둔다 |
 | AP-04 정규식이 닫는 `---` 에 걸림 (us) | 계약에 넣음 | SC-07 |
 | 피드백 `project_hash` 재계산 경고 (k2) | 계약에 넣음 | SC-06 · SK-09 — 스크립트가 아니라 설명과 조각이 뒤처졌다 |
 | 검사기 단추 id `theme-btn` 만 봄 (dca) | 이 묶음 밖 | 고치면 `docs/design-kit/visual-styles.html` 단추가 63x33 이라 CI 가 빨개진다(흉내 판 실측, `color-palette` 87x48 · `korean-technical-writing` 80x44 는 통과). 페이지 손질이 같이 있어야 해 문서 페이지 차례로 넘긴다 |
 | `check-stale-values` 가 오케스트레이터 참고 폴더를 안 봄 (dcb) | 처리됨 | `scripts/check-stale-values.py:56` 에 `.claude/skills/kaizen-orchestrator/references` 가 있다(vsa VS-27) |
-| 매핑 표 `process (공유)` 행 부딪힘 (dcb) | 처리됨 | `.claude/skills/docs-site/SKILL.md:64` 에 원본 둘, `detect-docs-drift.py --check-table` 어긋남 0 |
-| docs-site 스킬 「line-height 1.2~1.6배」 (k2) · KD-2 · VS-18 (dca) | 처리됨 | `.claude/skills/docs-site/SKILL.md:103` 이 「행간 1.7 은 공통 파일」, `design-audit/references/audit-criteria.md:10` 이 문자 체계별 범위, 오케스트레이터에 `standalone` 0 줄 |
+| 매핑 표 `process (공유)` 행 부딪힘 (dcb) | 처리됨 | `.claude/skills/docs-site/SKILL.md:68` 에 원본 둘, `detect-docs-drift.py --check-table` 어긋남 0 |
+| docs-site 스킬 「line-height 1.2~1.6배」 (k2) · KD-2 · VS-18 (dca) | 처리됨 | `.claude/skills/docs-site/SKILL.md:110` 이 「행간 1.7 은 공통 파일」, `design-audit/references/audit-criteria.md:10` 이 문자 체계별 범위, 오케스트레이터에 `standalone` 0 줄 |
 | KD-3 다섯 자리가 화면 규약 숫자 재정의 (gd · k2) | 처리됨 | design-kit 에 `2 개 이상` · `3 회` 0 줄, `§8.9` 인용 다섯 파일 |
 | reflect-digest 드리프트 [NEW] (vsa) | 처리됨 | 페이지 `docs/reflect-kit/reflect-digest.html` 이 생겨 이제 다시 맞출 쪽으로 나온다 — 다시 만들기는 부모 몫 |
 | DG-05 가 평가자 `status:` 편집으로 깨짐 (pd · dca DG-05) | 처리됨 | 규칙과 도우미 `dirty_except_status` 가 v5.7 에 들어갔다(`contract-schema.md:678-692`). 도우미 결함은 SC-05 가 고친다 |
-| design-mockup Step 2 가 폐기 칸 경로를 따라 읽기 (pd) | 처리됨 | pd2 가 넣었다(`design-mockup/SKILL.md:56`) |
+| design-mockup Step 2 가 폐기 칸 경로를 따라 읽기 (pd) | 처리됨 | pd2 가 넣었다(`design-mockup/SKILL.md:57`) |
 | AR-02 `exact` · `old_left` 칸 나누기 제안 (dca QA 3 회차) | 이 묶음 밖 | 한 계약의 도우미 짜임 제안이라 규칙 문장이 아니다 — 다음 계약을 쓸 때의 관례. contract-kaizen 몫 |
 | 원래 있던 편집기 경고 (cs · VS-26) | 이 묶음 밖 | 기존 마크다운 경고 정리는 부모가 다음 차례에 한다 |
 | 문서 사이트 페이지 다시 만들기 (cs · gd · hs · k1 · pd · pd2 · vsa · vsb · dcb 의 KT-1 · KRf-1) | 이 묶음 밖 | 부모가 다음 차례에 한다. 이 계약이 원본을 고친 쪽(가이드 둘 · design-mockup · api-design · 스키마)도 그때 다시 맞춘다 |
 | SK-11 · SK-13 머리 모양 되돌릴지 (k1) · KD-4 design:P2 (k2) · 폐기 칸 이름 남길지 (pd · pd2) · 핸드오프 틀 모델 이름 (us) | 이 묶음 밖 | 사용자 판단 몫으로 남은 항목 |
-| `docs/flutter/research-log.md:19` 2.16 문장 (k1 KF-4) | 이 묶음 밖 | 2026-09-24 조사 기록이라 그날 문장을 둔다. 규칙 본문은 이미 2.7.0 기준(`flutter-build/SKILL.md:16`) |
+| `docs/flutter/research-log.md:20` 2.16 문장 (k1 KF-4) | 이 묶음 밖 | 2026-09-24 조사 기록이라 그날 문장을 둔다. 규칙 본문은 이미 2.7.0 기준(`flutter-build/SKILL.md:20`) |
 | `spawn-kaizen-phase.sh:71` 최댓값 17 (vsa) | 이 묶음 밖 | 아래 `case` 표가 Phase 마다 손으로 적혀 있어 상한만 뽑아도 새 킷 Phase 는 `case` 에 없다. 표 전체를 바꾸는 개편이라 최소 변경 밖 |
 | `run-evals.py` `ALL_KITS` · `sync-evals.py` `TARGET_KITS` 손 목록 (vsa) | 이 묶음 밖 | 「evals 가 있는 킷」 목록이라 마켓 목록과 뜻이 다르다. 결함이 아니라 설계 개편 |
 | 두 번째 검색 줄 머리 조건 넓히기 (pd2) · 다른 폐기 표기 (pd) | 이 묶음 밖 | 넓히면 규칙 인용 줄을 폐기 결정으로 잘못 잡는 쪽이 커진다(pd2 ER-01 과 같은 모양) — 판단이 먼저다 |

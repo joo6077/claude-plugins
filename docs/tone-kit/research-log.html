@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tone-kit 연구 기록 — Tone Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#D946EF;--accent2:#E879F9;--accent-dim:rgba(217,70,239,0.12);
+    --accent-line:rgba(217,70,239,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#A21CAF;--accent2:#86198F;--accent-dim:rgba(162,28,175,0.10);
+    --accent-line:rgba(162,28,175,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Tone Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Tone Kit · 연구 기록</span>
+  <h1>tone-kit 연구 기록</h1>
+  <p class="orig-title">원본 제목: <strong>tone-kit 리서치 로그</strong></p>
+  <p class="subtitle"><code>/tone-research</code> 사이클마다 <strong>조회한 1 차 출처와 확인 결과</strong>를 적는다. 다음 사이클은 이 기록을 먼저 읽고 같은 출처의 바뀐 부분만 확인한다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>docs/tone/research-log.md</code></span>
+    <span class="badge">판 1.0.0</span>
+    <span class="badge">마지막 갱신 2026-09-25</span>
+    <span class="badge">사이클 절 둘</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>2026-08-31 · 초기 이관</h3>
+      <p>포지셔닝 인용을 바꾸고 비공개 출처를 공개 URL 로 대체했다. 근거가 없는 규칙은 관측 컨벤션으로 낮췄다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>2026-09-24 · Phase 15</h3>
+      <p>K-11 을 관측 컨벤션으로 새로 두고, C-06 이 출처보다 강도가 높다는 것을 기록했다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>죽어 있던 명령</h3>
+      <p>표 칸에 적은 grep 명령 넷이 <code>\|</code> 때문에 아무것도 못 잡고 있었다. 코드 블록으로 옮겼다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>제외한 것</h3>
+      <p>DetectGPT · Binoculars 는 자연어 탐지기라 코드 스타일 규칙 근거로 쓰지 않는다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="tb-n">
+  <div class="section-label" id="tb-n">다음 사이클로 넘긴 것</div>
+  <p class="desc">원본 「주의로 남긴 것」 과 각 표의 「다음 사이클」 행을 모았다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><div class="c">사이클</div></th>
+          <th><div class="c">넘긴 것</div></th>
+          <th><div class="c">까닭</div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="c">2026-08-31</div></td>
+          <td><div class="c">SemEval Task 13 언어 목록 재확인</div></td>
+          <td><div class="c">공식 README 와 overview 논문의 PHP · C 표기가 어긋난다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2026-08-31</div></td>
+          <td><div class="c">M3 · Apple HIG 원문 인용</div></td>
+          <td><div class="c">본문이 JS 로만 그려져 원문을 검증할 수 없다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2026-09-24</div></td>
+          <td><div class="c">원칙 1 · 2 · 5 · 8 의 국립국어원 663 근거</div></td>
+          <td><div class="c">663 본문에서 신조어 · 외래어 지침을 찾지 못했다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2026-09-24</div></td>
+          <td><div class="c">C-06 강도</div></td>
+          <td><div class="c">출처끼리 PREFER 와 DO 로 어긋나 기록만 했다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2026-09-24</div></td>
+          <td><div class="c">dart 쪽 낡은 곳 목록</div></td>
+          <td><div class="c"><code>__</code> 두 곳 · 기준 버전 표기 · go_router 예제 링크 등</div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="tb-s">
+  <div class="section-label" id="tb-s">규칙 강도를 바꾼 결정</div>
+  <p class="desc">원본 두 사이클의 표에서 규칙 강도를 정한 행만 골라 한 표로 모았다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><div class="c">사이클</div></th>
+          <th><div class="c">대상</div></th>
+          <th><div class="c">결정</div></th>
+          <th><div class="c">근거</div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="c">2026-08-31</div></td>
+          <td><div class="c"><code>effective*</code> / <code>resolved*</code> 접두사</div></td>
+          <td><div class="c">관측 컨벤션으로 낮춤</div></td>
+          <td><div class="c">공개 1 차 문헌에 통계가 없다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2026-08-31</div></td>
+          <td><div class="c">하위 위젯은 별도 파일</div></td>
+          <td><div class="c">관측 컨벤션으로 낮춤</div></td>
+          <td><div class="c">공개 출처는 다른 위젯까지만 지지한다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2026-08-31</div></td>
+          <td><div class="c">추출 규칙</div></td>
+          <td><div class="c">SHOULD 로 고정</div></td>
+          <td><div class="c">Flutter 공식 문구가 prefer 수준이다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2026-09-24</div></td>
+          <td><div class="c">K-11 새 이름 금지</div></td>
+          <td><div class="c">관측 컨벤션으로 새로 둠</div></td>
+          <td><div class="c">영어권 가이드와 한국어 규범이 갈린다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2026-09-24</div></td>
+          <td><div class="c">C-06 공개 API doc 주석</div></td>
+          <td><div class="c">기록만 함</div></td>
+          <td><div class="c">원문 제목은 PREFER, 린트 설명은 DO 라 출처끼리 어긋난다</div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>2026-08-31 — 초기 이관 리서치</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>2026-09-24 — 카이젠 Phase 15 근거 조회</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<div class="table-wrap"><table class="fm">
+<thead><tr><th>머리 설정 키</th><th>값</th></tr></thead><tbody>
+<tr><td><code>title</code></td><td class="fm-val">Tone Kit Research Log</td></tr>
+<tr><td><code>version</code></td><td class="fm-val">1.0.0</td></tr>
+<tr><td><code>last_updated</code></td><td class="fm-val">2026-09-25</td></tr>
+</tbody></table></div>
+<p>&lt;!-- markdownlint-disable-next-line MD025 --&gt;</p>
+<p><code>/tone-research</code> 사이클마다 조회한 1차 출처와 확인 결과를 기록한다. 다음 사이클은 이 로그를 먼저 읽고 같은 소스의 변경분만 확인한다.</p>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>2026-08-31 — 초기 이관 리서치</h2>
+  <div class="doc-body">
+<p><strong>범위:</strong> 킷 생성 시 포지셔닝 인용 교체 + 비공개 출처 대체 + 네이밍 taxonomy 근거 등급 확정</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">카테고리</div></th>
+  <th><div class="c">조회</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>stylometry</code></div></td>
+  <td><div class="c">arXiv 2507.10583 · SemEval-2026 Task 13 · SANER 2025</div></td>
+  <td><div class="c"><strong>확인됨.</strong> Droid 는 EMNLP 2025 정식 출판(pp. 31263-31289). SemEval Task 13 Subtask C 가 <code>Adversarial</code> 을 별도 클래스로 정의. SANER 2025 는 10개 언어 84.1%±3.8%</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>stylometry</code></div></td>
+  <td><div class="c">DetectGPT · Binoculars</div></td>
+  <td><div class="c"><strong>제외 확정.</strong> 둘 다 자연어 텍스트 탐지기라 코드 스타일 규칙 근거로 범위를 벗어난다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>stylometry</code></div></td>
+  <td><div class="c"><code>effective*</code> / <code>resolved*</code> 접두사 통계</div></td>
+  <td><div class="c"><strong>확인 실패.</strong> 공개 1차 문헌에 해당 통계 없음. 규칙을 관측 컨벤션으로 격하</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>extraction</code></div></td>
+  <td><div class="c">Flutter 성능 문서 · StatelessWidget · Element.rebuild · Builder · flutter#149932</div></td>
+  <td><div class="c"><strong>확인됨.</strong> 공식 문구는 <code>prefer</code> 수준이며 <code>Builder</code> 라는 공식 인라인 대안이 존재. 비공개 사내 PDF 인용을 이 URL 들로 대체하고 강도를 SHOULD 로 고정</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>extraction</code></div></td>
+  <td><div class="c">"모든 하위 위젯은 별도 <strong>파일</strong>"</div></td>
+  <td><div class="c"><strong>근거 부재 확인.</strong> 공개 출처는 "different widgets" 까지만 지지하고 "different files" 는 지지하지 않는다. 관측 컨벤션으로 격하</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>naming</code></div></td>
+  <td><div class="c">M3 · Apple HIG · MUI · Fluent 2 · Ant · Carbon</div></td>
+  <td><div class="c"><strong>판정: 단일 권위 없는 합성.</strong> 6개 시스템이 화면 상단 하나를 4가지 용어로 부른다. 커스텀 컴포넌트 명명 지침을 발행하는 시스템 0개. 접미사 taxonomy 를 합성 규칙으로 라벨</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">주의로 남긴 것</h3>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">SemEval Task 13 언어 목록이 공식 README 와 overview paper 사이에 PHP/C 표기가 어긋난다. 열거가 필요하면 dataset label 파일로 재확인한다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">M3 와 Apple HIG 문서는 본문이 JS 로만 렌더링돼 원문 인용을 검증할 수 없다. 어휘 존재 확인용으로만 쓴다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">SANER 2025 논문의 OpenReview 항목은 프리프린트다. venue 로 표기하면 부정확하다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>github.com/flutter/flutter/wiki/Style-guide-for-Flutter-repo</code> 는 위키 이전 이력이 있어 <code>sources.md</code> 에 <code>주의</code> 로 표기했다.</div></li>
+</ul>
+<h3 class="sub">검증 실행</h3>
+<p>grep 게이트 10종을 bash·zsh 양쪽에서 실행해 동일 결과를 확인했다. 준수 상태에서 0건이 정상인 익명 레코드 반환 패턴은 합성 양성 케이스 2건 / 음성 0건으로 생존을 증명했다.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>2026-09-24 — 카이젠 Phase 15 근거 조회</h2>
+  <div class="doc-body">
+<p><strong>범위:</strong> 처리 배정표의 <code>reflect-collector:P6</code> · <code>F19</code>(새 합성어) + 기존 규칙 강도가 출처 강도를 넘는지 재확인 + 현행화. 조회 결과는 카이젠 근거 파일 한 곳에 모였고(본문을 읽은 출처 26 건), 이 사이클은 그 파일만 근거로 썼다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">카테고리</div></th>
+  <th><div class="c">조회</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>korean</code></div></td>
+  <td><div class="c">Microsoft Style Guide · Google Jargon · 한글 맞춤법 제2항 · 제50항 해설 · 국립국어원 다듬은 말 목록</div></td>
+  <td><div class="c"><strong>K-11 신설, 관측 컨벤션.</strong> 영어권 문서 가이드는 새 말을 만들지 말라고 하고, 한국어 규범은 사전에 없는 전문 용어를 정당하게 본다. 그래서 판정 기준을 사전 등재가 아니라 처음 읽는 사람 기준으로 적었다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>korean</code></div></td>
+  <td><div class="c">국립국어원 etc_seq=663 · LINE 글</div></td>
+  <td><div class="c"><strong>이름표가 내용보다 넓다.</strong> 663 은 「유형별로 알아보는 보도자료 작성 길잡이」(2021)이고, 본문에서 신조어 · 외래어 지침을 찾지 못했다. LINE 글은 독자 수준과 정보 설계를 다룬다. 둘 다 K-11 근거로 쓰지 않았다. 원칙 1 · 2 · 5 · 8 이 663 을 근거로 드는 문제는 다음 사이클</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>comment</code></div></td>
+  <td><div class="c">Effective Dart Documentation · 린트 <code>public_member_api_docs</code></div></td>
+  <td><div class="c"><strong>강도 초과 1 건.</strong> C-06 은 MUST 인데 원문 제목은 "PREFER writing doc comments for public APIs" 다. 린트 설명은 "DO document all public members." 라 출처끼리 어긋난다. 이번 사이클은 기록만 한다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>extraction</code></div></td>
+  <td><div class="c">Flutter 성능 모범 사례 · <code>StatelessWidget</code> · Google Engineering Practices</div></td>
+  <td><div class="c">변화 없음. prefer · Usually 수준이라 킷 강도(SHOULD)를 넘지 않는다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>stylometry</code></div></td>
+  <td><div class="c">Droid (EMNLP 2025) · SemEval-2026 Task 13</div></td>
+  <td><div class="c">변화 없음. 규칙 근거로 쓰지 않는 방침 유지</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>dart</code></div></td>
+  <td><div class="c">Effective Dart Style · 린트 <code>unnecessary_underscores</code> · Flutter 3.47.5 · go_router 18.0.1 · <code>material_ui</code></div></td>
+  <td><div class="c">낡은 곳 목록만 남긴다 — 문서 예시의 <code>__</code> 두 곳, 제스처 콜백 58 개의 기준 버전 표기(3.47.5 원본에서도 58 개로 같다), go_router 예제 링크, 위키 스타일 가이드 이전, Material 분리 공지. 다음 사이클</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>검증 실행.</strong> <code>core-naming.md</code> §8 의 표 칸 명령 넷(G-1 · G-2 · G-5 · G-6)이 죽어 있었다. 표 칸에서는 <code>|</code> 를 <code>\|</code> 로 적어야 하는데, 그 글을 그대로 붙여 넣으면 <code>\|</code> 가 정규식의 "또는" 이 아니라 글자 <code>|</code> 로 읽힌다. bash · zsh 둘 다 G-1 · G-2 · G-5 는 합성 양성 케이스에서 0 건(종료 코드 1 — 문서가 통과로 읽는 값)이었고, G-6 은 파이프 자리의 <code>\|</code> 가 인자로 넘어가 파일의 모든 줄을 냈다. 명령을 코드 블록으로 옮겼다.</p>
+<p>확장자 변수를 한 문자열로 두면 확장자가 둘일 때 zsh 가 나누지 않아 0 건이 되는 것도 확인했다. <code>core-naming.md</code> §8 · <code>core-comment.md</code> §6 · 개요 문서 예시의 확장자 변수를 배열로 바꿨다. 나머지 게이트 25 종은 bash · zsh 모두 합성 양성 케이스를 잡았다.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>docs/tone/research-log.md</code> 의 기준 판은 커밋 <code>e500a63</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>

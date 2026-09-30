@@ -238,17 +238,22 @@ ladder 2 단계(세션 소유 계약)가 통째로 죽어 있었다.
   따옴표(`"` 또는 `'`)로 감싸인 경우에만 한 쌍을 제거하고, 앞뒤 공백도 제거한다.
 
 ```bash
-# frontmatter 스칼라 1 개 읽기 — 값의 따옴표를 벗겨서 돌려준다 (zsh · bash 동일)
+# frontmatter 스칼라 1 개 읽기 — 따옴표와 줄 끝 주석을 벗겨서 돌려준다 (zsh · bash 동일)
+# 줄 끝 주석은 빈칸 · 탭 뒤의 # 부터다. abc#def 는 값 그대로다 (YAML 1.2 §6.6)
 fm_get() { # fm_get <file> <key>
   awk -v k="$2" -v q="\"'" '
     NR==1 && /^---[[:space:]]*$/ { fm=1; next }
     fm && /^---[[:space:]]*$/    { exit }
     fm && index($0, k ":") == 1 {
       v = substr($0, length(k) + 2)
-      sub(/^[[:space:]]+/, "", v); sub(/[[:space:]]+$/, "", v)
-      c = substr(v, 1, 1)
-      if (length(v) > 1 && index(q, c) > 0 && substr(v, length(v), 1) == c)
-        v = substr(v, 2, length(v) - 2)
+      sub(/^[[:space:]]+/, "", v)
+      c = substr(v, 1, 1); e = index(substr(v, 2), c)
+      if (index(q, c) > 0 && e > 0) v = substr(v, 2, e - 1)
+      else {
+        if (c == "#") v = ""
+        else if (match(v, /[ \t]#/)) v = substr(v, 1, RSTART - 1)
+        sub(/[[:space:]]+$/, "", v)
+      }
       print v; exit
     }' "$1"
 }
@@ -260,7 +265,7 @@ fm_get() { # fm_get <file> <key>
 | ------ | ------ | ------ |
 | `slug` | 슬러그 규칙을 만족하는 문자열 | 파일명 접미와 **동일**해야 한다. plain 모드면 필드 자체를 생략 |
 | `status` | `active` \| `done` \| `superseded` | 작성 시 `active`. `done` 전환 주체·시점은 §`status: done` 전환 주체 참조. `superseded` 는 같은 일을 새 판 계약으로 다시 쓸 때 옛 판에 붙인다 |
-| `superseded_by` | 새 판 계약의 슬러그 | `status: superseded` 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(`sprint-contract-<슬러그>.md`)이 있어야 하고 그 계약이 다시 `superseded` 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다 |
+| `superseded_by` | 새 판 계약의 슬러그 | `status: superseded` 일 때만 쓰고 그때는 필수다. 따옴표 없이. 가리킨 계약(`sprint-contract-<슬러그>.md`)이 있어야 하고 그 계약이 다시 `superseded` 면 안 된다 — 사슬 금지. 옛 판의 조건 줄 · 측정 줄은 건드리지 않으므로 봉인은 그대로다. 기계 확인은 `bash harness/scripts/check-superseded.sh <.harness 폴더>` (CI 가 레포 `.harness` 에 돈다). 못 읽는 계약 · 새 판은 `UNREADABLE` 줄로 적고 통과로 치지 않는다 — 그때 종료 코드 2 |
 | `owner_session` | `$CLAUDE_CODE_SESSION_ID` 값 | 환경변수가 비어 있으면 **필드를 쓰지 마라.** 빈 문자열·`unknown` 같은 placeholder 금지 |
 
 ### 계약 봉인 — `conditions_digest` / `locked_at` (v5.3 신규 · E3)
@@ -292,8 +297,9 @@ fm_get() { # fm_get <file> <key>
   한 줄 남긴다 — 통과 집합이 안 바뀌면 `amend_direction: unchanged` 로 적으면 된다.
   실측(2026-09-23): 범위를 6 개에서 7 개로 늘리면서 산문 라벨만 고치고 개정에 안 남겼다. 조건 줄
   5 곳에 박힌 "6개" 가 실제와 어긋난 채 통과했다.
-- 조건 열거 정규식은 §조건 수 계산과 **같은 것**을 쓴다 (`[A-Z]{2,}-[0-9]{2}`). 새 패턴을
+- 조건 열거 정규식은 §조건 수 계산과 **같은 것**을 쓴다 (`([A-Z]{2,}|[^ -~]+)-[0-9]{2}`). 새 패턴을
   발명하면 두 게이트가 서로 다른 집합을 세게 된다.
+  한국어 번호 몫은 `[^ -~]+`(출력 가능한 ASCII 밖 글자)로 적는다. 한글 범위식은 로캘마다 뜻이 달라 쓰지 않는다 — 우분투 GNU grep 은 C.UTF-8 에서 이 범위식을 오류로 거부해 0 건을 냈다(2026-09-30).
 
 #### 봉인 커밋 — 봉인 시점 원문을 git 에 남긴다 (2026-09-24 추가)
 
@@ -325,7 +331,7 @@ sha256_16() {  # stdin → sha256 앞 16 자리
 }
 
 contract_digest() {  # contract_digest <계약파일>
-  grep -E '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$1" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16
+  grep -E '^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' "$1" | sed -E 's/^- \[[ x]\]/- [ ]/' | sha256_16
 }
 
 verify_seal() {  # verify_seal <계약파일> → SEAL_OK | SEAL_BROKEN | SEAL_ABSENT
@@ -338,7 +344,7 @@ verify_seal() {  # verify_seal <계약파일> → SEAL_OK | SEAL_BROKEN | SEAL_A
 
 measurement_digest() {  # measurement_digest <계약파일> — 조건 번호 + 그 아래 들여쓴 줄
   awk '
-    /^- \[[ x]\] [A-Z][A-Z]+-[0-9][0-9]/ { inb=1; match($(0), /[A-Z][A-Z]+-[0-9][0-9]/); print substr($(0), RSTART, RLENGTH); next }
+    /^- \[[ x]\] ([A-Z][A-Z]+|[^ -~]+)-[0-9][0-9]/ { inb=1; match($(0), /([A-Z][A-Z]+|[^ -~]+)-[0-9][0-9]/); print substr($(0), RSTART, RLENGTH); next }
     inb && /^[ \t]+[^ \t]/ { line=$(0); sub(/[ \t]+$/, "", line); print line; next }
     inb && /^[ \t]*$/      { next }
     { inb=0 }
@@ -519,12 +525,31 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 - "잘 동작한다", "적절히 처리한다" 같은 모호 표현 금지
 - 조건 끝에 **구체성 태그** 를 붙여라 — 상세는 아래 §조건 태그 섹션 참조
 
+#### 조건 번호 앞자리 — 한국어 (2026-09-29 개정)
+
+새 계약은 조건 번호 앞자리를 한국어로 쓴다. 사용자 결정(「계약서 작성할 때 줄임말 안 썼으면」)에 따른 것이다.
+카테고리 앞자리는 `project.yaml` 의 `prefix` 에서, 자동 포함 · 금지 패턴 번호는 이 문서 §2~§4 에서 가져온다.
+
+| 옛 앞자리 | 새 앞자리 | 쓰는 곳 |
+| --- | --- | --- |
+| `SK` | `스킬` | 카테고리 `Skill` |
+| `SC` | `스크립트` | 카테고리 `Script` |
+| `ER` | `오류` | 카테고리 `Error` |
+| `AR` | `구조` | 카테고리 `Architecture` |
+| `RE` | `재사용` | 자동 포함 `## Reusability` |
+| `DG` | `진단` | 자동 포함 `## Diagnostics` |
+| `AP` | `금지` | `## Anti-patterns` 번호 · 해당 없음 줄 `금지-00` |
+
+- 옛 계약(영어 번호 `SK-01` · `DG-01`)은 고치지 않고 그대로 읽힌다 — 조건 세기 · 봉인 · 측정 줄 봉인 정규식
+  `([A-Z]{2,}|[^ -~]+)-[0-9]{2}` 가 두 형식을 같은 뜻으로 읽는다. 봉인된 계약을 새 번호로 바꿔 쓰면 봉인이 깨진다
+- 평가자는 옛 계약의 `DG-01` 을 `진단-01` 과 같은 조건으로 판정한다. 한 계약 안에서 두 형식을 섞지 않는다
+
 #### 조건 태그 (Specificity Tag)
 
 모든 계약 조건은 끝에 구체성 태그를 붙여야 한다. 미명시 시 `[structural]` 로 간주.
 
 | 태그 | 의미 |
-|------|------|
+| --- | --- |
 | `[exact]` | 이름/값/구조 문자 그대로 매칭 |
 | `[structural]` | 섹션/필드/파일 존재 확인 (기본값) |
 | `[goal]` | 목표 달성 여부만 판정, 수단 무관 |
@@ -540,15 +565,15 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 **Aggregation Mode** — 다수 대상 (파일/모듈/키워드) 조건은 태그에 모드를 함께 명시한다:
 
 | 모드 | 의미 |
-|------|------|
+| --- | --- |
 | `enumerated` | 각 대상을 개별 이름으로 명시해야 PASS |
 | `collective` | 포괄 경로/패턴 하나로도 PASS (기본값) |
 
 **예시:**
 
 ```markdown
-- [ ] RE-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이 각각 파일명으로 명시된다 [exact, enumerated]
-- [ ] RE-02: References 에 docs/react/kit-design/ 경로가 명시된다 [structural, collective]
+- [ ] 스킬-01: References 에 g1, g2, g3, g4, g5, g5b, g6 7 개 파일이 각각 파일명으로 명시된다 [exact, enumerated]
+- [ ] 스킬-02: References 에 docs/react/kit-design/ 경로가 명시된다 [structural, collective]
 ```
 
 **규칙:**
@@ -899,8 +924,8 @@ function flush(   i, p, m, pos, miss, np) {
   }
   id = ""; buf = ""
 }
-match($0, /^- \[[ x]\] [A-Z]{2,}-[0-9]{2}/) {
-  flush(); id = substr($0, RSTART + 6, RLENGTH - 6); sub(/^[^A-Z]*/, "", id); buf = $0; next
+match($0, /^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}/) {
+  flush(); id = substr($0, RSTART + 6, RLENGTH - 6); buf = $0; next
 }
 /^## /  { flush(); next }
 /^- \[/ { flush(); next }
@@ -997,7 +1022,7 @@ done < "$DUPS"
 
 - **자동 포함 조건**(Reusability · Diagnostics)에 쓰는 경우와 사유별 측정은 아래 §적용 대상이 없는 자동 포함 조건 에 있다
 - **금지 패턴**에도 같은 표기를 쓴다 — 변경 파일에 걸릴 수 있는 패턴이 하나도 없으면(대상이 레포 밖 · 스택 불일치)
-  억지로 2 개를 채우지 말고 `AP-00: N/A (사유)` 로 적는다. 매치될 수 없는 패턴의 0 은 공허한 0 이라
+  억지로 2 개를 채우지 말고 `금지-00: N/A (사유)` 로 적는다. 매치될 수 없는 패턴의 0 은 공허한 0 이라
   PASS 근거가 아니다 (`qa-evaluator.md` 규칙 10 · Anti-pattern 검증 절). 작성 절차는 SKILL.md Step 3
 - `[미검증]`(재지 못함)과 다르다 — 경계는 `qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이 SSOT 다
 
@@ -1097,6 +1122,28 @@ done < "$DUPS"
   푼 폴더에서는 `NOT RUN: git ls-files 실패 (rc=128)` 와 종료 코드 2 를 낸다. 푼 폴더에서 `git init -q && git add -A` 를
   한 뒤 돌린다 (실측 2026-09-26, 판 `6378948` — 풀어 둔 판은 종료 코드 2, 같은 사본에 두 명령을 한 뒤 종료 코드 0)
 
+아래 다섯은 2026-09-26 ~ 27 계약 넷의 측정이 헛 FAIL 을 내거나 결함을 놓친 자리다 (남은 일 목록 B22).
+
+- **린트 끄기 주석을 읽는 측정은 세 모양을 가른다.** `<!-- markdownlint-disable-next-line … -->` 은 다음 한 줄,
+  `disable-line` 은 그 줄만, 꼬리 없는 `disable` 은 `enable` 이 나올 때까지 끈다. `after-0926-mdlint` 측정 스크립트
+  `meaning.py` 가 `disable-next-line` 을 구간 `disable` 로 읽어 끈 범위를 부풀렸다
+- **파일마다 차이를 셀 때 첫 차이 하나에서 멈추지 않는다.** 같은 `meaning.py` 의 SPACING 검사가 파일마다 첫 차이만 내서,
+  고친 뒤에도 남은 둘째 차이를 못 봤다. 차이는 모두 내고 그 수를 센다
+- **커밋 메시지 끝 줄을 `git log --format=%B | tail` 로 재지 않는다.** `%B` 출력 끝에 빈 줄이 붙어 `tail -2` 가 서명 줄
+  하나와 빈 줄을 잡는다 — cx3 `AR-02` 에서 여덟 커밋이 모두 헛 FAIL 했다. 서명 줄은
+  `git log -1 --format='%(trailers:key=Co-Authored-By,valueonly)'` 로 뽑는다. 모델 이름은 바뀌므로 한 벌과 글자로 맞대지 말고
+  `Claude … <noreply@anthropic.com>` 모양으로 잰다
+- **기대 출력 글자는 봉인 전 실제 실행 출력에서 옮긴다.** 손으로 적으면 빈칸 수가 달라진다 — dr1a `SC-01` 은 출력이
+  빈칸 둘인데 계약은 한 칸이라 헛 FAIL 했다
+- **정렬은 `LC_ALL=C sort` 로 한다.** 로캘 없는 `sort -u` 는 이 맥과 CI 에서 차례가 갈린다 — k4 `DG-02` 가 이 규칙과
+  다르게 정렬했다. 겹친 줄을 지울 때도 `LC_ALL=C sort -u` 로 쓴다
+
+아래 셋은 2026-09-28 ~ 29 마지막 정리에서 모은 것이다 (ex2 · k1 · lt 기록).
+
+- **원문 대조 계약은 항목마다 「레포 전체에서 같은 주장」 줄을 둔다.** 한 파일에서 찾은 틀린 주장은 다른 파일에도 옮겨져 있기 쉽다. 같은 주장을 `git grep` 으로 레포 전체에서 찾아, 고칠 자리 · 기록이라 두는 자리 · 시험 입력이라 두는 자리를 나눠 적는다 — ex2 에서 `.p8` 권장 전제가 원본 md 한 곳과 페이지 두 곳에 있었다
+- **설치본이 있어야 도는 검사는 설치본을 지운 사본으로도 잰다.** 이 맥에는 슬라이서가 깔려 있어 슬라이서 설치본을 읽는 검사가 돌지만 CI 에는 설치본이 없다. 설치본 경로를 지운 사본으로 한 번 더 돌려 불일치 0 과 건너뛴 수를 같이 잰다 — k1 의 bambu 완료 검사 시험
+- **경로 목록을 따옴표 없는 변수로 넘기지 않는다.** zsh 는 따옴표 없는 변수를 빈칸에서 쪼개지 않아 목록 전체가 경로 하나로 넘어간다. 경로를 낱낱이 적거나, `xargs` 로 넘기거나, 배열에 담아 `"${paths[@]}"` 로 넘긴다 — lt 기록 · §셸 이식성 규약
+
 ```bash
 # 두 판 풀기 · 경고 줄 번호 — zsh · bash 동일
 with_two() {  # with_two <저장소> <판1> <판2> <명령> [인자...] — 명령 뒤에 두 폴더를 붙여 부르고 그 종료 코드를 돌려준다
@@ -1191,25 +1238,25 @@ line_of() {  # stdin 의 경고 줄 `경로:줄[:열] …` → 줄 번호 한 �
 ```
 
 - `project.yaml.anti_patterns`에서 최소 2개 선별 — 이번 변경 파일에 걸릴 수 있는 패턴이 그보다 적으면 걸리는 것만
-  쓰고, 하나도 없으면 `AP-00: N/A (사유)` 한 줄로 쓴다 (§해당 없음 마커)
+  쓰고, 하나도 없으면 `금지-00: N/A (사유)` 한 줄로 쓴다 (§해당 없음 마커)
 - 해당 구현에서 발생 가능성이 높은 것을 우선 선택
 
 ### 3. Reusability (자동 포함)
 
 ```markdown
 ## Reusability
-- [ ] RE-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다
-- [ ] RE-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다
+- [ ] 재사용-01: 다른 곳에서도 사용 가능한 컴포넌트를 private으로 만들지 않았다
+- [ ] 재사용-02: 프로젝트에 이미 동일/유사 컴포넌트가 있으면 새로 만들지 않고 재사용했다
 ```
 
 ### 4. Diagnostics (자동 포함)
 
 ```markdown
 ## Diagnostics
-- [ ] DG-01: {commands.analyze} 워닝 0개 (변경/생성 파일 대상)
-- [ ] DG-02: IDE diagnostics 워닝/인포 0개 ({diagnostics.ide_exclude} 제외)
-- [ ] DG-03: {commands.test} 콘솔 로그에 에러/예외 0개
-- [ ] DG-04: 실제 앱/서버 구동 시 에러 0개
+- [ ] 진단-01: {commands.analyze} 워닝 0개 (변경/생성 파일 대상)
+- [ ] 진단-02: IDE diagnostics 워닝/인포 0개 ({diagnostics.ide_exclude} 제외)
+- [ ] 진단-03: {commands.test} 콘솔 로그에 에러/예외 0개
+- [ ] 진단-04: 실제 앱/서버 구동 시 에러 0개
 ```
 
 **적용 대상이 없는 자동 포함 조건** (2026-09-19 신규) — 조건을 지우지 않고 ID 를 유지한 채 본문을 `N/A (사유)` 로 쓴다.
@@ -1218,15 +1265,15 @@ line_of() {  # stdin 의 경고 줄 `경로:줄[:열] …` → 줄 번호 한 �
 
 ```markdown
 ## Diagnostics
-- [ ] DG-01: N/A (commands.analyze 대상 scripts/release.sh 가 이번 변경 파일에 없다. 측정: git diff --name-only <기준>...<브랜치> | grep -c '^scripts/release.sh$' 이 0)
-- [ ] DG-02: IDE diagnostics 워닝/인포 0개 ([] 제외)
-- [ ] DG-03: N/A (commands.test 대상도 같은 파일이라 이번 변경 파일에 없다. 측정: DG-01 과 같은 명령)
-- [ ] DG-04: N/A (산출물이 설정 파일 · 문서뿐이라 구동할 앱이 없다. 측정: 변경 파일에 실행 진입점 0 개)
+- [ ] 진단-01: N/A (commands.analyze 대상 scripts/release.sh 가 이번 변경 파일에 없다. 측정: git diff --name-only <기준>...<브랜치> | grep -c '^scripts/release.sh$' 이 0)
+- [ ] 진단-02: IDE diagnostics 워닝/인포 0개 ([] 제외)
+- [ ] 진단-03: N/A (commands.test 대상도 같은 파일이라 이번 변경 파일에 없다. 측정: 진단-01 과 같은 명령)
+- [ ] 진단-04: N/A (산출물이 설정 파일 · 문서뿐이라 구동할 앱이 없다. 측정: 변경 파일에 실행 진입점 0 개)
 ```
 
 N/A 줄도 조건 줄이다 — §조건 수 계산과 §계약 봉인에 그대로 들어간다.
 
-**자동 생성 블록 안 · 밖을 나눠 잰다 (v5.7 추가).** 편집기 경고 조건(`DG-02` 등)이 재는 파일에 `<!-- AUTO:* -->` 블록이
+**자동 생성 블록 안 · 밖을 나눠 잰다 (v5.7 추가).** 편집기 경고 조건(`진단-02` 등)이 재는 파일에 `<!-- AUTO:* -->` 블록이
 있으면 경고를 블록 안과 블록 밖으로 나눠 센다. 블록 안 줄은 `scripts/sync-docs.py` 같은 생성기가 쓰므로 손으로 고치면
 다음 동기화에서 되돌아가고, 블록 밖 줄만 이 스프린트가 고칠 수 있다. 봉인 전에 두 수를 각각 재 서술 절에 적는다.
 실측(2026-09-26, C4a 계약 DG-02): 바뀔 줄 안 README `AUTO:evals` 블록의 표 경고를 봉인 전에 재지 않아 개정이 필요했다.
@@ -1452,8 +1499,8 @@ amendment 로 인정하지 않는다 — 계약 조건과 동일하게, 평가 �
 
 ## 복잡도별 조건 수 가이드
 
-조건 수는 **기능 조건**만 센다 (v5.5 개정). 기능 조건은 조건 줄에서 자동 포함 여섯 줄(`RE-01` · `RE-02` ·
-`DG-01`~`DG-04`), `## Anti-patterns` 절의 줄, `N/A (사유)` 줄을 뺀 나머지다. 옛 표는 전체 조건 줄을 셌는데, 그러면
+조건 수는 **기능 조건**만 센다 (v5.5 개정). 기능 조건은 조건 줄에서 자동 포함 여섯 줄(`재사용-01` · `재사용-02` ·
+`진단-01`~`진단-04`), `## Anti-patterns` 절의 줄, `N/A (사유)` 줄을 뺀 나머지다. 옛 표는 전체 조건 줄을 셌는데, 그러면
 이 레포(카테고리 4 개)에서 가장 작은 계약도 카테고리마다 한 줄 · 금지 패턴 한 줄 · 자동 포함 여섯 줄로 11 줄이라
 단순 작업의 「4-6 개」를 지킬 수 없었다. 실측(2026-09-19): 한 줄 훅 수정이 무거운 계약 · QA 절차에 묻혔다.
 
@@ -1469,7 +1516,7 @@ amendment 로 인정하지 않는다 — 계약 조건과 동일하게, 평가 �
 - 세는 명령은 SKILL.md Step 6.2 의 두 번째 명령이다 (같은 식):
 
 ```bash
-awk '/^## /{s=$(0)} /^- \[[ x]\] [A-Z]{2,}-[0-9]{2}/{ if (s=="## Anti-patterns") next; if ($(0) ~ /^- \[[ x]\] (RE-0[12]|DG-0[1-4]):/) next; if ($(0) ~ /: N\/A \(/) next; n++ } END{print n+0}' "$CF"
+awk '/^## /{s=$(0)} /^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}/{ if (s=="## Anti-patterns") next; if ($(0) ~ /^- \[[ x]\] (RE-0[12]|DG-0[1-4]|재사용-0[12]|진단-0[1-4]):/) next; if ($(0) ~ /: N\/A \(/) next; n++ } END{print n+0}' "$CF"
 ```
 
 ## 스키마 버전

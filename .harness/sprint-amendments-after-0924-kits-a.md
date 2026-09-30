@@ -8,7 +8,7 @@ created: "2026-09-26 12:57"
 봉인된 조건 줄은 고치지 않았다. 교차 진단(BLOCKING 1)이 짚은 파일이 AR-01 기대 집합 밖이라 그 집합에 한 경로를 더하고(AM-01),
 더한 경로와 함께 고친 곳이 제대로 바뀌었는지 재는 측정을 새로 둔다(AM-02).
 
-교차 진단 요지: 이 묶음은 Makefile 에 그 단계의 타겟이 있을 때만 `make` 를 쓰게 바꿨다(`project-detection.md` Step 2b 4 번 · `flutter-ai-rules.md:115`).
+교차 진단 요지: 이 묶음은 Makefile 에 그 단계의 타겟이 있을 때만 `make` 를 쓰게 바꿨다(`project-detection.md` Step 2b 4 번 · `flutter-ai-rules.md:116`).
 두 문장 모두 flutter-preflight 를 이름으로 가리키는데, flutter-preflight Gotcha(`SKILL.md:18`)는 「`Makefile` 존재 확인 후 `make` 커맨드를 우선 사용하라」 를 그대로 적고 있었다.
 `app-preflight` 묶음 타겟만 있는 Makefile 에서 이 문장을 따르면 `make app-test` 가 종료 코드 2 로 멈춘다. SK-07 이 소비자를 둘(flutter-run · flutter-ai-rules)만 세어 이 파일이 빠졌다.
 

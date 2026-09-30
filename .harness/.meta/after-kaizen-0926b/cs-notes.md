@@ -38,23 +38,23 @@
 
 계약 AR-04 가 요구하는 넘김이다. 부모가 받을 묶음을 정한다.
 
-- `harness/docs/guides/qa-evaluation-guide.md:1210` — 「①~④ 의 짝은 다음 사이클 Phase 1 · 2 로 넘긴다」. 계약 측 짝이 이번에
+- `harness/docs/guides/qa-evaluation-guide.md:1223` — 「①~④ 의 짝은 다음 사이클 Phase 1 · 2 로 넘긴다」. 계약 측 짝이 이번에
   생겨 이 문장이 낡았다. 생성 측 짝(GD-7)과 함께 고친다
-- `harness/skills/sprint-contract/SKILL.md:471` — 조건 패턴 표가 v5.5 다섯 종이다. 새 패턴 셋(산출물이 검사인 조건 · 기존 동작
+- `harness/skills/sprint-contract/SKILL.md:477` — 조건 패턴 표가 v5.5 다섯 종이다. 새 패턴 셋(산출물이 검사인 조건 · 기존 동작
   유지 조건 · 페이지 맞추기 계약)이 없다. Step 2 는 이 묶음 표에 없는 절이다
 - `docs/harness/contract-schema.html` — 문서 사이트 페이지. 부모가 마지막에 다시 만든다
 
 판 번호 `v5.5` 를 옮겨 적은 자리 여덟 — 지금도 v5.6 을 못 따라갔고, v5.7 로 올려 갭이 더 벌어졌다 (교차 진단이 찾았다):
 
-- `harness/docs/guides/contract-design-guide.md:1311` — 「버전 정보」 표 `Schema version | v5.5`. 이 표는 `현재:` 줄에서 값을 옮겨
+- `harness/docs/guides/contract-design-guide.md:1327` — 「버전 정보」 표 `Schema version | v5.5`. 이 표는 `현재:` 줄에서 값을 옮겨
   적으라고 스스로 적어 두었다
 - `docs/index.html:239` — 목차 제목 `'Sprint Contract 스키마 v5.5'`. `docs/harness/*.html` 밖이라 페이지 재생성에 안 딸려 온다
-- `harness/docs/guides/qa-evaluation-guide.md:12` — 머리 「참조 스키마 … (v5.5)」
-- `harness/docs/guides/qa-evaluation-guide.md:15` — 「Phase 2 가 넘긴 스키마 v5.5 의 반대편」
-- `harness/docs/guides/qa-evaluation-guide.md:22` — 「정합 — 스키마 v5.5 의 …」
-- `harness/docs/guides/qa-evaluation-guide.md:1968` — 참조 목록 「Sprint Contract v5.5 스키마」
-- `harness/docs/guides/qa-evaluation-guide.md:2038` — Guide version 줄 안 「스키마 v5.5 정합」
-- `harness/docs/guides/qa-evaluation-guide.md:2047` — 「Schema link: contract-schema.md v5.5」
+- `harness/docs/guides/qa-evaluation-guide.md:16` — 머리 「참조 스키마 … (v5.5)」
+- `harness/docs/guides/qa-evaluation-guide.md:19` — 「Phase 2 가 넘긴 스키마 v5.5 의 반대편」
+- `harness/docs/guides/qa-evaluation-guide.md:26` — 「정합 — 스키마 v5.5 의 …」
+- `harness/docs/guides/qa-evaluation-guide.md:1989` — 참조 목록 「Sprint Contract v5.5 스키마」
+- `harness/docs/guides/qa-evaluation-guide.md:2063` — Guide version 줄 안 「스키마 v5.5 정합」
+- `harness/docs/guides/qa-evaluation-guide.md:2072` — 「Schema link: contract-schema.md v5.5」
 
 ## 원래 있던 편집기 경고
 

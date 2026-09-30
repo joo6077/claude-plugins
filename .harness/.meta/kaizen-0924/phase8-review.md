@@ -89,7 +89,7 @@
 
 - `.claude/kaizen-input/insights-report.md` 의 `배정` 칸이 `Phase 8` 인 행은 `backend-family:P3` 하나다(`awk -F'|' '{print $4}'` 로 세면 `Phase 8` 1 건). 계약 `## 배경` 표 첫 행이 SK-01 ~ SK-04 · AR-02 로 반영한다. 비고 「기준 커밋 가르기 규칙 세 곳을 하나로」는 Phase 4 가 정한 `/sprint` Step 3 을 기준 원본으로 두고 글자 그대로 옮기는 것으로(SK-01 · RE-02) 다룬다.
 - `F09`(Phase 4 행)의 비고, `Phase 별 적용 힌트` 의 Phase 8 줄(내 변경 · 기준 커밋에서 이미 실패 · 환경)도 원칙 7 의 다섯 갈래 안에 들어간다.
-- 앞 Phase 넘김 셋 — Phase 1 `infra-test/SKILL.md:37`(SK-05), Phase 4 판정 세 줄(SK-01), Phase 7 README `:54`(SK-04) — 이 전부 조건이 됐다. 러닝북 `Phase 별 추가 과제` 에 Phase 8 줄은 없다.
+- 앞 Phase 넘김 셋 — Phase 1 `infra-test/SKILL.md:41`(SK-05), Phase 4 판정 세 줄(SK-01), Phase 7 README `:54`(SK-04) — 이 전부 조건이 됐다. 러닝북 `Phase 별 추가 과제` 에 Phase 8 줄은 없다.
 - 데이터 풀 §0.5 [infra] 세 건 가운데 `미분류` 기억은 통과 근거로 쓰지 않았다고 적었다. Gotcha 14 의 「실측(2026-09-18)」 은 §0-b `e863512e` 기록과 맞다.
 
 ### 4. 범위가 러닝북 표의 「고쳐도 되는 범위」 안인가 — 안이다

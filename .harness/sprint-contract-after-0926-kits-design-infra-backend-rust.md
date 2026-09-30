@@ -45,12 +45,12 @@ locked_at: "2026-09-26 21:33"
 
 | ID | 처리 | 조건 · 근거 |
 | --- | --- | --- |
-| KD-1 | 계약에 넣음 | SK-01 (자리: 목록은 `design-audit/SKILL.md:114 · :235` 라 적었지만 실제 자리는 `design-kit/agents/design-reviewer.md:114` · `:235` · `:248-249` · `:253` 과 design-audit Step 5) |
+| KD-1 | 계약에 넣음 | SK-01 (자리: 목록은 `design-audit/SKILL.md:118 · :235` 라 적었지만 실제 자리는 `design-kit/agents/design-reviewer.md:114` · `:247` · `:261-262` · `:266` 과 design-audit Step 5) |
 | KD-2 | 계약에 넣음 | SK-02 |
 | KD-3 | 계약에 넣음 | SK-03 — 숫자를 다시 적지 않고 harness `skill-design-guide.md` 의 공통 규칙 절을 가리킨다. 그 절은 GD-6(다른 묶음)이 만든다 |
 | KD-4 design:P2 | 넘김 — 사용자 결정 없음 | 규칙 방향(개수 계약 대 「여러 개 바로」)을 바꾸는 일이라 사용자 결정 몫인데 `decisions.md` 에 없다 |
 | KD-4 `UNVERIFIED_ENV` | 처리됨 | `09a0cde` — `design-reviewer.md:65-75` 두 분류 · `env_gaps`, design-audit Gotcha 11 · Step 5, evals id 21 |
-| KD-4 §3.7 네 칸 | 일부 처리됨 · 나머지 계약에 넣음 | reviewer 출력 틀 `design-reviewer.md:218` 은 `09a0cde` 로 처리됨. 규약 §3 「캡처 자체가 실패」 줄(`visual-change-protocol.md:143`)만 남아 SK-06 |
+| KD-4 §3.7 네 칸 | 일부 처리됨 · 나머지 계약에 넣음 | reviewer 출력 틀 `design-reviewer.md:230` 은 `09a0cde` 로 처리됨. 규약 §3 「캡처 자체가 실패」 줄(`visual-change-protocol.md:143`)만 남아 SK-06 |
 | KD-4 design-mockup Step 0 | 계약에 넣음 | SK-05 |
 | KD-4 Material 3 | 바깥 근거 없음 | Material 3 Expressive · Apple HIG 2026 원문 대조가 ex 폴더에 없다 |
 | KD-4 OKLCH | 계약에 넣음 | SK-04 (EX-13) |
@@ -67,7 +67,7 @@ locked_at: "2026-09-26 21:33"
 | KR-1 · KR-2 | 계약에 넣음 | SK-11 |
 | KR-3 시각 종류 판정 행 | 계약에 넣음 | SK-12 |
 | KR-3 버전 리터럴 · testcontainers | 계약에 넣음 | SK-13 |
-| KR-3 rust-model 타입 대응 | 처리됨 | `rust-kit/skills/rust-model/SKILL.md:35` Gotcha 「시각 컬럼은 종류부터 정하고, ORM 마다 다른 타입 대응을 따른다」 · `:90` · `:240` `DateTimeWithTimeZone` (Phase 9) |
+| KR-3 rust-model 타입 대응 | 처리됨 | `rust-kit/skills/rust-model/SKILL.md:39` Gotcha 「시각 컬럼은 종류부터 정하고, ORM 마다 다른 타입 대응을 따른다」 · `:90` · `:240` `DateTimeWithTimeZone` (Phase 9) |
 
 ## GAP 분석 — 복잡도 · 설정 대조 · 편집 전 감사
 
@@ -127,7 +127,7 @@ locked_at: "2026-09-26 21:33"
 | `rust-kit/skills/rust-audit/references/audit-criteria.md` | `:3` 머리(Step 2c 인용), `## 7. API Design` `:83-92`, `:89` `utoipa 5.4 docs` | 시각 종류 행 없음, 버전 리터럴 | SK-12 · SK-13 |
 | `rust-kit/skills/rust-middleware/SKILL.md` | `:14` Gotcha 2 tower-http 0.6 | Step 2c 안내 없음 (Step 2c 표는 0.7.1 · 동작 변경 기재) | SK-13 |
 | `rust-kit/templates/rust-init.toml.template` | `:11` · `:36-38` 판 번호 주석 | Step 2c 안내 없음 | SK-13 |
-| `backend-kit/skills/backend-audit/references/audit-criteria.md` `:38` · `docs/rust/data/sqlx-patterns.md:180` | 시각 종류별 저장 행 원문 · 원칙 6 | 없음 (옮길 원문) | SK-12 |
+| `backend-kit/skills/backend-audit/references/audit-criteria.md` `:38` · `docs/rust/data/sqlx-patterns.md:181` | 시각 종류별 저장 행 원문 · 원칙 6 | 없음 (옮길 원문) | SK-12 |
 
 구현 선택지가 둘 이상인 곳은 위 「이 계약이 정한 판단 넷」 에 고른 쪽과 까닭을 적었다.
 
@@ -164,8 +164,8 @@ AR-04: exists=0 ids=0 tone=0 pages=0 roots=0
 - SK-01 · AR-03 양성 대조 — `git archive` 사본에서 `design-reviewer.md` 사본 줄 한 낱말을 바꾸면 `check-reviewer-protocol-copies.py` 가 `violations=1` · 종료 코드 1 을 낸다
 - AP-03 · AP-04 양성 대조 — 사본에서 design-guide 에 언어 표시 없는 펜스를 넣으면 `--check=code-fence` 종료 코드 2(`V6 … 1 bare — FAIL`), design-system 머리의 `name:` 을 지우면 `--check=frontmatter` 종료 코드 2. 손대지 않은 사본은 0
 - DG-02 양성 대조 — 같은 측정을 `7b4618c^..7b4618c`(design-kit Phase 6 커밋)에 MD013 을 켜고 돌리면 `TOTAL new=28`, 끄면 0. 측정이 살아 있다
-- AR-04 대조(교차 진단 반영 뒤) — 같은 판정 줄을 떼어 두 가짜 notes 에 돌렸다: 세 절(`## 톤 대조` · `## 다시 만들 문서 페이지` · `## 남은 것`)에 맞는 글이 든 쪽은 `tone=1 pages=1 roots=1`, 같은 낱말을 다른 절에 몰아 쓰고 톤 절에 「부르지 않음」 만 적은 쪽은 `tone=0 pages=0 roots=0`. SK-02 기준값 `old=3` 은 교차 진단이 찾은 세 줄(`design-reviewer.md:126` · `audit-criteria.md:10` · `design-audit/SKILL.md:71`)과 같다
-- 알려진 답 — SK-03 `global=5` 는 손으로 센 다섯 자리(`design-reviewer.md:177` · `audit-criteria.md:119` · `design-guide/SKILL.md:54` · `design-mockup/SKILL.md:69` · `:143`)와 같다.
+- AR-04 대조(교차 진단 반영 뒤) — 같은 판정 줄을 떼어 두 가짜 notes 에 돌렸다: 세 절(`## 톤 대조` · `## 다시 만들 문서 페이지` · `## 남은 것`)에 맞는 글이 든 쪽은 `tone=1 pages=1 roots=1`, 같은 낱말을 다른 절에 몰아 쓰고 톤 절에 「부르지 않음」 만 적은 쪽은 `tone=0 pages=0 roots=0`. SK-02 기준값 `old=3` 은 교차 진단이 찾은 세 줄(`design-reviewer.md:127` · `audit-criteria.md:10` · `design-audit/SKILL.md:74`)과 같다
+- 알려진 답 — SK-03 `global=5` 는 손으로 센 다섯 자리(`design-reviewer.md:187` · `audit-criteria.md:119` · `design-guide/SKILL.md:55` · `design-mockup/SKILL.md:70` · `:146`)와 같다.
   SC-01 `E3 copass=1` 은 픽스처 워크플로 한 개에 checkout 한 줄이라 1 이다. SK-11 `examples=2` 는 `rust-run/SKILL.md:22` · `:24` 두 줄이다. AR-01 `allow=28` 은 아래 목록을 손으로 적은 수다
 - 도구 준비 — `command -v bash` = `/opt/homebrew/bin/bash`(5.3.9), PyYAML 있는 python3 = `/Users/jackson/.pyenv/versions/3.14.3/bin/python3`(yaml 6.0.3), `/usr/bin/python3` 는 `import yaml` 실패,
   markdownlint-cli2 0.23.2 는 세션 스크래치 `k2/mdlint/`(c4c 묶음 것을 복사), 로컬 CI 도구 `ci-local.sh` 지문 `59fe55125c0dbc77`. SK-08 의 raw 주소는 `curl` 로 200
@@ -175,14 +175,14 @@ AR-04: exists=0 ids=0 tone=0 pages=0 roots=0
 - 이 계약은 봉인 · 봉인 커밋 · 구현 전 단계까지를 만든다. 교차 진단을 먼저 받고 봉인한다
 - 킷 판 올림(`plugin.json`) · marketplace · 릴리스 · 푸시는 하지 않는다 — 부모가 합친 뒤 한다
 - 다른 묶음과 같은 파일: `design-kit/references/visual-change-protocol.md` 는 GD-6 이 머리 `:3-15` 와 숫자 줄(`:31` · `:45` · `:159`)을 고친다 — 이 계약은 `:143` 한 줄만 고친다.
-  `design-kit/skills/design-mockup/SKILL.md:166` 은 PD-1 묶음 자리다 — 이 계약은 머리 줄 · `:29` · `:69-70` · `:143` 만 고친다. KD-3 은 GD-6 이 만들 절을 이름으로 가리키기만 하고 숫자를 다시 정하지 않는다
+  `design-kit/skills/design-mockup/SKILL.md:169` 은 PD-1 묶음 자리다 — 이 계약은 머리 줄 · `:29` · `:69-70` · `:143` 만 고친다. KD-3 은 GD-6 이 만들 절을 이름으로 가리키기만 하고 숫자를 다시 정하지 않는다
 - 문서 페이지 다시 만들기는 부모 몫이다. 이 계약이 고치는 페이지는 `docs/infra-kit/infra-test.html` 하나(코드 사본 줄만). 원본이 바뀌어 다시 만들 후보 — `docs/design-kit/design-mockup.html`(DC-15 와 함께) ·
   `docs/design-kit/visual-change-protocol.html` · design-audit · design-system · infra-kit · backend-kit · rust-kit 페이지 중 바뀐 낱말이 든 쪽, `docs/infra-kit/research-log.html` · `docs/backend-kit/research-log.html`(드리프트 도구 대응, 지금 없음) — 구현자가 바뀐 낱말로 `docs/` 를 찾아 notes 에 목록을 남긴다(AR-04)
 - 평가 사례(`design-kit/evals/evals.json` 의 「2 개 이상」 · 「최대 3 회」 기대 문장)는 고치지 않는다 — 규약이 정한 값을 행동으로 재는 문장이고 KD-3 대상(스킬 · 감사 다섯 자리)이 아니다
-- `design-kit/skills/design-component/SKILL.md:35` · `design-concept/SKILL.md:92` 는 SK-05 뒤 사실이 되므로 고치지 않는다
+- `design-kit/skills/design-component/SKILL.md:36` · `design-concept/SKILL.md:96` 는 SK-05 뒤 사실이 되므로 고치지 않는다
 - backend-kit(`docs/backend/` 41 곳) · rust-kit(`docs/rust/` 4 곳)도 설치본에 `docs/` 가 없는 같은 뿌리를 가진다. KI-3 은 infra-kit 만이다 — 두 킷은 notes 에 넘김으로 적는다
 - 기존 markdownlint 경고 전체 정리(VS-26)는 부모 몫이다. DG-02 는 이 계약이 더한 줄의 새 경고만 잰다
-- `.claude/skills/docs-site/SKILL.md:104` 에도 「line-height 1.2~1.6배」 가 있지만 레포 전용 스킬이라 이 묶음(네 킷) 밖이다 — notes 「남은 것」 에 넘긴다. `docs/superpowers/plans/2026-03-30-design-kit.md` 의 두 줄은 지난 계획 기록이라 둔다
+- `.claude/skills/docs-site/SKILL.md:112` 에도 「line-height 1.2~1.6배」 가 있지만 레포 전용 스킬이라 이 묶음(네 킷) 밖이다 — notes 「남은 것」 에 넘긴다. `docs/superpowers/plans/2026-03-30-design-kit.md` 의 두 줄은 지난 계획 기록이라 둔다
 - 이 계약의 근거 파일(`leftovers.md` · `decisions.md` · `ex/EX-7.md` · `EX-8.md` · `EX-13.md`)은 통합 폴더 `after-0926b` 에만 있고 git 에 없다(교차 진단 확인). 측정은 이 파일들을 읽지 않지만, 판단 근거가 사라지지 않도록 형제 묶음이 다 끝나기 전에 그 폴더를 지우지 말라고 notes 에 적는다
 - KB-1 의 AsyncAPI 는 킷 문장 「AsyncAPI 3.0+」(최소선)가 EX-7 로도 참이라 킷 문장은 두고 연구 기록에만 남긴다
 - 커버리지 해소: SK-03 (추가) — 측정의 `global` 은 design-kit 전체 md(규약 파일 · `docs/` 제외)를 돌므로 다섯 자리 밖에 새 숫자 재정의가 생겨도 잡는다. 다섯 자리는 줄 단위로 따로 잰다

@@ -15,7 +15,7 @@
  *     판에서는 minContrast 4.64 로 PASS 였지만 `.caption` 이 3.95 였다. 그래서 여기서는
  *     **직접 자식 텍스트를 가진 모든 요소**를 훑고 유효 배경을 조상으로 거슬러 올라가 계산한다.
  *  2. 다크 전용 페이지에 data-theme="light" 를 걸면 그냥 다크가 렌더된다. 그걸 라이트로 세면
- *     같은 실패를 두 번 센다 (172 중 146 이 다크 전용이었다). 라이트 규칙이 있을 때만 잰다.
+ *     같은 실패를 두 번 센다 (172 중 146 이 다크 전용이었다). 라이트로 칠한 모양이 다를 때만 잰다.
  *  3. 테마 토글이 없는 페이지를 0x0 으로 재고 44px 미만이라 실패시키면 고칠 수도 없는 조건으로
  *     전 페이지가 FAIL 이 된다. 존재할 때만 잰다.
  *
@@ -28,7 +28,7 @@
  *   node scripts/check-docs-a11y.js            # docs 전체
  *   VERBOSE=1 node scripts/check-docs-a11y.js <files>   # 면제 항목까지 출력
  *
- * exit 0 = 전부 통과, 1 = 하나라도 실패. 종료 코드 의미: harness/evals/gate-exit-codes.md
+ * exit 0 = 전부 통과, 1 = 하나라도 실패, 2 = 잴 HTML 이 0 개. 종료 코드 의미: harness/evals/gate-exit-codes.md
  */
 const { chromium } = require('playwright-core');
 const path = require('path');
@@ -44,7 +44,12 @@ function walk(dir) {
     return d.name.endsWith('.html') ? [full] : [];
   });
 }
-const files = process.argv.slice(2).length ? process.argv.slice(2) : walk('docs').sort();
+const files = process.argv.slice(2).length ? process.argv.slice(2) : (fs.existsSync('docs') ? walk('docs').sort() : []);
+// 잰 페이지가 0 개인데 0/0 PASS 로 끝내면 docs 경로가 틀려도 통과한다
+if (files.length === 0) {
+  console.error('잴 HTML 이 0 개다 — docs/ 가 없거나 그 아래 .html 이 없다. 아무것도 재지 않았으니 통과가 아니다');
+  process.exit(2);
+}
 const VERBOSE = process.env.VERBOSE === '1';
 
 (async () => {
@@ -69,8 +74,14 @@ const VERBOSE = process.env.VERBOSE === '1';
       // body 배경에 0.25s transition 이 걸려 있다. 기다리지 않으면 보간 중인 색을 읽어
       // 다크 테마인데 라이트 배경 대비가 나온다 (실측: 2.51 vs 실제 7.08).
       await p.waitForTimeout(500);
+      // 0.5s 넘는 전환도 있다 — 테마를 바꾼 뒤 도는 전환이 끝날 때까지 기다린다 (무한 반복 애니메이션은 뺀다)
+      await p.evaluate(() => Promise.all(document.getAnimations()
+        .filter(a => a.effect && a.effect.getComputedTiming().iterations !== Infinity)
+        .map(a => a.finished.catch(() => null))));
       return await p.evaluate(() => {
-        const parse = c => { const m = (c || '').match(/[\d.]+/g); return m ? m.map(Number) : null; };
+        // color-mix() 결과는 color(srgb 0~1 …) 로 나온다 — 0~255 로 읽으면 밝은 색이 검정이 된다
+        const parse = c => { const m = (c || '').match(/[\d.]+/g); if (!m) return null;
+          const v = m.map(Number); return /^color\(srgb /.test(c) ? [v[0] * 255, v[1] * 255, v[2] * 255, ...v.slice(3)] : v; };
         const lum = rgb => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
           return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]); };
         const ratio = (a, c) => { const [x, y] = [lum(a), lum(c)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
@@ -120,17 +131,20 @@ const VERBOSE = process.env.VERBOSE === '1';
 
     // 라이트 테마 규칙이 없는 페이지에 data-theme="light" 를 걸면 그냥 다크가 그대로 렌더된다.
     // 그걸 라이트로 세면 같은 실패를 두 번 세게 된다 (실측: 172 페이지 중 146 개가 다크 전용).
-    const hasLight = await p.evaluate(() =>
-      [...document.styleSheets].some(ss => {
-        try { return [...ss.cssRules].some(r => r.selectorText && r.selectorText.includes('[data-theme="light"]')); }
-        catch { return false; }
-      }));
+    // 규칙 목록으로 찾지 않는다 — file:// 로 연 쪽은 링크한 공통 파일(docs/assets/site.css)의 cssRules 를
+    // 읽을 수 없어(SecurityError) 공통 파일이 주는 밝은 테마를 못 본다. 두 테마로 칠한 모양을 맞대 본다.
+    const look = () => p.evaluate(() => [document.documentElement, document.body]
+      .map(el => getComputedStyle(el).backgroundColor + getComputedStyle(el).color).join('|'));
     const dark = await sweep('dark');
-    const light = hasLight ? await sweep('light') : [];
+    const darkLook = await look();
+    const lightRun = await sweep('light');
+    const hasLight = (await look()) !== darkLook;
+    const light = hasLight ? lightRun : [];
     // 테마 토글이 없는 페이지가 172 중 147 이다. 없는 요소를 0x0 으로 재고 44px 미만이라
     // 실패시키면, 고치지도 못할 조건으로 전 페이지가 FAIL 이 된다 (실측: text3 를 고쳤는데도
     // 22/172 그대로였고 원인이 이것이었다). 존재할 때만 잰다.
-    const btn = await p.evaluate(() => { const e = document.getElementById('theme-btn');
+    // 단추 id 는 쪽마다 둘이다 — themeToggle 쪽을 안 보면 44 미만 단추가 btn=none 으로 통과한다 (2026-09-28 실측 63x33)
+    const btn = await p.evaluate(() => { const e = document.getElementById('theme-btn') || document.getElementById('themeToggle');
       if (!e) return null;
       const r = e.getBoundingClientRect();
       return { w: Math.round(r.width), h: Math.round(r.height) }; });

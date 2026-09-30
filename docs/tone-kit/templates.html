@@ -237,10 +237,6 @@
     .flow-arrow{display:none}
     .flow-step{flex:1 1 100%}
   }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
-  }
 </style>
 </head>
 <body>
@@ -306,7 +302,7 @@
       </thead>
       <tbody>
         <tr><td class="sys">1</td><td class="sys">파일 헤더</td><td>수기로 새 파일을 만들 때마다</td><td>코드 생성기 산출물</td><td><span class="strength s-must">MUST</span></td></tr>
-        <tr><td class="sys">2</td><td class="sys">doc 주석 3변종</td><td>로직 · 부수효과 메서드, 공개 API 계약</td><td><code>build()</code> · 한 줄 위임 wrapper</td><td><span class="strength s-must">MUST</span></td></tr>
+        <tr><td class="sys">2</td><td class="sys">doc 주석 3변종</td><td>로직 · 부수효과 메서드, 공개 API 계약</td><td><code>build()</code> · 한 줄 위임 wrapper</td><td><span class="strength s-should">SHOULD</span></td></tr>
         <tr><td class="sys">3</td><td class="sys">시맨틱 typedef</td><td>Props 필드 타입에 함수 시그니처를 쓰려는 순간</td><td>FFI 바인딩 시그니처</td><td><span class="strength s-should">SHOULD</span></td></tr>
         <tr><td class="sys">4</td><td class="sys">프로젝트 파라미터 오버레이</td><td>프로젝트에 이 킷을 처음 붙일 때 1회</td><td>프로젝트 설정에 이미 있는 명령</td><td><span class="strength s-observed">관측 컨벤션</span></td></tr>
         <tr><td class="sys">5</td><td class="sys">캠페인 원장</td><td>파일 수십~수백 개 장기 정리 작업 시작 시</td><td>단발성 1파일 수정</td><td><span class="strength s-observed">관측 컨벤션</span></td></tr>
@@ -506,7 +502,7 @@ void {methodName}() {</code></pre>
       </div>
       <div class="note n-src">
         <span class="note-label">강도 · 출처</span>
-        <p>공개 API 는 doc 으로 계약을 쓴다가 <code>core-comment.md</code> C-06 <span class="strength s-must">MUST</span>. 로컬 구현 세부를 doc 으로 감싸지 않는다가 C-17 <span class="strength s-observed">관측 컨벤션</span>. 라벨 부분 변경 금지는 <code>locale-korean.md</code> K-07 <span class="strength s-observed">관측 컨벤션</span>.</p>
+        <p>공개 API 는 doc 으로 계약을 쓴다가 <code>core-comment.md</code> C-06 <span class="strength s-should">SHOULD</span>. 로컬 구현 세부를 doc 으로 감싸지 않는다가 C-17 <span class="strength s-observed">관측 컨벤션</span>. 라벨 부분 변경 금지는 <code>locale-korean.md</code> K-07 <span class="strength s-observed">관측 컨벤션</span>.</p>
         <span class="source-badge">프로젝트 실측 — 반환값 577 · 파라미터 788 · void 반환줄 246 · 외부 링크 없음</span>
       </div>
     </div>
@@ -975,7 +971,7 @@ typedef {widget_prefix}SelectChanged&lt;T&gt; = void Function(T value);</code></
     <div class="card">
       <h3>규칙을 소유한 references</h3>
       <ul class="checklist" style="margin-top:12px">
-        <li><span class="check">&rarr;</span><span><code>core-comment.md</code> — C-06 <span class="strength s-must">MUST</span> · C-13 <span class="strength s-must">MUST</span> · C-14 <span class="strength s-observed">관측 컨벤션</span> · C-17 <span class="strength s-observed">관측 컨벤션</span></span></li>
+        <li><span class="check">&rarr;</span><span><code>core-comment.md</code> — C-06 <span class="strength s-should">SHOULD</span> · C-13 <span class="strength s-must">MUST</span> · C-14 <span class="strength s-observed">관측 컨벤션</span> · C-17 <span class="strength s-observed">관측 컨벤션</span></span></li>
         <li><span class="check">&rarr;</span><span><code>core-naming.md</code> — N-01 <span class="strength s-should">SHOULD</span> · N-02~N-06 <span class="strength s-synth">합성</span> · N-11 <span class="strength s-observed">관측 컨벤션</span></span></li>
         <li><span class="check">&rarr;</span><span><code>locale-korean.md</code> — K-07 <span class="strength s-observed">관측 컨벤션</span> · K-08 <span class="strength s-observed">관측 컨벤션</span> · K-10 <span class="strength s-must">MUST</span></span></li>
         <li><span class="check">&rarr;</span><span><code>campaign-methodology.md</code> — 원칙 4(브리핑은 표다) · 원칙 5(3대 금지 + 5단 루프) <span class="strength s-observed">관측 컨벤션</span></span></li>

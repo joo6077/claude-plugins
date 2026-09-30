@@ -107,14 +107,14 @@ meta-audit: 불러오고 판정하지 않은 규칙은 어댑터 전용 규칙(I
    재현: 설치본 목록 `bambu-02.08.02.61.tsv` 에서 `process` · `filament` · `machine` 줄을 뺀 사본으로 `process-seam-slope-type-invalid.json` 을 돌리면 `종류 0 · enum 56`, 키 9 개 모두 「키 스코프 불일치」 FAIL,
    `seam_slope_type='hole'` 을 잡는 「받지 않는 값」 줄 0, 「enum 값 검사 미실행」 줄도 0 이다. 결과가 FAIL 로 남으므로 거짓 통과는 아니다.
    위 「넘김」 의 「종류 줄만 빠진 목록의 거짓 키 스코프 불일치」 와 같은 자리다 — 판정 동작을 고칠 때 `[미검증]` 문구에 「enum 값 검사 미실행」 을 함께 넣는다
-2. api — 설계 기록 §9.2 에서 바로잡은 「Hurl 로 표현 불가」 가 두 곳에 남았다. `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:261` 「경로 간 불변식은 Hurl 로 표현할 수 없다.」 는 다음 api 카이젠이 읽는 조사 지침이다.
+2. api — 설계 기록 §9.2 에서 바로잡은 「Hurl 로 표현 불가」 가 두 곳에 남았다. `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:303` 「경로 간 불변식은 Hurl 로 표현할 수 없다.」 는 다음 api 카이젠이 읽는 조사 지침이다.
    `docs/api-kit/multi-sample-pagination-variance.html:425` · `:428` 에 「Hurl 로 표현되지 않는다」 · 「Hurl 문법으로 쓸 수 없다」 가 있고 `:470` 이 출처로 §9.2 를 가리킨다.
    HTML 쪽은 페이지 원본 md 에 이 문장이 없고 §9.2 에서 옮겨 온 내용이라 `detect-docs-drift.py` 가 못 찾았다 — 위 「문서 페이지 드리프트」 의 다시 만들 페이지 둘에도 빠져 있다.
    둘 다 origin/main 에 원래 있던 문장이고 이번 봉인 범위 밖이다. 다른 C 가지(c3b-docs-site · c3-kits · api0 · c4c · c4d · c1b)에서도 같은 grep 이 걸려 고치는 곳이 아직 없다.
    다음 api 카이젠에서 조사 지침을 고치고, 문서 사이트 쪽에서 이 페이지를 다시 만든다
 3. tone — `tone-kit/references/adapter-dart-flutter.md:26` 가 가리키는 줄이 실제 정규식 줄과 다르다. 「§4 완료 게이트 G-04 줄」 이라고 적었지만 §4 에서 `G-04` 이름이 붙은 줄(`:259`)은 정규식 없는 표 행이고,
-   실제 정규식은 이름 없는 코드 블록 넷째 줄(`:245`)이다. `docs/tone/dart-flutter-idioms.md:633` 은 「넷째 줄」 이라고 맞게 적었다. 다음 tone-kaizen 에서 `:26` 을 같은 말로 맞춘다
-4. reflect — `reflect-kit/skills/reflect-digest/SKILL.md:255` · `:315` 의 「엔트리 0 이고 Stop 실패 시도가 1 이상일 때」 는 코드와 조건이 다르다.
+   실제 정규식은 이름 없는 코드 블록 넷째 줄(`:245`)이다. `docs/tone/dart-flutter-idioms.md:640` 은 「넷째 줄」 이라고 맞게 적었다. 다음 tone-kaizen 에서 `:26` 을 같은 말로 맞춘다
+4. reflect — `reflect-kit/skills/reflect-digest/SKILL.md:259` · `:319` 의 「엔트리 0 이고 Stop 실패 시도가 1 이상일 때」 는 코드와 조건이 다르다.
    코드는 전체 실패 수 `n` 이 아니라 마지막 기록 · 마지막 정상 종료 뒤의 실패 수 `a` 로 판정한다. 시험 `collect-status-test.sh` 의 「엔트리 0 · 실패 뒤 정상 종료 — 경고 없음」 경우가 증거다(`Stop 실패 시도 1회 … 엔트리 0` 인데 경고 줄이 없다).
    main 에 원래 있던 구절을 이번에 문장을 다시 쓰며 그대로 옮겼다. 다음 reflect-kaizen 에서 「마지막 기록 · 정상 종료 뒤의 실패 시도」 로 고친다
 5. reflect — `reflect-kit/hooks/log-reflection.sh:250` 주석이 아직 「`claude -p --model haiku`로 재시도」 다. 실제 호출(`:269`)은 `--safe-mode` 를 쓴다. 다음 reflect-kaizen 에서 주석을 맞춘다

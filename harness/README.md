@@ -117,8 +117,8 @@ qa-evaluator 완료
 | 필드 | 타입 | 설명 |
 | ------ | ------ | ------ |
 | `stack` | string | 프로젝트 스택. 자유 텍스트 (flutter, rust, react, python 등) |
-| `commands.analyze` | string | 정적 분석 명령. DG-01 검증에 사용 |
-| `commands.test` | string | 테스트 명령. DG-03 검증에 사용 |
+| `commands.analyze` | string | 정적 분석 명령. 진단-01 검증에 사용 |
+| `commands.test` | string | 테스트 명령. 진단-03 검증에 사용 |
 | `contract_categories` | list | 계약 카테고리 목록 (최소 1개) |
 | `anti_patterns` | list | 안티패턴 Grep 패턴 목록 (최소 2개 권장) |
 
@@ -126,7 +126,7 @@ qa-evaluator 완료
 
 | 필드 | 타입 | 기본값 | 설명 |
 | ------ | ------ | -------- | ------ |
-| `commands.lint` | string\|null | null | 린트 명령. **`commands.analyze` 가 없는 스택(markdown 전용 킷 등)에서 `DG-01` 의 대체 오라클로 쓴다.** 둘 다 null 이면 `DG-01` 은 `N/A (사유)` 로 기록한다 |
+| `commands.lint` | string\|null | null | 린트 명령. **`commands.analyze` 가 없는 스택(markdown 전용 킷 등)에서 `진단-01` 의 대체 오라클로 쓴다.** 둘 다 null 이면 `진단-01` 은 `N/A (사유)` 로 기록한다 |
 | `commands.format` | string\|null | null | 포맷 명령 |
 | `commands.codegen` | string\|null | null | 코드 생성 명령 |
 | `reusability.shared_path` | string | "" | 공유 컴포넌트 경로 |

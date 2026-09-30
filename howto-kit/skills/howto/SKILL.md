@@ -22,6 +22,8 @@ allowed-tools: Read, Grep, Glob, WebFetch, WebSearch
 
 ## 이 스킬의 존재 이유
 
+설치본 플러그인에는 `docs/howto/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 사용자 불만 원문: *"맨날 다르게 알려주고 자세히 안 알려줘서 내가 몇 번이나 요청해야 함.
 어떤 페이지에 정확히 어떤 메뉴를 통해 들어가고 어떤 항목을 어떻게 설정 및 입력하고 이런 걸
 안 알려줌. 걍 대략적으로 알려줌."*

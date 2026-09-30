@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **domain 레이어에서 throw 금지** — UseCase 시그니처는 반드시 `Promise<Result<T, Failure>>`를 반환한다. `throw`는 datasource 경계에서 `ResultAsync.fromPromise`로 포획한 뒤 Result로 변환하고, 이후 레이어는 Result 체인만 사용한다.
 2. **Zod parse는 datasource 경계에서만** — `data/datasources/remote/`에서 raw JSON을 받는 순간 `Schema.safeParse()`로 검증한다. repository·usecase·컴포넌트에서 재검증하지 않는다. 검증된 도메인 타입을 신뢰한다.
 3. **`z.infer` 단일 소스** — 수동 `interface` 재정의 금지. 도메인 타입은 항상 `z.infer<typeof Schema>`로 파생한다. 스키마와 타입이 어긋나면 strict TS 위반.

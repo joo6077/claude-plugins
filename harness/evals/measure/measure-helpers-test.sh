@@ -97,11 +97,55 @@ want=$(bash -c '. "$1"; for f in $2; do declare -f "$f"; done' _ "$work/schema.s
 if [ "$got" = "$want" ]; then same=1; else same=0; fi
 check M3-규약과같음 "same_as_schema=1 copies=0" "same_as_schema=$same copies=$(grep -cE '^[[:space:]]*(fm_get|sha256_16|contract_digest|verify_seal|measurement_digest|verify_measurement|sprint_head|mine|unsigned_on)\(\)' "$common")"
 
+# 규약의 fm_get 은 따옴표와 줄 끝 주석을 벗긴다. 빈칸 없이 붙은 # 는 값이다 (계약 after-0928-harness-checks SC-03)
+fm_case() {  # fm_case <번호> <머리 줄> <키> <기대 값>
+  printf -- '---\n%s\n---\n\n본문\n' "$2" >"$work/fm-$1.md"
+  out=""
+  for sh in bash zsh; do
+    # shellcheck disable=SC2016  # 안쪽 셸이 풀 변수다
+    got=$(MEASURE_SCHEMA=$schema $sh -c '. "$1" >/dev/null 2>&1 || exit 2; fm_get "$2" "$3"' _ "$common" "$work/fm-$1.md" "$3")
+    out="$out$sh=[$got] "
+  done
+  check "F$1-줄끝주석" "bash=[$4] zsh=[$4]" "${out% }"
+}
+fm_case 1 'status: superseded   # 새 판 있음' status superseded
+fm_case 2 'status: "active" # 주석' status active
+fm_case 3 'status: active' status active
+fm_case 4 'owner_session: abc#def' owner_session 'abc#def'
+fm_case 5 'feature: "a # b"' feature 'a # b'
+fm_case 6 "$(printf "status: 'done'\t# 탭 앞 주석")" status 'done'
+fm_case 7 'status: active #' status active
+
 sed 's/^verify_seal() {/verify_sealx() {/' "$schema" >"$work/broken-schema.md"
 MEASURE_SCHEMA="$work/broken-schema.md" bash -c '. "$1"' _ "$common" >"$work/m4.out" 2>&1; rc=$?
 check M4-함수빠진규약 "rc=2 names_fn=1" "rc=$rc names_fn=$(grep -c 'verify_seal' "$work/m4.out")"
 MEASURE_SCHEMA="$work/no-such-schema.md" bash -c '. "$1"' _ "$common" >/dev/null 2>&1; rc=$?
 check M5-규약없음 "rc=2" "rc=$rc"
+
+# 한국어 조건 번호도 규약 함수가 읽는다 (계약 after-0928-korean-condition-ids 스크립트-03).
+# 기대 지문은 파이썬 hashlib 로 조건 줄 7 줄 · 번호와 들여쓴 줄 8 줄을 따로 해시한 값이다.
+# 옛 규약 정규식은 한국어 번호를 못 읽어 두 지문이 빈 입력의 지문 e3b0c44298fc1c14 가 된다
+printf -- '---\nstatus: active\n---\n\n## Skill\n\n- [ ] 스킬-01: a\n  측정: x\n- [ ] 스크립트-02: b\n- [ ] 오류-03: c\n- [ ] 구조-04: d\n- [ ] 재사용-01: e\n- [ ] 진단-01: f\n- [ ] 금지-00: N/A (g)\n' >"$work/korean.md"
+for sh in bash zsh; do
+  # shellcheck disable=SC2016  # 안쪽 셸이 풀 변수다
+  got=$(MEASURE_SCHEMA=$schema_env MC=$common $sh -c '
+    [ -n "$MEASURE_SCHEMA" ] || unset MEASURE_SCHEMA
+    . "$MC" >/dev/null 2>&1 || exit 2
+    printf "%s %s" "$(contract_digest "$1")" "$(measurement_digest "$1")"' _ "$work/korean.md" 2>&1)
+  check "K1-한국어번호지문-$sh" "8b52386c713a6054 c51d48673b5caeee" "$got"
+done
+rx=$(awk '/^contract_digest\(\)/ { getline; print; exit }' "$schema" | sed -E "s/.*grep -E '([^']*)'.*/\1/")
+check K2-한국어번호조건수 "conditions=7" "conditions=$(grep -cE "$rx" "$work/korean.md")"
+
+# 우분투 CI 의 GNU grep 은 C.UTF-8 에서 한글 범위식을 오류로 거부한다. 맥 grep 은 받아 주므로 식에 ASCII 밖 글자가 없는지도 본다
+# shellcheck disable=SC2016  # 안쪽 셸이 풀 변수다
+got=$(LC_ALL=C.UTF-8 MEASURE_SCHEMA=$schema_env MC=$common bash -c '
+  [ -n "$MEASURE_SCHEMA" ] || unset MEASURE_SCHEMA
+  . "$MC" >/dev/null 2>&1 || exit 2
+  printf "%s %s" "$(contract_digest "$1")" "$(measurement_digest "$1")"' _ "$work/korean.md" 2>&1)
+n=$(LC_ALL=C.UTF-8 grep -cE "$rx" "$work/korean.md" 2>&1)
+wide=$({ awk '/^contract_digest\(\)/ { getline; print; exit }' "$schema"; awk '/^measurement_digest\(\)/ { f = 1 } f && /match\(/ { print; exit }' "$schema"; } | LC_ALL=C grep -c '[^ -~]')
+check K3-C.UTF-8한국어번호 "8b52386c713a6054 c51d48673b5caeee conditions=7 non_ascii_lines=0" "$got conditions=$n non_ascii_lines=$wide"
 
 echo "실패 $fails 건"
 [ "$fails" = 0 ]

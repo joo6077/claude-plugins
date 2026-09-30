@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **Discovery 없이 PRD 금지** — Problem / JTBD / User / Success Metric 이 없으면 `/plan-discover` 먼저 실행. 추측 기반 PRD 는 나중에 전부 재작업된다.
 2. **포맷 강제 금지** — PR/FAQ 와 Shape Up Pitch 는 용도가 다르다. 신규 제품/큰 기능은 PR/FAQ, 6주 사이클 단위의 문제해결은 Shape Up. 사용자에게 선택하게 하라.
 3. **Solution 을 먼저 쓰지 마라** — PR/FAQ 는 "릴리스 시 보도자료" 부터 쓴다. Shape Up 은 "Problem → Appetite → Solution" 순서. 기술 구현은 마지막.
@@ -26,6 +28,7 @@ user-invocable: true
 12. **공개 문서형 spec (Stripe 패턴) 은 PRD 대체재가 아니다** — integration contract 로 쓰일 수는 있으나 내부 의사결정 근거, trade-off, 비범위는 반드시 별도 PRD 에 남겨야 한다. 출처: [Stripe Docs — Products & Prices](https://docs.stripe.com/products-prices/how-products-and-prices-work).
 13. **요청한 범위만 — 임의 섹션·기능 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 PRD 의 특정 섹션(예: Problem + Success Metric)만 요청하면 그 범위만 작성한다. "PRD 니까 완결돼야 한다"는 이유로 요청하지 않은 기능·릴리스 계획·KPI·로드맵을 임의로 끼워 넣지 마라. Shape Up 의 appetite 는 "fixed time, variable scope" — appetite 를 넘는 scope 확장은 그 자체가 규율 위반이다. 표준상 빠지면 안 되는 섹션(Non-goals, Open Questions) 이 있으면 추가 **여부를 먼저 알리고** 확인한다. discovery 산출물이 비면 PRD 단계로 임의 진주하지 말고 plan-discover 로 되돌린다 (insights-report #1 excessive_changes / over-engineering 대응 — 53 wrong_approach + 38 misunderstood). 출처: [Basecamp Shape Up §Chapter 6 — Set the Appetite](https://basecamp.com/shapeup/1.5-chapter-06).
 14. **폐기한 결정은 비범위 절 한 곳에 네 칸으로 적는다** — 사용자가 버리기로 한 기능·설정 항목은 이 PRD 의 `## Non-goals (폐기한 결정 포함)` 표(Shape Up 은 `## No-gos`)에 `하지 않는 것 · 이유 · 범위 · 코드에 남은 흔적` 한 줄로 적는다. 결정 원문은 여기 하나다 — 디자인 승인 기록 · 작업 계약 · 핸드오프는 이 PRD 경로를 가리키고 결정을 다시 쓰지 않는다. PRD 를 쓴 뒤에 나온 폐기 결정도 새 파일을 만들지 말고 이 표에 한 줄 더한다. `코드에 남은 흔적` 칸(서버 필드 · 호출되지 않는 화면 파일 등)은 채울 빈틈이 아니라 치울 목록이다 — 흔적을 새 요구로 옮겨 적지 말고, 되살려야 할 것 같으면 사용자에게 먼저 묻는다. 폐기는 영구 금지가 아니다 — 범위 칸(`이번 PRD` · `이번 사이클` · `제품 전체`)이 그 결정이 걸친 폭이고, 다시 꺼낼지는 사용자가 정한다. 하지 않는 것 · 이유 칸은 Shape Up No-gos 가 근거이고 범위 · 흔적 칸은 이 킷의 운영 규칙이다. 실측(`/insights` 2026-09-24 F20): 사용자가 이미 폐기한 시간대·국가 설정 항목을 다시 넣었다. 출처: `docs/planning/prd-patterns.md` §폐기한 결정, [Basecamp Shape Up §Chapter 6](https://basecamp.com/shapeup/1.5-chapter-06), [Agile Alliance — INVEST (Negotiable)](https://agilealliance.org/glossary/invest/).
+15. **제품 비범위는 PRD 에, 구조 결정은 ADR 에 적는다** — 폐기한 제품 기능·설정처럼 제품 범위를 정하는 항목은 PRD 비범위 절(Gotcha 14)에 적는다. 구조 · 비기능 특성 · 의존성 · 인터페이스에 걸린 결정 하나는 근거와 결과를 ADR(설계 결정 기록)에 적고, PRD 에는 그 ADR 경로만 적는다. 이 경계는 원문에 직접 근거가 없는 추론이다 — Atlassian 은 PRD 를 제품의 목적 · 기능 · 행동을 정하는 문서로, adr.github.io 와 Michael Nygard 는 ADR 을 결정 하나와 그 근거를 남기는 기록으로 설명할 뿐 둘 가운데 하나를 우선하라고 정하지 않는다. 출처: `docs/planning/prd-patterns.md` §PRD 와 설계 결정 기록(ADR)의 경계, [Atlassian — What is a Product Requirements Document?](https://www.atlassian.com/agile/product-management/requirements), [adr.github.io — Architectural Decision Records](https://adr.github.io/), [Michael Nygard — Documenting Architecture Decisions](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) (2026-09-28 조회).
 
 <!-- markdownlint-disable MD025 -->
 
