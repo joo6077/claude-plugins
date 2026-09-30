@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-"""check-api-kit-docs.py 시험 — 공통 CSS 연결 판정을 임시 폴더의 원본 · 쪽 짝 다섯 경우로 돌린다. 레포 파일은 건드리지 않는다.
+"""check-api-kit-docs.py 시험 — 공통 CSS 연결 판정을 임시 폴더의 원본 · 쪽 짝 열 경우로 돌린다. 레포 파일은 건드리지 않는다.
 
   1. `<link rel="stylesheet" href="../assets/site.css">` → 연결 있음
   2. `<link href='../assets/site.css' rel=stylesheet>` → 연결 있음
   3. `<link rel="preload" as="style" href="../assets/site.css">` 만 → 연결 없음
   4. `<link rel="stylesheet" href="../assets/site.css.bak">` 만 → 연결 없음
   5. 연결이 HTML 주석 안에만 → 연결 없음
+  6. `<link data-rel="stylesheet" rel="preload" href="../assets/site.css">` 만 → 연결 없음
+  7. `<link rel="stylesheet" data-href="../assets/site.css" href="x.css">` 만 → 연결 없음
+  8. `<link rel="alternate stylesheet" href="../assets/site.css">` 만 → 연결 없음
+  9. `<link rel="stylesheet" media="print" href="../assets/site.css">` 만 → 연결 없음
+  10. `<link rel="stylesheet" href="../assets/site.css?v=2">` → 연결 있음 (브라우저는 같은 파일을 불러온다)
 
 검사 파일의 `check(원본, 쪽)` 을 불러 실패 목록에 「공통 CSS」 줄이 있는지 본다. 다른 검사(줄 수 · accent · 테마 키)는
 통과하게 쪽을 만든다.
@@ -13,7 +18,7 @@
 사용법:
     python3 scripts/test-check-api-kit-docs.py [--check <검사 사본 경로>]
 
---check 는 음성 대조용이다 — 시작 판(ab637374) 검사처럼 rel 을 안 보고 주소 끝을 `\\b` 로 자르는 사본은 경우 3 · 4 가 실패해야 한다.
+--check 는 음성 대조용이다 — 시작 판(ab637374) 검사처럼 rel 을 안 보고 주소 끝을 `\\b` 로 자르는 사본은 경우 3 · 4 가, c6cfcd09 사본은 경우 6 ~ 10 이 실패해야 한다.
 종료 코드는 harness/evals/gate-exit-codes.md 를 따른다 (0 통과 · 1 실패 · 2 준비 실패).
 """
 
@@ -31,6 +36,11 @@ CASES = [
     ("3 preload 링크만", '<link rel="preload" as="style" href="../assets/site.css">', False),
     ("4 site.css.bak 링크만", '<link rel="stylesheet" href="../assets/site.css.bak">', False),
     ("5 주석 안 링크만", '<!-- <link rel="stylesheet" href="../assets/site.css"> -->', False),
+    ("6 data-rel 만 stylesheet", '<link data-rel="stylesheet" rel="preload" href="../assets/site.css">', False),
+    ("7 data-href 만 site.css", '<link rel="stylesheet" data-href="../assets/site.css" href="x.css">', False),
+    ("8 alternate stylesheet", '<link rel="alternate stylesheet" href="../assets/site.css">', False),
+    ("9 print 전용", '<link rel="stylesheet" media="print" href="../assets/site.css">', False),
+    ("10 주소 뒤 물음표 값", '<link rel="stylesheet" href="../assets/site.css?v=2">', True),
 ]
 
 

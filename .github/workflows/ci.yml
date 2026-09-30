@@ -66,8 +66,8 @@ jobs:
       # 판정식을 넓혀도(2026-09-27 · `<img src>` · `url(//…)` · 빈칸 없는 `@import`) CI 가 되돌림을 못 잡았다.
       - name: api-kit docs check (출처 · 외부 자원 · 테마 키)
         run: python3 scripts/check-api-kit-docs.py
-      # 공통 CSS 연결 판정이 rel="preload" · site.css.bak 까지 연결로 셌다(2026-09-29). 판정식만 고치면 되돌림을 못 잡으므로 다섯 경우를 돌린다
-      - name: api-kit docs check test (공통 CSS 연결 판정 다섯 경우)
+      # 공통 CSS 연결 판정이 rel="preload" · site.css.bak 까지 연결로 셌다(2026-09-29). 판정식만 고치면 되돌림을 못 잡으므로 열 경우를 돌린다
+      - name: api-kit docs check test (공통 CSS 연결 판정 열 경우)
         run: python3 scripts/test-check-api-kit-docs.py
 
       # 생성 HTML 만 고치고 소스 .md 를 빠뜨리면 docs-site 재생성이 조용히 되돌린다.
@@ -89,7 +89,7 @@ jobs:
       # <link> 요소로 세고 쪼갠 자리를 잡는다
       - name: Docs common CSS link check (공통 CSS 링크 하나 · 글자 참조 쪼갬 0)
         run: python3 scripts/check-docs-common-css.py
-      - name: Docs common CSS link check test (일곱 경우)
+      - name: Docs common CSS link check test (여덟 경우)
         run: python3 scripts/test-check-docs-common-css.py
 
       # 킷 reviewer 일곱과 flutter-audit 은 평가 가이드의 미검증 규칙을 사본으로 든다. 원문이 바뀌었는데 사본이 따라가지 않은 일이
@@ -188,6 +188,12 @@ jobs:
       # 150 개가 WCAG AA 미달이었다 (실측 2026-09-05). 이 스텝이 그 구멍을 막는다.
       - name: Docs accessibility gate (contrast / overflow / touch target)
         run: node scripts/check-docs-a11y.js
+
+      # 문서 쪽 Mermaid 예시는 글로만 실려 있어 그려지는지 아무도 안 봤다(2026-09-29). 못박은 Mermaid 로 예시마다 그려 본다
+      - name: Docs Mermaid render check (예시가 그림으로 그려지는가)
+        run: node scripts/check-docs-mermaid.js
+      - name: Docs Mermaid render check test (네 경우)
+        run: node scripts/test-check-docs-mermaid.js
 
       - name: Upload test results
         if: failure()

@@ -58,7 +58,7 @@ User Flow는 사용자가 목표를 달성하기 위해 밟는 분기/단계에 
 
 **요약**: Mermaid flowchart는 빠른 decision flow, onboarding path, approval branch를 Markdown 안에 직접 넣을 때 유용하다. 공식 문서 기준으로 `flowchart LR` 또는 `graph LR`를 선언하고 노드/엣지를 텍스트로 정의한다.
 
-아래 예시는 Mermaid 공식 flowchart 문법을 따른다. Mermaid core 12.0.0 은 2026-09-10 공개된 비시험판이며(<https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0>), 2026-09-28 에 가져온 npm `latest` 도 12.0.0 이다(<https://registry.npmjs.org/mermaid/latest>). 이 예시 자체는 Mermaid 12 에서 렌더해 확인하지 않았다.
+아래 예시는 Mermaid 공식 flowchart 문법을 따른다. Mermaid core 12.0.0 은 2026-09-10 공개된 비시험판이며(<https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0>), 2026-09-28 에 가져온 npm `latest` 도 12.0.0 이다(<https://registry.npmjs.org/mermaid/latest>). 문서 사이트 쪽에 옮긴 이 예시는 `scripts/check-docs-mermaid.js` 가 Mermaid 12.0.0 으로 그려 보고, CI 가 그 검사를 돌린다.
 
 **핵심 질문/포맷/체크리스트**:
 

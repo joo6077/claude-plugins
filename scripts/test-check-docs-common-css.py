@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
-"""check-docs-common-css.py 시험 — 임시 폴더의 사본 쪽으로 일곱 경우를 돌린다. 레포 파일은 건드리지 않는다.
+"""check-docs-common-css.py 시험 — 임시 폴더의 사본 쪽으로 여덟 경우를 돌린다. 레포 파일은 건드리지 않는다.
 
   1. 정상 쪽 + 링크 둘인 쪽 → 종료 코드 1, 둘째 파일 이름만 적힘, 검사한 쪽 2
   2. 본문 `site&#46;css` 쪽 · `prefers&#45;reduced-motion` 쪽, 그리고 이름 글자 참조 `site&period;css` ·
      `prefers&dash;reduced&hyphen;motion` 쪽과 태그를 끼운 `site<span>.</span>css` 쪽 → 각각 종료 코드 1
   3. 링크 하나 + 본문에 원래 글자 이름 + 주석 안 링크 + 작은따옴표 링크 쪽 → 종료 코드 0
   4. 링크 둘인 쪽 + UTF-8 이 아닌 바이트 쪽 → 종료 코드 2, 두 파일 이름이 모두 적힘
-  5. 검사 사본을 scripts/ 에 넣은, 추적 HTML 이 0 개인 임시 git 저장소에서 인자 없이 → 종료 코드 3
+  5. 검사 사본과 공용 모듈 plugin_utils.py 를 scripts/ 에 넣은, 추적 HTML 이 0 개인 임시 git 저장소에서 인자 없이 → 종료 코드 3
   6. ① `<style>` 에 움직임 줄이기 블록을 다시 적은 쪽 + 정상 쪽 → 종료 코드 1, 앞 쪽 이름만 적힘
      ② 본문 `<code>` · `<script>` 의 `matchMedia` · `<style>` 안 CSS 주석에만 이름이 있는 쪽 → 종료 코드 0
   7. ① `<style media="(prefers-reduced-motion: reduce)">` 쪽 → 종료 코드 1, 그 쪽 이름 적힘
      ② `<link rel="stylesheet" media="(prefers-reduced-motion: reduce)" href="…">` 쪽 → 종료 코드 1, 그 쪽 이름 적힘
      ③ `media="print"` 인 `<style>` · `<link>` 만 있는 쪽 → 종료 코드 0
+  8. ① 가짜 연결 넷(`data-rel="stylesheet"` · `data-href="../assets/site.css"` · `rel="alternate stylesheet"` ·
+     `media="print"`)이 하나씩만 있는 쪽 넷 → 각각 종료 코드 1, 그 쪽 이름과 `site_css_links=0` 이 적힘
+     ② `site.css?v=2` 링크 쪽 → 종료 코드 0 ③ 진짜 연결 하나와 가짜 넷이 함께 있는 쪽 → 종료 코드 0
 
 사용법:
     python3 scripts/test-check-docs-common-css.py [--check <검사 사본 경로>]
 
 --check 는 음성 대조용이다 — 글자 참조 세기를 지운 사본은 경우 2 가, 주석 빼기를 지운 사본은 경우 3 이 실패해야 한다.
 움직임 규칙 세기를 지운 사본은 경우 6 ① 이, CSS 주석 빼기를 지운 사본은 경우 6 ② 가 실패해야 한다.
-media 속성 보기를 지운 사본은 경우 7 ① ② 가 실패해야 한다.
+media 속성 보기를 지운 사본은 경우 7 ① ② 가 실패해야 한다. rel 을 안 보던 c6cfcd09 사본은 경우 8 이 실패해야 한다.
 종료 코드는 harness/evals/gate-exit-codes.md 를 따른다 (0 통과 · 1 실패 · 2 준비 실패).
 """
 
@@ -92,6 +95,7 @@ def case_no_pages(tmp: Path, check: Path) -> tuple[bool, str]:
     repo = tmp / "c5"
     (repo / "scripts").mkdir(parents=True)
     shutil.copy(check, repo / "scripts/check-docs-common-css.py")
+    shutil.copy(REPO_ROOT / "scripts/plugin_utils.py", repo / "scripts/plugin_utils.py")
     init = subprocess.run(["git", "init", "-q"], cwd=repo, capture_output=True, text=True)
     if init.returncode != 0:
         raise RuntimeError(f"git init 실패: {init.stderr.strip()}")
@@ -128,6 +132,25 @@ def case_media_attr(tmp: Path, check: Path) -> tuple[bool, str]:
     return ok, f"rc={rc_style},{rc_link},{rc_print}"
 
 
+FAKE_LINKS = {
+    "data-rel": '<link data-rel="stylesheet" rel="preload" href="../assets/site.css">',
+    "data-href": '<link rel="stylesheet" data-href="../assets/site.css" href="x.css">',
+    "alternate": '<link rel="alternate stylesheet" href="../assets/site.css">',
+    "print": '<link rel="stylesheet" media="print" href="../assets/site.css">',
+}
+
+
+def case_fake_links(tmp: Path, check: Path) -> tuple[bool, str]:
+    fake_caught = []
+    for name, tag in FAKE_LINKS.items():
+        rc, out = run(check, write(tmp / f"c8/{name}.html", page(tag)))
+        fake_caught.append(rc == 1 and f"{name}.html" in out and "site_css_links=0" in out)
+    rc_query, _ = run(check, write(tmp / "c8/query.html", page('<link rel="stylesheet" href="../assets/site.css?v=2">')))
+    rc_mixed, _ = run(check, write(tmp / "c8/mixed.html", page(LINK + "".join(FAKE_LINKS.values()))))
+    ok = all(fake_caught) and rc_query == 0 and rc_mixed == 0
+    return ok, f"fake={fake_caught} rc={rc_query},{rc_mixed}"
+
+
 CASES = [
     ("1 링크 둘인 쪽만 적는다", case_two_links),
     ("2 글자 참조로 쪼갠 이름을 잡는다", case_split_names),
@@ -136,6 +159,7 @@ CASES = [
     ("5 추적 쪽이 없으면 종료 코드 3", case_no_pages),
     ("6 쪽 <style> 의 움직임 줄이기 규칙만 잡는다", case_style_motion),
     ("7 태그 media 속성의 움직임 줄이기도 잡고 print 는 통과", case_media_attr),
+    ("8 가짜 연결 넷은 세지 않고 물음표 값 주소는 센다", case_fake_links),
 ]
 
 

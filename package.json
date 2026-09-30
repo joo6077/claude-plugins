@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/joo6077/claude-plugins#readme",
   "devDependencies": {
-    "@playwright/test": "^1.58.2"
+    "@playwright/test": "^1.58.2",
+    "mermaid": "12.0.0"
   }
 }

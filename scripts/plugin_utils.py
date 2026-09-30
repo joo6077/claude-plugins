@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """플러그인 공통 유틸리티.
 
-validate-plugin.py · sync-docs.py · sync-orchestrator.py · 사본 검사 둘이 공유하는 헬퍼 함수와 표.
+validate-plugin.py · sync-docs.py · sync-orchestrator.py · 사본 검사 둘 · 문서 쪽 검사 둘이 공유하는 헬퍼 함수와 표.
 표준 라이브러리(pathlib, json) + pyyaml 만 의존한다.
 """
 from __future__ import annotations
@@ -139,3 +139,37 @@ def contains_block(lines: list[str], block: list[str]) -> bool:
     """block 이 lines 안에 끊김 없이 나오면 참."""
     width = len(block)
     return any(lines[start:start + width] == block for start in range(len(lines) - width + 1))
+
+
+# 문서 쪽이 공통 CSS 를 화면 스타일로 불러오는지 — check-api-kit-docs · check-docs-common-css 가 함께 쓴다.
+# 둘이 판정을 따로 들고 있다가 한쪽은 preload 를, 다른 쪽은 data-rel 을 연결로 셌다(2026-09-29)
+_HTML_COMMENT = re.compile(r"<!--.*?-->", re.S)
+_LINK_TAG = re.compile(r"<link\b[^>]*>", re.I | re.S)
+_SCREEN_MEDIA = {"", "all", "screen"}
+
+
+def _attr_value(tag: str, name: str) -> str | None:
+    # 앞에 글자나 `-` 가 붙은 이름(data-rel · data-href)은 다른 속성이다
+    found = re.search(r"(?<![-\w])" + name + r"""\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))""", tag, re.I)
+    return "".join(found.groups("")) if found else None
+
+
+def site_css_stylesheet_links(text: str) -> int:
+    """HTML 주석 밖 `<link>` 가운데 `assets/site.css` 를 화면 스타일로 불러오는 것의 수.
+
+    rel 낱말에 stylesheet 가 있고 alternate 가 없으며, media 가 없거나 all · screen 이고,
+    주소가 물음표 값을 뗀 뒤 `assets/site.css` 로 끝나야 센다.
+    """
+    count = 0
+    for tag in _LINK_TAG.findall(_HTML_COMMENT.sub("", text)):
+        rel_words = (_attr_value(tag, "rel") or "").lower().split()
+        href = _attr_value(tag, "href")
+        media = _attr_value(tag, "media")
+        if "stylesheet" not in rel_words or "alternate" in rel_words or href is None:
+            continue
+        if not href.split("?", 1)[0].endswith("assets/site.css"):
+            continue
+        if media is not None and media.strip().lower() not in _SCREEN_MEDIA:
+            continue
+        count += 1
+    return count
