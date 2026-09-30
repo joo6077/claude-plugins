@@ -4,7 +4,7 @@ slug: after-0929-tail
 created: "2026-09-29 20:25"
 complexity: "복잡"
 conditions: 26
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: "sha256:fe19cd7e88a8a978"
 measurement_digest: "sha256:7237599f49dbe4b5"
