@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # harness/scripts/check-superseded.sh 를 손으로 답을 아는 폴더 둘과 없는 폴더에 돌려 기대 출력과 맞댄다.
-# 계약 after-0928-harness-checks 의 SC-02 와 after-0929-codex-silent-pass 의 스크립트-05 를 따른다. CHECK_SUPERSEDED 로 대상 스크립트를 바꿀 수 있다.
+# 계약 after-0928-harness-checks 의 SC-02 와 after-0929-codex-silent-pass 의 스크립트-05 를 따른다. 못 읽은 파일은 한 번만 센다. CHECK_SUPERSEDED 로 대상 스크립트를 바꿀 수 있다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 root=$(cd "$here/../../.." && pwd)
@@ -64,6 +64,31 @@ chmod 000 "$dir_d/sprint-contract-a.md"
 out=$(bash "$target" "$dir_d" 2>"$work/err-d"); rc=$?
 chmod 644 "$dir_d/sprint-contract-a.md"
 check D-계약못읽음 "$(printf '%s\n' "UNREADABLE $dir_d/sprint-contract-a.md" "checked=0 violations=0 unreadable=1" "rc=2")" "$out
+rc=$rc"
+
+# 못 읽는 새 판 하나를 옛 판 둘이 가리키면 줄은 둘, 수는 1
+dir_e=$work/e/.harness; mkdir -p "$dir_e"
+contract "$dir_e" a 'status: superseded' 'superseded_by: b'
+contract "$dir_e" b 'status: active'
+contract "$dir_e" c 'status: superseded' 'superseded_by: b'
+chmod 000 "$dir_e/sprint-contract-b.md"
+out=$(bash "$target" "$dir_e" 2>"$work/err-e"); rc=$?
+chmod 644 "$dir_e/sprint-contract-b.md"
+check E-같은새판한번 "$(printf '%s\n' \
+  "UNREADABLE $dir_e/sprint-contract-a.md -> b" \
+  "UNREADABLE $dir_e/sprint-contract-c.md -> b" \
+  "checked=2 violations=0 unreadable=1" \
+  "rc=2")" "$out
+rc=$rc"
+
+# 폴더 인자 끝 빗금 — 새 판 경로와 목록 경로가 갈려 같은 파일을 두 번 세면 안 된다
+dir_f=$work/f/.harness; mkdir -p "$dir_f"
+contract "$dir_f" a 'status: superseded' 'superseded_by: b'
+contract "$dir_f" b 'status: active'
+chmod 000 "$dir_f/sprint-contract-b.md"
+out=$(bash "$target" "$dir_f/" 2>"$work/err-f"); rc=$?
+chmod 644 "$dir_f/sprint-contract-b.md"
+check F-끝빗금한번 "$(printf '%s\n' "UNREADABLE $dir_f/sprint-contract-a.md -> b" "checked=1 violations=0 unreadable=1" "rc=2")" "$out
 rc=$rc"
 
 # 없는 폴더 — 위반 0 으로 통과시키면 안 된다

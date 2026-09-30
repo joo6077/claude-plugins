@@ -5,7 +5,7 @@
 # superseded 계약마다 한 줄: OK · MISSING_BY(가리킴 없음) · MISSING_TARGET(가리킨 계약 없음) · CHAIN(가리킨 계약도 superseded)
 # 못 읽은 파일마다 한 줄: 가리킨 새 판을 못 읽으면 UNREADABLE <계약> -> <새 판>, 그 밖의 계약은 UNREADABLE <계약>.
 # 못 읽은 것을 OK 로 치지 않는다
-# 끝 줄: checked=<superseded 계약 수> violations=<위반 수> unreadable=<못 읽은 수>
+# 끝 줄: checked=<superseded 계약 수> violations=<위반 수> unreadable=<못 읽은 파일 수 — 한 파일은 한 번>
 # 종료 코드는 harness/evals/gate-exit-codes.md — 0 위반 없음 · 1 위반 있음 · 2 폴더 없음 · 공용 측정 파일을 못 읽음 · UNREADABLE 있음
 
 case ${1:-} in
@@ -14,6 +14,9 @@ esac
 contract_dir=${1:-}
 [ -n "$contract_dir" ] || { echo "사용법: check-superseded.sh <.harness 폴더>" >&2; exit 2; }
 [ -d "$contract_dir" ] || { echo "폴더가 없다: $contract_dir" >&2; exit 2; }
+# 끝 빗금을 떼야 find 가 내는 경로와 가리킨 새 판 경로가 같은 글자가 되어 한 파일을 한 번만 센다
+trimmed=${contract_dir%"${contract_dir##*[!/]}"}
+contract_dir=${trimmed:-/}
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)
 # shellcheck source=/dev/null
@@ -42,8 +45,12 @@ while IFS= read -r contract; do
   fi
   case $state in
     OK) ;;
-    UNREADABLE) unreadable=$((unreadable + 1)); reported_targets="$reported_targets$target
-" ;;
+    UNREADABLE)
+      # 옛 판 여럿이 같은 새 판을 가리키면 줄은 옛 판마다 내고 수는 파일 하나로 센다
+      if ! printf '%s' "$reported_targets" | grep -qxF -- "$target"; then
+        unreadable=$((unreadable + 1)); reported_targets="$reported_targets$target
+"
+      fi ;;
     *) violations=$((violations + 1)) ;;
   esac
   echo "$state $contract${target_slug:+ -> $target_slug}"

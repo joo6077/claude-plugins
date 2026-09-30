@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016  # 측정 줄의 백틱 · 달러는 계약 글자 그대로다
 # 레포 밖 훅 lint-contract-oracle.sh 가 한 백틱 안 grep · rg 명령의 한글 검색 글을 산문-grep 으로 짚는지 본다.
-# 계약 after-0929-codex-silent-pass 의 스크립트-09 · 스크립트-12 를 따른다. 로캘 C · en_US.UTF-8, 조건 번호 영어 · 한국어를 모두 돈다.
+# 계약 after-0929-codex-silent-pass 의 스크립트-09 · 스크립트-12 를 따른다. 조건이 이어질 때 다음 번호를 잃지 않는지도 본다. 로캘 C · en_US.UTF-8, 조건 번호 영어 · 한국어를 모두 돈다.
 # LINT_ORACLE_HOOK 으로 훅 경로를 바꿀 수 있다 (기본: ~/.claude/hooks/lint-contract-oracle.sh) — 고치기 전 사본으로 음성 대조를 돌릴 때 쓴다.
 # 훅이 레포 밖이라 CI 에 등록하지 않는다 — 이 맥에서 돌린다.
 # 종료 코드: 0 통과 · 1 실패 · 2 준비 실패 (훅 · 훅 도우미 · jq 없음)
@@ -18,10 +18,11 @@ mkdir -p "$work/.harness"
 contract=$work/.harness/sprint-contract-x.md
 fails=0
 
-found() {  # found <LC_ALL=로캘> <조건 줄> <측정 줄> — 훅이 짚은 조건 번호와 까닭
-  printf -- '---\nstatus: active\n---\n\n## Skill\n\n%s\n  %s\n' "$2" "$3" >"$contract"
+found() {  # found <LC_ALL=로캘> <조건 줄> <측정 줄> [<조건 줄> <측정 줄> …] — 훅이 짚은 조건 번호와 까닭
+  locale_arg=$1; shift
+  { printf -- '---\nstatus: active\n---\n\n## Skill\n\n'; printf '%s\n  %s\n' "$@"; } >"$contract"
   jq -nc --arg f "$contract" '{tool_name:"Write",tool_input:{file_path:$f}}' \
-    | env "$1" bash "$hook" \
+    | env "$locale_arg" bash "$hook" \
     | jq -r '.hookSpecificOutput.additionalContext // empty' \
     | grep -oE '^  - [^ ]+ \([^)]*\)' | sed 's/^  - //' | tr '\n' ' ' | sed 's/ $//'
 }
@@ -45,6 +46,10 @@ for locale_setting in LC_ALL=C LC_ALL=en_US.UTF-8; do
     "$(found "$locale_setting" '- [ ] 스킬-04: x' "측정: \`grep -c 'yaml.safe_load' scripts/ci-local.sh\` 이 1")"
   check "$loc 경로에만한글" "" \
     "$(found "$locale_setting" '- [ ] 스킬-05: x' "측정: \`grep -c 'abc' 문서/스킬.md\` 이 1")"
+  # 앞 조건의 따옴표 든 grep 을 읽은 뒤에도 다음 조건 번호가 비지 않아야 한다
+  check "$loc 앞조건따옴표grep" "SC-02 (산문-grep)" \
+    "$(found "$locale_setting" '- [ ] SC-01: x' '측정: `grep -c "abc" f.txt` 종료 코드 0' \
+      '- [ ] SC-02: x' '측정: `표준으로 강제하지 않는다` 를 `grep -cF` 로 센다 >= 1')"
 done
 
 echo "실패 $fails 건"
