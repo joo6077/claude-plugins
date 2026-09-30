@@ -192,7 +192,7 @@ jobs:
       # 문서 쪽 Mermaid 예시는 글로만 실려 있어 그려지는지 아무도 안 봤다(2026-09-29). 못박은 Mermaid 로 예시마다 그려 본다
       - name: Docs Mermaid render check (예시가 그림으로 그려지는가)
         run: node scripts/check-docs-mermaid.js
-      - name: Docs Mermaid render check test (네 경우)
+      - name: Docs Mermaid render check test (여덟 경우)
         run: node scripts/test-check-docs-mermaid.js
 
       - name: Upload test results
