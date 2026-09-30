@@ -19,11 +19,13 @@ run-evals.py — evals.json 기반 플러그인 assertion 검증 러너
 Exit codes:
     0 — 전체 PASS
     1 — FAIL 있음
-    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 · eval 항목 0 개, 이름으로 준 킷이 없는 킷이거나 평가 파일이 없음)
+    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음(대상 없는 바로가기 포함) · eval 항목 0 개, 이름으로 준 킷이 없는 킷이거나 평가 파일이 없음)
+        못 읽은 킷이 있어도 나머지 킷은 끝까지 재고, 못 읽은 킷 이름을 모두 적은 뒤 2 로 끝난다
 """
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -38,12 +40,16 @@ SKIP_KITS = {
 
 def eval_kits() -> list[str]:
     names = [plugin["name"] for plugin in load_marketplace().get("plugins", [])]
-    have = [name for name in names if (REPO_ROOT / name / "evals" / "evals.json").is_file()]
+    # 대상 없는 바로가기는 파일 자리가 있으니 대상이다 — 못 읽음으로 잰다
+    have = [name for name in names if os.path.lexists(REPO_ROOT / name / "evals" / "evals.json")]
     # 평가 파일이 없는 킷도 이름을 찍는다 — 다른 이름으로 둔 킷이 소리 없이 빠지지 않게
     absent = [name for name in names if name not in have]
     if absent:
         print(f"평가 파일(evals/evals.json) 없는 킷 {len(absent)} 개 — 대상 아님: {', '.join(absent)}")
     return have
+
+# 못 읽거나 깨진 평가 파일 — 없는 파일(None)과 갈라 그 킷 이름을 모은다
+UNREADABLE = object()
 
 PLACEHOLDER_PATTERNS = [
     "(placeholder)",
@@ -52,8 +58,10 @@ PLACEHOLDER_PATTERNS = [
     "FIXME",
 ]
 
-def load_evals(kit: str) -> dict | None:
-    """evals.json 로드. 파일 없으면 None 반환. 파싱 실패 시 즉시 sys.exit(2) 로 종료.
+def load_evals(kit: str) -> dict | object | None:
+    """evals.json 로드. 파일 없으면 None, 못 읽거나 파싱 실패면 UNREADABLE 을 돌려준다.
+
+    여기서 끝내지 않는 것은 한 킷 때문에 뒤 킷을 못 재는 일을 막으려는 것이다 — 종료 코드 2 는 main 이 낸다.
 
     exit code 구분 (run-evals.py docstring 과 일치):
       - 0: 전체 PASS
@@ -66,15 +74,17 @@ def load_evals(kit: str) -> dict | None:
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
+        if os.path.lexists(path):
+            print(f"UNREADABLE {path} (바로가기 대상 없음)", file=sys.stderr)
+            return UNREADABLE
         return None
     except OSError as exc:
         # 권한 등으로 못 읽은 파일을 통과로 치지 않는다 — 파싱 실패와 같은 구조 오류다
         print(f"UNREADABLE {path} ({exc.strerror})", file=sys.stderr)
-        sys.exit(2)
+        return UNREADABLE
     except json.JSONDecodeError as exc:
         print(f"  ERROR: {path} parse error: {exc}", file=sys.stderr)
-        print(f"  FATAL: evals.json structural error — exit 2", file=sys.stderr)
-        sys.exit(2)
+        return UNREADABLE
 
 
 def get_eval_list(data: dict) -> list[dict]:
@@ -141,13 +151,11 @@ def validate_eval_entry(kit: str, entry: dict, verbose: bool) -> list[str]:
     return failures
 
 
-def validate_kit(kit: str, verbose: bool) -> tuple[int, int]:
-    """플러그인 검증. (pass_count, fail_count) 반환.
-
-    주의: evals.json 파싱 실패 시 load_evals 내부에서 sys.exit(2) 로 즉시 종료하므로
-    본 함수는 파싱 실패 분기를 처리하지 않는다.
-    """
+def validate_kit(kit: str, verbose: bool) -> tuple[int, int] | None:
+    """플러그인 검증. (pass_count, fail_count) 반환. 평가 파일을 못 읽었으면 None."""
     data = load_evals(kit)
+    if data is UNREADABLE:
+        return None
     if data is None:
         if verbose:
             print(f"  SKIP (evals.json 없음)")
@@ -190,6 +198,7 @@ def main() -> int:
     kits = [args.plugin] if args.plugin else eval_kits()
     grand_pass = 0
     grand_fail = 0
+    unreadable = []
 
     for kit in kits:
         if kit in SKIP_KITS:
@@ -197,7 +206,11 @@ def main() -> int:
             continue
 
         print(f"→ {kit}")
-        passes, fails = validate_kit(kit, args.verbose)
+        result = validate_kit(kit, args.verbose)
+        if result is None:
+            unreadable.append(kit)
+            continue
+        passes, fails = result
         grand_pass += passes
         grand_fail += fails
         status = "PASS" if fails == 0 else "FAIL"
@@ -205,6 +218,9 @@ def main() -> int:
 
     print()
     print(f"Total: {grand_pass} passed, {grand_fail} failed")
+    if unreadable:
+        print(f"못 읽은 킷 {len(unreadable)} 개: {', '.join(unreadable)}")
+        return 2
 
     return 1 if grand_fail > 0 else 0
 

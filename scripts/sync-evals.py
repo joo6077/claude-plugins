@@ -18,11 +18,13 @@ sync-evals.py — 각 플러그인 evals/evals.json 과 skills/ 디렉토리 동
 Exit codes:
     0 — no drift (check-only) 또는 동기화 완료
     1 — drift detected (check-only 모드만)
-    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 포함)
+    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 · 대상 없는 바로가기 포함)
+        못 읽은 킷이 있어도 나머지 킷은 끝까지 재고, 못 읽은 킷 이름을 모두 적은 뒤 2 로 끝난다
 """
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -39,7 +41,8 @@ SKIP_KITS = {
 def target_kits() -> list[str]:
     marketplace = REPO_ROOT / ".claude-plugin" / "marketplace.json"
     names = [plugin["name"] for plugin in json.loads(marketplace.read_text(encoding="utf-8")).get("plugins", [])]
-    have = [name for name in names if (REPO_ROOT / name / "evals" / "evals.json").is_file()]
+    # 대상 없는 바로가기는 파일 자리가 있으니 대상이다 — 못 읽음으로 잰다
+    have = [name for name in names if os.path.lexists(REPO_ROOT / name / "evals" / "evals.json")]
     # 평가 파일이 없는 킷도 이름을 찍는다 — 다른 이름으로 둔 킷이 소리 없이 빠지지 않게
     absent = [name for name in names if name not in have]
     if absent:
@@ -47,20 +50,26 @@ def target_kits() -> list[str]:
     return have
 
 
-def load_evals(kit: str) -> dict | None:
+# 못 읽거나 깨진 평가 파일 — 없는 파일(None)과 갈라 그 킷 이름을 모은다
+UNREADABLE = object()
+
+
+def load_evals(kit: str) -> dict | object | None:
+    """없으면 None, 못 읽거나 파싱 실패면 UNREADABLE. 여기서 끝내지 않고 main 이 나머지 킷을 잰 뒤 2 를 낸다."""
     path = REPO_ROOT / kit / "evals" / "evals.json"
-    if not path.exists():
+    if not os.path.lexists(path):
         return None
     try:
         return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        print(f"UNREADABLE {path} (바로가기 대상 없음)", file=sys.stderr)
     except OSError as exc:
         # 권한 등으로 못 읽은 파일을 없는 파일처럼 넘기면 --check-only 가 통과한다
         print(f"UNREADABLE {path} ({exc.strerror})", file=sys.stderr)
-        sys.exit(2)
     except json.JSONDecodeError as exc:
         # 없는 파일처럼 SKIP 하면 깨진 평가 파일이 --check-only 를 통과한다
         print(f"ERROR: {path} parse error: {exc}", file=sys.stderr)
-        sys.exit(2)
+    return UNREADABLE
 
 
 def save_evals(kit: str, data: dict) -> None:
@@ -180,6 +189,7 @@ def main() -> int:
     total_added = 0
     total_orphans = 0
     total_missing_preview = 0
+    unreadable = []
 
     for kit in target_kits():
         if kit in SKIP_KITS:
@@ -187,6 +197,9 @@ def main() -> int:
             continue
         print(f"→ {kit}")
         data = load_evals(kit)
+        if data is UNREADABLE:
+            unreadable.append(kit)
+            continue
         if data is None:
             print(f"  SKIP (no evals.json)")
             continue
@@ -206,6 +219,9 @@ def main() -> int:
         f"{total_missing_preview} missing (preview)"
     )
 
+    if unreadable:
+        print(f"못 읽은 킷 {len(unreadable)} 개: {', '.join(unreadable)}")
+        return 2
     if args.check_only:
         drift = total_missing_preview > 0 or total_orphans > 0
         return 1 if drift else 0
