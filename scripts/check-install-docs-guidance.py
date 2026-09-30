@@ -9,7 +9,8 @@ raw 주소가 있어야 하고, `../` 로 적은 칸이면 그 줄에 `../` 도 
 킷 안(`<킷>/docs/<칸>/`)에 있는 경로는 설치본에서 열리므로 대상이 아니다. evals/ 아래는 보지 않는다.
 
 출력: 빠진 파일마다 `NEED <파일> missing=<칸>` 줄, 못 읽은 파일마다 `UNREADABLE <파일> (<까닭>)` 줄,
-추적 중인데 작업 폴더에서 지운 파일마다 `SKIP <파일> (작업 폴더에서 지워짐)` 줄(실패로 치지 않는다),
+추적 중인데 작업 폴더에서 지운 파일마다 `SKIP <파일> (작업 폴더에서 지워짐)` 줄(실패로 치지 않는다 — 바로가기가
+남았는데 대상만 없으면 지운 것이 아니라 못 읽은 것으로 친다),
 끝 줄 `TOTAL files=<n> ok=<n> need=<n> exempt=<n> unreadable=<n>`
 종료 코드: 0 빠진 것 없음 · 1 빠진 파일 있음 · 2 git ls-files 실패 또는 킷 파일을 못 읽음 (1 보다 앞선다)
 """
@@ -97,6 +98,11 @@ def main():
             continue
         except FileNotFoundError:
             # 추적 중인데 작업 폴더에서 지운 파일은 다음 커밋에서 빠질 파일이라 잴 글이 없다. 커밋 전 삭제는 흔한 상태다
+            # 바로가기는 남아 있고 가리키는 대상만 없으면 지운 것이 아니다 — 잴 글을 못 읽은 것이다
+            if os.path.lexists(path):
+                unreadable += 1
+                print(f"UNREADABLE {path} (바로가기 대상 없음)")
+                continue
             print(f"SKIP {path} (작업 폴더에서 지워짐)")
             continue
         except OSError as error:

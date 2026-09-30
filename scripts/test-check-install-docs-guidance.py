@@ -5,11 +5,13 @@
   1. 뿌리 docs/ 를 가리키는 킷 파일을 읽기 권한 없이 두면 → 종료 코드 2, 출력에 그 경로
   2. 같은 파일에 안내 줄이 있고 읽히면 → 종료 코드 0
   3. 추적 중인데 작업 폴더에서 지운 킷 파일은 → 종료 코드 0, 출력에 `SKIP <그 경로>` (커밋 전 삭제는 실패가 아니다)
+  4. 추적 중인 바로가기가 가리키는 파일이 없으면 → 종료 코드 2, 출력에 `UNREADABLE <그 경로>` (지운 파일이 아니다)
 
 사용법:
     python3 scripts/test-check-install-docs-guidance.py [--tool <도구 사본 경로>]
 
---tool 은 음성 대조용이다 — 읽기 실패를 건너뛰는 옛 사본을 주면 경우 1 이 실패해야 한다.
+--tool 은 음성 대조용이다 — 읽기 실패를 건너뛰는 옛 사본을 주면 경우 1 이, 바로가기 대상이 없는 것을 지운 파일로 치는
+옛 사본을 주면 경우 4 가 실패해야 한다.
 root 로 돌면 권한을 빼도 읽혀서 경우 1 을 만들 수 없다 — 그때는 준비 실패 2 로 멈춘다.
 종료 코드는 harness/evals/gate-exit-codes.md 의 값을 쓴다 (0 통과 · 1 실패 · 2 준비 실패).
 """
@@ -89,6 +91,13 @@ def main() -> int:
         (deleted_root / "k/gone.md").unlink()
         rc, output = run_tool(deleted_root)
         results.append(("3 추적 중 지운 파일은 SKIP 하고 종료 코드 0", rc == 0 and "SKIP k/gone.md" in output, rc))
+        link_root = Path(tmp) / "broken-link"
+        make_repo(link_root, args.tool, GUIDED)
+        (link_root / "k/link.md").symlink_to("missing.md")
+        git(link_root, "add", "k/link.md")
+        git(link_root, "commit", "-qm", "link")
+        rc, output = run_tool(link_root)
+        results.append(("4 대상 없는 바로가기는 UNREADABLE 하고 종료 코드 2", rc == 2 and "UNREADABLE k/link.md" in output, rc))
     for label, ok, rc in results:
         print(f"{'PASS' if ok else 'FAIL'} 경우 {label} (rc={rc})")
     passed = sum(ok for _, ok, _ in results)
