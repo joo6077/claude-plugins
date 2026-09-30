@@ -4,7 +4,7 @@ slug: after-0930-id-regex-linux
 created: "2026-09-30 16:25"
 complexity: "복잡"
 conditions: 19
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: "sha256:64997021d92aa203"
 measurement_digest: "sha256:4dc48dd81154a963"
