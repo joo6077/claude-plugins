@@ -2,7 +2,8 @@
 
 계약 `.harness/sprint-contract-after-0930-end.md` (22 조건, 봉인 커밋 `6e87f54a`, 지문 `sha256:d2437ae0709e3d1a`,
 측정 지문 `sha256:1775115ab58ed74e`). 가지 `chore/ak3-end`, 시작 판 `f0fcc534`. 측정 도우미 커밋 `1ff8164a`.
-QA 판정은 아직이다(이 기록은 구현자 몫까지만 적는다).
+QA 판정 APPROVE (22/22 PASS, 리포트 `.harness/sprint-feedback-after-0930-end.md`, 커밋 `14a0d3bc`).
+독립 검토는 막는 결함 0 건.
 
 ## 항목별 결과
 
@@ -69,7 +70,11 @@ QA 판정은 아직이다(이 기록은 구현자 몫까지만 적는다).
 
 ## 남긴 것
 
-- QA 판정과 계약 `status: done` — 구현자 몫이 아니다.
+- `scripts/sync-evals.py` 는 대상 없는 바로가기인 `evals.json` 을 여전히 없는 파일로 친다(`path.exists()` 가 거짓,
+  독립 검토, 막지 않는 결함). 이번 변경 전부터 있던 동작이고, 그런 킷은 「평가 파일 없는 킷」 목록에 이름이 찍혀
+  조용히 빠지지 않는다. `check-install-docs-guidance.py` 처럼 `lexists` 로 가르려면 다음 묶음에서 시험 경우와 함께 더한다.
+- 교차 진단은 `cross_diagnosis_by: pending-parent` 로 저장됐다. 물을 것 둘(설치본 대신 레포 사본으로 봉인을 다시 잰 판단,
+  검사가 산출물인 조건의 다섯 확인)은 QA 리포트의 Cross-Diagnosis Handoff 절에 있다.
 - harness 릴리스 — 설치본 0.16.0 의 옛 머리 읽개를 바꾸려면 필요하다. 이 계약은 릴리스를 하지 않는다(범위 밖).
 - `SKIP_KITS` 에 적힌 `howto-kit` 을 이름으로 줄 때의 SKIP · 0 — 사유가 적힌 뺀 킷이라 그대로 둔다.
 - `evals.json` 의 UTF-8 이 아닌 바이트 · `marketplace.json` 읽기 실패 — 이미 추적 출력과 종료 코드 1 로 CI 를 멈춘다.
