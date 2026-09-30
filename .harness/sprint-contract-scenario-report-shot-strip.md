@@ -4,7 +4,7 @@ slug: scenario-report-shot-strip
 created: "2026-09-30 16:57"
 complexity: "중간"
 conditions: 16
-status: active
+status: done
 owner_session: 97f28e34-99ea-4a74-9baa-3288b7964458
 conditions_digest: sha256:138129e244344c31
 measurement_digest: sha256:b4a6771747498786
