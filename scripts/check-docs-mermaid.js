@@ -5,7 +5,8 @@
  * 쪽의 예시는 글로만 실려 있어, 문법이 깨져도 아무 검사가 잡지 못했다(2026-09-29). 브라우저 빈 쪽에
  * 레포가 package.json 에 못박은 Mermaid(node_modules)를 넣고 예시마다 mermaid.render 를 부른다.
  *
- * 예시 = 쪽의 <pre> 가운데 빈 줄 · `%%` 줄을 건넌 첫 줄이 Mermaid 그림 종류 낱말로 시작하는 것.
+ * 예시 = 쪽의 <pre> 가운데 aria-label 이 「Mermaid … 예시」 인 것(첫 줄과 무관 — 종류 이름 오타도 잡는다)과,
+ * 이름표가 없고 빈 줄 · `%%` 줄 · `---` 머리말을 건넌 첫 줄이 Mermaid 그림 종류 낱말로 시작하는 것.
  * 그려짐 = render 가 예외 없이 돌려준 그림에 svg 와 도형이 1 개 이상 있고, 오류 그림
  * (aria-roledescription="error") · "Syntax error" · "Parse error" 글이 없는 것.
  *
@@ -34,10 +35,15 @@ async function examplesOf(browser, page) {
     await tab.goto('file://' + page);
     return await tab.evaluate((keyword) => {
       const pattern = new RegExp(keyword);
-      return [...document.querySelectorAll('pre')].map((pre) => pre.textContent.replace(/\r/g, '')).filter((text) => {
-        const first = text.split('\n').map((line) => line.trim()).find((line) => line && !line.startsWith('%%'));
-        return pattern.test(first || '');
-      });
+      const labeled = (pre) => /^Mermaid .*예시$/.test(pre.getAttribute('aria-label') || '');
+      const firstLine = (text) => {
+        const lines = text.split('\n').map((line) => line.trim()).filter((line) => line && !line.startsWith('%%'));
+        const closing = lines[0] === '---' ? lines.indexOf('---', 1) : -1;
+        return lines[closing + 1] || '';
+      };
+      return [...document.querySelectorAll('pre')]
+        .filter((pre) => labeled(pre) || pattern.test(firstLine(pre.textContent.replace(/\r/g, ''))))
+        .map((pre) => pre.textContent.replace(/\r/g, ''));
     }, DIAGRAM_KEYWORD.source);
   } finally {
     await tab.close();
