@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * check-docs-mermaid.js 시험 — 임시 폴더의 쪽으로 여덟 경우를 돌린다. 레포 파일은 건드리지 않는다.
+ * check-docs-mermaid.js 시험 — 임시 폴더의 쪽으로 아홉 경우를 돌린다. 레포 파일은 건드리지 않는다.
  *
  *   1. 그려지는 예시 하나 쪽 → 종료 코드 0
  *   2. 괄호를 닫지 않은 예시 쪽 → 종료 코드 1, 그 쪽 이름이 적힘
@@ -10,11 +10,13 @@
  *   6. 같은 이름표에 `---` 머리말 + flowchat 예시 쪽 → 종료 코드 1
  *   7. 같은 이름표에 머리말 + 정상 flowchart 예시만 있는 쪽 → 종료 코드 0, 예시 1 개로 셈
  *   8. 이름표 「셸 명령 예시」 인 <pre> 는 예시로 세지 않음 → 종료 코드 0, 예시 1 개로 셈
+ *   9. 이름표 없이 머리말 + 정상 flowchart 예시만 있는 쪽 → 종료 코드 0, 예시 1 개로 셈 (머리말 건너뛰기 길)
  *
  * Usage:
  *   node scripts/test-check-docs-mermaid.js [--check <검사 사본 경로>]
  *
- * --check 는 음성 대조용이다 — 늘 0 을 내는 사본은 경우 2 · 3 · 4 · 5 · 6 · 7 · 8 이 실패해야 한다(7 · 8 은 끝 줄의 예시 수로).
+ * --check 는 음성 대조용이다 — 늘 0 을 내는 사본은 경우 2 · 3 · 4 · 5 · 6 · 7 · 8 · 9 가 실패해야 한다(7 · 8 · 9 는 끝 줄의 예시 수로).
+ * 머리말을 건너지 않고 첫 줄만 보는 사본은 경우 9 만 실패한다 — 경우 6 · 7 은 이름표 길로 세어져 그 코드를 지나지 않는다.
  * 종료 코드는 harness/evals/gate-exit-codes.md 를 따른다 (0 통과 · 1 실패 · 2 준비 실패).
  */
 const fs = require('fs');
@@ -68,6 +70,10 @@ const CASES = [
   }],
   ['8 Mermaid 아닌 이름표는 안 셈', (tmp) => {
     const { code, output } = runCheck(check, writePage(tmp, 'shell.html', `${GOOD}<pre aria-label="셸 명령 예시">ls -la</pre>`));
+    return code === 0 && output.includes('예시 1 · 안 그려진 예시 0');
+  }],
+  ['9 이름표 없는 머리말 정상 예시는 세고 통과', (tmp) => {
+    const { code, output } = runCheck(check, writePage(tmp, 'front-bare.html', `<pre>${FRONT}flowchart LR${EDGE}</pre>`));
     return code === 0 && output.includes('예시 1 · 안 그려진 예시 0');
   }],
 ];
