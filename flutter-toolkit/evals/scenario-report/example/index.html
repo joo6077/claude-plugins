@@ -59,7 +59,18 @@ figcaption{font-size:13px;color:var(--soft);margin-top:8px;text-align:center}
 .step .kw{font-size:13px;font-weight:600;color:var(--faint);padding-top:3px}
 .tx{line-height:1.55}
 .mk{text-align:right;font-size:16px}
-.do{grid-column:2 / 3;margin:4px 0 0;padding-left:1.4em;font-size:13px;color:var(--faint);line-height:1.5}
+.do{grid-column:2 / 3;list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.do li{display:grid;grid-template-columns:22px 44px minmax(0,1fr);align-items:center;column-gap:10px}
+.do .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#eaeef2;color:var(--ink);font-size:12px;font-weight:600}
+.do img{display:block;width:44px;height:auto;border:1px solid var(--line);border-radius:6px;cursor:zoom-in}
+.do .act{font-size:13px;color:var(--soft);line-height:1.45}
+.more{grid-column:2 / 3;margin-top:6px}
+.more summary{cursor:pointer;min-height:32px;display:flex;align-items:center;font-size:13px;color:var(--soft);list-style:none}
+.more summary::-webkit-details-marker{display:none}
+.more summary::before{content:"▸";width:22px;margin-right:10px;text-align:center}
+.more[open] summary::before{content:"▾"}
+.more .more-close,.more[open] .more-open{display:none}
+.more[open] .more-close{display:inline}
 .obs{grid-column:2 / 3;margin-top:6px;font-size:14px;color:var(--soft);line-height:1.5}
 .step.fail .obs{color:var(--fail)}
 .step.fail{background:var(--fail-soft);margin:0 -12px;padding-left:12px;padding-right:12px;border-radius:8px}
@@ -95,7 +106,7 @@ dialog.viewer button{position:fixed;top:16px;right:16px;min-width:44px;min-heigh
  .pre ul li{flex:none;white-space:nowrap}}
 </style></head><body><main class="wrap"><section class="list"><h1>테스트 기록</h1><p class="meta">케이스 2개 · 실패 1 · 통과 1</p><ol class="cases"><li class="fail"><a href="TC-002-appoint-vice-leader/index.html"><span class="pill fail">❌ 실패</span><span class="id">TC-002</span><span class="t">다른 사람 프로필에서 부방장으로 임명한다</span></a></li><li class="pass"><a href="TC-001-transfer-leader-cancel/index.html"><span class="pill pass">✅ 통과</span><span class="id">TC-001</span><span class="t">방장 넘기기를 중간에 취소하면 아무것도 바뀌지 않는다</span></a></li></ol></section></main><dialog class="viewer"><button type="button" autofocus>닫기</button><img alt=""></dialog>
 <script>(function(){var viewer=document.querySelector("dialog.viewer"),big=viewer.querySelector("img");
-document.querySelectorAll(".shots img,.zoom img").forEach(function(shot){shot.addEventListener("click",function(){big.src=shot.src;big.alt=shot.alt;viewer.showModal()})});
+document.querySelectorAll(".shots img,.zoom img,.do img").forEach(function(shot){shot.addEventListener("click",function(){big.src=shot.src;big.alt=shot.alt;viewer.showModal()})});
 viewer.querySelector("button").onclick=function(){viewer.close()};viewer.addEventListener("click",function(ev){if(ev.target===viewer)viewer.close()});})();</script><script>(function(){
 var cases=[].slice.call(document.querySelectorAll("article.case")),queued=false;
 function update(){queued=false;var line=innerHeight*0.4;

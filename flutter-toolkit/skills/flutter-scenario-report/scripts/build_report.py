@@ -33,6 +33,10 @@ SCENARIO_FIELDS = {"name": (True, str), "steps": (True, list), "shots": (False, 
 STEP_FIELDS = {"kw": (True, str), "text": (True, str), "do": (False, list), "result": (False, str), "seen": (False, str),
                "zoom": (False, dict)}
 IMAGE_FIELDS = {"file": (True, str), "caption": (True, str)}
+# shot 은 건너뛴 시나리오에서만 뺄 수 있어 필수 여부를 load_case 가 따로 본다
+ACTION_FIELDS = {"act": (True, str), "shot": (False, str)}
+FOLD_AFTER = 3
+MANY_ACTIONS = 8
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "templates" / "report.html"
 SLOT = "<!-- cases -->"
@@ -66,7 +70,7 @@ def png_size(path):
 
 def load_case(folder):
     """record.json 하나를 읽어 검사하고, 시나리오 판정을 계산한 케이스를 돌려준다."""
-    errors, used_images = [], set()
+    errors, notes, used_images = [], [], set()
     where = f"{folder.name}/record.json"
     try:
         record = json.loads((folder / "record.json").read_text(encoding="utf-8"))
@@ -130,15 +134,30 @@ def load_case(folder):
             elif "seen" in step or "zoom" in step:
                 errors.append(f"{step_label}: 판정이 없는 단계에 seen · zoom 을 붙일 수 없다")
             actions = step.get("do")
+            done = []
             if actions is not None:
-                if not actions or not all(isinstance(action, str) and action.strip() for action in actions):
-                    errors.append(f"{step_label}.do: 비어 있지 않은 조작 문장 1 개 이상의 목록이어야 한다")
+                if not actions:
+                    errors.append(f"{step_label}.do: 조작 1 개 이상의 목록이어야 한다")
+                for action_number, action in enumerate(actions, 1):
+                    action_label = f"{step_label}.do[{action_number}]"
+                    if not check_fields(action, ACTION_FIELDS, action_label, errors):
+                        continue
+                    if "shot" in action:
+                        shot = check_image({"file": action["shot"], "caption": action["act"]}, f"{action_label}.shot")
+                    elif "skipped" in scenario:
+                        shot = None
+                    else:
+                        errors.append(f"{action_label}.shot: 조작마다 그 직후 캡처 파일 이름을 적어야 한다 — 건너뛴 시나리오만 뺄 수 있다")
+                        continue
+                    done.append({"act": action["act"], "shot": shot})
+                if len(actions) > MANY_ACTIONS:
+                    notes.append(f"{step_label}.do: 조작 {len(actions)}개 — 5 개를 넘으면 앞부분을 먼저로 옮기거나 단계를 나눈다")
                 if result is not None:
                     errors.append(f"{step_label}.do: 판정한 단계에는 조작 순서를 붙이지 않는다 — 본 것은 seen 에 쓴다")
             elif not then_seen and keyword not in STATE_KEYWORDS:
                 errors.append(f"{step_label}.do: 행동 단계는 실제 조작 순서를 do 목록으로 적어야 한다")
             zoom = check_image(step["zoom"], f"{step_label}.zoom") if "zoom" in step else None
-            steps.append({"kw": keyword, "text": step["text"], "do": actions or [], "result": result, "seen": step.get("seen"),
+            steps.append({"kw": keyword, "text": step["text"], "do": done, "result": result, "seen": step.get("seen"),
                           "zoom": zoom})
         if not scenario["steps"]:
             errors.append(f"{label}.steps: 단계가 하나 이상 있어야 한다")
@@ -155,8 +174,8 @@ def load_case(folder):
         scenarios.append({"name": scenario["name"], "status": status, "steps": steps,
                           "shots": [shot for shot in shots if shot], "skipped": scenario.get("skipped")})
 
-    warnings = [f"{folder.name}/{png.name}: 기록이 가리키지 않는 캡처다"
-                for png in sorted(folder.glob("*.png")) if png.name not in used_images]
+    warnings = notes + [f"{folder.name}/{png.name}: 기록이 가리키지 않는 캡처다"
+                        for png in sorted(folder.glob("*.png")) if png.name not in used_images]
     if errors:
         return None, errors, warnings
     statuses = [scenario["status"] for scenario in scenarios]
@@ -170,6 +189,21 @@ def load_case(folder):
     return case, [], warnings
 
 
+def actions_html(actions):
+    rows = []
+    for number, action in enumerate(actions, 1):
+        shot, act = action["shot"], html.escape(action["act"])
+        image = (f'<img src="{shot["file"]}" width="{shot["size"][0]}" height="{shot["size"][1]}" alt="{act}">'
+                 if shot else '<span class="noshot"></span>')
+        rows.append(f'<li><span class="n">{number}</span>{image}<span class="act">{act}</span></li>')
+    shown = f'<ol class="do">{"".join(rows[:FOLD_AFTER])}</ol>'
+    if len(rows) <= FOLD_AFTER:
+        return shown
+    return (f'{shown}<details class="more"><summary><span class="more-open">조작 {len(rows) - FOLD_AFTER}개 더 보기 '
+            f'(모두 {len(rows)}개)</span><span class="more-close">접기</span></summary>'
+            f'<ol class="do">{"".join(rows[FOLD_AFTER:])}</ol></details>')
+
+
 def steps_html(scenario):
     rows, checking = [], False
     for step in scenario["steps"]:
@@ -178,8 +212,7 @@ def steps_html(scenario):
             checking = True
             start = " check-start" if rows else ""
         result = step["result"]
-        extra = ('<ol class="do">' + "".join(f"<li>{html.escape(action)}</li>" for action in step["do"]) + "</ol>"
-                 if step["do"] else "")
+        extra = actions_html(step["do"]) if step["do"] else ""
         if step["seen"]:
             extra += f'<div class="obs">{html.escape(step["seen"])}</div>'
         if step["zoom"]:

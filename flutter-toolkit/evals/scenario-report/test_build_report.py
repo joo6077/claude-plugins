@@ -40,17 +40,18 @@ VALID = {
     "background": ["Bob2 가 방장이다"],
     "scenarios": [
         {"name": "그룹 고르는 창에서 취소한다",
-         "steps": [{"kw": "만일", "text": "방장 넘기기를 누른다", "do": ["⋯ 버튼 탭", "방장 넘기기 탭"]},
-                   {"kw": "그리고", "text": "취소를 누른다", "do": ["취소 탭"]},
+         "steps": [{"kw": "만일", "text": "방장 넘기기를 누른다", "do": [{"act": "⋯ 버튼 탭", "shot": "01-picker.png"},
+                                                                          {"act": "방장 넘기기 탭", "shot": "01-picker.png"}]},
+                   {"kw": "그리고", "text": "취소를 누른다", "do": [{"act": "취소 탭", "shot": "01-picker.png"}]},
                    {"kw": "그러면", "text": "방장은 그대로다", "result": "pass", "seen": "프로필 방장 표시 Bob2"}],
          "shots": [{"file": "01-picker.png", "caption": "그룹 고르는 창"}]},
         {"name": "확인 창에서 취소한다",
-         "steps": [{"kw": "만일", "text": "확인 창을 연다", "do": ["PGA 브라보 탭"]},
+         "steps": [{"kw": "만일", "text": "확인 창을 연다", "do": [{"act": "PGA 브라보 탭", "shot": "02-confirm.png"}]},
                    {"kw": "그러면", "text": "제목이 다 보인다", "result": "fail", "seen": "제목 둘째 줄이 가려졌다",
                     "zoom": {"file": "02-title.png", "caption": "잘린 제목"}}],
          "shots": [{"file": "02-confirm.png", "caption": "확인 창"}]},
         {"name": "다시 연다",
-         "steps": [{"kw": "만일", "text": "다시 연다", "do": ["방장 넘기기 탭"]}, {"kw": "그러면", "text": "창이 뜬다"}],
+         "steps": [{"kw": "만일", "text": "다시 연다", "do": [{"act": "방장 넘기기 탭"}]}, {"kw": "그러면", "text": "창이 뜬다"}],
          "skipped": "앞 시나리오 결함을 먼저 고친다."},
     ],
     "run": [["MCP 서버", "app-mobile"]],
@@ -263,25 +264,25 @@ class BuildReportTest(unittest.TestCase):
 
     def test_error_do_not_list(self):
         record = copy.deepcopy(VALID)
-        record["scenarios"][0]["steps"][1]["do"] = "취소 탭"
+        record["scenarios"][0]["steps"][1]["do"] = {"act": "취소 탭", "shot": "01-picker.png"}
         self.assert_rejected(record, "시나리오 1 단계 2.do")
 
     def test_error_do_empty(self):
-        for actions in ([], ["취소 탭", " "]):
+        for actions in ([], [{"act": " ", "shot": "01-picker.png"}]):
             with self.subTest(actions=actions):
                 record = copy.deepcopy(VALID)
                 record["scenarios"][0]["steps"][1]["do"] = actions
-                self.assert_rejected(record, "시나리오 1 단계 2.do", "비어 있지 않은 조작 문장")
+                self.assert_rejected(record, "시나리오 1 단계 2.do")
 
     def test_error_do_on_checked_step(self):
         record = copy.deepcopy(VALID)
-        record["scenarios"][0]["steps"][2]["do"] = ["방장 표시 확인"]
+        record["scenarios"][0]["steps"][2]["do"] = [{"act": "방장 표시 확인", "shot": "01-picker.png"}]
         self.assert_rejected(record, "시나리오 1 단계 3.do", "판정한 단계")
 
     def test_do_optional_on_setup(self):
         record = copy.deepcopy(VALID)
         record["scenarios"][0]["steps"].insert(0, {"kw": "조건", "text": "Bob2 가 방장이다"})
-        record["scenarios"][1]["steps"].insert(0, {"kw": "먼저", "text": "프로필을 연다", "do": ["프로필 탭"]})
+        record["scenarios"][1]["steps"].insert(0, {"kw": "먼저", "text": "프로필을 연다", "do": [{"act": "프로필 탭", "shot": "02-confirm.png"}]})
         record["scenarios"][1]["steps"].append({"kw": "그리고", "text": "목록이 보인다"})
         self.make_case(record)
         code, _, stderr = self.run_script("--check")
@@ -291,8 +292,10 @@ class BuildReportTest(unittest.TestCase):
         self.make_case(VALID)
         self.run_script()
         page = self.case_page()
-        self.assertIn('<span class="tx">방장 넘기기를 누른다</span><span class="mk"></span>'
-                      '<ol class="do"><li>⋯ 버튼 탭</li><li>방장 넘기기 탭</li></ol>', page)
+        self.assertIn('<span class="tx">방장 넘기기를 누른다</span><span class="mk"></span><ol class="do">'
+                      '<li><span class="n">1</span><img src="01-picker.png" width="3" height="7" alt="⋯ 버튼 탭"><span class="act">⋯ 버튼 탭</span></li>'
+                      '<li><span class="n">2</span><img src="01-picker.png" width="3" height="7" alt="방장 넘기기 탭">'
+                      '<span class="act">방장 넘기기 탭</span></li></ol>', page)
 
     def test_fix_rendered_in_case_header(self):
         record = copy.deepcopy(VALID)
@@ -313,6 +316,78 @@ class BuildReportTest(unittest.TestCase):
         record["fix"] = {"note": "고쳤다", "reason": "제목"}
         self.assert_rejected(record, "fix.reason", "모르는 키다")
 
+    def with_actions(self, count):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][0]["do"] = [{"act": f"조작 {number}", "shot": "01-picker.png"} for number in range(1, count + 1)]
+        return record
+
+    def test_error_do_string_item(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][0]["do"][1] = "방장 넘기기 탭"
+        self.assert_rejected(record, "시나리오 1 단계 1.do[2]", "객체여야 한다")
+
+    def test_error_do_item_without_shot(self):
+        record = copy.deepcopy(VALID)
+        del record["scenarios"][0]["steps"][0]["do"][1]["shot"]
+        self.assert_rejected(record, "TC-001-transfer/record.json 시나리오 1 단계 1.do[2].shot", "캡처 파일 이름")
+
+    def test_error_do_item_unknown_key(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][0]["do"][0]["note"] = "메모"
+        self.assert_rejected(record, "시나리오 1 단계 1.do[1].note", "모르는 키다")
+
+    def test_error_do_shot_missing_file(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][0]["do"][0]["shot"] = "09-none.png"
+        self.assert_rejected(record, "시나리오 1 단계 1.do[1].shot", "파일이 케이스 폴더에 없다")
+
+    def test_do_shot_counts_as_used(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][0]["do"][0]["shot"] = "05-op.png"
+        self.make_case(record, images=IMAGES + ("05-op.png",))
+        code, _, stderr = self.run_script()
+        self.assertEqual(code, 0, stderr)
+        self.assertNotIn("05-op.png", stderr)
+
+    def test_do_shot_optional_when_skipped(self):
+        self.make_case(VALID)
+        code, _, stderr = self.run_script("--check")
+        self.assertEqual(code, 0, stderr)
+        record = copy.deepcopy(VALID)
+        del record["scenarios"][2]["skipped"]
+        record["scenarios"][2]["steps"][1].update({"result": "pass", "seen": "창이 떴다"})
+        self.assert_rejected(record, "시나리오 3 단계 1.do[1].shot")
+
+    def test_do_rendered_with_shots(self):
+        self.make_case(VALID)
+        self.run_script()
+        self.assertIn('<li><span class="n">1</span><img src="02-confirm.png" width="3" height="7" alt="PGA 브라보 탭">'
+                      '<span class="act">PGA 브라보 탭</span></li>', self.case_page())
+
+    def test_do_folds_after_three(self):
+        self.make_case(self.with_actions(9))
+        self.run_script()
+        page = self.case_page()
+        self.assertEqual(page.count('<details class="more">'), 1)
+        self.assertIn('<span class="more-open">조작 6개 더 보기 (모두 9개)</span><span class="more-close">접기</span>', page)
+        shown, folded = re.search(r'<ol class="do">(.*?)</ol><details class="more">.*?<ol class="do">(.*?)</ol></details>', page).groups()
+        self.assertEqual(re.findall(r'<span class="n">(\d+)</span>', shown), ["1", "2", "3"])
+        self.assertEqual(re.findall(r'<span class="n">(\d+)</span>', folded), [str(number) for number in range(4, 10)])
+        self.make_case(self.with_actions(3))
+        self.run_script()
+        self.assertNotIn('<details class="more">', self.case_page())
+
+    def test_warn_many_actions(self):
+        self.make_case(self.with_actions(9))
+        code, _, stderr = self.run_script()
+        self.assertEqual(code, 0, stderr)
+        self.assertIn("경고: TC-001-transfer/record.json 시나리오 1 단계 1.do: 조작 9개", stderr)
+        self.make_case(self.with_actions(8))
+        code, _, stderr = self.run_script()
+        self.assertEqual(code, 0, stderr)
+        self.assertNotIn("조작 8개", stderr)
+        self.assertNotIn(".do: 조작", stderr)
+
     def test_error_writes_no_page(self):
         good = copy.deepcopy(VALID)
         good["id"] = "TC-000"
@@ -332,6 +407,8 @@ class BuildReportTest(unittest.TestCase):
         example = json.loads(re.search(r"```json\n(.*?)\n```", doc, re.S).group(1))
         images = {shot["file"] for scenario in example["scenarios"] for shot in scenario.get("shots", [])}
         images |= {step["zoom"]["file"] for scenario in example["scenarios"] for step in scenario["steps"] if "zoom" in step}
+        images |= {action["shot"] for scenario in example["scenarios"] for step in scenario["steps"]
+                   for action in step.get("do", []) if "shot" in action}
         self.make_case(example, images=sorted(images))
         code, _, stderr = self.run_script("--check")
         self.assertEqual(code, 0, stderr)
@@ -343,7 +420,7 @@ class BuildReportTest(unittest.TestCase):
         doc = FORMAT_DOC.read_text(encoding="utf-8")
         keys = set()
         for fields in (module.CASE_FIELDS, module.META_FIELDS, module.FIX_FIELDS, module.SCENARIO_FIELDS, module.STEP_FIELDS,
-                       module.IMAGE_FIELDS):
+                       module.ACTION_FIELDS, module.IMAGE_FIELDS):
             keys |= fields.keys()
         self.assertEqual(sorted(key for key in keys if f"`{key}`" not in doc), [])
 
