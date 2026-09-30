@@ -133,3 +133,18 @@ QA 1 회차 뒤 독립 검토가 찾은 결함(`quoted_prose()` 안 `match()` �
 | `check-superseded.sh` 중복 세기 | `90e08acf` | 폴더 인자 끝 빗금을 떼고, 같은 못 읽는 새 판은 한 번만 센다. 시험 경우 E(옛 판 둘 → 새 판 하나) · F(끝 빗금) 추가. 옛 판으로 돌리면 E · F 만 FAIL · 1 |
 | `check-install-docs-guidance.py` 지운 파일 | `8dca3e73` | 정책: 추적 중인데 작업 폴더에서 지운 파일은 `SKIP <경로> (작업 폴더에서 지워짐)` 줄만 내고 실패로 치지 않는다. 커밋 전 삭제는 흔한 상태이고 다음 커밋에서 빠질 파일이라 잴 글이 없다. 권한 · 인코딩으로 못 읽는 파일은 그대로 `UNREADABLE` · 2. 시험 경우 3 추가, 옛 판은 경우 3 에서 2 로 FAIL |
 | `sprint-contract/SKILL.md` 안내 | 안 함 | `harness/skills/sprint-contract/SKILL.md` 는 봉인된 범위 목록 밖이다. 고치면 구조-02 가 깨지고, 범위를 넓히는 개정은 조건을 느슨하게 한다 — 사용자 동의가 필요하다 |
+
+## QA 2 회차 뒤 (APPROVE 27/27)
+
+QA 2 회차가 27 조건을 모두 다시 돌려 통과로 판정했다. 리포트는 `.harness/sprint-feedback-after-0929-codex-silent-pass.md`, 계약은 `status: done`.
+그 뒤 독립 검토는 막는 결함 0, 막지 않는 결함 1 을 냈다. 아래에 남긴다.
+
+### 남은 것 (막지 않음)
+
+- `scripts/check-install-docs-guidance.py` 97~101 줄(`8dca3e73`): 지운 파일을 `FileNotFoundError` 하나로만 알아봐서,
+  대상이 없는 추적 중인 바로가기(심볼릭 링크)도 `SKIP … (작업 폴더에서 지워짐)` · 종료 0 으로 지나간다.
+  고치기 전 판은 이것을 `UNREADABLE` · 2 로 잡았으니 그 경우만큼은 못 잡게 됐고, 까닭 문구도 사실과 다르다.
+  고치지 않은 이유: 지금 레포에 추적 중인 바로가기가 0 개다(`git ls-files -s` 형식 120000 인 항목 0). 계약은 이미 봉인 · 판정이 끝났고,
+  이 파일을 다시 고치면 판정 뒤 코드가 바뀌어 새 계약이 필요하다. 고칠 때는 SKIP 앞에 `not os.path.lexists(path)` 를 같이 보고,
+  깨진 바로가기 시험 경우(양성 · 음성)를 `test-check-install-docs-guidance.py` 에 더한다.
+- QA 가 교차 진단을 부모에게 넘겼다(`cross_diagnosis_by: pending-parent`). 독립 검토가 lint 훅 · `check-superseded.sh` 새 시험이 고치기 전 판을 실제로 가른다는 것을 돌려 확인했다.
