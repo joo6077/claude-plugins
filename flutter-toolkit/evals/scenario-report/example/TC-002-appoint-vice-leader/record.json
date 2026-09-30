@@ -80,6 +80,10 @@
         {
           "file": "02-picker.png",
           "caption": "부방장 임명을 누른 뒤"
+        },
+        {
+          "file": "02-picker-title.png",
+          "caption": "잘린 제목만 잘라 냄"
         }
       ]
     },

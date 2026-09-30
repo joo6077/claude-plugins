@@ -36,6 +36,9 @@ IMAGE_FIELDS = {"file": (True, str), "caption": (True, str)}
 # shot 은 건너뛴 시나리오에서만 뺄 수 있어 필수 여부를 load_case 가 따로 본다
 ACTION_FIELDS = {"act": (True, str), "shot": (False, str)}
 FOLD_AFTER = 3
+# 폭이 높이의 이 배수를 넘는 캡처(잘라 낸 가로 조각)는 사진 줄에서 두 칸을 쓴다
+WIDE_RATIO = 1.2
+SHOT_COUNT_AFTER = 4
 MANY_ACTIONS = 8
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "templates" / "report.html"
@@ -243,16 +246,20 @@ def case_html(case):
         tag = f'<span class="tag">{WORD[status]}</span>' if status not in ICON else ""
         rail_items.append(f'<li><a class="{status}" href="#{section_id}"><span class="m">{ICON.get(status, "–")}</span>'
                           f'<span class="n">{number}</span><span class="t">{html.escape(scenario["name"])}{tag}</span></a></li>')
-        shots = "".join(f'<figure><img src="{shot["file"]}" width="{shot["size"][0]}" '
-                        f'height="{shot["size"][1]}" alt="{html.escape(shot["caption"])}"><figcaption>{html.escape(shot["caption"])}</figcaption></figure>'
-                        for shot in scenario["shots"])
-        left = f'<div class="shots">{shots}</div>' if shots else ""
+        figures = "".join(
+            f'<figure{" class=\"wide\"" if shot["size"][0] > shot["size"][1] * WIDE_RATIO else ""}><div class="shot-frame">'
+            f'<img src="{shot["file"]}" width="{shot["size"][0]}" height="{shot["size"][1]}" alt="{html.escape(shot["caption"])}">'
+            f'</div><figcaption>{html.escape(shot["caption"])}</figcaption></figure>' for shot in scenario["shots"])
+        count = (f'<p class="shot-count">사진 {len(scenario["shots"])}장</p>'
+                 if len(scenario["shots"]) > SHOT_COUNT_AFTER else "")
+        strip = (f'<div class="shot-strip">{count}<button class="shot-next" type="button" aria-label="다음 사진">›</button>'
+                 f'<div class="shots">{figures}</div></div>' if figures else "")
         skipped = f'<p class="skipped">{html.escape(scenario["skipped"])}</p>' if scenario["skipped"] else ""
         state = f'{ICON[status]} {WORD[status]}' if status in ICON else WORD[status]
         sections.append(f'<section class="scn {status}" id="{section_id}">'
                         f'<div class="scn-h"><div><div class="no">시나리오 {number}</div><h2>{html.escape(scenario["name"])}</h2></div>'
                         f'<span class="state {status}">{state}</span></div>'
-                        f'<div class="{"body" if shots else "body noshot"}">{left}<div>{steps_html(scenario)}{skipped}</div></div></section>')
+                        f'<div class="{"body" if strip else "body noshot"}">{strip}<div>{steps_html(scenario)}{skipped}</div></div></section>')
 
     background = ("<h3>테스트 전 상태</h3><ul>" + "".join(f"<li>{html.escape(item)}</li>" for item in case["background"]) + "</ul>"
                   if case["background"] else "")

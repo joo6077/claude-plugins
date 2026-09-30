@@ -1,0 +1,82 @@
+{
+  "id": "TC-003",
+  "title": "사진이 많은 시나리오는 한 줄로 넘겨 본다",
+  "summary": "사진 다섯 장(잘라 낸 가로 조각 한 장 포함)을 한 줄에 두고 넘겨 보며 방장 넘기기를 확인했다.",
+  "meta": {
+    "date": "2026-09-30 17:05",
+    "device": "iPhone 17 시뮬레이터 (iOS 26.5)"
+  },
+  "background": [
+    "Bob2 가 PGA 브라보의 방장이고 티나는 멤버다",
+    "티나의 프로필 화면을 열었다"
+  ],
+  "scenarios": [
+    {
+      "name": "방장 넘기기 창을 끝까지 연다",
+      "steps": [
+        {
+          "kw": "만일",
+          "text": "PGA 브라보를 골라 확인 창을 연다",
+          "do": [
+            {
+              "act": "⋯ 버튼 탭 (355,97)",
+              "shot": "01-menu.png"
+            },
+            {
+              "act": "\"방장 넘기기\" 탭",
+              "shot": "02-picker.png"
+            },
+            {
+              "act": "\"PGA 브라보\" 탭",
+              "shot": "04-confirm.png"
+            }
+          ]
+        },
+        {
+          "kw": "그리고",
+          "text": "확인 창에서 취소한다",
+          "do": [
+            {
+              "act": "\"취소\" 탭",
+              "shot": "05-after-cancel.png"
+            }
+          ]
+        },
+        {
+          "kw": "그러면",
+          "text": "그룹 고르는 창 제목이 다 보인다",
+          "result": "pass",
+          "seen": "제목 한 줄, 잘림 없음"
+        },
+        {
+          "kw": "그리고",
+          "text": "프로필로 돌아오고 방장은 Bob2 그대로다",
+          "result": "pass",
+          "seen": "방장 표시 Bob2"
+        }
+      ],
+      "shots": [
+        {
+          "file": "01-menu.png",
+          "caption": "메뉴"
+        },
+        {
+          "file": "02-picker.png",
+          "caption": "그룹 고르는 창"
+        },
+        {
+          "file": "04-confirm.png",
+          "caption": "확인 창"
+        },
+        {
+          "file": "05-after-cancel.png",
+          "caption": "취소한 뒤"
+        },
+        {
+          "file": "03-picker-title.png",
+          "caption": "창 제목만 잘라 냄"
+        }
+      ]
+    }
+  ]
+}

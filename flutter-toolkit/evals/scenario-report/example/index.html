@@ -47,10 +47,20 @@ h1{font-size:26px;line-height:1.35;font-weight:700;letter-spacing:-.01em;margin-
 .scn-h h2{font-size:18px;font-weight:700;margin-top:2px}
 .state{font-size:14px;font-weight:700;white-space:nowrap}
 .state.pass{color:var(--pass)}.state.fail{color:var(--fail)}.state.skip{color:var(--soft)}
-.body{display:grid;grid-template-columns:auto minmax(0,1fr);gap:36px;align-items:start}
-.body.noshot{grid-template-columns:minmax(0,1fr)}
-.shots{display:flex;gap:14px;align-items:flex-start}
-.shots img{display:block;height:min(600px,66vh);height:min(600px,66dvh);width:auto;border:1px solid var(--line);border-radius:18px;background:#000;cursor:zoom-in}
+.body{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
+.body>*{min-width:0}
+.shot-strip{position:relative}
+.shot-count{font-size:13px;color:var(--soft);margin-bottom:8px}
+.shots{--slot:max(160px,calc((100% - 4 * 14px) / 4.3));display:flex;gap:14px;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;padding-bottom:6px}
+.shots figure{flex:0 0 var(--slot);scroll-snap-align:start}
+.shots figure.wide{flex-basis:calc(var(--slot) * 2 + 14px)}
+.shot-frame{aspect-ratio:402/874;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f6f7f9;border:1px solid var(--line);border-radius:14px}
+.shots figure.wide .shot-frame{aspect-ratio:818/874}
+.shots img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;cursor:zoom-in}
+.shot-strip::after{content:"";position:absolute;top:0;right:0;bottom:6px;width:64px;pointer-events:none;background:linear-gradient(to right,rgba(255,255,255,0),var(--card));opacity:0;transition:opacity .2s}
+.shot-strip.has-more::after{opacity:1}
+.shot-next{display:none;position:absolute;right:8px;top:calc(50% - 30px);z-index:1;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.12);font-size:20px;line-height:1;cursor:pointer}
+.shot-strip.has-more .shot-next{display:block}
 figcaption{font-size:13px;color:var(--soft);margin-top:8px;text-align:center}
 .stepl{list-style:none;margin:0;padding:0}
 .step{display:grid;grid-template-columns:52px minmax(0,1fr) 28px;column-gap:12px;padding:12px 0;border-top:1px solid var(--line)}
@@ -100,19 +110,18 @@ dialog.viewer button{position:fixed;top:16px;right:16px;min-width:44px;min-heigh
  .pre h3{flex:none}.pre ul{flex-direction:row;flex-wrap:wrap;gap:6px;margin:0}
  .pre ul li{padding:3px 12px 3px 24px;border-radius:999px}.pre ul li::before{left:11px;top:calc(3px + .75em - 3px)}}
 @media (max-width:900px){.wrap{padding-left:16px;padding-right:16px}.scn{padding:20px 16px}
- .body{grid-template-columns:minmax(0,1fr)}.shots figure{flex:1 1 0;min-width:0;max-width:280px}.shots img{height:auto;width:100%}
+ .body{grid-template-columns:minmax(0,1fr)}
  .pre{flex-direction:column;gap:6px;margin:0 -16px;padding:12px 16px}
  .pre ul{align-self:stretch;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;font-size:13px}.pre ul::-webkit-scrollbar{display:none}
  .pre ul li{flex:none;white-space:nowrap}}
-/* 캡처가 셋 이상이면 옆에 두면 단계 글 칸이 0 으로 눌린다 — 위로 올리고 줄바꿈해 폭에 맞춘다 */
-.body:has(.shots figure:nth-child(3)){grid-template-columns:minmax(0,1fr);gap:24px}
-.body:has(.shots figure:nth-child(3)) .shots{flex-wrap:wrap}
-.body:has(.shots figure:nth-child(3)) .shots figure{flex:1 1 140px;min-width:0;max-width:280px}
-.body:has(.shots figure:nth-child(3)) .shots img{height:auto;width:100%}
-</style></head><body><main class="wrap"><section class="list"><h1>테스트 기록</h1><p class="meta">케이스 2개 · 실패 1 · 통과 1</p><ol class="cases"><li class="fail"><a href="TC-002-appoint-vice-leader/index.html"><span class="pill fail">❌ 실패</span><span class="id">TC-002</span><span class="t">다른 사람 프로필에서 부방장으로 임명한다</span></a></li><li class="pass"><a href="TC-001-transfer-leader-cancel/index.html"><span class="pill pass">✅ 통과</span><span class="id">TC-001</span><span class="t">방장 넘기기를 중간에 취소하면 아무것도 바뀌지 않는다</span></a></li></ol></section></main><dialog class="viewer"><button type="button" autofocus>닫기</button><img alt=""></dialog>
+</style></head><body><main class="wrap"><section class="list"><h1>테스트 기록</h1><p class="meta">케이스 3개 · 실패 1 · 통과 2</p><ol class="cases"><li class="fail"><a href="TC-002-appoint-vice-leader/index.html"><span class="pill fail">❌ 실패</span><span class="id">TC-002</span><span class="t">다른 사람 프로필에서 부방장으로 임명한다</span></a></li><li class="pass"><a href="TC-001-transfer-leader-cancel/index.html"><span class="pill pass">✅ 통과</span><span class="id">TC-001</span><span class="t">방장 넘기기를 중간에 취소하면 아무것도 바뀌지 않는다</span></a></li><li class="pass"><a href="TC-003-shot-strip/index.html"><span class="pill pass">✅ 통과</span><span class="id">TC-003</span><span class="t">사진이 많은 시나리오는 한 줄로 넘겨 본다</span></a></li></ol></section></main><dialog class="viewer"><button type="button" autofocus>닫기</button><img alt=""></dialog>
 <script>(function(){var viewer=document.querySelector("dialog.viewer"),big=viewer.querySelector("img");
 document.querySelectorAll(".shots img,.zoom img,.do img").forEach(function(shot){shot.addEventListener("click",function(){big.src=shot.src;big.alt=shot.alt;viewer.showModal()})});
 viewer.querySelector("button").onclick=function(){viewer.close()};viewer.addEventListener("click",function(ev){if(ev.target===viewer)viewer.close()});})();</script><script>(function(){
+document.querySelectorAll(".shot-strip").forEach(function(strip){var row=strip.querySelector(".shots");
+function sync(){strip.classList.toggle("has-more",row.scrollLeft+row.clientWidth<row.scrollWidth-2)}
+row.addEventListener("scroll",sync,{passive:true});addEventListener("resize",sync);addEventListener("load",sync);sync();
+strip.querySelector(".shot-next").onclick=function(){row.scrollBy({left:row.clientWidth*0.8,behavior:"smooth"})};});})();</script><script>(function(){
 var cases=[].slice.call(document.querySelectorAll("article.case")),queued=false;
 function update(){queued=false;var line=innerHeight*0.4;
 cases.forEach(function(article){

@@ -388,6 +388,69 @@ class BuildReportTest(unittest.TestCase):
         self.assertNotIn("조작 8개", stderr)
         self.assertNotIn(".do: 조작", stderr)
 
+    def with_shots(self, count, size=(3, 7)):
+        record = copy.deepcopy(VALID)
+        names = [f"0{number}-shot.png" for number in range(1, count + 1)]
+        record["scenarios"][0]["shots"] = [{"file": name, "caption": f"사진 {number}"} for number, name in enumerate(names, 1)]
+        case_dir = self.make_case(record)
+        for name in names:
+            (case_dir / name).write_bytes(png_bytes(*size))
+        return record
+
+    def test_shots_in_strip(self):
+        self.make_case(VALID)
+        self.run_script()
+        self.assertIn('<div class="body"><div class="shot-strip"><button class="shot-next" type="button" aria-label="다음 사진">›</button>'
+                      '<div class="shots"><figure><div class="shot-frame"><img src="01-picker.png" width="3" height="7" alt="그룹 고르는 창">'
+                      '</div><figcaption>그룹 고르는 창</figcaption></figure></div></div>', self.case_page())
+
+    def test_wide_shot_takes_two_slots(self):
+        for size, wide in (((20, 5), True), ((3, 7), False), ((7, 7), False)):
+            with self.subTest(size=size):
+                self.with_shots(1, size)
+                self.run_script()
+                page = self.case_page()
+                self.assertEqual('<figure class="wide"><div class="shot-frame"><img src="01-shot.png"' in page, wide)
+                self.assertIn('<div class="shot-frame"><img src="01-shot.png"', page)
+
+    def test_shot_count_after_four(self):
+        self.with_shots(5)
+        self.run_script()
+        page = self.case_page()
+        self.assertEqual(page.count('<p class="shot-count">사진 5장</p>'), 1)
+        self.assertEqual(page.count('<button class="shot-next"'), 2)
+        self.with_shots(4)
+        self.run_script()
+        page = self.case_page()
+        self.assertNotIn('class="shot-count"', page)
+        self.assertEqual(page.count('<button class="shot-next"'), 2)
+
+    def template_text(self):
+        return TEMPLATE.read_text(encoding="utf-8")
+
+    def test_template_strip_rules(self):
+        text = self.template_text()
+        self.assertEqual(text.count(".body:has("), 0)
+        self.assertIn(".body{display:grid;grid-template-columns:minmax(0,1fr);", text)
+        self.assertIn("overflow-x:auto", re.search(r"\.shots\{[^}]*\}", text).group(0))
+        self.assertIn("--slot:max(160px,calc((100% - 4 * 14px) / 4.3))", text)
+        self.assertIn(".shots figure.wide{flex-basis:calc(var(--slot) * 2 + 14px)}", text)
+        self.assertIn(".shot-strip.has-more::after{opacity:1}", text)
+        self.assertIn(".shot-strip.has-more .shot-next{display:block}", text)
+
+    def test_template_strip_script(self):
+        text = self.template_text()
+        start = text.index("@media (max-width:900px){")
+        depth, end = 0, start
+        for end in range(start, len(text)):
+            depth += {"{": 1, "}": -1}.get(text[end], 0)
+            if depth == 0 and text[end] == "}":
+                break
+        narrow = text[start:end + 1]
+        self.assertEqual(narrow.count(".shots figure{") + narrow.count(".shots img{"), 0)
+        self.assertIn('classList.toggle("has-more",row.scrollLeft+row.clientWidth<row.scrollWidth-2)', text)
+        self.assertIn("row.clientWidth*0.8", text)
+
     def test_error_writes_no_page(self):
         good = copy.deepcopy(VALID)
         good["id"] = "TC-000"
