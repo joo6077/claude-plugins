@@ -51,7 +51,9 @@
 
 ## 남긴 것
 
-- QA 판정과 계약 `status: done` 은 이 기록 밖이다. 새 qa-evaluator 가 한다.
+- QA 판정은 APPROVE(26 조건 중 PASS 22 · N/A 4, 직접 확인 26/26). 리포트와 계약 `status: done` 은 커밋 d028f726 에 담았다.
+- 독립 검토가 넘긴 약점 하나(막지 않음). `scripts/check-docs-mermaid.js` 는 `<pre>` 첫 줄이 Mermaid 그림 종류 이름으로 시작할 때만 예시로 센다. 그래서 `flowchart LR` 을 `flowchat LR` 로 잘못 쓰거나, Mermaid 정상 문법인 `---` / `title: x` / `---` 머리말을 앞에 붙이면 그 예시를 「안 그려짐」으로 잡지 않고 아예 빼고 센다. `flows.html` 사본에서 두 경우 모두 `예시 3`(원래 4) · 종료 코드 0 이었다. 이번에 고치지 않은 까닭 — 고치기 전에는 그려 보는 검사 자체가 없었으니 전보다 못 잡게 된 것은 아니고, 지금 레포의 예시 9 개는 grep 으로 센 `<pre>` 9 곳과 맞아 빠진 예시가 없다. 봉인 뒤 판정을 넓히면 계약 범위 밖 변경이 된다. 고칠 방법은 예시마다 이미 붙은 `aria-label="Mermaid … 예시"` 로 예시를 찾게 하거나 쪽별 예시 수를 못박는 것이다. 그때 이 두 모양을 시험 `scripts/test-check-docs-mermaid.js` 의 음성 경우로 더한다.
+- 같은 약점 때문에 `flows.md` · `flows.html` 의 「이 예시는 검사가 12.0.0 으로 그려 본다」 는 그림 종류 이름이 깨진 경우에는 맞지 않는다. 위 수정과 함께 풀린다.
 - `docs/planning/research-log.md:45` 와 쪽 `docs/planning-kit/research-log.html:249` 의 「12 에서 렌더해 보지는 않았다」 는 그때의 기록이라 그대로 뒀다.
 - 원본 `.md` · 스킬 파일의 `mermaid` 코드 울타리(`docs/planning/ideation.md` 의 `mindmap` 셋 · `planning-kit/skills/` 의 아홉)는 문서 쪽에 예시로 실려 있지 않아 새 검사가 보지 않는다. 원본까지 그려 보려면 검사가 `.md` 울타리를 읽게 넓혀야 한다.
 - rest 계약의 `m 구조-02` 는 `렌더해 확인하지 않았다` 를 찾으므로 이 판에서 `md_keys_ok=0` 이 된다. 그 계약은 끝났고 이번에 일부러 지운 문장이라 고치지 않는다.
