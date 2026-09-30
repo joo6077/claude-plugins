@@ -59,6 +59,16 @@
 +      continue ;;
 ```
 
+QA 1 회차 뒤 독립 검토가 찾은 결함(`quoted_prose()` 안 `match()` 가 `RSTART` · `RLENGTH` 를 덮어 다음 조건 번호가 비고
+그 조건이 검사에서 빠짐)을 고친 줄 (지금 지문 `182ed51390abd4ae`):
+
+```diff
+-    flush(); id = substr($0, RSTART + 6, RLENGTH - 6); buf = $0; next
++    # flush() 안의 match() 가 RSTART · RLENGTH 를 덮으므로 번호를 먼저 잘라 둔다.
++    nid = substr($0, RSTART + 6, RLENGTH - 6)
++    flush(); id = nid; buf = $0; next
+```
+
 ## 훅 시험 출력 끝 줄
 
 `bash harness/evals/hooks/lint-contract-oracle-test.sh` 와 `bash harness/evals/hooks/qa-pending-check-test.sh` 둘 다 끝 줄이 같다.
@@ -114,3 +124,12 @@
 - 옛 로컬 CI 도구(`.harness/handoff/2026-09-26-tools/ci-local.sh`)는 여전히 git 밖이다 (`remaining.md` D2)
 - `remaining.md` 의 B2 · B5 · B7 · B9 는 교차 진단이 코드로 확인한 결과 이미 고쳐진 낡은 항목이다
 - `check-install-docs-guidance.py` 는 NUL 바이트가 없는데 UTF-8 이 아닌 킷 파일을 이제 못 읽음 2 로 본다 — 지금 레포에는 0 개(실측)
+
+## QA 1 회차 뒤 독립 검토 결함 (2 차 수정)
+
+| 결함 | 커밋 | 한 것 |
+| --- | --- | --- |
+| 막음 — lint 훅 번호 잃음 | `90e08acf` | 훅은 부모 세션이 고쳤다 (위 diff). `lint-contract-oracle-test.sh` 에 `앞조건따옴표grep` 경우를 두 로캘로 더했다. 지금 훅 `실패 0 건` · 0, 번호를 잃던 판 `실패 2 건` · 1, 고치기 전 판 `실패 6 건` · 1 |
+| `check-superseded.sh` 중복 세기 | `90e08acf` | 폴더 인자 끝 빗금을 떼고, 같은 못 읽는 새 판은 한 번만 센다. 시험 경우 E(옛 판 둘 → 새 판 하나) · F(끝 빗금) 추가. 옛 판으로 돌리면 E · F 만 FAIL · 1 |
+| `check-install-docs-guidance.py` 지운 파일 | `8dca3e73` | 정책: 추적 중인데 작업 폴더에서 지운 파일은 `SKIP <경로> (작업 폴더에서 지워짐)` 줄만 내고 실패로 치지 않는다. 커밋 전 삭제는 흔한 상태이고 다음 커밋에서 빠질 파일이라 잴 글이 없다. 권한 · 인코딩으로 못 읽는 파일은 그대로 `UNREADABLE` · 2. 시험 경우 3 추가, 옛 판은 경우 3 에서 2 로 FAIL |
+| `sprint-contract/SKILL.md` 안내 | 안 함 | `harness/skills/sprint-contract/SKILL.md` 는 봉인된 범위 목록 밖이다. 고치면 구조-02 가 깨지고, 범위를 넓히는 개정은 조건을 느슨하게 한다 — 사용자 동의가 필요하다 |
