@@ -4,7 +4,7 @@ slug: scenario-report-per-case
 created: "2026-09-30 12:10"
 complexity: "복잡"
 conditions: 26
-status: active
+status: done
 owner_session: 97f28e34-99ea-4a74-9baa-3288b7964458
 conditions_digest: sha256:1cc41eb17fedfa7c
 measurement_digest: sha256:4a00a961f2baa29f
