@@ -42,6 +42,7 @@ check "등록-QA대기" "Stop - 10 QA 실행 여부 확인" "$(registration qa-p
 project=$work/project
 mkdir -p "$project/.harness"
 contract=$project/.harness/sprint-contract-x.md
+# shellcheck disable=SC2016  # 측정 줄의 백틱은 계약 글자 그대로다
 printf -- '---\nstatus: active\nowner_session: S1\nlocked_at: "2026-10-01 10:00"\n---\n\n## Skill\n- [ ] 스킬-01: x\n  측정: `grep -cF "표준으로 강제하지 않는다" file.md` >= 1\n' >"$contract"
 cp "$contract" "$project/notes.md"
 
