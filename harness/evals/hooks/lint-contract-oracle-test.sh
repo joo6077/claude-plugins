@@ -9,7 +9,7 @@
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 hook=${LINT_ORACLE_HOOK:-$here/../../scripts/lint-contract-oracle.sh}
-lib=${CLAUDE_HOOK_LIB:-$(dirname "$hook")/_lib-hook-payload.sh}
+lib=${CLAUDE_HOOK_LIB:-$here/../../scripts/_lib-hook-payload.sh}
 [ -f "$hook" ] || { echo "훅이 없다: $hook" >&2; exit 2; }
 [ -f "$lib" ] || { echo "훅 도우미가 없다: $lib" >&2; exit 2; }
 command -v jq >/dev/null 2>&1 || { echo "jq 가 없다" >&2; exit 2; }
