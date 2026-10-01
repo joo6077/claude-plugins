@@ -4,7 +4,7 @@ slug: after-1001-eval-item-shape
 created: "2026-10-01 12:48"
 complexity: "복잡"
 conditions: 20
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 conditions_digest: sha256:e1ba8785808ab308
 measurement_digest: sha256:4c1e26738fe00e0c
