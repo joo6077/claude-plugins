@@ -37,7 +37,7 @@ user-invocable: true
 
    **Canonical 절 복제 규칙**: `backend-reviewer.md` 의 미검증 프로토콜은 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 5 조항을 **문구 변형 없이** 복제한 것이다. 정본이 바뀌면 복제본도 같은 사이클에 갱신하고, 임계값·마커 의미를 backend-kit 안에서 다시 정의하지 마라. 동의어 목록의 백틱(`` `N/A` ``, `` `TBD` `` 등)은 V5 placeholder 오탐을 피하기 위한 것이므로 제거하지 마라.
 9. **README.md + evals/evals.json 생성 회귀 방지 (AR-03 · AR-04 대응)** — 카이젠 세션 종료 시 `ls backend-kit/README.md backend-kit/evals/evals.json` 확인. 둘 다 존재해야 하며 README 의 스킬 테이블은 4 스킬(guide · audit · system · test) 전수 + 에이전트 테이블 + 리서치 문서 카테고리 요약을 포함해야 한다. evals.json 은 4 스킬 커버 + entry 수 >= 7 + placeholder 0 건.
-10. **run-evals.py ER-01 회귀 방지** — `scripts/run-evals.py` 의 `load_evals` 에서 `JSONDecodeError` 시 `sys.exit(2)` 로 즉시 종료하는 구조 유지. exit code 0(PASS) / 1(assertion FAIL) / 2(structural) 구분이 깨지면 CI 가 파싱 실패를 감지 못 함.
+10. **run-evals.py ER-01 회귀 방지** — `scripts/run-evals.py` · `scripts/sync-evals.py` 는 `evals.json` 을 못 읽거나(권한 · 대상 없는 바로가기) `JSONDecodeError` 가 나도 나머지 킷을 끝까지 재고, 못 읽은 킷 이름을 적은 뒤 2 로 끝난다. exit code 0(PASS) / 1(assertion FAIL) / 2(structural) 구분이 깨지면 CI 가 파싱 실패를 감지 못 함.
 
 <!-- markdownlint-disable MD025 -->
 
