@@ -18,7 +18,7 @@ sync-evals.py — 각 플러그인 evals/evals.json 과 skills/ 디렉토리 동
 Exit codes:
     0 — no drift (check-only) 또는 동기화 완료
     1 — drift detected (check-only 모드만)
-    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 · 대상 없는 바로가기 포함)
+    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 · 대상 없는 바로가기 포함 · 내용이 객체가 아님(null · 숫자 · 글 · 목록))
         못 읽은 킷이 있어도 나머지 킷은 끝까지 재고, 못 읽은 킷 이름을 모두 적은 뒤 2 로 끝난다
 """
 
@@ -52,6 +52,7 @@ def target_kits() -> list[str]:
 
 # 못 읽거나 깨진 평가 파일 — 없는 파일(None)과 갈라 그 킷 이름을 모은다
 UNREADABLE = object()
+JSON_KINDS = {type(None): "null", bool: "참거짓", int: "숫자", float: "숫자", str: "글", list: "목록"}
 
 
 def load_evals(kit: str) -> dict | object | None:
@@ -60,7 +61,7 @@ def load_evals(kit: str) -> dict | object | None:
     if not os.path.lexists(path):
         return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         print(f"UNREADABLE {path} (바로가기 대상 없음)", file=sys.stderr)
     except OSError as exc:
@@ -69,6 +70,11 @@ def load_evals(kit: str) -> dict | object | None:
     except json.JSONDecodeError as exc:
         # 없는 파일처럼 SKIP 하면 깨진 평가 파일이 --check-only 를 통과한다
         print(f"ERROR: {path} parse error: {exc}", file=sys.stderr)
+    else:
+        if isinstance(data, dict):
+            return data
+        # null 을 그대로 넘기면 「파일 없음」 None 과 섞여 통과한다
+        print(f"ERROR: {path} 내용이 객체가 아니다 ({JSON_KINDS.get(type(data), type(data).__name__)})", file=sys.stderr)
     return UNREADABLE
 
 
@@ -137,11 +143,14 @@ def make_skeleton_entry(skill_name: str, eval_id: int) -> dict:
 
 
 def process_kit(kit: str, check_only: bool, dry_run: bool) -> tuple[int, int, int]:
-    """Return (added, orphans, errors)."""
+    """Return (added, orphans, errors). errors 1 은 다시 읽을 때 못 읽었다는 뜻이다."""
     data = load_evals(kit)
     if data is None:
         # No evals.json — SKIP
         return (0, 0, 0)
+    if data is UNREADABLE:
+        # main 이 읽은 뒤 파일이 바뀌었다 — 그대로 쓰면 추적 출력으로 죽는다
+        return (0, 0, 1)
 
     entries = get_eval_list(data)
     disk_skills = discover_skills(kit)
@@ -209,7 +218,10 @@ def main() -> int:
         missing = sorted(disk_skills - eval_skills)
         total_missing_preview += len(missing)
 
-        added, orphans, _ = process_kit(kit, args.check_only, args.dry_run)
+        added, orphans, errors = process_kit(kit, args.check_only, args.dry_run)
+        if errors:
+            unreadable.append(kit)
+            continue
         total_added += added
         total_orphans += orphans
 

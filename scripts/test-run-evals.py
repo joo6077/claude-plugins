@@ -11,6 +11,12 @@
   7. 대상 없는 바로가기 evals.json → 종료 코드 2, 출력에 UNREADABLE 과 그 경로
   8. 평가 파일이 진짜 없는 킷(인자 없이) → 종료 코드 0, 대상 아님으로 넘김
   9. 킷 셋 중 가운데 b 만 못 읽음 → a · c 는 재고 끝에 못 읽은 킷 b 를 적은 뒤 종료 코드 2
+  10 ~ 14. 내용이 null · 5 · "x" · [] · true → 종료 코드 2, 경로와 「객체가 아니다」 한 줄, 추적 출력 없음
+  15 ~ 16. 목록 열쇠가 tests · cases 인 정상 파일 → 종료 코드 0
+  17. 킷 셋 중 가운데 b 만 항목 0 개 → a · c 는 재고 끝에 항목 없는 킷 b 를 적은 뒤 종료 코드 2
+  18. 킷 셋 중 가운데 b 만 내용이 null → a · c 는 재고 끝에 못 읽은 킷 b 를 적은 뒤 종료 코드 2
+  19. 대상 없는 바로가기 evals.json 을 가진 킷 이름을 인자로 → 종료 코드 2, UNREADABLE 과 그 경로, 「없음」 안내 없음
+  20. 평가 파일이 진짜 없는 킷 이름을 인자로 → 종료 코드 2, 「evals/evals.json 없음」 안내
 
 사용법:
     python3 scripts/test-run-evals.py [--tool <도구 사본 경로>]
@@ -19,6 +25,8 @@
 못 읽는 파일에서 멈추는(추적 출력 · 종료 코드 1) 옛 사본을 주면 경우 4 · 5 · 6 이 실패해야 한다.
 대상 없는 바로가기를 없는 파일로 치고 못 읽는 킷 하나에서 바로 끝나는 옛 사본(2026-09-30 전)은 경우 7 · 9 가,
 바로가기 판정을 늘 참으로 바꿔 진짜 없는 평가 파일까지 못 읽음으로 치는 사본은 경우 8 이 실패해야 한다.
+null 을 없는 파일로 치고 항목 0 개 · 숫자 내용에서 그 자리에서 끝나는 옛 사본(2026-10-01 전)은 경우 10 ~ 14 · 17 ~ 19 가,
+어떤 내용이든 객체가 아니라고 치는 지나친 사본은 정상 모양 경우 3 · 15 · 16 이 실패해야 한다.
 root 로 돌면 권한을 빼도 읽혀서 경우 6 을 만들 수 없다 — 그때는 준비 실패 2 로 멈춘다.
 도구 옆의 plugin_utils.py 를 같이 복사한다.
 종료 코드는 harness/evals/gate-exit-codes.md 의 값을 쓴다 (0 통과 · 1 실패 · 2 준비 실패).
@@ -64,7 +72,7 @@ def shape_tree(root: Path, shape: str) -> list[Path]:
         evals.symlink_to("missing.json")
     elif shape == "absent":
         shutil.rmtree(root / "k/evals")
-    elif shape == "multi":
+    elif shape.startswith("multi"):
         # 킷 셋 중 가운데 b 만 못 읽는다. a · c 는 평가에 없는 스킬 extra 를 둬 쟀다는 줄이 나오게 한다
         (root / ".claude-plugin/marketplace.json").write_text(
             '{"plugins":[{"name":"a","source":"./a"},{"name":"b","source":"./b"},{"name":"c","source":"./c"}]}\n',
@@ -75,17 +83,23 @@ def shape_tree(root: Path, shape: str) -> list[Path]:
             (root / kit / "skills/extra").mkdir()
             (root / kit / "skills/extra/SKILL.md").write_text(
                 "---\nname: extra\ndescription: d\nuser-invocable: true\n---\n", encoding="utf-8")
+        if shape == "multi-empty":
+            (root / "b/evals/evals.json").write_text('{"evals":[]}\n', encoding="utf-8")
+            return []
+        if shape == "multi-null":
+            (root / "b/evals/evals.json").write_text("null\n", encoding="utf-8")
+            return []
         return [root / "b/evals/evals.json"]
     return []
 
 
-def multi_ok(output: str, mark: str) -> bool:
-    """a · c 칸(→ <킷> 줄부터 다음 → 줄 앞까지)마다 쟀다는 줄이 있고, 마지막 칸 뒤에 못 읽은 킷 b 요약 줄이 있다."""
+def multi_ok(output: str, mark: str, summary_line: str = "못 읽은 킷 1 개: b") -> bool:
+    """a · c 칸(→ <킷> 줄부터 다음 → 줄 앞까지)마다 쟀다는 줄이 있고, 마지막 칸 뒤에 b 요약 줄이 있다."""
     lines = output.splitlines()
     heads = [i for i, line in enumerate(lines) if line.startswith("→ ")]
     blocks = {lines[start][2:].strip(): "\n".join(lines[start:end])
               for start, end in zip(heads, heads[1:] + [len(lines)])}
-    summary = [i for i, line in enumerate(lines) if line.strip() == "못 읽은 킷 1 개: b"]
+    summary = [i for i, line in enumerate(lines) if line.strip() == summary_line]
     measured = all(mark.format(kit) in blocks.get(kit, "") for kit in ("a", "c"))
     return measured and len(summary) == 1 and summary[0] > heads[-1]
 
@@ -119,6 +133,17 @@ CASES = [
     ("7 대상 없는 바로가기 evals.json 은 종료 코드 2", "dangling", GOOD_EVALS, [], "dangling", 2, "UNREADABLE"),
     ("8 평가 파일이 없는 킷은 대상 아님 · 종료 코드 0", "absent", GOOD_EVALS, [], "absent", 0, "대상 아님: k"),
     ("9 가운데 킷만 못 읽어도 나머지를 재고 종료 코드 2", "multi", GOOD_EVALS, [], "multi", 2, "b/evals/evals.json"),
+    ("10 내용이 null 이면 종료 코드 2", "null", "null", [], "content", 2, "객체가 아니다"),
+    ("11 내용이 숫자면 종료 코드 2", "number", "5", [], "content", 2, "객체가 아니다"),
+    ("12 내용이 글이면 종료 코드 2", "string", '"x"', [], "content", 2, "객체가 아니다"),
+    ("13 내용이 목록이면 종료 코드 2", "array", "[]", [], "content", 2, "객체가 아니다"),
+    ("14 내용이 참거짓이면 종료 코드 2", "boolean", "true", [], "content", 2, "객체가 아니다"),
+    ("15 목록 열쇠가 tests 면 종료 코드 0", "tests-key", GOOD_EVALS.replace('"evals"', '"tests"'), [], "good", 0, ""),
+    ("16 목록 열쇠가 cases 면 종료 코드 0", "cases-key", GOOD_EVALS.replace('"evals"', '"cases"'), [], "good", 0, ""),
+    ("17 가운데 킷만 항목 0 개여도 나머지를 재고 종료 코드 2", "multi-empty", GOOD_EVALS, [], "multi-empty", 2, "b/evals/evals.json"),
+    ("18 가운데 킷만 null 이어도 나머지를 재고 종료 코드 2", "multi-null", GOOD_EVALS, [], "multi-null", 2, "b/evals/evals.json"),
+    ("19 이름으로 준 킷이 대상 없는 바로가기면 못 읽음 · 종료 코드 2", "named-dangling", GOOD_EVALS, ["k"], "dangling", 2, "UNREADABLE"),
+    ("20 이름으로 준 킷의 평가 파일이 없으면 없음 · 종료 코드 2", "named-absent", GOOD_EVALS, ["j"], "good", 2, "j — evals/evals.json 없음"),
 ]
 
 
@@ -142,8 +167,16 @@ def main() -> int:
             ok = rc == want_rc and want_text in output
             if shape in ("unreadable", "dangling"):
                 ok = ok and "k/evals/evals.json" in output
-            if shape == "multi":
+            if shape == "dangling" and tool_args:
+                ok = ok and "evals.json 없음" not in output
+            if shape == "content":
+                # 경로와 까닭이 한 줄에 있고 추적 출력은 없다
+                ok = ok and "Traceback" not in output and any(
+                    "k/evals/evals.json" in line and want_text in line for line in output.splitlines())
+            if shape in ("multi", "multi-null"):
                 ok = ok and multi_ok(output, "PASS: 1 passed, 0 failed")
+            if shape == "multi-empty":
+                ok = ok and multi_ok(output, "PASS: 1 passed, 0 failed", "항목 없는 킷 1 개: b")
             passed += ok
             print(f"{'PASS' if ok else 'FAIL'} 경우 {label} (rc={rc})")
     print(f"경우 {len(CASES)} 개 중 통과 {passed}")
