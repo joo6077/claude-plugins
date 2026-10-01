@@ -41,6 +41,28 @@
 └── history/                   ← 아카이브 (자동)
 ```
 
+## 플러그인 훅
+
+플러그인을 켜면 `hooks/hooks.json` 의 훅이 모든 프로젝트에서 돈다. 표는 `scripts/sync-docs.py` 가 채운다.
+
+<!-- AUTO:hooks -->
+| 이벤트 | 실행 | 설명 |
+| --- | --- | --- |
+| `SessionStart` | `env-check.sh` | SessionStart |
+| `PreToolUse` | `sdk-guard.sh` | PreToolUse (matcher: Bash) |
+| `PreToolUse` | `run-guard.sh` | PreToolUse (matcher: Bash) |
+| `PreToolUse` | `commit-guard.sh pre` | PreToolUse (matcher: Bash) |
+| `PostToolUse` | `commit-guard.sh post` | PostToolUse (matcher: Bash) |
+| `PostToolUse` | `lint-contract-oracle.sh` | PostToolUse (matcher: Edit\|Write) |
+| `Stop` | `qa-pending-check.sh` | Stop |
+<!-- /AUTO:hooks -->
+
+**QA 대기 안내** — `scripts/qa-pending-check.sh` 는 답을 끝내려는 순간(Stop) 이 세션이 연 활성 계약의 QA 결과가 없거나, 봉인보다 오래됐거나, 판정이 REJECT · BLOCKED 면 `harness:qa-evaluator` 를 띄우라는 안내를 모델에 넣는다. 이 세션 계약이 없는데 코드 파일을 2 개 이상 고쳤으면 세션당 한 번 계약을 권한다. 막지는 않는다.
+
+**계약 측정 경고** — `scripts/lint-contract-oracle.sh` 는 Edit · Write 로 `.harness/sprint-contract*.md` 를 고친 뒤 측정이 문서 속 문장을 grep 하는 데 그친 조건을 짚어 경고만 넣는다.
+
+두 훅은 같은 폴더의 `scripts/_lib-hook-payload.sh` 를 불러 쓴다(환경변수 `CLAUDE_HOOK_LIB` 를 주면 그 파일). jq 가 없거나 입력이 깨지면 조용히 통과한다. 예전에 `~/.claude/settings.json` 에 같은 훅을 등록해 두었다면 두 번 돈다 — `python3 scripts/check-user-hook-overlap.py` 가 그 겹침을 알린다. 시험은 `bash harness/evals/hooks/plugin-hooks-test.sh` · `lint-contract-oracle-test.sh` · `qa-pending-check-test.sh` 다.
+
 ## 커밋 안전 훅
 
 `scripts/commit-guard.sh` 가 `hooks/hooks.json` 에 Bash PreToolUse · PostToolUse 로 등록돼 있다. 플러그인을 켜면 모든 프로젝트의 `git commit` 에 걸린다.

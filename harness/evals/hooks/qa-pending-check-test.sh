@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
-# 레포 밖 훅 qa-pending-check.sh 가 QA 결과 파일이 비었거나 판정 줄이 없는 계약을 안내에 넣는지 본다.
+# harness 플러그인 훅 qa-pending-check.sh 가 QA 결과 파일이 비었거나 판정 줄이 없는 계약을 안내에 넣는지 본다.
 # 계약 after-0929-codex-silent-pass 의 스크립트-10 · 스크립트-12 를 따른다. APPROVE 이고 봉인 뒤 시각일 때만 완료다.
-# QA_PENDING_HOOK 으로 훅 경로를, CLAUDE_HOOK_LIB 로 훅 도우미 경로를 바꿀 수 있다 (기본: 이 폴더의 레포 본 qa-pending-check.sh · _lib-hook-payload.sh)
-# — 고치기 전 사본으로 음성 대조를 돌릴 때 쓴다. 레포 본은 ~/.claude/hooks/ 설치본을 옮긴 것이라 CI 에서도 돈다.
-# 설치본이 레포 본과 갈렸는지는 scripts/check-user-hook-copies.py 가 본다.
+# QA_PENDING_HOOK 으로 훅 경로를, CLAUDE_HOOK_LIB 로 훅 도우미 경로를 바꿀 수 있다 (기본: harness/scripts/ 의 qa-pending-check.sh · 그 옆 _lib-hook-payload.sh)
+# — 고치기 전 사본으로 음성 대조를 돌릴 때 쓴다. CLAUDE_HOOK_LIB 를 안 주면 훅이 제 옆 도우미를 찾는다.
+# 개인 설정이 같은 훅을 또 등록해 두 번 도는지는 scripts/check-user-hook-overlap.py 가 본다.
 # 종료 코드: 0 통과 · 1 실패 · 2 준비 실패 (훅 · 훅 도우미 · jq 없음)
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-hook=${QA_PENDING_HOOK:-$here/qa-pending-check.sh}
-# 훅은 CLAUDE_HOOK_LIB 가 없으면 ~/.claude/hooks/ 의 도우미를 찾는다 — 넘겨야 CI 에서 레포 본을 쓴다
-export CLAUDE_HOOK_LIB=${CLAUDE_HOOK_LIB:-$here/_lib-hook-payload.sh}
-lib=$CLAUDE_HOOK_LIB
+hook=${QA_PENDING_HOOK:-$here/../../scripts/qa-pending-check.sh}
+lib=${CLAUDE_HOOK_LIB:-$(dirname "$hook")/_lib-hook-payload.sh}
 [ -f "$hook" ] || { echo "훅이 없다: $hook" >&2; exit 2; }
 [ -f "$lib" ] || { echo "훅 도우미가 없다: $lib" >&2; exit 2; }
 command -v jq >/dev/null 2>&1 || { echo "jq 가 없다" >&2; exit 2; }

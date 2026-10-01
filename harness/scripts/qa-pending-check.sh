@@ -18,7 +18,8 @@
 # 그래서 errexit 를 쓰지 않는다 (_lib-hook-payload.sh 와 같은 규칙).
 set -uo pipefail
 
-LIB="${CLAUDE_HOOK_LIB:-$HOME/.claude/hooks/_lib-hook-payload.sh}"
+# 도우미는 이 파일 옆(플러그인 scripts/)에 있다. 다른 사람 기계에는 ~/.claude/hooks/ 가 없다
+LIB="${CLAUDE_HOOK_LIB:-$(dirname "${BASH_SOURCE[0]}")/_lib-hook-payload.sh}"
 # shellcheck source=/dev/null
 . "$LIB" 2>/dev/null || exit 0
 
