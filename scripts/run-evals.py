@@ -21,7 +21,8 @@ Exit codes:
     1 — FAIL 있음
     2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음(대상 없는 바로가기 포함) · 내용이 객체가 아님(null · 숫자 · 글 · 목록) ·
         목록 열쇠의 값이 목록이 아니거나 항목 모양이 허용 목록 밖 ·
-        eval 항목 0 개, 이름으로 준 킷이 없는 킷이거나 평가 파일이 없음)
+        eval 항목 0 개, 이름으로 준 킷이 없는 킷이거나 평가 파일이 없음 ·
+        잘못된 UTF-8 문자 · 자릿수 한도를 넘는 숫자 · 너무 깊은 중첩 · 마켓 목록을 못 읽음)
         못 읽은 킷 · 항목 없는 킷이 있어도 나머지 킷은 끝까지 재고, 그 킷 이름을 모두 적은 뒤 2 로 끝난다
 """
 
@@ -40,8 +41,13 @@ SKIP_KITS = {
 }
 
 
-def eval_kits() -> list[str]:
-    names = [plugin["name"] for plugin in load_marketplace().get("plugins", [])]
+def eval_kits() -> list[str] | None:
+    try:
+        names = [plugin["name"] for plugin in load_marketplace().get("plugins", [])]
+    except (OSError, ValueError, RecursionError) as exc:
+        # 마켓 목록을 못 읽으면 잴 킷을 정할 수 없다 — 추적 출력 대신 한 줄로 알리고 main 이 2 를 낸다
+        print(f"ERROR: {REPO_ROOT / '.claude-plugin' / 'marketplace.json'} 마켓 목록을 읽지 못했다 ({exc})", file=sys.stderr)
+        return None
     # 대상 없는 바로가기는 파일 자리가 있으니 대상이다 — 못 읽음으로 잰다
     have = [name for name in names if os.path.lexists(REPO_ROOT / name / "evals" / "evals.json")]
     # 평가 파일이 없는 킷도 이름을 찍는다 — 다른 이름으로 둔 킷이 소리 없이 빠지지 않게
@@ -141,6 +147,10 @@ def load_evals(kit: str) -> dict | object | None:
         return UNREADABLE
     except json.JSONDecodeError as exc:
         print(f"  ERROR: {path} parse error: {exc}", file=sys.stderr)
+        return UNREADABLE
+    except (ValueError, RecursionError) as exc:
+        # 잘못된 UTF-8 문자 · 자릿수 한도를 넘는 숫자 · 너무 깊은 중첩은 위 셋에 안 걸린다
+        print(f"  ERROR: {path} 읽지 못했다 ({exc})", file=sys.stderr)
         return UNREADABLE
     if not isinstance(data, dict):
         # null 을 그대로 넘기면 「파일 없음」 None 과 섞여 통과하고, 숫자 · 글은 아래에서 추적 출력으로 죽는다
@@ -263,6 +273,8 @@ def main() -> int:
         print(f"ERROR: 이름으로 준 킷 {args.plugin} — {reason}", file=sys.stderr)
         return 2
     kits = [args.plugin] if args.plugin else eval_kits()
+    if kits is None:
+        return 2
     grand_pass = 0
     grand_fail = 0
     unreadable = []

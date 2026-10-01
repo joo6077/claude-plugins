@@ -21,6 +21,9 @@
       assertions 안에 숫자 · 모르는 열쇠 · 두 번째 항목이 숫자) → 종료 코드 2, 경로와 몇 번째 항목 · 까닭 한 줄, 추적 출력 없음
   30. 킷 셋 중 가운데 b 만 항목 모양이 깨짐 → a · c 는 재고 끝에 못 읽은 킷 b 를 적은 뒤 종료 코드 2
   31 ~ 33. 레포 평가 파일이 쓰는 정상 모양(글 id · 글 assertions, expect · example · fixture, agent 항목) → 종료 코드 0
+  34 ~ 36. 킷 셋 중 가운데 b 만 잘못된 UTF-8 문자 · 자릿수 한도를 넘는 숫자 · 너무 깊은 중첩 → a · c 는 재고 끝에 못 읽은 킷 b 를 적은 뒤 종료 코드 2
+  37. 마켓 목록에 잘못된 UTF-8 문자 → 종료 코드 2, 마켓 목록 경로 한 줄, 추적 출력 없음
+  38. 킷 셋 모두 정상 → 세 킷을 재고 종료 코드 0
 
 사용법:
     python3 scripts/test-run-evals.py [--tool <도구 사본 경로>]
@@ -33,6 +36,8 @@ null 을 없는 파일로 치고 항목 0 개 · 숫자 내용에서 그 자리�
 어떤 내용이든 객체가 아니라고 치는 지나친 사본은 정상 모양 경우 3 · 15 · 16 이 실패해야 한다.
 항목 모양을 보지 않는 옛 사본(2026-10-01 판)은 경우 21 ~ 30 이, 아는 모양도 깨진 것으로 치는 지나친 사본은
 정상 모양 경우 3 · 15 · 16 · 31 ~ 33 이 실패해야 한다.
+잘못된 UTF-8 문자 · 큰 숫자 · 깊은 중첩 · 못 읽는 마켓 목록에서 추적 출력으로 죽는 옛 사본(2026-10-01 항목 모양 판)은
+경우 34 ~ 37 이, 평가 파일을 늘 못 읽는다고 치는 지나친 사본은 킷 셋 모두 정상인 경우 38 이 실패해야 한다.
 root 로 돌면 권한을 빼도 읽혀서 경우 6 을 만들 수 없다 — 그때는 준비 실패 2 로 멈춘다.
 도구 옆의 plugin_utils.py 를 같이 복사한다.
 종료 코드는 harness/evals/gate-exit-codes.md 의 값을 쓴다 (0 통과 · 1 실패 · 2 준비 실패).
@@ -89,11 +94,22 @@ def make_tree(root: Path, tool: Path, evals_text: str) -> None:
     (root / "j/skills/s").mkdir(parents=True)
 
 
+# 평가 파일 읽기 오류 — 잘못된 UTF-8 문자 · 자릿수 한도를 넘는 숫자 · 너무 깊은 중첩
+READ_ERRORS = {
+    "multi-utf8": ('{"evals":[' + GOOD_ITEM.replace('"prompt":"p"', '"prompt":"p\udcff"') + ']}').encode("utf-8", "surrogateescape"),
+    "multi-bignum": ('{"evals":[' + GOOD_ITEM.replace('"id":1', '"id":' + "1" * 5000) + ']}').encode(),
+    "multi-deep": ('{"evals":[' + GOOD_ITEM + '],"x":' + "[" * 200000 + "]" * 200000 + "}").encode(),
+}
+
+
 def shape_tree(root: Path, shape: str) -> list[Path]:
     """경우 모양을 트리에 입힌다. 권한을 뺄 파일 목록을 돌려준다."""
     evals = root / "k/evals/evals.json"
     if shape == "unreadable":
         return [evals]
+    if shape == "market-utf8":
+        (root / ".claude-plugin/marketplace.json").write_bytes(b'{"plugins":[{"name":"k","source":"./k\xff"}]}\n')
+        return []
     if shape == "dangling":
         evals.unlink()
         evals.symlink_to("missing.json")
@@ -115,6 +131,13 @@ def shape_tree(root: Path, shape: str) -> list[Path]:
             return []
         if shape == "multi-item":
             (root / "b/evals/evals.json").write_text('{"evals":[1]}\n', encoding="utf-8")
+            return []
+        if shape in READ_ERRORS:
+            (root / "b/evals/evals.json").write_bytes(READ_ERRORS[shape])
+            return []
+        if shape == "multi-good":
+            for kit in ("a", "c"):
+                shutil.rmtree(root / kit / "skills/extra")
             return []
         if shape == "multi-null":
             (root / "b/evals/evals.json").write_text("null\n", encoding="utf-8")
@@ -179,6 +202,11 @@ CASES = [
     ("30 가운데 킷만 항목 모양이 깨져도 나머지를 재고 종료 코드 2", "multi-item", GOOD_EVALS, [], "multi-item", 2, "b/evals/evals.json"),
     *[(f"{31 + i} 정상 모양 — {label} 은 종료 코드 0", case, text, [], "good", 0, "")
       for i, (label, case, text) in enumerate(GOOD_SHAPES)],
+    ("34 가운데 킷만 잘못된 UTF-8 이어도 나머지를 재고 종료 코드 2", "multi-utf8", GOOD_EVALS, [], "multi-utf8", 2, "b/evals/evals.json|utf-8"),
+    ("35 가운데 킷만 자릿수 한도를 넘는 숫자여도 나머지를 재고 종료 코드 2", "multi-bignum", GOOD_EVALS, [], "multi-bignum", 2, "b/evals/evals.json"),
+    ("36 가운데 킷만 너무 깊은 중첩이어도 나머지를 재고 종료 코드 2", "multi-deep", GOOD_EVALS, [], "multi-deep", 2, "b/evals/evals.json"),
+    ("37 마켓 목록이 잘못된 UTF-8 이면 종료 코드 2", "market-utf8", GOOD_EVALS, [], "market-utf8", 2, ".claude-plugin/marketplace.json"),
+    ("38 킷 셋 모두 정상이면 셋을 재고 종료 코드 0", "multi-good", GOOD_EVALS, [], "multi-good", 0, ""),
 ]
 
 
@@ -213,8 +241,14 @@ def main() -> int:
                 ok = ok and "Traceback" not in output and "못 읽은 킷 1 개: k" in output and any(
                     "k/evals/evals.json" in line and all(word in line for word in want_text.split("|"))
                     for line in output.splitlines())
-            if shape in ("multi", "multi-null", "multi-item"):
-                ok = ok and multi_ok(output, "PASS: 1 passed, 0 failed")
+            if shape in ("multi", "multi-null", "multi-item", *READ_ERRORS):
+                ok = ok and "Traceback" not in output and multi_ok(output, "PASS: 1 passed, 0 failed")
+            if shape == "market-utf8":
+                ok = ok and "Traceback" not in output and any(
+                    ".claude-plugin/marketplace.json" in line for line in output.splitlines())
+            if shape == "multi-good":
+                ok = ok and "못 읽은 킷" not in output and all(
+                    output.count(f"→ {kit}") == 1 for kit in ("a", "b", "c")) and output.count("PASS: 1 passed") == 3
             if shape == "multi-empty":
                 ok = ok and multi_ok(output, "PASS: 1 passed, 0 failed", "항목 없는 킷 1 개: b")
             passed += ok
