@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016  # 측정 줄의 백틱 · 달러는 계약 글자 그대로다
-# 레포 밖 훅 lint-contract-oracle.sh 가 한 백틱 안 grep · rg 명령의 한글 검색 글을 산문-grep 으로 짚는지 본다.
+# harness 플러그인 훅 lint-contract-oracle.sh 가 한 백틱 안 grep · rg 명령의 한글 검색 글을 산문-grep 으로 짚는지 본다.
 # 계약 after-0929-codex-silent-pass 의 스크립트-09 · 스크립트-12 를 따른다. 조건이 이어질 때 다음 번호를 잃지 않는지도 본다. 로캘 C · en_US.UTF-8, 조건 번호 영어 · 한국어를 모두 돈다.
-# LINT_ORACLE_HOOK 으로 훅 경로를, CLAUDE_HOOK_LIB 로 훅 도우미 경로를 바꿀 수 있다 (기본: 이 폴더의 레포 본 lint-contract-oracle.sh · _lib-hook-payload.sh)
-# — 고치기 전 사본으로 음성 대조를 돌릴 때 쓴다. 레포 본은 ~/.claude/hooks/ 설치본을 옮긴 것이라 CI 에서도 돈다.
-# 설치본이 레포 본과 갈렸는지는 scripts/check-user-hook-copies.py 가 본다.
+# LINT_ORACLE_HOOK 으로 훅 경로를, CLAUDE_HOOK_LIB 로 훅 도우미 경로를 바꿀 수 있다 (기본: harness/scripts/ 의 lint-contract-oracle.sh · 그 옆 _lib-hook-payload.sh)
+# — 고치기 전 사본으로 음성 대조를 돌릴 때 쓴다. CLAUDE_HOOK_LIB 를 안 주면 훅이 제 옆 도우미를 찾는다.
+# 개인 설정이 같은 훅을 또 등록해 두 번 도는지는 scripts/check-user-hook-overlap.py 가 본다.
 # 종료 코드: 0 통과 · 1 실패 · 2 준비 실패 (훅 · 훅 도우미 · jq 없음)
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-hook=${LINT_ORACLE_HOOK:-$here/lint-contract-oracle.sh}
-# 훅은 CLAUDE_HOOK_LIB 가 없으면 ~/.claude/hooks/ 의 도우미를 찾는다 — 넘겨야 CI 에서 레포 본을 쓴다
-export CLAUDE_HOOK_LIB=${CLAUDE_HOOK_LIB:-$here/_lib-hook-payload.sh}
-lib=$CLAUDE_HOOK_LIB
+hook=${LINT_ORACLE_HOOK:-$here/../../scripts/lint-contract-oracle.sh}
+lib=${CLAUDE_HOOK_LIB:-$here/../../scripts/_lib-hook-payload.sh}
 [ -f "$hook" ] || { echo "훅이 없다: $hook" >&2; exit 2; }
 [ -f "$lib" ] || { echo "훅 도우미가 없다: $lib" >&2; exit 2; }
 command -v jq >/dev/null 2>&1 || { echo "jq 가 없다" >&2; exit 2; }

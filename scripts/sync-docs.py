@@ -264,7 +264,8 @@ def render_agents_table(agents: list[dict]) -> str:
 def render_hooks_table(hooks: list[dict]) -> str:
     lines = table_head("이벤트", "실행", "설명")
     for h in hooks:
-        matcher_info = f" (matcher: {h['matcher']})" if h["matcher"] else ""
+        # matcher 의 `Edit|Write` 를 그대로 두면 표 칸이 갈린다
+        matcher_info = f" (matcher: {h['matcher'].replace('|', chr(92) + '|')})" if h["matcher"] else ""
         desc = f"{h['event']}{matcher_info}"
         lines.append(table_row(f"`{h['event']}`", f"`{h['command']}`", desc))
     return "\n".join(lines) + "\n"

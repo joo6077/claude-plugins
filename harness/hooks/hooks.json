@@ -54,6 +54,29 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/lint-contract-oracle.sh\"",
+            "timeout": 10,
+            "statusMessage": "계약 오라클 린터"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/qa-pending-check.sh\"",
+            "timeout": 10,
+            "statusMessage": "QA 실행 여부 확인"
+          }
+        ]
       }
     ]
   }

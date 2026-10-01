@@ -6,8 +6,8 @@
 #     계약 25 조건이 «전부 PASS» 인데 기능이 완전히 깨져 있었다. oracle 이 죄다
 #     "문서에 서술 존재" 였기 때문이다. 검증 지시를 "실행 결과만이 증거" 로 바꾸자
 #     blocking 7 건이 즉시 드러났다.
-#   - docs/superpowers/followup-kaizen-memory-integration.md §훅 승격 후보 —
-#     이 항목은 «훅이 아니라 계약 린터» 로 분류되어 있다. 그래서 차단하지 않는다.
+#   - 카이젠 메모리 통합 후속 정리의 훅 승격 후보 목록에서 이 항목은 «훅이 아니라 계약 린터» 로
+#     분류되어 있다. 그래서 차단하지 않는다.
 #
 # «차단하지 않는다» 가 이 훅의 하드 규칙이다. 계약 작성을 막으면 안 된다 —
 # PostToolUse 는 애초에 permissionDecision 을 지원하지 않고(v2.1.232 훅 문서),
@@ -19,7 +19,8 @@
 # fail-open: jq 부재·빈 stdin·깨진 JSON·읽기 실패 어느 경우에도 exit 0. errexit 를 쓰지 않는다.
 set -uo pipefail
 
-LIB="${CLAUDE_HOOK_LIB:-$HOME/.claude/hooks/_lib-hook-payload.sh}"
+# 도우미는 이 파일 옆(플러그인 scripts/)에 있다. 다른 사람 기계에는 ~/.claude/hooks/ 가 없다
+LIB="${CLAUDE_HOOK_LIB:-$(dirname "${BASH_SOURCE[0]}")/_lib-hook-payload.sh}"
 # shellcheck source=/dev/null
 . "$LIB" 2>/dev/null || exit 0
 
