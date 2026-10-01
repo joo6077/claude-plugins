@@ -4,7 +4,7 @@ slug: after-1001-hooks-into-harness
 created: "2026-10-01 13:04"
 complexity: "복잡"
 conditions: 26
-status: active
+status: done
 owner_session: bda55d45-296c-491f-89ba-b52042d58e72
 ---
 
