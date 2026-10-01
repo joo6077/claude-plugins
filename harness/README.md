@@ -61,7 +61,7 @@
 
 **계약 측정 경고** — `scripts/lint-contract-oracle.sh` 는 Edit · Write 로 `.harness/sprint-contract*.md` 를 고친 뒤 측정이 문서 속 문장을 grep 하는 데 그친 조건을 짚어 경고만 넣는다.
 
-두 훅은 같은 폴더의 `scripts/_lib-hook-payload.sh` 를 불러 쓴다(환경변수 `CLAUDE_HOOK_LIB` 를 주면 그 파일). jq 가 없거나 입력이 깨지면 조용히 통과한다. 예전에 `~/.claude/settings.json` 에 같은 훅을 등록해 두었다면 두 번 돈다 — `python3 scripts/check-user-hook-overlap.py` 가 그 겹침을 알린다. 시험은 `bash harness/evals/hooks/plugin-hooks-test.sh` · `lint-contract-oracle-test.sh` · `qa-pending-check-test.sh` 다.
+두 훅은 같은 폴더의 `scripts/_lib-hook-payload.sh` 를 불러 쓴다(환경변수 `CLAUDE_HOOK_LIB` 를 주면 그 파일). jq 가 없거나 입력이 깨지면 조용히 통과한다. 예전에 `~/.claude/settings.json` 에 같은 훅을 등록해 두었다면 두 번 돈다. 그 파일의 `hooks` 에서 `qa-pending-check.sh` · `lint-contract-oracle.sh` 를 부르는 줄을 지우면 된다. 이 검사 도구는 플러그인에 들어 있지 않고 레포 맨 위 `scripts/` 에 있다 — 레포를 받아 두었다면 맨 위 폴더에서 `python3 scripts/check-user-hook-overlap.py` 로 남은 겹침을 확인한다. 시험은 `bash harness/evals/hooks/plugin-hooks-test.sh` · `lint-contract-oracle-test.sh` · `qa-pending-check-test.sh` 다.
 
 ## 커밋 안전 훅
 
