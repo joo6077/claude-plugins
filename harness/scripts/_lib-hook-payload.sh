@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # 훅 공용 — stdin 페이로드 파싱 + 출력 JSON 방출.
-# block-dirwide-autofixer.sh (PreToolUse) 와 lint-contract-oracle.sh (PostToolUse) 가 공유한다.
-# parallel-session-guard.sh 는 strip_heredoc_bodies 만 쓴다.
+# harness 플러그인 훅 lint-contract-oracle.sh (PostToolUse) · qa-pending-check.sh (Stop) 가 같은 폴더에서 불러 쓴다.
+# 개인 훅 block-dirwide-autofixer.sh · parallel-session-guard.sh 는 ~/.claude/hooks/ 의 사본을 쓴다 — hook_deny · strip_heredoc_bodies 는 그쪽 몫이다.
 #
 # fail-open 이 이 파일의 하드 규칙이다. jq 부재·빈 stdin·깨진 JSON 어느 경우에도
 # 비정상 종료하지 않는다 — 훅이 죽어서 정상 작업을 막는 것이 훅이 없는 것보다 나쁘다.

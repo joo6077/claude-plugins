@@ -18,7 +18,9 @@ sync-evals.py — 각 플러그인 evals/evals.json 과 skills/ 디렉토리 동
 Exit codes:
     0 — no drift (check-only) 또는 동기화 완료
     1 — drift detected (check-only 모드만)
-    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 · 대상 없는 바로가기 포함 · 내용이 객체가 아님(null · 숫자 · 글 · 목록))
+    2 — 구조적 에러 (evals.json 파싱 실패 · 못 읽음 · 대상 없는 바로가기 포함 · 내용이 객체가 아님(null · 숫자 · 글 · 목록) ·
+        목록 열쇠의 값이 목록이 아니거나 항목 모양이 허용 목록 밖 ·
+        잘못된 UTF-8 문자 · 자릿수 한도를 넘는 숫자 · 너무 깊은 중첩 · 마켓 목록을 못 읽음 · skills 폴더를 못 읽음)
         못 읽은 킷이 있어도 나머지 킷은 끝까지 재고, 못 읽은 킷 이름을 모두 적은 뒤 2 로 끝난다
 """
 
@@ -38,9 +40,14 @@ SKIP_KITS = {
 }
 
 
-def target_kits() -> list[str]:
+def target_kits() -> list[str] | None:
     marketplace = REPO_ROOT / ".claude-plugin" / "marketplace.json"
-    names = [plugin["name"] for plugin in json.loads(marketplace.read_text(encoding="utf-8")).get("plugins", [])]
+    try:
+        names = [plugin["name"] for plugin in json.loads(marketplace.read_text(encoding="utf-8")).get("plugins", [])]
+    except (OSError, ValueError, RecursionError) as exc:
+        # 마켓 목록을 못 읽으면 잴 킷을 정할 수 없다 — 추적 출력 대신 한 줄로 알리고 main 이 2 를 낸다
+        print(f"ERROR: {marketplace} 마켓 목록을 읽지 못했다 ({exc})", file=sys.stderr)
+        return None
     # 대상 없는 바로가기는 파일 자리가 있으니 대상이다 — 못 읽음으로 잰다
     have = [name for name in names if os.path.lexists(REPO_ROOT / name / "evals" / "evals.json")]
     # 평가 파일이 없는 킷도 이름을 찍는다 — 다른 이름으로 둔 킷이 소리 없이 빠지지 않게
@@ -53,6 +60,58 @@ def target_kits() -> list[str]:
 # 못 읽거나 깨진 평가 파일 — 없는 파일(None)과 갈라 그 킷 이름을 모은다
 UNREADABLE = object()
 JSON_KINDS = {type(None): "null", bool: "참거짓", int: "숫자", float: "숫자", str: "글", list: "목록"}
+
+
+# 평가 항목이 쓸 수 있는 열쇠와 값 모양 — 2026-10-01 레포 평가 파일을 세어 정한 허용 목록이다.
+# 여기 없는 열쇠 · 모양은 구조 오류다. 오타 난 열쇠도 그래서 걸린다
+ITEM_FIELDS = {"id": (int, str), "skill": (str,), "agent": (str,), "prompt": (str,), "expected_output": (str,),
+               "expect": (dict,), "assertions": (list,), "example": (str,), "fixture": (str,)}
+ITEM_REQUIRED = ("id", "prompt", "assertions")
+ITEM_ONE_OF = (("skill", "agent"), ("expected_output", "expect"))
+
+
+def kind_of(value) -> str:
+    return "객체" if isinstance(value, dict) else JSON_KINDS.get(type(value), type(value).__name__)
+
+
+def item_problem(entry) -> str | None:
+    if not isinstance(entry, dict):
+        return f"객체가 아니다 ({kind_of(entry)})"
+    unknown = sorted(set(entry) - set(ITEM_FIELDS))
+    if unknown:
+        return f"모르는 열쇠 {', '.join(unknown)}"
+    for name, types in ITEM_FIELDS.items():
+        # bool 은 int 의 하위 형이라 따로 막는다
+        if name in entry and (isinstance(entry[name], bool) or not isinstance(entry[name], types)):
+            return f"{name} 값이 {kind_of(entry[name])}"
+    missing = [name for name in ITEM_REQUIRED if name not in entry]
+    if missing:
+        return f"{', '.join(missing)} 없음"
+    for pair in ITEM_ONE_OF:
+        if sum(name in entry for name in pair) != 1:
+            return f"{' · '.join(pair)} 가운데 하나만 있어야 한다"
+    for n, assertion in enumerate(entry["assertions"], 1):
+        if isinstance(assertion, str):
+            continue
+        if isinstance(assertion, dict) and sorted(assertion) == ["text", "type"] \
+                and all(isinstance(value, str) for value in assertion.values()):
+            continue
+        return f"assertions 의 {n} 번째가 글도 text · type 객체도 아니다 ({kind_of(assertion)})"
+    return None
+
+
+def shape_problem(data: dict) -> str | None:
+    """목록 열쇠의 값과 그 항목이 허용 목록 모양인지 본다. 어긋난 첫 자리의 까닭 한 줄, 맞으면 None."""
+    for key in ("evals", "tests", "cases"):
+        if key not in data:
+            continue
+        if not isinstance(data[key], list):
+            return f"{key} 가 목록이 아니다 ({kind_of(data[key])})"
+        for n, entry in enumerate(data[key], 1):
+            problem = item_problem(entry)
+            if problem:
+                return f"{key} 의 {n} 번째 항목 — {problem}"
+    return None
 
 
 def load_evals(kit: str) -> dict | object | None:
@@ -70,9 +129,16 @@ def load_evals(kit: str) -> dict | object | None:
     except json.JSONDecodeError as exc:
         # 없는 파일처럼 SKIP 하면 깨진 평가 파일이 --check-only 를 통과한다
         print(f"ERROR: {path} parse error: {exc}", file=sys.stderr)
+    except (ValueError, RecursionError) as exc:
+        # 잘못된 UTF-8 문자 · 자릿수 한도를 넘는 숫자 · 너무 깊은 중첩은 위 셋에 안 걸린다
+        print(f"ERROR: {path} 읽지 못했다 ({exc})", file=sys.stderr)
     else:
         if isinstance(data, dict):
-            return data
+            problem = shape_problem(data)
+            if not problem:
+                return data
+            print(f"ERROR: {path} {problem}", file=sys.stderr)
+            return UNREADABLE
         # null 을 그대로 넘기면 「파일 없음」 None 과 섞여 통과한다
         print(f"ERROR: {path} 내용이 객체가 아니다 ({JSON_KINDS.get(type(data), type(data).__name__)})", file=sys.stderr)
     return UNREADABLE
@@ -114,7 +180,7 @@ def set_eval_list(data: dict, entries: list[dict]) -> None:
 
 
 def get_skill_field(entry: dict) -> str:
-    return entry.get("skill") or entry.get("target_skill") or ""
+    return entry.get("skill") or ""
 
 
 def next_id(entries: list[dict]) -> int:
@@ -153,7 +219,11 @@ def process_kit(kit: str, check_only: bool, dry_run: bool) -> tuple[int, int, in
         return (0, 0, 1)
 
     entries = get_eval_list(data)
-    disk_skills = discover_skills(kit)
+    try:
+        disk_skills = discover_skills(kit)
+    except OSError:
+        # main 이 읽은 뒤 skills 폴더 권한이 바뀌었다
+        return (0, 0, 1)
     eval_skills = {get_skill_field(e) for e in entries if get_skill_field(e)}
 
     missing = sorted(disk_skills - eval_skills)
@@ -200,7 +270,10 @@ def main() -> int:
     total_missing_preview = 0
     unreadable = []
 
-    for kit in target_kits():
+    kits = target_kits()
+    if kits is None:
+        return 2
+    for kit in kits:
         if kit in SKIP_KITS:
             print(f"SKIP {kit} ({SKIP_KITS[kit]})")
             continue
@@ -213,7 +286,13 @@ def main() -> int:
             print(f"  SKIP (no evals.json)")
             continue
         entries = get_eval_list(data)
-        disk_skills = discover_skills(kit)
+        try:
+            disk_skills = discover_skills(kit)
+        except OSError as exc:
+            # skills 폴더를 못 읽으면 빠진 스킬을 셀 수 없다 — 그 킷만 못 읽은 킷으로 센다
+            print(f"UNREADABLE {REPO_ROOT / kit / 'skills'} ({exc.strerror})", file=sys.stderr)
+            unreadable.append(kit)
+            continue
         eval_skills = {get_skill_field(e) for e in entries if get_skill_field(e)}
         missing = sorted(disk_skills - eval_skills)
         total_missing_preview += len(missing)
