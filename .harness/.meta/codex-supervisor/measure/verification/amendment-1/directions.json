@@ -1,0 +1,50 @@
+[
+  {
+    "shell": "bash",
+    "mode": "measured",
+    "output": "narrowing measured_removed=0 measured_added=8",
+    "ok": true
+  },
+  {
+    "shell": "bash",
+    "mode": "allowed",
+    "output": "relaxing added=27 removed=0",
+    "ok": true
+  },
+  {
+    "shell": "bash",
+    "mode": "allowed",
+    "output": "narrowing added=0 removed=27",
+    "ok": true
+  },
+  {
+    "shell": "bash",
+    "mode": "measured",
+    "output": "unknown missing_input=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/verification/amendment-1/missing-input.txt",
+    "ok": true
+  },
+  {
+    "shell": "zsh",
+    "mode": "measured",
+    "output": "narrowing measured_removed=0 measured_added=8",
+    "ok": true
+  },
+  {
+    "shell": "zsh",
+    "mode": "allowed",
+    "output": "relaxing added=27 removed=0",
+    "ok": true
+  },
+  {
+    "shell": "zsh",
+    "mode": "allowed",
+    "output": "narrowing added=0 removed=27",
+    "ok": true
+  },
+  {
+    "shell": "zsh",
+    "mode": "measured",
+    "output": "unknown missing_input=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/verification/amendment-1/missing-input.txt",
+    "ok": true
+  }
+]
