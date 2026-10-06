@@ -1005,21 +1005,37 @@ class Follower:
         self.measured, self.measured_at = [], float('-inf')
         self.summary_at = time.monotonic()
         self.report_seen = None
+        self.pending, self.pending_first, self.pending_last = [], 0.0, 0.0
+
+    def emit(self, text):
+        # 몇 초 사이에 잇달아 나는 줄은 한 번에 내보낸다. Monitor 는 첫 줄만 바로 알리고 곧이어 온 줄은
+        # 다음 출력이 생길 때까지 붙잡아 둔다 — 실사용에서 「차례 시작」 이 감독이 끝날 때까지 56초 늦었다.
+        now_mono = time.monotonic()
+        if not self.pending:
+            self.pending_first = now_mono
+        self.pending.append('[' + datetime.datetime.now().strftime('%H:%M:%S') + '] ' + scrub(text))
+        self.pending_last = now_mono
+
+    def flush(self, force=False):
+        now_mono = time.monotonic()
+        if self.pending and (force or now_mono - self.pending_last >= 0.8 or now_mono - self.pending_first >= 2.5):
+            print('\n'.join(self.pending), flush=True)
+            self.pending = []
 
     def flush_measured(self):
         if self.measured:
-            say('사전 측정 ' + ' | '.join(self.measured))
+            self.emit('사전 측정 ' + ' | '.join(self.measured))
             self.measured = []
         self.measured_at = time.monotonic()
 
     def handle(self, record):
         kind, at = record.get('kind'), record.get('at') or time.time()
         if kind == 'notice':
-            say(record.get('text', ''))
+            self.emit(record.get('text', ''))
         elif kind == 'start':
             self.began = at
             count = record.get('conditions')
-            say('감독 시작 · {} · {} · {}'.format(record.get('verb'), record.get('folder'),
+            self.emit('감독 시작 · {} · {} · {}'.format(record.get('verb'), record.get('folder'),
                                                 '조건 {}개'.format(count) if count else '조건 미정'))
         elif kind == 'premeasure':
             self.measured.append('{}/{} · {} · 종료 {}{} · {}'.format(
@@ -1029,31 +1045,31 @@ class Follower:
                 self.flush_measured()
         elif kind == 'premeasure-end':
             self.flush_measured()
-            say('사전 측정 끝 · {}개 · 총 {}'.format(record.get('total'), span(record.get('seconds', 0))))
+            self.emit('사전 측정 끝 · {}개 · 총 {}'.format(record.get('total'), span(record.get('seconds', 0))))
         elif kind == 'turn-start':
             self.flush_measured()
             self.turn = dict(name=record.get('name'), home=record.get('home') or '', began=at, thread='',
                              tail=Tail(self.folder / str(record.get('name')) / 'events.jsonl'), seen=set(),
                              failed=set(), window=0, activity='생각 중', size=None, warned=float('-inf'))
-            say('차례 {} 시작 · {} · 모델 {} · 생각 {}'.format(record.get('name'), record.get('label'),
+            self.emit('차례 {} 시작 · {} · 모델 {} · 생각 {}'.format(record.get('name'), record.get('label'),
                                                        record.get('model'), record.get('effort')))
         elif kind == 'turn-end':
             if self.turn:
                 self.take_events()
             self.turn = None
-            say('차례 {} 끝 · {} · {}'.format(record.get('name'), record.get('result'), span(record.get('seconds', 0))))
+            self.emit('차례 {} 끝 · {} · {}'.format(record.get('name'), record.get('result'), span(record.get('seconds', 0))))
         elif kind == 'retry':
-            say('다시 시도 · {} · {}'.format(record.get('name'), record.get('reason')))
+            self.emit('다시 시도 · {} · {}'.format(record.get('name'), record.get('reason')))
         elif kind == 'saved':
             problems = record.get('problems') or 0
-            say('{} 계약 저장 끝 · 저장 검사 {} · {}'.format(
+            self.emit('{} 계약 저장 끝 · 저장 검사 {} · {}'.format(
                 record.get('verb'), '위반 {}건'.format(problems) if problems else '통과', record.get('verdict')))
         elif kind == 'final':
             self.flush_measured()
             if self.turn:
                 self.take_events()
             verdict = record.get('verdict')
-            say('감독 판정: {} · 총 {}'.format(verdict, span(at - (self.began or at))))
+            self.emit('감독 판정: {} · 총 {}'.format(verdict, span(at - (self.began or at))))
             return EXIT.get(verdict, EXIT['BLOCKED'])
         return None
 
@@ -1072,7 +1088,7 @@ class Follower:
                 code = item.get('exit_code')
                 if kind == 'item.completed' and code not in (0, None) and key not in turn['failed']:
                     turn['failed'].add(key)
-                    say('오류 · 명령 종료 {} · {}'.format(code, scrub(str(item.get('command') or ''))[:80]))
+                    self.emit('오류 · 명령 종료 {} · {}'.format(code, scrub(str(item.get('command') or ''))[:80]))
             elif item.get('type') == 'reasoning' and kind != 'item.completed':
                 turn['activity'] = '생각 중'
             elif item.get('type') == 'agent_message' and kind != 'item.completed':
@@ -1080,7 +1096,7 @@ class Follower:
         elif kind in ('turn.failed', 'error'):
             error = event.get('error')
             message = event.get('message') or (error.get('message') if isinstance(error, dict) else error) or ''
-            say('오류 · Codex: ' + scrub(str(message))[:200])
+            self.emit('오류 · Codex: ' + scrub(str(message))[:200])
 
     def take_events(self):
         # 몰려 들어오는 사건 묶음은 끝까지 읽고 나서 요약한다. 반만 읽고 요약하면 명령 수가 다음 일로 넘어간다.
@@ -1111,25 +1127,25 @@ class Follower:
         size = self.rollout_size()
         grew, turn['size'], turn['warned'] = size > turn['size'], size, time.monotonic()
         if grew:
-            say('Codex 생각 중(기록은 자람) · 사건 없음 {}초'.format(int(quiet)))
+            self.emit('Codex 생각 중(기록은 자람) · 사건 없음 {}초'.format(int(quiet)))
         else:
-            say('Codex 조용함 {}초 — 생각 중이거나 멈춤 의심'.format(int(quiet)))
+            self.emit('Codex 조용함 {}초 — 생각 중이거나 멈춤 의심'.format(int(quiet)))
 
     def stalled(self):
         report = self.folder / 'report.md'
         verdict = last_verdict(report)
         if verdict and not (self.folder / 'progress.jsonl').exists():
-            say('감독 판정: {} · 총 {}'.format(verdict, report_span(report)))
+            self.emit('감독 판정: {} · 총 {}'.format(verdict, report_span(report)))
             return EXIT.get(verdict, EXIT['BLOCKED'])
         if verdict:
             # 보고서는 진행 기록의 끝 줄보다 먼저 쓰인다. 끝 줄이 끝내 안 오면 보고서를 믿는다.
             self.report_seen = self.report_seen or time.monotonic()
             if time.monotonic() - self.report_seen > 2:
-                say('감독 판정: {} · 총 {}'.format(verdict, report_span(report)))
+                self.emit('감독 판정: {} · 총 {}'.format(verdict, report_span(report)))
                 return EXIT.get(verdict, EXIT['BLOCKED'])
         elif pid_alive(self.folder) is False:
-            say('오류 · 감독 프로세스가 판정 없이 끝났다')
-            say('감독 판정: BLOCKED · 총 {}'.format(span(time.time() - (self.began or time.time()))))
+            self.emit('오류 · 감독 프로세스가 판정 없이 끝났다')
+            self.emit('감독 판정: BLOCKED · 총 {}'.format(span(time.time() - (self.began or time.time()))))
             return EXIT['BLOCKED']
         return None
 
@@ -1138,6 +1154,7 @@ class Follower:
             for record in self.progress.records():
                 code = self.handle(record)
                 if code is not None:
+                    self.flush(force=True)
                     return code
             if self.turn:
                 self.take_events()
@@ -1146,12 +1163,15 @@ class Follower:
                 self.flush_measured()
             if time.monotonic() - self.summary_at >= self.interval:
                 if self.turn:
+                    self.flush(force=True)
                     say('활동 요약 · 명령 {}개 · 지금 {}'.format(self.turn['window'], self.turn['activity']))
                     self.turn['window'] = 0
                 self.summary_at = time.monotonic()
             code = self.stalled()
             if code is not None:
+                self.flush(force=True)
                 return code
+            self.flush()
             time.sleep(POLL)
 
 
