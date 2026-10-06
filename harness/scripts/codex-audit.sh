@@ -33,7 +33,7 @@ SKILL_DOC = HERE.parent / 'skills' / 'sprint-contract' / 'SKILL.md'
 EXIT = dict(APPROVE=0, REJECT=1, BLOCKED=2, SKIPPED=3)
 CONDITION = re.compile(r'^- \[[ x]\] ((?:[A-Z]{2,}|[^ -~]+)-[0-9]{2})', re.M)
 NARRATIVE = ('배경', '리서치 소스', 'GAP 분석', '범위 경계', '회귀 게이트')
-SECRET = re.compile(r'sk-[A-Za-z0-9_-]{8,}')
+SECRET = re.compile(r'(?<![A-Za-z0-9_-])sk-[A-Za-z0-9_-]{8,}')
 MODELS_URL = 'https://api.openai.com/v1/models'
 MODELS_MEMORY = 'codex-audit-models.json'
 POLL = 0.25
