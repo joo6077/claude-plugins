@@ -61,7 +61,7 @@ def usage(message=''):
         print('codex-audit: ' + message, file=sys.stderr)
     print('쓰는 법: codex-audit.sh draft <요구사항> <계약> | revise <계약> <지적> | impl <계약> <기준 커밋> [--detach]'
           ' | wait <감독 폴더> [초] | follow <감독 폴더|계약> [--idle-seconds N] [--wait-seconds N]'
-          ' [--summary-seconds N] | models', file=sys.stderr)
+          ' [--summary-seconds N] [--relay] | models', file=sys.stderr)
     return 64
 
 
@@ -997,8 +997,8 @@ def report_span(report):
 
 
 class Follower:
-    def __init__(self, folder, idle, interval):
-        self.folder, self.idle, self.interval = folder, idle, interval
+    def __init__(self, folder, idle, interval, relay=False):
+        self.folder, self.idle, self.interval, self.relay = folder, idle, interval, relay
         self.progress = Tail(folder / 'progress.jsonl')
         self.turn = None
         self.began = None
@@ -1017,12 +1017,16 @@ class Follower:
         self.pending_last = now_mono
 
     def flush(self, force=False):
+        # relay 는 채팅으로 옮길 줄만 낸다. Monitor 가 둘째 알림부터 붙잡아 두므로 한 묶음을 한 줄로 잇는다.
+        quiet, longest = (3.0, 4.5) if self.relay else (0.8, 2.5)
         now_mono = time.monotonic()
-        if self.pending and (force or now_mono - self.pending_last >= 0.8 or now_mono - self.pending_first >= 2.5):
-            print('\n'.join(self.pending), flush=True)
+        if self.pending and (force or now_mono - self.pending_last >= quiet or now_mono - self.pending_first >= longest):
+            print((' ‖ ' if self.relay else '\n').join(self.pending), flush=True)
             self.pending = []
 
     def flush_measured(self):
+        if self.measured and self.relay:
+            self.measured = []
         if self.measured:
             self.emit('사전 측정 ' + ' | '.join(self.measured))
             self.measured = []
@@ -1162,7 +1166,7 @@ class Follower:
             if self.measured and time.monotonic() - self.measured_at >= self.interval:
                 self.flush_measured()
             if time.monotonic() - self.summary_at >= self.interval:
-                if self.turn:
+                if self.turn and not self.relay:
                     self.flush(force=True)
                     say('활동 요약 · 명령 {}개 · 지금 {}'.format(self.turn['window'], self.turn['activity']))
                     self.turn['window'] = 0
@@ -1195,10 +1199,12 @@ def pick_running(root, wait_seconds):
 
 def follow(args):
     options = {'--idle-seconds': 60, '--wait-seconds': 540, '--summary-seconds': 60}
-    target, rest = None, list(args)
+    target, rest, relay = None, list(args), False
     while rest:
         item = rest.pop(0)
-        if item in options:
+        if item == '--relay':
+            relay = True
+        elif item in options:
             if not rest or not rest[0].isdigit():
                 return usage(item + ' 에는 0 이상의 정수가 필요하다')
             options[item] = int(rest.pop(0))
@@ -1227,7 +1233,7 @@ def follow(args):
             return EXIT['BLOCKED']
     else:
         return usage('없는 경로: ' + target)
-    return Follower(folder, options['--idle-seconds'], options['--summary-seconds']).run()
+    return Follower(folder, options['--idle-seconds'], options['--summary-seconds'], relay).run()
 
 
 def main(argv):
