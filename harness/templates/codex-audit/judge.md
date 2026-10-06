@@ -4,7 +4,7 @@
 
 ## 읽을 것
 
-- 계약: {{CONTRACT}}
+- 계약: {{CONTRACT}}{{AMENDMENTS}}
 - 기준 커밋부터 바뀐 내용: {{DIFF}}
 - 바뀐 파일 목록과 커밋 정보: {{MANIFEST}}
 - 구현 커밋 사본(지금 작업 폴더): {{COPY}}
@@ -19,4 +19,5 @@
 - 측정 명령은 사본 안에서 직접 돌려 본다. 쓰기는 사본과 임시 폴더 안에서만 한다. 지울 때는 rm 대신 python3 의 shutil 이나 unlink 를 쓴다.
 - 바깥 사실(라이브러리의 현재 동작, 외부 규격 같은 것)이 판정에 필요하면 스스로 찾지 말고 questions 에 질문으로 적고 verdict 를 RESEARCH 로 둔다.
 - 모든 조건이 PASS 면 APPROVE, 하나라도 FAIL 이면 REJECT 다.
+{{PREMEASURE}}
 {{ANSWERS}}

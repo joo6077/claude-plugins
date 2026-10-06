@@ -506,6 +506,41 @@ def judged(audit, binary, source, name, prompt, copy_factory, effort, ids):
     return result['answer']
 
 
+def premeasure(template, ids, frozen, copy_factory):
+    # 판정 격리 안에서는 ps 와 겹친 격리가 막힌다. 그런 측정은 판정 전에 격리 밖에서 한 번 돌려 기록으로 넘긴다.
+    limit = int(os.environ.get('CODEX_AUDIT_LIMIT') or 600)
+    folder = frozen / 'premeasure'
+    folder.mkdir()
+    copy = copy_factory()
+    records, summary = [], ['condition\texit_code\tlast_line']
+    try:
+        for number, item in enumerate(ids, 1):
+            command = template.replace('{id}', item)
+            with tempfile.TemporaryFile() as sink:
+                proc = subprocess.Popen(['bash', '-c', command], cwd=copy, stdin=subprocess.DEVNULL, stdout=sink,
+                                        stderr=subprocess.STDOUT, start_new_session=True)
+                ACTIVE.append(proc)
+                timed_out = False
+                try:
+                    proc.wait(timeout=limit)
+                except subprocess.TimeoutExpired:
+                    timed_out = True
+                kill_group(proc)
+                ACTIVE.remove(proc)
+                sink.seek(0)
+                output = scrub(sink.read().decode('utf-8', errors='replace'))[-200000:]
+            record = dict(id=item, command=command, exit_code=proc.returncode, output=output, timed_out=timed_out)
+            name = 'premeasure/{:02d}.json'.format(number)
+            (frozen / name).write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding='utf-8')
+            records.append(name)
+            last = output.splitlines()[-1] if output.splitlines() else ''
+            summary.append('{}\t{}\t{}'.format(item, proc.returncode, last.replace('\t', ' ')))
+    finally:
+        shutil.rmtree(copy, ignore_errors=True)
+    (folder / 'summary.tsv').write_text('\n'.join(summary) + '\n', encoding='utf-8')
+    return dict(records=records, summary='premeasure/summary.tsv')
+
+
 def previous_fixes(meta, slug, folder):
     reports = sorted((meta / 'codex-audit' / slug).glob('impl-r*/report.md'),
                      key=lambda report: int(report.parent.name.rsplit('-r', 1)[1]))
@@ -533,13 +568,17 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
     frozen = audit.folder / 'input'
     frozen.mkdir()
     shutil.copyfile(contract, frozen / 'CONTRACT.md')
+    amendments = meta / feedback.name.replace('sprint-feedback', 'sprint-amendments', 1)
+    if amendments.is_file():
+        shutil.copyfile(amendments, frozen / 'AMENDMENTS.md')
     (frozen / 'DIFF.patch').write_text(git(repo_root, 'diff', base + '..' + head).stdout, encoding='utf-8')
     changed = git(repo_root, 'diff', '--name-only', base + '..' + head).stdout
     (frozen / 'CHANGED.txt').write_text(changed, encoding='utf-8')
-    (frozen / 'MANIFEST.json').write_text(json.dumps(dict(
-        contract=str(contract), base=base, head=head, changed=changed.split(), round=number,
-        inputs=['CONTRACT.md', 'DIFF.patch', 'CHANGED.txt']), ensure_ascii=False, indent=2), encoding='utf-8')
-    ids = CONDITION.findall((frozen / 'CONTRACT.md').read_text(encoding='utf-8'))
+    inputs = ['CONTRACT.md'] + (['AMENDMENTS.md'] if amendments.is_file() else []) + ['DIFF.patch', 'CHANGED.txt']
+    ids = []
+    for name in inputs[:2]:
+        if name.endswith('.md'):
+            ids += [item for item in CONDITION.findall((frozen / name).read_text(encoding='utf-8')) if item not in ids]
     effort = conf.get('effort_impl') or 'medium'
 
     def working_copy():
@@ -552,8 +591,16 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
             raise Stop('설정-오류', '구현 커밋 사본을 만들지 못했다: ' + cloned.stderr)
         return copy
 
+    measured = premeasure(conf['premeasure'], ids, frozen, working_copy) if conf.get('premeasure') else None
+    (frozen / 'MANIFEST.json').write_text(json.dumps(dict(
+        contract=str(contract), base=base, head=head, changed=changed.split(), round=number,
+        inputs=inputs, premeasure=measured), ensure_ascii=False, indent=2), encoding='utf-8')
     values = dict(CONTRACT=frozen / 'CONTRACT.md', DIFF=frozen / 'DIFF.patch', MANIFEST=frozen / 'MANIFEST.json',
-                  COPY='지금 작업 폴더', ANSWERS='')
+                  COPY='지금 작업 폴더', ANSWERS='', AMENDMENTS='', PREMEASURE='')
+    if amendments.is_file():
+        values['AMENDMENTS'] = '\n- 계약 개정(조건이 더해지거나 읽는 법이 바뀌었다. 계약과 함께 읽는다): ' + str(frozen / 'AMENDMENTS.md')
+    if measured:
+        values['PREMEASURE'] = fill('premeasure.md', dict(SUMMARY=frozen / measured['summary'])).strip()
     first = judged(audit, binary, source, 'judge-1', fill('judge.md', values), working_copy, effort, ids)
     if first['verdict'] == 'RESEARCH':
         questions = '\n'.join('- ' + item for item in first['questions'])
