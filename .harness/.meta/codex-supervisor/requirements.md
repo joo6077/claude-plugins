@@ -85,3 +85,23 @@ harness QA 플러그인의 역할을 이렇게 나눈다.
 - frontmatter 의 `conditions_digest` · `measurement_digest` · `locked_at` 은 쓰지 않는다(봉인은 나중에 한다). `conditions:` 는 실제 조건 줄 수.
 - 작업 폴더 W = `/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/codex-supervisor`, 가지 `feat/codex-supervisor`, 시작 판 `BASE` = `88b2a84e`. 가지 이름이 `sprint/<slug>` 가 아니므로 커밋 구간 상한은 `git rev-parse --verify -q feat/codex-supervisor` 로 해석하고, 실패하면 멈춘다.
 - 이 계약 자신은 `draft` 가 아직 없어 사람이 Codex 를 직접 불러 쓰게 한 것이다. 이 사실을 `## 배경` 에 적는다.
+
+## 6. 개정 1 — 격리 밖 사전 측정 (2026-10-06)
+
+첫 구현 감독(감독 폴더 `.harness/codex-audit/codex-supervisor/impl-r1`)이 REJECT 를 냈다. FAIL 셋(스크립트-11 · 오류-02 · 구조-04)은 구현 결함이 아니라 판정 격리 공간의 한계였다 — 격리 안에서 `ps` 가 `Operation not permitted` 로 막히고, 격리 안의 Codex 가 다시 Codex 를 부르면 macOS 가 격리를 겹쳐 만들지 못해 `sandbox_apply: Operation not permitted` 가 난다. 같은 세 조건은 격리 밖에서 모두 PASS 였다. 사용자는 세 선택지(사전 측정 기능 추가 · 이번만 사용자 판단 통과 · 판정 격리 넓히기) 중 「사전 측정 기능 추가 후 다시 감독」 을 골랐다(이 세션 기록의 사용자 답 「1」).
+
+요구:
+
+1. `impl` 은 판정 차례 전에, 계약이 정한 측정 명령을 **격리 밖에서** 조건마다 한 번씩 돌려 그 출력과 종료 코드를 얼린 입력에 넣는다. 판정 · 재심 · 조사 뒤 재판정 차례가 모두 같은 기록을 본다(사전 측정은 감독 한 번에 한 번).
+2. 측정 명령은 감독 설정 `codex_audit.premeasure` 로 받는다 — 조건 번호 자리 `{id}` 가 든 명령 틀(예: `bash .harness/.meta/codex-supervisor/measure/measure.sh {id}`). 칸이 없으면 사전 측정을 하지 않는다(지금과 같다).
+3. 사전 측정은 사용자 작업 폴더가 아니라 구현 커밋 사본(판정 사본과 같은 방식, 원래 저장소 `.git` 불변)에서 돈다. 조건 하나의 상한은 `CODEX_AUDIT_LIMIT` 를 따르고, 넘으면 그 조건 기록에 시간 초과를 적고 다음 조건으로 간다. 자식 프로세스까지 끈다.
+4. 기록은 스크립트가 쓴다. 조건마다 명령 · 종료 코드 · 출력(키 글자 가림)을 남기고, 요약 한 장(조건 · 종료 코드 · 마지막 줄)을 남긴다. 목록 파일(MANIFEST)에 기록 위치가 들어간다.
+5. 판정 지시문은 「격리 안에서 돌릴 수 없는 측정(프로세스 관측 · 겹친 격리 · 실제 서비스 호출 등)은 사전 측정 기록을 증거로 쓸 수 있다. 기록은 감독 스크립트가 판정 전에 격리 밖에서 남긴 것이다」 를 담는다. 격리 안에서 돌릴 수 있는 측정은 여전히 직접 돌린다. 지시문 크기 · 역할 말 금지 규칙은 그대로다.
+6. 사전 측정 명령 실패(없는 명령 · 0 이 아닌 종료)는 감독을 BLOCKED 로 만들지 않는다 — 기록만 남기고 판정은 Codex 가 한다.
+7. 이 레포 `.harness/project.yaml` 의 `codex_audit` 에 이 계약의 측정 묶음 명령을 `premeasure` 로 넣는다. 새 프로젝트 틀 `harness/templates/project.yaml` 에는 빈 칸(설명 주석 포함)을 넣는다. README · qa-evaluator · sprint-contract 문서에 한 줄씩 반영한다.
+
+8. `impl` 의 얼린 입력에 계약 개정 파일(`sprint-amendments-<slug>.md`)이 있으면 함께 넣고, 판정 지시문이 그 파일을 읽을 것으로 가리킨다. 지금은 계약 본문만 넣어 감독관이 개정을 보지 못한다.
+
+사용자 동의 기록: 이 세션 기록(`~/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f.jsonl`)의 사용자 메시지 「1」 · 2026-10-06T04:23:30.477Z · session=fb4aefa8-0ee1-4711-9b22-7baf9c6b989f · cwd=/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/codex-supervisor. 앞 결정 「파일 저장 안으로」 2026-10-06T00:08:58.276Z, 봉인 승인 「ㄱㄱ」 2026-10-06T03:57:12.484Z 도 같은 기록에 있다.
+
+주의: 이 계약 자신의 측정 묶음은 실제 Codex 를 부르는 조건(스크립트-11)을 포함한다. 사전 측정이 그 조건을 돌리면 감독 한 번마다 실제 호출 3 번이 더 든다(사용자가 비용을 알고 고른 안이다).
