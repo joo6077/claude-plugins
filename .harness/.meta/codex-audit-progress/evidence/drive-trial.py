@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """시험 폴더에서 새 부모 세션 하나로 감독 6건을 차례로 요청한다. 진행 표시는 요청하지 않는다."""
-import json, subprocess, sys, time
+import json, subprocess, sys, threading, time
 from pathlib import Path
 T = '/Users/jackson/Hub/10_Dev/codex-audit-ui-trial'
 E = Path(sys.argv[1])
@@ -12,6 +12,27 @@ MESSAGES = [
     ('revise', 'delegated', 'trial-b 계약을 평가자에게 맡겨서 .harness/.meta/trial-b/critique.md 지적대로 Codex 가 고치게 해 줘'),
     ('impl', 'delegated', 'trial-b 구현을 평가자에게 맡겨서 Codex 로 판정받아 줘. 기준 커밋은 9e400e3'),
 ]
+TASKS = Path('/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-codex-audit-ui-trial')
+STOP = threading.Event()
+
+
+def watch_growth():
+    # 부모가 띄운 백그라운드 작업 출력 파일의 크기를 2초마다 적는다. 카드가 감독 중에 자랐다는 관측 기록이다.
+    sizes = {}
+    with (E / 'growth.jsonl').open('a') as log:
+        while not STOP.is_set():
+            for path in TASKS.glob('*/tasks/*.output'):
+                if path.is_symlink():
+                    continue
+                size = path.stat().st_size
+                if sizes.get(path) != size:
+                    sizes[path] = size
+                    log.write(json.dumps(dict(at=time.time(), session=path.parent.parent.name, file=path.name, size=size)) + '\n')
+                    log.flush()
+            time.sleep(2)
+
+
+threading.Thread(target=watch_growth, daemon=True).start()
 session = None
 for number, (verb, route, text) in enumerate(MESSAGES, 1):
     args = ['claude', '-p', text, '--output-format', 'stream-json', '--verbose', '--permission-mode', 'bypassPermissions']
@@ -30,4 +51,5 @@ for number, (verb, route, text) in enumerate(MESSAGES, 1):
         session = record.get('session_id') or session
     print('[{}] {} {}/{} 끝 · 종료 {} · {}초 · 세션 {}'.format(time.strftime('%H:%M:%S'), number, verb, route,
           proc.returncode, int(time.time() - began), session), flush=True)
+STOP.set()
 (E / 'session.txt').write_text(session + '\n')
