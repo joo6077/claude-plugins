@@ -151,11 +151,14 @@ class Audit:
         self.account = '확인 전'
         self.rows = []
         self.sections = []
+        self.copies = []
 
     def section(self, title, lines):
         self.sections.append('## ' + title + '\n' + '\n'.join(lines))
 
     def finish(self, verdict, category=None, detail=''):
+        if self.copies:
+            self.section('판정 사본', self.copies)
         if category:
             cause = ['갈래: ' + category]
             if detail:
@@ -348,15 +351,19 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort)
     return dict(category=None, answer=answer)
 
 
-def call(audit, binary, source, name, prompt, schema, cwd_factory, network, effort):
+def call(audit, binary, source, name, prompt, schema, cwd_factory, network, effort, keep=False):
     # 멈춤과 빈 응답만 새 세션으로 한 번 더 부른다. Codex 가 안에서 이미 4~5 번 다시 시도한다.
     for attempt in (1, 2):
+        phase = name if attempt == 1 else name + '-again'
         cwd = cwd_factory()
         try:
-            result = run_codex(audit, binary, source, name if attempt == 1 else name + '-again',
-                               prompt, schema, cwd, network, effort)
+            result = run_codex(audit, binary, source, phase, prompt, schema, cwd, network, effort)
         finally:
-            shutil.rmtree(cwd, ignore_errors=True)
+            # 판정 사본은 판정 근거라 남긴다. 시스템 임시 폴더라 운영체제가 치운다.
+            if keep:
+                audit.copies.append('- {}: {}'.format(phase, cwd))
+            else:
+                shutil.rmtree(cwd, ignore_errors=True)
         if result['category'] not in ('시간-초과', '빈-응답') or attempt == 2:
             return result
 
@@ -482,7 +489,8 @@ def verdict_errors(answer, ids):
 
 
 def judged(audit, binary, source, name, prompt, copy_factory, effort, ids):
-    result = call(audit, binary, source, name, prompt, TEMPLATES / 'impl.schema.json', copy_factory, True, effort)
+    result = call(audit, binary, source, name, prompt, TEMPLATES / 'impl.schema.json', copy_factory, True, effort,
+                  keep=True)
     if result['category']:
         raise Stop(result['category'], result['detail'])
     errors = verdict_errors(result['answer'], ids)
