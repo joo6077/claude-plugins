@@ -5,7 +5,7 @@ complexity: "복잡"
 conditions: 27
 slug: codex-supervisor
 owner_session: fb4aefa8-0ee1-4711-9b22-7baf9c6b989f
-status: active
+status: done
 conditions_digest: sha256:2467113bd3f57fd7
 measurement_digest: sha256:dad78bc3ba520488
 locked_at: "2026-10-06 12:57"
