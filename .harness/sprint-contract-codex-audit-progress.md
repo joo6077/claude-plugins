@@ -4,7 +4,7 @@ created: "2026-10-06 15:03"
 complexity: complex
 conditions: 24
 slug: codex-audit-progress
-status: active
+status: done
 owner_session: fb4aefa8-0ee1-4711-9b22-7baf9c6b989f
 conditions_digest: sha256:74c37f0b7c63a737
 measurement_digest: sha256:6778115c6d83ef37
