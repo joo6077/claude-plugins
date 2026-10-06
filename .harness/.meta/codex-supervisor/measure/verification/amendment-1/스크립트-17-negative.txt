@@ -1,0 +1,34 @@
+$ bash /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/measure.sh 스크립트-17 --negative
+evidence=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-17-amend-tpipk1x5
+OK known valid frozen record bundle actual=[]
+positive_control=1
+OK positive control catches known violation actual=1
+known_answer expected=2 actual=2
+OK two hand-counted records actual=2
+source_ref=d72a16639edd48efa02d166a203a0d581519bf94
+OK amend-nonzero-APPROVE: exit actual=0
+BAD amend-nonzero-APPROVE: exec_calls actual=0
+BAD amend-nonzero-APPROVE: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK command failure does not BLOCK judgment
+BAD amend-nonzero-REJECT: exit actual=0
+BAD amend-nonzero-REJECT: exec_calls actual=0
+BAD amend-nonzero-REJECT: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK command failure does not BLOCK judgment
+OK amend-missing-APPROVE: exit actual=0
+BAD amend-missing-APPROVE: exec_calls actual=0
+BAD amend-missing-APPROVE: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK command failure does not BLOCK judgment
+BAD amend-missing-REJECT: exit actual=0
+BAD amend-missing-REJECT: exec_calls actual=0
+BAD amend-missing-REJECT: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK command failure does not BLOCK judgment
+FAIL 스크립트-17 checks=27 failures=18
+exit=1

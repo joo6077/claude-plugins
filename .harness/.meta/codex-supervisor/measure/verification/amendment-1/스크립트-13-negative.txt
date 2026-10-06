@@ -1,0 +1,29 @@
+$ bash /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/measure.sh 스크립트-13 --negative
+evidence=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-13-amend-cgoq2emt
+OK known valid frozen record bundle actual=[]
+OK known once-per-id trace actual=true
+positive_control=1
+OK positive control catches known violation actual=1
+known_answer expected=2 actual=2
+OK two hand-counted records actual=2
+source_ref=d72a16639edd48efa02d166a203a0d581519bf94
+OK amend-setting-False: exit actual=0
+BAD amend-setting-False: exec_calls actual=0
+BAD amend-setting-False: report exists
+BAD frozen manifest produced
+OK unset or empty premeasure disabled actual=[]
+OK disabled no premeasurement artifacts
+OK amend-setting-empty: exit actual=0
+BAD amend-setting-empty: exec_calls actual=0
+BAD amend-setting-empty: report exists
+BAD frozen manifest produced
+OK unset or empty premeasure disabled actual=[]
+OK disabled no premeasurement artifacts
+OK amend-setting-True: exit actual=0
+BAD amend-setting-True: exec_calls actual=0
+BAD amend-setting-True: report exists
+BAD frozen manifest produced
+BAD configured command substitutes each condition
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+FAIL 스크립트-13 checks=22 failures=11
+exit=1

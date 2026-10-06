@@ -69,3 +69,15 @@ verification:
 
 # ── 변명 차단 ──
 rationalization_overrides: []
+
+# ── Codex 감독 ──
+# Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). Codex 가 없는 환경이면 mode: off.
+codex_audit:
+  mode: codex            # codex | off
+  codex_home: ""         # 비우면 ~/.codex-qa → $CODEX_HOME → ~/.codex 차례로 찾는다
+  model: ""              # 비우면 그 폴더 config.toml 의 model. 둘 다 없으면 BLOCKED
+  effort_draft: medium
+  effort_impl: medium
+  max_rounds: 2          # 첫 판정 뒤 고쳐서 다시 받는 횟수
+  # 이 계약(codex-supervisor)의 측정 묶음. 판정 격리 안에서 ps · 겹친 격리가 막혀 격리 밖 사전 측정이 필요하다
+  premeasure: "bash .harness/.meta/codex-supervisor/measure/measure.sh {id}"

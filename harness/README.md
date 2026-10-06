@@ -108,6 +108,9 @@ harness/evals/hooks/
 | `harness/scripts/save-feedback.sh <contract\|evaluator> <draft-yaml>` | 스키마 검증 후 글로벌 경로에 저장 |
 | `harness/scripts/verify-feedback.sh <saved-yaml>` | 저장된 피드백 유효성 검증 (PASS/FAIL) |
 | `harness/scripts/trigger-check-common.sh <skill-type> ...` | 카이젠 이벤트 트리거 감지 (공통 로직) |
+| `harness/scripts/codex-audit.sh draft\|revise\|impl … [--detach]` · `wait <감독 폴더> [초]` | Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). 결과 파일은 스크립트가 쓴다. 종료 코드 0 APPROVE · 1 REJECT · 2 BLOCKED · 3 SKIPPED · 64 쓰는 법 · 75 아직 도는 중 |
+
+**Codex 감독 설정** — `.harness/project.yaml` 의 `codex_audit` 칸(`mode` · `codex_home` · `model` · `effort_draft` · `effort_impl` · `max_rounds`)을 따른다. 감독용 Codex 폴더는 로그인을 파일(`auth.json`, 권한 600)로 저장해야 판정 격리 공간 안에서도 읽힌다. 스크립트는 호출마다 그 파일을 임시 폴더로 복사해 쓰고 끝나면 지운다. `premeasure` 에 조건 번호 자리 `{id}` 가 든 명령을 적으면, 판정 전에 구현 커밋 사본에서 조건마다 그 명령을 격리 밖에서 한 번 돌려(사전 측정) 출력과 종료 코드를 판정 입력에 넣는다 — 판정 격리 안에서는 `ps` 와 겹친 격리가 막힌다. 계약 개정 파일(`sprint-amendments-<slug>.md`)도 판정 입력에 들어간다. 시험할 때는 환경 변수 `CODEX_BIN` 으로 부를 codex 를 바꾸고, `CODEX_AUDIT_LIMIT` 으로 Codex 호출 한 번의 상한 초를 정한다(기본 600).
 
 ### 참조 파일
 

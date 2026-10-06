@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string"
+    },
+    "measurements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "contract",
+    "measurements"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,9 @@
+$ bash /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/measure.sh 스크립트-19 --controls-only
+evidence=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-19-amend-x0natwe9
+OK known valid frozen record bundle actual=[]
+positive_control=1
+OK positive control catches known violation actual=1
+known_answer expected=2 actual=2
+OK two hand-counted records actual=2
+PASS 스크립트-19 checks=3 failures=0
+exit=0
