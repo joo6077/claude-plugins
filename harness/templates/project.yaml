@@ -87,3 +87,6 @@ codex_audit:
   effort_draft: medium
   effort_impl: medium
   max_rounds: 2          # 첫 판정 뒤 고쳐서 다시 받는 횟수
+  # 판정 격리 안에서 못 돌리는 측정(프로세스 관측 · 실제 서비스 호출)을 판정 전에 격리 밖에서 조건마다 돌릴 명령.
+  # {id} 자리에 조건 번호가 들어간다. 예: bash .harness/.meta/<slug>/measure.sh {id}. 비우면 사전 측정을 하지 않는다
+  premeasure: ""

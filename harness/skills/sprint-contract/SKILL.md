@@ -124,6 +124,7 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
   4. Step 8 자리에서 qa-evaluator 를 계약 검토 호출로 띄운다. 평가자 REJECT 의 `## 고칠 것` 이나 저장 검사 위반은 지적 파일로 모아 `bash "$HS/codex-audit.sh" revise <계약 경로> <지적 파일>` 로 Codex 에 되돌린다. 평가자는 매번 새로 띄운다.
   5. 지적과 revise 의 반복이 `max_rounds`(기본 2)를 넘으면 멈추고 사용자에게 묻는다.
   6. qa-evaluator 계약 검토가 APPROVE 를 내면 사용자 승인(Step 5)을 받고 6.6 봉인 · 6.7 봉인 커밋으로 간다.
+  - 측정 묶음에 판정 격리 안에서 못 도는 측정(프로세스 관측 · 실제 서비스 호출)이 있으면 `codex_audit.premeasure` 에 `bash .harness/.meta/<slug>/measure.sh {id}` 꼴 명령을 적는다. 구현 감독 때 판정 전에 격리 밖 사전 측정으로 돈다.
   - `draft` · `revise` 가 BLOCKED 면 감독 폴더 `report.md` 의 `갈래:` 를 보고 원인(로그인 · 설정 · 한도)을 고친 뒤 다시 부른다. 사용자가 건너뛰라고 할 때만 `mode: off` 절차로 넘어가고 그 사실과 시각을 `## 배경` 에 적는다.
 - `mode: off` — Codex 를 부르지 않는다. 이 문서의 기존 절차대로 Claude 가 조건을 쓴다. Codex 가 없는 환경은 이 값으로 둔다.
 

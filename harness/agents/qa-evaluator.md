@@ -50,6 +50,7 @@ model: sonnet
 1. Step 1 로 계약을 고른 뒤 `impl --detach` 로 시작한다: `bash "<scripts>/codex-audit.sh" impl <계약> <기준 커밋> --detach`. 찍힌 감독 폴더 경로를 적어 둔다. 기준 커밋은 계약이 적은 BASE, 없으면 봉인 커밋이다. 스크립트 폴더는 Step 1-e-2 와 같은 차례로 찾는다
 2. `bash "<scripts>/codex-audit.sh" wait <감독 폴더> 540` 으로 기다린다. `RUNNING` 이 찍히고 종료 코드가 75 면 같은 명령을 다시 부른다
 3. 스크립트가 쓴 `sprint-feedback-<slug>.md` 의 `Verdict:` 줄과 감독 폴더 `report.md` 마지막 줄을 그대로 보고한다. 판정 낱말을 바꾸거나 덧붙이지 않는다. REJECT 면 `## 고칠 것` 줄을, BLOCKED 면 `## 실패 원인` 의 `갈래:` 를 옮긴다
+- 감독 설정에 `premeasure` 가 있으면 스크립트가 판정 전에 격리 밖 사전 측정을 돌린다. 그만큼 오래 걸리니 `wait` 를 더 부르면 된다. 측정이 오래 걸리는 계약은 시작 명령 앞에 `CODEX_AUDIT_LIMIT=<초>` 를 붙인다
 4. `Verdict: APPROVE` 일 때만 Step 5.5 로 계약 `status` 를 `done` 으로 바꾼다. Step 2 ~ 4 의 조건별 판정과 리포트 작성은 하지 않는다
 
 **`mode: off`** — Codex 를 부르지 않는다. 아래 기존 절차(Step 1 ~ 9)대로 조건을 직접 판정한다.
