@@ -34,6 +34,7 @@ EXIT = dict(APPROVE=0, REJECT=1, BLOCKED=2, SKIPPED=3)
 CONDITION = re.compile(r'^- \[[ x]\] ((?:[A-Z]{2,}|[^ -~]+)-[0-9]{2})', re.M)
 NARRATIVE = ('배경', '리서치 소스', 'GAP 분석', '범위 경계', '회귀 게이트')
 SECRET = re.compile(r'(?<![A-Za-z0-9_-])sk-[A-Za-z0-9_-]{8,}')
+KNOWN_KEYS = []
 MODELS_URL = 'https://api.openai.com/v1/models'
 MODELS_MEMORY = 'codex-audit-models.json'
 POLL = 0.25
@@ -70,7 +71,19 @@ def now():
 
 
 def scrub(text):
+    for key in KNOWN_KEYS:
+        text = text.replace(key, '[가림]')
     return SECRET.sub('[가림]', text)
+
+
+def remember_key(home):
+    # 모양 규칙은 앞에 글자가 붙은 키를 놓친다(prefixsk-…). 감독 계정의 실제 키는 앞뒤와 상관없이 가린다.
+    try:
+        key = json.loads((home / 'auth.json').read_text(encoding='utf-8')).get('OPENAI_API_KEY')
+    except (OSError, ValueError, AttributeError):
+        return
+    if isinstance(key, str) and len(key) >= 8 and key not in KNOWN_KEYS:
+        KNOWN_KEYS.append(key)
 
 
 def span(seconds):
@@ -871,8 +884,9 @@ def condition_count(contract, feedback):
 def run(verb, folder, number, args):
     contract, meta, slug, feedback = layout(args[1] if verb == 'draft' else args[0])
     conf, categories = settings(meta)
-    audit = Audit(folder, verb, conf)
     home = supervisor_home(conf)
+    remember_key(home)
+    audit = Audit(folder, verb, conf)
     found = discover(home, conf.get('model') or folder_model(home) or '?')
     for line in found['news']:
         audit.note('notice', text=line)
