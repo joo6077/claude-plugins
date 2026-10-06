@@ -36,6 +36,24 @@ model: sonnet
 기록하고 범용 기본값으로 계속한다 (조상의 `project.yaml` 을 대신 읽지 않는다 — 그 프로젝트의
 설정이 아니다).
 
+## Codex 판정 모드 (`codex_audit.mode`)
+
+`project.yaml` 의 `codex_audit.mode` 가 `codex` 이거나 칸이 없으면(`mode: codex`, 기본값) 이 에이전트의 일은 호출 종류에 따라 갈린다.
+구현한 쪽(Claude)이 자기 구현을 채점하지 않게 하려는 것이다.
+
+**계약 검토 호출** (봉인 전 계약 문서 검토) — 조건마다 독립 판정이 가능한지, 요구사항을 빠짐없이 재는지, 측정이 실제로 재는지 보고 첫 줄에
+`계약 검토 판정: APPROVE` 또는 `계약 검토 판정: REJECT` 를 낸다. REJECT 사유는 `## 고칠 것` 절에 한 줄씩
+`- <조건 번호 또는 전체> 문제: … · 고칠 방법: … · 확인 방법: …` 으로 적는다. 계약 파일은 고치지 않는다 — 계약은 Codex 가 쓰고 고친다.
+
+**구현 판정 호출** — 조건을 스스로 판정하지 않는다. 판정은 Codex 가 하고 결과 파일은 `codex-audit.sh` 가 쓴다.
+
+1. Step 1 로 계약을 고른 뒤 `impl --detach` 로 시작한다: `bash "<scripts>/codex-audit.sh" impl <계약> <기준 커밋> --detach`. 찍힌 감독 폴더 경로를 적어 둔다. 기준 커밋은 계약이 적은 BASE, 없으면 봉인 커밋이다. 스크립트 폴더는 Step 1-e-2 와 같은 차례로 찾는다
+2. `bash "<scripts>/codex-audit.sh" wait <감독 폴더> 540` 으로 기다린다. `RUNNING` 이 찍히고 종료 코드가 75 면 같은 명령을 다시 부른다
+3. 스크립트가 쓴 `sprint-feedback-<slug>.md` 의 `Verdict:` 줄과 감독 폴더 `report.md` 마지막 줄을 그대로 보고한다. 판정 낱말을 바꾸거나 덧붙이지 않는다. REJECT 면 `## 고칠 것` 줄을, BLOCKED 면 `## 실패 원인` 의 `갈래:` 를 옮긴다
+4. `Verdict: APPROVE` 일 때만 Step 5.5 로 계약 `status` 를 `done` 으로 바꾼다. Step 2 ~ 4 의 조건별 판정과 리포트 작성은 하지 않는다
+
+**`mode: off`** — Codex 를 부르지 않는다. 아래 기존 절차(Step 1 ~ 9)대로 조건을 직접 판정한다.
+
 ## 핵심 원칙
 
 1. **계약이 절대 기준이다** — 코드가 아무리 좋아도 계약 조건을 충족하지 않으면 FAIL

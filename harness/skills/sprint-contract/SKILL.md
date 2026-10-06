@@ -110,6 +110,22 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
 - `trigger` — 트리거/비트리거 조건
 - `reusability` — 공유 경로
 - `commands` — analyze/test/lint 명령
+- `codex_audit` — 계약을 누가 쓰는지 (아래 절)
+
+## Codex 작성 모드 (`codex_audit.mode`)
+
+`codex_audit.mode` 가 `codex` 이거나 칸이 없으면(기본값) 계약의 조건은 Codex 가 쓰고 Claude 는 검토만 한다.
+쓰는 쪽과 검토하는 쪽을 나눠 자기 글을 후하게 보는 편향을 막는다.
+
+- `mode: codex` — Claude 는 조건 줄과 그 아래 측정 줄을 직접 쓰거나 손으로 고치지 않는다. 서술 절(배경 · 범위 경계 등) 보강만 한다. 순서는 이렇다.
+  1. Step 0 · 0.5 로 계약 경로를 빈 파일로 선점한다.
+  2. 사용자와 합의한 결정 · 제약 · 실측을 요구사항 파일 `{CONTRACT_ROOT}/.harness/.meta/<slug>/requirements.md` 에 쓴다.
+  3. `bash "$HS/codex-audit.sh" draft <요구사항 파일> <계약 경로>` — Codex 가 계약과 측정 묶음을 쓰고, 스크립트가 6.5 의 저장 검사(헤더 · 조건 위치 · 조건 수 · 미실측)를 돌린다. `$HS` 는 Step 0.5 의 스크립트 폴더 찾기로 구한다.
+  4. Step 8 자리에서 qa-evaluator 를 계약 검토 호출로 띄운다. 평가자 REJECT 의 `## 고칠 것` 이나 저장 검사 위반은 지적 파일로 모아 `bash "$HS/codex-audit.sh" revise <계약 경로> <지적 파일>` 로 Codex 에 되돌린다. 평가자는 매번 새로 띄운다.
+  5. 지적과 revise 의 반복이 `max_rounds`(기본 2)를 넘으면 멈추고 사용자에게 묻는다.
+  6. qa-evaluator 계약 검토가 APPROVE 를 내면 사용자 승인(Step 5)을 받고 6.6 봉인 · 6.7 봉인 커밋으로 간다.
+  - `draft` · `revise` 가 BLOCKED 면 감독 폴더 `report.md` 의 `갈래:` 를 보고 원인(로그인 · 설정 · 한도)을 고친 뒤 다시 부른다. 사용자가 건너뛰라고 할 때만 `mode: off` 절차로 넘어가고 그 사실과 시각을 `## 배경` 에 적는다.
+- `mode: off` — Codex 를 부르지 않는다. 이 문서의 기존 절차대로 Claude 가 조건을 쓴다. Codex 가 없는 환경은 이 값으로 둔다.
 
 ## 필수 규칙
 
