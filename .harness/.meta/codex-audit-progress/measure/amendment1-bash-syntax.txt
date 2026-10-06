@@ -1,0 +1,2 @@
+$ bash -n /Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/codex-audit-progress/.harness/.meta/codex-audit-progress/measure/measure.sh
+exit_code=0
