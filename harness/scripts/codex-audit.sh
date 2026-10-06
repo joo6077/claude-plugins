@@ -99,7 +99,13 @@ def settings(meta):
             hit = re.match(r'^\s+([a-z_]+):\s*(.*?)\s*(?:#.*)?$', line)
             if hit:
                 value = hit.group(2)
-                if len(value) >= 2 and value[0] == value[-1] and value[0] in '"\'':
+                if len(value) >= 2 and value[0] == value[-1] == '"':
+                    # YAML 큰따옴표 안의 \uXXXX 는 글자로 푼다. 다른 도구가 경로를 json.dumps 로 적어 넣는다.
+                    try:
+                        value = json.loads(value)
+                    except ValueError:
+                        value = value[1:-1]
+                elif len(value) >= 2 and value[0] == value[-1] == "'":
                     value = value[1:-1]
                 found[hit.group(1)] = value
     categories = re.findall(r'^\s*-\s*id:\s*["\']?([^"\'\s#]+)', text, re.M)
@@ -125,7 +131,8 @@ def folder_model(home):
 def allocate(meta, slug, kind):
     root = meta / 'codex-audit' / slug
     root.mkdir(parents=True, exist_ok=True)
-    taken = [int(p.name.rsplit('-r', 1)[1]) for p in root.glob(kind + '-r*') if p.name.rsplit('-r', 1)[1].isdigit()]
+    taken = [int(entry.name.rsplit('-r', 1)[1]) for entry in root.glob(kind + '-r*')
+             if entry.name.rsplit('-r', 1)[1].isdigit()]
     while True:
         number = max(taken, default=0) + 1
         folder = root / (kind + '-r' + str(number))
@@ -501,8 +508,8 @@ def judged(audit, binary, source, name, prompt, copy_factory, effort, ids):
 
 def previous_fixes(meta, slug, folder):
     reports = sorted((meta / 'codex-audit' / slug).glob('impl-r*/report.md'),
-                     key=lambda p: int(p.parent.name.rsplit('-r', 1)[1]))
-    for report in reversed([p for p in reports if p.parent != folder]):
+                     key=lambda report: int(report.parent.name.rsplit('-r', 1)[1]))
+    for report in reversed([report for report in reports if report.parent != folder]):
         text = report.read_text(encoding='utf-8')
         if '## 고칠 것' in text:
             return re.findall(r'^- (\S+) 어디를:', text.split('## 고칠 것', 1)[1].split('\n## ', 1)[0], re.M)
@@ -517,8 +524,8 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
     if git(repo_root, 'rev-parse', '--verify', '-q', base + '^{commit}').returncode:
         raise Stop('설정-오류', '기준 커밋을 찾지 못했다: ' + base)
     rounds = int(conf.get('max_rounds') or 2)
-    done = [p for p in (meta / 'codex-audit' / slug).glob('impl-r*') if p != audit.folder
-            and last_verdict(p / 'report.md') in ('APPROVE', 'REJECT')]
+    done = [entry for entry in (meta / 'codex-audit' / slug).glob('impl-r*') if entry != audit.folder
+            and last_verdict(entry / 'report.md') in ('APPROVE', 'REJECT')]
     if len(done) > rounds:
         raise Stop('반복-상한', '판정 ' + str(len(done)) + '회 — 첫 판정 뒤 고쳐서 다시 받는 반복 ' + str(rounds)
                    + '회를 넘었다. 사용자 판단이 필요하다')
