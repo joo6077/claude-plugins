@@ -4,11 +4,13 @@
 
 검토자는 stream 6개, session.txt, drive-trial.py, 부모 기록 전체, 연결된 자식 기록, Bash follow 작업 출력과 Monitor 알림을 직접 읽는다. 작업 호출의 tool_use_id → tool_result.backgroundTaskId → tasks/<id>.output을 따라간다. Monitor의 필터 출력은 Bash follow 전체 출력의 대체물이 아니다. 실행기가 적은 요청과 실제 사람이 보낸 메시지 전체를 대조하고, 알림을 사람의 요청으로 세지 않는다. 구현 커밋과 실제 사용 스크립트가 이 가지의 구현인지 확인하며, 원본 진위·검토자 독립성·새 평가자 여부는 식별 문자열만으로 증명되지 않는다.
 
-부모 assistant의 text 블록만 채팅이다. 도구 입력·출력·thinking·사용자 알림·자식 답변은 채팅이 아니다. 각 relay_line 대상에 같은 종류·회차·조건·결과가 전달되어야 한다. 한 채팅이 여러 사건을 명확히 담으면 여러 매핑에서 참조할 수 있다. 단순 “진행 중”은 불충분하다. 의미 동등성과 일반 요약을 바꿔 말한 전달·불필요한 깨움은 전체 문맥으로 검토한다. 기계 측정의 15초 내 텍스트 후보는 필요조건일 뿐 의미 전달의 PASS가 아니다.
+부모 assistant의 text 블록만 채팅이다. 도구 입력·출력·thinking·사용자 알림·자식 답변은 채팅이 아니다. 각 relay_line 대상에 같은 종류·회차·조건·결과가 전달되어야 한다. Monitor의 `follow <계약> --relay`는 여러 사건을 ` ‖ `로 이어 한 알림으로 낸다. 구분자로 나눠 각 사건을 원본 Bash follow 출력 줄에 따로 대응시킨다. 한 채팅 text가 여러 사건을 명확히 담으면 같은 transcript_location과 chat_at을 여러 매핑에서 참조할 수 있다. 각 매핑의 stdout_location·stdout_line·stdout_at은 개별 원본 줄을 유지하며, 묶음의 마지막 시각이나 알림 수신 시각으로 15초의 시작점을 바꾸지 않는다. 단순 “진행 중”은 불충분하다. 의미 동등성과 일반 요약을 바꿔 말한 전달·불필요한 깨움은 전체 문맥으로 검토한다. 기계 측정의 15초 내 텍스트 후보는 필요조건일 뿐 의미 전달의 PASS가 아니다.
 
-시각: 부모 JSONL의 UTC timestamp와 follow의 [HH:MM:SS]를 사용한다. 이 수집의 로컬 시간은 Asia/Seoul이며, 부모 시작일의 KST 날짜를 붙이고 자정을 넘으면 날짜를 올린다. 검토자는 Monitor 알림에 든 동일 사건의 시각과 UTC 수신 시각으로 이 오프셋·날짜를 확인한다. 예: parent:71의 UTC `2026-10-06T08:43:43.301Z` 알림은 `[17:43:37]` 사건을 담는다. stdout_at은 이 규칙으로 계산한 epoch, chat_at은 부모 레코드 timestamp의 epoch이며 자기 신고 시각으로 덮어쓰지 않는다. 초 단위 출력의 경계 오차는 임의로 15초 기준을 늘려 해결하지 않는다.
+시각: 부모 JSONL의 UTC timestamp와 follow의 [HH:MM:SS]를 사용한다. 이 수집의 로컬 시간은 Asia/Seoul이며, 부모 시작일의 KST 날짜를 붙이고 자정을 넘으면 날짜를 올린다. 검토자는 Monitor 알림에 든 동일 사건의 시각과 UTC 수신 시각으로 이 오프셋·날짜를 확인한다. 6차 증거의 예: parent:72의 UTC `2026-10-06T09:40:45.915Z` 알림은 `[18:40:42]` 감독 시작과 같은 시각의 차례 시작을 ` ‖ `로 묶어 담는다. stdout_at은 이 규칙으로 계산한 epoch, chat_at은 부모 레코드 timestamp의 epoch이며 자기 신고 시각으로 덮어쓰지 않는다. 초 단위 출력의 경계 오차는 임의로 15초 기준을 늘려 해결하지 않는다.
 
-작업 출력이 감독 중 자랐는지는 시작/종료 사이 서로 다른 시각의 출력과 당시 알림·중간 읽기를 대조한다. 마지막에 모은 파일 하나만으로 실제 쓰기 시각을 확정하지 않는다. `growth_locations`에 출력 줄 범위와 원본 관측 위치·시각을 적고 근거 부족이면 FAIL한다. Monitor가 별도 follow를 실행했다면 그것만으로 Bash 작업 파일 성장까지 확증하지 않는다.
+직접 감독은 부모 Bash `run_in_background:true`와 실제 backgroundTaskId, 또는 감독 명령 자체의 `--detach`와 호출/반환 timestamp 차이 0~30초 및 오류·중단 없는 감독 폴더 경로 반환을 확인한다. 반환 경로가 해당 계약·회차의 감독 폴더인지 원문과 대조한다. `--detach` 없는 앞에서 기다리는 호출은 빨리 끝나도 인정하지 않는다. 평가자 경유 감독은 부모 Agent `run_in_background:true`, isAsync:true와 연결된 자식의 실제 감독 실행을 확인한다. `f5162bcf`까지의 부모 문서가 규정한 카드 follow → Monitor(`--relay`) → 감독 순서와 전달 절차도 원문에서 대조한다.
+
+작업 출력이 감독 중 자랐는지는 시작/종료 사이 서로 다른 시각의 출력과 당시 알림·중간 읽기를 대조한다. 마지막에 모은 파일 하나만으로 실제 쓰기 시각을 확정하지 않는다. `growth_locations`에 출력 줄 범위와 원본 관측 위치·시각을 적고 근거 부족이면 FAIL한다. Monitor가 별도 follow를 실행했다면 그것만으로 Bash 작업 파일 성장까지 확증하지 않는다. `growth.jsonl`은 실행기가 2초마다 관측해 적은 부모 백그라운드 작업 출력 파일의 크기 기록으로, 성장의 관측 근거로 사용할 수 있다(실제 관측 간격은 at을 직접 확인한다). 다른 세션의 기록도 섞여 있으므로 session을 session.txt와, file을 부모 follow의 backgroundTaskId 및 tasks/<id>.output과 함께 일치시킨다. at(epoch)·size(bytes)를 감독 시작/판정 시각과 대조하여 감독 중 크기 증가를 확인하고 최종 파일 크기와도 대조한다. 예: 현재 부모의 brq8xq2uy.output은 growth.jsonl:61의 at=1791279638.22125, size=0에서 :62의 at=1791279644.25262, size=149로 관측됐다. 이 기록의 진위·수집 대상·시각 및 사례별 충분성 판정은 검토자 몫이며 자동 PASS로 쓰지 않는다. growth_locations에 해당 JSONL 행과 session/file/at/size, 작업 출력 줄과 감독 구간의 교차 근거를 적는다.
 
 ```json
 {

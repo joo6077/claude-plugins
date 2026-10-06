@@ -8,6 +8,7 @@ import itertools
 import json
 from pathlib import Path
 import re
+import shlex
 import sys
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -39,6 +40,33 @@ def chats(d):
 
 def epoch(d):
     return datetime.fromisoformat(d['timestamp'].replace('Z', '+00:00')).timestamp()
+
+
+def detached_return(call, sent, result, verb):
+    """Recognize the documented short Bash launch, not a flag in another command."""
+    lexer = shlex.shlex(call['input'].get('command', ''), posix=True, punctuation_chars=True)
+    lexer.whitespace_split = True
+    tokens = list(lexer)
+    for i, token in enumerate(tokens):
+        if Path(token).name != 'codex-audit.sh' or i == 0 or tokens[i - 1] != 'bash':
+            continue
+        args = []
+        for token in tokens[i + 1:]:
+            if token in (';', '|', '||', '&&', '&'):
+                break
+            args.append(token)
+        if not args or args[0] != verb or '--detach' not in args:
+            continue
+        output = result.get('toolUseResult', {})
+        stdout = output.get('stdout', '').strip()
+        kind = 'impl' if verb == 'impl' else 'draft'
+        returned = [b for b in blocks(result) if b.get('tool_use_id') == call['id']]
+        return (0 <= epoch(result) - epoch(sent) <= 30
+                and not output.get('interrupted') and not output.get('backgroundTaskId')
+                and bool(re.fullmatch(r'/[^\n]+/\.harness/codex-audit/[^/\n]+/' + kind + r'-r[1-9]\d*', stdout))
+                and any(b.get('is_error') is False and b.get('content', '').strip() == stdout
+                        for b in returned))
+    return False
 
 
 def run(root, negative=False):
@@ -123,11 +151,16 @@ def run(root, negative=False):
                             b['input'].get('subagent_type') == 'harness:qa-evaluator')]
             check(len(supervisors) == 1, label + ' one supervisor launch')
             sn, sd, sb = supervisors[0]
-            check(sb['input'].get('run_in_background') is True, f'{label} parent:{sn} supervisor nonblocking')
             if route == 'direct':
                 sr = next(d for _, d in segment if any(b.get('tool_use_id') == sb['id'] for b in blocks(d)))
-                check(bool(sr.get('toolUseResult', {}).get('backgroundTaskId')), label + ' actual background supervisor result')
+                background = (sb['input'].get('run_in_background') is True and
+                              bool(sr.get('toolUseResult', {}).get('backgroundTaskId')))
+                detached = detached_return(sb, sd, sr, verb)
+                check(background or detached, f'{label} parent:{sn} supervisor nonblocking (background or detach return <=30s)')
+                if detached:
+                    print(f'{label} parent:{sn} detach_return_seconds={epoch(sr) - epoch(sd):.3f}')
             if route == 'delegated':
+                check(sb['input'].get('run_in_background') is True, f'{label} parent:{sn} supervisor nonblocking')
                 ar = next(d for _, d in segment if any(b.get('tool_use_id') == sb['id'] for b in blocks(d)))
                 aid = ar['toolUseResult']['agentId']
                 child = records(root / f'transcript/subagents/agent-{aid}.jsonl')
