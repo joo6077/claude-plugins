@@ -963,9 +963,13 @@ def say(text):
 def command_kind(command):
     text = command if isinstance(command, str) else ' '.join(map(str, command or []))
     text = re.sub(r"^\S*(?:ba|z)?sh\s+-l?c\s+", '', text).strip('\'"')
-    if re.search(r'(?<![0-9&>])>>?\s*(?!/dev/null)[^\s&]|\btee\b|apply_patch|\b(?:mv|cp|rm|mkdir|touch|chmod)\b|sed\s+-i', text):
+    # 따옴표 안 글자와 heredoc 본문은 셸이 실행하는 명령이 아니다. 그 안의 > 나 .sh 로 분류가 뒤집혔다.
+    bare = re.sub(r"'[^'\n]*'|\"[^\"\n]*\"", "''", text)
+    first = bare.split('\n', 1)[0]
+    if re.search(r'(?<![0-9&>])>>?\s*(?!/dev/null)[^\s&]|(?:^|[;&|]\s*)(?:tee|cp|mv|rm|mkdir|touch|chmod|apply_patch)\b|\bsed\s+-i', first):
         return '파일 쓰기'
-    if re.search(r'test|pytest|unittest|measure|verify|validate|lint|python3?\s+\S+\.py|\.sh\b', text):
+    programs = [segment.split()[0].rsplit('/', 1)[-1] for segment in re.split(r'[;&|\n]+', bare) if segment.split()]
+    if any(re.fullmatch(r'python3?|node|bash|sh|zsh|pytest|npm|npx|make|cargo|go|\./\S+', program) for program in programs):
         return '측정 시험'
     return '자료 읽기'
 
