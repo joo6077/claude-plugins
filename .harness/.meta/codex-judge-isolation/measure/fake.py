@@ -59,7 +59,7 @@ if not model:
             model = line.split('=', 1)[1].strip().strip('"')
             break
 (STATE / ('config-%d.toml' % number)).write_text(config)
-log(dict(kind='exec', index=number, step=step, model=model, args=ARGS, cwd=os.getcwd(), home=str(home),
+log(dict(kind='exec', index=number, step=step, model=model, args=ARGS, cwd=option('-C', '--cd') or os.getcwd(), home=str(home),
          env={key: os.environ.get(key, '') for key in ('TMPDIR', 'TMP', 'TEMP')}))
 
 thread = str(uuid.uuid4())

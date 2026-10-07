@@ -258,7 +258,7 @@ PROBES = [('copy-write', True), ('input-read', True), ('python', True), ('node',
           ('input-write', False), ('ssh-read', False), ('slash-tmp-read', False), ('other-audit-read', False)]
 
 
-def probe(codex_home, copy, frozen, other_bait):
+def probe(codex_home, copy, frozen, other_bait, tmp):
     tmp_bait = Path('/private/tmp') / ('cji-bait-%d.txt' % os.getpid())
     tmp_bait.write_text('bait')
     python, node = shutil.which('python3', path=REAL_PATH), shutil.which('node', path=REAL_PATH)
@@ -277,7 +277,7 @@ def probe(codex_home, copy, frozen, other_bait):
     check(codex, '진짜 codex 를 못 찾음')
     try:
         done = subprocess.run([codex, 'sandbox', '-P', 'codex-audit-judge', '-C', str(copy), '--log-denials', '--',
-                               '/bin/sh', '-c', '\n'.join(lines)], env=dict(os.environ, CODEX_HOME=str(codex_home)),
+                               '/bin/sh', '-c', '\n'.join(lines)], env=dict(os.environ, CODEX_HOME=str(codex_home), TMPDIR=str(tmp)),
                               capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=120)
     finally:
         tmp_bait.unlink(missing_ok=True)
@@ -296,7 +296,7 @@ def script_02():
         for folder in (copy, frozen, other):
             folder.mkdir()
         (other / 'bait.txt').write_text('bait')
-        cells = probe(home, copy, frozen, other / 'bait.txt')
+        cells = probe(home, copy, frozen, other / 'bait.txt', RUN)
         flipped = [name for name in ('ssh-read', 'slash-tmp-read', 'other-audit-read') if cells.get(name) == 'ok']
         check(len(flipped) == 3, '느슨한 프로필에서 3 칸이 됨으로 바뀌지 않았다: ' + str(flipped))
         return
@@ -310,7 +310,7 @@ def script_02():
         call = case.execs()[0]
         config = (case.state / 'config-0.toml').read_text()
         frozen = case.folder() / 'input'
-        cells = probe(call['home'], call['cwd'], frozen, other / 'bait.txt')
+        cells = probe(call['home'], call['cwd'], frozen, other / 'bait.txt', call['env']['TMPDIR'])
     finally:
         (case.state / 'release-0').touch()
         proc.wait(timeout=60)
