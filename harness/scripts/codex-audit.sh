@@ -661,7 +661,14 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
     amendments = meta / feedback.name.replace('sprint-feedback', 'sprint-amendments', 1)
     if amendments.is_file():
         shutil.copyfile(amendments, frozen / 'AMENDMENTS.md')
-    (frozen / 'DIFF.patch').write_text(git(repo_root, 'diff', base + '..' + head).stdout, encoding='utf-8')
+    # 계약 폴더(.harness)의 증거 · 대화 기록이 판정 자료를 수 MB 로 키워 판정 한 번이 120만 토큰을 읽었다.
+    # 그 폴더는 바뀐 파일 목록만 싣고, 내용은 판정 사본에서 열게 한다.
+    harness_dir = os.path.relpath(meta, repo_root)
+    body = git(repo_root, 'diff', base + '..' + head, '--', '.', ':(exclude)' + harness_dir).stdout
+    listed = git(repo_root, 'diff', '--stat=200', base + '..' + head, '--', harness_dir).stdout
+    if listed.strip():
+        body += '\n# ' + harness_dir + '/ 아래 변경은 목록만 싣는다. 내용은 판정 사본의 같은 경로에서 연다.\n' + listed
+    (frozen / 'DIFF.patch').write_text(body, encoding='utf-8')
     changed = git(repo_root, 'diff', '--name-only', base + '..' + head).stdout
     (frozen / 'CHANGED.txt').write_text(changed, encoding='utf-8')
     inputs = ['CONTRACT.md'] + (['AMENDMENTS.md'] if amendments.is_file() else []) + ['DIFF.patch', 'CHANGED.txt']
