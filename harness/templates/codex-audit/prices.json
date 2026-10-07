@@ -1,0 +1,14 @@
+{
+  "checked": "2026-10-07",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "note": "Standard, 요청당 입력 272K 토큰 이하 기준. 1M 토큰당 달러. 감독은 차례 합계만 받으므로 긴 문맥 할증(입력 2배 · 출력 1.5배)은 반영하지 못한다",
+  "models": {
+    "gpt-6.1-sol": {"input": 2.00, "cached_input": 0.10, "output": 10.00},
+    "gpt-6-sol": {"input": 2.00, "cached_input": 0.20, "output": 10.00},
+    "gpt-6-luna": {"input": 0.10, "cached_input": 0.01, "output": 0.50},
+    "gpt-6-astra": {"input": 10.00, "cached_input": 1.00, "output": 50.00},
+    "gpt-5.6-sol": {"input": 4.00, "cached_input": 0.40, "output": 20.00},
+    "gpt-5.6-terra": {"input": 2.00, "cached_input": 0.20, "output": 12.00},
+    "gpt-5.6-luna": {"input": 0.20, "cached_input": 0.02, "output": 1.20}
+  }
+}
