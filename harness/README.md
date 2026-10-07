@@ -109,8 +109,10 @@ harness/evals/hooks/
 | `harness/scripts/verify-feedback.sh <saved-yaml>` | 저장된 피드백 유효성 검증 (PASS/FAIL) |
 | `harness/scripts/trigger-check-common.sh <skill-type> ...` | 카이젠 이벤트 트리거 감지 (공통 로직) |
 | `harness/scripts/codex-audit.sh draft\|revise\|impl … [--detach]` · `wait <감독 폴더> [초]` | Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). 결과 파일은 스크립트가 쓴다. 종료 코드 0 APPROVE · 1 REJECT · 2 BLOCKED · 3 SKIPPED · 64 쓰는 법 · 75 아직 도는 중 |
+| `harness/scripts/codex-audit.sh follow <감독 폴더\|계약> [--idle-seconds N] [--wait-seconds N] [--summary-seconds N] [--relay]` | 감독 진행을 시각 붙은 줄로 따라간다. `--relay` 는 채팅으로 옮길 줄만, 잇단 줄은 ` ‖ ` 로 이은 한 줄로 낸다(Monitor 용). 부모 세션이 감독 시작과 함께 백그라운드로 띄운다. 큰 단계 · 오류 · 조용함 경고는 바로, Codex 활동은 요약 간격(기본 60초)마다 한 줄. 마지막 줄 `감독 판정:` 과 그 종료 코드로 끝난다. 새 감독이 기다림 상한(기본 540초) 안에 없으면 BLOCKED · 2 |
+| `harness/scripts/codex-audit.sh models` | 감독 계정으로 쓸 수 있는 GPT 모델과 Codex 최신 판을 확인해 지난 확인 뒤 새로 생긴 것을 알린다. 감독 모델은 바꾸지 않는다. 확인 실패는 `모델 확인 못 함: 사유` 와 종료 2. 감독 시작 때도 자동으로 돈다 |
 
-**Codex 감독 설정** — `.harness/project.yaml` 의 `codex_audit` 칸(`mode` · `codex_home` · `model` · `effort_draft` · `effort_impl` · `max_rounds`)을 따른다. 감독용 Codex 폴더는 로그인을 파일(`auth.json`, 권한 600)로 저장해야 판정 격리 공간 안에서도 읽힌다. 스크립트는 호출마다 그 파일을 임시 폴더로 복사해 쓰고 끝나면 지운다. `premeasure` 에 조건 번호 자리 `{id}` 가 든 명령을 적으면, 판정 전에 구현 커밋 사본에서 조건마다 그 명령을 격리 밖에서 한 번 돌려(사전 측정) 출력과 종료 코드를 판정 입력에 넣는다 — 판정 격리 안에서는 `ps` 와 겹친 격리가 막힌다. 계약 개정 파일(`sprint-amendments-<slug>.md`)도 판정 입력에 들어간다. 시험할 때는 환경 변수 `CODEX_BIN` 으로 부를 codex 를 바꾸고, `CODEX_AUDIT_LIMIT` 으로 Codex 호출 한 번의 상한 초를 정한다(기본 600).
+**Codex 감독 설정** — `.harness/project.yaml` 의 `codex_audit` 칸(`mode` · `codex_home` · `model` · `effort_draft` · `effort_impl` · `max_rounds`)을 따른다. 감독용 Codex 폴더는 로그인을 파일(`auth.json`, 권한 600)로 저장해야 판정 격리 공간 안에서도 읽힌다. 스크립트는 호출마다 그 파일을 임시 폴더로 복사해 쓰고 끝나면 지운다. `premeasure` 에 조건 번호 자리 `{id}` 가 든 명령을 적으면, 판정 전에 구현 커밋 사본에서 조건마다 그 명령을 격리 밖에서 한 번 돌려(사전 측정) 출력과 종료 코드를 판정 입력에 넣는다 — 판정 격리 안에서는 `ps` 와 겹친 격리가 막힌다. 계약 개정 파일(`sprint-amendments-<slug>.md`)도 판정 입력에 들어간다. 시험할 때는 환경 변수 `CODEX_BIN` 으로 부를 codex 를 바꾸고, `CODEX_AUDIT_LIMIT` 으로 Codex 호출 한 번의 상한 초를 정한다(기본 600). 모델 확인은 `CODEX_AUDIT_MODELS_URL` 로 모델 목록 주소를, `CODEX_AUDIT_CHECK_TIMEOUT` 으로 조회 하나의 상한 초(기본 10)를 바꾼다. 지난 확인 결과는 감독용 Codex 폴더의 `codex-audit-models.json` 에 남는다.
 
 ### 참조 파일
 
