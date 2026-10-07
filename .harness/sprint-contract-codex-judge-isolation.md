@@ -4,7 +4,7 @@ slug: codex-judge-isolation
 created: "2026-10-07 14:29"
 complexity: "복잡"
 conditions: 25
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:d1e0c6639fea2acf
 measurement_digest: sha256:7d4bba22350ba3d0
