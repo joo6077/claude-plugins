@@ -6,7 +6,7 @@
 
 - 질문: AskUserQuestion 「봉인 뒤 측정을 고친 네 건을 개정으로 인정할까요?」(네 건의 내용과 이전 · 이후 동작을 질문에 그대로 적었다). 답: 「네 건 모두 동의 (추천)」.
 - 앵커: `/Users/jackson/.claude/projects/-Users-jackson-Hub-10-Dev-claude-plugins/35b5945f-4957-4359-9b18-2d22b3bafeb0.jsonl` 1643 행 호출(`toolu_019e7TDKqE92aRMxy89FaoGk`, `2026-10-07T06:03:09.550Z`, uuid `d34bffa5-a0ba-4ef5-9c58-03bfbeb619dd`) · 1644 행 응답(**동의 시각** `2026-10-07T06:59:22.296Z`, uuid `39f1ff00-813e-443a-ad35-0dbf85176394`), cwd `/Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/codex-judge-isolation`.
-- consent: anchored. 선후: ① · ② · ③ 의 측정 수정 커밋(`33eb890c` · `e091f39b`)은 동의보다 먼저 들어갔다 — 측정 결함을 찾은 직후 고치고 바로 물었다. ④ 와 이 파일은 동의 뒤에 커밋한다.
+- consent: anchored. 선후: ① · ② · ③ 의 측정 수정 커밋(③ `3a57447f` — 측정 묶음 첫 커밋, ① `33eb890c`, ② `33eb890c` · `e091f39b`)은 봉인 뒤 · 동의 전에 들어갔다 — 측정 결함을 찾은 직후 고치고 바로 물었다. ④ 와 이 파일은 동의 뒤에 커밋한다.
 
 ## AM-01 — relaxing · 판정 사본 경로를 `-C` 에서 읽기 (스크립트-02 · 스크립트-04)
 
