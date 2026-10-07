@@ -86,6 +86,11 @@ def remember_key(home):
         KNOWN_KEYS.append(key)
 
 
+def plain_number(text):
+    # str.isdigit 은 ² · ٣ 같은 글자도 참이라 int() 가 터진다. 0~9 만 숫자로 받는다.
+    return re.fullmatch(r'[0-9]+', text) is not None
+
+
 def span(seconds):
     seconds = int(round(seconds))
     return '{}분 {}초'.format(*divmod(seconds, 60)) if seconds >= 60 else '{}초'.format(seconds)
@@ -157,7 +162,7 @@ def allocate(meta, slug, kind):
     root = meta / 'codex-audit' / slug
     root.mkdir(parents=True, exist_ok=True)
     taken = [int(entry.name.rsplit('-r', 1)[1]) for entry in root.glob(kind + '-r*')
-             if entry.name.rsplit('-r', 1)[1].isdigit()]
+             if plain_number(entry.name.rsplit('-r', 1)[1])]
     while True:
         number = max(taken, default=0) + 1
         folder = root / (kind + '-r' + str(number))
@@ -917,7 +922,7 @@ def wait(args):
     if not args or len(args) > 2:
         return usage('wait 에는 감독 폴더가 필요하다')
     folder = Path(args[0])
-    if len(args) == 2 and not args[1].isdigit():
+    if len(args) == 2 and not plain_number(args[1]):
         return usage('기다릴 초는 0 이상의 정수다')
     if not folder.is_dir():
         return usage('감독 폴더가 없다: ' + str(folder))
@@ -929,7 +934,7 @@ def wait(args):
             return EXIT[verdict]
         pid = (folder / 'pid').read_text().strip() if (folder / 'pid').is_file() else ''
         alive = False
-        if pid.isdigit():
+        if plain_number(pid):
             try:
                 os.kill(int(pid), 0)
                 alive = True
@@ -990,7 +995,7 @@ def command_kind(command):
 
 def pid_alive(folder):
     pid = (folder / 'pid').read_text().strip() if (folder / 'pid').is_file() else ''
-    if not pid.isdigit():
+    if not plain_number(pid):
         return None
     try:
         os.kill(int(pid), 0)
@@ -1219,7 +1224,7 @@ def follow(args):
         if item == '--relay':
             relay = True
         elif item in options:
-            if not rest or not rest[0].isdigit():
+            if not rest or not plain_number(rest[0]):
                 return usage(item + ' 에는 0 이상의 정수가 필요하다')
             options[item] = int(rest.pop(0))
         elif item.startswith('-'):
