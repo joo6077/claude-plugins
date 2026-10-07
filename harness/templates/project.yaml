@@ -79,14 +79,16 @@ rationalization_overrides:
   #   reality: "현실"
 
 # ── Codex 감독 ──
-# Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). Codex 가 없는 환경이면 mode: off.
+# Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). API 키로 쓴 만큼 과금되니 쓸 때만 mode: codex 로 켠다.
+# 칸이 없어도 꺼짐이다.
 codex_audit:
-  mode: codex            # codex | off
+  mode: off              # codex | off
   codex_home: ""         # 비우면 ~/.codex-qa → $CODEX_HOME → ~/.codex 차례로 찾는다
   model: ""              # 비우면 그 폴더 config.toml 의 model. 둘 다 없으면 BLOCKED
   effort_draft: medium
   effort_impl: medium
   max_rounds: 2          # 첫 판정 뒤 고쳐서 다시 받는 횟수
+  daily_budget_usd: ""   # 감독 키의 오늘 합계가 이 달러 이상이면 Codex 를 부르지 않는다. 비우면 상한 없음
   # 판정 격리 안에서 못 돌리는 측정(프로세스 관측 · 실제 서비스 호출)을 판정 전에 격리 밖에서 조건마다 돌릴 명령.
   # {id} 자리에 조건 번호가 들어간다. 예: bash .harness/.meta/<slug>/measure.sh {id}. 비우면 사전 측정을 하지 않는다
   premeasure: ""

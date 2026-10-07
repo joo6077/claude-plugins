@@ -38,7 +38,7 @@ model: sonnet
 
 ## Codex 판정 모드 (`codex_audit.mode`)
 
-`project.yaml` 의 `codex_audit.mode` 가 `codex` 이거나 칸이 없으면(`mode: codex`, 기본값) 이 에이전트의 일은 호출 종류에 따라 갈린다.
+`project.yaml` 의 `codex_audit.mode` 가 `codex` 면 이 에이전트의 일은 호출 종류에 따라 갈린다. 칸이 없으면 꺼짐(`mode: off`)이다 — 감독 키 하나를 여러 프로젝트가 모르는 사이 같이 써서 잔액이 0 이 된 일이 있다(2026-10-07). `daily_budget_usd` 를 적으면 감독 키의 오늘 합계가 그 값을 넘을 때 Codex 를 부르지 않고 BLOCKED(`한도-예산`)로 끝난다.
 구현한 쪽(Claude)이 자기 구현을 채점하지 않게 하려는 것이다.
 
 **계약 검토 호출** (봉인 전 계약 문서 검토) — 조건마다 독립 판정이 가능한지, 요구사항을 빠짐없이 재는지, 측정이 실제로 재는지 보고 첫 줄에

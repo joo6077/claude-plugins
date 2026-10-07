@@ -410,10 +410,11 @@ def judge_profile(frozen, tmp):
         found = shutil.which(tool)
         if found:
             reads.add(str(Path(os.path.realpath(found)).parents[1]))
+    # fnm 처럼 PATH 칸이 바로가기면 바로가기 자리와 가리키는 자리를 둘 다 열어야 실행된다.
     for entry in os.environ.get('PATH', '').split(os.pathsep):
-        real = os.path.realpath(entry) if entry else ''
-        if real and real not in ('/', str(Path.home())) and Path(real).is_dir():
-            reads.add(real)
+        for folder in {entry, os.path.realpath(entry)} if entry else ():
+            if folder not in ('/', str(Path.home())) and Path(folder).is_dir():
+                reads.add(folder)
     reads.update(folder for folder in ('/opt/homebrew', '/usr/local', '/System/Library/OpenSSL',
                                        '/Library/Developer/CommandLineTools') if Path(folder).is_dir())
     table = 'permissions.' + PROFILE
