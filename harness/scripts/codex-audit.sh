@@ -658,8 +658,8 @@ def write_contract(audit, meta, slug, contract, categories, answer):
 
 
 def prepare(audit, conf):
-    if conf.get('mode', 'off') != 'codex':
-        raise Stop('설정-오류', 'codex_audit.mode 가 codex · off 가 아니다: ' + conf.get('mode', ''))
+    if conf.get('mode', 'off') not in ('codex', 'judge'):
+        raise Stop('설정-오류', 'codex_audit.mode 가 codex · judge · off 가 아니다: ' + conf.get('mode', ''))
     binary = codex_bin()
     source = supervisor_home(conf)
     if not conf.get('model') and not folder_model(source):
@@ -1455,8 +1455,13 @@ def main(argv):
     except ValueError as error:
         return usage(str(error))
     # 칸이 없으면 꺼짐이다. 새 프로젝트가 모르는 사이 감독 키 잔액을 다 쓴 일이 있다 (2026-10-07).
-    if settings(meta)[0].get('mode', 'off') == 'off':
+    mode = settings(meta)[0].get('mode', 'off')
+    if mode == 'off':
         print('감독 판정: SKIPPED (codex_audit.mode: off)')
+        return EXIT['SKIPPED']
+    # judge 는 구현 판정만 Codex 에 맡긴다. 계약 작성이 판정보다 차례가 많고 오래 걸린다 (2026-10-06~07 62 대 37).
+    if mode == 'judge' and verb in ('draft', 'revise'):
+        print('감독 판정: SKIPPED (codex_audit.mode: judge — 계약은 Claude 가 쓴다)')
         return EXIT['SKIPPED']
     folder, number = allocate(meta, slug, 'impl' if verb == 'impl' else 'draft')
     if detach:
