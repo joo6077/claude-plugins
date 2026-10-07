@@ -258,16 +258,15 @@ PROBES = [('copy-write', True), ('input-read', True), ('python', True), ('node',
           ('input-write', False), ('ssh-read', False), ('slash-tmp-read', False), ('other-audit-read', False)]
 
 
-def probe(codex_home, copy, frozen, other_bait, tmp):
+def probe(codex_home, copy, frozen, other_bait, tmp, tool_path):
     tmp_bait = Path('/private/tmp') / ('cji-bait-%d.txt' % os.getpid())
     tmp_bait.write_text('bait')
-    python, node = shutil.which('python3', path=REAL_PATH), shutil.which('node', path=REAL_PATH)
-    check(python and node, 'python3 · node 를 PATH 에서 못 찾음')
+    check(shutil.which('python3', path=tool_path) and shutil.which('node', path=tool_path), 'python3 · node 를 판정 PATH 에서 못 찾음')
     lines = [
         'echo w > %s/probe-write.txt && echo copy-write=ok || echo copy-write=no' % copy,
         'ls %s >/dev/null 2>&1 && echo input-read=ok || echo input-read=no' % frozen,
-        '%s -c 1 && echo python=ok || echo python=no' % python,
-        '%s -e 1 && echo node=ok || echo node=no' % node,
+        'python3 -c 1 && echo python=ok || echo python=no',
+        'node -e 1 && echo node=ok || echo node=no',
         '(echo x > %s/probe-write.txt) 2>/dev/null && echo input-write=ok || echo input-write=no' % frozen,
         'ls %s/.ssh >/dev/null 2>&1 && echo ssh-read=ok || echo ssh-read=no' % REAL_HOME,
         'cat %s >/dev/null 2>&1 && echo slash-tmp-read=ok || echo slash-tmp-read=no' % tmp_bait,
@@ -277,7 +276,7 @@ def probe(codex_home, copy, frozen, other_bait, tmp):
     check(codex, '진짜 codex 를 못 찾음')
     try:
         done = subprocess.run([codex, 'sandbox', '-P', 'codex-audit-judge', '-C', str(copy), '--log-denials', '--',
-                               '/bin/sh', '-c', '\n'.join(lines)], env=dict(os.environ, CODEX_HOME=str(codex_home), TMPDIR=str(tmp)),
+                               '/bin/sh', '-c', '\n'.join(lines)], env=dict(os.environ, CODEX_HOME=str(codex_home), TMPDIR=str(tmp), PATH=tool_path),
                               capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=120)
     finally:
         tmp_bait.unlink(missing_ok=True)
@@ -296,7 +295,8 @@ def script_02():
         for folder in (copy, frozen, other):
             folder.mkdir()
         (other / 'bait.txt').write_text('bait')
-        cells = probe(home, copy, frozen, other / 'bait.txt', RUN)
+        resolved = os.pathsep.join(os.path.realpath(entry) for entry in REAL_PATH.split(os.pathsep) if entry)
+        cells = probe(home, copy, frozen, other / 'bait.txt', RUN, resolved)
         flipped = [name for name in ('ssh-read', 'slash-tmp-read', 'other-audit-read') if cells.get(name) == 'ok']
         check(len(flipped) == 3, '느슨한 프로필에서 3 칸이 됨으로 바뀌지 않았다: ' + str(flipped))
         return
@@ -310,7 +310,7 @@ def script_02():
         call = case.execs()[0]
         config = (case.state / 'config-0.toml').read_text()
         frozen = case.folder() / 'input'
-        cells = probe(call['home'], call['cwd'], frozen, other / 'bait.txt', call['env']['TMPDIR'])
+        cells = probe(call['home'], call['cwd'], frozen, other / 'bait.txt', call['env']['TMPDIR'], call['env']['PATH'])
     finally:
         (case.state / 'release-0').touch()
         proc.wait(timeout=60)

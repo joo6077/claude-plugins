@@ -60,7 +60,7 @@ if not model:
             break
 (STATE / ('config-%d.toml' % number)).write_text(config)
 log(dict(kind='exec', index=number, step=step, model=model, args=ARGS, cwd=option('-C', '--cd') or os.getcwd(), home=str(home),
-         env={key: os.environ.get(key, '') for key in ('TMPDIR', 'TMP', 'TEMP')}))
+         env={key: os.environ.get(key, '') for key in ('TMPDIR', 'TMP', 'TEMP', 'PATH')}))
 
 thread = str(uuid.uuid4())
 sessions = home / 'sessions' / time.strftime('%Y/%m/%d')
