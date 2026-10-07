@@ -403,6 +403,11 @@ def read_answer(proc, timed_out, events, stderr, output, record, schema):
     return dict(category=None, answer=answer)
 
 
+def resolved_path():
+    # 판정 격리는 바로가기 경로를 거친 실행을 막는다(fnm 의 node, 2026-10-07 실측). PATH 칸을 실제 경로로 풀어 넘긴다.
+    return os.pathsep.join(os.path.realpath(entry) for entry in os.environ.get('PATH', '').split(os.pathsep) if entry)
+
+
 def judge_profile(frozen, tmp):
     # :root 를 막고 여는 자리만 적는다. python · node 는 설치 폴더와 그 라이브러리를 읽어야 돈다 (2026-10-07 실측).
     reads = {str(frozen)}
@@ -410,12 +415,9 @@ def judge_profile(frozen, tmp):
         found = shutil.which(tool)
         if found:
             reads.add(str(Path(os.path.realpath(found)).parents[1]))
-    # fnm 처럼 PATH 칸이나 그 윗 단계가 바로가기면 그 바로가기 자리와 가리키는 자리를 다 열어야 실행된다.
-    for entry in os.environ.get('PATH', '').split(os.pathsep):
-        linked = {str(step) for step in Path(entry).parents if step.is_symlink()} if entry else set()
-        for folder in {entry, os.path.realpath(entry)} | linked if entry else ():
-            if folder not in ('/', str(Path.home())) and Path(folder).is_dir():
-                reads.add(folder)
+    for entry in resolved_path().split(os.pathsep):
+        if entry not in ('/', str(Path.home())) and Path(entry).is_dir():
+            reads.add(entry)
     reads.update(folder for folder in ('/opt/homebrew', '/usr/local', '/System/Library/OpenSSL',
                                        '/Library/Developer/CommandLineTools') if Path(folder).is_dir())
     table = 'permissions.' + PROFILE
@@ -529,6 +531,8 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort,
     proc = None
     timed_out = False
     env = dict(os.environ, CODEX_HOME=str(home), TMPDIR=str(tmp), TMP=str(tmp), TEMP=str(tmp))
+    if judge:
+        env['PATH'] = resolved_path()
     try:
         with events_file.open('w', encoding='utf-8') as out, error_file.open('w') as err:
             proc = subprocess.Popen(args, env=env, stdin=subprocess.DEVNULL,
