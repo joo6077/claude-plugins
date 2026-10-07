@@ -11,6 +11,8 @@ measurement_digest: sha256:7d4bba22350ba3d0
 locked_at: "2026-10-07 14:50"
 ---
 
+# Codex 감독 판정 격리 · 용량 · 비용 · 속도 최적화
+
 ## 배경
 
 - 요구사항: `.harness/.meta/codex-judge-isolation/requirements.md` (1~6절). 6절이 사용자의 범위 확대 결정이다 — 격리와 비용 항목을 한 스프린트로, `codex_audit` 칸이 없으면 꺼짐, 모델 비교는 다음 단계(astra 제외 6모델).
@@ -29,6 +31,7 @@ locked_at: "2026-10-07 14:50"
 
 ## Script
 
+<!-- markdownlint-disable-next-line MD037 -->
 - [ ] 스크립트-01: Given 가짜 codex 로 impl(REJECT → 재심) · draft · research 를 한 번씩 돌렸을 때, When 차례별 codex 호출 인자를 보면, Then 판정 · 재심 차례(judge-* · review-*)는 `-s` 와 `sandbox_workspace_write` 가 0 개이고 `default_permissions="codex-audit-judge"` 가 1 개이며, 계약 작성 · 조사 차례(draft-* · research-*)는 `-s workspace-write` 를 그대로 쓴다 [exact, enumerated]
   측정: bash .harness/.meta/codex-judge-isolation/measure/measure.sh 스크립트-01
   음성 대조: BASE 판 스크립트로 같은 측정을 돌리면 판정 차례에 `-s workspace-write` 가 있어 FAIL 한다 (`measure.sh 스크립트-01 --base` 종료 1)
