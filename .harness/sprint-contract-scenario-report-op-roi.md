@@ -4,7 +4,7 @@ slug: scenario-report-op-roi
 created: "2026-10-08 18:46"
 complexity: "복잡"
 conditions: 20
-status: active
+status: done
 owner_session: 97f28e34-99ea-4a74-9baa-3288b7964458
 conditions_digest: sha256:b48fc19bba7ba404
 measurement_digest: sha256:bd92284913f147f5
