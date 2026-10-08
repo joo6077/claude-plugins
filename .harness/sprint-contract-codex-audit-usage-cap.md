@@ -4,7 +4,7 @@ slug: codex-audit-usage-cap
 created: "2026-10-08 18:55"
 complexity: "중간"
 conditions: 16
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:fdf5647740feff2d
 measurement_digest: sha256:115c554922854eaf
