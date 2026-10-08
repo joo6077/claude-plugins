@@ -114,7 +114,7 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
 
 ## Codex 작성 모드 (`codex_audit.mode`)
 
-`codex_audit.mode` 가 `codex` 면 계약의 조건은 Codex 가 쓰고 Claude 는 검토만 한다. 칸이 없으면 꺼짐(`mode: off`)이다 — 감독은 API 키로 쓴 만큼 돈이 나가서, 쓰는 프로젝트만 직접 켠다. 감독 키의 하루 지출은 `daily_budget_usd` 로 묶는다.
+`codex_audit.mode` 가 `codex` 면 계약의 조건은 Codex 가 쓰고 Claude 는 검토만 한다. 칸이 없으면 꺼짐(`mode: off`)이다 — 감독은 구독 사용량을 써서, 쓰는 프로젝트만 직접 켠다. 최근 사용량이 `usage_limit_percent`(비우면 70) 이상이면 감독은 BLOCKED(`한도-사용량`)로 끝난다.
 쓰는 쪽과 검토하는 쪽을 나눠 자기 글을 후하게 보는 편향을 막는다.
 
 - `mode: codex` — Claude 는 조건 줄과 그 아래 측정 줄을 직접 쓰거나 손으로 고치지 않는다. 서술 절(배경 · 범위 경계 등) 보강만 한다. 순서는 이렇다.
