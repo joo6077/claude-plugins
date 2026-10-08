@@ -11,6 +11,8 @@ here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 command -v python3 >/dev/null 2>&1 || { echo "codex-audit: python3 가 필요하다" >&2; exit 64; }
 exec python3 - "$here" "$@" <<'PY'
 import datetime
+import fcntl
+import gzip
 import json
 import os
 from pathlib import Path
@@ -37,9 +39,15 @@ SECRET = re.compile(r'(?<![A-Za-z0-9_-])sk-[A-Za-z0-9_-]{8,}')
 KNOWN_KEYS = []
 MODELS_URL = 'https://api.openai.com/v1/models'
 MODELS_MEMORY = 'codex-audit-models.json'
+USAGE_LOG = 'codex-audit-usage.jsonl'
+AUTH_LOCK = 'codex-audit-auth.lock'
+PRICES = TEMPLATES / 'prices.json'
+PROFILE = 'codex-audit-judge'
 POLL = 0.25
 # 키 사본을 지우기 전에 받은 신호로 끝나면 사본이 남는다. 신호를 예외로 바꿔 finally 를 타게 한다.
 ACTIVE = []
+# 감독 하나가 만드는 임시 폴더를 한 뿌리 아래 모은다. 판정 사본 · 측정이 남긴 파일이 하루 72GB 쌓인 적이 있다.
+TEMP_ROOT = []
 
 
 class Stop(Exception):
@@ -62,7 +70,7 @@ def usage(message=''):
         print('codex-audit: ' + message, file=sys.stderr)
     print('쓰는 법: codex-audit.sh draft <요구사항> <계약> | revise <계약> <지적> | impl <계약> <기준 커밋> [--detach]'
           ' | wait <감독 폴더> [초] | follow <감독 폴더|계약> [--idle-seconds N] [--wait-seconds N]'
-          ' [--summary-seconds N] [--relay] | models', file=sys.stderr)
+          ' [--summary-seconds N] [--relay] | models | usage', file=sys.stderr)
     return 64
 
 
@@ -188,7 +196,11 @@ class Audit:
         self.account = '확인 전'
         self.rows = []
         self.sections = []
-        self.copies = []
+        self.costs = []
+        self.subscribed = False
+        self.prices = load_prices()
+        self.repo = ''
+        self.slug = ''
 
     def note(self, kind, **fields):
         # follow 가 읽는 진행 기록. 사람이 여는 파일이 아니다.
@@ -200,8 +212,17 @@ class Audit:
         self.sections.append('## ' + title + '\n' + '\n'.join(lines))
 
     def finish(self, verdict, category=None, detail=''):
-        if self.copies:
-            self.section('판정 사본', self.copies)
+        if self.costs:
+            label = (lambda usd: SUBSCRIBED) if self.subscribed else money
+            lines = ['- {} · 모델 {} · 입력 {:,} (캐시 {:,}) · 출력 {:,} · {}'.format(name, model, *tokens, label(usd))
+                     for name, model, tokens, usd in self.costs]
+            known = [usd for *_, usd in self.costs if usd is not None]
+            unknown = len(self.costs) - len(known)
+            if self.subscribed:
+                lines.append('- 합계 ' + SUBSCRIBED)
+            else:
+                lines.append('- 합계 {}{}'.format(money(sum(known)), ' · 단가 모름 차례 {}개 빠짐'.format(unknown) if unknown else ''))
+            self.section('비용', lines)
         if category:
             cause = ['갈래: ' + category]
             if detail:
@@ -230,9 +251,24 @@ def kill_group(proc):
             continue
 
 
+def temp_dir(kind):
+    if not TEMP_ROOT:
+        root = Path(tempfile.mkdtemp(prefix='codex-audit-'))
+        TEMP_ROOT.append(root)
+        ACTIVE.append(root)
+    return Path(tempfile.mkdtemp(prefix=kind + '-', dir=TEMP_ROOT[0]))
+
+
+def subscription(source):
+    try:
+        return json.loads((source / 'auth.json').read_text(encoding='utf-8')).get('auth_mode') == 'chatgpt'
+    except (OSError, ValueError, AttributeError):
+        return False
+
+
 def private_home(source):
     # Codex 는 실행 중 자기 폴더에 써야 하는데 판정 격리 공간은 감독 폴더 쓰기를 막는다. 사본을 만든다.
-    home = Path(tempfile.mkdtemp(prefix='codex-audit-home-'))
+    home = temp_dir('home')
     home.chmod(0o700)
     auth = home / 'auth.json'
     if (source / 'auth.json').is_file():
@@ -242,6 +278,52 @@ def private_home(source):
     if (source / 'config.toml').is_file():
         (home / 'config.toml').write_bytes((source / 'config.toml').read_bytes())
     return home
+
+
+def write_back(audit, source, home, copied):
+    # 구독 로그인은 쓰는 도중 갱신된다. 사본과 함께 버리지 않되, 그사이 바뀐 감독 폴더 파일은 덮지 않는다.
+    if not audit.subscribed:
+        return
+    try:
+        fresh = (home / 'auth.json').read_bytes()
+        if fresh == copied or json.loads(fresh).get('auth_mode') != 'chatgpt':
+            return
+    except (OSError, ValueError, AttributeError):
+        return
+    # 쓰다 만 임시 파일이 감독 폴더에 남지 않게 신호를 미뤄 둔다. 스레드별로 막는 방식은 출력 복사 스레드가 신호를
+    # 받으면 뚫린다(2026-10-08 재현). 파이썬 처리기는 늘 메인 스레드에서 돌므로 처리기를 바꿔 끼운다.
+    deferred = []
+    previous = {sig: signal.signal(sig, lambda signum, frame: deferred.append(signum))
+                for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)}
+    temp = None
+    try:
+        with os.fdopen(os.open(source / AUTH_LOCK, os.O_RDWR | os.O_CREAT, 0o600), 'r+') as lock:
+            deadline = time.monotonic() + 10
+            while True:
+                try:
+                    fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    if time.monotonic() > deadline:
+                        audit.rows.append('- 로그인 갱신을 되돌려 쓰지 못했다: 잠금을 10초 안에 못 잡음 (' + str(source / AUTH_LOCK) + ')')
+                        return
+                    time.sleep(POLL)
+            if (source / 'auth.json').read_bytes() != copied:
+                return
+            descriptor, temp = tempfile.mkstemp(dir=source, prefix='.codex-audit-auth-')
+            with os.fdopen(descriptor, 'wb') as out:
+                out.write(fresh)
+            os.replace(temp, source / 'auth.json')
+            temp = None
+    except OSError as error:
+        audit.rows.append('- 로그인 갱신을 되돌려 쓰지 못했다: ' + str(error))
+    finally:
+        if temp:
+            Path(temp).unlink(missing_ok=True)
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
+        if deferred:
+            raise Interrupted(deferred[0])
 
 
 def drop_home(home, keep_thread=None, phase_dir=None):
@@ -268,10 +350,12 @@ def codex_bin():
 def login(audit, binary, source):
     home = private_home(source)
     ACTIVE.append(home)
+    copied = (home / 'auth.json').read_bytes() if (home / 'auth.json').is_file() else b''
     try:
         proc = subprocess.run([binary, 'login', 'status'], env=dict(os.environ, CODEX_HOME=str(home)),
                               stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
     finally:
+        write_back(audit, source, home, copied)
         drop_home(home)
         ACTIVE.remove(home)
     output = proc.stdout + '\n' + proc.stderr
@@ -297,7 +381,7 @@ def check_shape(value, schema):
 
 
 def read_events(path):
-    found = dict(thread='', completed=False, failed=False, message=False, errors=[])
+    found = dict(thread='', completed=False, failed=False, message=False, errors=[], usage={})
     for line in path.read_text(encoding='utf-8', errors='replace').splitlines() if path.is_file() else []:
         try:
             event = json.loads(line)
@@ -310,6 +394,7 @@ def read_events(path):
             found['thread'] = event.get('thread_id', '')
         elif kind == 'turn.completed':
             found['completed'] = True
+            found['usage'] = event.get('usage') if isinstance(event.get('usage'), dict) else {}
         elif kind in ('turn.failed', 'error'):
             found['failed'] = True
             error = event.get('error')
@@ -380,29 +465,150 @@ def read_answer(proc, timed_out, events, stderr, output, record, schema):
     return dict(category=None, answer=answer)
 
 
-def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort):
+def resolved_path():
+    # 판정 격리는 바로가기 경로를 거친 실행을 막는다(fnm 의 node, 2026-10-07 실측). PATH 칸을 실제 경로로 풀어 넘긴다.
+    return os.pathsep.join(os.path.realpath(entry) for entry in os.environ.get('PATH', '').split(os.pathsep) if entry)
+
+
+def judge_profile(frozen, tmp):
+    # :root 를 막고 여는 자리만 적는다. python · node 는 설치 폴더와 그 라이브러리를 읽어야 돈다 (2026-10-07 실측).
+    reads = {str(frozen)}
+    for tool in ('python3', 'node', 'git', 'bash'):
+        found = shutil.which(tool)
+        if found:
+            reads.add(str(Path(os.path.realpath(found)).parents[1]))
+    for entry in resolved_path().split(os.pathsep):
+        if entry not in ('/', str(Path.home())) and Path(entry).is_dir():
+            reads.add(entry)
+    reads.update(folder for folder in ('/opt/homebrew', '/usr/local', '/System/Library/OpenSSL',
+                                       '/Library/Developer/CommandLineTools') if Path(folder).is_dir())
+    table = 'permissions.' + PROFILE
+    lines = ['', '[' + table + ']', 'extends = ":workspace"', '', '[' + table + '.filesystem]',
+             '":root" = "deny"', '":minimal" = "read"', '":slash_tmp" = "deny"']
+    lines += [json.dumps(folder) + ' = "read"' for folder in sorted(reads)]
+    lines += [json.dumps(str(tmp)) + ' = "write"', '', '[' + table + '.network]', 'enabled = false']
+    return '\n'.join(lines) + '\n'
+
+
+def load_prices():
+    try:
+        return json.loads(PRICES.read_text(encoding='utf-8')).get('models', {})
+    except (OSError, ValueError, AttributeError):
+        return {}
+
+
+def turn_cost(model, usage, prices):
+    rate = prices.get(model)
+    tokens = [int(usage.get(key) or 0) for key in ('input_tokens', 'cached_input_tokens', 'output_tokens')]
+    if not isinstance(rate, dict):
+        return tokens, None
+    fresh, cached, output = tokens[0] - tokens[1], tokens[1], tokens[2]
+    return tokens, (fresh * rate['input'] + cached * rate['cached_input'] + output * rate['output']) / 1e6
+
+
+SUBSCRIBED = '구독 — 청구 없음'
+
+
+def money(usd):
+    return '단가 모름' if usd is None else '{:.2f}달러'.format(usd)
+
+
+def read_usage(home):
+    rows, unreadable = [], 0
+    log = home / USAGE_LOG
+    for line in log.read_text(encoding='utf-8', errors='replace').splitlines() if log.is_file() else []:
+        try:
+            row = json.loads(line)
+            row['usd'] = None if row.get('usd') is None else float(row['usd'])
+            if isinstance(row['usd'], bool) or not isinstance(row.get('date'), str):
+                raise TypeError
+        except (ValueError, TypeError, AttributeError):
+            unreadable += 1
+            continue
+        rows.append(row)
+    return rows, unreadable
+
+
+def spent(rows, prefix):
+    return sum(row['usd'] or 0 for row in rows if row['date'].startswith(prefix))
+
+
+def record_usage(audit, source, name, model, tokens, usd):
+    row = dict(date=datetime.date.today().isoformat(), repo=audit.repo, slug=audit.slug, verb=audit.verb, turn=name,
+               model=model, input=tokens[0], cached=tokens[1], output=tokens[2], usd=None if usd is None else round(usd, 6),
+               plan='chatgpt' if audit.subscribed else 'apikey')
+    with (source / USAGE_LOG).open('a', encoding='utf-8') as out:
+        out.write(json.dumps(row, ensure_ascii=False) + '\n')
+
+
+def check_budget(conf, source, subscribed):
+    raw = conf.get('daily_budget_usd') or ''
+    if not raw:
+        return ''
+    # 구독은 쓴 만큼 청구되지 않는다. 한도는 ChatGPT 쪽 사용량이 정한다.
+    if subscribed:
+        return '구독이라 하루 상한을 건너뛴다'
+    try:
+        limit = float(raw)
+    except ValueError:
+        raise Stop('설정-오류', 'codex_audit.daily_budget_usd 가 숫자가 아니다: ' + raw)
+    rows, unreadable = read_usage(source)
+    today = spent(rows, datetime.date.today().isoformat())
+    note = ' · 못 읽은 줄 {}'.format(unreadable) if unreadable else ''
+    if today >= limit:
+        raise Stop('한도-예산', '오늘 {} ≥ 하루 상한 {} — Codex 를 부르지 않았다 ({}){}'.format(
+            money(today), money(limit), source / USAGE_LOG, note))
+    return ''
+
+
+def pack(record):
+    packed = record.with_name(record.name + '.gz')
+    with record.open('rb') as raw, gzip.open(packed, 'wb') as out:
+        shutil.copyfileobj(raw, out)
+    record.unlink()
+    return packed
+
+
+def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort, judge=False):
     phase_dir = audit.folder / name
     phase_dir.mkdir(exist_ok=True)
     events_file, error_file, output = phase_dir / 'events.jsonl', phase_dir / 'stderr.log', phase_dir / 'answer.json'
-    args = [binary, 'exec', '--json', '--skip-git-repo-check', '-s', 'workspace-write', '-C', str(cwd),
-            '--output-schema', str(schema), '-o', str(output), '-c', 'model_reasoning_effort="' + effort + '"']
-    if network:
-        args += ['-c', 'sandbox_workspace_write.network_access=true']
-    if audit.conf.get('model'):
-        args += ['-m', audit.conf['model']]
-    args.append(prompt)
-    limit = int(os.environ.get('CODEX_AUDIT_LIMIT') or 600)
+    tmp = temp_dir('tmp')
     home = private_home(source)
     ACTIVE.append(home)
+    copied = (home / 'auth.json').read_bytes() if (home / 'auth.json').is_file() else b''
+    args = [binary, 'exec', '--json', '--skip-git-repo-check', '-C', str(cwd),
+            '--output-schema', str(schema), '-o', str(output), '-c', 'model_reasoning_effort="' + effort + '"']
+    if judge:
+        # -s 나 sandbox_workspace_write 가 하나라도 있으면 권한 프로필 대신 옛 방식이 이긴다 (codex 0.160 문서).
+        with (home / 'config.toml').open('a', encoding='utf-8') as config:
+            config.write(judge_profile(audit.folder / 'input', tmp))
+        args += ['-c', 'default_permissions="' + PROFILE + '"']
+    else:
+        args[4:4] = ['-s', 'workspace-write']
+        if network:
+            args += ['-c', 'sandbox_workspace_write.network_access=true']
+    drafting = name.startswith(('draft', 'revise'))
+    model = (os.environ.get('CODEX_AUDIT_MODEL') or audit.conf.get('model_draft' if drafting else 'model_impl')
+             or audit.conf.get('model'))
+    if model:
+        args += ['-m', model]
+    args.append(prompt.replace('{{WORKDIR}}', str(cwd)).replace('{{TMPDIR}}', str(tmp)))
+    # 계약 작성은 8~16분 걸린다(2026-10-06~07 실측). 판정 상한 600초를 같이 쓰면 다 쓴 일을 버린다.
+    limit_key, default = ('CODEX_AUDIT_DRAFT_LIMIT', 1500) if drafting else ('CODEX_AUDIT_LIMIT', 600)
+    limit = int(os.environ.get(limit_key) or default)
     # follow 는 이 임시 폴더의 세션 기록이 자라는지로 생각 중과 멈춤을 가른다.
     audit.note('turn-start', name=name, label=turn_label(name), effort=effort, home=str(home),
-               model=audit.conf.get('model') or folder_model(source) or '?')
+               model=model or folder_model(source) or '?')
     began = time.monotonic()
     proc = None
     timed_out = False
+    env = dict(os.environ, CODEX_HOME=str(home), TMPDIR=str(tmp), TMP=str(tmp), TEMP=str(tmp))
+    if judge:
+        env['PATH'] = resolved_path()
     try:
         with events_file.open('w', encoding='utf-8') as out, error_file.open('w') as err:
-            proc = subprocess.Popen(args, env=dict(os.environ, CODEX_HOME=str(home)), stdin=subprocess.DEVNULL,
+            proc = subprocess.Popen(args, env=env, stdin=subprocess.DEVNULL,
                                     stdout=subprocess.PIPE, stderr=err, start_new_session=True)
             ACTIVE.append(proc)
             # 명령 사건에 키가 실려 와도 파일에는 가린 줄만 남는다. follow 가 이 파일을 실행 중에 읽는다.
@@ -419,8 +625,10 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort)
             kill_group(proc)
             ACTIVE.remove(proc)
         events = read_events(events_file)
+        write_back(audit, source, home, copied)
         record = drop_home(home, events['thread'], phase_dir)
         ACTIVE.remove(home)
+        shutil.rmtree(tmp, ignore_errors=True)
         scrub_file(record)
         scrub_file(error_file)
     context = {}
@@ -432,35 +640,42 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort)
                 continue
             if isinstance(item, dict) and item.get('type') == 'turn_context':
                 context = item.get('payload') or {}
-    sandbox = (context.get('sandbox_policy') or {}).get('type', '?')
-    audit.rows.append('- 차례 {} 모델={} 생각={} 격리={} 기록={}'.format(
-        name, context.get('model', '?'), context.get('effort', '?'), sandbox, record or '없음'))
+        record = pack(record)
+    used = context.get('model') or model or folder_model(source) or '?'
+    sandbox = (context.get('sandbox_policy') or {}).get('type', PROFILE if judge else '?')
+    audit.rows.append('- 차례 {} 모델={} 생각={} 격리={} 상한 {}초 기록={}'.format(
+        name, used, context.get('effort', '?'), sandbox, limit, record or '없음'))
+    cost = ''
+    if events['usage']:
+        tokens, usd = turn_cost(used, events['usage'], audit.prices)
+        if audit.subscribed:
+            usd = None
+        cost = SUBSCRIBED if audit.subscribed else money(usd)
+        audit.costs.append((name, used, tokens, usd))
+        record_usage(audit, source, name, used, tokens, usd)
     stderr = error_file.read_text(encoding='utf-8', errors='replace')
     result = read_answer(proc, timed_out, events, stderr, output, record, schema)
-    audit.note('turn-end', name=name, result=turn_result(result), seconds=time.monotonic() - began)
+    audit.note('turn-end', name=name, result=turn_result(result), seconds=time.monotonic() - began, cost=cost)
     return result
 
 
-def call(audit, binary, source, name, prompt, schema, cwd_factory, network, effort, keep=False):
-    # 멈춤과 빈 응답만 새 세션으로 한 번 더 부른다. Codex 가 안에서 이미 4~5 번 다시 시도한다.
+def call(audit, binary, source, name, prompt, schema, cwd_factory, network, effort, judge=False):
+    # 빈 응답만 새 세션으로 한 번 더 부른다. 시간 초과를 다시 부르면 같은 만큼 또 쓰고 또 끊긴다
+    # (2026-10-07 계약 작성 10분 두 번). Codex 가 안에서 이미 4~5 번 다시 시도한다.
     for attempt in (1, 2):
         phase = name if attempt == 1 else name + '-again'
         cwd = cwd_factory()
         try:
-            result = run_codex(audit, binary, source, phase, prompt, schema, cwd, network, effort)
+            result = run_codex(audit, binary, source, phase, prompt, schema, cwd, network, effort, judge)
         finally:
-            # 판정 사본은 판정 근거라 남긴다. 시스템 임시 폴더라 운영체제가 치운다.
-            if keep:
-                audit.copies.append('- {}: {}'.format(phase, cwd))
-            else:
-                shutil.rmtree(cwd, ignore_errors=True)
-        if result['category'] not in ('시간-초과', '빈-응답') or attempt == 2:
+            shutil.rmtree(cwd, ignore_errors=True)
+        if result['category'] != '빈-응답' or attempt == 2:
             return result
         audit.note('retry', name=name, reason=result['category'].replace('-', ' '))
 
 
 def scratch():
-    return Path(tempfile.mkdtemp(prefix='codex-audit-work-'))
+    return temp_dir('work')
 
 
 def fill(template, values):
@@ -519,8 +734,8 @@ def write_contract(audit, meta, slug, contract, categories, answer):
 
 
 def prepare(audit, conf):
-    if conf.get('mode', 'codex') != 'codex':
-        raise Stop('설정-오류', 'codex_audit.mode 가 codex · off 가 아니다: ' + conf.get('mode', ''))
+    if conf.get('mode', 'off') not in ('codex', 'judge'):
+        raise Stop('설정-오류', 'codex_audit.mode 가 codex · judge · off 가 아니다: ' + conf.get('mode', ''))
     binary = codex_bin()
     source = supervisor_home(conf)
     if not conf.get('model') and not folder_model(source):
@@ -581,8 +796,8 @@ def verdict_errors(answer, ids):
 
 
 def judged(audit, binary, source, name, prompt, copy_factory, effort, ids):
-    result = call(audit, binary, source, name, prompt, TEMPLATES / 'impl.schema.json', copy_factory, True, effort,
-                  keep=True)
+    result = call(audit, binary, source, name, prompt, TEMPLATES / 'impl.schema.json', copy_factory, False, effort,
+                  judge=True)
     if result['category']:
         raise Stop(result['category'], result['detail'])
     errors = verdict_errors(result['answer'], ids)
@@ -597,6 +812,8 @@ def premeasure(audit, template, ids, frozen, copy_factory):
     folder = frozen / 'premeasure'
     folder.mkdir()
     copy = copy_factory()
+    tmp = temp_dir('tmp')
+    env = dict(os.environ, TMPDIR=str(tmp), TMP=str(tmp), TEMP=str(tmp))
     records, summary = [], ['condition\texit_code\tlast_line']
     began = time.monotonic()
     try:
@@ -604,7 +821,7 @@ def premeasure(audit, template, ids, frozen, copy_factory):
             started = time.monotonic()
             command = template.replace('{id}', item)
             with tempfile.TemporaryFile() as sink:
-                proc = subprocess.Popen(['bash', '-c', command], cwd=copy, stdin=subprocess.DEVNULL, stdout=sink,
+                proc = subprocess.Popen(['bash', '-c', command], cwd=copy, env=env, stdin=subprocess.DEVNULL, stdout=sink,
                                         stderr=subprocess.STDOUT, start_new_session=True)
                 ACTIVE.append(proc)
                 timed_out = False
@@ -626,6 +843,7 @@ def premeasure(audit, template, ids, frozen, copy_factory):
                        timed_out=timed_out, seconds=time.monotonic() - started)
     finally:
         shutil.rmtree(copy, ignore_errors=True)
+        shutil.rmtree(tmp, ignore_errors=True)
     audit.note('premeasure-end', total=len(ids), seconds=time.monotonic() - began)
     (folder / 'summary.tsv').write_text('\n'.join(summary) + '\n', encoding='utf-8')
     return dict(records=records, summary='premeasure/summary.tsv')
@@ -642,6 +860,11 @@ def previous_fixes(meta, slug, folder):
 
 
 def impl(audit, conf, contract, meta, slug, feedback, base, number):
+    # 판정 격리는 /tmp 읽기를 막는다. 얼린 입력이 그 아래면 Codex 는 입력을 못 읽고 사용량만 쓴다 (2026-10-08 실측).
+    folder = Path(os.path.realpath(audit.folder))
+    if any(folder.is_relative_to(root) for root in (Path('/tmp'), Path(os.path.realpath('/tmp')))):
+        raise Stop('설정-오류', '판정할 저장소가 /tmp 아래라 판정 격리가 입력을 읽지 못한다: ' + str(folder)
+                   + ' — 저장소를 /tmp 밖으로 옮긴다')
     repo_root = git(meta.parent, 'rev-parse', '--show-toplevel').stdout.strip()
     if not repo_root:
         raise Stop('설정-오류', '계약 폴더가 git 저장소 안에 있지 않다')
@@ -655,6 +878,10 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
         raise Stop('반복-상한', '판정 ' + str(len(done)) + '회 — 첫 판정 뒤 고쳐서 다시 받는 반복 ' + str(rounds)
                    + '회를 넘었다. 사용자 판단이 필요하다')
     binary, source = prepare(audit, conf)
+    probe = subprocess.run([binary, 'sandbox', '--help'], capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=60)
+    if '--permission-profile' not in probe.stdout + probe.stderr:
+        raise Stop('설정-오류', '설치된 codex 가 권한 프로필(--permission-profile)을 지원하지 않는다 — 판정 격리를 걸 수 없어 '
+                   '판정하지 않는다. codex 를 올린 뒤 다시 부른다')
     frozen = audit.folder / 'input'
     frozen.mkdir()
     shutil.copyfile(contract, frozen / 'CONTRACT.md')
@@ -693,11 +920,11 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
         contract=str(contract), base=base, head=head, changed=changed.split(), round=number,
         inputs=inputs, premeasure=measured), ensure_ascii=False, indent=2), encoding='utf-8')
     values = dict(CONTRACT=frozen / 'CONTRACT.md', DIFF=frozen / 'DIFF.patch', MANIFEST=frozen / 'MANIFEST.json',
-                  COPY='지금 작업 폴더', ANSWERS='', AMENDMENTS='', PREMEASURE='')
+                  INPUT=frozen, ANSWERS='', AMENDMENTS='', PREMEASURE='')
     if amendments.is_file():
         values['AMENDMENTS'] = '\n- 계약 개정(조건이 더해지거나 읽는 법이 바뀌었다. 계약과 함께 읽는다): ' + str(frozen / 'AMENDMENTS.md')
     if measured:
-        values['PREMEASURE'] = fill('premeasure.md', dict(SUMMARY=frozen / measured['summary'])).strip()
+        values['PREMEASURE'] = fill('premeasure.md', dict(SUMMARY=frozen / measured['summary'], IDS=' · '.join(ids))).strip()
     first = judged(audit, binary, source, 'judge-1', fill('judge.md', values), working_copy, effort, ids)
     if first['verdict'] == 'RESEARCH':
         questions = '\n'.join('- ' + item for item in first['questions'])
@@ -884,6 +1111,23 @@ def models(args):
     return 0 if found['ok'] else 2
 
 
+def usage_report(args):
+    if args:
+        return usage('usage 는 인자를 받지 않는다')
+    meta = nearest_meta()
+    home = supervisor_home(settings(meta)[0] if meta else {})
+    rows, unreadable = read_usage(home)
+    today = datetime.date.today()
+    month = [row for row in rows if row['date'].startswith(today.strftime('%Y-%m'))]
+    print('오늘 ({}) {}'.format(today.isoformat(), money(spent(rows, today.isoformat()))))
+    print('이번 달 ({}) {}'.format(today.strftime('%Y-%m'), money(spent(month, ''))))
+    for repo in sorted({row.get('repo') or '?' for row in month}):
+        print('- {} {}'.format(repo, money(spent([row for row in month if (row.get('repo') or '?') == repo], ''))))
+    if unreadable:
+        print('못 읽은 줄 {} ({})'.format(unreadable, home / USAGE_LOG))
+    return 0
+
+
 def condition_count(contract, feedback):
     amendments = contract.parent / feedback.name.replace('sprint-feedback', 'sprint-amendments', 1)
     ids = set()
@@ -899,6 +1143,8 @@ def run(verb, folder, number, args):
     home = supervisor_home(conf)
     remember_key(home)
     audit = Audit(folder, verb, conf)
+    audit.repo, audit.slug = str(meta.parent), slug
+    audit.subscribed = subscription(home)
     found = discover(home, conf.get('model') or folder_model(home) or '?')
     for line in found['news']:
         audit.note('notice', text=line)
@@ -906,6 +1152,9 @@ def run(verb, folder, number, args):
     audit.note('start', verb=verb, folder=folder.name, conditions=condition_count(contract, feedback))
     lines = []
     try:
+        skipped = check_budget(conf, home, audit.subscribed)
+        if skipped:
+            audit.section('하루 상한', ['- ' + skipped])
         if verb == 'draft':
             return draft(audit, conf, categories, contract, meta, slug, Path(args[0]).resolve())
         if verb == 'revise':
@@ -1087,7 +1336,8 @@ class Follower:
             if self.turn:
                 self.take_events()
             self.turn = None
-            self.emit('차례 {} 끝 · {} · {}'.format(record.get('name'), record.get('result'), span(record.get('seconds', 0))))
+            cost = ' · ' + record['cost'] if record.get('cost') else ''
+            self.emit('차례 {} 끝 · {} · {}{}'.format(record.get('name'), record.get('result'), span(record.get('seconds', 0)), cost))
         elif kind == 'retry':
             self.emit('다시 시도 · {} · {}'.format(record.get('name'), record.get('reason')))
         elif kind == 'saved':
@@ -1280,14 +1530,22 @@ def main(argv):
         return follow(args)
     if verb == 'models':
         return models(args)
+    if verb == 'usage':
+        return usage_report(args)
     if verb not in ('draft', 'revise', 'impl') or len(args) != 2:
         return usage('부속 명령과 인자 둘이 필요하다')
     try:
         contract, meta, slug, _ = layout(args[1] if verb == 'draft' else args[0])
     except ValueError as error:
         return usage(str(error))
-    if settings(meta)[0].get('mode') == 'off':
+    # 칸이 없으면 꺼짐이다. 새 프로젝트가 모르는 사이 감독 키 잔액을 다 쓴 일이 있다 (2026-10-07).
+    mode = settings(meta)[0].get('mode', 'off')
+    if mode == 'off':
         print('감독 판정: SKIPPED (codex_audit.mode: off)')
+        return EXIT['SKIPPED']
+    # judge 는 구현 판정만 Codex 에 맡긴다. 계약 작성이 판정보다 차례가 많고 오래 걸린다 (2026-10-06~07 62 대 37).
+    if mode == 'judge' and verb in ('draft', 'revise'):
+        print('감독 판정: SKIPPED (codex_audit.mode: judge — 계약은 Claude 가 쓴다)')
         return EXIT['SKIPPED']
     folder, number = allocate(meta, slug, 'impl' if verb == 'impl' else 'draft')
     if detach:
