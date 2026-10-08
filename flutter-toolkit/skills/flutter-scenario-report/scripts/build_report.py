@@ -7,6 +7,7 @@
 import argparse
 import html
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -34,12 +35,15 @@ STEP_FIELDS = {"kw": (True, str), "text": (True, str), "do": (False, list), "res
                "zoom": (False, dict)}
 IMAGE_FIELDS = {"file": (True, str), "caption": (True, str)}
 # shot 은 건너뛴 시나리오에서만 뺄 수 있어 필수 여부를 load_case 가 따로 본다
-ACTION_FIELDS = {"act": (True, str), "shot": (False, str)}
+ACTION_FIELDS = {"act": (True, str), "shot": (False, str), "at": (False, list)}
 FOLD_AFTER = 3
 # 폭이 높이의 이 배수를 넘는 캡처(잘라 낸 가로 조각)는 사진 줄에서 두 칸을 쓴다
 WIDE_RATIO = 1.2
 SHOT_COUNT_AFTER = 4
 MANY_ACTIONS = 8
+# 누른 곳이 있는 조작 칸은 화면 전체를 이 폭으로 줄여 놓고 칸 크기만큼만 보인다
+OP_THUMB = 72
+OP_THUMB_SCREEN = 200
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "templates" / "report.html"
 SLOT = "<!-- cases -->"
@@ -150,9 +154,19 @@ def load_case(folder):
                     elif "skipped" in scenario:
                         shot = None
                     else:
-                        errors.append(f"{action_label}.shot: 조작마다 그 직후 캡처 파일 이름을 적어야 한다 — 건너뛴 시나리오만 뺄 수 있다")
+                        errors.append(f"{action_label}.shot: 조작마다 누르기 직전 캡처 파일 이름을 적어야 한다 — 건너뛴 시나리오만 뺄 수 있다")
                         continue
-                    done.append({"act": action["act"], "shot": shot})
+                    point = action.get("at")
+                    if point is not None:
+                        # bool 은 int 의 하위 형식이고 json 은 NaN · Infinity 를 받아들여 따로 막는다
+                        if not (len(point) == 2 and all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                                                        and math.isfinite(value) for value in point)):
+                            errors.append(f"{action_label}.at: [x, y] 숫자 두 개여야 한다")
+                        elif "shot" not in action:
+                            errors.append(f"{action_label}.at: shot 사진 위의 좌표라 shot 이 있어야 한다")
+                        elif shot and not (0 <= point[0] < shot["size"][0] and 0 <= point[1] < shot["size"][1]):
+                            errors.append(f"{action_label}.at: {point} 가 사진 {shot['size'][0]}×{shot['size'][1]} 밖이다")
+                    done.append({"act": action["act"], "shot": shot, "at": point})
                 if len(actions) > MANY_ACTIONS:
                     notes.append(f"{step_label}.do: 조작 {len(actions)}개 — 5 개를 넘으면 앞부분을 먼저로 옮기거나 단계를 나눈다")
                 if result is not None:
@@ -192,12 +206,32 @@ def load_case(folder):
     return case, [], warnings
 
 
+def round_half_up(value):
+    return math.floor(value + 0.5)
+
+
+def op_thumb_html(number, act, shot, point):
+    """누를 곳이 칸 가운데 오도록 줄인 화면을 옮기되, 화면 가장자리 너머의 빈 곳은 보이지 않게 막는다."""
+    (width, height), (x, y) = shot["size"], point
+    scale = OP_THUMB_SCREEN / width
+    left = round_half_up(min(0, max(OP_THUMB - OP_THUMB_SCREEN, OP_THUMB / 2 - x * scale)))
+    top = round_half_up(min(0, max(OP_THUMB - height * scale, OP_THUMB / 2 - y * scale)))
+    return (f'<button type="button" class="op-thumb" data-x="{json.dumps(x)}" data-y="{json.dumps(y)}" '
+            f'aria-label="조작 {number}: {act} — 크게 보기"><img src="{shot["file"]}" width="{width}" height="{height}" alt="" '
+            f'style="left:{left}px;top:{top}px"><i class="tap" style="left:{round_half_up(x * scale) + left}px;'
+            f'top:{round_half_up(y * scale) + top}px"></i></button>')
+
+
 def actions_html(actions):
     rows = []
     for number, action in enumerate(actions, 1):
         shot, act = action["shot"], html.escape(action["act"])
-        image = (f'<img src="{shot["file"]}" width="{shot["size"][0]}" height="{shot["size"][1]}" alt="{act}">'
-                 if shot else '<span class="noshot"></span>')
+        if shot and action["at"]:
+            image = op_thumb_html(number, act, shot, action["at"])
+        elif shot:
+            image = f'<img src="{shot["file"]}" width="{shot["size"][0]}" height="{shot["size"][1]}" alt="{act}">'
+        else:
+            image = '<span class="noshot"></span>'
         rows.append(f'<li><span class="n">{number}</span>{image}<span class="act">{act}</span></li>')
     shown = f'<ol class="do">{"".join(rows[:FOLD_AFTER])}</ol>'
     if len(rows) <= FOLD_AFTER:
