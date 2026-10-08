@@ -195,6 +195,7 @@ class Audit:
         self.rows = []
         self.sections = []
         self.costs = []
+        self.subscribed = False
         self.prices = load_prices()
         self.repo = ''
         self.slug = ''
@@ -210,11 +211,15 @@ class Audit:
 
     def finish(self, verdict, category=None, detail=''):
         if self.costs:
-            lines = ['- {} · 모델 {} · 입력 {:,} (캐시 {:,}) · 출력 {:,} · {}'.format(name, model, *tokens, money(usd))
+            label = (lambda usd: SUBSCRIBED) if self.subscribed else money
+            lines = ['- {} · 모델 {} · 입력 {:,} (캐시 {:,}) · 출력 {:,} · {}'.format(name, model, *tokens, label(usd))
                      for name, model, tokens, usd in self.costs]
             known = [usd for *_, usd in self.costs if usd is not None]
             unknown = len(self.costs) - len(known)
-            lines.append('- 합계 {}{}'.format(money(sum(known)), ' · 단가 모름 차례 {}개 빠짐'.format(unknown) if unknown else ''))
+            if self.subscribed:
+                lines.append('- 합계 ' + SUBSCRIBED)
+            else:
+                lines.append('- 합계 {}{}'.format(money(sum(known)), ' · 단가 모름 차례 {}개 빠짐'.format(unknown) if unknown else ''))
             self.section('비용', lines)
         if category:
             cause = ['갈래: ' + category]
@@ -252,6 +257,13 @@ def temp_dir(kind):
     return Path(tempfile.mkdtemp(prefix=kind + '-', dir=TEMP_ROOT[0]))
 
 
+def subscription(source):
+    try:
+        return json.loads((source / 'auth.json').read_text(encoding='utf-8')).get('auth_mode') == 'chatgpt'
+    except (OSError, ValueError, AttributeError):
+        return False
+
+
 def private_home(source):
     # Codex 는 실행 중 자기 폴더에 써야 하는데 판정 격리 공간은 감독 폴더 쓰기를 막는다. 사본을 만든다.
     home = temp_dir('home')
@@ -266,8 +278,9 @@ def private_home(source):
     return home
 
 
-def drop_home(home, keep_thread=None, phase_dir=None):
-    (home / 'auth.json').unlink(missing_ok=True)
+def drop_home(home, keep_thread=None, phase_dir=None, shared=False):
+    if not shared:
+        (home / 'auth.json').unlink(missing_ok=True)
     kept = None
     if keep_thread and phase_dir is not None:
         for rollout in sorted((home / 'sessions').rglob('*' + keep_thread + '.jsonl')):
@@ -275,7 +288,8 @@ def drop_home(home, keep_thread=None, phase_dir=None):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(rollout), str(target))
             kept = target
-    shutil.rmtree(home, ignore_errors=True)
+    if not shared:
+        shutil.rmtree(home, ignore_errors=True)
     return kept
 
 
@@ -288,14 +302,18 @@ def codex_bin():
 
 
 def login(audit, binary, source):
-    home = private_home(source)
-    ACTIVE.append(home)
-    try:
-        proc = subprocess.run([binary, 'login', 'status'], env=dict(os.environ, CODEX_HOME=str(home)),
+    if subscription(source):
+        proc = subprocess.run([binary, 'login', 'status'], env=dict(os.environ, CODEX_HOME=str(source)),
                               stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
-    finally:
-        drop_home(home)
-        ACTIVE.remove(home)
+    else:
+        home = private_home(source)
+        ACTIVE.append(home)
+        try:
+            proc = subprocess.run([binary, 'login', 'status'], env=dict(os.environ, CODEX_HOME=str(home)),
+                                  stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        finally:
+            drop_home(home)
+            ACTIVE.remove(home)
     output = proc.stdout + '\n' + proc.stderr
     hit = re.search(r'Logged in using [A-Za-z ]+?(?=\s+-|\s*$)', output, re.M)
     if proc.returncode != 0 or not hit:
@@ -444,6 +462,9 @@ def turn_cost(model, usage, prices):
     return tokens, (fresh * rate['input'] + cached * rate['cached_input'] + output * rate['output']) / 1e6
 
 
+SUBSCRIBED = '구독 — 청구 없음'
+
+
 def money(usd):
     return '단가 모름' if usd is None else '{:.2f}달러'.format(usd)
 
@@ -470,7 +491,8 @@ def spent(rows, prefix):
 
 def record_usage(audit, source, name, model, tokens, usd):
     row = dict(date=datetime.date.today().isoformat(), repo=audit.repo, slug=audit.slug, verb=audit.verb, turn=name,
-               model=model, input=tokens[0], cached=tokens[1], output=tokens[2], usd=None if usd is None else round(usd, 6))
+               model=model, input=tokens[0], cached=tokens[1], output=tokens[2], usd=None if usd is None else round(usd, 6),
+               plan='chatgpt' if subscription(source) else 'apikey')
     with (source / USAGE_LOG).open('a', encoding='utf-8') as out:
         out.write(json.dumps(row, ensure_ascii=False) + '\n')
 
@@ -478,7 +500,10 @@ def record_usage(audit, source, name, model, tokens, usd):
 def check_budget(conf, source):
     raw = conf.get('daily_budget_usd') or ''
     if not raw:
-        return
+        return ''
+    # 구독은 쓴 만큼 청구되지 않는다. 한도는 ChatGPT 쪽 사용량이 정한다.
+    if subscription(source):
+        return '구독이라 하루 상한을 건너뛴다'
     try:
         limit = float(raw)
     except ValueError:
@@ -489,6 +514,7 @@ def check_budget(conf, source):
     if today >= limit:
         raise Stop('한도-예산', '오늘 {} ≥ 하루 상한 {} — Codex 를 부르지 않았다 ({}){}'.format(
             money(today), money(limit), source / USAGE_LOG, note))
+    return ''
 
 
 def pack(record):
@@ -504,25 +530,39 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort,
     phase_dir.mkdir(exist_ok=True)
     events_file, error_file, output = phase_dir / 'events.jsonl', phase_dir / 'stderr.log', phase_dir / 'answer.json'
     tmp = temp_dir('tmp')
-    home = private_home(source)
-    ACTIVE.append(home)
+    # 구독 로그인은 쓰는 도중 새 로그인 정보로 갱신된다. 사본을 쓰면 갱신이 버려지니 감독 폴더를 그대로 쓴다.
+    shared = subscription(source)
+    home = source if shared else private_home(source)
+    if not shared:
+        ACTIVE.append(home)
+    profile = None
     args = [binary, 'exec', '--json', '--skip-git-repo-check', '-C', str(cwd),
             '--output-schema', str(schema), '-o', str(output), '-c', 'model_reasoning_effort="' + effort + '"']
     if judge:
         # -s 나 sandbox_workspace_write 가 하나라도 있으면 권한 프로필 대신 옛 방식이 이긴다 (codex 0.160 문서).
-        with (home / 'config.toml').open('a', encoding='utf-8') as config:
-            config.write(judge_profile(audit.folder / 'input', tmp))
+        if shared:
+            with tempfile.NamedTemporaryFile('w', dir=home, prefix='codex-audit-', suffix='.config.toml',
+                                             delete=False, encoding='utf-8') as config:
+                config.write(judge_profile(audit.folder / 'input', tmp))
+            profile = Path(config.name)
+            ACTIVE.append(profile)
+            args += ['-p', profile.name[:-len('.config.toml')]]
+        else:
+            with (home / 'config.toml').open('a', encoding='utf-8') as config:
+                config.write(judge_profile(audit.folder / 'input', tmp))
         args += ['-c', 'default_permissions="' + PROFILE + '"']
     else:
         args[4:4] = ['-s', 'workspace-write']
         if network:
             args += ['-c', 'sandbox_workspace_write.network_access=true']
-    model = os.environ.get('CODEX_AUDIT_MODEL') or audit.conf.get('model')
+    drafting = name.startswith(('draft', 'revise'))
+    model = (os.environ.get('CODEX_AUDIT_MODEL') or audit.conf.get('model_draft' if drafting else 'model_impl')
+             or audit.conf.get('model'))
     if model:
         args += ['-m', model]
     args.append(prompt.replace('{{WORKDIR}}', str(cwd)).replace('{{TMPDIR}}', str(tmp)))
     # 계약 작성은 8~16분 걸린다(2026-10-06~07 실측). 판정 상한 600초를 같이 쓰면 다 쓴 일을 버린다.
-    limit_key, default = ('CODEX_AUDIT_DRAFT_LIMIT', 1500) if name.startswith(('draft', 'revise')) else ('CODEX_AUDIT_LIMIT', 600)
+    limit_key, default = ('CODEX_AUDIT_DRAFT_LIMIT', 1500) if drafting else ('CODEX_AUDIT_LIMIT', 600)
     limit = int(os.environ.get(limit_key) or default)
     # follow 는 이 임시 폴더의 세션 기록이 자라는지로 생각 중과 멈춤을 가른다.
     audit.note('turn-start', name=name, label=turn_label(name), effort=effort, home=str(home),
@@ -552,8 +592,13 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort,
             kill_group(proc)
             ACTIVE.remove(proc)
         events = read_events(events_file)
-        record = drop_home(home, events['thread'], phase_dir)
-        ACTIVE.remove(home)
+        record = drop_home(home, events['thread'], phase_dir, shared)
+        if shared:
+            if profile is not None:
+                profile.unlink(missing_ok=True)
+                ACTIVE.remove(profile)
+        else:
+            ACTIVE.remove(home)
         shutil.rmtree(tmp, ignore_errors=True)
         scrub_file(record)
         scrub_file(error_file)
@@ -574,7 +619,10 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort,
     cost = ''
     if events['usage']:
         tokens, usd = turn_cost(used, events['usage'], audit.prices)
-        cost = money(usd)
+        if shared:
+            usd = None
+        cost = SUBSCRIBED if shared else money(usd)
+        audit.subscribed = shared
         audit.costs.append((name, used, tokens, usd))
         record_usage(audit, source, name, used, tokens, usd)
     stderr = error_file.read_text(encoding='utf-8', errors='replace')
@@ -1070,7 +1118,9 @@ def run(verb, folder, number, args):
     audit.note('start', verb=verb, folder=folder.name, conditions=condition_count(contract, feedback))
     lines = []
     try:
-        check_budget(conf, home)
+        skipped = check_budget(conf, home)
+        if skipped:
+            audit.section('하루 상한', ['- ' + skipped])
         if verb == 'draft':
             return draft(audit, conf, categories, contract, meta, slug, Path(args[0]).resolve())
         if verb == 'revise':
@@ -1482,6 +1532,8 @@ def cleanup():
     for item in reversed(ACTIVE):
         if isinstance(item, subprocess.Popen):
             kill_group(item)
+        elif item.is_file():
+            item.unlink(missing_ok=True)
         else:
             (item / 'auth.json').unlink(missing_ok=True)
             shutil.rmtree(item, ignore_errors=True)
