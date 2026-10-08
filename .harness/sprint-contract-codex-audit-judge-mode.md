@@ -4,7 +4,7 @@ slug: codex-audit-judge-mode
 created: "2026-10-07 17:56"
 complexity: "중간"
 conditions: 13
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:450d67ea16afb873
 measurement_digest: sha256:d57469dca4dbefa5
