@@ -290,8 +290,12 @@ def write_back(audit, source, home, copied):
             return
     except (OSError, ValueError, AttributeError):
         return
-    # 쓰다 만 임시 파일이 감독 폴더에 남지 않게 신호를 미뤄 둔다. 풀리면 미뤄 둔 신호가 그대로 온다.
-    masked = signal.pthread_sigmask(signal.SIG_BLOCK, (signal.SIGINT, signal.SIGTERM, signal.SIGHUP))
+    # 쓰다 만 임시 파일이 감독 폴더에 남지 않게 신호를 미뤄 둔다. 스레드별로 막는 방식은 출력 복사 스레드가 신호를
+    # 받으면 뚫린다(2026-10-08 재현). 파이썬 처리기는 늘 메인 스레드에서 돌므로 처리기를 바꿔 끼운다.
+    deferred = []
+    previous = {sig: signal.signal(sig, lambda signum, frame: deferred.append(signum))
+                for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)}
+    temp = None
     try:
         with os.fdopen(os.open(source / AUTH_LOCK, os.O_RDWR | os.O_CREAT, 0o600), 'r+') as lock:
             deadline = time.monotonic() + 10
@@ -310,10 +314,16 @@ def write_back(audit, source, home, copied):
             with os.fdopen(descriptor, 'wb') as out:
                 out.write(fresh)
             os.replace(temp, source / 'auth.json')
+            temp = None
     except OSError as error:
         audit.rows.append('- 로그인 갱신을 되돌려 쓰지 못했다: ' + str(error))
     finally:
-        signal.pthread_sigmask(signal.SIG_SETMASK, masked)
+        if temp:
+            Path(temp).unlink(missing_ok=True)
+        for sig, handler in previous.items():
+            signal.signal(sig, handler)
+        if deferred:
+            raise Interrupted(deferred[0])
 
 
 def drop_home(home, keep_thread=None, phase_dir=None):
@@ -850,6 +860,11 @@ def previous_fixes(meta, slug, folder):
 
 
 def impl(audit, conf, contract, meta, slug, feedback, base, number):
+    # 판정 격리는 /tmp 읽기를 막는다. 얼린 입력이 그 아래면 Codex 는 입력을 못 읽고 사용량만 쓴다 (2026-10-08 실측).
+    folder = Path(os.path.realpath(audit.folder))
+    if any(folder.is_relative_to(root) for root in (Path('/tmp'), Path(os.path.realpath('/tmp')))):
+        raise Stop('설정-오류', '판정할 저장소가 /tmp 아래라 판정 격리가 입력을 읽지 못한다: ' + str(folder)
+                   + ' — 저장소를 /tmp 밖으로 옮긴다')
     repo_root = git(meta.parent, 'rev-parse', '--show-toplevel').stdout.strip()
     if not repo_root:
         raise Stop('설정-오류', '계약 폴더가 git 저장소 안에 있지 않다')
