@@ -79,7 +79,7 @@ rationalization_overrides:
   #   reality: "현실"
 
 # ── Codex 감독 ──
-# Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). API 키로 쓴 만큼 과금되니 쓸 때만 mode: codex 로 켠다.
+# Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). ChatGPT 구독 로그인으로만 돈다 — 구독 사용량을 쓰니 쓰는 프로젝트만 켠다.
 # 칸이 없어도 꺼짐이다.
 codex_audit:
   mode: off              # codex | judge | off — judge 는 계약은 Claude 가 쓰고 구현 판정만 Codex
@@ -90,7 +90,7 @@ codex_audit:
   effort_draft: medium
   effort_impl: medium
   max_rounds: 2          # 첫 판정 뒤 고쳐서 다시 받는 횟수
-  daily_budget_usd: ""   # 감독 키의 오늘 합계가 이 달러 이상이면 Codex 를 부르지 않는다. 비우면 상한 없음. 구독 로그인이면 건너뛴다
+  usage_limit_percent: ""  # 최근 구독 사용량(5시간 · 주간 창)이 이 % 이상이면 Codex 를 부르지 않는다. 비우면 70
   # 판정 격리 안에서 못 돌리는 측정(프로세스 관측 · 실제 서비스 호출)을 판정 전에 격리 밖에서 조건마다 돌릴 명령.
   # {id} 자리에 조건 번호가 들어간다. 예: bash .harness/.meta/<slug>/measure.sh {id}. 비우면 사전 측정을 하지 않는다
   premeasure: ""

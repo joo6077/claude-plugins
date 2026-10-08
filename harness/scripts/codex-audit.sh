@@ -24,8 +24,6 @@ import sys
 import tempfile
 import threading
 import time
-import urllib.error
-import urllib.request
 
 HERE = Path(sys.argv[1])
 SCRIPT = HERE / 'codex-audit.sh'
@@ -37,11 +35,11 @@ CONDITION = re.compile(r'^- \[[ x]\] ((?:[A-Z]{2,}|[^ -~]+)-[0-9]{2})', re.M)
 NARRATIVE = ('배경', '리서치 소스', 'GAP 분석', '범위 경계', '회귀 게이트')
 SECRET = re.compile(r'(?<![A-Za-z0-9_-])sk-[A-Za-z0-9_-]{8,}')
 KNOWN_KEYS = []
-MODELS_URL = 'https://api.openai.com/v1/models'
 MODELS_MEMORY = 'codex-audit-models.json'
 USAGE_LOG = 'codex-audit-usage.jsonl'
+# Codex 가 token_count 사건에 싣는 창 길이(분). 그 밖의 창은 「<분>분」 으로 적는다.
+WINDOW_NAMES = {300: '5시간', 10080: '주간'}
 AUTH_LOCK = 'codex-audit-auth.lock'
-PRICES = TEMPLATES / 'prices.json'
 PROFILE = 'codex-audit-judge'
 POLL = 0.25
 # 키 사본을 지우기 전에 받은 신호로 끝나면 사본이 남는다. 신호를 예외로 바꿔 finally 를 타게 한다.
@@ -196,9 +194,7 @@ class Audit:
         self.account = '확인 전'
         self.rows = []
         self.sections = []
-        self.costs = []
-        self.subscribed = False
-        self.prices = load_prices()
+        self.turns = []
         self.repo = ''
         self.slug = ''
 
@@ -212,17 +208,9 @@ class Audit:
         self.sections.append('## ' + title + '\n' + '\n'.join(lines))
 
     def finish(self, verdict, category=None, detail=''):
-        if self.costs:
-            label = (lambda usd: SUBSCRIBED) if self.subscribed else money
-            lines = ['- {} · 모델 {} · 입력 {:,} (캐시 {:,}) · 출력 {:,} · {}'.format(name, model, *tokens, label(usd))
-                     for name, model, tokens, usd in self.costs]
-            known = [usd for *_, usd in self.costs if usd is not None]
-            unknown = len(self.costs) - len(known)
-            if self.subscribed:
-                lines.append('- 합계 ' + SUBSCRIBED)
-            else:
-                lines.append('- 합계 {}{}'.format(money(sum(known)), ' · 단가 모름 차례 {}개 빠짐'.format(unknown) if unknown else ''))
-            self.section('비용', lines)
+        if self.turns:
+            self.section('사용량', ['- {} · 모델 {} · 입력 {:,} (캐시 {:,}) · 출력 {:,}{}'.format(
+                name, model, *tokens, limits_text(limits)) for name, model, tokens, limits in self.turns])
         if category:
             cause = ['갈래: ' + category]
             if detail:
@@ -282,8 +270,6 @@ def private_home(source):
 
 def write_back(audit, source, home, copied):
     # 구독 로그인은 쓰는 도중 갱신된다. 사본과 함께 버리지 않되, 그사이 바뀐 감독 폴더 파일은 덮지 않는다.
-    if not audit.subscribed:
-        return
     try:
         fresh = (home / 'auth.json').read_bytes()
         if fresh == copied or json.loads(fresh).get('auth_mode') != 'chatgpt':
@@ -490,37 +476,13 @@ def judge_profile(frozen, tmp):
     return '\n'.join(lines) + '\n'
 
 
-def load_prices():
-    try:
-        return json.loads(PRICES.read_text(encoding='utf-8')).get('models', {})
-    except (OSError, ValueError, AttributeError):
-        return {}
-
-
-def turn_cost(model, usage, prices):
-    rate = prices.get(model)
-    tokens = [int(usage.get(key) or 0) for key in ('input_tokens', 'cached_input_tokens', 'output_tokens')]
-    if not isinstance(rate, dict):
-        return tokens, None
-    fresh, cached, output = tokens[0] - tokens[1], tokens[1], tokens[2]
-    return tokens, (fresh * rate['input'] + cached * rate['cached_input'] + output * rate['output']) / 1e6
-
-
-SUBSCRIBED = '구독 — 청구 없음'
-
-
-def money(usd):
-    return '단가 모름' if usd is None else '{:.2f}달러'.format(usd)
-
-
 def read_usage(home):
     rows, unreadable = [], 0
     log = home / USAGE_LOG
     for line in log.read_text(encoding='utf-8', errors='replace').splitlines() if log.is_file() else []:
         try:
             row = json.loads(line)
-            row['usd'] = None if row.get('usd') is None else float(row['usd'])
-            if isinstance(row['usd'], bool) or not isinstance(row.get('date'), str):
+            if not isinstance(row.get('date'), str):
                 raise TypeError
         except (ValueError, TypeError, AttributeError):
             unreadable += 1
@@ -529,36 +491,60 @@ def read_usage(home):
     return rows, unreadable
 
 
-def spent(rows, prefix):
-    return sum(row['usd'] or 0 for row in rows if row['date'].startswith(prefix))
+def window_limits(rate):
+    # 창마다 사용 % 와 풀리는 시각. 값이 빠진 창은 뺀다.
+    found = {}
+    for key in ('primary', 'secondary'):
+        window = rate.get(key) if isinstance(rate, dict) else None
+        if not isinstance(window, dict):
+            continue
+        used, resets, minutes = window.get('used_percent'), window.get('resets_at'), window.get('window_minutes')
+        if isinstance(used, (int, float)) and not isinstance(used, bool) and isinstance(resets, (int, float)):
+            found[WINDOW_NAMES.get(minutes, '{}분'.format(minutes))] = dict(used=used, resets_at=int(resets))
+    return found
 
 
-def record_usage(audit, source, name, model, tokens, usd):
+def limits_text(limits):
+    return ''.join(' · {} {:g}%'.format(label, window['used']) for label, window in limits.items())
+
+
+def readable_limits(limits):
+    return isinstance(limits, dict) and bool(limits) and all(
+        isinstance(window, dict) and isinstance(window.get('used'), (int, float)) and not isinstance(window.get('used'), bool)
+        and isinstance(window.get('resets_at'), (int, float)) for window in limits.values())
+
+
+def latest_limits(rows):
+    # 차례가 끝날 때마다 계정 전체 사용량이 기록된다. 가장 최근에 읽을 수 있는 값을 쓴다.
+    for row in reversed(rows):
+        if readable_limits(row.get('limits')):
+            return row['limits']
+    return {}
+
+
+def record_usage(audit, source, name, model, tokens, limits):
     row = dict(date=datetime.date.today().isoformat(), repo=audit.repo, slug=audit.slug, verb=audit.verb, turn=name,
-               model=model, input=tokens[0], cached=tokens[1], output=tokens[2], usd=None if usd is None else round(usd, 6),
-               plan='chatgpt' if audit.subscribed else 'apikey')
+               model=model, input=tokens[0], cached=tokens[1], output=tokens[2])
+    if limits:
+        row['limits'] = limits
     with (source / USAGE_LOG).open('a', encoding='utf-8') as out:
         out.write(json.dumps(row, ensure_ascii=False) + '\n')
 
 
-def check_budget(conf, source, subscribed):
-    raw = conf.get('daily_budget_usd') or ''
-    if not raw:
-        return ''
-    # 구독은 쓴 만큼 청구되지 않는다. 한도는 ChatGPT 쪽 사용량이 정한다.
-    if subscribed:
-        return '구독이라 하루 상한을 건너뛴다'
+def check_usage(conf, source):
+    raw = conf.get('usage_limit_percent')
     try:
-        limit = float(raw)
-    except ValueError:
-        raise Stop('설정-오류', 'codex_audit.daily_budget_usd 가 숫자가 아니다: ' + raw)
+        limit = 70.0 if raw in (None, '') else float(raw)
+    except (TypeError, ValueError):
+        limit = None
+    if limit is None or not 0 < limit <= 100:
+        raise Stop('설정-오류', 'codex_audit.usage_limit_percent 는 0 보다 크고 100 이하인 숫자다: ' + str(raw))
     rows, unreadable = read_usage(source)
-    today = spent(rows, datetime.date.today().isoformat())
-    note = ' · 못 읽은 줄 {}'.format(unreadable) if unreadable else ''
-    if today >= limit:
-        raise Stop('한도-예산', '오늘 {} ≥ 하루 상한 {} — Codex 를 부르지 않았다 ({}){}'.format(
-            money(today), money(limit), source / USAGE_LOG, note))
-    return ''
+    for label, window in latest_limits(rows).items():
+        if window['resets_at'] > time.time() and window['used'] >= limit:
+            raise Stop('한도-사용량', '구독 사용량 {} {:g}% ≥ 상한 {:g}% — {} 에 풀린다. Codex 를 부르지 않았다 ({})'.format(
+                label, window['used'], limit, datetime.datetime.fromtimestamp(window['resets_at']).strftime('%m-%d %H:%M'),
+                source / USAGE_LOG))
 
 
 def pack(record):
@@ -632,6 +618,7 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort,
         scrub_file(record)
         scrub_file(error_file)
     context = {}
+    rate = None
     if record:
         for line in record.read_text(encoding='utf-8', errors='replace').splitlines():
             try:
@@ -640,22 +627,25 @@ def run_codex(audit, binary, source, name, prompt, schema, cwd, network, effort,
                 continue
             if isinstance(item, dict) and item.get('type') == 'turn_context':
                 context = item.get('payload') or {}
+            payload = item.get('payload') if isinstance(item, dict) else None
+            if isinstance(payload, dict) and payload.get('type') == 'token_count' and isinstance(payload.get('rate_limits'), dict):
+                rate = payload['rate_limits']
         record = pack(record)
     used = context.get('model') or model or folder_model(source) or '?'
     sandbox = (context.get('sandbox_policy') or {}).get('type', PROFILE if judge else '?')
     audit.rows.append('- 차례 {} 모델={} 생각={} 격리={} 상한 {}초 기록={}'.format(
         name, used, context.get('effort', '?'), sandbox, limit, record or '없음'))
-    cost = ''
-    if events['usage']:
-        tokens, usd = turn_cost(used, events['usage'], audit.prices)
-        if audit.subscribed:
-            usd = None
-        cost = SUBSCRIBED if audit.subscribed else money(usd)
-        audit.costs.append((name, used, tokens, usd))
-        record_usage(audit, source, name, used, tokens, usd)
+    limits = window_limits(rate)
+    shown = ''
+    # 시간 초과 차례는 응답의 토큰 수가 없어도 세션 기록에 사용량이 남는다.
+    if events['usage'] or limits:
+        tokens = [int((events['usage'] or {}).get(key) or 0) for key in ('input_tokens', 'cached_input_tokens', 'output_tokens')]
+        audit.turns.append((name, used, tokens, limits))
+        record_usage(audit, source, name, used, tokens, limits)
+        shown = limits_text(limits)[3:]
     stderr = error_file.read_text(encoding='utf-8', errors='replace')
     result = read_answer(proc, timed_out, events, stderr, output, record, schema)
-    audit.note('turn-end', name=name, result=turn_result(result), seconds=time.monotonic() - began, cost=cost)
+    audit.note('turn-end', name=name, result=turn_result(result), seconds=time.monotonic() - began, usage=shown)
     return result
 
 
@@ -980,33 +970,6 @@ class Lookup(Exception):
     pass
 
 
-def gpt_models(home, url, limit):
-    auth = home / 'auth.json'
-    if not auth.is_file():
-        raise Lookup('감독 계정 인증 파일이 없다 (' + str(auth) + ')')
-    try:
-        key = json.loads(auth.read_text(encoding='utf-8')).get('OPENAI_API_KEY')
-    except ValueError:
-        raise Lookup('감독 계정 인증 파일을 읽지 못했다')
-    if not key:
-        raise Lookup('감독 계정이 OpenAI 키 로그인이 아니다')
-    request = urllib.request.Request(url, headers={'Authorization': 'Bearer ' + key})
-    try:
-        with urllib.request.urlopen(request, timeout=limit) as response:
-            body = response.read()
-    except urllib.error.HTTPError as error:
-        raise Lookup('모델 목록 응답 ' + str(error.code))
-    except (urllib.error.URLError, OSError) as error:
-        reason = getattr(error, 'reason', error)
-        if isinstance(reason, TimeoutError) or 'timed out' in str(reason):
-            raise Lookup('모델 목록 조회가 {:g}초 안에 끝나지 않았다'.format(limit))
-        raise Lookup('모델 목록에 연결하지 못했다')
-    try:
-        return [item['id'] for item in json.loads(body)['data']]
-    except (ValueError, KeyError, TypeError):
-        raise Lookup('모델 목록 응답을 읽지 못했다')
-
-
 def latest_codex(limit):
     npm = shutil.which('npm')
     if not npm:
@@ -1039,9 +1002,7 @@ def version_key(text):
 def discover(home, model):
     # 새 소식만 알린다. 감독 모델은 바꾸지 않는다 — 바꿀지는 보고를 받은 사람이 정한다.
     limit = float(os.environ.get('CODEX_AUDIT_CHECK_TIMEOUT') or 10)
-    url = os.environ.get('CODEX_AUDIT_MODELS_URL') or MODELS_URL
-    jobs = dict(models=lambda: gpt_models(home, url, limit), latest=lambda: latest_codex(limit),
-                installed=lambda: installed_codex(limit))
+    jobs = dict(latest=lambda: latest_codex(limit), installed=lambda: installed_codex(limit))
     found = {}
 
     def collect(name):
@@ -1057,38 +1018,27 @@ def discover(home, model):
     deadline = time.monotonic() + limit + 0.5
     for thread in threads:
         thread.join(max(0, deadline - time.monotonic()))
-    for name, late in (('models', '모델 목록'), ('latest', 'npm')):
-        result = found.get(name, Lookup(late + ' 조회가 {:g}초 안에 끝나지 않았다'.format(limit)))
-        if isinstance(result, Lookup):
-            return dict(ok=False, news=['모델 확인 못 함: ' + scrub(str(result))], status='')
+    latest = found.get('latest', Lookup('npm 조회가 {:g}초 안에 끝나지 않았다'.format(limit)))
+    if isinstance(latest, Lookup):
+        return dict(ok=False, news=['모델 확인 못 함: ' + scrub(str(latest))], status='')
     installed = found.get('installed', '?')
-    gpt = sorted({item for item in found['models'] if item.startswith('gpt-')})
-    latest = found['latest']
     memory_file = home / MODELS_MEMORY
     try:
         memory = json.loads(memory_file.read_text(encoding='utf-8'))
     except (OSError, ValueError):
         memory = None
     news = []
+    latest_kept = latest
     if isinstance(memory, dict):
-        added = [item for item in gpt if item not in memory.get('models', [])]
-        if added:
-            news.append('새 모델: ' + ', '.join(added) + ' (지금 감독 모델 ' + model + ')')
         seen = version_key(memory.get('latest'))
         if version_key(installed) and version_key(latest) > version_key(installed) and (not seen or version_key(latest) > seen):
             news.append('새 Codex 판: ' + latest + ' (설치 ' + installed + ')')
-        known = set(memory.get('models', [])) | set(gpt)
         if seen and seen > version_key(latest):
             latest_kept = memory['latest']
-        else:
-            latest_kept = latest
-    else:
-        known, latest_kept = set(gpt), latest
     temp = memory_file.with_name(MODELS_MEMORY + '.tmp')
-    temp.write_text(json.dumps(dict(models=sorted(known), latest=latest_kept, checked=now()), ensure_ascii=False,
-                               indent=2), encoding='utf-8')
+    temp.write_text(json.dumps(dict(latest=latest_kept, checked=now()), ensure_ascii=False, indent=2), encoding='utf-8')
     temp.replace(memory_file)
-    status = '감독 모델 {} · 설치 Codex {} · 최신 {} · GPT 모델 {}개'.format(model, installed, latest, len(gpt))
+    status = '감독 모델 {} · 설치 Codex {} · 최신 {}'.format(model, installed, latest)
     return dict(ok=True, news=news, status=status)
 
 
@@ -1117,12 +1067,17 @@ def usage_report(args):
     meta = nearest_meta()
     home = supervisor_home(settings(meta)[0] if meta else {})
     rows, unreadable = read_usage(home)
-    today = datetime.date.today()
-    month = [row for row in rows if row['date'].startswith(today.strftime('%Y-%m'))]
-    print('오늘 ({}) {}'.format(today.isoformat(), money(spent(rows, today.isoformat()))))
-    print('이번 달 ({}) {}'.format(today.strftime('%Y-%m'), money(spent(month, ''))))
-    for repo in sorted({row.get('repo') or '?' for row in month}):
-        print('- {} {}'.format(repo, money(spent([row for row in month if (row.get('repo') or '?') == repo], ''))))
+    today = datetime.date.today().isoformat()
+    todays = [row for row in rows if row['date'] == today]
+    print('오늘 ({}) 차례 {}'.format(today, len(todays)))
+    for repo in sorted({row.get('repo') or '?' for row in todays}):
+        print('- {} 차례 {}'.format(repo, sum(1 for row in todays if (row.get('repo') or '?') == repo)))
+    latest = latest_limits(rows)
+    for label, window in latest.items():
+        print('{} {:g}% · {} 에 풀린다'.format(label, window['used'],
+                                          datetime.datetime.fromtimestamp(window['resets_at']).strftime('%m-%d %H:%M')))
+    if not latest:
+        print('구독 사용량 기록 없음')
     if unreadable:
         print('못 읽은 줄 {} ({})'.format(unreadable, home / USAGE_LOG))
     return 0
@@ -1144,17 +1099,18 @@ def run(verb, folder, number, args):
     remember_key(home)
     audit = Audit(folder, verb, conf)
     audit.repo, audit.slug = str(meta.parent), slug
-    audit.subscribed = subscription(home)
-    found = discover(home, conf.get('model') or folder_model(home) or '?')
-    for line in found['news']:
-        audit.note('notice', text=line)
-    audit.section('모델 확인', found['news'] + ([found['status']] if found['status'] else []))
     audit.note('start', verb=verb, folder=folder.name, conditions=condition_count(contract, feedback))
     lines = []
     try:
-        skipped = check_budget(conf, home, audit.subscribed)
-        if skipped:
-            audit.section('하루 상한', ['- ' + skipped])
+        # 모델 확인보다 먼저 막는다 — 막힐 감독이 Codex 쪽에 아무것도 보내지 않게.
+        if not subscription(home):
+            raise Stop('로그인-없음', 'API 키 로그인은 쓰지 않는다 — 감독 폴더 ' + str(home) + ' 에 ChatGPT 구독으로 로그인한다 '
+                       '(CODEX_HOME=' + str(home) + ' codex login)')
+        check_usage(conf, home)
+        found = discover(home, conf.get('model') or folder_model(home) or '?')
+        for line in found['news']:
+            audit.note('notice', text=line)
+        audit.section('모델 확인', found['news'] + ([found['status']] if found['status'] else []))
         if verb == 'draft':
             return draft(audit, conf, categories, contract, meta, slug, Path(args[0]).resolve())
         if verb == 'revise':
@@ -1336,7 +1292,7 @@ class Follower:
             if self.turn:
                 self.take_events()
             self.turn = None
-            cost = ' · ' + record['cost'] if record.get('cost') else ''
+            cost = ' · ' + record['usage'] if record.get('usage') else ''
             self.emit('차례 {} 끝 · {} · {}{}'.format(record.get('name'), record.get('result'), span(record.get('seconds', 0)), cost))
         elif kind == 'retry':
             self.emit('다시 시도 · {} · {}'.format(record.get('name'), record.get('reason')))
