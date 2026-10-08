@@ -4,7 +4,7 @@ slug: codex-audit-subscription
 created: "2026-10-08 14:13"
 complexity: "중간"
 conditions: 18
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:163c95903f06c11d
 measurement_digest: sha256:0f01372beff514eb
