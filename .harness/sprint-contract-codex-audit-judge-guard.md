@@ -4,7 +4,7 @@ slug: codex-audit-judge-guard
 created: "2026-10-08 17:28"
 complexity: "중간"
 conditions: 14
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:02010867cef5ed26
 measurement_digest: sha256:bbd23664ffb0e27b
