@@ -376,7 +376,8 @@ def script_03():
             config_with(case, '')
             (case.qa / 'auth.json').write_text(json.dumps(auth))
             code, out = case.run(verb)
-            report = case.report(verb)
+            # revise 도 draft 와 같은 draft-r<번호> 폴더에 기록한다
+            report = case.report('draft' if verb == 'revise' else verb)
             check(code == 2 and '갈래: 로그인-없음' in report and '구독' in section(report, '## 실패 원인'),
                   '%s %s: 종료 %s\n%s' % (label, verb, code, report[-600:]))
             check(not case.execs() and not logins(case), '%s %s: exec %d · 로그인 확인 %d' % (label, verb, len(case.execs()), len(logins(case))))
