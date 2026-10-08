@@ -79,5 +79,5 @@ codex_audit:
   effort_draft: medium
   effort_impl: medium
   max_rounds: 2          # 첫 판정 뒤 고쳐서 다시 받는 횟수
-  # 이 계약(codex-supervisor)의 측정 묶음. 판정 격리 안에서 ps · 겹친 격리가 막혀 격리 밖 사전 측정이 필요하다
-  premeasure: "bash .harness/.meta/codex-audit-progress/measure/measure.sh {id}"
+  # 이 계약(scenario-report-op-roi)의 측정 묶음. 판정 격리 안에서 브라우저가 막혀 구조-02 · 구조-03 을 격리 밖에서 미리 잰다
+  premeasure: "bash .harness/.meta/scenario-report-op-roi/measure.sh {id}"
