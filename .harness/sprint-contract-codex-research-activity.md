@@ -4,7 +4,7 @@ slug: codex-research-activity
 created: "2026-10-09 16:39"
 complexity: "복잡"
 conditions: 21
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:a548e37706b97536
 measurement_digest: sha256:7dcf48c2e361a3ac
