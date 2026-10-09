@@ -1,0 +1,24 @@
+# 놀이터와 기본기 검사에 올릴 공용 위젯 목록.
+# 고친 뒤 fvm dart run tool/catalog_gen.dart 로 생성물을 다시 만든다.
+
+# 여백 · 간격으로 허용하는 값. 코드 검사가 이 밖의 숫자를 잡는다.
+spacing_tokens: [0, 2, 4, 8, 12, 16, 20, 24, 32]
+
+# 이 폴더의 화면 위젯이 목록에 빠지면 생성기가 실패한다.
+shared_dir: lib/shared/widgets
+
+# 토큰을 정의하는 폴더. 코드 검사에서 뺀다.
+theme_dir: lib/core/theme
+
+widgets:
+  # - class: AppButton                # 클래스 이름
+  #   file: lib/shared/widgets/app_button.dart
+  #   sizing: hug                     # hug = 내용 맞춤, fill = 꽉 채움
+  #   min_padding: 16                 # 내용 둘레 최소 안쪽 여백
+  #   view: phone                     # 놀이터 첫 보기: phone | content
+  #   state_keys: [loading]           # 바꿔도 크기가 같아야 하는 참거짓 속성
+  #   labels: {new: primary}          # 생성자 이름 대신 보일 종류 이름
+  #   ranges: {width: [0, 400]}       # 숫자 속성 미끄럼 막대 범위
+  #   samples:                        # 조절 칸이 없는 타입의 예시 값 (Dart 식)
+  #     padding: "const EdgeInsets.all(8)"
+  []

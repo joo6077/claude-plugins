@@ -10,6 +10,7 @@ Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 
 | `flutter-api` | Clean Architecture 전 레이어를 일괄 또는 개별 생성한다. |
 | `flutter-audit` | 코드 품질 감사. |
 | `flutter-build` | 코드 생성(build_runner) + 정적 분석(flutter analyze)을 순서대로 실행한다. |
+| `flutter-catalog` | 앱의 진짜 공용 위젯을 생성자에서 자동으로 읽어 놀이터 화면과 기본기 검사를 만든다. |
 | `flutter-error` | Flutter 앱의 에러 처리 패턴을 안내한다. |
 | `flutter-extract` | 재사용 가능한 위젯을 공용 위젯으로 추출한다. |
 | `flutter-feature` | 새 feature 모듈을 프로젝트 아키텍처에 맞는 디렉토리 구조와 보일러플레이트 파일로 스캐폴딩한다. |
