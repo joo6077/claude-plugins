@@ -425,6 +425,82 @@ class BuildReportTest(unittest.TestCase):
         self.assertNotIn('class="shot-count"', page)
         self.assertEqual(page.count('<button class="shot-next"'), 2)
 
+    def with_point(self, point, size=(402, 874), action=0):
+        """시나리오 2 단계 1 의 첫 조작에 at 을 붙이고 그 조작 사진을 size 크기로 만든다."""
+        record = copy.deepcopy(VALID)
+        record["scenarios"][1]["steps"][0]["do"][action]["at"] = point
+        case_dir = self.make_case(record)
+        (case_dir / "02-confirm.png").write_bytes(png_bytes(*size))
+        return record
+
+    def test_error_at_not_pair(self):
+        for point in ([1], "1,2", [1, "2"], [True, 1], [1, 2, 3]):
+            with self.subTest(point=point):
+                self.with_point(point)
+                code, _, stderr = self.run_script("--check")
+                self.assertEqual(code, 1, stderr)
+                self.assertIn("시나리오 2 단계 1.do[1].at", stderr)
+        for text in ("NaN", "Infinity"):
+            with self.subTest(point=text):
+                record = json.dumps(self.with_point([0, 0]), ensure_ascii=False).replace('"at": [0, 0]', f'"at": [{text}, 0]')
+                (self.root / "TC-001-transfer" / "record.json").write_text(record, encoding="utf-8")
+                code, _, stderr = self.run_script("--check")
+                self.assertEqual(code, 1, stderr)
+                self.assertIn("시나리오 2 단계 1.do[1].at", stderr)
+
+    def test_error_at_outside_shot(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][0]["do"][0]["at"] = [402, 10]
+        case_dir = self.make_case(record)
+        (case_dir / "01-picker.png").write_bytes(png_bytes(402, 874))
+        code, _, stderr = self.run_script("--check")
+        self.assertEqual(code, 1, stderr)
+        self.assertIn("TC-001-transfer/record.json 시나리오 1 단계 1.do[1].at", stderr)
+        self.assertIn("402×874", stderr)
+        for point in ([-1, 10], [10, 874]):
+            with self.subTest(point=point):
+                self.with_point(point)
+                code, _, stderr = self.run_script("--check")
+                self.assertEqual(code, 1, stderr)
+                self.assertIn("시나리오 2 단계 1.do[1].at", stderr)
+
+    def test_error_at_without_shot(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][2]["steps"][0]["do"][0]["at"] = [1, 1]
+        self.assert_rejected(record, "시나리오 3 단계 1.do[1].at")
+
+    def test_at_inside_edges_passes(self):
+        for point in ([401, 873], [0, 0], [200.5, 10.25]):
+            with self.subTest(point=point):
+                self.with_point(point)
+                code, _, stderr = self.run_script("--check")
+                self.assertEqual(code, 0, stderr)
+
+    def test_at_skipped_when_shot_bad(self):
+        record = copy.deepcopy(VALID)
+        record["scenarios"][0]["steps"][0]["do"][0].update({"shot": "09-none.png", "at": [9999, 0]})
+        self.assert_rejected(record, "시나리오 1 단계 1.do[1].shot")
+        _, _, stderr = self.run_script()
+        self.assertNotIn(".do[1].at", stderr)
+
+    def test_at_rendered_as_crop(self):
+        # 기대 글자는 계약 범위 경계의 손 계산 값이다 — 스크립트 상수로 다시 계산하지 않는다
+        self.with_point([355, 97])
+        self.run_script()
+        self.assertIn('<li><span class="n">1</span><button type="button" class="op-thumb" data-x="355" data-y="97" '
+                      'aria-label="조작 1: PGA 브라보 탭 — 크게 보기"><img src="02-confirm.png" width="402" height="874" alt="" '
+                      'style="left:0px;top:0px"><i class="tap" style="left:64px;top:17px"></i></button>'
+                      '<span class="act">PGA 브라보 탭</span></li>', self.case_page())
+        self.with_point([137, 684])
+        self.run_script()
+        self.assertIn('style="left:0px;top:-85px"><i class="tap" style="left:25px;top:38px">', self.case_page())
+        self.with_point([355.5, 97])
+        self.run_script()
+        self.assertIn('data-x="355.5" data-y="97"', self.case_page())
+        self.with_point([1, 147], size=(144, 800))
+        self.run_script()
+        self.assertIn('style="left:0px;top:-37px"><i class="tap" style="left:1px;top:37px">', self.case_page())
+
     def template_text(self):
         return TEMPLATE.read_text(encoding="utf-8")
 
@@ -451,6 +527,40 @@ class BuildReportTest(unittest.TestCase):
         self.assertIn('classList.toggle("has-more",row.scrollLeft+row.clientWidth<row.scrollWidth-2)', text)
         self.assertIn("row.clientWidth*0.8", text)
 
+    def test_template_op_thumb_rules(self):
+        text = self.template_text()
+        thumb = re.search(r"\.op-thumb\{[^}]*\}", text).group(0)
+        for part in ("width:72px", "height:72px", "overflow:hidden"):
+            self.assertIn(part, thumb)
+        for part in ("border:0", "box-shadow"):
+            self.assertIn(part, thumb)
+        image = re.search(r"\.op-thumb img\{[^}]*\}", text).group(0)
+        for part in ("position:absolute", "max-width:none", "width:72px"):
+            self.assertIn(part, image)
+        wide = next(line for line in text.splitlines() if line.startswith("@media (min-width:901px){"))
+        self.assertIn("22px 108px", wide)
+        self.assertIn(".op-thumb{zoom:1.5", wide)
+        self.assertIn("border-radius:50%", re.search(r"\.op-thumb \.tap\{[^}]*\}", text).group(0))
+        self.assertIn("outline", re.search(r"\.op-thumb:focus-visible\{[^}]*\}", text).group(0))
+
+    def test_template_follow_rules(self):
+        text = self.template_text()
+        self.assertIn(".follow{display:none}", text)
+        follow = next(line for line in text.splitlines() if line.startswith("@media (min-width:1100px){"))
+        self.assertIn(".follow{display:block", follow)
+        script = text[text.rindex("<script>"):]
+        for part in ('"mouseenter"', '"focusin"', "aria-hidden"):
+            self.assertIn(part, script)
+        self.assertEqual(text.count('addEventListener("scroll"'), 2)
+
+    def test_template_viewer_markup(self):
+        self.assertEqual(self.template_text().count(
+            '<dialog class="viewer" aria-labelledby="viewer-info"><button type="button" class="close" autofocus>닫기</button>'
+            '<div class="stage"><img alt=""><i class="tap" hidden></i></div>'
+            '<button type="button" class="nav prev" aria-label="이전 사진">‹</button>'
+            '<button type="button" class="nav next" aria-label="다음 사진">›</button>'
+            '<p class="info" id="viewer-info" aria-live="polite"></p></dialog>'), 1)
+
     def test_error_writes_no_page(self):
         good = copy.deepcopy(VALID)
         good["id"] = "TC-000"
@@ -472,7 +582,9 @@ class BuildReportTest(unittest.TestCase):
         images |= {step["zoom"]["file"] for scenario in example["scenarios"] for step in scenario["steps"] if "zoom" in step}
         images |= {action["shot"] for scenario in example["scenarios"] for step in scenario["steps"]
                    for action in step.get("do", []) if "shot" in action}
-        self.make_case(example, images=sorted(images))
+        case_dir = self.make_case(example, images=sorted(images))
+        for name in images:
+            (case_dir / name).write_bytes(png_bytes(402, 874))
         code, _, stderr = self.run_script("--check")
         self.assertEqual(code, 0, stderr)
 

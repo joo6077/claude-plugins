@@ -19,16 +19,28 @@
           "text": "PGA 브라보를 골라 확인 창을 연다",
           "do": [
             {
-              "act": "⋯ 버튼 탭 (355,97)",
-              "shot": "01-menu.png"
+              "act": "⋯ 버튼 탭",
+              "shot": "00-start.png",
+              "at": [
+                362,
+                81
+              ]
             },
             {
               "act": "\"방장 넘기기\" 탭",
-              "shot": "02-picker.png"
+              "shot": "01-menu.png",
+              "at": [
+                263,
+                236
+              ]
             },
             {
               "act": "\"PGA 브라보\" 탭",
-              "shot": "04-confirm.png"
+              "shot": "02-picker.png",
+              "at": [
+                137,
+                684
+              ]
             }
           ]
         },
@@ -38,7 +50,11 @@
           "do": [
             {
               "act": "\"취소\" 탭",
-              "shot": "05-after-cancel.png"
+              "shot": "04-confirm.png",
+              "at": [
+                128,
+                486
+              ]
             }
           ]
         },
