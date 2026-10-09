@@ -422,7 +422,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/flutter-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 flutter-toolkit 전 스킬을 전수 감사한다. flutter-toolkit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.12.0 · 2026-09-30] Flutter 개발 워크플로우 스킬 모음 (flutter-scenario-report — 케이스별 보고서 · 조작마다 캡처 · 사진 한 줄 넘김)
+> 플러그인 설명: [v0.13.0 · 2026-10-09] Flutter 개발 워크플로우 스킬 모음 (flutter-scenario-report — 케이스별 보고서 · 조작마다 캡처 · 사진 한 줄 넘김)
 
 ### Step 6: Phase 6 — design-kit 카이젠
 
