@@ -4,7 +4,7 @@ slug: codex-status-bar
 created: "2026-10-09 02:23"
 complexity: "중간"
 conditions: 16
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:e170158226a1abbc
 measurement_digest: sha256:1456137da08cb5a7
