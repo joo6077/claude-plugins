@@ -44,7 +44,7 @@ approach_note: <str>                  # 시도한 접근법 1줄
 ### 4축 필드 의미
 
 | 축 | 의미 | 값 |
-|---|---|---|
+| --- | --- | --- |
 | `scope` | 이 규칙이 어느 범위에 적용되어야 하는가 | session / project / global |
 | `risk_class` | 위반 시 피해 정도 | low / medium / high |
 | `procedurality` | 단일 규칙 vs 체크리스트 | single_rule / multi_step_procedure |
@@ -55,7 +55,7 @@ approach_note: <str>                  # 시도한 접근법 1줄
 ### actionability
 
 | 값 | 의미 | 파이프라인 취급 |
-|---|---|---|
+| --- | --- | --- |
 | `claude_behavior` | Claude가 다르게 행동했다면 피할 수 있었던 사건 (기본값) | precedence 대상 |
 | `user_environment` | 사용자 환경/설정만 고치면 해소되고 Claude 행동으로는 못 막는 사건 (없는 훅 스크립트 참조, 실행 권한 없음, CLI 미설치, 포트 점유) | **precedence 제외** — digest 의 `## 환경 액션 아이템` 으로만 보고. Stop 훅이 억제 창 안에서 반복 로깅을 차단 |
 
@@ -105,7 +105,7 @@ approach_note: <str>                  # 시도한 접근법 1줄
 **이 문서에서 재정의하거나 동의어를 만들지 않는다.** reflect-kit surface 와의 대응만 기록한다.
 
 | §3.7 등급 | reflect-kit surface |
-|---|---|
+| --- | --- |
 | E1 | project/global memory, CLAUDE.md 한 줄 |
 | E2 | path_scoped_rule, skill 의 Process 체크리스트 |
 | E3 | hook, 검증 스크립트 |
@@ -185,7 +185,7 @@ Stop 훅의 dedup 게이트가 `actionability: user_environment` 블록을 억�
 위에서 아래로 적용. 먼저 맞는 규칙 하나만 선택.
 
 | # | 조건 | 승격 surface |
-|---|---|---|
+| --- | --- | --- |
 | 0 | `user_stated_constraint == true` (freq ≥ 1, 임계값 우회) | **매-세션 자동 로드 surface로 fast-track** — `scope==global`이면 글로벌 CLAUDE.md, 아니면 project CLAUDE.md (200줄 초과 시 path-scoped rule). `hard_gate` 면 hook 후보 병기 |
 | 1 | `enforcement_need == hard_gate` (빈도 무관) | **hook 검토** (다른 축 무시) |
 | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** 신설/보강 |

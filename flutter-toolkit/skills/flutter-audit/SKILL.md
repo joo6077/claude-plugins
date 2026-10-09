@@ -11,7 +11,11 @@ argument-hint: "[quick|deep] [path]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - quick 모드와 deep 모드의 차이: quick은 단일 에이전트 로컬 검토, deep은 최대 4에이전트 병렬 감사 — 변경 파일 5개 이하면 quick, 초과면 deep이 기본
 - Provider watch 대신 select 사용 여부를 체크한다 — 성능 이슈의 주요 원인
@@ -22,25 +26,65 @@ user-invocable: true
 - **Primitive Substitution Gate 감사 (E2 · `HAS_DS = true` 일 때만)** — `references/primitive-substitution-gate.md` 가 SSOT 다. deep 모드에서는 그 파일 §deep 검색 의 명령으로 게이트 대상 직접 사용을 **전수 열거**하고, 각 사용처에 DS 대체 후보가 실재하는지 확인해 위반으로 보고한다. quick 모드에서는 변경 파일 범위에서만 본다. **면제 목록(layout primitive)을 위반으로 올리지 마라** — 이 게이트를 "기본 위젯 전면 금지" 로 확대하면 리포트가 노이즈가 되어 무시된다. 실측 REJECT `RE-02` (2026-08-12) 대응
 - **Binary Decidability Pre-Check (agent §3.5 대응)** — 감사 시작 **전** 체크리스트의 각 항목이 PASS/FAIL 중 하나로 귀결 가능한지 자체 검토. "적절한", "충분한", "최소한" 같은 정성적 수식어가 있으면 파일/라인/임계값을 먼저 구체화하고, 그래도 모호하면 해당 항목은 `[미검증]` 으로 표기하되 **조용한 PASS 금지**. 마커 의미와 임계값은 이 문서에서 정의하지 않는다 — 아래 §Unverified-Evidence Protocol 을 따른다
 - **Rule-by-Rule Audit — 완료 선언 전 전수 대조 (skill-design-guide §3.6 대응)** — 감사 리포트 제출 직전, 본 Gotchas + Architecture/State/Widget/Design System/i18n 체크리스트를 다시 한 번 읽고 각 규칙에 대해 "확인했는가 / 근거는 파일:라인 으로 가능한가" 를 1:1 대조한 뒤 보고. "그 외에도 혹시 놓친 규칙이 있는가?" 메타 질문을 스스로 1 회 더 수행 (insights-report #1 Proactive quality gaps 대응). 사용자가 첫 피드백 루프가 되면 안 된다
-- **L3 Honesty — 정적 Grep 만으로 PASS 금지 (qa-evaluation-guide 대응)** — 파일 존재·키워드 포함은 L1/L2. PASS 를 주려면 `Read` 로 실제 내용을 읽거나 `Bash` 로 analyze/test 명령을 실행해 결과를 확인(L3). L3 수행이 불가능한 항목은 `[미검증]` 마커를 리포트에 붙이고 사유(예: "dart test 환경 미구성") 를 기재
+- **L3 Honesty — 정적 Grep 만으로 PASS 금지 (qa-evaluation-guide 대응)** — 파일 존재·키워드 포함은 L1/L2. PASS 를 주려면 `Read` 로 실제 내용을 읽거나 `Bash` 로 analyze/test 명령을 실행해 결과를 확인(L3). L3 수행이 불가능한 항목은 §Unverified-Evidence Protocol 의 `UNVERIFIED_ENV` 남용 방지 4 요건을 채워 `[미검증:ENV]` 로, 못 채우면 `[미검증:INVALID]` 로 붙이고 사유(예: "dart test 환경 미구성") 를 기재
 - **감사 범위 Scope Range 선언 (contract-design-guide 대응)** — 리포트 서두에 "감사 대상: <glob 패턴 or 파일 목록>" 을 명시하여 평가자·사용자가 범위를 재해석하지 않도록 한다. `quick` 모드는 `git diff --name-only` 결과, `deep` 모드는 `lib/` 전체 (또는 `$ARGUMENTS` 의 path) 가 기본 Scope Range
+- **공용 위젯 감사는 놀이터 기본기 검사 결과를 근거로 써라.** 프로젝트에 `/flutter-catalog` 가 깔려 있으면(`skills/flutter-catalog/SKILL.md`) `build/widget_fundamentals.csv` 의 `FAIL` 줄과 `tool/catalog_lint.dart` 출력이 여백 · 크기 동작 · 넘침 · 아이콘 정렬 판정의 증거다. 코드만 읽고 「여백이 있어 보인다」 고 쓰지 마라 — 규칙과 기준은 `references/widget-fundamentals.md`
 
 Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감지하여 적합한 규칙으로 검사한다.
 
 ## Unverified-Evidence Protocol
 
 > **정본(SSOT):** `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol.
-> 아래 5 조항은 정본을 **문구 변형 없이** 복제한 것이다. 이 문서에서 임계값이나 마커 의미를 다시
-> 정의하지 않는다.
+> 아래 사본은 정본을 **문구 변형 없이** 복제한 것이다. 이 문서에서 임계값이나 마커 의미를 다시
+> 정의하지 않는다. 원문이 바뀌면 이 절도 같은 문구로 맞춘다.
+
+사본 출처: `harness/docs/guides/qa-evaluation-guide.md` v5.1 (2026-09-24) — §Canonical Unverified-Evidence Protocol 의 번호 목록과 §증거 분류 triage 의 `UNVERIFIED_ENV` 남용 방지 4 요건을 글자 그대로 옮겼다. 사본의 「계약」 은 이 스킬의 감사 체크리스트를, 「조건」 은 체크리스트 항목 하나를 뜻한다. CI 가 `scripts/check-reviewer-protocol-copies.py` 로 원문과 대조한다.
 
 1. **마커는 `[미검증]` 하나로 통일한다.** 동의어(`미확인`, `N/A`, `TBD`, `unverified`) 를 만들지 않는다.
    `[정적]` 은 "런타임 없이 정적으로만 확인" 을 뜻하는 보조 태그이며 `[미검증]` 을 대체하지 않는다.
-2. **`[미검증]` 은 검증 도구·환경 부재 전용이다.** 대상이 없거나 미구현이면 그것은 미검증이
-   아니라 **FAIL** 이다. 증거는 있으나 공허하면(빈 출력·0 활성화) 그것도 `[미검증]` 이다
-   (3 분기: FAIL / 도구 부재 / 증거 무효).
-3. **임계값은 2 다.** `[미검증]` 0 건은 통상 판정, **1 건은 PASS 허용 + 경고 명시, 2 건 이상은
-   개별 FAIL 이 없어도 verdict 는 REJECT**. "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이
-   "1 건 + FAIL 0" 인 경우에만 유효하며, 2 건 이상에는 쓸 수 없다.
+
+   ⚠️ **`N/A (사유)` 는 이 금지의 예외이며 동의어가 아니다 — 재는 대상 자체가 다르다.**
+   두 마커를 섞으면 "측정 못 했다" 와 "잴 것이 없다" 가 같은 칸에 들어가 판정이 무너진다.
+
+   | 마커 | 뜻 | 언제 |
+   | ---- | -- | ---- |
+   | `[미검증]` | **조건은 이 대상에 적용되는데** 검증 도구·환경이 없어 **재지 못했다** | Studio 미설치, 기기 없음, MCP 불가 |
+   | `N/A (사유)` | **조건이 이 대상에 애초에 적용되지 않는다** — 잴 것이 존재하지 않는다 | 스택 불일치 안티패턴(§안티패턴 스택 정합성), `commands.analyze` 가 없는 markdown 전용 킷, 빈 카테고리 자리표시 `XX-00` |
+
+   구별 기준 한 줄: **도구를 구해오면 잴 수 있으면 `[미검증]`, 도구를 구해와도 잴 것이 없으면 `N/A (사유)`.**
+   `N/A` 를 사유 없이 쓰면 그때는 금지 대상이다 — 반드시 괄호 안에 사유를 적는다.
+
+2. **`commands.analyze` / `commands.test` 가 성립하지 않는 프로젝트의 `진단-01`·`진단-02`(옛 계약은 `DG-01`·`DG-02`) 처리.**
+   markdown·문서 전용 킷처럼 정적 분석기가 없는 스택에서는 `진단-01`·`진단-02` 를 억지로 PASS 로
+   적지 마라 — **매치 0 건을 PASS 로 적는 것은 공허한 0 이다**(§Evidence Validity Gate).
+
+   - `project.yaml` 의 `commands.analyze` 가 `null`/빈 문자열이면 `진단-01` 은
+     `N/A (commands.analyze 미설정 — 이 스택에 정적 분석기 없음)` 으로 기록한다
+   - IDE 가 해당 확장자에 진단을 내지 않으면 `진단-02` 는
+     `N/A (IDE diagnostics 미적용 확장자: .md/.html)` 으로 기록한다
+   - 대신 그 킷에 **실제로 성립하는 오라클**을 쓴다: `python3 scripts/validate-plugin.py <kit>` ·
+     `commands.lint` · 문서 링크 검사. 어느 것도 없으면 계약 결함으로 Sprint Feedback 에 남긴다
+   - **명령은 있는데 이번 변경 파일을 재지 않으면** `진단-01` · `진단-03` 도 N/A 다 (2026-09-19 신규) — 예: `commands` 가
+     `scripts/release.sh` 만 재는데 스프린트가 그 파일을 건드리지 않았다. 측정: 명령 대상 경로와
+     `git diff --name-only <기준>...<브랜치>` 의 교집합 0 개
+   - `진단-04` 는 산출물에 구동할 앱 · 서버가 없으면 N/A 다 (설정 파일 · 문서 · 스크립트 조각). 측정: 변경 파일에 실행 진입점 0 개
+   - `재사용-01` · `재사용-02` 는 산출물에 재사용 단위 코드(컴포넌트 · 함수 · 모듈)가 없으면 N/A 다. 측정: 변경 파일이 설정 · 문서 · 데이터뿐
+   - 평가자는 사유를 **다시 잰다.** 사유가 거짓이면 FAIL(N/A 남용), 사실이면 N/A 로 따로 센다. 계약 작성 절차는
+     `harness/skills/sprint-contract/SKILL.md` Step 4 다
+3. **`[미검증]` 은 검증 도구·환경 부재 전용이며, 그 안에서 다시 두 분류로 갈린다.** 대상이
+   없거나 미구현이거나 **의도적으로 실행하지 않았으면** 그것은 미검증이 아니라 **FAIL** 이다.
+   나머지는 `UNVERIFIED_ENV`(구현자 통제 밖 도구·환경 부재 · 남용 방지 4 요건 충족) 와
+   `UNVERIFIED_INVALID_EVIDENCE`(4 요건 미충족 주장 + 공허한 증거) 로 나눈다
+   (4 분기: FAIL / `UNVERIFIED_ENV` / 4 요건 미충족 / 증거 무효).
+   마커 어간은 `[미검증]` 하나이며 접미 `:ENV` / `:INVALID` 는 분류다. **접미 없는 레거시
+   `[미검증]` 은 `INVALID` 로 해석한다.**
+
+   **임계값 2 는 `UNVERIFIED_INVALID_EVIDENCE` 에만 적용된다.** 그 카운터가 0 건이면 통상 판정,
+   **1 건은 PASS 허용 + 경고 명시, 2 건 이상은 개별 FAIL 이 없어도 verdict 는 REJECT**.
+   "CONDITIONAL APPROVE" 를 쓰는 킷은 그것이 "1 건 + FAIL 0" 인 경우에만 유효하며 2 건 이상에는
+   쓸 수 없다. **`UNVERIFIED_ENV` 는 이 카운터에 합산하지 않고** `env_gaps` 로 따로 세어
+   검증 커버리지 게이트(`(총수 − env_gaps)/총수 < 0.60` → `BLOCKED`)에만 쓴다. 같은 조건이
+   2 iteration 연속 `UNVERIFIED_ENV` 이면 계약 결함으로 승급해 `INVALID` 쪽으로 이관한다.
 4. **생성자의 완료 주장은 증거가 아니다.** 구현자가 "동작 확인함 / 실행했음" 이라고 쓴 문장,
    코드 주석, 커밋 메시지의 자기 평가는 상태 검증이 아니다. 명시적 완료 주장을 포함한 자기평가
    에이전트 궤적에서 **실패의 75.8% 가 false success** 였고, LLM 판정자의 AUROC 는 0.54~0.65 에
@@ -49,6 +93,22 @@ Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감�
 5. **조용한 PASS 금지 + 집계 의무.** 검증을 건너뛰고 정적 정황만으로 PASS 를 주지 않는다.
    리포트에 `미검증 N 건` 을 반드시 집계하고, 건별로 `[조건/항목 ID, 사유, 시도한 fallback 단계]`
    를 남긴다.
+
+### `UNVERIFIED_ENV` 남용 방지 4 요건 (하나라도 없으면 `[미검증:INVALID]` · 정본 복제)
+
+1. **1 차 도구 시도 기록** — 계약이 지정한 기본 검증 도구를 실제로 호출했고 그 결과(에러 메시지·
+   타임아웃·미설치 출력)를 근거란에 인용했다
+2. **fallback 시도 기록** — 계약의 단계 2(대체 정적 검증)를 수행했다. 계약에 fallback 이 없으면
+   "fallback 미기술" 을 **계약 결함**으로 기록하는 것까지가 이 요건이다
+3. **실패 로그** — 1·2 의 실패를 서술이 아니라 **출력**으로 남겼다. "확인 불가했다" 는 로그가 아니다
+4. **통제 불가 사유 + 재검증 명령** — 왜 이것이 **구현자가 통제할 수 없는** 환경 요인인지 한 문장으로
+   적고, 환경이 갖춰졌을 때 이 조건을 통과시킬 **실행 가능한 명령**을 함께 적었다
+
+### flutter-audit 적용 메모
+
+- 이 스킬은 판정값(APPROVE · REJECT) 대신 errors · warnings 를 보고한다. 사본의 임계 2 는 `invalid_evidence`(`[미검증:INVALID]` · 접미 없는 `[미검증]`) 에만 건다 — `invalid_evidence` 가 2 건 이상이면 errors 가 0 건이어도 리포트 결론을 「통과 아님」 으로 적는다.
+- `[미검증:ENV]` 는 `env_gaps` 로 따로 세고 위 셈에 넣지 않는다. `(검사한 항목 수 − env_gaps) / 검사한 항목 수` 가 0.60 미만이면 결론을 「검증 부족」 으로 적는다.
+- 성능 지적의 환경 배제 실패(Performance Environment)처럼 도구·기기가 없어 못 잰 항목은 4 요건을 채워 `[미검증:ENV]` 로, 못 채우면 `[미검증:INVALID]` 로 센다.
 
 ## 사용자 보고와 자기 증거가 충돌할 때
 
@@ -93,7 +153,7 @@ PASS 를 확정하기 **전에** 아래 4 검사를 통과해야 한다. 하나�
 ## Evidence Validity
 - 검사 대상 증거: N 건
 - 무효 판정: K 건 [항목 — 실패한 검사 번호 — 사유]
-- 무효 K 건은 미검증 카운터에 합산 (현재 누계: M)
+- 무효 K 건은 invalid_evidence 에 합산 (현재 누계: M)
 ```
 
 ## 0. 프로젝트 감지
@@ -104,7 +164,7 @@ PASS 를 확정하기 **전에** 아래 4 검사를 통과해야 한다. 하나�
 감지 결과에 따라 아래 체크리스트 항목의 활성화/비활성화를 결정한다:
 
 | 감지 키 | 영향받는 검사 |
-|---------|-------------|
+| --------- | ------------- |
 | `ARCH = clean` | Architecture 전체 (레이어 분리, 의존 방향) |
 | `ARCH = feature_first` / `flat` | Architecture를 구조에 맞게 적응 |
 | `HAS_RIVERPOD` | State Management (codegen, mounted, Result) |
@@ -260,7 +320,7 @@ Flutter 위젯 모범 사례를 지키지 않으면 오버플로, 인터랙션 �
 - [ ] **slowest target device** 기준인가, 개발자 최고 사양 기기 기준인가
 
 **판정 규칙** — simulator/emulator 또는 debug mode 결과만 있으면 앱 코드 성능 병목으로
-**확정하지 말고 `[미검증]`** 으로 표기하고 미검증 카운터에 합산한다. "iOS simulator 에서
+**확정하지 말고** §Unverified-Evidence Protocol 의 4 요건을 채우면 `[미검증:ENV]` 로 표기해 `env_gaps` 에, 못 채우면 `[미검증:INVALID]` 로 표기해 `invalid_evidence` 에 합산한다. "iOS simulator 에서
 jank 가 보이니 앱 버그" 는 공식 문서 기준으로 **대표성이 없는 추론**이므로 쓰지 마라.
 
 실기기 확보가 불가능하면 simulator 결과를 "환경 의심" 등급으로만 쓰고, profile trace export 와
@@ -397,18 +457,19 @@ Performance Environment          <-- 성능 이슈가 감사 대상에 포함될
   profile mode: yes|no | device: <모델명|simulator|emulator>
   swap/memory: <상태|미확인> | trace: <경로|미확보>
   renderer: Impeller|Skia | refresh rate: <Hz> | slowest target: <기기|미지정>
-  [환경 배제 실패 시 해당 성능 지적은 [미검증]]
+  [환경 배제 실패 시 해당 성능 지적은 [미검증:ENV] (4 요건 충족) | [미검증:INVALID]]
 
 Evidence Validity
   검사 대상 증거: N | 무효: K
   [항목 — 실패한 검사 번호 — 사유]
 
 Unverifiable
-  미검증: N 건
-  [항목 ID — 사유 — 시도한 fallback 단계]
+  미검증: N 건 (env_gaps: N · invalid_evidence: N)
+  [항목 ID — [미검증:ENV]|[미검증:INVALID] — 사유 — 시도한 fallback 단계]
 
 ----------------------------------------------------
-Total: N errors, N warnings | 미검증 N 건
+Total: N errors, N warnings | env_gaps N · invalid_evidence N
+결론: 통과 | 통과 아님 (invalid_evidence 2 건 이상) | 검증 부족 ((검사한 항목 수 − env_gaps) / 검사한 항목 수 < 0.60)
 ```
 
 감사 결과만 보고한다. 코드를 직접 수정하지 않는다.
@@ -422,6 +483,6 @@ Total: N errors, N warnings | 미검증 N 건
 - **MUST** `$PACKAGE` 변수를 import 규칙에 사용한다 -- 패키지명을 하드코딩하면 다른 프로젝트에서 오탐이 발생한다
 - **MUST** 위반 보고 시 파일:라인, 규칙, 심각도, 수정 제안을 모두 포함한다 -- 위치 없는 위반 보고는 수정 작업을 지연시킨다
 - **MUST** PASS 확정 전에 Evidence Validity Gate 4 검사를 통과시킨다 -- 0 매치 grep, 0 개 테스트, 빈 캡처를 "위반 없음" 으로 읽으면 감사가 통과 도장 기계가 된다
-- **MUST** 리포트에 `Evidence Validity` + `Unverifiable` 블록을 포함한다 -- 집계하지 않으면 미검증 누계 임계(2 건) 판정이 성립하지 않는다
-- **MUST** 성능 지적을 하기 전에 Environment Exclusion Checklist 8 항을 기록한다 -- profile mode 가 아니거나 simulator/emulator 결과만 있으면 그 지적은 `[미검증]` 이다. 환경 배제 없이 앱 코드 최적화를 요구하면 존재하지 않는 병목을 고치게 만든다
+- **MUST** 리포트에 `Evidence Validity` + `Unverifiable` 블록을 포함하고 `env_gaps` · `invalid_evidence` 를 따로 센다 -- 집계하지 않으면 `invalid_evidence` 임계(2 건) 판정과 `env_gaps` 검증 커버리지 판정이 성립하지 않는다
+- **MUST** 성능 지적을 하기 전에 Environment Exclusion Checklist 8 항을 기록한다 -- profile mode 가 아니거나 simulator/emulator 결과만 있으면 그 지적은 4 요건을 채우면 `[미검증:ENV]`, 못 채우면 `[미검증:INVALID]` 이다. 환경 배제 없이 앱 코드 최적화를 요구하면 존재하지 않는 병목을 고치게 만든다
 - **MUST NOT** Primitive Substitution Gate 를 layout primitive 로 확대 적용하지 않는다 -- 면제 목록은 `references/primitive-substitution-gate.md` 가 정한다. 확대 적용된 게이트는 전건 경보가 되어 사용자가 리포트 전체를 무시하게 만든다

@@ -225,7 +225,7 @@
         {"text": "test/ 디렉토리에서 기존 테스트 패턴을 확인한다", "type": "behavior"},
         {"text": "Arrange-Act-Assert 구조를 따른다", "type": "output"},
         {"text": "Mock보다 Fake/Stub을 우선 사용한다", "type": "output"},
-        {"text": "생성 후 $DART test로 검증한다", "type": "behavior"}
+        {"text": "생성 후 $FLUTTER test {생성된_테스트_파일} 로 검증한다 — 순수 Dart 패키지(test 만 의존)일 때만 $DART test 를 쓴다", "type": "behavior"}
       ]
     },
     {
@@ -293,6 +293,32 @@
         {"text": "판정한 단계마다 seen 에 도구가 돌려준 관측값을 적고, 시나리오 판정은 손으로 적지 않는다", "type": "output"},
         {"text": "build_report.py --check 가 종료 코드 0 으로 끝난 뒤에 index.html 을 만든다", "type": "behavior"},
         {"text": "보고를 '보고서: · 결과: · 실패:' 세 줄로 시작한다", "type": "output"}
+      ]
+    },
+    {
+      "id": 24,
+      "agent": "widget-inspector",
+      "prompt": "flutter-feature 가 방금 만든 order 피처 주변에 재사용 위젯 있는지 quick 모드로 봐줘. 관례 표 없는 호출이다",
+      "expected_output": "quick 모드로 변경 파일 주변 스캔 → 추출 후보 리포트 또는 Clean. 관례 대조는 [미검증] 없이 건너뛰고 Convention Match 칸에 건너뜀 한 줄",
+      "assertions": [
+        {"text": "변경 파일의 feature 디렉토리 + shared 디렉토리를 범위로 스캔한다", "type": "behavior"},
+        {"text": "관례 표를 찾거나 대조할 화면을 새로 고르지 않는다", "type": "behavior"},
+        {"text": "리포트 Convention Match 칸에 건너뜀 — 관례 표 없는 호출 한 줄만 적는다", "type": "output"},
+        {"text": "관례 대조를 [미검증] 으로 세지 않는다 — [미검증] 관례 표 없음 은 호출 프롬프트가 그렇게 밝히지 않았을 때만 쓴다", "type": "output"},
+        {"text": "코드를 수정하지 않고 리포팅만 수행한다", "type": "behavior"}
+      ]
+    },
+    {
+      "id": 25,
+      "skill": "flutter-catalog",
+      "prompt": "공용 위젯 놀이터 깔아 줘. 우리 버튼들 속성 바꿔 보면서 보고 싶고, 여백이랑 넘침도 자동으로 잡았으면 해",
+      "expected_output": "install.sh --add-deps 로 틀을 깔고 두 감싸개를 앱 테마 · 상태 저장소 · 번역에 맞춘 뒤 catalog/widgets.yaml 을 채워 생성기 → 기본기 검사 → 놀이터 띄우기 순으로 진행. 실패 줄은 결과 표를 그대로 인용",
+      "assertions": [
+        {"text": "틀은 scripts/install.sh 로 깔고, 이미 있는 파일이 있으면 덮어쓰지 않고 멈춘다", "type": "behavior"},
+        {"text": "catalog/widgets.yaml 에 위젯마다 sizing · min_padding · view 를 적는다", "type": "behavior"},
+        {"text": "생성기가 조절 못 하는 타입이나 목록에 빠진 공용 위젯으로 실패하면 samples 나 목록을 고쳐 다시 돌린다 — 생성물을 손으로 고치지 않는다", "type": "behavior"},
+        {"text": "기본기 검사 실패를 build/widget_fundamentals.csv 줄로 인용하고 references/widget-fundamentals.md 의 규칙 번호를 붙인다", "type": "output"},
+        {"text": "놀이터는 앱 안 진입 파일 lib/main_catalog_kit.dart 로 띄우고 별도 패키지를 만들지 않는다", "type": "behavior"}
       ]
     }
   ]

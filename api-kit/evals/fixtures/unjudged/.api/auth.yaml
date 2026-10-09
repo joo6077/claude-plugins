@@ -1,0 +1,15 @@
+schemaVersion: 1
+authProfiles:
+  svc-dev:
+    type: oauth2_client_credentials
+    tokenUrl: https://dev.api.shopflow.io/v1/auth/token
+    clientIdRef: env:DEV_CLIENT_ID
+    clientSecretRef: env:DEV_CLIENT_SECRET
+    clientAuth: body
+    scope: ["orders:read", "products:read", "users:read"]
+    token:
+      accessTokenPath: "$.access_token"
+      expiresInPath: "$.expires_in"
+    inject:
+      header: Authorization
+      valueTemplate: "Bearer {{access_token}}"

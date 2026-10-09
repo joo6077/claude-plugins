@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로젝트 감지 규칙 — React Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#38BDF8;--accent2:#7DD3FC;--accent-dim:rgba(56,189,248,0.12);
+    --accent-line:rgba(56,189,248,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#0369A1;--accent2:#075985;--accent-dim:rgba(3,105,161,0.10);
+    --accent-line:rgba(3,105,161,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; React Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">React Kit · 참고 문서</span>
+  <h1>프로젝트 감지 규칙</h1>
+  <p class="orig-title">원본 제목: <strong>Project Detection Rules</strong></p>
+  <p class="subtitle">react-kit 스킬이 코드를 만들기 전에 <strong>지금 프로젝트에 무엇이 깔려 있는지</strong>를 읽는 순서와 결과 모양을 정한다. flutter-toolkit 의 같은 이름 문서를 본떴다. 설치본 플러그인에는 docs/react/ 가 없다 — 이 파일의 docs/... 경로를 열 수 없으면 https://raw.githubusercontent.com/joo6077/claude-plugins/main/ 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>react-kit/references/project-detection.md</code></span>
+    <span class="badge">감지 단계 열하나</span>
+    <span class="badge">결과 키 열하나</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>순서대로 읽는다</h3>
+      <p>Node 판부터 strict TypeScript 까지 열한 단계를 정한 순서로 읽는다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>스크립트가 대신 읽는다</h3>
+      <p><code>scripts/project-detect.sh</code> 가 단계마다 키 하나인 JSON 객체를 낸다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>결과에 따라 거절한다</h3>
+      <p>Tailwind v3 · Cargo 작업 공간 없음 · Tauri 없음이면 해당 스킬이 거절하고 먼저 할 일을 권한다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>한 번 계산한다</h3>
+      <p>스킬을 한 번 부를 때 한 번 계산해 둔다. 긴 세션은 필요할 때 다시 잰다.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="pd-steps">
+  <div class="section-label" id="pd-steps">감지 단계와 결과 키</div>
+  <p class="desc">원본의 감지 순서 열한 단계를 읽는 파일 · 결과 JSON 키 · 스킬이 보이는 반응으로 나란히 놓았다. 반응 칸은 원본 「Skill Behavior Based on Detection」 절에서 옮겼다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th><div class="c">순서</div></th>
+          <th><div class="c">무엇을</div></th>
+          <th><div class="c">읽는 곳</div></th>
+          <th><div class="c">결과 키</div></th>
+          <th><div class="c">없거나 낡았을 때</div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="c">1</div></td>
+          <td><div class="c">Node 판</div></td>
+          <td><div class="c"><code>.nvmrc</code> → 없으면 <code>package.json</code> <code>engines.node</code></div></td>
+          <td><div class="c"><code>node</code></div></td>
+          <td><div class="c">—</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">2</div></td>
+          <td><div class="c">pnpm 판</div></td>
+          <td><div class="c"><code>package.json</code> <code>packageManager</code></div></td>
+          <td><div class="c"><code>pnpm</code></div></td>
+          <td><div class="c">—</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">3</div></td>
+          <td><div class="c">React 판</div></td>
+          <td><div class="c"><code>package.json</code> <code>dependencies.react</code></div></td>
+          <td><div class="c"><code>react</code></div></td>
+          <td><div class="c">—</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">4</div></td>
+          <td><div class="c">Vite 설치</div></td>
+          <td><div class="c"><code>devDependencies.vite</code> + <code>vite.config.ts</code></div></td>
+          <td><div class="c"><code>vite</code></div></td>
+          <td><div class="c">—</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">5</div></td>
+          <td><div class="c">Tailwind 판</div></td>
+          <td><div class="c"><code>devDependencies.tailwindcss</code> (v4 와 v3 는 설치 길이 다르다)</div></td>
+          <td><div class="c"><code>tailwind</code></div></td>
+          <td><div class="c">v3 면 <code>/react-init</code> 이 거절하고 올리기를 권한다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">6</div></td>
+          <td><div class="c">shadcn 초기화</div></td>
+          <td><div class="c">프로젝트 루트의 <code>components.json</code></div></td>
+          <td><div class="c"><code>shadcn</code></div></td>
+          <td><div class="c">없으면 <code>/react-widget</code> 이 init 을 먼저 권한다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">7</div></td>
+          <td><div class="c">TanStack Router 플러그인</div></td>
+          <td><div class="c"><code>devDependencies.@tanstack/router-plugin</code></div></td>
+          <td><div class="c"><code>tanstackRouter</code></div></td>
+          <td><div class="c">—</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">8</div></td>
+          <td><div class="c">Cargo 작업 공간</div></td>
+          <td><div class="c">루트 <code>Cargo.toml</code> 의 <code>[workspace]</code> 표</div></td>
+          <td><div class="c"><code>cargoWorkspace</code></div></td>
+          <td><div class="c">없으면 <code>/react-wasm</code> 이 거절한다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">9</div></td>
+          <td><div class="c">Tauri 설치</div></td>
+          <td><div class="c"><code>src-tauri/</code> 폴더와 <code>tauri.conf.json</code></div></td>
+          <td><div class="c"><code>tauri</code></div></td>
+          <td><div class="c">없으면 <code>/react-tauri</code> 가 거절한다</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">10</div></td>
+          <td><div class="c">Lingui 설정</div></td>
+          <td><div class="c"><code>lingui.config.ts</code></div></td>
+          <td><div class="c"><code>lingui</code></div></td>
+          <td><div class="c">—</div></td>
+        </tr>
+        <tr>
+          <td><div class="c">11</div></td>
+          <td><div class="c">strict TypeScript</div></td>
+          <td><div class="c"><code>tsconfig.json</code> 의 <code>strict: true</code> 와 관련 옵션</div></td>
+          <td><div class="c"><code>strictTS</code></div></td>
+          <td><div class="c">없으면 생성 스킬 모두가 strict 옵션을 넣는다</div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="pd-flow">
+  <div class="section-label" id="pd-flow">감지가 도는 순서</div>
+  <ol class="md-list">
+    <li class="lv0">
+      <span class="li-mark">1</span>
+      <div class="li-body">스킬이 코드를 만들기 전에 프로젝트 루트에서 <code>scripts/project-detect.sh</code> 를 돌린다. 설치본이면 <code>${CLAUDE_PLUGIN_ROOT}</code>, 플러그인 레포면 <code>react-kit/</code> 아래 파일이다.</div>
+    </li>
+    <li class="lv0">
+      <span class="li-mark">2</span>
+      <div class="li-body">스크립트가 단계마다 키 하나씩 담은 JSON 객체 하나를 낸다. 스크립트를 못 쓰면 위 순서대로 파일을 읽어 같은 객체를 손으로 만든다.</div>
+    </li>
+    <li class="lv0">
+      <span class="li-mark">3</span>
+      <div class="li-body">스킬은 그 객체를 보고 거절하거나, 먼저 할 일을 권하거나, strict 옵션을 넣는다.</div>
+    </li>
+    <li class="lv0">
+      <span class="li-mark">4</span>
+      <div class="li-body">결과는 스킬을 한 번 부를 때 한 번 계산해 둔다. 오래 도는 세션은 필요할 때 다시 잰다.</div>
+    </li>
+  </ol>
+</section>
+
+<section class="section" aria-labelledby="pd-test">
+  <div class="section-label" id="pd-test">시험이 재는 것과 못 재는 것</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>재는 것</h3>
+      <p><code>react-kit/evals/scripts/project-detect-test.sh</code> 는 <code>tanstackRouter</code> 값 하나만 본다. 답을 아는 입력 셋을 jq 경로와 python3 경로 두 갈래로 돌린다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>못 재는 것</h3>
+      <p>나머지 열 키가 출력 객체에 그대로 남는지는 어떤 시험도 보지 않는다. 키를 더하거나 뺄 때는 출력을 눈으로 한 번 확인한다.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>Detection Order</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>Detection Outputs</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>Skill Behavior Based on Detection</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>Caching</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>Related Documents</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<p>All react-kit skills read this file to determine the current project environment before generating code. Mirrors the <code>flutter-toolkit/references/project-detection.md</code> pattern.</p>
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>Detection Order</h2>
+  <div class="doc-body">
+<ul class="md-list ordered">
+  <li class="lv0"><span class="li-mark">1.</span><div class="li-body"><strong>Node version</strong> — read <code>.nvmrc</code> first, fallback to <code>package.json</code> <code>engines.node</code></div></li>
+  <li class="lv0"><span class="li-mark">2.</span><div class="li-body"><strong>pnpm version</strong> — read <code>packageManager</code> field in <code>package.json</code></div></li>
+  <li class="lv0"><span class="li-mark">3.</span><div class="li-body"><strong>React version</strong> — read <code>dependencies.react</code> in <code>package.json</code></div></li>
+  <li class="lv0"><span class="li-mark">4.</span><div class="li-body"><strong>Vite install</strong> — check <code>devDependencies.vite</code> + <code>vite.config.ts</code> exists</div></li>
+  <li class="lv0"><span class="li-mark">5.</span><div class="li-body"><strong>Tailwind version</strong> — read <code>devDependencies.tailwindcss</code>. v4 vs v3 has different install paths</div></li>
+  <li class="lv0"><span class="li-mark">6.</span><div class="li-body"><strong>shadcn initialization</strong> — check <code>components.json</code> exists at project root</div></li>
+  <li class="lv0"><span class="li-mark">7.</span><div class="li-body"><strong>TanStack Router plugin</strong> — check <code>devDependencies.@tanstack/router-plugin</code></div></li>
+  <li class="lv0"><span class="li-mark">8.</span><div class="li-body"><strong>Cargo workspace</strong> — check root <code>Cargo.toml</code> with <code>[workspace]</code> table</div></li>
+  <li class="lv0"><span class="li-mark">9.</span><div class="li-body"><strong>Tauri install</strong> — check <code>src-tauri/</code> directory exists and has <code>tauri.conf.json</code></div></li>
+  <li class="lv0"><span class="li-mark">10.</span><div class="li-body"><strong>Lingui config</strong> — check <code>lingui.config.ts</code> exists</div></li>
+  <li class="lv0"><span class="li-mark">11.</span><div class="li-body"><strong>strict TypeScript</strong> — read <code>tsconfig.json</code> for <code>strict: true</code> and related options</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>Detection Outputs</h2>
+  <div class="doc-body">
+<p>Run the kit's detector from the project root instead of re-reading each file by hand. It prints the JSON object below, one key per detection step:</p>
+<div class="code"><span class="code-lang">bash</span><pre><code>bash "$REACT_KIT/scripts/project-detect.sh"   # REACT_KIT = ${CLAUDE_PLUGIN_ROOT} when installed, react-kit/ in the plugin repo</code></pre></div>
+<p><code>react-kit/evals/scripts/project-detect-test.sh</code> checks only the <code>tanstackRouter</code> value (three known inputs, jq and python3 paths). No test checks that the output keeps the other keys of the object below. If the script is unavailable, read the files in the order above and build the same object.</p>
+<p>A detection result is a JSON object shaped like:</p>
+<div class="code"><span class="code-lang">json</span><pre><code>{
+  "node": "22.14.1",
+  "pnpm": "9.15.0",
+  "react": "19.0.0",
+  "vite": "8.2.0",
+  "tailwind": "4.0.0",
+  "shadcn": true,
+  "tanstackRouter": true,
+  "cargoWorkspace": true,
+  "tauri": true,
+  "lingui": true,
+  "strictTS": true
+}</code></pre></div>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>Skill Behavior Based on Detection</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Tailwind v3 detected → <code>/react-init</code> refuses, suggests upgrade. Existing skills use v3 syntax</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">shadcn missing → <code>/react-widget</code> suggests <code>pnpm dlx shadcn@latest init --template vite</code> first</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Cargo workspace missing → <code>/react-wasm</code> refuses, suggests <code>/react-init --with-wasm</code> first</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">Tauri missing → <code>/react-tauri</code> refuses, suggests <code>/react-init --with-tauri</code> first</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">strict TS missing → all generation skills inject the strict compilerOptions</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>Caching</h2>
+  <div class="doc-body">
+<p>Detection result is computed once per skill invocation and cached. Long-running sessions may re-detect on demand.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>Related Documents</h2>
+  <div class="doc-body">
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g1-scaffolding.md</code> §1 — <code>/react-init</code> scaffolding details</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>docs/react/kit-design/g6-build-audit.md</code> §1.3 — <code>/react-run</code> subcommand enabling based on detection</div></li>
+</ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>react-kit/references/project-detection.md</code> 의 기준 판은 커밋 <code>38cccd1</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>

@@ -16,7 +16,7 @@
 
 ### 신규 생성
 
-```
+```text
 harness/references/                          # NEW directory
 ├── contract-schema.md                       # 계약 포맷 공유 정의
 └── feedback-schema.yaml                     # 피드백 YAML 스키마
@@ -85,7 +85,7 @@ harness/evals/kaizen/
 
 ### 수정
 
-```
+```text
 harness/skills/sprint-contract/SKILL.md      # 자기진단 + 피드백 hard gate + 가이드 참조
 harness/agents/qa-evaluator.md               # 자기진단 + 피드백 hard gate + 가이드 참조
 .claude/skills/kaizen-orchestrator/SKILL.md  # 6 Phase 재구성
@@ -96,6 +96,7 @@ harness/agents/qa-evaluator.md               # 자기진단 + 피드백 hard gat
 ## Task 1: 공유 참조 파일 생성 (harness/references/)
 
 **Files:**
+
 - Create: `harness/references/contract-schema.md`
 - Create: `harness/references/feedback-schema.yaml`
 
@@ -109,7 +110,7 @@ Expected: `references/` 디렉토리가 없음. 파일 생성 시 자동 생성�
 
 - [ ] **Step 2: contract-schema.md 작성**
 
-```markdown
+````markdown
 # Sprint Contract 스키마
 
 > sprint-contract와 qa-evaluator가 공유하는 계약 포맷 정의.
@@ -180,7 +181,7 @@ conditions: {총 조건 수}
 ## 스키마 버전
 
 현재: v1
-```
+````
 
 - [ ] **Step 3: feedback-schema.yaml 작성**
 
@@ -280,12 +281,13 @@ git commit -m "feat(harness): 공유 참조 파일 생성 — contract-schema + 
 ## Task 2: 가이드 문서 생성
 
 **Files:**
+
 - Create: `docs/guides/contract-design-guide.md`
 - Create: `docs/guides/qa-evaluation-guide.md`
 
 - [ ] **Step 1: contract-design-guide.md 작성**
 
-```markdown
+````markdown
 # Contract Design Guide
 
 > sprint-contract 스킬이 참조하는 계약 작성 원칙.
@@ -338,10 +340,12 @@ Design by Contract (Meyer, 1992) 구조를 참고:
 
 BDD(Behavior-Driven Development) 패턴으로 조건을 구조화할 수 있다:
 
-```
+```text
+
 Given {전제 조건}
 When {동작}
 Then {기대 결과}
+
 ```
 
 모든 조건에 강제는 아니지만, 복잡한 조건일수록 이 구조가 모호성을 줄인다.
@@ -418,11 +422,11 @@ sprint-contract 실행 후 Agent tool로 qa-evaluator 서브에이전트를 호�
 - `category_coverage`: project.yaml 카테고리 대비 커버 비율
 - `anti_pattern_count`: 선택된 안티패턴 수
 - `complexity`: 판단된 복잡도
-```
+````
 
 - [ ] **Step 2: qa-evaluation-guide.md 작성**
 
-```markdown
+````markdown
 # QA Evaluation Guide
 
 > qa-evaluator 에이전트가 참조하는 평가 방법론.
@@ -481,11 +485,13 @@ Independent Verification & Validation (IV&V) 원칙:
 
 각 계약 조건을 boolean 서브체크로 분해한다 (CheckEval 패턴):
 
-```
+```text
+
 조건: "로그인 실패 시 HTTP 401을 반환한다"
 ├── 서브체크 1: 로그인 실패 경로가 존재하는가? (L1)
 ├── 서브체크 2: 해당 경로에서 401을 반환하는 코드가 있는가? (L2)
 └── 서브체크 3: 잘못된 credential 입력 시 실제로 401 경로를 타는가? (L3)
+
 ```
 
 서브체크 하나라도 FAIL이면 해당 조건은 FAIL.
@@ -565,7 +571,7 @@ evaluator-kaizen이 주기적으로 수행:
 - `conditions_passed`: PASS 조건 수
 - `l3_coverage`: L3 검증 도달 비율
 - `reject_reasons`: REJECT 시 사유 목록
-```
+````
 
 - [ ] **Step 3: 커밋**
 
@@ -579,6 +585,7 @@ git commit -m "docs(guides): 계약 설계 가이드 + QA 평가 가이드 생�
 ## Task 3: 피드백 인프라 스크립트 생성
 
 **Files:**
+
 - Create: `harness/scripts/feedback-path.sh`
 - Create: `harness/scripts/save-feedback.sh`
 - Create: `harness/scripts/verify-feedback.sh`
@@ -814,6 +821,7 @@ git commit -m "feat(harness): 글로벌 피드백 인프라 스크립트 — pat
 ## Task 4: contract-kaizen 스킬 생성
 
 **Files:**
+
 - Create: `harness/skills/contract-kaizen/SKILL.md`
 - Create: `harness/skills/contract-kaizen/references/search-sources.md`
 - Create: `harness/skills/contract-kaizen/references/pr-template.md`
@@ -1045,13 +1053,17 @@ harness-kaizen의 `references/pr-template.md`와 동일 형식. contract-kaizen 
 
 **Before:**
 ```
+
 {현재 코드/설정}
-```
+
+```text
 
 **After:**
 ```
+
 {변경된 코드/설정}
-```
+
+```text
 
 **왜 개선인가:**
 - 장점: ...
@@ -1219,6 +1231,7 @@ git commit -m "feat(harness): contract-kaizen 스킬 생성 — 계약 설계 �
 ## Task 5: evaluator-kaizen 스킬 생성
 
 **Files:**
+
 - Create: `harness/skills/evaluator-kaizen/SKILL.md`
 - Create: `harness/skills/evaluator-kaizen/references/search-sources.md`
 - Create: `harness/skills/evaluator-kaizen/references/pr-template.md`
@@ -1423,6 +1436,7 @@ qa-evaluator의 평가 품질을 리서치 + 실행 피드백 기반으로 점�
 - [ ] **Step 3: pr-template.md 작성**
 
 Task 4 Step 3의 pr-template.md 내용을 복사하고 다음을 변경:
+
 - 제목: `# Contract Kaizen PR 본문 템플릿` → `# Evaluator Kaizen PR 본문 템플릿`
 - 영역: `guide / skills / config` → `guide / skills`
 - 변경 유형 주석: `(contract-kaizen)` → `(evaluator-kaizen)`
@@ -1430,6 +1444,7 @@ Task 4 Step 3의 pr-template.md 내용을 복사하고 다음을 변경:
 - [ ] **Step 4: trigger-check.sh 작성**
 
 contract-kaizen의 trigger-check.sh와 동일 구조. 변경점:
+
 - `FEEDBACK_DIR` 경로: `contract` → `evaluator`
 - 체크 필드: `l3_unreached`, `bias_detected`, `evidence_missing`, `contract_misinterpret`, `perspective_gap`
 
@@ -1491,6 +1506,7 @@ exit 1
 - [ ] **Step 5: research-log-entry.md 작성**
 
 Task 4 Step 5의 research-log-entry.md 내용을 복사하고 다음을 변경:
+
 - 제목: `(contract-kaizen)` → `(evaluator-kaizen)`
 - 트리거: `orchestrator-phase-2` → `orchestrator-phase-3`
 
@@ -1508,9 +1524,11 @@ git commit -m "feat(harness): evaluator-kaizen 스킬 생성 — 평가 방법�
 > **의존성**: Task 1 (feedback-schema.yaml), Task 2 (contract-design-guide.md), Task 3 (스크립트들)
 
 **Files:**
+
 - Modify: `harness/skills/sprint-contract/SKILL.md`
 
 **현재 파일 구조 참고:**
+
 - 마지막 Process Step: `### 6. 계약 저장` — 새 Step은 7부터
 - References 섹션: **없음** — 새로 생성해야 함 (`## 이 스킬 폴더의 파일` 섹션 바로 아래에 추가)
 - Gotchas 섹션: 기존 항목들 있음
@@ -1606,9 +1624,11 @@ git commit -m "feat(sprint-contract): 자기진단 + 교차 진단 + 글로벌 �
 > **의존성**: Task 1 (feedback-schema.yaml), Task 2 (qa-evaluation-guide.md), Task 3 (스크립트들)
 
 **Files:**
+
 - Modify: `harness/agents/qa-evaluator.md`
 
 **현재 파일 구조 참고:**
+
 - 마지막 Process Step: `### Step 5: 결과 저장` — 새 Step은 6부터
 - References 섹션: **없음** — 새로 생성해야 함
 - Red Flags 섹션: 있음 (Gotchas 대신 Red Flags 사용)
@@ -1696,6 +1716,7 @@ git commit -m "feat(qa-evaluator): 자기진단 + 교차 진단 + 글로벌 피�
 > **의존성**: Task 4 (contract-kaizen), Task 5 (evaluator-kaizen)
 
 **Files:**
+
 - Modify: `.claude/skills/kaizen-orchestrator/SKILL.md`
 - Create: `.harness/.meta/kaizen-failure-count.yaml`
 
@@ -1723,10 +1744,11 @@ user-invocable: true
 
 기존 Phase 의존성 섹션을 다음으로 교체:
 
-```markdown
+````markdown
 ## Phase 의존성
 
-```
+```text
+
 Phase 1: 설계 가이드 카이젠
     ↓
 Phase 2: Contract 카이젠 (contract-kaizen)
@@ -1740,6 +1762,7 @@ Phase 5: Flutter-toolkit 카이젠 (flutter-kaizen)
 Phase 6: Design-kit 카이젠 (design-kaizen)
     ↓
 Final: 전체 정합성 검증
+
 ```
 
 ### Phase 순서 논리
@@ -1750,18 +1773,19 @@ Final: 전체 정합성 검증
 4. Harness 카이젠 — sprint-contract, qa-evaluator **제외**한 나머지 harness 스킬/설정 (sprint-feedback, init, project.yaml, procedures)
 5. Flutter-toolkit 카이젠 — Flutter 스킬 개선
 6. Design-kit 카이젠 — UI/UX 디자인 스킬 개선
-```
+````
 
 - [ ] **Step 3: 공유 리서치 Step 0 제거 + 각 Phase 자체 리서치로 교체**
 
 기존 "Step 0: RESEARCH" 섹션을 제거하고, 각 Phase 실행 패턴을 다음으로 교체:
 
-```markdown
+````markdown
 ## 각 Phase 공통 실행 패턴
 
 각 Phase는 **새 서브에이전트**로 실행한다 (Agent tool). 이전 Phase의 변경사항이 디스크에 커밋되어 있으므로 fresh load로 반영된다.
 
-```
+```text
+
 1. Triage: 피드백 읽기 → 개선 필요? → 불필요 시 SKIP + 로그
    ⚠ 피드백이 0건이면 SKIP하지 않고 리서치 전용 모드로 진행
 2. 자체 리서치: 해당 스킬의 search-sources.md 기반, 3-5개 도메인만
@@ -1773,8 +1797,9 @@ Final: 전체 정합성 검증
 8. APPROVE → kaizen-phase-N-pre 태그 생성 → 파일 적용 + 커밋 → Regression Smoke Test
 9. Regression 실패 → git revert (kaizen-phase-N-pre 태그) → BLOCKED
 10. 다음 Phase → 새 서브에이전트 (fresh load)
+
 ```
-```
+````
 
 - [ ] **Step 4: Gotchas 업데이트**
 
@@ -1802,6 +1827,7 @@ Final: 전체 정합성 검증
 ```
 
 **cleanup-log.yaml 스키마:**
+
 ```yaml
 last_cleanup: "2026-03-30T15:00:00+09:00"
 deleted_count: 12
@@ -1828,6 +1854,7 @@ last_updated: null
 ```
 
 오케스트레이터 Process에 다음 로직 추가:
+
 - Phase 완료 후 Regression PASS → 해당 Phase 카운터 0으로 리셋
 - Regression FAIL → 해당 Phase 카운터 +1
 - 카운터 >= 2 → Phase 일시 중단 + 사용자 에스컬레이션
@@ -1844,6 +1871,7 @@ git commit -m "refactor(orchestrator): 6 Phase 재구성 + 자체 리서치 분�
 ## Task 9: 메타 Eval Fixture 생성
 
 **Files:**
+
 - Create: `harness/evals/kaizen/contract-kaizen/fixture-feedback-data/ambiguous-conditions.yaml`
 - Create: `harness/evals/kaizen/contract-kaizen/fixture-feedback-data/category-bias.yaml`
 - Create: `harness/evals/kaizen/contract-kaizen/fixture-feedback-data/low-coverage.yaml`
@@ -2311,6 +2339,7 @@ mkdir -p harness/evals/kaizen/evaluator-kaizen/baseline
 ```
 
 simple-crud/project.yaml:
+
 ```yaml
 stack: "flutter"
 commands:
@@ -2385,7 +2414,8 @@ find harness/skills/evaluator-kaizen -type f
 ```
 
 Expected:
-```
+
+```text
 harness/skills/contract-kaizen/SKILL.md
 harness/skills/contract-kaizen/references/search-sources.md
 harness/skills/contract-kaizen/references/pr-template.md

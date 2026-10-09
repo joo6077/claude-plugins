@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 # commit-guard.sh 를 임시 저장소에서 사고 형태와 정상 형태로 돌려 exit 코드와 출력을 대조한다.
 # 번호는 계약 조건 SC-01 ①~⑤ · SC-02 ⑥~⑭ · SC-03 ⑮⑯ · ER-01 · ER-02 (insights-0924-hooks-skill-collector) 와
-# ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) · ㉖~㉚ (kaizen-0924-f1-harness-followups 이름 바꾸기) 를 따른다.
+# ⑰~㉕ (kaizen-0924-p04-harness 경로 지정 커밋) · ㉖~㉚ (kaizen-0924-f1-harness-followups 이름 바꾸기) ·
+# ㉛~㊴ (after-0924-harness-orch -a · 같은 명령 git add 이름 바꾸기와 -i 막힘 설명) ·
+# ㊵~㊿ (같은 계약 교차 진단 — 파일 ↔ 폴더 바뀜 · 경로를 좁힌 git add · 목록 사본에 못 얹음) 을 따른다.
+# HS3-* 는 SC-05, SCOPE-s01~s23 은 SC-06 · ER-02 (after-0926-harness-scripts) 를 따른다. NOADD-* 는 같은 계약 독립 검토 결함 1 이다.
+# SCOPE-link-* 는 harness-central-store 스크립트-03 — .harness 가 하네스 저장소로 가는 바로가기인 모양이다.
 # COMMIT_GUARD_HOOK 으로 훅 경로를 바꿀 수 있다 — 판정 줄을 지운 사본으로 음성 대조를 돌릴 때 쓴다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -10,7 +14,7 @@ command -v jq >/dev/null 2>&1 || { echo "jq 가 없어 시험 입력을 만들 �
 [ -f "$hook" ] || { echo "훅이 없다: $hook" >&2; exit 1; }
 bash_bin=$(command -v bash)
 
-unset HARNESS_COMMIT_GUARD GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE
+unset HARNESS_COMMIT_GUARD GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE CLAUDE_CODE_SESSION_ID
 # 사용자 전역 설정의 서명 · 훅 경로가 끼면 시험 커밋이 깨진다
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@example.com GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@example.com
@@ -183,6 +187,73 @@ run pre 'git commit -o -m x -- d1 d2 d3' "$r"; expect ㉙ 2 '' '개가 실린 �
 r=$work/c30; mk_repo "$r"; git -C "$r" mv d1 d2
 run pre 'git commit -o -m x -- d1' "$r"; expect ㉚ 2 '' '삭제 60 개'
 
+# ── 이름 바꾸기: -a 와 같은 명령의 git add 도 git 이 이름 바꾸기로 잇는 옛 경로는 삭제로 세지 않는다 ──
+r=$work/c31; mk_repo "$r"; mv "$r/d1" "$r/d2"; git -C "$r" add d2
+run pre 'git commit -a -m x' "$r"; expect ㉛ 0 empty
+
+r=$work/c32; mk_repo "$r"; mv "$r/d1" "$r/d2"
+run pre 'git add -A && git commit -m x' "$r"; expect ㉜ 0 empty
+
+r=$work/c33; mk_repo "$r"; mv "$r/d1" "$r/d2"; git -C "$r" add d2
+run pre 'git add -u && git commit -m x' "$r"; expect ㉝ 0 empty
+
+r=$work/c34; mk_repo "$r"; mv "$r/d1" "$r/d2"
+run pre 'git add . && git commit -m x' "$r"; expect ㉞ 0 empty
+
+# 새 경로를 올리지 않은 -a 는 옛 경로 60 개를 삭제로 싣는다
+r=$work/c35; mk_repo "$r"; mv "$r/d1" "$r/d2"
+run pre 'git commit -am x' "$r"; expect ㉟ 2 '' '삭제 60 개'
+
+# 이동 60 개에 진짜 삭제 60 개가 섞이면 진짜 삭제만 센다
+r=$work/c36; mk_repo "$r"; mkdir -p "$r/d3"
+for ((k = 1; k <= 60; k++)); do printf 'other %d\n' "$k" >"$r/d3/$(printf 'g%03d' "$k")"; done
+git -C "$r" add d3 && git -C "$r" commit -qm d3
+mv "$r/d1" "$r/d2"; rm -rf "$r/d3"
+run pre 'git add -A && git commit -m x' "$r"; expect ㊱ 2 '' '삭제 60 개'
+
+r=$work/c37; mk_repo "$r"; rm_worktree "$r" 60
+run pre 'git commit -a -m x' "$r"; expect ㊲ 2 '' '작업 폴더 삭제 포함'
+
+# -i 막힘 설명: ㉒ 처럼 작업 폴더 삭제가 더해졌으면 적고, 목록 삭제만이면 적지 않는다
+r=$work/c38; mk_repo "$r"; rm_staged "$r" 10
+for ((k = 11; k <= 55; k++)); do rm -f "$r/d1/$(printf 'f%03d' "$k")"; done
+run pre 'git commit -i d1 -m x' "$r"; expect ㊳ 2 '' '작업 폴더 삭제 포함'
+
+r=$work/c39; mk_repo "$r"; rm_staged "$r" 51
+run pre 'git commit -i d1 -m x' "$r"; expect ㊴ 2 '' '삭제 51 개'
+ok=1; grep -qF '작업 폴더 삭제 포함' "$work/err" && ok=0
+report ㊴-설명 "$ok" "stderr 에 '작업 폴더 삭제 포함' 없음" "$(grep -cF '작업 폴더 삭제 포함' "$work/err") 줄"
+
+# ── 같은 명령의 git add 가 얹는 새 파일: git 이 실제로 싣는 삭제만큼 센다 ──
+# 파일 자리가 폴더가 되면 목록 사본에 얹기가 실패해 목록의 삭제까지 0 이 되던 경우 (git rm 60 + a.txt 1)
+r=$work/c40; mk_repo "$r"; git -C "$r" rm -rq d1; rm "$r/a.txt"; mkdir "$r/a.txt"; echo q >"$r/a.txt/q"
+run pre 'git add -A && git commit -m x' "$r"; expect ㊵ 2 '' '삭제 61 개'
+run pre 'git add . && git commit -m x' "$r"; expect ㊶ 2 '' '삭제 61 개'
+
+r=$work/c42; mk_repo "$r"; rm -rf "$r/d1"; mkdir -p "$r/d1/f001"; echo z >"$r/d1/f001/z"
+run pre 'git add -A && git commit -m x' "$r"; expect ㊷ 2 '' '삭제 60 개'
+
+r=$work/c43; mk_repo "$r"; rm -rf "$r/d1"; echo file >"$r/d1"
+run pre 'git add -A && git commit -m x' "$r"; expect ㊸ 2 '' '삭제 60 개'
+
+# 추적 안 된 사본 backup/ 은 경로를 좁힌 add · -u · -n 이 올리지 않는다 — 진짜 삭제 60
+r=$work/c44; mk_repo "$r"; cp -R "$r/d1" "$r/backup"; rm -rf "$r/d1"
+run pre 'git add -A d1 && git commit -m x' "$r"; expect ㊹ 2 '' '삭제 60 개'
+run pre 'git add -A -- d1 && git commit -m x' "$r"; expect ㊺ 2 '' '삭제 60 개'
+run pre 'git add -u . && git commit -m x' "$r"; expect ㊻ 2 '' '삭제 60 개'
+run pre 'git add -n -A && git commit -a -m x' "$r"; expect ㊼ 2 '' '삭제 60 개'
+# 경로 없는 add -A 는 backup/ 도 올려 git 도 이름 바꾸기로 싣는다
+run pre 'git add -A && git commit -m x' "$r"; expect ㊽ 0 empty
+
+# 같은 명령에서 새 경로를 경로 지정 add 로 올리는 -a 는 이름 바꾸기다
+r=$work/c49; mk_repo "$r"; mv "$r/d1" "$r/d2"
+run pre 'git add d2 && git commit -a -m x' "$r"; expect ㊾ 0 empty
+
+# 읽을 수 없는 새 파일이 있어 목록 사본에 못 얹어도 작업 폴더 삭제는 센다
+r=$work/c50; mk_repo "$r"; rm -rf "$r/d1"; echo u >"$r/u.txt"; chmod 000 "$r/u.txt"
+run pre 'git add -A; git commit -m x' "$r"; expect ㊿ 2 '' '삭제 60 개'
+chmod 644 "$r/u.txt"
+
 # ── SC-03 커밋 직후 알림 ──
 r=$work/c15; mk_repo "$r"; rm_staged "$r" 60; git -C "$r" commit -qm del
 run post 'git commit -m x' "$r"
@@ -228,6 +299,125 @@ expect "ER-01 pre (d) jq 없음 · git status" 0 empty
 
 printf '%s' "$commit_in" | PATH=$nojq "$bash_bin" "$hook" post >"$work/out" 2>"$work/err"; rc=$?
 expect "ER-01 post (c) jq 없음 · git commit" 0 empty
+
+# ── HS3 같은 명령의 경로 git add · 하위 폴더의 -a · add -A ──
+mk_sub() { mk_repo "$1"; mkdir -p "$1/sub"; echo s >"$1/sub/s.txt"; git -C "$1" add sub; git -C "$1" commit -qm sub; }
+r=$work/h1; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git add d1 && git commit -m x' "$r"; expect HS3-a1 2 '' '삭제 60 개'
+r=$work/h2; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git add d1/ && git commit -m x' "$r"; expect HS3-a2 2 '' '삭제 60 개'
+r=$work/h3; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git commit -am x' "$r/sub"; expect HS3-b1 2 '' '삭제 60 개'
+r=$work/h4; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git add -A && git commit -m x' "$r/sub"; expect HS3-b2 2 '' '삭제 60 개'
+r=$work/h5; mk_sub "$r"; rm_worktree "$r" 60
+run pre 'git add . && git commit -m x' "$r/sub"; expect HS3-k1 0 empty
+r=$work/h6; mk_sub "$r"
+echo v1 >"$r/f2"; git -C "$r" add f2; git -C "$r" commit -qm f2-v1
+echo v2 >"$r/f2"; git -C "$r" commit -qam f2-v2
+git -C "$r" update-index --cacheinfo "100644,$(git -C "$r" rev-parse HEAD~1:f2),f2"; echo z >>"$r/a.txt"
+run pre 'git add a.txt && git commit -m x' "$r"; expect HS3-k2 2 '' '되돌리는 파일 1 개'
+r=$work/h7; mk_sub "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"
+run pre 'git add a.txt && git commit -m x' "$r"; expect HS3-k3 0 empty
+
+# ── SCOPE 계약 # sprint-scope 블록 ──
+contract() {  # contract <파일> <status> <owner> [블록 줄…] — 블록 줄이 없으면 블록 없는 계약
+  local f=$1 st=$2 ow=$3; shift 3
+  { printf -- '---\nfeature: "x"\nstatus: %s\nowner_session: %s\n---\n\n## 범위 경계\n\n- 설명\n' "$st" "$ow"
+    if [ $# -gt 0 ]; then printf '\n```text\n# sprint-scope\n'; printf '%s\n' "$@"; printf '```\n'; fi
+    printf '\n## Script\n\n- [ ] SC-01: x\n'; } >"$f"
+}
+mk_scope() {
+  local r=$1
+  mkdir -p "$r/d1" "$r/docs" "$r/sub" "$r/.harness"; git -C "$r" init -q -b main
+  echo 1 >"$r/d1/f001"; echo 2 >"$r/d1/f002"; echo a >"$r/a.txt"; echo x >"$r/docs/x.md"; echo s >"$r/sub/s.txt"
+  contract "$r/.harness/sprint-contract-s.md" active S d1/f001 'docs/*.md' sub/
+  contract "$r/.harness/sprint-contract-t.md" "done" S a.txt
+  contract "$r/.harness/sprint-contract-u.md" active OTHER a.txt
+  git -C "$r" add -A && git -C "$r" commit -qm init
+}
+run_s() {  # run_s <명령> <cwd> <세션|-> — 세션 - 이면 입력에 session_id 를 넣지 않는다
+  if [ "$3" = - ]; then payload pre "$1" "$2"
+  else payload pre "$1" "$2" | jq -c --arg s "$3" '. + {session_id: $s}'; fi | "$bash_bin" "$hook" pre >"$work/out" 2>"$work/err"
+  rc=$?
+}
+lacks() {  # lacks <번호> <막힘 설명에 없어야 할 글자>
+  if grep -qF -- "$2" "$work/err"; then report "$1" 0 "막힘 설명에 '$2' 없음" "있음"; else report "$1" 1 "막힘 설명에 '$2' 없음" "없음"; fi
+}
+fence=$(printf '\140\140\140')   # 코드 펜스 글자 — 작은따옴표 안에 두 번 쓰면 shellcheck 가 명령 치환으로 오인한다
+n=0; nr() { n=$((n + 1)); r=$work/s$n; mk_scope "$r"; }
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" S; expect SCOPE-s01-out 2 '' 'a.txt'
+nr; echo z >>"$r/d1/f001"; git -C "$r" add d1/f001; run_s 'git commit -m x' "$r" S; expect SCOPE-s02-in 0 empty
+nr; echo n >"$r/.harness/notes.md"; git -C "$r" add .harness; run_s 'git commit -m x' "$r" S; expect SCOPE-s03-harness 0 empty
+nr; echo y >"$r/docs/y.md"; git -C "$r" add docs; run_s 'git commit -m x' "$r" S; expect SCOPE-s04-glob 0 empty
+nr; echo z >>"$r/sub/s.txt"; git -C "$r" add sub; run_s 'git commit -m x' "$r" S; expect SCOPE-s05-dir 0 empty
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" Z; expect SCOPE-s06-other-session 0 empty
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+payload pre 'git commit -m x' "$r" | CLAUDE_CODE_SESSION_ID=S "$bash_bin" "$hook" pre >"$work/out" 2>"$work/err"; rc=$?
+expect SCOPE-s07-env-session 2 '' 'a.txt'
+nr; echo z >>"$r/a.txt"; run_s 'git commit -o a.txt -m x' "$r" S; expect SCOPE-s08-path-commit 2 '' 'a.txt'
+nr; echo z >>"$r/a.txt"; run_s 'git add a.txt && git commit -m x' "$r" S; expect SCOPE-s09-add-commit 2 '' 'a.txt'
+nr; echo z >>"$r/a.txt"; run_s 'git commit -am x' "$r" S; expect SCOPE-s10-commit-a 2 '' 'a.txt'
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'HARNESS_COMMIT_GUARD=off git commit -m x' "$r" S; expect SCOPE-s11-off 0 empty
+nr; contract "$r/.harness/sprint-contract-v.md" active S a.txt; git -C "$r" add .harness; git -C "$r" commit -qm v
+echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" S; expect SCOPE-s12-union 0 empty
+nr; git -C "$r" mv d1/f001 moved.txt; run_s 'git commit -m x' "$r" S; expect SCOPE-s13-rename-out 2 '' 'moved.txt'
+lacks SCOPE-s13-rename-out-옛경로 'd1/f001'
+nr; contract "$r/.harness/sprint-contract-s.md" active S; git -C "$r" add .harness; git -C "$r" commit -qm noblock
+echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" S; expect SCOPE-s14-no-block 0 empty
+nr; git -C "$r" rm -q d1/f001; run_s 'git commit -m x' "$r" S; expect SCOPE-s15-delete-in 0 empty
+nr; echo z >>"$r/a.txt"; echo z >>"$r/d1/f001"; git -C "$r" add a.txt d1/f001; run_s 'git commit -m x' "$r" S
+expect SCOPE-s16-mixed 2 '' 'a.txt'
+lacks SCOPE-s16-mixed-범위안 'd1/f001'
+nr; echo z >>"$r/sub/s.txt"; run_s 'git commit -am x' "$r/sub" S; expect SCOPE-s17-subdir-a 0 empty
+nr; echo z >>"$r/a.txt"; git -C "$r" add a.txt; run_s 'git commit -m x' "$r" -; expect SCOPE-s18-no-session 0 empty
+nr; echo z >>"$r/a.txt"; run_s 'git commit -am x' "$r/sub" S; expect SCOPE-s19-subdir-a-out 2 '' 'a.txt'
+nr; chmod 000 "$r/.harness/sprint-contract-s.md"; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s20-unreadable 0 empty; chmod 644 "$r/.harness/sprint-contract-s.md"
+nr; printf -- '---\nstatus: active\nowner_session: S\n---\n\n## 배경\n\n%stext\n# sprint-scope\nd1/f001\n%s\n\n## 범위 경계\n\n- 없음\n' "$fence" "$fence" >"$r/.harness/sprint-contract-s.md"
+git -C "$r" add .harness; git -C "$r" commit -qm moved; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s21-block-outside 0 empty
+nr; printf -- '---\nstatus: active\nowner_session: S\n---\n\n## 범위 경계\n\n%stext\n# sprint-scope\n%s\n' "$fence" "$fence" >"$r/.harness/sprint-contract-s.md"
+git -C "$r" add .harness; git -C "$r" commit -qm empty; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s22-empty-block 0 empty
+nr; printf -- '---\nstatus: active\n---\n\n## 범위 경계\n\n%stext\n# sprint-scope\nd1/f001\n%s\n' "$fence" "$fence" >"$r/.harness/sprint-contract-s.md"
+git -C "$r" add .harness; git -C "$r" commit -qm noowner; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s23-no-owner 0 empty
+# 머리 값 뒤 줄 끝 주석은 값이 아니다 — 평가자의 fm_get 과 같은 값을 읽어야 한다 (계약 형식 문서 §값 따옴표 규약)
+nr; contract "$r/.harness/sprint-contract-s.md" 'active   # 진행 중' 'S  # 이 세션' d1/f001
+git -C "$r" add .harness; git -C "$r" commit -qm cmt; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s24-trailing-comment 2 '' 'a.txt'
+nr; contract "$r/.harness/sprint-contract-s.md" '"active"	# 탭 뒤 주석' "'S'" d1/f001
+git -C "$r" add .harness; git -C "$r" commit -qm qcmt; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-s25-quoted-comment 2 '' 'a.txt'
+nr; contract "$r/.harness/sprint-contract-s.md" active 'S#1' d1/f001
+git -C "$r" add .harness; git -C "$r" commit -qm hash; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run_s 'git commit -m x' "$r" 'S#1'; expect SCOPE-s26-hash-in-value 2 '' 'a.txt'
+
+# ── NOADD 목록을 바꾸지 않는 add · 삭제를 싣지 않는 add (독립 검토 결함 1) ──
+r=$work/n1; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --dry-run d1 && git commit -m x' "$r"; expect NOADD-d1-dry-run 0 empty
+r=$work/n2; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --ignore-removal d1 && git commit -m x' "$r"; expect NOADD-d2-ignore-removal 0 empty
+r=$work/n3; mk_repo "$r"; rm_worktree "$r" 60; echo z >>"$r/a.txt"; git -C "$r" add a.txt
+run pre 'git add --no-all d1 && git commit -m x' "$r"; expect NOADD-d3-no-all 0 empty
+nr; echo z >>"$r/d1/f001"; git -C "$r" add d1/f001; echo z >>"$r/a.txt"
+run_s 'git add -n a.txt && git commit -m x' "$r" S; expect NOADD-s1-dry-run 0 empty
+nr; echo z >>"$r/a.txt"; run_s 'git add --ignore-removal a.txt && git commit -m x' "$r" S
+expect NOADD-s2-ignore-removal-out 2 '' 'a.txt'
+
+mk_link_scope() {  # 계약 폴더가 저장소 밖 폴더로 가는 바로가기이고 프로젝트는 그것을 무시한다
+  local r=$1
+  mkdir -p "$r/src" "$r/docs" "$r-store"; git -C "$r" init -q -b main
+  echo a >"$r/src/a.txt"; echo b >"$r/docs/b.txt"; echo .harness >"$r/.gitignore"
+  ln -s "$r-store" "$r/.harness"
+  contract "$r/.harness/sprint-contract-s.md" active S src/
+  git -C "$r" add -A && git -C "$r" commit -qm init
+}
+r=$work/link-in; mk_link_scope "$r"; echo z >>"$r/src/a.txt"; git -C "$r" add src/a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-link-in 0 empty
+r=$work/link-out; mk_link_scope "$r"; echo z >>"$r/docs/b.txt"; git -C "$r" add docs/b.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-link-out 2 '' 'docs/b.txt'
 
 echo "실패 $fails 건"
 [ "$fails" = 0 ]

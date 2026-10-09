@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>비율과 프로포션 — Design Foundations</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -128,7 +129,7 @@ td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(
 .code-block .kw{color:var(--accent2)}
 .code-block .prop{color:var(--cyan)}
 .code-block .val{color:var(--gold)}
-.code-block .cmt{color:#7b82a8}
+.code-block .cmt{--dk-ink:#7b82a8;color:var(--dk-ink-out, #7b82a8)}
 
 /* === GOLDEN RATIO DEMO === */
 .golden-canvas{
@@ -181,7 +182,7 @@ td code{font-family:var(--mono);font-size:13px;color:var(--cyan);background:var(
   background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);
   overflow:hidden;transition:all var(--transition);
 }
-.ratio-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.ratio-card:hover{border-color:var(--accent);transform:var(--dk-hover-move, translateY(-2px))}
 .ratio-preview{
   width:100%;background:linear-gradient(135deg,rgba(232,150,90,0.1),rgba(240,176,136,0.08));
   display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
@@ -328,6 +329,7 @@ footer a{color:var(--accent);text-decoration:none}
   .calc-field input,.calc-field select{width:100%}
   .scale-step{flex-wrap:wrap}
   .scale-step .step-use{width:auto;text-align:left}
+  .typo-demo .td-text{white-space:normal}
 }
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}
@@ -335,6 +337,27 @@ footer a{color:var(--accent);text-decoration:none}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 
 <!-- HERO -->
 <section class="hero">
@@ -960,7 +983,7 @@ B: <span class="val">190, 117, 73, 45, 28, 17...</span>
   </p>
 </footer>
 
-<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#x2191;</div>
+<div class="back-to-top" id="btt" onclick="window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})">&#x2191;</div>
 
 <script>
 // ===== GOLDEN RATIO TABS =====

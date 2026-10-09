@@ -38,7 +38,11 @@ user-invocable: true
 
 15. **게이트 스텝은 결과 상태를 구분해 exit code 로 전파하게 세팅하라 (Phase 8 리서치)** — CI 검증 스텝이 "위반 0" 과 "검사 못 함" 을 같은 exit 0 으로 내면 그 게이트는 없는 것보다 나쁘다. 초기 세팅부터 `PASS` / `VIOLATION` / `SKIP_NO_TARGET` / `[미검증] TOOL_OR_ENV_MISSING` / `EXECUTION_ERROR` 5 상태를 쓰고 exit 를 매핑한다. 상태·exit 정의는 `../../references/gate-result-taxonomy.md` 가 SSOT 이며 여기서 재정의하지 않는다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process (3-Step · 탐색 → 진단 → 처방)
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 탐색 — 프로젝트 인프라 감지
 
@@ -53,7 +57,7 @@ user-invocable: true
 `infra-kit/references/init-checklist.md`를 참조하여 필요한 카테고리를 rule 단위로 한 번에 나열한다 (Gotcha 9). 현재 상태와 리서치 기준의 차이를 한 번에 열거.
 
 | 카테고리 | 필수 여부 | 산출물 |
-|----------|-----------|--------|
+| ---------- | ----------- | -------- |
 | Container | 필수 | Dockerfile + .dockerignore + compose (멀티스테이지 + non-root + healthcheck) |
 | CI/CD | 필수 | 파이프라인 설정 (build→test→deploy) + OIDC + 원격 `uses:` SHA 핀닝 (Gotcha 10·14) + `.github/dependabot.yml` (Gotcha 13) + 게이트 상태 taxonomy (Gotcha 15) |
 | 배포 전략 | 권장 | 배포 방식 선택 + 롤백 절차 + GitOps(Argo CD 3.x / Flux v2.8+) |
@@ -77,6 +81,7 @@ user-invocable: true
 **현재:** `Dockerfile:1-20` 존재, 단일 스테이지, `USER` 미지정 (root 실행), `FROM node:latest`
 **권장:** 멀티스테이지(`FROM node:22-alpine AS builder` → `FROM node:22-alpine`) + `USER 1001:1001` + `.dockerignore` + `HEALTHCHECK` (출처: [Docker best practices](https://docs.docker.com/build/building/best-practices/))
 **개선:**
+
 - P0: `latest` 태그 → 구체 버전 태그 (재현성)
 - P0: `USER` 지시어 추가 (컨테이너 탈출 방지)
 - P1: 멀티스테이지 분리 (이미지 크기 감소)
@@ -87,6 +92,7 @@ user-invocable: true
 **현재:** `.github/workflows/deploy.yml:1-50` 존재, `AWS_ACCESS_KEY_ID` 시크릿 사용, `actions/checkout@v4` 태그 참조, `.github/dependabot.yml` 부재
 **권장:** OIDC federation(`id-token: write` + `aws-actions/configure-aws-credentials`) + 원격 `uses:` SHA 핀닝 + Dependabot(탐지된 생태계만) + 의존성 캐시 (출처: [GitHub Actions OIDC](https://docs.github.com/en/actions/concepts/security/openid-connect) · [secure use](https://docs.github.com/en/actions/reference/security/secure-use) · [Dependabot options](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference))
 **개선:**
+
 - P0: 장기 AWS 키 제거 → OIDC 교체
 - P0: 원격 액션 SHA 고정 (`@v4` → `@<40-char sha> # v4`). `jobs.<id>.uses` 재사용 워크플로도 포함. `actions/*` 면제 여부는 팀이 결정해 기록
 - P1: `.github/dependabot.yml` 에 `github-actions` `/` 추가 (나머지 생태계는 lockfile 확인 후)
@@ -98,11 +104,16 @@ user-invocable: true
 **현재:** 미설정 (인프라 리소스 수동 콘솔 관리)
 **권장:** Terraform 1.10+ 또는 OpenTofu 1.11+ + remote backend(S3+SSE-KMS 또는 OpenTofu native encryption) + `terraform test` + `ephemeral` 블록 시크릿 (출처: [Terraform ephemeral](https://developer.hashicorp.com/terraform/language/ephemeral))
 **개선:**
+
 - P1: IaC 도입 여부 먼저 팀 합의 (수동 운영이 더 단순할 수 있음)
 - P0 (도입 시): state 파일 평문 시크릿 금지 (`ephemeral` + KMS 암호화)
 - 트레이드오프: IaC 학습 비용 vs 드리프트 방지/PR 리뷰 가능성
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - ../../references/init-checklist.md
 - ../../references/gate-result-taxonomy.md — 게이트 결과 상태 5 종 · exit 매핑 (SSOT)

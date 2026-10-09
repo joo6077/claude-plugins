@@ -5,6 +5,8 @@ argument-hint: "[서비스명] 또는 빈값(전체 스캔)"
 user-invocable: true
 ---
 
+# 최신 근거로 만드는 외부 서비스 설정 가이드
+
 프로젝트를 분석하고 그 시점 최신 정보로 1차 출처를 fetch하여, 외부 서비스 설정 가이드 MD를 step-by-step으로 생성한다.
 
 ## Input
@@ -26,6 +28,8 @@ user-invocable: true
 ### 출처 원장 (Source Ledger) — 문장 규칙이 아니라 아티팩트
 
 "그 시점 최신 정보 기준" 이라는 주장은 **조회 흔적 없이는 성립하지 않는다.** 각 Step 을 쓰기 **전에** 그 Step 의 1차 출처를 fetch 하고, Step 본문에 **출처 URL + 조회일**을 남긴다 (`references/format-checklist.md` §3 의 `**출처:**` 줄). **fetch 하지 않은 Step 은 쓰지 않는다** — 학습 데이터로 채운 뒤 헤더의 대표 URL 하나로 전체를 정당화하는 것이 이 스킬의 대표 실패 형태다.
+
+출처 줄에는 두 날짜를 따로 적는다. 조회일(`조회 YYYY-MM-DD`)은 페이지를 가져와 그 Step 본문의 주장을 다시 확인한 날이고, 원문 갱신일(`Last updated YYYY-MM-DD UTC`)은 원문 페이지가 표시할 때만 글자 그대로 옮긴다. 페이지 갱신일만 새로 보고 Step 본문을 다시 확인하지 않았으면 조회일을 바꾸지 않는다 — 날짜만 옮기면 확인하지 않은 주장을 확인했다고 적게 된다. 원문은 저장소의 기록법을 정하지 않으므로 이 구분은 이 킷의 규칙이다.
 
 fetch 가 끝까지 실패한 항목은 조용히 넘기지 말고 마커와 아래 네 요건을 붙인다. **마커는 접미로 분류한다** — 접미 없는 `[미검증]` 은 정본에서 `INVALID` 로 해석되므로 쓰지 않는다.
 
@@ -119,16 +123,57 @@ guide_gate() {
     echo "G4_DEPRECATION PASS unsourced_boxes=0"
   fi
 
+  # G5 막는 요구 세 칸 — `| 요구 | 출처 | 막히는 것 | 우회 |` 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다.
+  #    표가 없으면 PASS rows=0 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9).
+  #    마크다운이 표로 그리는 모양은 다 읽는다 — 줄 앞 공백 세 칸까지 · 인용(>) 속 표 · 굵은(** __) · 기울인(* _) 머리 · 양 끝 | 를 뺀 줄 · U+00A0 / U+3000 공백.
+  #    네 낱말이 다 든 머리인데 네 칸 표가 아니면(다섯 칸 등) 「표 없음」 과 같은 PASS 로 흘리지 않고 unrecognized 로 FAIL 한다.
+  #    LC_ALL=C 는 두 공백 글자를 바이트로 지우려는 것이다 — 어느 awk(BSD · mawk · gawk)든 같은 바이트로 읽는다.
+  blk=$(LC_ALL=C awk '
+    function trim(text){ gsub(/^[ \t]+|[ \t]+$/, "", text); return text }
+    { sub(/\r$/, "") }   # CRLF 가이드는 마지막 칸이 "우회\r" 가 되어 표 머리를 못 찾는다
+    {
+      line=$(0); gsub(/\302\240|\343\200\200/, " ", line)
+      match(line, /^ */)
+      if (RLENGTH >= 4) { in_table=0; next }   # 네 칸 이상 들여쓰면 표가 아니라 코드 블록이다
+      sub(/^ */, "", line)
+      while (line ~ /^>/) sub(/^> */, "", line)
+      if (line !~ /\|/) { in_table=0; next }   # 양 끝 | 가 없어도 | 가 든 줄은 표로 그린다
+      row=line; sub(/^\|/, "", row); sub(/\|[ \t]*$/, "", row)
+      ncell=split(row, cell, "|")
+      words=0
+      for (i=1; i<=ncell; i++) {
+        cell[i]=trim(cell[i]); head[i]=cell[i]; gsub(/[*_]/, "", head[i])
+        if (head[i]=="요구" || head[i]=="출처" || head[i]=="막히는 것" || head[i]=="우회") words++
+      }
+      if (ncell==4 && head[1]=="요구" && head[2]=="출처" && head[3]=="막히는 것" && head[4]=="우회") { in_table=1; next }
+      if (words==4) { unrec++; in_table=0; next }
+      if (!in_table || row ~ /^[ \t:|-]+$/) next
+      rows++
+      if (ncell!=4 || cell[1]=="" || cell[2]=="" || cell[3]=="" || cell[4]=="") empty++
+      if (cell[2] !~ /http/) nourl++
+    }
+    END { print rows+0, empty+0, nourl+0, unrec+0 }
+  ' "$g")
+  blk_rows=${blk%% *}; blk_rest=${blk#* }; blk_empty=${blk_rest%% *}; blk_rest=${blk_rest#* }
+  blk_nourl=${blk_rest%% *}; blk_unrec=${blk_rest#* }
+  if [ "$blk_unrec" -ne 0 ]; then
+    echo "G5_BLOCKING FAIL rows=$blk_rows empty=$blk_empty nourl=$blk_nourl unrecognized=$blk_unrec"; fail=1
+  elif [ "$blk_empty" -ne 0 ] || [ "$blk_nourl" -ne 0 ]; then
+    echo "G5_BLOCKING FAIL rows=$blk_rows empty=$blk_empty nourl=$blk_nourl"; fail=1
+  else
+    echo "G5_BLOCKING PASS rows=$blk_rows"
+  fi
+
   [ "$fail" -eq 0 ] && echo GATE_PASS || echo GATE_FAIL
 }
 ```
 
-- **게이트 출력을 그대로 보고에 붙여라.** "게이트 통과함" 이라는 문장은 증거가 아니다 — `GATE_PASS` 를 포함한 5 줄 출력이 증거다.
+- **게이트 출력을 그대로 보고에 붙여라.** "게이트 통과함" 이라는 문장은 증거가 아니다 — `GATE_PASS` 를 포함한 6 줄 출력이 증거다.
 - **G3 는 스택 인자가 없으면 `FAIL` 이다.** 스택을 모르면 혼용을 판정할 수 없고, 판정할 수 없는 것을 PASS 로 흘리는 것이 no-op 게이트의 정체다. 스택은 Phase 1 에서 확정한 값을 넘긴다.
 - `GATE_FAIL` 이면 완료 보고를 하지 마라. 고치고 다시 돌린다.
 - **게이트를 우회하거나 조건을 느슨하게 고치지 마라.** 우회된 게이트는 없는 게이트보다 나쁘다. 게이트가 정당한 케이스를 막는다고 판단되면 그 사실을 사용자에게 보고하고 판단을 받는다.
 - **게이트 함수를 고쳤으면 `sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh` 가 `EVALS_PASS` 로 끝나야 한다.** 이 스크립트는 SKILL.md 에서 함수를 그대로 뽑아 `evals/evals.json` 의 `gate_cases` 입력마다 zsh · bash 두 셸의 출력을 기대 출력 전체와 대조한다. 판정이 바뀌는 수정이면 기대 출력도 같은 커밋에서 고친다.
-- 게이트가 잡는 것은 **기계로 판정 가능한 4 가지**뿐이다. 사실 정확성·스코프·경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다 (단일 게이트는 보장이 아니다).
+- 게이트가 잡는 것은 **기계로 판정 가능한 5 가지**뿐이다. 사실 정확성·스코프·경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다 (단일 게이트는 보장이 아니다).
 
 ## Gotchas (반복 실수 방지)
 
@@ -139,6 +184,11 @@ guide_gate() {
 탐지 방법은 `references/project-detection.md` 참조.
 
 스택 확정 실패 시 → 사용자에게 명시적으로 묻기 ("Flutter iOS 기준? 네이티브 Swift 기준?")
+
+iOS Firebase SDK 설치 방식도 스택마다 갈린다.
+
+- 네이티브 Apple 가이드는 Swift Package Manager 로 안내한다 — 공식 문서가 새 프로젝트에 SPM 을 쓰라 하고, CocoaPods 는 폐기 예정이며 Firebase 12 가 CocoaPods 로 나오는 마지막 major 라고 적었다. 폐기 날짜는 원문에 없다 (<https://firebase.google.com/docs/ios/setup>, 조회 2026-09-26)
+- Flutter 가이드는 FlutterFire 절차를 따르고, 위 문서를 근거로 그 절차의 CocoaPods 단계를 SPM 으로 바꾸지 않는다 — 위 문서는 Apple 네이티브 범위라 FlutterFire 가 무엇으로 설치하는지 말하지 않는다
 
 ### Gotcha 2: 콘솔 UI 라벨은 학습 데이터 추측 금지 — 그리고 **로그인 뒤 화면은 애초에 검증 불가다**
 
@@ -168,6 +218,7 @@ Apple 은 두 사이트가 완전히 다르고, **어느 한쪽이 셋업 전부
 키·식별자 발급은 Developer Account, **앱이라는 레코드와 배포는 App Store Connect** 다. 요청받은 셋업이 어느 행에 해당하는지 먼저 확정하고, 해당 행만 가이드에 넣는다 (Gotcha 7 스코프).
 
 같은 패턴이 다른 플랫폼에도 있음:
+
 - Google Cloud: GCP Console vs Firebase Console
 - AWS: AWS Console vs AWS Marketplace
 
@@ -225,6 +276,25 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 
 같은 모양의 실측(`/insights` 2026-09-24 F10): 앱이 아직 출시 전이고 실기기가 없다는 이유로 작업을 불가로 선언했다가 사용자가 「앱 올리면 되잖아?」 로 되받았다.
 
+### Gotcha 10: 서비스 계정 키를 기본 경로로 안내하지 마라 — 실행 환경부터 확인하고 이 차례로 고른다
+
+Google Cloud · Firebase 서버 인증에서 사용자가 관리하는 서비스 계정 키(JSON 키 파일)를 먼저 안내하면 가장 덜 안전한 길이 기본값이 된다. 실행 환경을 먼저 확인하고 아래 차례로 고른다.
+
+- ① Google Cloud 안(Cloud Run · Cloud Functions · Compute Engine 등) — `ADC`(Application Default Credentials, 실행 환경이 자격 증명을 찾아 주는 방식)와 연결된 서비스 계정
+- ② GKE(Google Kubernetes Engine) — `Workload Identity Federation for GKE`
+- ③ 혼자 쓰는 개발 환경 — 사용자 자격 증명 또는 `서비스 계정 가장`(impersonation)
+- ④ Google Cloud 밖에서 지원되는 외부 신원 제공자가 있을 때 — `Workload Identity Federation`
+- ⑤ 더 안전한 대안을 쓸 수 없을 때만 — `서비스 계정 키`. 그 사유와 키 보호 · 교체 · 폐기 절차를 함께 적는다
+
+근거 (네 문서 모두 조회 2026-09-28 · Last updated 2026-09-24 UTC):
+
+- [Google Cloud — Best practices for using service accounts securely](https://docs.cloud.google.com/iam/docs/best-practices-service-accounts): 「We recommend that you avoid using service account keys whenever possible.」
+- [Google Cloud — Best practices for using Workload Identity Federation](https://docs.cloud.google.com/iam/docs/best-practices-for-using-workload-identity-federation): 「Use Workload Identity Federation whenever an application needs to access Google Cloud and has access to ambient credentials.」
+- [Firebase — Add the Firebase Admin SDK to your server](https://firebase.google.com/docs/admin/setup): 「this way of initializing the SDK is strongly recommended for applications running in Google environments」 — ADC 로 SDK 를 초기화하는 방식을 가리킨다
+- [Google Cloud — Best practices for managing service account keys](https://docs.cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys): 「For client-side applications such as tools, desktop programs, or mobile apps, don't use service accounts.」 — 앱 · 데스크톱 프로그램 · 도구에는 서비스 계정을 넣지 않는다
+
+「키 파일은 서버에만 둔다」 만 적으면 서버라면 키가 기본 경로인 것처럼 읽힌다. 서버에서도 ①~④ 를 먼저 고르고, 키는 예외로 적는다.
+
 ## Process
 
 ### Phase 1: 스택 + 외부 서비스 탐지
@@ -274,13 +344,15 @@ Bundle ID는 빌드 업로드 후 변경 불가. Firebase Project ID도 생성 �
 
 ### Phase 4: 검증 + 완료 안내
 
-1. **Guide Conformance Gate 실행 (E3 · 먼저 한다)** — `guide_gate <생성한 가이드> <스택>` 을 돌리고 **출력 5 줄을 보고에 그대로 붙인다.** `GATE_FAIL` 이면 완료 보고를 하지 말고 고친 뒤 다시 돌린다. 이 게이트가 G1(출처 원장 완전성) · G2(마커 분류/임계) · G3(스택 혼용) · G4(deprecation 근거 결합) 을 기계적으로 판정한다.
+1. **Guide Conformance Gate 실행 (E3 · 먼저 한다)** — `guide_gate <생성한 가이드> <스택>` 을 돌리고 **출력 6 줄을 보고에 그대로 붙인다.** `GATE_FAIL` 이면 완료 보고를 하지 말고 고친 뒤 다시 돌린다. 이 게이트가 G1(출처 원장 완전성) · G2(마커 분류/임계) · G3(스택 혼용) · G4(deprecation 근거 결합) · G5(막는 요구 세 칸) 를 기계적으로 판정한다.
 2. **레포 근거 대조** — 가이드에 등장하는 프로젝트 내부 경로·env 키가 전부 Glob/Grep 실측 근거를 갖는지 확인 (Gotcha 8). 근거 없는 항목은 제거하거나 "새로 생성" 으로 고친다.
 3. 생성된 가이드의 모든 외부 URL이 공식 도메인인지 + **그 시점 canonical host** 인지 확인 (`references/search-strategy.md`)
 4. 11개 섹션 누락 확인
-5. **막는 요구 세 칸 확인** — 사전 요구사항의 막는 요구마다 출처 · 막히는 것 · 우회가 있는지 본다 (Gotcha 9). 출처가 요구하지 않는 요구는 지운다
-6. **마커 집계 보고** — 게이트 G2 가 낸 `bare` / `invalid` / `env` 세 숫자를 그대로 쓴다. `invalid` 에 대한 건수별 판정은 정본(`harness/docs/guides/qa-evaluation-guide.md` §카운팅 및 자동 REJECT 임계)을 그대로 적용하고 **여기서 숫자를 재정의하지 않는다.** `env` 는 임계에 합산하지 않고 검증 커버리지로 따로 보고한다.
-7. 사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내. **콘솔 라벨은 공개 문서 기준이며 로그인 뒤 화면과 다를 수 있다**는 점을 함께 알린다 (Gotcha 2).
+5. **막는 요구 세 칸 확인** — 칸이 비었거나 출처 칸에 주소가 없는 행은 게이트 G5 가 잡는다. 사람은 그 출처가 그 요구를 실제로 말하는지 본다 (Gotcha 9). 출처가 요구하지 않는 요구는 지운다
+6. **출처 줄 두 날짜 확인** — Step 마다 출처 줄에 조회일(`조회 YYYY-MM-DD`)과 원문 갱신일(`Last updated YYYY-MM-DD UTC`, 원문이 표시할 때만)을 따로 적었는지 본다. 원문 갱신일만 새로 옮기고 본문을 다시 확인하지 않았으면 조회일을 바꾸지 않는다
+7. **서비스 계정 키 안내 확인** — 서버 인증에서 `서비스 계정 키`(JSON 키 파일)를 안내했으면, Gotcha 10 의 더 안전한 대안(①~④)을 쓸 수 없는 사유와 키 보호 · 교체 · 폐기 절차를 함께 적었는지 본다. 사유가 없으면 대안으로 바꾼다
+8. **마커 집계 보고** — 게이트 G2 가 낸 `bare` / `invalid` / `env` 세 숫자를 그대로 쓴다. `invalid` 에 대한 건수별 판정은 정본(`harness/docs/guides/qa-evaluation-guide.md` §카운팅 및 자동 REJECT 임계)을 그대로 적용하고 **여기서 숫자를 재정의하지 않는다.** `env` 는 임계에 합산하지 않고 검증 커버리지로 따로 보고한다.
+9. 사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내. **콘솔 라벨은 공개 문서 기준이며 로그인 뒤 화면과 다를 수 있다**는 점을 함께 알린다 (Gotcha 2).
 
 ## References
 

@@ -139,7 +139,7 @@ general 그룹의 `feedback_plain_korean_no_jargon` 은 grounding `미분류` �
   표는 ID · 규칙 · 잡는 것만 갖고, 정규식은 시작 커밋 표 칸의 것을 글자 그대로 옮긴다(RE-02)
 - **확장자 여럿.** 경고 한 줄 대 배열. **배열.** `"${INC[@]}"` 는 bash 3.2 · bash 5 · zsh 에서 같게 펼쳐진다(봉인 전 실측). 경고 문장은 읽지 않으면 그만이다.
   세 자리(`core-naming.md` §8 · `core-comment.md` §6 · 개요 예시)를 한 번에 바꾼다 — 한 곳만 바꾸면 같은 함정이 남은 자리에서 다시 터진다
-- **리서치 문서.** 원칙 9 를 더할지. **더한다.** K-01 ~ K-08 이 원칙 1 ~ 8 과 짝이고, 킷 파일 머리(`locale-korean.md:12`)가 근거는 원칙 문서에 있다고 말한다
+- **리서치 문서.** 원칙 9 를 더할지. **더한다.** K-01 ~ K-08 이 원칙 1 ~ 8 과 짝이고, 킷 파일 머리(`locale-korean.md:16`)가 근거는 원칙 문서에 있다고 말한다
 
 ### Counterpart — 바뀌는 형태를 받아 쓰는 반대편
 
@@ -149,7 +149,7 @@ general 그룹의 `feedback_plain_korean_no_jargon` 은 grounding `미분류` �
 | `tone-kit/evals/evals.json` | tone-guide 동작 | 반영 — 사례 4 (SK-03) |
 | `docs/tone/korean-technical-writing.md` · `docs/tone/overview.md` | 한국어 원칙 · 게이트 예시 | 반영 — SK-04 · SC-02 |
 | `docs/tone-kit/korean-technical-writing.html` · `docs/tone-kit/overview.html` | 리서치 문서 거울 | Final F2 (ER-03). `scripts/detect-docs-drift.py` 가 `docs/tone/` · `tone-kit/references/` 를 `docs/tone-kit/` 로 잇는다 |
-| `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:230` | 필수 출처 7 번 이름 「국립국어원 공공언어」 | 범위 밖 — ER-03 넘김 |
+| `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md:270` | 필수 출처 7 번 이름 「국립국어원 공공언어」 | 범위 밖 — ER-03 넘김 |
 
 ### 개선안 초안
 

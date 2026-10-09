@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FCM 푸시 알림 설정 가이드 — Flutter (iOS / Apple)</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -85,10 +86,30 @@
   .grid-2>*,.grid-3>*,.compare>*,.kv>*,.step-head>*,.step-field>*,.checklist li>*{min-width:0}
   @media(max-width:720px){.grid-3,.compare{grid-template-columns:1fr}}
   @media(max-width:600px){.grid-2{grid-template-columns:1fr}.kv,.step-field{flex-direction:column;gap:2px}.kv-k,.field-k{flex:none}}
-  @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <main class="page">
   <a href="../index.html" target="_top" class="nav-back">&#8592; Onboarding Kit</a>
   <header>
@@ -454,7 +475,7 @@ Future&lt;void&gt; setupFcm() async {
       <li><span class="check">□</span><div><code>.gitignore</code>에 <code>*.p8</code> 추가 (실수로 커밋 방지)</div></li>
       <li><span class="check">□</span><div><code>GoogleService-Info.plist</code>는 git에 커밋해도 무방 (공개 식별자만 포함) — 단, 환경별 분리 시 파일명 구분</div></li>
       <li><span class="check">□</span><div>FCM 등록 토큰은 서버에 저장 시 사용자별로 격리 (다른 사용자에게 발송되지 않도록)</div></li>
-      <li><span class="check">□</span><div>Firebase Admin SDK의 서비스 계정 JSON은 <strong>서버에만</strong> 보관 (앱 번들에 절대 포함 금지)</div></li>
+      <li><span class="check">□</span><div>Firebase Admin SDK 서버 인증은 Google 환경이면 키가 필요 없는 ADC(Application Default Credentials)를 먼저 쓴다. 서비스 계정 JSON 키를 써야 하면 <strong>서버에만</strong> 보관하고 앱 번들에 절대 넣지 않는다 — Google 은 모바일 앱 같은 클라이언트에서 서비스 계정을 쓰지 말라고 권고한다 (<a href="https://docs.cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys" target="_blank" rel="noopener">서비스 계정 키 관리 권장 사항</a> · <a href="https://firebase.google.com/docs/admin/setup" target="_blank" rel="noopener">Admin SDK 설정</a>, 2026-09-28 조회)</div></li>
     </ul>
   </section>
 

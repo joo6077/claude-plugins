@@ -10,11 +10,11 @@ bambu-kit과 같은 도구형 1스킬 킷. 스택 무관 — Flutter / 네이티
 
 ## 스킬
 
-<!-- AUTO:skills:start -->
-| 스킬 | 용도 |
-|------|------|
-| `/setup-guide` | 그 시점 최신 정보 기준 외부 서비스 셋업 가이드 step-by-step MD 자동 생성 |
-<!-- AUTO:skills:end -->
+<!-- AUTO:skills -->
+| 스킬 | 설명 |
+| --- | --- |
+| `setup-guide` | 프로젝트의 외부 서비스(Firebase, GCP, AWS, FCM, OAuth, Stripe 등) 설정 가이드를 그 시점 최신 정보 기준으로 step-by-step MD 문서로 생성한다. |
+<!-- /AUTO:skills -->
 
 트리거 키워드: "FCM 설정해야 해", "Firebase 어떻게 연동해?", "GCP 설정 가이드", "OAuth 설정", "셋업 가이드 만들어줘".
 

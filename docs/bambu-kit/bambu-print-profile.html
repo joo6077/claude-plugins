@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bambu Print Profile — H2S 자동 JSON 생성 워크플로우</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -186,10 +187,30 @@
   /* (4) 좁은 화면은 한 줄에 하나씩 */
   @media(max-width:600px){.grid-2,.grid-3,.grid-4,.flow,.stats{grid-template-columns:1fr}}
 
-  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none !important; animation:none !important; } html { scroll-behavior:auto } }
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <a href="../index.html" class="nav-back">&#8592; Bambu Kit</a>
@@ -571,7 +592,7 @@ echo "exit=$?"; rm -rf "$T"</pre>
       <tbody>
         <tr><td><code>https://makerworld.com/api/v1/design-service/design/&lt;번호&gt;</code></td><td><code>title</code> · 설명 HTML <code>summary</code> · <code>designCreator</code> · 소재별 프로파일 <code>instances</code> · <code>commentCount</code> · <code>license</code></td></tr>
         <tr><td><code>https://api.bambulab.com/v1/design-service/design/&lt;번호&gt;/instances</code></td><td>프로파일 목록 <code>hits</code> 와 <code>total</code></td></tr>
-        <tr><td><code>https://api.bambulab.com/v1/comment-service/commentandrating?designId=&lt;번호&gt;&amp;offset=&lt;N&gt;&amp;limit=100</code></td><td>댓글 · 평점 <code>hits</code> 와 <code>total</code></td></tr>
+        <tr><td><code>https://api.bambulab.com/v1/comment-service/commentandrating?designId=&lt;번호&gt;&amp;offset=&lt;N&gt;&amp;limit=100</code></td><td>댓글 · 평점 <code>hits</code> 와 <code>total</code>. 댓글 hit 의 답글 배열은 <code>comment.commentReply</code>, 답글 수는 <code>comment.replyCount</code> (<code>[관측 2026-09-27]</code> 배열이 수보다 짧은 댓글이 있다)</td></tr>
       </tbody>
     </table>
   </div>
@@ -596,6 +617,7 @@ done
 <span class="cm"># 이어서 python3 로 design · comments 를 세어 보고한다 (SKILL.md 원문)</span>
 <span class="cm">#  design '&lt;title&gt;' · commentCount N · instances N</span>
 <span class="cm">#  comments total N · 받은 hits N (페이지 N) · comment N · ratingItem N</span>
+<span class="cm">#  답글 replyCount N · 받은 commentReply N — 둘이 다르면 「답글 배열이 답글 수보다 짧은 댓글이 있다. 둘 다 notes 에 적는다」</span>
 <span class="cm">#  FAIL — 댓글을 하나도 못 받았는데 commentCount 가 0 이 아니다</span>
 <span class="cm">#  WARN — 받은 hits 가 total 과 다르다 → offset 을 끝까지 넘겼는지 본다</span>
 <span class="cm">#  NOTE — commentCount 와 total 이 다르다 → 둘 다 notes 에 적는다</span></pre>
@@ -969,7 +991,7 @@ done</pre>
               <tr><td>사용자가 슬라이서를 말했다</td><td>그대로 채택. <strong>추측으로 덮어쓰지 않는다</strong></td></tr>
               <tr><td>한쪽만 설치돼 있다</td><td>그쪽으로 확정하고 한 줄로 알린다</td></tr>
               <tr><td>둘 다 설치 · 사용자 미지정</td><td><strong>묻는다.</strong> 임의로 고르면 키 차이 때문에 산출물이 조용히 무시된다</td></tr>
-              <tr><td>둘 다 미설치</td><td><code>[미검증]</code> 표시 + Bambu Studio 키로 생성. 설치본 버전을 몰라 옵션 목록을 고를 수 없으므로 Phase 4.3 이 키 존재 · 종류 · enum 검사를 <code>[미검증]</code> 으로 보고한다</td></tr>
+              <tr><td>둘 다 미설치</td><td><code>[미검증]</code> 표시 + Bambu Studio 키로 생성. 설치본 버전을 몰라 옵션 목록을 고를 수 없으므로 Phase 4.3 이 키 존재 · 종류 · enum 검사를 <code>[미검증]</code> 으로 보고한다 — 4.3 통과 규칙의 네 칸을 붙인다</td></tr>
             </tbody>
           </table>
         </div>
@@ -981,6 +1003,23 @@ done</pre>
       <a class="card-source" href="#gate">↗ Phase 4.3 검사 실행 줄</a>
     </div>
   </div>
+</div>
+
+<div class="section" id="phase1953">
+  <div class="section-label">1.95.3 전송 경로 — 그 슬라이서에서 프린터로 보낼 수 있는가 (2026-09-19 신규)</div>
+  <p class="desc"><code>TARGET_SLICER=orca</code> 이고 프린터가 H2S 면, <strong>오르카에서 H2S 로 직접 출력을 시작할 수 없다.</strong> 뱀부가 2025 년부터 신형 프린터에 넣은 권한 제어 때문이다 — 오르카에서 뱀부 계정으로 로그인해도 상태만 보이고 출력 시작은 막힌다 (뱀부 권한 제어 공지 2025-01 · 오르카 H2D/H2S 지원 PR #10780). 프로파일을 만들기 전에 사용자에게 보낼 길을 알려라. 실측 2026-09-19: 사용자가 "오르카랑 H2S 가 연결이 안 된다" 고 물었다.</p>
+  <div class="table-wrap prose">
+    <table>
+      <thead><tr><th>경로</th><th>가능 여부</th><th>방법</th></tr></thead>
+      <tbody>
+              <tr><td>뱀부 스튜디오로 넘기기 (권장)</td><td><span class="badge badge-ok">된다</span></td><td>오르카 <code>Print plate</code> 옆 화살표 → <code>Export plate sliced file</code> 로 <code>.gcode.3mf</code> 저장 → 뱀부 스튜디오 <code>File &gt; Open Project…</code> → <strong>다시 슬라이스하지 말고</strong> <code>Print plate</code>. 다시 자르면 오르카 전용 설정이 빠진다</td></tr>
+              <tr><td>Bambu Connect</td><td><span class="badge badge-ok">된다</span></td><td>같은 <code>.gcode.3mf</code> 를 Bambu Connect 창에 끌어 넣고 보낸다. 오르카 2.4.2 에는 바로 보내는 메뉴가 없다 (PR #13811 미병합)</td></tr>
+              <tr><td>USB 드라이브</td><td><span class="badge badge-ok">된다</span></td><td><code>.gcode.3mf</code> 를 USB 에 복사해 프린터 화면 <code>Print Files</code> 에서 시작한다. 권한 제어와 무관하다</td></tr>
+              <tr><td>오르카에서 직접</td><td><span class="badge badge-warn">조건부</span></td><td>프린터 화면 <code>Settings &gt; LAN Only</code> 에서 LAN 전용 모드와 <code>Developer Mode</code> 를 둘 다 켠다. 뱀부 핸디 앱 · 외부 출력 · 출력 기록이 꺼지고, 같은 공유기의 다른 프로그램도 프린터를 조종할 수 있게 된다</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="desc">뱀부 스튜디오로 넘길 때 화면의 예상 시간이 오르카 슬라이스 결과와 같으면 오르카 파일이 그대로 간 것이다. 오르카 H2S 는 프린터 설정도 함께 바꿔야 한다 — Phase 3.1.</p>
 </div>
 
 <!-- ── Phase 2 ── -->
@@ -1038,6 +1077,7 @@ done</pre>
         <tr><td>L2 스트링잉 — wipe</td><td><span class="badge badge-ok">가능</span> (검사 통과 시)</td><td><code>filament_wipe</code> · <code>filament_wipe_distance</code> 2 키만</td></tr>
         <tr><td>L2 스트링잉 — retraction 올리기</td><td><span class="badge badge-warn">coupon 뒤에만</span></td><td>Phase 5 coupon 통과 전 본 출력에 넣지 않는다</td></tr>
         <tr><td>L3 박리 — brim · 첫 레이어</td><td><span class="badge badge-ok">가능</span></td><td><code>failure-recipes.md</code> §3.1</td></tr>
+        <tr><td>L3 박리 — <strong>판에서 바로 시작하는 바닥 필렛</strong></td><td><span class="badge badge-warn">오르카 + 3mf 로만</span></td><td>process JSON 으로는 불가. 오르카 <code>make_overhang_printable</code> 을 바닥 몇 mm <strong>높이 구간에만</strong> 켠 3mf 를 함께 준다. 모델 전체에 켜면 가로 구멍이 막힌다. 테두리는 끈다 (<code>failure-recipes.md</code> §3.5)</td></tr>
         <tr><td>L3 박리 — chamber 예열 · plate 종류</td><td><span class="badge badge-bad">불가</span> (장비 조작)</td><td>notes 만</td></tr>
         <tr><td>L3 박리 — plate 온도 · aux fan</td><td><span class="badge badge-warn">사용자 확인 뒤에만</span></td><td>plate 전용 키만. <code>bed_temperature_initial_layer</code> 금지</td></tr>
         <tr><td>Studio 화면 페인팅 (seam · color · fuzzy)</td><td><span class="badge badge-bad">불가</span></td><td>사용자 작업으로 안내</td></tr>
@@ -1082,6 +1122,22 @@ done</pre>
         <li>디자이너가 소재를 지정하면 Phase 2 후보를 그 소재 하나로 좁힌다</li>
       </ul>
     </div>
+  </div>
+</div>
+
+<div class="section" id="phase31">
+  <div class="section-label">Phase 3.1 — 오르카 + H2S 는 프린터 설정도 만든다 (2026-09-19 신규)</div>
+  <p class="desc"><code>TARGET_SLICER=orca</code> 이고 프린터가 H2S 면 process · filament 에 더해 <strong>프린터(machine) 설정 JSON 을 <code>machine/</code> 폴더에 함께 만든다.</strong> 오르카 2.4.2 에 든 H2S 시작 명령은 뱀부보다 낡아서, 그대로 자르면 그 파일로 뽑을 때만 툴헤드 카메라 초기화 실패가 난다 (2026-09-19 fly-catcher 실측 · 원인과 명령 차이는 <code>bambu-fields-baseline.md</code> §11.5).</p>
+  <div class="card">
+    <ul class="plain">
+      <li><code>inherits</code> 는 <code>Bambu Lab H2S 0.4 nozzle</code> (실제 노즐에 맞춘다). <code>machine_start_gcode</code> 에 뱀부 설치본의 <code>Bambu Lab H2S 0.4 nozzle template machine_start_gcode.json</code> 원문을 넣되, 오르카에 없는 <code>cooling_filter_enabled</code> 조건 블록만 뱀부 기본값 결과로 고정한다 — 절차는 §11.5</li>
+      <li>이름은 <code>&lt;원 프린터 이름&gt; - BS start &lt;템플릿 날짜&gt;</code> 로 짓고, process 의 <code>compatible_printers</code> 에 그 이름을 더한다</li>
+      <li>시작 명령만 바꾼다. 끝 · 필라멘트 교체 · 층 변경 · 타임랩스 · 감김 감지 명령은 오르카 것을 둔다 — 뱀부 필라멘트 교체 명령에는 오르카가 모르는 변수가 있다</li>
+      <li>3mf 를 함께 줄 때(높이 구간 설정 등)는 3mf 안의 프린터 설정도 이 이름과 시작 명령으로 맞춘다. 오르카 화면에서 프로젝트를 다시 저장하면 3mf 안 프린터가 바뀐 채 돌아올 수 있다 (실측) — 전달 직전에 한 번 더 확인한다</li>
+      <li>H2D · H2C 뱀부 템플릿에는 이 준비 블록이 없다 (2026-09-19 설치본 전수). 날짜가 다르면 차이를 비교해 보고하되 카메라 블록을 요구하지 않는다</li>
+    </ul>
+    <p>Phase 4.3 검사가 <code>machine/*.json</code> 도 받는다. 준비 블록이 없거나 오르카가 거부할 변수가 남아 있으면 FAIL 이다.</p>
+    <a class="card-source" href="bambu-fields-baseline.html">↗ Fields Baseline §11.5 — 오르카 H2S 시작 명령</a>
   </div>
 </div>
 
@@ -1137,6 +1193,7 @@ done</pre>
         <tr><td><strong>베어링 바깥지름 압입</strong> (608ZZ 22mm 등)</td><td><code>xy_hole_compensation</code></td><td>+ (PLA <code>0.05</code> · PETG <code>0.075</code> · ASA <code>0.10</code>)</td></tr>
         <tr><td><strong>베어링 안지름 축</strong> (608ZZ 8mm 등)</td><td><code>xy_contour_compensation</code></td><td>− (PLA <code>-0.05</code> · PETG <code>-0.075</code> · ASA <code>-0.10</code>)</td></tr>
         <tr><td><strong>볼트 통과 구멍</strong> (M3 → 최종 지름 3.2~3.4mm, M4 → 4.3mm)</td><td><code>xy_hole_compensation</code></td><td><strong>§1.1 변환식 필수.</strong> 모델이 이미 목표 지름이면 수축 보정만(PLA <code>+0.05</code>), 명목 3.0mm 면 오프셋 <code>+0.10~+0.20</code>. 표의 지름을 보정값으로 쓰지 않는다 (<code>PL-01</code>)</td></tr>
+        <tr><td><strong>가로 구멍</strong> (축이 수평 — 벽을 옆으로 관통)</td><td>없음 — <code>xy_hole_compensation</code> 이 걸리지 않는다</td><td><code>0</code> 으로 두고 사유를 notes 에 적는다. 치수는 모델·드릴로 맞춘다 (<code>tolerance.md</code> §1.3)</td></tr>
         <tr><td><strong>heat-set 인서트 구멍</strong> (M3 4.0mm 등)</td><td>구멍 명시 + <code>xy_hole_compensation</code></td><td>표 §2 그대로</td></tr>
         <tr><td><strong>slide-fit · push-lock</strong> (knife sheath 등)</td><td><code>xy_contour</code> (바깥) + <code>xy_hole</code> (구멍)</td><td>둘 다 헐겁게</td></tr>
         <tr><td><strong>모든 부품 첫 레이어 눌림</strong></td><td><code>elefant_foot_compensation</code></td><td><code>0.10-0.20</code> (PLA <code>0.15</code>)</td></tr>
@@ -1272,7 +1329,7 @@ done</pre>
     <div class="card">
       <div class="phase-tag">ER-01</div>
       <h3>버전 조회 실패</h3>
-      <div class="card-body">추측값을 쓰지 않는다. <code>[미검증]</code> 으로 표시하고 references 수치를 "확인되지 않은 기준" 으로 밝힌 뒤 Studio 설치 상태를 확인받는다. 설치 경로가 다르면 경로를 물어 다시 조회한다.</div>
+      <div class="card-body">추측값을 쓰지 않는다. <code>[미검증]</code> 으로 표시하고 4.3 통과 규칙의 네 칸을 붙인 뒤 references 수치를 "확인되지 않은 기준" 으로 밝힌 뒤 Studio 설치 상태를 확인받는다. 설치 경로가 다르면 경로를 물어 다시 조회한다.</div>
       <a class="card-source" href="#preflight">↗ 사전 절차 1 — 버전 대조</a>
     </div>
     <div class="card">
@@ -1420,7 +1477,7 @@ d=json.load(open(sys.argv[1],encoding='utf-8'))
 for k in sorted(d):
     if 'retract' in k or 'wipe' in k or 'volumetric' in k: print(f'{k:36} {d[k]}')
 " "$SYS/filament/Bambu ABS @BBL H2S.json"</pre>
-        <p>실측(Bambu Studio 02.06.00.51): <code>Bambu ABS @BBL H2S</code> · <code>Bambu PLA Basic @BBL H2S</code> 는 <code>filament_retraction_length</code> <code>0.4</code> · <code>filament_wipe_distance</code> <code>1</code> 을 적는다. machine <code>Bambu Lab H2S 0.4 nozzle</code> 의 <code>0.8</code> / <code>2</code> 와 <strong>다르다.</strong> 조회에 실패하면 추측값을 쓰지 말고 그 키를 빼고 <code>[미검증]</code> 으로 보고한다 — 부모에 맡기는 쪽이 틀린 숫자보다 안전하다.</p>
+        <p>실측(Bambu Studio 02.06.00.51): <code>Bambu ABS @BBL H2S</code> · <code>Bambu PLA Basic @BBL H2S</code> 는 <code>filament_retraction_length</code> <code>0.4</code> · <code>filament_wipe_distance</code> <code>1</code> 을 적는다. machine <code>Bambu Lab H2S 0.4 nozzle</code> 의 <code>0.8</code> / <code>2</code> 와 <strong>다르다.</strong> 조회에 실패하면 추측값을 쓰지 말고 그 키를 빼고 <code>[미검증]</code> 으로 보고한다 — 부모에 맡기는 쪽이 틀린 숫자보다 안전하다. 보고에는 4.3 통과 규칙의 네 칸을 붙인다.</p>
       </div>
       <a class="card-source" href="https://raw.githubusercontent.com/bambulab/BambuStudio/master/src/libslic3r/PrintConfig.cpp">↗ PrintConfig.cpp — nil 위임</a>
     </div>
@@ -1541,6 +1598,11 @@ for k in sorted(d):
     ├── &lt;filament 1&gt;.json
     └── &lt;filament 2&gt;.json   <span class="cm"># 여러 소재인 경우</span></pre>
       <div class="card-body">zip 은 Phase 4.3 검사를 통과한 <strong>뒤에</strong> 만든다. Phase 5 조건이면 COUPON process 와 <code>coupon-stl/README.md</code> 가 더해진다.</div>
+<pre class="tree">&lt;modelname&gt;.zip   <span class="cm"># 오르카 + H2S 인 경우 — Phase 3.1</span>
+├── process/
+├── filament/
+└── machine/
+    └── &lt;printer name&gt;.json</pre>
       <a class="card-source" href="https://github.com/bambulab/BambuStudio/wiki">↗ Bambu Studio Wiki — Import Configs</a>
     </div>
 
@@ -1618,6 +1680,29 @@ for k in sorted(d):
 <span class="cm"># … 검사 본문 (SKILL.md Phase 4.3 원문 그대로 — 음성 대조가 이 블록을 파일로 뽑아 돌린다)</span>
 PY</pre>
 
+  <p class="desc">오르카 + H2S 면 <code>&lt;output_dir&gt;/machine/*.json</code> 도 인자에 더한다 (Phase 3.1). 폴더가 없을 때 이 인자를 붙이면 zsh 는 명령 전체를 실행하지 않는다 — 있는 폴더만 넘긴다. 검사 본문은 <code>import os, re, sys, json, pathlib, plistlib</code> 로 시작한다.</p>
+  <h3>프린터 설정을 받는 자리 (발췌 · 2026-09-19)</h3>
+<pre>META = {&quot;type&quot;,&quot;name&quot;,&quot;version&quot;,&quot;from&quot;,&quot;inherits&quot;,&quot;print_settings_id&quot;,&quot;filament_settings_id&quot;,&quot;printer_settings_id&quot;,
+        &quot;compatible_printers&quot;,&quot;filament_extruder_variant&quot;,&quot;instantiation&quot;,&quot;setting_id&quot;}
+# 프리셋 종류별 이름 키 — 빠지면 가져오기가 &#x27;Preset type is unknown&#x27; 으로 조용히 건너뛴다
+SETTINGS_ID = {&quot;process&quot;:&quot;print_settings_id&quot;,&quot;filament&quot;:&quot;filament_settings_id&quot;,&quot;machine&quot;:&quot;printer_settings_id&quot;}
+    if t not in SETTINGS_ID: errs.append(f&quot;type={t!r} (process|filament|machine 아님)&quot;)
+    idk=SETTINGS_ID.get(t,&quot;filament_settings_id&quot;)
+    # 오르카 H2S 프린터 설정 (2026-09-19 · bambu-fields-baseline.md §11.5) — 오르카 번들 시작 명령(2025/08/06)은
+    # 툴헤드 카메라 검사 앞뒤 준비 블록이 없어서, 그걸로 자른 출력만 툴헤드 카메라 초기화 실패(0500-8092)가 난다.
+    # H2 계열 뱀부 템플릿 중 이 블록은 H2S 에만 있다 — H2D · H2C 에 요구하면 멀쩡한 설정을 막는다.
+    if t==&quot;machine&quot; and SLICER==&quot;orca&quot; and &quot;Bambu Lab H2S&quot; in str(d.get(&quot;inherits&quot;,&quot;&quot;)):
+        start = d.get(&quot;machine_start_gcode&quot;) or (resolve(d.get(&quot;inherits&quot;)).get(&quot;machine_start_gcode&quot;,&quot;&quot;) if SYSIDX else &quot;&quot;)
+        if not start:
+            unverified.append(f&quot;{f}: 시작 명령을 파일에서도 부모에서도 못 읽었다 — 카메라 준비 블록 판정 불가&quot;)
+        else:
+            camera_on, camera_check, camera_off = start.find(&quot;M1028 S1&quot;), start.find(&quot;M972 S31&quot;), start.find(&quot;M1028 S0&quot;)
+            if camera_check &gt;= 0 and not (0 &lt;= camera_on &lt; camera_check &lt; camera_off):
+                errs.append(f&quot;카메라 준비 블록 없음 — 툴헤드 카메라 검사(M972 S31) 앞에 M1028 S1, 뒤에 M1028 S0 이 있어야 한다. 이대로 자르면 툴헤드 카메라 초기화 실패가 난다 (bambu-fields-baseline.md §11.5)&quot;)
+            # 식 안의 변수만 본다 — `; cooling_filter_enabled=0 고정` 같은 G-code 주석은 오르카가 해석하지 않는다
+            if re.search(r&quot;\{[^{}]*\bcooling_filter_enabled\b[^{}]*\}|\[cooling_filter_enabled\]&quot;, start):
+                errs.append(f&quot;오르카에 없는 변수 cooling_filter_enabled — 오르카가 시작 명령 구문 오류로 슬라이스를 거부한다. 뱀부 기본값 0 의 결과인 M145.2 P0 F1 로 고정하라 (bambu-fields-baseline.md §11.5)&quot;)</pre>
+
   <div class="grid-2">
     <div class="card">
       <h3>무엇을 근거로 읽나</h3>
@@ -1645,7 +1730,8 @@ PY</pre>
               <tr><td><code>Info.plist</code> 에서 설치본 버전을 못 읽음</td><td>같음</td></tr>
               <tr><td>설치본 버전의 목록 파일 없음</td><td>같음. 다른 버전 목록으로 대신하지 않는다 — <code>build-option-list.sh</code> 로 만들라고 알린다</td></tr>
               <tr><td>목록 파일이 비었거나 깨짐 <span class="badge badge-info">09-25</span></td><td>같음. 그전에는 아무 말 없이 <code>RESULT: PASS</code> 였다</td></tr>
-              <tr><td>enum 줄만 빠진 목록 <span class="badge badge-info">09-25</span></td><td>같음. 그전에는 받지 않는 값이 통과했다</td></tr>
+              <tr><td>enum 줄만 빠진 목록 <span class="badge badge-info">09-25</span></td><td>enum 값만. 키 존재 · 종류 검사는 그대로 돌아 <code>키 스코프 불일치</code> FAIL 을 낸다 <span class="badge badge-info">09-26</span>. 그전에는 받지 않는 값이 통과했다</td></tr>
+              <tr><td>종류 줄만 빠진 목록 <span class="badge badge-info">09-27</span></td><td>종류만. 종류 판정을 건너뛰고 <code>[미검증] … 종류 검사 미실행</code> 을 남기며, enum 판정은 돌아 <code>받지 않는 값</code> FAIL 을 낸다. 그전에는 적힌 키마다 거짓 <code>키 스코프 불일치</code> FAIL 이 나고 enum FAIL 은 0 건이었다 (재현 9 건). 스크립트 주석 그대로: 종류 줄이 없으면 종류 판정을 건너뛴다 — 돌리면 적힌 키마다 거짓 「키 스코프 불일치」 가 나고 enum 판정이 가려진다</td></tr>
               <tr><td>부모 해석 실패</td><td>유량비 · 부모값 · 형상 클래스</td></tr>
               <tr><td>layer · 외벽 속도 · 선폭 결측</td><td>유량비</td></tr>
               <tr><td><code>_wall_budget_short_share</code> 미기록</td><td>벽 예산</td></tr>
@@ -1683,7 +1769,7 @@ PY</pre>
   <p class="caption">통과한 파일은 <code>OK &lt;파일&gt;: type= from= keys= ironing= xy_hole= layer= brim= wipe= geometry=</code> 한 줄을 낸다 — 아래 「추가 의미 검증」 이 이 줄을 읽는다.</p>
 
   <div class="callout stop">
-    <strong>통과 규칙:</strong> <code>RESULT: PASS</code> 이면서 exit 0 이어야 zip · 완료 보고로 간다. <code>FAIL</code> 이면 JSON 을 고쳐 다시 돌리고 사용자에게 넘기지 않는다. <strong>출력이 비어 있으면 PASS 가 아니다</strong> — 파일 glob 이 아무것도 못 잡은 것이니 경로부터 고친다. 돌리지 않았거나 돌릴 수 없었으면 완료를 선언하지 말고 <code>[미검증]</code> 으로 적는다. 표지는 <code>[미검증]</code> 하나로 통일하고 비슷한 말(<code>미확인</code> · <code>N/A</code> · <code>TBD</code> · <code>unverified</code>)을 새로 만들지 않는다 — <code>qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol.
+    <strong>통과 규칙:</strong> <code>RESULT: PASS</code> 이면서 exit 0 이어야 zip · 완료 보고로 간다. <code>FAIL</code> 이면 JSON 을 고쳐 다시 돌리고 사용자에게 넘기지 않는다. <strong>출력이 비어 있으면 PASS 가 아니다</strong> — 파일 glob 이 아무것도 못 잡은 것이니 경로부터 고친다. 돌리지 않았거나 돌릴 수 없었으면 완료를 선언하지 말고 <code>[미검증]</code> 으로 명시하고 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채워라 — 정의는 <code>harness/docs/guides/skill-design-guide.md</code> §3.7 「스킬이 지켜야 할 5 조항」 3 항이다. 표지는 <code>[미검증]</code> 하나로 통일하고 비슷한 말(<code>미확인</code> · <code>N/A</code> · <code>TBD</code> · <code>unverified</code>)을 새로 만들지 않는다 — <code>qa-evaluation-guide.md</code> §Canonical Unverified-Evidence Protocol.
   </div>
 </div>
 
@@ -1693,14 +1779,14 @@ PY</pre>
   <p class="desc"><code>RESULT: PASS</code> 는 <strong>검사가 돌았다는 증거가 아니다.</strong> 검사가 죽어 있어도 PASS 가 나온다. 검사를 고쳤거나 옵션 목록을 새로 만들었으면 아래 시험 파일을 <strong>전부 실제로 넣어</strong> 기대대로 나오는지 본다.</p>
 
   <div class="stats">
-    <div class="stat"><div class="v">23</div><div class="l">시험 파일 (<code>bambu-kit/evals/gate-fixtures/</code>) — FAIL 기대 20 · <code>[미검증]</code> 만 기대 1 · PASS 기대 2</div></div>
+    <div class="stat"><div class="v">28</div><div class="l">시험 파일 (<code>bambu-kit/evals/gate-fixtures/</code>) — FAIL 기대 23 · <code>[미검증]</code> 만 기대 1 · PASS 기대 4</div></div>
     <div class="stat"><div class="v">7</div><div class="l">숫자 값까지 보는 규칙 — 전부 FAIL 시험 파일이 있다</div></div>
     <div class="stat"><div class="v">8</div><div class="l">폴더에만 있고 한 번도 안 돌던 시험 파일 (2026-09-24)</div></div>
     <div class="stat"><div class="v">1 건</div><div class="l">FAIL 기대 파일이 내야 할 목표 위반 수 — 그 외 위반 0</div></div>
   </div>
 
   <div class="callout">
-    <strong>시험 파일을 새로 만들 때 — 그 키를 보는 규칙이 있는지부터 확인한다.</strong> 옵션 목록은 키 이름 · 받는 프리셋 종류 · <strong>enum 값</strong>만 본다. 숫자 키의 값은 판정하지 않으므로 아무 숫자 키에 말도 안 되는 값을 넣은 시험 파일은 <strong>그냥 통과한다</strong>(실측 2026-09-23: <code>top_surface_acceleration</code> <code>99999</code> → <code>RESULT: PASS</code>). 값까지 보는 규칙은 일곱이다 — 공차 보정 음수 금지(<code>elefant_foot_compensation</code>) · 형상 클래스별 외벽 하향(<code>outer_wall_speed</code>) · 유량비 5x(인접 속도 4 키) · 벽 예산(<code>_wall_budget_short_share</code>) · 허공 위 속도(<code>bridge_speed</code> 30 초과) · scarf 길이 비율(<code>seam_slope_min_length</code> ÷ <code>_scarf_loop_circumference_mm</code>) · 소재 부모값 1.5 배(<code>GUARDED</code> 키). 금지 키 · <code>compatible_printers</code> · 메타필드 · 숫자 형식 검사는 아직 FAIL 시험 파일이 없다.
+    <strong>시험 파일을 새로 만들 때 — 그 키를 보는 규칙이 있는지부터 확인한다.</strong> 옵션 목록은 키 이름 · 받는 프리셋 종류 · <strong>enum 값</strong>만 본다. 숫자 키의 값은 판정하지 않으므로 아무 숫자 키에 말도 안 되는 값을 넣은 시험 파일은 <strong>그냥 통과한다</strong>(실측 2026-09-23: <code>top_surface_acceleration</code> <code>99999</code> → <code>RESULT: PASS</code>). 값까지 보는 규칙은 일곱이다 — 공차 보정 음수 금지(<code>elefant_foot_compensation</code>) · 형상 클래스별 외벽 하향(<code>outer_wall_speed</code>) · 유량비 5x(인접 속도 4 키) · 벽 예산(<code>_wall_budget_short_share</code>) · 허공 위 속도(<code>bridge_speed</code> 30 초과) · scarf 길이 비율(<code>seam_slope_min_length</code> ÷ <code>_scarf_loop_circumference_mm</code>) · 소재 부모값 1.5 배(<code>GUARDED</code> 키). <code>compatible_printers</code> · 메타필드 · 숫자 형식 검사는 아직 FAIL 시험 파일이 없다. 이 표와 (2) 실행 줄은 <code>bambu-kit/evals/run-gate-fixtures.sh</code> 가 그대로 읽어 CI 에서 돌린다 — 칸 순서나 실행 줄 모양을 바꾸면 그 스크립트가 <code>STOP</code> 이나 불일치를 낸다. 기대 칸에 <code>[미검증]</code> 줄 수를 적은 행은 그 줄 수까지 맞아야 일치다 — 못 읽은 칸 알림이 빠지거나 가짜 줄이 늘면 불일치로 잡는다.
   </div>
 
   <div class="table-wrap prose">
@@ -1728,11 +1814,41 @@ PY</pre>
         <tr><td><code>process-scarf-ratio-over.json</code></td><td>bambu</td><td>scarf 길이 비율 <strong>FAIL 1 건</strong> (20 %)</td><td><code>scarf 길이 .L.mm 가 루프</code> 줄을 <code>pass</code> 로</td><td>scarf 가 둘레의 15 % 를 넘어도 통과한다</td></tr>
         <tr><td><code>filament-retraction-over-parent.json</code></td><td>bambu</td><td>소재 부모값 <strong>FAIL 1 건</strong> (<code>filament_retraction_length</code> 슬롯 1)</td><td><code>.k. 슬롯</code> 줄을 <code>pass</code> 로</td><td>부모값의 1.5 배를 넘긴 되감기가 통과한다</td></tr>
         <tr><td><code>process-elefant-foot-negative.json</code></td><td>bambu</td><td>공차 보정 음수 <strong>FAIL 1 건</strong> (<code>-0.1</code>)</td><td><code>if float(eff)&lt;0:</code> 줄을 <code>pass</code> 로</td><td>음수 공차 보정이 통과한다</td></tr>
+        <tr><td><code>process-forbidden-key.json</code></td><td>bambu</td><td>금지 키 <strong>FAIL 1 건</strong> (<code>elephant_foot_compensation</code>)</td><td><code>if bad in d:</code> 줄을 <code>pass</code> 로</td><td>오타 키가 조용히 버려진다</td></tr>
         <tr><td><code>filament-lattice-fanfix.json</code></td><td>bambu</td><td><span class="badge badge-ok">PASS</span> · <code>[미검증]</code> 0 줄 — 냉각 키를 소재 설정에 둔 정상 설정</td><td>—</td><td>정상 설정이 FAIL 로 막힌다</td></tr>
         <tr><td><code>process-thin-baseline.json</code></td><td>bambu</td><td><span class="badge badge-ok">PASS</span> (+ 벽 예산 <code>[미검증]</code> 1 줄) — thin 인데 외벽을 안 낮춘 정상 설정</td><td>—</td><td>정상 설정이 FAIL 로 막힌다</td></tr>
+        <tr><td><code>machine-orca-h2s-bs-start.json</code></td><td>orca</td><td><span class="badge badge-ok">PASS</span> — 뱀부 최신 시작 명령을 담은 H2S 프린터 설정</td><td>받는 종류를 process · filament 둘로 되돌림 → FAIL</td><td>프린터 설정을 검사가 아예 받지 않는다</td></tr>
+        <tr><td><code>machine-orca-h2s-no-camera-prep.json</code></td><td>orca</td><td>카메라 준비 블록 없음 <strong>FAIL 1 건</strong> (<code>M1028</code>)</td><td><code>카메라 준비</code> 줄을 <code>pass</code> 로</td><td>오르카 번들 시작 명령이 통과해 툴헤드 카메라 초기화 실패가 다시 난다</td></tr>
+        <tr><td><code>machine-orca-h2s-cooling-filter-var.json</code></td><td>orca</td><td>오르카에 없는 변수 <strong>FAIL 1 건</strong> (<code>cooling_filter_enabled</code>)</td><td><code>오르카에 없는 변수</code> 줄을 <code>pass</code> 로</td><td>오르카가 슬라이스를 거부하는 시작 명령이 통과한다</td></tr>
+        <tr><td><code>machine-orca-x1c.json</code></td><td>orca</td><td><span class="badge badge-ok">PASS</span> — H2S 가 아니면 카메라 준비 블록을 요구하지 않는다</td><td>—</td><td>H2S 규칙이 다른 프린터까지 막는다</td></tr>
       </tbody>
     </table>
   </div>
+  <p class="desc"><code>machine-orca-h2s-no-camera-prep.json</code> 은 시작 명령 없이 <code>inherits</code> 만 둔다. 검사가 오르카 설치본의 부모 프린터 설정에서 시작 명령을 읽으므로, 오르카가 없는 곳(CI)에서는 FAIL 대신 <code>[미검증]</code> 이 나오고 <code>run-gate-fixtures.sh</code> 는 이 파일을 「건너뜀」 으로 적는다.</p>
+  <p class="desc">프린터 설정 시험 파일 넷의 원본 경로 — <code>evals/gate-fixtures/machine-orca-h2s-bs-start.json</code> · <code>evals/gate-fixtures/machine-orca-h2s-no-camera-prep.json</code> · <code>evals/gate-fixtures/machine-orca-h2s-cooling-filter-var.json</code> · <code>evals/gate-fixtures/machine-orca-x1c.json</code>. 오르카가 없는 곳에서는 FAIL 대신 <code>[미검증]</code> 이 나오고, <code>bambu-kit/evals/run-gate-fixtures.sh</code> 는 이 경우를 불일치가 아니라 「건너뜀」 으로 적는다 — 일치로 세지 않는다.</p>
+
+  <p class="desc">위 표의 파일을 <strong>실제로 주입해 기대대로 나오는지</strong> 확인한다. FAIL 을 기대하는 줄은 FAIL 이, PASS 를 기대하는 줄은 PASS 가 나와야 한다.</p>
+  <h3>프린터 설정 시험 파일 — 실행 줄 · 검사 제거 (2026-09-19)</h3>
+<pre>TARGET_SLICER=orca  python3 &quot;$GATE&quot; $FX/machine-orca-h2s-no-camera-prep.json; echo &quot;exit=$?&quot;
+TARGET_SLICER=orca  python3 &quot;$GATE&quot; $FX/machine-orca-h2s-cooling-filter-var.json; echo &quot;exit=$?&quot;
+TARGET_SLICER=orca  python3 &quot;$GATE&quot; $FX/machine-orca-h2s-bs-start.json; echo &quot;exit=$?&quot;   # PASS 여야 한다
+TARGET_SLICER=orca  python3 &quot;$GATE&quot; $FX/machine-orca-x1c.json; echo &quot;exit=$?&quot;            # PASS 여야 한다
+drop &quot;카메라 준비&quot; camera
+TARGET_SLICER=orca  python3 &quot;$GATE.camera&quot; $FX/machine-orca-h2s-no-camera-prep.json; echo &quot;exit=$?&quot;
+drop &quot;오르카에 없는 변수&quot; cooling
+TARGET_SLICER=orca  python3 &quot;$GATE.cooling&quot; $FX/machine-orca-h2s-cooling-filter-var.json; echo &quot;exit=$?&quot;
+
+# 받는 종류에서 machine 을 빼면 프린터 설정이 FAIL 해야 한다 — 받는 쪽이 살아 있다는 증거
+sed -E &#x27;s/^SETTINGS_ID = \{(.*), *&quot;machine&quot;:&quot;printer_settings_id&quot;\}$/SETTINGS_ID = {\1}/&#x27; &quot;$GATE&quot; &gt; &quot;$GATE.type&quot;
+diff &quot;$GATE&quot; &quot;$GATE.type&quot; | grep -c &#x27;^&gt;&#x27;   # 1 이어야 변이가 먹은 것
+TARGET_SLICER=orca  python3 &quot;$GATE.type&quot; $FX/machine-orca-h2s-bs-start.json; echo &quot;exit=$?&quot;</pre>
+  <p class="caption">실측 2026-09-19 (zsh · 위 블록을 SKILL.md 에서 그대로 뽑아 실행 · 바뀐 줄 수는 전부 1 · 오르카 2.4.2 설치본):</p>
+<pre>[검사 유지]  FAIL machine-orca-h2s-no-camera-prep.json: 카메라 준비 블록 없음 — …(M972 S31) 앞에 M1028 S1, 뒤에 M1028 S0 …   exit=1
+             FAIL machine-orca-h2s-cooling-filter-var.json: 오르카에 없는 변수 cooling_filter_enabled — …   exit=1
+             machine-orca-h2s-bs-start.json · machine-orca-x1c.json   RESULT: PASS   exit=0
+[카메라 제거]      RESULT: PASS   exit=0
+[변수 제거]        RESULT: PASS   exit=0
+[machine 종류 제거] FAIL machine-orca-h2s-bs-start.json: type=&#x27;machine&#x27; …   RESULT: FAIL   exit=1</pre>
 
   <div class="grid-2" style="margin-top:24px">
     <div class="card">
@@ -1751,6 +1867,8 @@ PY</pre>
     <div class="card">
       <h3>뽑기 · 짝 맞추기 · 지우기 (발췌)</h3>
 <pre>GATE=$(mktemp -t gate)          <span class="cm"># X 가 맨 끝이어야 macOS 가 치환한다</span>
+<span class="cm"># 끝나면 이 블록이 만든 임시 파일 · 폴더를 모두 지운다 — 안 지우면 돌릴 때마다 사용자 임시 폴더에 18 개씩 쌓였다 (2026-09-27 실측)</span>
+trap 'find "$(dirname "$GATE")" -maxdepth 1 -name "${GATE##*/}*" -exec rm -rf {} +; rm -rf "${EMPTY:-}" "${NOENUM:-}" "${NOTYPES:-}"' EXIT
 S=bambu-kit/skills/bambu-print-profile/SKILL.md
 A=$(grep -n '^TARGET_SLICER=.* python3 - ' "$S" | head -1 | cut -d: -f1)
 B=$(awk -v s="$A" 'NR&gt;s &amp;&amp; $(0)=="PY" {print NR; exit}' "$S")
@@ -1758,7 +1876,7 @@ sed -n "$((A+1)),$((B-1))p" "$S" &gt; "$GATE"
 <span class="cm"># 빈 파일을 뽑으면 python3 이 빈 스크립트를 exit 0 으로 돌린다 (2026-09-24)</span>
 if [ ! -s "$GATE" ] || ! grep -q 'RESULT' "$GATE"; then echo "STOP"; exit 1; fi
 <span class="cm"># (1) 폴더 ↔ 표 ↔ 실행 줄 짝 맞추기 — 양방향 (MISSING · ORPHAN)</span>
-<span class="cm"># (2) 검사 유지 — 23 개를 TARGET_SLICER=… python3 "$GATE" $FX/&lt;파일&gt; 로</span>
+<span class="cm"># (2) 검사 유지 — 28 개를 TARGET_SLICER=… python3 "$GATE" $FX/&lt;파일&gt; 로</span>
 <span class="cm"># (3) 검사 제거</span>
 drop() {
   sed -E "s/^( *)errs\.append\(f?\"${1} .*$/\1pass/" "$GATE" &gt; "$GATE.${2}"
@@ -1784,12 +1902,15 @@ drop() {
       <div class="card-body">
         <ul class="plain">
           <li><strong>공차 음수</strong> — <code>if</code> 와 한 줄이라 그 줄만 <code>pass</code> 로</li>
+          <li><strong>금지 키</strong> <span class="badge badge-info">09-27</span> — 금지 키 검사도 <code>if</code> 와 한 줄이다. <code>if bad in d:</code> 줄만 <code>pass</code> 로 바꾼 사본에서 <code>evals/gate-fixtures/process-forbidden-key.json</code> 이 통과로 바뀌어야 한다</li>
           <li><strong>못 읽은 칸 알림</strong> — <code>errs</code> 가 아니라 <code>unverified</code> 라서 그 줄만 지운다. <code>[미검증]</code> 줄이 1 → 0</li>
           <li><strong>번들 합집합</strong> — 종류 근거를 옛 방식으로 되돌리면 <code>pre_start_fan_time</code> 이 다시 통과해야 한다</li>
           <li><strong>목록 없음</strong> — 폴더 경로를 없는 곳으로</li>
           <li><strong>빈 목록</strong> <span class="badge badge-info">09-25</span> — 빈 tsv 를 담은 임시 기준 폴더</li>
           <li><strong>enum 없는 목록</strong> <span class="badge badge-info">09-25</span> — enum 줄만 뺀 목록. <code>받지 않는 값</code> FAIL 대신 <code>[미검증] … enum 0 줄</code></li>
+          <li><strong>종류 없는 목록</strong> <span class="badge badge-info">09-27</span> — <code>process</code> · <code>filament</code> · <code>machine</code> 종류 줄만 뺀 목록. 종류 판정을 건너뛰고 <code>[미검증] … 종류 검사 미실행</code> 을 남기며, enum 판정은 돌아 <code>받지 않는 값</code> FAIL 1 건이 나와야 한다</li>
         </ul>
+        <p>이 줄은 실제로 안 돈 검사만 적는다 — enum 줄만 빠지면 <code>enum 값 검사 미실행</code> 이고, 키 존재 · 종류 검사는 그대로 돌아 <code>키 스코프 불일치</code> FAIL 을 낸다 (2026-09-26 수정. 그전에는 같은 출력에 종류 FAIL 과 「종류 검사 미실행」 이 함께 나왔다).</p>
         <p>변이마다 "바뀐 줄 1 개" · "기준점 1 개" 를 먼저 찍어 변이가 실제로 먹었는지 본다.</p>
       </div>
       <a class="card-source" href="#gate">↗ Phase 4.3 [미검증] 표</a>
@@ -1912,6 +2033,7 @@ KNOWN = ["M83", "; FEATURE: Outer wall", "G1 X0 Y0", "G1 X10 Y0 E1",
 <span class="cm"># SELFTEST 직선 20.000 · 호 15.708 · 합 35.708 — 다르면 실제 G-code 는 재지 않는다</span></pre>
         <ul class="plain">
           <li>직선(<code>G0</code> · <code>G1</code>)과 호를 따로 센다. XY 평면 길이, <code>M82</code> · <code>M83</code> · <code>G90</code> · <code>G91</code> · <code>G92</code> 를 따른다</li>
+          <li>이 블록은 <code>G91</code> 을 XY 에만 적용하고 E 모드는 <code>M82</code> · <code>M83</code> 으로만 바꾼다. 펌웨어가 <code>G91</code> 을 E 에도 적용하는지는 확인하지 못했지만, 설치본 H2S 시작 G-code(뱀부 <code>02.08.02.61</code> · 오르카 <code>2.4.2</code>, 2026-09-26 실측)는 <code>G91</code> 이 뱀부 6 번 · 오르카 5 번 나오고 그 구간 안 E 이동이 0 이며 E 모드는 <code>M83</code> 뿐(<code>M82</code> 0 번)이라 어느 쪽으로 읽어도 재는 길이가 같다. 다른 시작 G-code 를 쓰면 다시 잰다</li>
           <li><code>R</code> 로 적은 호는 재지 않고 멈춘다 — <code>I</code> · <code>J</code> 호만</li>
           <li>시작점 = 끝점이면 한 바퀴. 제자리 압출(되감기 복귀)은 길이 0 이라 세지 않는다</li>
           <li><code>; FEATURE: </code> 줄 0 개 또는 압출 이동 0 개면 <code>FAIL</code> — 빈 결과는 통과가 아니다</li>
@@ -1920,6 +2042,21 @@ KNOWN = ["M83", "; FEATURE: Outer wall", "G1 X0 Y0", "G1 X10 Y0 E1",
       </div>
       <a class="card-source" href="surface-recipes.html">↗ Surface Recipes — G-code 로 길이 재기</a>
     </div>
+  </div>
+</div>
+
+<div class="section" id="verify-orca">
+  <div class="section-label">Phase 4.4 — 오르카 대상 (2026-09-19 신규)</div>
+  <p class="desc">위 절차는 <strong>뱀부 스튜디오 대상</strong>이다. 오르카 대상은 3mf 를 함께 줬으면 그 파일로 여는 것이 기본이다.</p>
+  <div class="card">
+    <ul class="checklist">
+      <li><span class="check">1</span><div>3mf 를 <strong>더블클릭하지 말고</strong> 오르카 <code>파일 → 프로젝트 열기</code> 로 연다. 더블클릭은 운영체제가 연결한 앱(보통 뱀부 스튜디오)으로 열려서, 뱀부가 모르는 오르카 설정을 지운다는 창이 뜬다</div></li>
+      <li><span class="check">2</span><div>프로젝트를 연 뒤 프리셋을 고르다 설정 전환 창(Transfer · Discard · Save)이 뜨면 <strong>Transfer</strong> 를 누른다 — 지금 화면에 걸린 3mf 설정값을 새로 고른 프리셋 위로 옮긴다. Save 는 같은 값을 다른 이름의 프리셋으로 하나 더 만들 뿐이다. 높이 구간 설정은 프리셋이 아니라 모델에 붙어 있어서 어느 쪽을 눌러도 남는다</div></li>
+      <li><span class="check">3</span><div>프린터 드롭다운이 <code>… - BS start &lt;날짜&gt;</code> 인지 확인한다 (Phase 3.1). 원 프린터 이름이면 카메라 준비 블록이 빠진 시작 명령으로 잘린다</div></li>
+      <li><span class="check">4</span><div>슬라이스 뒤 <code>Export plate sliced file</code> 로 내보내고 Phase 1.95.3 의 전송 경로로 보낸다</div></li>
+      <li><span class="check">5</span><div>zip 만 줬으면 <code>파일 → 가져오기 → 설정 가져오기</code> 로 zip 을 넣고, 프린터 · 프로세스 · 필라멘트 세 드롭다운에 새 이름이 보이는지 확인한다</div></li>
+    </ul>
+    <a class="card-source" href="#phase1953">↗ 1.95.3 전송 경로</a>
   </div>
 </div>
 
@@ -2069,6 +2206,10 @@ KNOWN = ["M83", "; FEATURE: Outer wall", "G1 X0 Y0", "G1 X10 Y0 E1",
         <li><span class="check">32</span><div><span class="when-tag">09-19</span>구멍 · 빈 칸이 있는 부품은 벽 예산을 쟀는지 — <code>WALL_LOOPS</code> 와 함께 돌려 <code>_wall_budget_short_share</code> 기록. 10 % 이상 + <code>classic</code> 이면 FAIL</div></li>
         <li><span class="check">33</span><div><span class="when-tag">09-19</span>제작자 3mf 로 출력하면 값을 박은 3mf 를 주고 보낸 G-code 로 대조했는지</div></li>
         <li><span class="check">34</span><div><span class="when-tag">09-25</span>G-code 로 길이를 쟀으면 <code>SELFTEST</code> 줄과 기능별 호 비율을 같이 붙였는지</div></li>
+        <li><span class="check">35</span><div><span class="when-tag">09-19</span>오르카 + H2S 면 프린터 설정 JSON 을 함께 만들고 시작 명령에 <code>M1028</code> 카메라 준비 블록이 있는지 — 오르카 번들 시작 명령으로 자르면 그 파일로 뽑을 때만 툴헤드 카메라 초기화 실패가 난다. "다른 파일은 괜찮다" 는 사용자 말은 파일 차이라는 신호다 — 파일 무관이라고 답하기 전에 시작 명령 전체를 비교하라 (Phase 3.1 · <code>bambu-fields-baseline.md</code> §11.5)</div></li>
+        <li><span class="check">36</span><div><span class="when-tag">09-19</span>판에서 바로 시작하는 바닥 필렛이 있으면 테두리를 껐는지 — 둘째 층이 테두리 안쪽 끝에 붙어 튀어나온 선이 생긴다. <code>brim_ears</code> 도 같은 자리에 붙으므로 대안이 아니다 (<code>failure-recipes.md</code> §3.5)</div></li>
+        <li><span class="check">37</span><div><span class="when-tag">09-19</span>가로 구멍을 <code>xy_hole_compensation</code> 으로 키우려 하지 않았는지 — 층마다 닫힌 안쪽 윤곽만 보정하므로 옆으로 누운 구멍에는 효과가 없고, 컵 안쪽처럼 원치 않는 곳만 넓힌다. 모델에서 지름을 키우거나 눈물방울 모양으로 바꾸라고 안내했는지 (<code>tolerance.md</code> §1.3)</div></li>
+        <li><span class="check">38</span><div><span class="when-tag">09-19</span>다림질 뒤 윗면에 줄이 솟았으면 흐름을 낮췄는지 — 다림질 양은 <code>층 높이 × 흐름</code> 이라 간격을 바꿔도 양은 그대로다. 솟은 줄은 양이 많은 것, 홈은 적은 것이다 (<code>surface-recipes.md</code> §5.3)</div></li>
       </ul>
       <a class="card-source" href="failure-recipes.html">↗ Failure Recipes · Phase 4.4</a>
     </div>
@@ -2089,9 +2230,10 @@ KNOWN = ["M83", "; FEATURE: Outer wall", "G1 X0 Y0", "G1 X10 Y0 E1",
           <table>
             <thead><tr><th>결과</th><th>처리</th></tr></thead>
             <tbody>
-              <tr><td><code>02.06.00.xx</code></td><td>references 기준값(2026-07-27 로컬 설치본). 그대로 사용</td></tr>
-              <tr><td><code>02.06.01.xx</code></td><td>그대로 — 작은 패치는 호환 가능성 높음. scarf 필드가 의심되면 대조</td></tr>
-              <tr><td><code>02.07.x.xx</code> · <code>02.08.x.xx</code></td><td><span class="badge badge-warn">bambu-kaizen 권장</span> references 가 <code>02.06.00.51</code> 기준 — 보고 뒤 진행</td></tr>
+              <tr><td><code>02.08.02.xx</code></td><td>references 확인 판(2026-09-05 앱 <code>02.08.02.61</code>, 옵션 목록 <code>bambu-02.08.02.61.tsv</code>). 그대로 사용</td></tr>
+              <tr><td>그 밖의 <code>02.08.x.xx</code></td><td>그대로 — 같은 2.8 줄의 패치는 호환 가능성 높음. 키가 옵션 목록에 없거나 import 에서 버려지면 대조</td></tr>
+              <tr><td>옵션 목록 파일</td><td><code>references/option-keys/bambu-02.08.02.61.tsv</code> — 확인 판 <code>02.08.02.61</code> 에서 뽑았다</td></tr>
+              <tr><td><code>02.06.x.xx</code> · <code>02.07.x.xx</code></td><td><span class="badge badge-warn">옛 판</span> 옵션 목록은 2.8.2 판에서 뽑았다 — 옛 판에 없는 키가 들어갈 수 있다. 보고하고 업그레이드 권장</td></tr>
               <tr><td><code>02.09.x.xx</code> 이상</td><td><span class="badge badge-bad">/bambu-research 먼저</span> 확인 없이 생성 금지</td></tr>
               <tr><td><code>02.05.x.xx</code> 이하</td><td><code>"version": "2.6.0.2"</code> 가 거부될 수 있다 — 업그레이드 권장</td></tr>
               <tr><td>명령 실패</td><td>미설치. JSON 은 만들되 import 확인 셸 명령은 건너뛴다</td></tr>
@@ -2113,7 +2255,7 @@ KNOWN = ["M83", "; FEATURE: Outer wall", "G1 X0 Y0", "G1 X10 Y0 E1",
         </ul>
         <p>경로: <code>~/.claude/projects/-Users-jackson/memory/</code></p>
         <div class="callout" style="margin-bottom:0">
-          <strong>릴리스 현황 (2026-07-27 조회):</strong> 최신은 2.8.1 (<code>v02.08.01.55</code>, 2026-07-14 · Public Beta), 최신 정식은 2.7.1 (<code>v02.07.01.62</code>, 2026-06-16). 로컬 설치본 <code>02.06.00.51</code> 이 references 기준값과 같다. references 를 2.7 · 2.8 기준으로 올리는 일은 <code>/bambu-research</code> 몫이다.
+          <strong>릴리스 현황 (2026-09-27 조회):</strong> 최신은 2.8.4 (<code>v02.08.04.57</code>, 2026-09-22 · Public Beta), 최신 정식은 2.8.2 (<code>v02.08.02.61</code>, 2026-08-21). 이 맥 설치본은 <code>02.08.02.61</code> 이다. references 를 새 판 기준으로 올리는 일은 <code>/bambu-research</code> 몫이다.
         </div>
       </div>
       <a class="card-source" href="https://github.com/bambulab/BambuStudio/releases">↗ Bambu Studio Releases</a>

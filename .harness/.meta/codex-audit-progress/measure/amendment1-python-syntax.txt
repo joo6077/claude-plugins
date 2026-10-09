@@ -1,0 +1,2 @@
+$ python3 -m py_compile /Users/jackson/Hub/10_Dev/claude-plugins/.claude/worktrees/codex-audit-progress/.harness/.meta/codex-audit-progress/measure/amendment1.py
+exit_code=0

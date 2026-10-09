@@ -1,0 +1,203 @@
+import 'package:flutter/widgets.dart';
+
+/// 위젯이 부모 폭을 대하는 방식.
+enum Sizing {
+  /// 내용만큼만 차지한다. 부모 폭을 다 먹으면 위반이다.
+  hug,
+
+  /// 부모 폭을 다 채운다. 부르는 쪽이 이 동작을 알고 쓴다.
+  fill,
+}
+
+/// 놀이터가 위젯을 처음 보여 주는 방식.
+enum PreviewView {
+  /// 휴대폰 화면 폭 안에 좌우 여백 16 을 두고 놓는다.
+  phone,
+
+  /// 위젯이 원하는 크기만큼만 놓는다.
+  content,
+}
+
+/// 생성자 매개변수 하나를 조절하는 칸.
+sealed class PropertyControl {
+  const PropertyControl({
+    required this.key,
+    required this.type,
+    required this.defaultLabel,
+    required this.doc,
+  });
+
+  /// 매개변수 이름.
+  final String key;
+
+  /// 생성자에 적힌 타입 표기.
+  final String type;
+
+  /// 생성자에 적힌 기본값. 필수면 `필수`.
+  final String defaultLabel;
+
+  /// 매개변수 문서 주석 첫 줄.
+  final String doc;
+
+  /// 놀이터가 처음 넣는 값.
+  Object? get initial;
+}
+
+/// 참거짓 매개변수.
+class ToggleControl extends PropertyControl {
+  /// [initial] 은 처음 넣는 값.
+  const ToggleControl({
+    required super.key,
+    required super.type,
+    required super.defaultLabel,
+    required super.doc,
+    required this.initial,
+  });
+
+  @override
+  final bool initial;
+}
+
+/// 글자로 바꿔 보는 매개변수. `Widget` 타입은 `Text` 로 감싸 넣는다.
+class TextControl extends PropertyControl {
+  /// [initial] 은 처음 넣는 글자.
+  const TextControl({
+    required super.key,
+    required super.type,
+    required super.defaultLabel,
+    required super.doc,
+    required this.initial,
+  });
+
+  @override
+  final String initial;
+}
+
+/// 숫자 매개변수. [nullable] 이면 값을 비울 수 있다.
+class NumberControl extends PropertyControl {
+  /// [min] · [max] 는 미끄럼 막대 범위, [step] 이 0 이면 연속 값.
+  const NumberControl({
+    required super.key,
+    required super.type,
+    required super.defaultLabel,
+    required super.doc,
+    required this.initial,
+    required this.min,
+    required this.max,
+    this.step = 0,
+    this.nullable = false,
+  });
+
+  @override
+  final double? initial;
+
+  /// 미끄럼 막대 최솟값.
+  final double min;
+
+  /// 미끄럼 막대 최댓값.
+  final double max;
+
+  /// 한 칸 크기. 0 이면 연속 값.
+  final double step;
+
+  /// 값을 비울 수 있는지.
+  final bool nullable;
+}
+
+/// 정해진 값 가운데 하나를 고르는 매개변수 (enum · 색 · 아이콘).
+class ChoiceControl extends PropertyControl {
+  /// [options] 의 [initialIndex] 번째가 처음 값이다.
+  const ChoiceControl({
+    required super.key,
+    required super.type,
+    required super.defaultLabel,
+    required super.doc,
+    required this.options,
+    this.initialIndex = 0,
+  });
+
+  /// 고를 수 있는 값과 그 이름.
+  final List<({String label, Object? value})> options;
+
+  /// 처음 고른 값의 순번.
+  final int initialIndex;
+
+  @override
+  Object? get initial => options[initialIndex].value;
+}
+
+/// 조절하지 않고 예시 값으로 고정한 매개변수. 표에는 남긴다.
+class FixedControl extends PropertyControl {
+  /// [display] 는 넣은 예시 값의 원문.
+  const FixedControl({
+    required super.key,
+    required super.type,
+    required super.defaultLabel,
+    required super.doc,
+    required this.display,
+  });
+
+  /// 넣은 예시 값의 원문.
+  final String display;
+
+  @override
+  Object? get initial => display;
+}
+
+/// 공용 위젯 생성자 하나. 생성기가 `catalog/widgets.yaml` 에서 만든다.
+class PlaygroundEntry {
+  /// 생성기만 부른다.
+  const PlaygroundEntry({
+    required this.widget,
+    required this.variant,
+    required this.label,
+    required this.doc,
+    required this.sizing,
+    required this.minPadding,
+    required this.view,
+    required this.stateKeys,
+    required this.controls,
+    required this.build,
+  });
+
+  /// 클래스 이름.
+  final String widget;
+
+  /// 생성자 이름. 이름 없는 생성자는 `new`.
+  final String variant;
+
+  /// 화면에 보이는 종류 이름.
+  final String label;
+
+  /// 클래스 문서 주석 첫 줄.
+  final String doc;
+
+  /// 선언한 크기 동작.
+  final Sizing sizing;
+
+  /// 내용 둘레에 있어야 하는 최소 안쪽 여백.
+  final double minPadding;
+
+  /// 놀이터 첫 보기.
+  final PreviewView view;
+
+  /// 바꿔도 크기가 같아야 하는 참거짓 매개변수.
+  final List<String> stateKeys;
+
+  /// 매개변수마다 하나.
+  final List<PropertyControl> controls;
+
+  /// 값 표로 진짜 위젯을 만든다.
+  final Widget Function(Map<String, Object?> values) build;
+
+  /// 매개변수마다 처음 값.
+  Map<String, Object?> get initialValues => {
+    for (final control in controls) control.key: control.initial,
+  };
+
+  /// 글자로 바꿔 보는 매개변수 이름들.
+  List<String> get textKeys => [
+    for (final control in controls)
+      if (control is TextControl) control.key,
+  ];
+}

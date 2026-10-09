@@ -48,7 +48,7 @@ CARGO_ROOT="$(dirname "$(cargo locate-project --workspace --message-format plain
 ## Step 2. 툴체인 감지
 
 | 조건 | 결과 |
-|------|------|
+| --- | --- |
 | `rust-toolchain.toml` 존재 | 파일에서 `channel`, `components`, `profile` 파싱 → `$RUST_CHANNEL` |
 | 없음 | `rustup default` 결과 사용 |
 
@@ -57,7 +57,7 @@ CARGO_ROOT="$(dirname "$(cargo locate-project --workspace --message-format plain
 `Cargo.toml` 또는 `[workspace.package]`의 `edition` 값을 읽어 `$EDITION` 에 저장한다.
 
 | 값 | 의미 |
-|----|------|
+| ---- | ------ |
 | `"2024"` | Rust 2024 Edition (1.85+, 2026 기본) — RPIT capture 변경, `unsafe extern`, let chain stable |
 | `"2021"` | 레거시 지원 — 신규 프로젝트에는 권장하지 않음 |
 | 미지정 | `Cargo.toml`이 잘못됨 — 에러 |
@@ -67,7 +67,7 @@ CARGO_ROOT="$(dirname "$(cargo locate-project --workspace --message-format plain
 `[workspace.lints]` 섹션 존재 여부:
 
 | 조건 | 결과 |
-|------|------|
+| ------ | ------ |
 | `[workspace.lints.clippy]` pedantic = deny | `HAS_WORKSPACE_LINTS = true`, `LINTS_STRICTNESS = "pedantic"` |
 | `[workspace.lints]` 존재하나 pedantic 없음 | `HAS_WORKSPACE_LINTS = true`, `LINTS_STRICTNESS = "basic"` |
 | 없음 | `HAS_WORKSPACE_LINTS = false` — audit 시 권장 메시지 출력 |
@@ -84,7 +84,7 @@ rust-kit 문서에 적힌 크레이트 버전은 **작성 시점 스냅샷**이�
 | `axum` | 0.8.9 | 0.8 (path 문법 `{id}` · `#[async_trait]` 제거) |
 | `sqlx` | 0.9.0 | 0.8 |
 | `sea-orm` | 2.0.3 | 1.1 |
-| `testcontainers` | 0.28.0 | 0.27 |
+| `testcontainers` | 0.28.0 | 전제 판 없음 — 킷 예시는 크레이트 이름만 쓴다 |
 | `tonic` | 0.14.6 | 0.14 (`tonic-health` · `tonic-reflection` 도 0.14 계열) |
 | `tower-http` | 0.7.1 | 0.6 — 0.7 은 compression · feature · redirect 동작이 바뀌었다 |
 | `utoipa` · `utoipa-scalar` | 6.0.0 · 0.4.0 | 5.4 · 0.3 — 6 은 YAML 오류 타입이 바뀌었다 |
@@ -112,7 +112,7 @@ rust-kit 문서에 적힌 크레이트 버전은 **작성 시점 스냅샷**이�
 `Cargo.toml`에 `[workspace]` 섹션 존재 여부:
 
 | 조건 | 결과 |
-|------|------|
+| --- | --- |
 | `[workspace]` 존재 | `IS_WORKSPACE = true`, `WORKSPACE_MEMBERS` = members 목록, `$RESOLVER` = resolver 값 |
 | 없음 | `IS_WORKSPACE = false` |
 
@@ -144,8 +144,8 @@ cargo metadata --no-deps --format-version 1 \
 - **타깃 필터는 매니페스트의 `test` 플래그를 무시하고 해당 타깃을 강제**하므로, 존재하지 않는 타깃을
   지정하면 "테스트 0 개 실행" 또는 에러로 끝난다. **테스트 0 개는 통과가 아니다** (`qa-evaluation-guide.md`
   §Evidence Validity Gate 검사 2).
-- 출처: 2026-07 실측 `cargo-test-wrong-target` — 바이너리 크레이트 `fitpal-api` 에
-  `cargo test -p fitpal-api --lib healthcheck` 를 실행해 실패.
+- 출처: 2026-07 실측 `cargo-test-wrong-target` — lib 타깃이 없는 바이너리 크레이트에
+  `--lib healthcheck` 필터를 붙인 `cargo test -p` 를 실행해 실패.
 
 ## Step 4. 의존성 감지
 
@@ -154,7 +154,7 @@ cargo metadata --no-deps --format-version 1 \
 IS_WORKSPACE이면 workspace root + 모든 member의 Cargo.toml을 합산한다.
 
 | 크레이트 | 플래그 |
-|----------|--------|
+| ---------- | -------- |
 | `axum` | `HAS_AXUM` |
 | `actix-web` | `HAS_ACTIX` |
 | `rocket` | `HAS_ROCKET` |
@@ -177,7 +177,7 @@ IS_WORKSPACE이면 workspace root + 모든 member의 Cargo.toml을 합산한다.
 ## Step 5. 아키텍처 패턴 감지
 
 | 조건 | `ARCH` 값 |
-|------|-----------|
+| ------ | ----------- |
 | `ports/` + `adapters/` 디렉토리 존재 (workspace 또는 단일 크레이트) | `hexagonal` |
 | `IS_WORKSPACE` + `crates/` 디렉토리 (api/domain/infra 등) | `workspace_service` |
 | 단일 크레이트 + `src/api/`, `src/domain/` 등 모듈 분리 | `modular` |
@@ -189,7 +189,7 @@ IS_WORKSPACE이면 workspace root + 모든 member의 Cargo.toml을 합산한다.
 ## Step 6. 빌드 도구 감지
 
 | 파일 | 플래그 |
-|------|--------|
+| ------ | -------- |
 | `Makefile` | `HAS_MAKEFILE` |
 | `justfile` | `HAS_JUST` |
 | `Makefile.toml` (cargo-make) | `HAS_CARGO_MAKE` |
@@ -199,7 +199,7 @@ IS_WORKSPACE이면 workspace root + 모든 member의 Cargo.toml을 합산한다.
 ## Step 7. CI 감지
 
 | 파일/디렉토리 | CI 플랫폼 |
-|---------------|-----------|
+| --------------- | ----------- |
 | `.github/workflows/` | GitHub Actions |
 | `.gitlab-ci.yml` | GitLab CI |
 | `.circleci/` | CircleCI |
@@ -211,7 +211,7 @@ IS_WORKSPACE이면 workspace root + 모든 member의 Cargo.toml을 합산한다.
 ### 커맨드
 
 | 변수 | 기본값 | 조건 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | `$CARGO` | `cargo` | `HAS_CROSS`이면 `cross` |
 | `$RUSTFMT` | `cargo fmt` | |
 | `$CLIPPY` | `cargo clippy` | |
@@ -219,7 +219,7 @@ IS_WORKSPACE이면 workspace root + 모든 member의 Cargo.toml을 합산한다.
 ### 프로젝트 메타
 
 | 변수 | 설명 |
-|------|------|
+| ------ | ------ |
 | `$CARGO_ROOT` | 워크스페이스 루트 절대 경로 (Step 1a — 이후 모든 명령의 고정 기준) |
 | `$PACKAGE` | Cargo.toml [package].name |
 | `$EDITION` | 2021 \| 2024 |

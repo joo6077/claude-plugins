@@ -10,12 +10,17 @@ argument-hint: "[feature]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - anti-pattern 5개가 자동 체크된다: StatefulWidget, bare catch(e), 상대 import, GestureDetector/InkWell, Palette 직접 참조 — 하나라도 걸리면 preflight FAIL
 - FVM 미설치 환경에서 preflight 실행하면 모든 단계가 실패한다 — 먼저 FVM 존재를 확인해라
 - test 단계에서 콘솔 에러 패턴 4개를 체크한다: "EXCEPTION CAUGHT BY", "RenderFlex overflowed", "setState() called after dispose", "Null check operator" — 테스트 통과해도 이 패턴 있으면 FAIL
-- Makefile 기반 프로젝트에서는 `make app-run` / `make app-test` 명령을 사용한다 — `fvm flutter run` 직접 호출 시 dart-define, observatory-port 설정이 누락된다. `Makefile` 존재 확인 후 `make` 커맨드를 우선 사용하라
+- Makefile 기반 프로젝트에서는 단계마다 그 타겟(`app-fix` · `app-codegen` · `app-analyze` · `app-test`)이 Makefile 에 있을 때만 `make` 로 돌린다 — `references/project-detection.md` Step 2b 4 번의 타겟별 확인으로 한 타겟씩 보고, 타겟이 없는 단계는 기본 명령을 쓴다. `Makefile` 이 있다는 것만 보고 `make app-test` 를 부르면 `app-preflight` 묶음 타겟만 있는 Makefile 에서 없는 타겟을 불러 멈춘다. 타겟이 있으면 `make` 를 먼저 쓰는 까닭은 dart-define · observatory-port 설정이 그 타겟에 모여 있어서다
+- **놀이터가 깔린 프로젝트면 커밋 전에 생성기와 기본기 검사를 같이 돌려라.** `tool/catalog_gen.dart` 가 있으면 `fvm dart run tool/catalog_gen.dart` 다음 `fvm flutter test test/catalog_kit/widget_fundamentals_test.dart` 를 test 단계에 넣는다 (`/flutter-catalog`, `skills/flutter-catalog/SKILL.md`). 실패 줄은 `build/widget_fundamentals.csv` 에서 `result` 가 `FAIL` 인 줄이고, 규칙 번호는 `references/widget-fundamentals.md` 에서 찾는다
 
 # Preflight (Pre-commit Quality Gate)
 
@@ -29,7 +34,7 @@ user-invocable: true
 ### 사용 가능한 단계 감지
 
 | 단계 | 조건 | 없으면 |
-|------|------|--------|
+| ------ | ------ | -------- |
 | fix | 항상 사용 가능 | — |
 | codegen | `HAS_BUILD_RUNNER = true` | skip |
 | analyze | 항상 사용 가능 | — |
@@ -143,6 +148,41 @@ Preflight failed at step N
 
 Fix the issues above before committing.
 ```
+
+## 실패 원인 가르기
+
+사본 출처: `harness/skills/sprint/SKILL.md` Step 3 의 원인 가르기 조각과 판정 표 (2026-09-25 추가분). 판정 표와 CI 에서만 실패할 때의 두 경우는 글자 그대로 옮긴 사본이고 CI 가 `scripts/check-cause-table-copies.py` 로 원문과 대조한다. 조각은 임시 워크트리 준비 명령 `$FLUTTER pub get` 만 붙였다. 원문이 바뀌면 이 절도 같은 문구로 맞춘다.
+
+단계가 빨가면 고치기 전에 원인을 셋으로 가른다 — 이번 변경 · 남의 미커밋 변경 · 기준 커밋에서 이미 실패.
+같은 명령을 깨끗한 임시 워크트리에서 다시 돌려 가른다. `<기준 가지>` 는 합칠 대상 가지, `<실패한 검사 명령>` 은 빨간 단계의 명령이다.
+임시 워크트리에는 추적하지 않는 파일(`.dart_tool/` · 받은 패키지)이 없으니 준비 명령을 먼저 돌린다 — 안 돌리면 준비가 안 된 탓의 실패를 기준 커밋 탓으로 읽는다. 생성물(`*.g.dart` · `*.freezed.dart`)을 git 에 올리지 않는 프로젝트에서 analyze · test 가 빨가면 준비 명령 뒤에 2 단계 codegen 명령도 붙인다.
+
+```bash
+FORK_BASE=$(git merge-base HEAD origin/<기준 가지>)
+for ref in HEAD "$FORK_BASE" origin/<기준 가지>; do
+  t=$(mktemp -d)
+  git worktree add -q --detach "$t" "$ref"
+  ( cd "$t" && $FLUTTER pub get >/dev/null 2>&1 && <실패한 검사 명령> ) >/dev/null 2>&1
+  rc=$?
+  echo "$ref $(git rev-parse --short "$ref") exit=$rc"
+  git worktree remove --force "$t"
+done
+```
+
+| 공용 작업 폴더 | `HEAD` 임시 | `FORK_BASE` 임시 | 판정 |
+| --- | --- | --- | --- |
+| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 작업을 시작할 때 떠 둔 목록에도 있고 내가 쓴 목록 밖이면 남의 미커밋 후보다. 어느 하나라도 확인하지 못하면 귀속 불명이다 |
+| 실패 | 실패 | 실패 | 기준 커밋에서 이미 실패 — 내 변경 전부터다 |
+| 실패 | 실패 | 통과 | 이번 커밋 탓일 가능성이 크다 |
+
+**CI 에서만 실패하면 표 밖 두 경우를 본다.** 세 임시 폴더가 로컬에서 다 통과하는데 CI 만 실패하면 위 세 줄로 가르지 않는다.
+
+- **환경 · 비결정성** — 같은 커밋을 CI 에서 다시 돌렸는데 결과가 달라진다. 러너 이미지 · 도구 판 · 시간 · 외부 서비스가 원인 후보다
+- **미확정** — 기록도 재현 환경도 없어 가를 수 없다. 억지로 세 줄 가운데 하나에 넣지 말고 「미확정 — 같은 커밋 재실행이 필요하다」 로 적는다
+
+`FORK_BASE` 는 분기점이지 기준 가지의 지금 상태가 아니다 (<https://git-scm.com/docs/git-merge-base>).
+`origin/<기준 가지>` 줄은 분기 뒤 기준 가지가 깨졌는지를 본다 — 여기서 실패하면 합친 뒤에도 빨갈 수 있다.
+명령 · 커밋 · 종료 코드를 Report 에 인용한다.
 
 ## Rules
 

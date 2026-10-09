@@ -1,5 +1,7 @@
 # 네비게이션 앵커 — 딥링크 · 화면 지목 어휘 · 분기 카탈로그
 
+설치본 플러그인에는 `docs/howto/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 사용자가 화면에서 길을 잃는 지점을 없애는 세 가지 장치다.
 
 ## 1. 불변도 순위 — 잘 안 바뀌는 것 위에 안내를 세운다
@@ -63,12 +65,16 @@ AWS 는 로그인 엔드포인트에 리전을 실을 수 있고 **그 리전으
 
 **금지 대상은 방향어가 아니라 "방향어만" 이다.** 확정 정본은 `docs/howto/ui-anchoring.md` 다.
 
+<!-- markdownlint-disable MD028 -->
+
 > *"Don't use directional terms as the only clue to location."*
 > — learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities (조회 2026-09-09)
 
 > *"It's OK to use a directional term if another indication of location, such as in the Save As
 > dialog box, on the Standard toolbar, or in the title bar, is also included."*
 > — learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/u/upper-left-upper-right (조회 2026-09-09)
+
+<!-- markdownlint-enable MD028 -->
 
 Google 은 더 강하게 적었고 **완화 조건을 명시하지 않았다** — 그러므로 "이름과 함께면 된다" 의
 근거로 Google 을 인용하지 마라.
@@ -150,11 +156,15 @@ Google 은 더 강하게 적었고 **완화 조건을 명시하지 않았다** �
 권한 부족의 표현형은 둘이다. "안 보인다" 만 안내하면 **회색으로 보이는** 사용자가 자기 케이스가
 아니라고 판단하고 막힌다.
 
+<!-- markdownlint-disable MD028 -->
+
 > *"If the Save button is greyed out in the Azure portal"* — 원인 제목 *"Insufficient RBAC permissions"*
 > — learn.microsoft.com/en-us/troubleshoot/azure/virtual-machines/windows/cannot-extend-volume-windows-vm (확인 2026-09-08)
 
 > *"If you don't see the option to grant permission, ask an admin to manually grant the permission
 > through GitHub."* — learn.microsoft.com/en-us/azure/data-factory/source-control (확인 2026-09-08)
+
+<!-- markdownlint-enable MD028 -->
 
 **한 문서가 "권한 부족은 숨김 또는 회색 둘 다 가능" 이라고 규정한 원문은 못 찾았다.** 위 둘을
 합쳐 하나의 규칙으로 만든 것은 **이 킷의 종합**이지 외부 표준의 인용이 아니다.

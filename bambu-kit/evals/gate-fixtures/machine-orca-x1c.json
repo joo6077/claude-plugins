@@ -1,0 +1,10 @@
+{
+  "_fixture": "SCOPE — H2S 가 아닌 프린터. 시작 명령에 M1028 이 없지만 카메라 준비 블록 검사 대상이 아니다. 검사를 모든 프린터로 넓히면 이 파일이 FAIL 로 바뀐다.",
+  "_expect": "TARGET_SLICER=orca 에서 M1028 이 든 FAIL 0 건",
+  "type": "machine",
+  "name": "machine-orca-x1c",
+  "printer_settings_id": "machine-orca-x1c",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "Bambu Lab X1 Carbon 0.4 nozzle"
+}

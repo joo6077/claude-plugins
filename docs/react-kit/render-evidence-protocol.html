@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Render Evidence Protocol — React Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{
   box-sizing:border-box;
@@ -29,6 +30,18 @@
   --transition:.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
 }
+[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe7e0;--border:#e0dcd4;--border2:#cfc9bf;
+  --text:#1a1a24;--text2:#5a5248;--text3:#6b6259;
+  --accent:#0369A1;--accent2:#075985;--accent-dim:rgba(3,105,161,0.10);--accent-glow:rgba(3,105,161,0.05);
+  --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#0369A1;
+  --error:#b91c1c;--success:#146B32;--warn:#7A4A05;--info:#0369A1;
+}
+[data-theme="light"] h1{background:linear-gradient(135deg,var(--text) 0%,var(--accent) 60%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text}
+.theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+  background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 html{
   font-size:16px;
   scroll-behavior:smooth;
@@ -458,14 +471,11 @@ pre code{
   .section{padding:38px 0}
   .card,.type{padding:20px}
 }
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{transition:none!important}
-}
 </style>
 <!-- kaizen-cycle: 2026-09-25 · source v1.1.0 전체 동기화 -->
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
 <main class="page">
 
 <header class="hero">
@@ -519,7 +529,7 @@ pre code{
   </div>
   <div class="callout warn">
     <div class="callout-title">형제 규약과 같은 숫자</div>
-    <p>§1 의 「같은 역할 기존 화면 <strong>2 개 이상</strong>」 과 §2 의 「스스로 고치기 <strong>최대 3 회</strong>」 는 flutter-toolkit <code>references/visual-evidence-protocol.md</code> Step 0 · Step 2, design-kit <code>references/visual-change-protocol.md</code> §0 · §3 과 같은 값이다. 세 규약이 같이 쓰는 규칙의 정본은 harness <code>skill-design-guide.md</code> 한 절에 두기로 했고 그 절은 아직 없다 — 생기기 전까지는 한쪽 값을 바꾸면 다른 두 쪽도 같이 바꾼다.</p>
+    <p>§1 의 「같은 역할 기존 화면 <strong>2 개 이상</strong>」 과 §2 의 「스스로 고치기 <strong>최대 3 회</strong>」 는 flutter-toolkit <code>references/visual-evidence-protocol.md</code> Step 0 · Step 2, design-kit <code>references/visual-change-protocol.md</code> §0 · §3 과 같은 값이다. 세 규약이 같이 쓰는 두 숫자의 정본은 harness <code>skill-design-guide.md</code> §8.9 다. 킷은 따로 설치되어 그 파일을 읽지 못하므로 숫자는 이 문서에도 남긴다 — 값을 바꿀 때는 §8.9 를 먼저 고치고 세 규약을 같이 바꾼다.</p>
     <a class="card-source" href="../flutter-toolkit/visual-evidence-protocol.html">Visual Evidence Protocol</a>
     <a class="card-source" href="../design-kit/visual-change-protocol.html">Visual Change Protocol</a>
   </div>
@@ -878,5 +888,22 @@ expect(screen.queryByTestId('skeleton')).toBeNull()    // 그 위에서만 부�
 </footer>
 
 </main>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

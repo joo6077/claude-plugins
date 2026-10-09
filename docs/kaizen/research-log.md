@@ -4,6 +4,7 @@ version: 1.6.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Kaizen Research Log
 
 ## [2026-09-24] — 카이젠 사이클 (Phase 1 ~ 4 · 12 · 13 · 14 · 17 · Final)
@@ -103,7 +104,7 @@ build_runner 2.7.0 동작은 설치본 CHANGELOG.
 
 ### 데이터 소스 (Triage)
 
-- **실측 결함 (A)** — 스킬 본문의 `$` + 숫자가 호출 인자로 치환된다 (공식: https://code.claude.com/docs/en/skills).
+- **실측 결함 (A)** — 스킬 본문의 `$` + 숫자가 호출 인자로 치환된다 (공식: <https://code.claude.com/docs/en/skills>).
   `sprint-contract` 를 인자와 함께 부른 3 회 모두 `read_fm` 의 awk 와 6.5 게이트 스니펫이 깨진 채 로드됐고
   (`fm && 전역 ~ k`), 인자 없이 부른 4 번째 회차만 멀쩡했다. 레포 전체 SKILL.md 6 개에 23 곳.
 - **계약 피드백 최근 10 건 (B)** — 교차 진단 메모에 `RE-01` 5 · `RE-02` 4 · `DG-03` 4 · `AP-01` 3 회가
@@ -133,6 +134,7 @@ build_runner 2.7.0 동작은 설치본 CHANGELOG.
 
 ## [2026-09-19] — evaluator-kaizen (수동) — 0 건 측정의 양성 대조 · 7단계 교차 진단 실행 경로
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 데이터 소스 (Triage)
 
 - **실측 결함 1건** — 같은 날 `qa-pending-stop-hook` 스프린트에서 qa-evaluator 가 DG-04("세션 기록에 `hook error` 0건")를
@@ -154,6 +156,7 @@ build_runner 2.7.0 동작은 설치본 CHANGELOG.
   서브에이전트 정의에서는 괄호 안이 무시된다.**
 - EICAR 시험 파일 페이지는 조사 중 한때 503 · 타임아웃이 나서 인용에서 뺐다.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조회로 정정된 사실
 
 - qa-evaluator 7단계는 첫 커밋부터 도구 목록(`Read, Grep, Glob, Bash`)으로는 실행할 수 없는 절차였다. 2026-08-13
@@ -161,6 +164,7 @@ build_runner 2.7.0 동작은 설치본 CHANGELOG.
 - agent-design-guide 247~262줄은 `Agent(agent_type)` 를 서브에이전트 정의에도 먹히는 화이트리스트처럼 적었다 —
   공식 문서와 다르다 (적용 전 초안 검토에서 옛 평가자가 원문으로 잡음).
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### DEFERRED
 
 - agent-design-guide 의 `Agent(agent_type)` 서브에이전트 예외 명시 · skill-design-guide 마스터 대응 표 15번 등록 → harness-kaizen
@@ -309,6 +313,7 @@ QA REJECT 0회로 통과했다. Phase 13 은 외부 조회 0회로 evidence 만 
 
 ## [2026-07-27] — enforcement 등급화 전면 도입 (14/14 CHANGED)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 데이터 소스 (Step 0)
 
 - **`/insights` 2026-07-27** (`~/.claude/usage-data/report-2026-07-27-182904.html`) — 53일 / 56 세션 중
@@ -378,6 +383,7 @@ QA REJECT 0회로 통과했다. Phase 13 은 외부 조회 0회로 evidence 만 
 - zsh 에서 `PIPESTATUS` 는 unset (`pipestatus` 가 소문자) — 실행으로 직접 확인 후 쉘 분기 명시.
 - Stripe 현행 호스트는 `docs.stripe.com`, GitHub Releases fetch 는 구 프리릴리스만 반환.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 방법론 메모
 
 - Phase 1~4 는 직렬(각 단계가 다음의 기준), Phase 5~14 는 문서상 독립 스택이라 병렬 실행.
@@ -390,6 +396,7 @@ QA REJECT 0회로 통과했다. Phase 13 은 외부 조회 0회로 evidence 만 
 
 ## [2026-06-11] — hook permission-denied 근본원인 + validate-plugin V8 (인사이트 주도 부분 카이젠)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 데이터 소스 (Step 0)
 
 - reflect-digest `project=all` 30일 cross-project 집계: 27 프로젝트 / 2,586 엔트리. primary: tool_failure 1537 / misunderstanding 496 / wrong_approach 415 / repeated_error 138.
@@ -411,9 +418,9 @@ QA REJECT 0회로 통과했다. Phase 13 은 외부 조회 0회로 evidence 만 
 
 병렬 triage 에이전트 10기가 각 kit에 대해 4축(kit_feedback_signal / domain_currency / hook_exec_ok / design_guide_drift) 실측. 전 10 kit NO_CHANGE — 도메인 스택(Flutter 3.41·Riverpod 3 / WCAG 2.2·DTCG v1 / OAuth 2.1·FAPI 2.0 / Terraform 1.10·Gateway API v1.4 / Rust 2024·Axum 0.8 / React 19·Vite 8 / OST·Shape Up / Reflexion / Bambu H2S / 셋업 가이드)이 직전 2026-06-05 사이클에 이미 반영됨을 확인.
 
-
 ## [2026-06-05] — Phase 1~13 (/insights 2026-06-04 마찰 패턴)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 데이터 소스 (Step 0)
 
 - `/insights`: `~/.claude/usage-data/report.html` VERY FRESH(14.4h), 168 세션. §0 최우선 주입.
@@ -428,9 +435,9 @@ QA REJECT 0회로 통과했다. Phase 13 은 외부 조회 0회로 evidence 만 
 - Phase 11: basecamp.com/shapeup Ch.6, agilealliance.org/glossary/invest.
 - Phase 12: arxiv 2604.20911 (Omission Constraints Decay), arxiv 2509.03990, arxiv 2605.06445.
 
-
 ## [2026-05-07] — Phase 1~4 (harness 도메인) + /insights 산출물 자동 통합 파이프라인
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 데이터 소스 (Step 0)
 
 - **`/insights` 산출물 자동 통합 파이프라인 신규** — `.claude/kaizen-input/insights-report.md` 자동 탐색. `/insights` 슬래시 커맨드 자체는 Claude Code CLI 사용자 직접 실행 명령으로, 메인 세션이 invoke 불가. 이번 사이클은 13 일 전 (2026-04-24 자) 사용자가 사전 생성해둔 산출물을 입력으로 사용.
@@ -654,6 +661,7 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 **트리거:** manual (첫 실행, 리서치 전용 모드)
 **피드백 분석:** 0건, 피드백 없음 — search-sources.md 우선순위 상위 3개 도메인 리서치
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
@@ -664,6 +672,7 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 | 4 | ATDD for Claude Code (swingerman/atdd) | <https://github.com/swingerman/atdd> | community `[community]` | 중간 | 채택 |
 | 5 | Given-When-Then Acceptance Criteria Guide | <https://www.parallelhq.com/blog/given-when-then-acceptance-criteria> | blog `[blog]` | 중간 | 채택 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 - **구현 누수 방지 (External Observables Only):** 조건에 클래스명/메서드명/DB명 등 구현 상세를 쓰면 구현 변경 시 조건이 깨진다. ATDD 프레임워크(swingerman/atdd)에서 "Golden Rule"로 강조 — 적용 영역: guide, skills
@@ -671,10 +680,12 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 - **모호성 분류 체계 (Ambiguity Taxonomy):** SpecFix 논문에서 문제 기술의 43.58%에 수정 가능한 모호성 존재 확인. 어휘적/구문적/의미적 3단계 분류로 체계적 점검 — 적용 영역: guide
 - **비기능 요구사항 커버리지:** BDD 리서치에서 NFR(성능/보안/접근성) 누락이 일반적 안티패턴으로 지적 — 적용 영역: guide, skills
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 - 없음 (첫 실행이므로 모든 채택 소스가 신규)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 개선 적용
 
 - 대상: `docs/guides/contract-design-guide.md`
@@ -683,6 +694,7 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 - 변경: Gotchas 3개 추가 (구현 누수, GWT 필수화, NFR), 자기진단 체크리스트 2개 항목 추가 (implementation_leakage, nfr_coverage)
 - 버전: v0.3.3 → v0.3.4
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### PR
 
 - 커밋으로 직접 적용 (첫 실행, QA 충돌 없음)
@@ -693,6 +705,7 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 
 **트리거:** manual (전체)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
@@ -704,16 +717,19 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 | 5 | Best Practices for Claude Code | <https://code.claude.com/docs/en/best-practices> | 공식 | 높음 | 채택 |
 | 6 | Evaluation and Benchmarking of LLM Agents: A Survey | <https://arxiv.org/abs/2507.21504> | peer-reviewed `[preprint]` | 높음 | 폐기 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 - **검증 가능한 성공 기준:** Claude Code 공식 best practices에서 "Give Claude a way to verify its work"가 단일 최고 레버리지 행동으로 제시됨 — 적용 영역: guide
 - **Multi-Level Code Safeguards:** CodeScene이 3단계 검증(생성 중 → pre-commit → PR)을 권장. 단일 시점 검증보다 효과적 — 적용 영역: skill (sprint-contract)
 - **Isolated Review:** agentic-code 프레임워크에서 "LLMs cannot reliably review their own outputs within the same context" 확인. Generator의 self-review를 독립 검증으로 취급하면 안 됨 — 적용 영역: agent (qa-evaluator)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 - **소스 6 (arxiv:2507.21504):** 2025년 7월 발행이나 내용이 소스 1과 대부분 중복. 추가 인사이트 없음
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### PR
 
 - (이 세션에서 PR 생성 예정)

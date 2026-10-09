@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>UI 비주얼 스타일 카탈로그 — 35종</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -39,7 +40,8 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 /* THEME TOGGLE */
 .theme-toggle{
   position:fixed;top:20px;right:20px;z-index:999;
-  display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:100px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  min-height:48px;min-width:48px;padding:8px 16px;border-radius:100px;
   background:var(--surface2);border:1px solid var(--border);cursor:pointer;font-size:13px;
   font-weight:600;color:var(--text2);transition:var(--transition);white-space:nowrap;
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
@@ -79,7 +81,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
   border:1px solid var(--border);background:var(--surface);
   transition:var(--transition);display:flex;flex-direction:column;cursor:pointer;
 }
-.style-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.25)}
+.style-card:hover{border-color:var(--border2);transform:var(--dk-hover-move, translateY(-3px));box-shadow:0 12px 40px rgba(0,0,0,0.25)}
 
 .style-demo{
   height:220px;position:relative;overflow:hidden;
@@ -289,7 +291,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
   box-shadow:6px 6px 0 #000;padding:20px;width:160px;
   transition:0.15s;cursor:pointer;
 }
-.demo-neubrutalism .neub-card:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000}
+.demo-neubrutalism .neub-card:hover{transform:var(--dk-hover-move, translate(-2px,-2px));box-shadow:8px 8px 0 #000}
 .demo-neubrutalism .neub-title{font-size:16px;font-weight:800;color:#000;margin-bottom:4px}
 .demo-neubrutalism .neub-sub{font-size:11px;color:#333}
 .demo-neubrutalism .neub-btn{
@@ -727,11 +729,11 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
   background:rgba(255,255,255,0.07);
   border:1px solid rgba(255,255,255,0.12);
   backdrop-filter:blur(40px) saturate(150%);-webkit-backdrop-filter:blur(40px) saturate(150%);
-  transform:rotateY(-10deg) rotateX(6deg) translateZ(10px);
+  --dk-rest-transform:rotateY(-10deg) rotateX(6deg) translateZ(10px);transform:var(--dk-rest-transform);
   box-shadow:0 24px 80px rgba(0,0,0,0.5),0 8px 24px rgba(0,0,0,0.3),0 0 0 0.5px rgba(255,255,255,0.1);
   transition:transform 0.5s cubic-bezier(.4,0,.2,1),box-shadow 0.5s ease;color:#fff;
 }
-.demo-spatial .sp-card:hover{transform:rotateY(0deg) rotateX(0deg) translateZ(20px);
+.demo-spatial .sp-card:hover{transform:var(--dk-hover-move, rotateY(0deg) rotateX(0deg) translateZ(20px));
   box-shadow:0 32px 100px rgba(0,0,0,0.6),0 12px 32px rgba(0,0,0,0.3),0 0 0 0.5px rgba(255,255,255,0.15)}
 .demo-spatial .sp-icon{font-size:28px;margin-bottom:8px}
 .demo-spatial .sp-title{font-size:14px;font-weight:700}
@@ -1167,7 +1169,7 @@ section{padding:64px 0}section+section{border-top:1px solid var(--border)}
 /* --- 11. Neubrutalism --- border 3-4px, hard shadow blur:0 offset 4-8px, vivid+pastel */
 [data-modal-style="neubrutalism"] .comp-item{background:#fef0e6;border:4px solid #000;box-shadow:5px 5px 0 #000;border-radius:10px}
 [data-modal-style="neubrutalism"] .ms-btn-primary{background:#fbbf24;color:#000;border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;font-weight:800}
-[data-modal-style="neubrutalism"] .ms-btn-primary:hover{box-shadow:6px 6px 0 #000;transform:translate(-2px,-2px)}
+[data-modal-style="neubrutalism"] .ms-btn-primary:hover{box-shadow:6px 6px 0 #000;transform:var(--dk-hover-move, translate(-2px,-2px))}
 [data-modal-style="neubrutalism"] .ms-btn-secondary{background:#a7f3d0;color:#000;border:3px solid #000;border-radius:10px;box-shadow:4px 4px 0 #000;font-weight:800}
 [data-modal-style="neubrutalism"] .ms-input{border:3px solid #000;border-radius:10px;background:#fff;color:#000;box-shadow:4px 4px 0 #000}
 [data-modal-style="neubrutalism"] .ms-input:focus{box-shadow:5px 5px 0 #000;outline:none}

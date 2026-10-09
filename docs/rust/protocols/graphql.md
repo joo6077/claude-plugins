@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # GraphQL 원칙
 
 `async-graphql 7.x`는 Rust의 코드 퍼스트 GraphQL 라이브러리다. `#[Object]`, `#[SimpleObject]`, `#[InputObject]` 매크로로 스키마를 정의하고, `DataLoader`로 N+1 문제를 해결한다.
@@ -149,7 +150,7 @@ pub fn create_router(schema: AppSchema) -> Router {
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | async-graphql 버전 | 7.x | async-graphql-axum도 동일 버전 |
 | DataLoader 배치 크기 | 기본값 (자동) | 동일 async 배치 내 요청 자동 묶음 |
 | 쿼리 복잡도 제한 | `.limit_complexity(100)` | DoS 방지 |

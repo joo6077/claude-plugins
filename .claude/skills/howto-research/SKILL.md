@@ -15,7 +15,11 @@ user-invocable: true
 
 `docs/howto/` 리서치 문서를 외부 출처 기준으로 갱신한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Gotchas
+
+<!-- markdownlint-enable MD025 -->
 
 1. **출처를 지어내지 마라** — 접근 실패한 URL 은 "확인 실패"로 명시하고 시도 URL 을 남긴다.
    이 킷은 출처 등급 표기가 핵심 자산이라, 검증 안 된 인용 하나가 등급 체계 전체를 무너뜨린다.
@@ -41,7 +45,11 @@ user-invocable: true
 7. **작업 상태를 도구 요약으로 믿지 마라.** `status` 가 running 이라고 해도 rollout 로그
    (`~/.codex/sessions/**/rollout-*.jsonl`)에 `turn_aborted` 가 있으면 죽은 것이다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1. 대상 카테고리 결정
 
@@ -74,7 +82,11 @@ user-invocable: true
 리서치 결과가 킷 규칙을 바꾸면 해당 references 파일도 **같은 커밋에서** 고친다.
 `docs/howto/` 만 고치고 끝내면 킷은 옛 규칙으로 계속 동작한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `howto-kit/references/provenance-notes.md` — 미확정 근거 원장 (확정 시 여기서 옮긴다)
 - `~/.claude/codex-prompt-template.md` — 위임 프롬프트 템플릿

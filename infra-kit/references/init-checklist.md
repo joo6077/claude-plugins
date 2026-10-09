@@ -3,6 +3,8 @@
 infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다.
 각 카테고리의 필수/권장 여부와 최소 산출물을 정의한다.
 
+설치본 플러그인에는 `docs/infra/` 가 없다 — 아래 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로(`docs/infra/...`)를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 ---
 
 ## 카테고리별 체크리스트
@@ -24,7 +26,7 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 플랫폼별 최소 파이프라인:
 
 | 플랫폼 | 파일 위치 |
-|--------|-----------|
+| -------- | ----------- |
 | GitHub Actions | `.github/workflows/ci.yml` |
 | GitLab CI | `.gitlab-ci.yml` |
 | Bitbucket Pipelines | `bitbucket-pipelines.yml` |
@@ -129,7 +131,7 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 - [ ] `.gitignore`에 `*.tfstate`, `.terraform/` 추가
 - [ ] **State encryption** — OpenTofu는 native state encryption, Terraform은 backend-level 암호화(SSE-S3/CMEK)
 - [ ] **Ephemeral values** — Terraform 1.10+ `ephemeral` 블록 / write-only arguments로 시크릿이 state/plan에 저장되지 않게 구성
-- [ ] **모듈 테스트** — `terraform test` / `tofu test` 모듈 테스트 프레임워크 도입 (1.7+ mocking 지원)
+- [ ] **모듈 테스트** — `terraform test` / `tofu test` 모듈 테스트 프레임워크 도입 (OpenTofu 1.8+ 에서 provider mocking 지원 — [v1.8.0 릴리스](https://github.com/opentofu/opentofu/releases/tag/v1.8.0), 2026-09-28 조회)
 - [ ] **OpenTofu 대안 검토** — native state encryption, v1.9+ provider-level `for_each`, v1.10+ OCI Registry 지원 + S3 네이티브 state locking (DynamoDB 불필요)
 - [ ] **Crossplane v2 검토 (대규모)** — K8s CRD 기반 인프라 합성 + 플랫폼 팀 선언적 API 엔진, namespaced XR/MR 기본값
 
@@ -191,7 +193,7 @@ infra-init 스킬이 카테고리별 세팅 범위를 결정할 때 참조한다
 ## 우선순위 결정 가이드
 
 | 프로젝트 규모 | 필수 | 권장 | 선택 |
-|--------------|------|------|------|
+| -------------- | ------ | ------ | ------ |
 | 소규모 (1-3인) | Container + CI/CD + 시크릿 | 관측성 | — |
 | 중규모 (4-10인) | 위 + 배포 전략 + 관측성 | K8s 또는 IaC 중 택1 | — |
 | 대규모 (10인+) | 전체 필수 + 권장 | — | 모두 검토 |

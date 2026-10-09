@@ -20,7 +20,7 @@ model: sonnet
 호출 시 프롬프트에서 모드를 지정받는다:
 
 | 모드 | 범위 | 설명 |
-|------|------|------|
+| --- | --- | --- |
 | `quick` | 변경 파일의 feature 디렉토리 + 관련 shared | 구현 후/프로액티브 스캔. 빠르게 |
 | `deep` | `src/presentation/` 전체 | audit 연동/명시 요청. 철저하게 |
 
@@ -33,11 +33,13 @@ model: sonnet
 동일하거나 매우 유사한 JSX 구조가 2개 이상 파일에서 반복되는 경우.
 
 **탐지 방법:**
+
 - Grep으로 컴포넌트 정의를 수집한다 (`export function`, `export const`, `forwardRef`)
 - 동일한 shadcn 컴포넌트 조합 + 동일한 className 패턴이 반복되면 중복으로 판단한다
 - `useMemo`, `forwardRef` 래핑 구조가 유사하면 포함한다
 
 **판단 기준:**
+
 - JSX 구조의 depth 3 이상이 실질적으로 동일하면 중복
 - 차이가 텍스트·색상·데이터값만이면 props로 파라미터화 가능한 중복
 
@@ -46,10 +48,12 @@ model: sonnet
 shadcn/ui에 이미 존재하는 컴포넌트를 수동으로 재구현한 경우.
 
 **탐지 방법:**
+
 - `src/presentation/features/*/components/`에서 Button, Card, Input, Badge, Dialog, Tooltip, Select 등의 패턴을 수동 구현한 파일을 찾는다
 - `src/presentation/shared/components/ui/`에 동일 컴포넌트가 없는지 대조한다
 
 **판단 기준:**
+
 - shadcn 컴포넌트와 80% 이상 기능이 겹치는 수동 구현은 재발명으로 판단
 
 ### 3. variant 패턴 hint (CVA 권장)
@@ -57,10 +61,12 @@ shadcn/ui에 이미 존재하는 컴포넌트를 수동으로 재구현한 경�
 하나의 컴포넌트에 3가지 이상의 스타일 분기가 있는 경우 `cva` 리팩터를 권장한다.
 
 **탐지 방법:**
+
 - `className` 조건부 할당(`cn(...)`)에서 3개 이상의 분기를 가진 컴포넌트를 찾는다
 - `switch (variant)` 또는 `variant === 'x' ? 'class-a' : 'class-b'` 패턴 탐지
 
 **판단 기준:**
+
 - 3개 이상 variant 분기 → `cva` variant 패턴 권장
 - 이미 `cva`를 쓰고 있으면 제외
 
@@ -69,10 +75,12 @@ shadcn/ui에 이미 존재하는 컴포넌트를 수동으로 재구현한 경�
 부모 너비에 따라 레이아웃이 달라져야 하는데 페이지 breakpoint(`sm:`, `md:`)로 구현된 경우.
 
 **탐지 방법:**
+
 - `shared/components/`나 feature `components/` 안의 파일에서 `sm:`, `md:`, `lg:` 페이지 breakpoint를 사용하는 레이아웃을 찾는다
 - 해당 컴포넌트가 다양한 컨텍스트(화면, 모달, 사이드바)에서 쓰일 가능성이 있는지 파악한다
 
 **판단 기준:**
+
 - 재사용 컴포넌트에서 페이지 breakpoint 사용 → `@container` 전환 권장
 
 ### 5. Private 컴포넌트 월경 import (Cross-Feature)
@@ -80,9 +88,11 @@ shadcn/ui에 이미 존재하는 컴포넌트를 수동으로 재구현한 경�
 한 feature의 private 컴포넌트를 다른 feature가 직접 import하는 경우.
 
 **탐지 방법:**
+
 - `src/presentation/features/A/components/`의 파일을 `src/presentation/features/B/`가 import하는 패턴을 Grep으로 탐지한다
 
 **판단 기준:**
+
 - feature 간 직접 import → `shared/components/`로 추출 권장 (Clean Arch 위반)
 
 ## Process
@@ -90,11 +100,13 @@ shadcn/ui에 이미 존재하는 컴포넌트를 수동으로 재구현한 경�
 ### Step 1: 스캔 범위 결정
 
 **quick 모드:**
+
 - 호출 시 전달받은 파일 목록 또는 경로를 사용한다
 - 해당 파일이 속한 feature 디렉토리 전체를 범위로 잡는다
 - `src/presentation/shared/components/`도 범위에 포함한다
 
 **deep 모드:**
+
 - `src/presentation/` 전체를 Glob으로 스캔한다
 - feature 단위로 순차 스캔하고 shared와 대조한다
 

@@ -4,6 +4,7 @@ version: 0.3.0
 last_updated: 2026-03-30
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Material Design 분석
 
 M3 핵심 원칙, M3 Expressive 업데이트, Material You 커스터마이징, 디자인 토큰, Jetpack Compose 통합, 주요 컴포넌트를 다룬다.
@@ -19,26 +20,29 @@ M3 핵심 원칙, M3 Expressive 업데이트, Material You 커스터마이징, �
 **버전 변천:**
 
 | 버전 | 연도 | 핵심 특징 |
-|------|------|----------|
+| ------ | ------ | ---------- |
 | Material Design 1 | 2014 | 물리적 종이 메타포, 그림자, 그리드 기반 레이아웃 |
 | Material Design 2 | 2018 | 커스터마이징 강화, 둥근 모서리, 흰 여백, 하단 네비게이션 |
 | Material Design 3 | 2021 | 다이내믹 컬러, 개인화, 더 큰 버튼, 부드러운 곡선 |
-| M3 Expressive | 2025 | 더 화려한 색상, 풍부한 애니메이션, 모던한 UI (Android 16) |
+| M3 Expressive | 2025 | 더 화려한 색상, 풍부한 애니메이션, 모던한 UI (Android 16 후속 업데이트) |
 
 > **출처:** [Wikipedia — Material Design](https://en.wikipedia.org/wiki/Material_Design)
 
 ### 핵심 설계 원칙
 
-**1. 개인화 (Personalization)**
+#### 1. 개인화 (Personalization)
+
 - 사용자 배경화면에서 알고리즘으로 색상을 추출하여 개인 맞춤형 테마 생성
 - 브랜드 컬러와 사용자 선호를 동시에 반영하는 유연한 색상 체계
 
-**2. 적응형 디자인 (Adaptive Design)**
+#### 2. 적응형 디자인 (Adaptive Design)
+
 - 폰, 태블릿, 폴더블, 데스크톱, Wear OS까지 다양한 화면 크기와 폼 팩터에 적응
 - 반응형 레이아웃 그리드와 적응형 컴포넌트 제공
 - Canonical layouts (목록-상세, 피드, 보조 패널) 활용
 
-**3. 접근성 우선 (Accessibility by Default)**
+#### 3. 접근성 우선 (Accessibility by Default)
+
 - 토널 팔레트 시스템으로 대비 있는 색상 조합을 자동 생성
 - 대비비가 WCAG 기준을 충족하도록 설계된 색상 역할(role) 체계
 
@@ -54,7 +58,7 @@ Material 3의 디자인 토큰은 UI 요소의 시각적 속성(색상, 타이�
 
 토큰은 계층 구조를 이루며, 각 수준이 하위 수준으로부터 값을 상속받는다.
 
-```
+```text
 Reference Tokens → System Tokens → Component Tokens
 (구체적 값)        (역할/의미)       (컴포넌트 속성)
 ```
@@ -63,7 +67,7 @@ Reference Tokens → System Tokens → Component Tokens
 
 구체적인 실제 값을 보유하는 가장 하위 수준의 토큰. HEX 색상, 픽셀 크기, 폰트 패밀리 이름 등 원시 값을 담는다.
 
-```
+```text
 md.ref.palette.primary40 = #6750A4
 md.ref.palette.neutral90 = #E6E1E5
 md.ref.typeface.brand = "Roboto"
@@ -74,7 +78,7 @@ md.ref.typeface.plain = "Roboto"
 
 디자인 시스템의 성격과 의미를 부여하는 역할 기반 토큰. 참조 토큰에서 값을 상속받으며, 라이트/다크/고대비 테마 전환 시 **시스템 토큰이 가리키는 참조 토큰만 교체**하면 전체 테마가 변경된다.
 
-```
+```text
 md.sys.color.primary = md.ref.palette.primary40
 md.sys.color.on-primary = md.ref.palette.primary100
 md.sys.color.surface = md.ref.palette.neutral99
@@ -83,6 +87,7 @@ md.sys.shape.corner.medium = 12dp
 ```
 
 주요 시스템 토큰 카테고리:
+
 - `--md-sys-color-*`: 다이내믹 컬러 역할 (primary, secondary, surface 등)
 - `--md-sys-typescale-*`: 타이포그래피 스케일 역할
 - `--md-sys-shape-*`: 코너 반경 역할
@@ -92,7 +97,7 @@ md.sys.shape.corner.medium = 12dp
 
 개별 UI 요소에 할당되는 디자인 속성. 시스템 토큰 또는 구체적 값을 참조한다.
 
-```
+```text
 md.comp.filled-button.container.color = md.sys.color.primary
 md.comp.filled-button.label-text.color = md.sys.color.on-primary
 md.comp.filled-button.container.shape = md.sys.shape.corner.full
@@ -109,7 +114,7 @@ Material 3의 핵심 기능으로, 사용자의 배경화면에서 알고리즘�
 **색상 역할 (Color Roles):**
 
 | 역할 | 용도 |
-|------|------|
+| ------ | ------ |
 | **Primary** | 주요 컴포넌트 — 눈에 띄는 버튼, 활성 상태, 높은 표면의 틴트 |
 | **Secondary** | 필터 칩, 덜 두드러지는 컴포넌트 — 색상 표현의 확장 |
 | **Tertiary** | Primary/Secondary의 균형을 맞추는 대비 악센트, 특정 요소 강조 |
@@ -141,13 +146,14 @@ Material 3의 핵심 기능으로, 사용자의 배경화면에서 알고리즘�
 **변형:**
 
 | 변형 | 크기 | 용도 |
-|------|------|------|
+| ------ | ------ | ------ |
 | **FAB** | 56 x 56 dp | 기본 크기, 주요 액션 |
 | **Small FAB** | 40 x 40 dp | 보조 액션, 공간 절약 |
 | **Large FAB** | 96 x 96 dp | 가장 시각적으로 두드러진 액션 |
 | **Extended FAB** | 가변 너비 | 아이콘 + 텍스트 레이블, 가장 눈에 띄는 버튼 |
 
 **M3 변경사항:**
+
 - M2 대비 더 각진(boxier) 형태, 작은 코너 반경
 - 코너 반경: FAB 16dp, Small FAB 12dp, Large FAB 28dp
 - Surface 색상 위에 Primary Container 색상 사용
@@ -191,7 +197,7 @@ M3는 화면 크기에 따라 다른 네비게이션 컴포넌트를 사용하�
 **적응형 네비게이션 전략:**
 
 | 화면 크기 | 컴포넌트 | 너비 기준 |
-|----------|---------|----------|
+| ---------- | --------- | ---------- |
 | 소형 (폰) | Navigation Bar | < 600dp |
 | 중형 (태블릿) | Navigation Rail | 600~1240dp |
 | 대형 (데스크톱) | Navigation Drawer | > 1240dp |
@@ -207,12 +213,13 @@ M3는 화면 크기에 따라 다른 네비게이션 컴포넌트를 사용하�
 **3가지 유형:**
 
 | 유형 | 시각적 특징 | 용도 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | **Elevated Card** | 그림자(elevation) 있음, 채움색 없음 | 기본 카드, 시각적 분리 필요 시 |
 | **Filled Card** | 배경색 채움, 그림자 없음 | 다른 카드와 그룹핑 시 |
 | **Outlined Card** | 테두리선, 그림자/채움 없음 | 가장 낮은 강조, 목록 아이템 |
 
 **설계 원칙:**
+
 - 카드 내부에 버튼, 아이콘 버튼 등 액션 배치 가능
 - 전체 카드를 탭 가능한 단일 타겟으로 만들 수 있음
 - 카드 내부 콘텐츠 영역: 헤더, 미디어, 텍스트, 액션
@@ -227,13 +234,14 @@ M3는 화면 크기에 따라 다른 네비게이션 컴포넌트를 사용하�
 **4가지 유형:**
 
 | 유형 | 용도 | 예시 |
-|------|------|------|
+| ------ | ------ | ------ |
 | **Assist Chip** | 스마트 제안, 바로가기 | "길 안내", "전화 걸기" |
 | **Filter Chip** | 콘텐츠 필터링, 다중 선택 가능 | 카테고리 필터, 정렬 옵션 |
 | **Input Chip** | 사용자 입력을 토큰화 | 이메일 수신자, 태그 |
 | **Suggestion Chip** | 동적 제안 | 자동 완성, 추천 검색어 |
 
 **공통 사양:**
+
 - 높이: 32dp
 - 코너 반경: 8dp (small)
 - 아이콘(선택) + 레이블 텍스트 구성
@@ -246,12 +254,12 @@ M3는 화면 크기에 따라 다른 네비게이션 컴포넌트를 사용하�
 
 ## M3 Expressive (2025)
 
-Android 16과 함께 발표된 M3 Expressive는 Material Design의 시각적 표현력을 확장한다. 기존 M3의 미니멀 톤에서 벗어나 더 과감한 색상, 형태, 모션을 도입했다.
+M3 Expressive는 Material Design의 시각적 표현력을 확장한다. Google 은 2025-05-13 에 "Material 3 Expressive will be coming to Android 16 later this year." 라고 발표했다 — Android 16 첫 출시가 아니라 그해 뒤 업데이트로 들어온다는 뜻이다. 기존 M3의 미니멀 톤에서 벗어나 더 과감한 색상, 형태, 모션을 도입했다.
 
 ### 핵심 변경사항
 
 | 영역 | M3 기존 | M3 Expressive |
-|------|---------|--------------|
+| ------ | --------- | -------------- |
 | **색상** | 5가지 키 컬러 (P/S/T/N/NV) | **6번째 키 컬러** 추가 + 더 높은 채도 변형 |
 | **Shape** | 코너 반경 shape scale (None/Extra small/Small/Medium/Large/Extra large/Full) | **Squircle(스퀴클)** 형태 도입 + 더 큰 코너 반경 |
 | **타이포그래피** | 5역할 × 3크기 = 15단계 | 가변 서체 축 활용 강화 + **Expressive 스케일** 추가 |
@@ -262,19 +270,19 @@ Android 16과 함께 발표된 M3 Expressive는 Material Design의 시각적 표
 
 스퀴클은 원과 사각형의 중간 형태로, CSS `border-radius`와 달리 모서리에서 직선→곡선 전환이 부드럽다. iOS는 이미 오래전부터 앱 아이콘에 스퀴클을 사용했으며, M3 Expressive가 Android에도 도입했다.
 
-```
+```text
 일반 rounded rect:  직선 → 급격한 곡선 시작 → 곡선
 스퀴클:             직선 → 점진적 곡선 시작 → 곡선 (연속 곡률)
 ```
 
 ### 실무 영향
 
-- M3 Expressive는 Android 16+ 기본 UI에 적용되지만, 앱 개발자가 채택하는 것은 선택사항이다
+- Google 은 Android 16 이 M3 Expressive 변경의 기반을 놓고, 2025년 3분기(Q3) 업데이트가 관련 시각 변경의 상당 부분을 가져온다고 설명했다 ("The Q3 update in-between the API releases is providing much of the new visual polish associated with Material Expressive.")
 - 기존 M3와 하위 호환된다 — Expressive 컴포넌트를 점진적으로 도입 가능
 - Jetpack Compose Material 3 라이브러리에서 Expressive 변형이 추가될 예정
 
 > **출처:** [Material Design Blog — M3 Expressive](https://m3.material.io/blog/building-with-m3-expressive)
-> **출처:** [Android Developers Blog — Android 16 Design](https://android-developers.googleblog.com/)
+> **출처:** [Android Developers Blog — The Android Show: I/O Edition (2025-05-13)](https://android-developers.googleblog.com/2025/05/the-android-show-io-edition.html) · [Android Developers Blog — Android 16 is here (2025-06-10)](https://android-developers.googleblog.com/2025/06/android-16-is-here.html) (2026-09-28 조회)
 
 ---
 
@@ -289,19 +297,20 @@ Material You의 다이내믹 컬러는 단순히 "배경화면에서 색상 추�
 Google이 M3를 위해 개발한 색상 공간이다. 기존 HSL/HSV와 달리 **인지적 균일성(perceptual uniformity)**을 보장한다.
 
 | 축 | 설명 | 범위 |
-|-----|------|------|
+| ----- | ------ | ------ |
 | **Hue** | 색조 (빨강, 파랑 등) | 0~360° |
 | **Chroma** | 채도 (색의 선명도) | 0~120+ |
 | **Tone** | 밝기 (WCAG 대비 계산에 직접 사용 가능) | 0(검정)~100(흰색) |
 
 Tone 값의 차이가 곧 대비비를 결정한다:
+
 - Tone 40(primary) vs Tone 100(on-primary) = 대비비 약 **7:1** (AAA 충족)
 - Tone 40 vs Tone 80 = 대비비 약 **3:1** (비텍스트 AA 충족)
 
 ### 브랜드 색상과 다이내믹 컬러의 공존
 
 | 전략 | 설명 | 적합한 앱 |
-|------|------|----------|
+| ------ | ------ | ---------- |
 | **완전 다이내믹** | 모든 색상이 사용자 배경화면에서 추출 | 시스템 앱, 유틸리티 앱 |
 | **브랜드 Primary + 다이내믹 나머지** | Primary만 브랜드 고정, Secondary/Tertiary/Surface는 다이내믹 | 대부분의 브랜드 앱 |
 | **완전 브랜드** | 다이내믹 컬러 비활성, 모든 색상을 브랜드 팔레트에서 지정 | 강력한 브랜드 아이덴티티가 필요한 앱 |
@@ -336,7 +345,7 @@ MaterialTheme(
 ### 컴포넌트 매핑
 
 | M3 컴포넌트 | Compose API | 핵심 파라미터 |
-|------------|------------|-------------|
+| ------------ | ------------ | ------------- |
 | Filled Button | `Button()` | `colors`, `shape`, `contentPadding` |
 | Outlined Button | `OutlinedButton()` | `border`, `colors` |
 | FAB | `FloatingActionButton()` | `containerColor`, `contentColor` |

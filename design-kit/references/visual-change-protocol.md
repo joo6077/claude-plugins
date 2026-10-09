@@ -11,8 +11,8 @@
 >
 > **형제 규약과 같은 숫자:** §0 의 「같은 역할 기존 화면 2 개 이상」 과 §3 의 「스스로 고치기 최대 3 회」 는
 > flutter-toolkit `references/visual-evidence-protocol.md` Step 0 · Step 2 와 같은 값이다.
-> **세 규약(이 문서 · flutter-toolkit visual-evidence-protocol · react-kit render-evidence-protocol)이 같이 쓰는 규칙의 정본은 harness `skill-design-guide.md` 한 절에 두고, 세 규약에는 스택마다 다른 채널 · 도구 · 명령만 남긴다.**
-> 그 절은 아직 없다 — 생기기 전까지는 한쪽 값을 바꾸면 다른 쪽도 같이 바꾼다.
+> **세 규약(이 문서 · flutter-toolkit visual-evidence-protocol · react-kit render-evidence-protocol)이 같이 쓰는 두 숫자의 정본은 harness `skill-design-guide.md` §8.9 다.**
+> 킷은 따로 설치되어 그 파일을 읽지 못하므로 숫자는 이 문서에도 남긴다 — 값을 바꿀 때는 §8.9 를 먼저 고치고 세 규약을 같이 바꾼다.
 
 ---
 
@@ -140,7 +140,7 @@ Good: 승인 시안 값을 그대로 적용 + "이 값을 `color.accent.brand` �
   "요소가 안 보이니 문제도 없다" 는 잘못된 부재 추론이다.
 - 캡처에서 **구체 요소를 지목**해 근거에 쓴다 (`헤더 "내 그룹" + 목록 3 행 확인`).
   지목할 수 없으면 그 캡처는 무효 증거다.
-- 캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 `[미검증]` 이지 PASS 가 아니다.
+- 캡처 자체가 실패했거나 도구가 응답하지 않으면 그것은 `[미검증]` 이지 PASS 가 아니다. 보고에는 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 채운다 — 정의는 harness `skill-design-guide.md` §3.7 이다.
 
 ### 비교 반복 순서 — 반영 확인과 스스로 고치기 상한
 
@@ -208,7 +208,7 @@ QA evaluator 가 증거로 읽는 위치다.
 - 원문 근거: {사용자 발화 인용 또는 자율 모드 판단 근거}
 ```
 
-### 규칙
+### 승인 기록 규칙
 
 - **자율 모드에서 승인을 대행한 경우에도 기록을 남긴다.** 이때 승인 주체를 "자율 모드" 로 명시하고
   판단 근거를 적는다. 기록 없이 진행하면 측정 근거 부재로 평가에서 REJECT 된다.
@@ -220,6 +220,7 @@ QA evaluator 가 증거로 읽는 위치다.
   시간대·국가 항목을 되살렸다.
 - 제품 요구 수준의 폐기 결정(기능·설정 항목을 없앤다는 결정)은 이 기록에서 새로 정하지 않는다. 그 결정이 적힌
   파일 경로를 폐기 칸에 적는다 — 결정 원문이 두 곳에 있으면 한쪽만 고쳐진다.
+  그 기능의 PRD 도 작업 계약도 없으면 사용자가 내린 그 결정의 원문은 이 기록 폐기 칸 한 곳이다 — 네 칸을 결정 하나에 한 줄씩 들여써 `-` 로 시작하는 목록 항목으로 적고 줄 끝에 `PRD 없음` 을 붙인다 (`design-mockup` Step 5).
 
 ---
 
@@ -231,8 +232,8 @@ QA evaluator 가 증거로 읽는 위치다.
 > **현재 등급: E1** (문장 규약 + Variant Contract Matrix 아티팩트). 축 값이 겹치는 variant 가
 > 다시 관측되면 문장을 다듬지 말고 아래 판정식을 CI 게이트로 승급한다.
 >
-> **개수 상한 · primary axis 개수 · 부대 산출물 금지의 정본은 이 절이 아니다.**
-> `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이 정본이며 (유형 11 탐색형 생성),
+> **개수 규칙 · primary axis 개수 · 부대 산출물 금지의 기준 원본은 이 절이 아니다.**
+> `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이 기준 원본이며 (유형 11 탐색형 생성),
 > 여기서 그 숫자를 다시 정의하지 않는다. 이 절이 더하는 것은 **구별성을 기계 판정하는 오라클**이다.
 
 ### 왜 축 선언만으로는 부족한가 (실측)
@@ -253,8 +254,8 @@ QA evaluator 가 증거로 읽는 위치다.
 
 1. **사용자가 개수를 말하면 정확히 그 수를 낸다.** 초과도 미달도 위반이다. "3 개" 요청에 5 개를
    내면 사용자가 2 개를 지우는 비용을 떠안는다.
-2. **자체 판단 상한은 §5.6 의 기본값(3)이고, 사용자 승인이 있을 때 최대 5 다.** 6 개 이상이
-   필요해 보이면 한 번에 내지 말고 배치를 나눠 제안한다.
+2. **개수를 말하지 않으면 최소 5 개부터 필요한 만큼 낸다 — 위 제한 없음.** 5 개로 비교가 모자라면
+   더 낸다. 늘어난 variant 도 아래 구별성 게이트를 똑같이 통과해야 한다.
 
 ### variant 필수 4 필드
 
@@ -386,8 +387,16 @@ decisions:
 
 - `decision_id` 는 `DEC-{YYYYMMDD}-{NNN}` 이며 `source` 는 §4 승인 기록 파일이다. 승인 기록 없는
   결정은 manifest 에 올리지 않는다 — 그것은 결정이 아니라 제안이다.
+- `status` 에 쓸 수 있는 값은 `approved`(승인된 결정)와 `superseded`(대체됨 — 뒤 결정이 바꾼 옛 결정) 둘이다.
+  다른 값이나 빠진 값은 형식 오류(종료 코드 2)다 — 승인 기록이 있는 결정만 올라오므로 초안 · 제안 상태를 적을 자리가 없다.
+- 결정이 바뀌면 옛 결정을 지우지 말고 `status: superseded` 로 두고, `superseded_by` 에 그 결정을 바꾼 **같은 목록의
+  `approved` 결정 번호**를 적는다. `superseded_by` 가 없거나 · 목록에 없거나 · 자기 번호이거나 · 가리킨 결정도
+  `superseded` 면(사슬) 형식 오류(종료 코드 2)다. `superseded` 결정은 화면 자리 검사(`required_surfaces` ·
+  `excluded_surfaces`)를 건너뛰고 형식 검사(`decision_id` · `source` · `superseded_by`)만 받는다 — 화면 자리는
+  대체한 `approved` 결정이 받는다. 사슬을 막아 두면 검사가 한 번에 끝난다 (사용자 결정 2026-09-26).
 - **`excluded_surfaces` 는 선택이 아니다.** 적용하지 않는 표면은 이유와 함께 명시한다. 침묵은
-  "검토했다" 가 아니라 **커버리지 공백**이다.
+  "검토했다" 가 아니라 **커버리지 공백**이다. 그래서 키는 늘 적고, 제외할 표면이 없으면
+  `excluded_surfaces: []` 로 적는다. 키가 없으면 커버리지 위반(종료 코드 1)이다.
 
 ### Coverage rule 4 조
 
@@ -405,7 +414,7 @@ decisions:
 #!/usr/bin/env python3
 """Decision Propagation Coverage Gate — surface 별 증거 충족 검사.
 exit code 는 harness/evals/gate-exit-codes.md 를 따른다
-(0 pass / 1 커버리지 위반 / 2 스키마 오류 / 3 대상 0 건 = 검사 미수행)."""
+(0 pass / 1 커버리지 위반 / 2 스키마 · 입력 오류 / 3 대상 0 건 = 검사 미수행)."""
 import re, sys, yaml
 
 path = sys.argv[1] if len(sys.argv) > 1 else ".design/decisions.yaml"
@@ -413,6 +422,9 @@ try:
     doc = yaml.safe_load(open(path, encoding="utf-8")) or {}
 except FileNotFoundError:
     print(f"NO_MANIFEST {path}"); sys.exit(3)
+except (OSError, UnicodeDecodeError) as e:
+    # 폴더 · UTF-8 아닌 바이트가 Traceback 으로 멈추면 종료 코드 1(위반)로 읽힌다 — 2 로 낸다
+    print(f"INPUT_ERROR {path}: 읽을 수 없는 입력 ({type(e).__name__})"); sys.exit(2)
 except yaml.YAMLError as e:
     print(f"SCHEMA_ERROR {e}"); sys.exit(2)
 
@@ -422,11 +434,13 @@ if not isinstance(doc, dict) or not isinstance(doc.get("decisions") or [], list)
 decisions = doc.get("decisions") or []
 if not decisions:
     print("NO_DECISION 대상 0 건 — 검사 미수행"); sys.exit(3)
+# superseded_by 가 같은 목록의 approved 결정을 가리키는지 보려고 번호별 상태를 먼저 모은다
+status_by_id = {str(d.get("decision_id")): d.get("status") for d in decisions if isinstance(d, dict)}
 
 # user-visible assertion 으로 인정하는 3 종: visible / count / height
 PATTERNS = {"visible": r"\bvisible\b", "count": r"(>=|<=|>|<|==)\s*\d+|\bcount\b",
             "height": r"\bheight\b"}
-viol = surfaces = schema = 0
+viol = surfaces = schema = superseded = 0
 for d in decisions:
     if not isinstance(d, dict):
         print(f"SCHEMA_ERROR {d!r}: 결정이 매핑이 아니다"); schema += 1; continue
@@ -434,6 +448,18 @@ for d in decisions:
     # 아래 두 검사가 없으면 표면을 하나도 적지 않은 결정이 surface 0 개 · 위반 0 으로 통과한다 (2026-09-25 재현)
     if not re.fullmatch(r"DEC-\d{8}-\d{3}", str(d.get("decision_id", ""))) or not d.get("source"):
         print(f"SCHEMA_ERROR {did}: decision_id 형식(DEC-YYYYMMDD-NNN) 또는 source 가 없다"); schema += 1
+    if d.get("status") == "superseded":
+        # 대체된 결정은 추적용으로만 남는다 — 화면 자리 검사는 superseded_by 가 가리킨 approved 결정이 받는다
+        by = d.get("superseded_by")
+        if not isinstance(by, str) or by == str(did) or status_by_id.get(by) != "approved":
+            print(f"SCHEMA_ERROR {did}: superseded_by 는 같은 목록의 다른 approved 결정 번호여야 한다 (지금 {by!r})"); schema += 1
+        superseded += 1
+        continue
+    if d.get("status") != "approved":
+        print(f"SCHEMA_ERROR {did}: status 는 approved 나 superseded 여야 한다 (지금 {d.get('status')!r})"); schema += 1
+    # 키가 빠진 결정은 제외 표면을 검토했는지 알 수 없다 — 제외할 것이 없으면 [] 로 적게 한다
+    if "excluded_surfaces" not in d:
+        print(f"FAIL {did}: excluded_surfaces 키가 없다 — 제외할 표면이 없으면 [] 로 적는다"); viol += 1
     req, exc = d.get("required_surfaces") or [], d.get("excluded_surfaces") or []
     if not isinstance(req, list) or not isinstance(exc, list):
         print(f"SCHEMA_ERROR {did}: required_surfaces · excluded_surfaces 는 목록이어야 한다"); schema += 1; continue
@@ -455,7 +481,7 @@ for d in decisions:
             print(f"FAIL {did}/{sid}: golden 도 user-visible assertion 도 없음"); viol += 1
         elif not hit:
             print(f"FAIL {did}/{sid}: golden 만 존재 — visible/count/height assertion 부재"); viol += 1
-print(f"decisions={len(decisions)} surfaces={surfaces} violations={viol} schema_errors={schema}")
+print(f"decisions={len(decisions)} superseded={superseded} surfaces={surfaces} violations={viol} schema_errors={schema}")
 if schema:
     sys.exit(2)
 if viol:
@@ -497,7 +523,7 @@ Playwright 공식 문서도 visual comparison 은 첫 실행에서 reference 를
 | `browser_user_visible` | 브라우저에서 지정 route·state·viewport 로 도달해 얻은 visible locator + count/height | 실기기 폰트·DPI·플랫폼 위젯 차이 |
 | `device_user_visible` | 실기기/시뮬레이터에서 얻은 관측 | (가장 강한 채널 — 비용이 크다) |
 
-### 규칙
+### 증거 채널 규칙
 
 - **증거를 인용할 때 채널 이름을 함께 적는다.** 채널 없는 증거는 강도를 알 수 없다.
 - **`artifact_snapshot` 만으로 "사용자가 보는 화면이 정상" 이라고 말하지 못한다.** 목업 HTML 이

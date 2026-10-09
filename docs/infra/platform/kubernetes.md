@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 쿠버네티스
 
 리소스 매니페스트, Helm/Kustomize, RBAC, 네임스페이스, Pod Security Standards, requests/limits, HPA/VPA, 프로브, PDB를 다룬다.
@@ -65,7 +66,7 @@ PodDisruptionBudget은 노드 drain, 클러스터 업그레이드 등 자발적(
 ## 수치/기준값
 
 | 항목 | 값 | 비고 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | Probe 기본 periodSeconds | 10 | 점검 간격 |
 | Probe 기본 timeoutSeconds | 1 | 응답 대기 시간 |
 | Probe 기본 failureThreshold | 3 | 연속 실패 횟수 |

@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/log-prompt.sh\"",
             "timeout": 5
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-tool-failure.sh",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/log-tool-failure.sh\"",
             "timeout": 5
           }
         ]
@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/log-reflection.sh",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/log-reflection.sh\"",
             "timeout": 5
           }
         ]

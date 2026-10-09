@@ -1,0 +1,25 @@
+$ bash /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/measure.sh 스크립트-19 --negative
+evidence=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-19-amend-n9ionkww
+OK known valid frozen record bundle actual=[]
+positive_control=1
+OK positive control catches known violation actual=1
+known_answer expected=2 actual=2
+OK two hand-counted records actual=2
+source_ref=d72a16639edd48efa02d166a203a0d581519bf94
+BAD amend-sidecar: exit actual=0
+BAD amend-sidecar: exec_calls actual=0
+BAD amend-sidecar: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+BAD sidecar frozen verbatim exactly once actual=0
+BAD new sidecar condition also premeasured
+BAD sidecar condition judged in report
+OK original sidecar unchanged actual={"byte_length": 272, "sha256": "a983c99d0304e6aec120d0fa4b25c6aab4aaa60fa665a5bd43d4a1b7793039f2"}
+OK amend-without-sidecar: exit actual=0
+BAD amend-without-sidecar: exec_calls actual=0
+BAD amend-without-sidecar: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK absent sidecar does not invent frozen amendment
+FAIL 스크립트-19 checks=18 failures=12
+exit=1

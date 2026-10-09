@@ -12,7 +12,11 @@ argument-hint: "<target_path|scenario> [--tier=1|2|3]"
 user-invocable: true
 ---
 
-# Gotchas
+# React Animation
+
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
+## Gotchas
 
 1. **라이브러리 0개 원칙 — 절대 예외 없음**: Motion(framer-motion) / dnd-kit / react-spring / react-transition-group / @formkit/auto-animate / react-dnd / gsap / lottie-react / react-beautiful-dnd / animate.css 는 **설치 및 import 금지**. 이들의 import 구문이 코드베이스에 존재하면 `/react-audit` 이 빌드 실패를 발행한다. 사용자가 요청하더라도 대안 구현을 제시하고 라이브러리 사용을 거부한다.
 
@@ -44,14 +48,20 @@ user-invocable: true
 
 14. **기준 캡처는 편집 전에 찍는다** — `react-kit/references/render-evidence-protocol.md` §1 Step 0 과 §2 비교 반복 순서의 1 번을 첫 편집 전에 실행하고 그 결과(되말하기 · 관례 표 · 지금 모습의 캡처 경로와 바뀌어야 할 표식)를 응답에 남긴다. 편집한 뒤에는 편집 전 모습을 다시 찍을 수 없다.
 
+15. **Tier 2 는 업데이트 종류로 가른다 — React 19.3 `<ViewTransition>` 은 안정 API 다 (2026-09-26 추가)**: `react` 에서 가져오는 `<ViewTransition>` 은 19.3 에서 실험 API 가 아니라 안정 API 가 됐다. 감싼 자식이 Transition 으로 표시된 업데이트(`startTransition` 안의 갱신 · Suspense reveal · `useDeferredValue`)로 스타일이 바뀌거나 마운트 · 언마운트될 때 돌고, DOM 에서만 동작한다 (출처: <https://react.dev/blog/2026/09/09/react-19-3> 「We shared it as an experimental API last year, and in 19.3 it's stable and ready to use.」). 그러니 Transition 으로 표시된 React 상태 갱신에는 `<ViewTransition>` 을 쓰고, 그 밖의 DOM 갱신(Transition 이 아닌 동기 갱신 · React 밖 DOM 조작)에는 §3.1 `withViewTransition` 래퍼를 그대로 쓴다. 래퍼를 지우지 않는다. react 패키지 안의 컴포넌트라 라이브러리 0개 원칙(#1)에 걸리지 않는다. 프로젝트 `react` 판이 19.3 미만이면 래퍼만 쓴다
+
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 자동 티어 판정
 
 `--tier` 플래그가 없으면 사용자 요청을 분석해 가장 낮은 티어를 선택한다.
 
 | 키워드 / 시나리오 | 판정 Tier |
-|------------------|-----------|
+| ------------------ | ----------- |
 | "fade in", "slide up", "scale", "pulse", "bounce", "hover 효과", "opacity", "shimmer", "진입 애니메이션" | **T1** |
 | "skeleton 로딩 → 완료 전환", "버튼 hover", "accordion", "모달 open/close", "상태 변화" | **T1** |
 | "스크롤 애니메이션", "scroll-driven", "parallax", "스크롤 진행 바", "스크롤 기반" | **T1** |
@@ -64,9 +74,9 @@ T2/T3 경계가 애매하면 `animation-architect-react` 에이전트에 자문�
 **3-Tier 요약:**
 
 | Tier | 도구 | 적용 시나리오 | 난이도 |
-|------|------|--------------|--------|
+| ------ | ------ | -------------- | -------- |
 | **T1** | Tailwind `animate-*` + CSS `@keyframes` + scroll-driven | 상태 변화, hover, 단순 loop, 스크롤 연동 | 낮음 |
-| **T2** | View Transitions API | 뷰/라우트 전환, shared element, FLIP | 중 |
+| **T2** | View Transitions API (`withViewTransition` 래퍼) · React 19.3 `<ViewTransition>` (Transition 으로 표시된 업데이트만 — Gotcha 15) | 뷰/라우트 전환, shared element, FLIP | 중 |
 | **T3** | Pointer Events + FSM + requestAnimationFrame | 드래그앤드롭, 제스처, SVG 연결선 | 높음 |
 
 ## 2. Tier 1 — Tailwind + CSS 구현
@@ -74,7 +84,7 @@ T2/T3 경계가 애매하면 `animation-architect-react` 에이전트에 자문�
 ### 2.1 Tailwind 내장 유틸리티
 
 | 카테고리 | 유틸 | 예시 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | Transition | `transition-transform`, `transition-colors`, `transition-opacity` | `hover:scale-105 transition-transform duration-200` |
 | Duration | `duration-75`~`duration-1000` | `duration-300` |
 | Easing | `ease-linear`, `ease-in`, `ease-out`, `ease-in-out` | `ease-in-out` |
@@ -84,6 +94,7 @@ T2/T3 경계가 애매하면 `animation-architect-react` 에이전트에 자문�
 ### 2.2 tailwindcss-animate 확장 유틸
 
 `tailwindcss-animate` 플러그인이 제공하는 enter/exit 애니메이션:
+
 - `animate-in` / `animate-out`
 - `fade-in-*`, `fade-out-*`
 - `slide-in-from-top/bottom/left/right-*`, `slide-out-to-*`
@@ -712,6 +723,7 @@ export function Connector({
 
 - **Tier 1**: Tailwind `motion-reduce:animate-none`, `motion-reduce:transition-none` variant 적용
 - **Tier 2**: `withViewTransition` 래퍼에서 `window.matchMedia('(prefers-reduced-motion: reduce)')` 가드 적용
+  - `<ViewTransition>` 경로(Gotcha 15)는 이 래퍼를 거치지 않아 위 가드가 걸리지 않는다. §3.4 의 `prefers-reduced-motion` CSS 규칙을 함께 두고, 움직임 줄이기 설정을 켠 브라우저에서 전환이 멈추는지 전 · 후 두 시점 캡처로 확인한다(Gotcha 13). 그 CSS 규칙이 `<ViewTransition>` 전환에도 먹는다는 바깥 근거는 아직 없다 — 확인하지 못하면 `[미검증]` 으로 보고한다
 - **Tier 3**: CSS transform 애니메이션 대신 즉시 이동
 
 ### 5.2 드래그앤드롭 키보드 대안
@@ -766,7 +778,7 @@ export function DragAnnouncer({ message }: { message: string }) {
 
 ### 5.4 접근성 트레이드오프 고지
 
-> 라이브러리 0개 접근은 번들 크기·의존성·감사 표면을 줄이는 대신, 드래그앤드롭의 완전한 스크린리더 접근성이 **우리 코드와 테스트의 책임**이 된다. 완전한 a11y 가 필요하면 W3C APG 드래그앤드롭 패턴(https://www.w3.org/WAI/ARIA/apg/)을 직접 구현한다. **금지 라이브러리를 대안으로 제시하지 않는다** — 이 트레이드오프의 처리 경로는 §6 표준 커버리지 공백에 정리돼 있다.
+> 라이브러리 0개 접근은 번들 크기·의존성·감사 표면을 줄이는 대신, 드래그앤드롭의 완전한 스크린리더 접근성이 **우리 코드와 테스트의 책임**이 된다. 완전한 a11y 가 필요하면 W3C APG 드래그앤드롭 패턴(<https://www.w3.org/WAI/ARIA/apg/>)을 직접 구현한다. **금지 라이브러리를 대안으로 제시하지 않는다** — 이 트레이드오프의 처리 경로는 §6 표준 커버리지 공백에 정리돼 있다.
 
 ## 6. 표준 커버리지 공백 — 원칙은 유지하고 직접 처리한다
 
@@ -779,7 +791,7 @@ export function DragAnnouncer({ message }: { message: string }) {
 아니다** — 여기에 해당하는 요청이 와도 금지 라이브러리를 도입하지 않고 아래 처리 경로로 간다.
 
 | # | 공백 | 처리 경로 |
-|---|------|-----------|
+| --- | ------ | ----------- |
 | 1 | 복잡한 physics / spring 감쇠 | **직접 구현** — `requestAnimationFrame` 루프에서 stiffness/damping 적분을 직접 계산한다. 물리 정확도가 요구사항이 아니면 CSS `cubic-bezier` 근사로 낮춘다 |
 | 2 | inertia (관성 · 플링 감속) | **직접 구현** — `pointerup` 시점 속도(px/ms)를 샘플링해 감쇠 적분한다. Tier 3 `useDrag` FSM 에 릴리스 상태를 추가한다 |
 | 3 | collision (충돌 · 겹침 판정) | **직접 구현** — `getBoundingClientRect()` AABB 교차 판정. drop 후보 계산은 `useDrop` 안에 둔다 |
@@ -797,7 +809,7 @@ export function DragAnnouncer({ message }: { message: string }) {
 ## 7. 아키텍처 배치 규칙
 
 | 산출물 | 위치 |
-|--------|------|
+| -------- | ------ |
 | CSS @keyframes | `src/presentation/styles/globals.css` |
 | View Transition 래퍼 | `src/presentation/shared/lib/view-transition.ts` |
 | useDrag, useDrop, useSortable | `src/presentation/shared/hooks/` |
@@ -815,11 +827,16 @@ export function DragAnnouncer({ message }: { message: string }) {
 - Tier 3: 생성된 훅/store 목록 + 접근성 체크리스트
 
 다음 단계 제안:
+
 - 접근성 검증: `/react-audit` (reduced-motion, ARIA 가드 검사)
 - 테스트 생성: `/react-test` (pointer event 테스트는 `@testing-library/user-event` `user.pointer()` API)
 - 컴포넌트 감지: `widget-inspector-react` 에이전트
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/clean-arch-layout.md` — 레이어 배치 규칙 (presentation 전용)
 - `references/project-detection.md` — 프로젝트 감지 (Tailwind 버전, tailwindcss-animate 설치 여부)

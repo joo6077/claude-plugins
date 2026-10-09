@@ -1,0 +1,28 @@
+schemaVersion: 1
+name: shopflow
+defaultEnv: dev
+environments:
+  dev:
+    tier: dev
+    baseUrl: https://dev.api.shopflow.io
+    allowHosts: ["dev.api.shopflow.io"]
+    authProfile: svc-dev
+    connectTimeout: 5s
+    maxTime: 30s
+  stg:
+    tier: stg
+    baseUrl: https://stg.api.shopflow.io
+    allowHosts: ["stg.api.shopflow.io"]
+    authProfile: svc-stg
+    connectTimeout: 5s
+    maxTime: 30s
+  prod:
+    tier: prod
+    baseUrl: https://api.shopflow.io
+    allowHosts: ["api.shopflow.io"]
+    authProfile: svc-prod
+    readOnlyByDefault: true
+    requiresExplicitConfirm: true
+    connectTimeout: 5s
+    maxTime: 30s
+writeAllowlist: []

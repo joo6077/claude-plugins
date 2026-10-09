@@ -10,7 +10,11 @@ argument-hint: "<feature>_<name>"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - 탭 가능한 커스텀 위젯은 반드시 `Pressable`로 래핑 — GestureDetector, InkWell 직접 사용 금지
 - 색상은 `context.colors.xxx` (시맨틱 토큰) 사용 — `Palette.xxx` 직접 참조하면 다크 모드에서 깨짐
@@ -31,6 +35,7 @@ user-invocable: true
 - **현재 stable 은 Flutter 3.47.5** (2026-09-18 배포 · 2026-09-24 조회, 출처: <https://storage.googleapis.com/flutter_infra_release/releases/releases_macos.json>). 아래 3.41 / 3.44 항목은 그 버전에서 도입된 변경을 정리한 것이지 "최신" 이 아니다. 3.47 은 Android 의존성 매트릭스를 **Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1** 로 제시한다 — Android 빌드 설정을 건드리는 위젯 작업이면 이 매트릭스를 먼저 확인하라 (출처: <https://docs.flutter.dev/release/release-notes>, <https://flutter.dev/blog/whats-new-in-flutter-3-47>)
 - **Flutter 3.44 위젯 변경** — 새 위젯을 만들기 전에 빌트인이 요구를 충족하는지 먼저 확인하라. 신규: `CarouselView` 무한 스크롤 + `CarouselView.onItemChanged` + `CarouselController.leadingIndex`, `AnimatedCrossFade.onEnd`, `Hero` 애니메이션 curve 커스터마이징, `RoundedSuperellipseInputBorder`, `Overlay.alwaysSizeToContent`, `ScrollCacheExtent`(PageView 등 캐시 범위). Deprecated: `ReorderableListView.onReorder` → `onReorderStart` / `onReorderEnd`. 제거: `ExtendSelectionByPageIntent` (출처: <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0>, <https://docs.flutter.dev/release/release-notes>)
 - **Riverpod 3.4.1 (2026-07-27 실측 최신, pub.dev)** — `(Async)Notifier` 에는 `mounted` 프로퍼티가 **없다**. async gap 후 `ref` 재사용 시 `context.mounted` 로 가드하거나 `CancelToken` · `Completer` 로 작업 자체를 취소하라. `ref.state` · `ref.listenSelf` · `ref.future` 는 Notifier 내부에서는 `state` / `listenSelf` / `future` (prefix 없음) 로 접근한다. 3.2.0 부터 `family.overrideWith` 가 deprecated (→ `family.overrideWith2`, 4.0 에서 rename 예정), 3.4.0 부터 `SyncProviderTransformerMixin` deprecated (출처: <https://pub.dev/packages/flutter_riverpod>, <https://pub.dev/packages/flutter_riverpod/changelog>)
+- **공용 위젯을 새로 만들면 놀이터 목록에 올리고 기본기 검사를 돌려라.** `catalog/widgets.yaml` 에 크기 동작(`hug` · `fill`)과 최소 안쪽 여백을 적고 `/flutter-catalog` 의 `gen` · `check` 를 돌린다 (`skills/flutter-catalog/SKILL.md`). 안쪽 여백 · 크기 동작 · 아이콘 정렬 · 넘침 규칙은 `references/widget-fundamentals.md` 가 기준이다 — 문서에 「내용 맞춤」 이라 적고 실제로는 부모 폭을 다 먹는 위젯이 검사 없이 생겼다 (핏팰 `IFButton`, 2026-10-09)
 
 프로젝트의 스타일 가이드와 컨벤션에 맞는 새 위젯을 생성한다.
 
@@ -63,7 +68,7 @@ prefix가 `lib/features/` 내 기존 feature와 일치하면 해당 feature에 �
 shared 디렉토리의 일반적인 분류 구조 (프로젝트에 이미 있는 분류를 우선 따른다):
 
 | 카테고리 | 위젯 유형 |
-|---------|----------|
+| --------- | ---------- |
 | `animated/` | 애니메이션 유틸 (StaggeredList, AnimatedClip 등) |
 | `buttons/` | 버튼, Pressable 래퍼 등 터치 인터랙션 |
 | `cards/` | 컨테이너, 카드, 정보 박스 |
@@ -87,6 +92,7 @@ shared 디렉토리의 일반적인 분류 구조 (프로젝트에 이미 있는
 ### 2. 기존 패턴 분석
 
 같은 디렉토리의 기존 위젯을 읽어 로컬 패턴을 파악한다:
+
 - Widget base class 관습
 - Import 패턴
 - 디자인 토큰 사용 방식
@@ -98,7 +104,7 @@ shared 디렉토리의 일반적인 분류 구조 (프로젝트에 이미 있는
 ### 3. Widget Base Class 결정
 
 | 조건 | Base Class |
-|------|-----------|
+| ------ | ----------- |
 | `HAS_HOOKS` | `HookWidget` (provider 접근 불필요 시) |
 | `HAS_HOOKS` + provider 접근 필요 | `HookConsumerWidget` |
 | `HAS_RIVERPOD` + provider 접근 필요 | `ConsumerWidget` |
@@ -208,6 +214,7 @@ final (padding, fontSize, height) = switch (size) {
 ### 6. 탭 인터랙션 처리
 
 프로젝트에 커스텀 Pressable/Tappable 위젯이 있는지 감지한다:
+
 - 있으면: 해당 위젯으로 래핑 (e.g., `Pressable`, `Tappable`). `GestureDetector`, `InkWell` 직접 사용 지양
 - 없으면: `GestureDetector` 또는 `InkWell` 사용
 
@@ -216,6 +223,7 @@ final (padding, fontSize, height) = switch (size) {
 Pressable/Tappable 위젯이 감지되면 해당 위젯의 소스를 읽어 지원하는 옵션을 파악한다:
 
 **흔한 Pressable 옵션 패턴:**
+
 - gradient 배경 위 highlight → `foregroundHighlight: true` (background highlight는 gradient 아래에 그려져 안 보임)
 - 원형 위젯의 highlight → `highlightShape: BoxShape.circle`
 - 누르면 아래로 이동하는 효과 → `pressOffset` (예: `Offset(0, 4)`)
@@ -226,6 +234,7 @@ Pressable/Tappable 위젯이 감지되면 해당 위젯의 소스를 읽어 지�
 ### 7. Widgetbook/Storybook 등록
 
 프로젝트에 위젯 카탈로그 도구가 있는지 감지한다:
+
 - `widgetbook/` 디렉토리 → Widgetbook use case 등록
 - `storybook/` 또는 `.storybook/` → Storybook entry 등록
 - 없으면 → 스킵

@@ -11,7 +11,7 @@
   /* Border */
   --border:#2a2a40;
   /* Text (warm tint) */
-  --text:#F5F0E8;--text2:#A89A8F;--text3:#7A6F64;
+  --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
   /* Semantic */
   --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
   /* System */
@@ -23,7 +23,7 @@
 ## 플러그인별 Accent 매핑
 
 | 플러그인 | `--accent` | `--accent2` | `--accent-dim` | 배경 gradient rgba |
-|----------|-----------|-------------|----------------|---------------------|
+| -------- | --------- | ----------- | -------------- | ------------------- |
 | **Harness** | `#D97757` | `#E8A583` | `rgba(217,119,87,0.12)` | `rgba(217,119,87,0.06)` |
 | **Flutter Toolkit** | `#22D3EE` | `#67E8F9` | `rgba(34,211,238,0.12)` | `rgba(34,211,238,0.06)` |
 | **Design Kit** | `#E8965A` | `#F0B088` | `rgba(232,150,90,0.12)` | `rgba(232,150,90,0.06)` |
@@ -38,6 +38,7 @@
 | **Reflect Kit** | `#F43F5E` | `#FDA4AF` | `rgba(244,63,94,0.12)` | `rgba(244,63,94,0.07)` |
 | **Tone Kit** | `#D946EF` | `#E879F9` | `rgba(217,70,239,0.12)` | `rgba(217,70,239,0.06)` |
 | **API Kit** | `#A3E635` | `#D9F99D` | `rgba(163,230,53,0.12)` | `rgba(163,230,53,0.06)` |
+| **Howto Kit** | `#F59E0B` | `#FBBF24` | `rgba(245,158,11,0.12)` | `rgba(245,158,11,0.06)` |
 | **Index (허브)** | `#D97757` | `#E8A583` | `rgba(217,119,87,0.12)` | — |
 
 ## 대비 (2026-09-05 실측으로 조정됨)
@@ -49,7 +50,7 @@ WCAG AA(4.5:1)를 넘어야 한다. `--bg` 위만 보면 통과인데 카드 안
   4.21 이었다. hue 는 유지된다.
 - 공유 텍스트 토큰 `--text3` 는 다크 `#948779`(`--bg` 5.55 / `--surface2` 4.67)가 정본이다.
   이전 값 `#7A6F64` 는 3.95 / 3.34 로 미달이었고 전체 실패의 77% 를 혼자 만들었다.
-- 라이트 팔레트를 가진 페이지는 값이 따로 필요하다 — tone-kit `#656C7A`, api-kit `#666D5F`.
+- 라이트 팔레트를 가진 페이지는 값이 따로 필요하다 — tone-kit `#656C7A`, api-kit `#666D5F`, 새 쪽 틀(`page-template.html`) `#6b6259`(밝은 배경 넷 위 최소 5.25). 틀의 옛 밝은 값 `#8a8078` 은 3.39 로 미달이었다.
 - 새 accent 를 고르면 `node scripts/check-docs-a11y.js <페이지>` 로 실측하고 등록하라.
 
 ## 사용 규칙
@@ -57,6 +58,7 @@ WCAG AA(4.5:1)를 넘어야 한다. `--bg` 위만 보면 통과인데 카드 안
 1. 기본 토큰(bg, surface, border, text, radius)은 **모든 페이지에서 동일**
 2. accent 계열만 플러그인별로 변경
 3. `body` 배경 gradient에 해당 플러그인의 rgba 값 사용:
+
    ```css
    body {
      background-image:
@@ -64,6 +66,8 @@ WCAG AA(4.5:1)를 넘어야 한다. `--bg` 위만 보면 통과인데 카드 안
        radial-gradient(ellipse at 80% 100%, {accent-gradient-rgba-dimmer} 0%, transparent 50%);
    }
    ```
+
 4. `h1` gradient: `linear-gradient(135deg, var(--text), var(--accent))`
 5. `.section-label` 색상: `var(--accent)`
 6. `.card:hover` 보더: `rgba({accent-r},{accent-g},{accent-b},0.25)`
+7. 움직임 줄이기와 본문 행간 1.7 은 공통 파일 `docs/assets/site.css` 가 맡는다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다.

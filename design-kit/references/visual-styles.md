@@ -15,6 +15,7 @@
 ---
 
 ## Skeuomorphism
+
 - ko: 스큐어모피즘
 - structure: { radius: 12px, layout: button-centric }
 - texture: { shadow: multi-layer-inset, bg-pattern: multi-stop-gradient }
@@ -24,6 +25,7 @@
 - combines-well-with: [Neumorphism, Frutiger-Aero]
 
 ## Flat Design
+
 - ko: 플랫 디자인
 - structure: { radius: 0, layout: geometric-shapes }
 - texture: { shadow: none, bg-pattern: solid-color }
@@ -33,6 +35,7 @@
 - combines-well-with: [Material-Design, Corporate-Memphis]
 
 ## Flat 2.0
+
 - ko: 플랫 2.0
 - structure: { radius: 8px, layout: card-with-icon }
 - texture: { shadow: "8px 8px 0 rgba(66,133,244,0.15)", bg-pattern: subtle-gradient }
@@ -42,6 +45,7 @@
 - combines-well-with: [Flat-Design, Minimalism]
 
 ## Material Design
+
 - ko: 머티리얼 디자인
 - structure: { radius: 8px, layout: card-elevation }
 - texture: { shadow: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)", bg-pattern: solid }
@@ -51,6 +55,7 @@
 - combines-well-with: [Flat-Design, Dark-Mode]
 
 ## Neumorphism
+
 - ko: 뉴모피즘
 - structure: { radius: 20px, layout: soft-rounded }
 - texture: { shadow: "dual-direction (8px 8px 16px #b8bcc2, -8px -8px 16px #ffffff)", bg-pattern: none }
@@ -60,6 +65,7 @@
 - combines-well-with: [Minimalism, Artificial-Morphism]
 
 ## Glassmorphism
+
 - ko: 글래스모피즘
 - structure: { radius: 16px, layout: frosted-card }
 - texture: { shadow: none, blur: "backdrop-filter:blur(12px)", bg-pattern: translucent-overlay }
@@ -69,6 +75,7 @@
 - combines-well-with: [Mesh-Gradient, Aurora-UI, Liquid-Glass]
 
 ## Claymorphism
+
 - ko: 클레이모피즘
 - structure: { radius: 28px, layout: puffy-card }
 - texture: { shadow: "outer + dual-inset (highlight + shadow)", bg-pattern: pastel-gradient }
@@ -78,6 +85,7 @@
 - combines-well-with: [Neumorphism, Biomorphism]
 
 ## Liquid Glass
+
 - ko: 리퀴드 글래스
 - structure: { radius: 20px, layout: dark-frosted-card }
 - texture: { shadow: subtle-glow, blur: "backdrop-filter:blur(8px)", animation: shine-sweep }
@@ -87,6 +95,7 @@
 - combines-well-with: [Glassmorphism, Spatial-Design, Aurora-UI]
 
 ## Artificial Morphism
+
 - ko: 아티피셜 모피즘
 - structure: { radius: 16px, layout: hybrid-card }
 - texture: { shadow: "dual-direction + border-top highlight", bg-pattern: grid-overlay }
@@ -96,6 +105,7 @@
 - combines-well-with: [Neumorphism, Minimalism]
 
 ## Brutalism
+
 - ko: 브루탈리즘
 - structure: { radius: 0, layout: raw-block }
 - texture: { shadow: none, bg-pattern: solid-background }
@@ -105,6 +115,7 @@
 - combines-well-with: [Neubrutalism, Memphis]
 
 ## Neubrutalism
+
 - ko: 뉴브루탈리즘
 - structure: { radius: 12px, layout: hard-shadow-card }
 - texture: { shadow: "6px 6px 0 #000 (hard offset, no blur)", bg-pattern: solid-pastel }
@@ -114,6 +125,7 @@
 - combines-well-with: [Brutalism, Memphis, Bento-Grid]
 
 ## Swiss/International
+
 - ko: 스위스/인터내셔널
 - structure: { radius: 0, layout: strict-grid }
 - texture: { shadow: none, bg-pattern: repeating-grid-lines }
@@ -123,6 +135,7 @@
 - combines-well-with: [Minimalism, Flat-Design]
 
 ## Bento Grid
+
 - ko: 벤토 그리드
 - structure: { radius: 12px, layout: multi-span-grid }
 - texture: { shadow: none, bg-pattern: gradient-cells }
@@ -132,6 +145,7 @@
 - combines-well-with: [Dark-Mode, Material-Design]
 
 ## Maximalism
+
 - ko: 맥시멀리즘
 - structure: { radius: 20px, layout: overlapping-elements }
 - texture: { shadow: none, bg-pattern: animated-multi-gradient, animation: bg-position-infinite }
@@ -141,6 +155,7 @@
 - combines-well-with: [Memphis, Vaporwave]
 
 ## Minimalism
+
 - ko: 미니멀리즘
 - structure: { radius: 2px, layout: centered-sparse }
 - texture: { shadow: none, bg-pattern: hairline-border-only }
@@ -150,6 +165,7 @@
 - combines-well-with: [Swiss, Flat-2, Dark-Mode]
 
 ## Frutiger Aero
+
 - ko: 프루티거 에어로
 - structure: { radius: 20px, layout: nature-lens }
 - texture: { shadow: "outer + inset specular", bg-pattern: bokeh-blobs }
@@ -159,6 +175,7 @@
 - combines-well-with: [Y2K-Futurism, Biomorphism]
 
 ## Y2K Futurism
+
 - ko: Y2K 퓨처리즘
 - structure: { radius: "blob (60% 40% 50% 50%)", layout: blob-centric }
 - texture: { shadow: inset-specular, bg-pattern: chrome-gradient }
@@ -168,6 +185,7 @@
 - combines-well-with: [Frutiger-Aero, Holographic]
 
 ## Retro Futurism
+
 - ko: 레트로 퓨처리즘
 - structure: { radius: 2px, layout: perspective-grid }
 - texture: { shadow: neon-glow, bg-pattern: perspective-grid-sunset }
@@ -177,6 +195,7 @@
 - combines-well-with: [Vaporwave, Cyberpunk, Neon-Glow]
 
 ## Vaporwave
+
 - ko: 베이퍼웨이브
 - structure: { radius: 0, layout: centered-text }
 - texture: { shadow: text-shadow-multi-color, bg-pattern: scan-line-overlay }
@@ -186,6 +205,7 @@
 - combines-well-with: [Retro-Futurism, Holographic]
 
 ## Cyberpunk
+
 - ko: 사이버펑크
 - structure: { radius: 2px, layout: box-with-border }
 - texture: { shadow: neon-glow-cyan, bg-pattern: none, glitch: clip-path-animation }
@@ -195,6 +215,7 @@
 - combines-well-with: [Neon-Glow, Retro-Futurism, Dark-Mode]
 
 ## Memphis Design
+
 - ko: 멤피스 디자인
 - structure: { radius: "0 or 50px (mixed)", layout: geometric-collage }
 - texture: { shadow: none, bg-pattern: dot-pattern-geometric-shapes }
@@ -204,6 +225,7 @@
 - combines-well-with: [Corporate-Memphis, Maximalism, Brutalism]
 
 ## Corporate Memphis
+
 - ko: 코퍼레이트 멤피스
 - structure: { radius: 16-20px, layout: illustration-centric }
 - texture: { shadow: none, bg-pattern: flat-illustration-figures }
@@ -213,6 +235,7 @@
 - combines-well-with: [Flat-Design, Bento-Grid]
 
 ## Aurora UI
+
 - ko: 오로라 UI
 - structure: { radius: 12-16px, layout: dark-blur-card }
 - texture: { shadow: none, bg-pattern: animated-blur-blobs, animation: float-translate-scale }
@@ -222,6 +245,7 @@
 - combines-well-with: [Glassmorphism, Mesh-Gradient, Liquid-Glass]
 
 ## Mesh Gradient
+
 - ko: 메시 그래디언트
 - structure: { radius: 12-16px, layout: color-field }
 - texture: { shadow: none, blur: "backdrop-filter:blur(8px)", bg-pattern: overlapping-radial-gradients }
@@ -231,6 +255,7 @@
 - combines-well-with: [Aurora-UI, Glassmorphism]
 
 ## Grain/Noise
+
 - ko: 그레인/노이즈
 - structure: { radius: 10-12px, layout: textured-card }
 - texture: { shadow: none, bg-pattern: "SVG feTurbulence fractalNoise overlay" }
@@ -240,6 +265,7 @@
 - combines-well-with: [Minimalism, Duotone]
 
 ## Duotone
+
 - ko: 듀오톤
 - structure: { radius: 4-8px, layout: color-filter-blocks }
 - texture: { shadow: none, bg-pattern: mix-blend-mode-multiply }
@@ -249,6 +275,7 @@
 - combines-well-with: [Grain-Noise, Metallic-Chrome]
 
 ## Holographic/Iridescent
+
 - ko: 홀로그래픽/이리데슨트
 - structure: { radius: 16px, layout: animated-card }
 - texture: { shadow: none, bg-pattern: animated-rainbow-gradient, animation: "holo-shift 3s infinite" }
@@ -258,6 +285,7 @@
 - combines-well-with: [Y2K-Futurism, Metallic-Chrome, Vaporwave]
 
 ## Metallic/Chrome
+
 - ko: 메탈릭/크롬
 - structure: { radius: 8px, layout: bar-plate }
 - texture: { shadow: "0 4px 20px rgba(0,0,0,0.4)", bg-pattern: multi-stop-specular-gradient }
@@ -267,6 +295,7 @@
 - combines-well-with: [Holographic, Y2K-Futurism, Cyberpunk]
 
 ## Neon Glow
+
 - ko: 네온 글로우
 - structure: { radius: 12px, layout: border-glow-box }
 - texture: { shadow: "multi-layer glow (5px/15px/30px)", bg-pattern: none, animation: "neon-pulse 2s alternate" }
@@ -276,6 +305,7 @@
 - combines-well-with: [Cyberpunk, Retro-Futurism, Dark-Mode]
 
 ## Dark Mode
+
 - ko: 다크 모드
 - structure: { radius: 12px, layout: card-standard }
 - texture: { shadow: "0 2px 8px rgba(0,0,0,0.4)", bg-pattern: none }
@@ -285,6 +315,7 @@
 - combines-well-with: [Material-Design, Glassmorphism, Cyberpunk]
 
 ## Kinetic Typography
+
 - ko: 키네틱 타이포그래피
 - structure: { radius: 8-12px, layout: text-animation-stage }
 - texture: { shadow: none, animation: "wave translateY per-letter stagger" }
@@ -294,6 +325,7 @@
 - combines-well-with: [Dark-Mode, Maximalism]
 
 ## Parallax
+
 - ko: 패럴랙스
 - structure: { radius: 12px, layout: perspective-layers }
 - texture: { shadow: deep-elevation, blur: "backdrop-filter:blur(4px)", bg-pattern: perspective-translateZ }
@@ -303,6 +335,7 @@
 - combines-well-with: [Spatial-Design, Glassmorphism]
 
 ## Spatial Design
+
 - ko: 스페이셜 디자인
 - structure: { radius: 20px, layout: 3d-tilted-card }
 - texture: { shadow: deep-elevation-60px, blur: "backdrop-filter:blur(20px)" }
@@ -312,6 +345,7 @@
 - combines-well-with: [Glassmorphism, Liquid-Glass, Parallax]
 
 ## Acrylic (Fluent)
+
 - ko: 아크릴 (플루언트)
 - structure: { radius: 8px, layout: windows-card }
 - texture: { shadow: none, blur: "backdrop-filter:blur(20px)", bg-pattern: "SVG noise exclusion" }
@@ -321,6 +355,7 @@
 - combines-well-with: [Glassmorphism, Dark-Mode, Spatial-Design]
 
 ## Biomorphism
+
 - ko: 바이오모피즘
 - structure: { radius: "24px card / animated blob radius", layout: organic-blob }
 - texture: { shadow: none, blur: "backdrop-filter:blur(8px)", animation: "bio-morph 8s infinite border-radius" }
@@ -341,6 +376,7 @@
 4. **타이포 선택** — 폰트와 굵기를 결정하는 스타일
 
 예시 조합:
+
 - "Swiss 구조 + Glassmorphism 질감 + Cyberpunk 컬러" → 그리드 레이아웃 + blur 카드 + 네온 색상
 - "Minimalism 구조 + Grain/Noise 질감 + Duotone 컬러" → 미니멀 레이아웃 + 필름 그레인 + 2톤 색상
 - "Bento Grid 구조 + Neumorphism 질감 + Pastel 컬러" → 벤토 그리드 + 소프트 그림자 + 파스텔

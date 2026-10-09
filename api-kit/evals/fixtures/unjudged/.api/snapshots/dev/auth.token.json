@@ -1,0 +1,28 @@
+{
+  "manifest": {
+    "endpoint": "auth.token",
+    "env": "dev",
+    "capturedAt": "2026-09-02T14:22:00+09:00",
+    "mediaType": "application/json",
+    "normalizedDigest": "sha-256:f45f72b6993ab7c6c86284d1eb120c023d3615af538b15faec1b9005aaadf368",
+    "lineage": {
+      "env": "dev",
+      "branch": "main"
+    }
+  },
+  "raw": {
+    "status": 200,
+    "headers": [
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ]
+    ],
+    "body": {
+      "access_token": "<TOKEN>",
+      "token_type": "Bearer",
+      "expires_in": 3600
+    }
+  },
+  "normalized": "{\"access_token\":\"<TOKEN>\",\"expires_in\":3600,\"token_type\":\"Bearer\"}"
+}

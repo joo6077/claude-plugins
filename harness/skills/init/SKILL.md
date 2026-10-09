@@ -52,13 +52,13 @@ bash "${PLUGIN_DIR}/scripts/init.sh" "." "<stack>"
 - Windows 환경에서 `bash` 명령이 Git Bash를 가리키는지 WSL bash를 가리키는지에 따라 경로 해석이 달라진다. `init.sh` 실행 전 경로 구분자(`/` vs `\`)를 확인해라
 - 스택 자동 감지 시 `package.json`만으로는 react/nextjs/vanilla node를 구분할 수 없다. 반드시 의존성 내용까지 확인해야 한다
 - `.harness/`가 이미 존재하면 **덮어쓰지 않고 중단**한다. 사용자에게 삭제 후 재실행을 안내해야 하며, 자동 삭제하면 안 된다
-- `project.yaml`의 `commands.analyze`에 프로젝트 빌드 명령을 정확히 넣지 않으면 QA Evaluator가 DG-01 판정을 할 수 없다. init 시 반드시 검증 가능한 명령을 설정하라
+- `project.yaml`의 `commands.analyze`에 프로젝트 빌드 명령을 정확히 넣지 않으면 QA Evaluator가 진단-01 판정을 할 수 없다. init 시 반드시 검증 가능한 명령을 설정하라
 - `contract_categories`를 비워두면 sprint-contract가 기본 카테고리를 사용하지만, 프로젝트에 맞지 않는 카테고리가 생성된다. 최소 2개 이상 프로젝트에 맞는 카테고리를 정의하라
 - `anti_patterns`를 빈 배열로 두면 sprint-contract에서 안티패턴 체크리스트가 생성되지 않는다. 최소 2개 이상 프로젝트에서 자주 발생하는 패턴을 정의하라
 - 모노레포에서 init 시 루트가 아닌 서브패키지에서 실행하면 `.harness/`가 서브패키지에 생성된다. 반드시 모노레포 루트에서 실행하라
-- 생성된 `project.yaml`을 git에 커밋하지 않으면 다른 팀원이 sprint-contract를 실행할 때 기본 설정으로 fallback한다. init 후 즉시 커밋하라
+- 생성된 `project.yaml`을 커밋하지 않으면 다음 세션이 sprint-contract를 실행할 때 기본 설정으로 fallback한다. init 후 즉시 커밋하라 — 프로젝트 안 실제 폴더 모양이면 프로젝트 저장소에, 하네스 저장소 모양이면 `git -C .harness` 로 하네스 저장소에
 - `init.sh`에서 파일 내용을 치환할 때 `sed -i`를 직접 사용하지 마라 — macOS는 `sed -i ''`, Linux는 `sed -i`로 문법이 다르다. `sed ... > tmpfile && mv tmpfile target` 패턴으로 크로스 플랫폼 호환성을 확보해라
-- `.gitignore`에 `.harness/`를 추가하지 마라 — sprint-contract와 project.yaml은 팀 공유 대상이다. `.harness/feedback-draft.yaml`만 개별 무시하라
+- **두 모양을 가른다.** 환경변수 `HARNESS_STORE` 를 주고 init 하면 기록은 그 하네스 저장소의 프로젝트 폴더에 남고, `.harness` 는 그 폴더로 가는 심볼릭 링크가 되며, init 이 프로젝트 `.gitignore` 에 `.harness` 를 더한다. 끝에 `/` 를 붙인 `.harness/` 는 바로가기에 안 걸린다 — 깃에게 바로가기는 파일이다. `HARNESS_STORE` 없이 init 하면 프로젝트 안 실제 폴더이고, 그때는 `.harness` 를 무시하지 말고 `.harness/feedback-draft*.yaml` 초안 파일만 개별 무시하라 (슬러그 초안 `feedback-draft-<slug>.yaml` 포함). 설명은 `harness/README.md` §하네스 저장소
 
 ## 실행 후 안내
 

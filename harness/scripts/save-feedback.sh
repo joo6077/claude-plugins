@@ -16,9 +16,12 @@ set -eo pipefail
 # Output: 저장된 파일의 절대경로 (stdout)
 # Exit: 0=성공, 1=검증실패, 2=인자오류
 #
+# 초안의 식별 칸(sprint_slug · contract_path · session_id · contract_root · contract_path_inferred)은
+# draft_<칸> 으로 이름을 바꿔 보존하고, 최종 칸은 스크립트가 한 번만 쓴다.
+#
 # 선택 환경변수:
-#   HARNESS_CONTRACT_ROOT  — CONTRACT_ROOT 를 직접 지정 (미지정 시 자동 해석)
-#   HARNESS_CONTRACT       — 계약 파일 경로 (contract_path / sprint_slug 도출)
+#   HARNESS_CONTRACT_ROOT  — CONTRACT_ROOT 를 직접 지정 (가장 먼저 본다)
+#   HARNESS_CONTRACT       — 계약 파일 경로 (contract_path / sprint_slug 도출 · 파일이 있으면 그 위 .harness/ 로 CONTRACT_ROOT 도출)
 #   HARNESS_SPRINT_SLUG    — 스프린트 슬러그 직접 지정
 #   CLAUDE_CODE_SESSION_ID — session_id 필드 + 파일명 충돌 방지에 사용
 
@@ -109,6 +112,7 @@ fi
 # 그 결과 자기 계약을 가진 디렉토리를 건너뛰고 **남의 프로젝트로 귀속**시켰다
 # (실측: apps/apps/app_kiosk → 조상 apps 로 상승).
 # 후보가 여러 개여도 실패시키지 않는다 — 중첩 배포본(fit-pal/app 등)이 정상 케이스다.
+# 셸 위치만 보면 계약 폴더 밖에서 부른 저장이 엉뚱한 폴더로 귀속된다 — HARNESS_CONTRACT 가 있으면 그 파일에서 올라간다.
 resolve_contract_root() {
   if [[ -n "$HARNESS_CONTRACT_ROOT" && -d "$HARNESS_CONTRACT_ROOT" ]]; then
     (cd "$HARNESS_CONTRACT_ROOT" && pwd)
@@ -117,6 +121,14 @@ resolve_contract_root() {
 
   local dir
   dir="$PWD"
+  if [[ -n "$HARNESS_CONTRACT" ]]; then
+    if [[ -f "$HARNESS_CONTRACT" ]]; then
+      dir="$(cd "$(dirname "$HARNESS_CONTRACT")" && pwd)"
+    else
+      echo "WARNING: HARNESS_CONTRACT 파일이 없다 ($HARNESS_CONTRACT) — 셸 위치에서 위로 올라가며 계약 폴더를 찾는다" >&2
+    fi
+  fi
+  local start="$dir"
   while :; do
     if [[ -d "$dir/.harness" ]]; then
       printf '%s' "$dir"; return 0
@@ -127,11 +139,11 @@ resolve_contract_root() {
     dir="$(dirname "$dir")"
   done
 
-  # `.harness/` 자체가 조상 체인에 없으면 git root, 그것도 없으면 cwd
+  # `.harness/` 자체가 조상 체인에 없으면 git root, 그것도 없으면 찾기 시작한 폴더
   local gr
-  gr="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null)" || gr=""
+  gr="$(git -C "$start" rev-parse --show-toplevel 2>/dev/null)" || gr=""
   if [[ -n "$gr" ]]; then printf '%s' "$gr"; return 0; fi
-  printf '%s' "$PWD"
+  printf '%s' "$start"
 }
 
 # reflect-kit hooks/_lib-project-id.sh 의 project_root 와 같은 규칙 — 워크트리에서도 본 레포 폴더를 낸다.
@@ -242,6 +254,13 @@ if [[ -z "$SPRINT_SLUG" && -n "$CONTRACT_PATH" ]]; then
     sprint-contract-*) SPRINT_SLUG="${_base#sprint-contract-}" ;;
   esac
 fi
+# 새 Bash 호출에서 $CF 가 비어 HARNESS_CONTRACT 가 빈 값으로 오면 슬러그 계약 대신 옛 plain 계약에 붙는다 — 초안 이름에서 슬러그를 읽는다
+if [[ -z "$SPRINT_SLUG" && -z "$CONTRACT_PATH" ]]; then
+  _base="$(basename "$DRAFT_PATH")"
+  case "$_base" in
+    feedback-draft-?*.yaml) _base="${_base#feedback-draft-}"; SPRINT_SLUG="${_base%.yaml}" ;;
+  esac
+fi
 
 # contract_path 추론.
 #
@@ -271,6 +290,8 @@ if [[ -z "$CONTRACT_PATH" ]]; then
   fi
 fi
 
+SESSION_ID="${CLAUDE_CODE_SESSION_ID:-$(draft_scalar session_id)}"
+
 # --- 글로벌 경로 결정 ---
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GLOBAL_DIR="$(bash "$SCRIPT_DIR/feedback-path.sh")/$SKILL_TYPE"
@@ -292,9 +313,9 @@ FILE_BASE="${PROJ_HASH}-${TIMESTAMP}-${UNIQ}"
 # --- 최종 본문 작성 (identity 재계산 반영) ---
 FINAL_TMP="$(mktemp "${TMPDIR:-/tmp}/harness-feedback.XXXXXX")"
 
-# draft 의 top-level identity 필드를 draft_* 로 보존 (본문 나머지는 원문 유지)
-sed -e 's/^project_hash:/draft_project_hash:/' \
-    -e 's/^project_name:/draft_project_name:/' \
+# draft 의 top-level identity 필드를 draft_* 로 보존 (본문 나머지는 원문 유지).
+# 식별 칸을 그대로 두면 아래 최종 칸과 한 파일에 두 번 들어가 읽는 쪽마다 다른 값을 고른다
+sed -E -e 's/^(project_hash|project_name|sprint_slug|contract_path|session_id|contract_root|contract_path_inferred):/draft_\1:/' \
     "$DRAFT_PATH" > "$FINAL_TMP"
 
 # 파일 끝 개행 보장 (없으면 append 가 마지막 줄에 붙는다)
@@ -316,8 +337,8 @@ fi
     # 집계 쪽에서 추론 귀속 비율을 볼 수 있어야 오귀속이 조용히 누적되지 않는다.
     printf 'contract_path_inferred: %s\n' "$CONTRACT_PATH_INFERRED"
   fi
-  if [[ -n "$CLAUDE_CODE_SESSION_ID" ]]; then
-    printf 'session_id: %s\n' "$(yaml_str "$CLAUDE_CODE_SESSION_ID")"
+  if [[ -n "$SESSION_ID" ]]; then
+    printf 'session_id: %s\n' "$(yaml_str "$SESSION_ID")"
   fi
 } >> "$FINAL_TMP"
 

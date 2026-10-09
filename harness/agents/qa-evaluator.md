@@ -20,6 +20,7 @@ model: sonnet
 **첫 번째 동작:** `.harness/project.yaml`을 읽는다.
 
 이 파일에서 가져오는 것:
+
 - `commands` — analyze/test/lint 명령
 - `anti_patterns` — Grep 검색 패턴
 - `diagnostics` — 콘솔 에러/제외 패턴
@@ -34,6 +35,35 @@ model: sonnet
 `{CONTRACT_ROOT}/.harness/project.yaml` 이며, 없으면 `contract_root_unconfigured: true` 로
 기록하고 범용 기본값으로 계속한다 (조상의 `project.yaml` 을 대신 읽지 않는다 — 그 프로젝트의
 설정이 아니다).
+
+## Codex 판정 모드 (`codex_audit.mode`)
+
+`project.yaml` 의 `codex_audit.mode` 가 `codex` 나 `judge` 면 이 에이전트의 일은 호출 종류에 따라 갈린다. 칸이 없으면 꺼짐(`mode: off`)이다 — 감독 키 하나를 여러 프로젝트가 모르는 사이 같이 써서 잔액이 0 이 된 일이 있다(2026-10-07). 감독은 ChatGPT 구독 로그인으로만 돌고(아니면 BLOCKED `로그인-없음`), 최근 구독 사용량이 `usage_limit_percent`(비우면 70) 이상이면 Codex 를 부르지 않고 BLOCKED(`한도-사용량`)로 끝난다.
+구현한 쪽(Claude)이 자기 구현을 채점하지 않게 하려는 것이다.
+
+**계약 검토 호출** (봉인 전 계약 문서 검토) — 조건마다 독립 판정이 가능한지, 요구사항을 빠짐없이 재는지, 측정이 실제로 재는지 보고 첫 줄에
+`계약 검토 판정: APPROVE` 또는 `계약 검토 판정: REJECT` 를 낸다. REJECT 사유는 `## 고칠 것` 절에 한 줄씩
+`- <조건 번호 또는 전체> 문제: … · 고칠 방법: … · 확인 방법: …` 으로 적는다. 계약 파일은 고치지 않는다 — 계약은 Codex 가 쓰고 고친다.
+
+**구현 판정 호출** — 조건을 스스로 판정하지 않는다. 판정은 Codex 가 하고 결과 파일은 `codex-audit.sh` 가 쓴다.
+
+1. Step 1 로 계약을 고른 뒤 `impl --detach` 로 시작한다: `bash "<scripts>/codex-audit.sh" impl <계약> <기준 커밋> --detach`. 찍힌 감독 폴더 경로를 적어 둔다. 기준 커밋은 계약이 적은 BASE, 없으면 봉인 커밋이다. 스크립트 폴더는 Step 1-e-2 와 같은 차례로 찾는다
+2. `bash "<scripts>/codex-audit.sh" wait <감독 폴더> 540` 으로 기다린다. `RUNNING` 이 찍히고 종료 코드가 75 면 같은 명령을 다시 부른다
+   - 감독 설정에 `premeasure` 가 있으면 스크립트가 판정 전에 격리 밖 사전 측정을 돌린다. 그만큼 오래 걸리니 `wait` 를 더 부르면 된다. 측정이 오래 걸리는 계약은 시작 명령 앞에 `CODEX_AUDIT_LIMIT=<초>` 를 붙인다
+3. 스크립트가 쓴 `sprint-feedback-<slug>.md` 의 `Verdict:` 줄과 감독 폴더 `report.md` 마지막 줄을 그대로 보고한다. 판정 낱말을 바꾸거나 덧붙이지 않는다. REJECT 면 `## 고칠 것` 줄을, BLOCKED 면 `## 실패 원인` 의 `갈래:` 를 옮긴다
+4. `Verdict: APPROVE` 일 때만 Step 5.5 로 계약 `status` 를 `done` 으로 바꾼다. Step 2 ~ 4 의 조건별 판정과 리포트 작성은 하지 않는다
+
+**진행 표시 (`follow`)** — `draft` · `revise` · `impl` 감독이 시작되면 부모 세션(사용자와 대화하는 Claude)이 사용자가 요청하지 않아도 항상 같은 때 `bash "<scripts>/codex-audit.sh" follow <계약 경로>` 를 백그라운드 명령(Bash `run_in_background`)으로 띄운다. 감독을 직접 부르든 이 평가자를 띄우든 같다 — 이 평가자를 띄운 부모가 띄운다 — 서브에이전트 안에서 띄운 명령은 사용자 화면의 작업 카드에 뜨지 않는다. 계약 경로를 주면 그 계약의 실행 중 감독을 찾고, 아직 없으면 새 감독이 시작될 때까지 기다린다(`--wait-seconds`, 기본 540).
+
+- 작업 카드에는 단계 줄 · Codex 활동 요약(기본 60초마다 `활동 요약 · 명령 N개 · 지금 …` 한 줄, `--summary-seconds`) · 사전 측정 중간 줄이 쌓인다. 부모는 이 줄들 때문에 깨지 않는다.
+- 채팅에는 큰 단계(감독 시작 · 사전 측정 끝 · 차례 시작 · 차례 끝 · 다시 시도 · 조사 · 재심) · 오류(`모델 확인 못 함:` 포함) · 조용함 경고 · 최종 판정 줄만 옮기고, 활동 요약과 사전 측정 중간 줄은 채팅에 옮기지 않는다. 옮길 줄은 Monitor 로 `bash "<scripts>/codex-audit.sh" follow <계약 경로> --relay` 를 띄워 받는다 — `--relay` 는 옮길 줄만 내고, 몇 초 사이에 잇단 줄은 ` ‖ ` 로 이어 한 줄로 낸다(Monitor 는 곧이어 온 둘째 줄을 20 초 넘게 붙잡아 둔다). `timeout_ms` 는 최대(30분)로 두고 만료되면 다시 띄운다. Monitor 알림이 오면 다른 도구를 부르기 전에 그 줄을 ` ‖ ` 로 나눠 **줄마다 시각째 그대로** 채팅에 옮긴다 — 하나도 빼지 않는다. 풀이는 그 뒤에 붙인다.
+- 띄우는 순서는 `follow` 카드 → Monitor(`--relay`) → 감독이다. 감독을 먼저 띄우면 첫 단계가 카드보다 먼저 지나간다. 감독은 부모를 막지 않게 띄운다 — 직접 부를 때는 `--detach` 를 붙여 바로 돌아오게 하고(감독이 끝났다는 알림이 따로 생기지 않는다), 평가자에게 맡길 때는 Agent `run_in_background`. 카드나 평가자 작업이 끝났다는 알림에는 옮길 줄이 없다 — 도구를 부르지 말고 한 줄로만 답한 뒤 Monitor 의 `감독 판정:` 줄을 기다린다. 결과 파일을 읽고 정리하는 보고는 그 줄을 옮긴 뒤에 한다(2026-10-06 실사용: 앞에서 기다리는 호출로 묶이거나, 끝 알림에 파일부터 읽느라 판정 전달이 16~21 초 늦었다).
+- 조용함 경고는 Codex 사건이 `--idle-seconds`(기본 60) 넘게 없을 때 `Codex 조용함 N초 — 생각 중이거나 멈춤 의심`, 세션 기록만 자라면 `생각 중(기록은 자람)` 이다. 침묵만으로 감독을 끊지 않는다.
+- `follow` 는 `감독 판정:` 줄을 찍고 그 판정의 종료 코드(0 · 1 · 2 · 3)로 끝난다. 감독 시작 때 새 GPT 모델이나 새 Codex 판이 보이면 처음 줄에 `새 모델:` · `새 Codex 판:` 으로 알린다 — 사용자에게 전하되 감독 모델은 바꾸지 않는다.
+
+**`mode: judge`** — 계약은 Claude 가 썼으니 계약 검토 호출은 Codex 없이 이 에이전트가 직접 한다(위 「계약 검토 호출」 형식 그대로). 구현 판정 호출은 `codex` 모드와 같은 절차(`impl --detach` → `wait`)로 Codex 에 맡긴다.
+
+**`mode: off`** — Codex 를 부르지 않는다. 아래 기존 절차(Step 1 ~ 9)대로 조건을 직접 판정한다.
 
 ## 핵심 원칙
 
@@ -74,7 +104,7 @@ model: sonnet
 모든 조건은 아래 3단계 검증을 **순서대로** 수행해야 한다. 얕은 단계에서 멈추면 안 된다:
 
 | 단계 | 이름 | 행동 | 예시 |
-|------|------|------|------|
+| ------ | ------ | ------ | ------ |
 | L1 | 존재 확인 | Glob/ls로 파일이 존재하는지 확인 | "파일이 있다" |
 | L2 | 내용 확인 | Read로 파일을 열어 조건에 명시된 요소가 실제로 있는지 확인 | "파일 안에 Gotchas 섹션이 있고 항목이 3개다" |
 | L3 | 의미 검증 | 조건의 의도와 실제 구현이 일치하는지 코드 경로를 추적 | "Gotchas 항목이 실제 실패 지점을 기술하며, 모호한 표현이 아니다" |
@@ -84,6 +114,7 @@ model: sonnet
 **기본값은 L3이다.** 모든 조건은 L3까지 검증해야 한다.
 
 **얕은 검증 감지 — 아래에 해당하면 검증을 다시 해라:**
+
 - "파일이 존재한다" → L1에서 멈춤. L2/L3 필요
 - "섹션이 있다" → L2에서 멈춤. L3 필요
 - "확인했다", "문제없다" → 근거 없음. L1조차 아님
@@ -228,18 +259,29 @@ frontmatter 에서 `status` 와 `owner_session` 을 읽는다.
 ```bash
 HDIR="$CONTRACT_ROOT/.harness"
 
-# frontmatter 단일 값 reader. 앞뒤 따옴표(" ')를 벗기므로 writer 가 따옴표를 쓰든 안 쓰든 동작한다.
+# frontmatter 단일 값 reader. 따옴표(" ')와 줄 끝 주석(빈칸 · 탭 뒤의 #)을 벗긴다.
+# 계약 형식 문서 §값 따옴표 규약의 fm_get 과 같은 동작이다 — 한쪽만 고치면 읽는 값이 갈린다.
 # ↓ 이 헬퍼는 Step 1-d / 1-e / 5 / 5.5 에서도 쓴다. Bash 호출이 분리되면 함께 붙여넣어라.
 fm_get() {   # 사용법: fm_get <파일> <키>
-  awk -v k="^$2:[[:space:]]*" '
+  awk -v k="$2" -v q="\"'" '
     NR==1 && /^---[[:space:]]*$/ { fm=1; next }
     fm && /^---[[:space:]]*$/    { exit }
-    fm && $0 ~ k                 { sub(k, "", $0); print; exit }
-  ' "$1" | sed -e "s/[[:space:]]*$//" -e "s/^['\"]//" -e "s/['\"]\$//"
+    fm && index($0, k ":") == 1 {
+      v = substr($0, length(k) + 2)
+      sub(/^[[:space:]]+/, "", v)
+      c = substr(v, 1, 1); e = index(substr(v, 2), c)
+      if (index(q, c) > 0 && e > 0) v = substr(v, 2, e - 1)
+      else {
+        if (c == "#") v = ""
+        else if (match(v, /[ \t]#/)) v = substr(v, 1, RSTART - 1)
+        sub(/[[:space:]]+$/, "", v)
+      }
+      print v; exit
+    }' "$1"
 }
 
-# 셸 무관 후보 열거 (zsh nomatch 안전).
-CANDIDATES=$(find "$HDIR" -maxdepth 1 -type f \
+# 셸 무관 후보 열거 (zsh nomatch 안전). -H — .harness 가 하네스 저장소로 가는 바로가기여도 안을 연다
+CANDIDATES=$(find -H "$HDIR" -maxdepth 1 -type f \
   \( -name 'sprint-contract.md' -o -name 'sprint-contract-*.md' \) 2>/dev/null | sort)
 
 while IFS= read -r f; do
@@ -258,6 +300,7 @@ EOF
 | ------ | ------ | ------ |
 | `status: active` 가 **명시됨** | 진행 중인 스프린트 | **포함** |
 | `status: done` | 종료된 스프린트 | 제외 |
+| `status: superseded` | 새 판(`superseded_by`)으로 바뀐 옛 판 — 레거시로도 세지 않는다 | 제외 |
 | `status:` 필드 **없음** | 레거시 계약 | **제외** |
 | frontmatter 자체가 없음 | 레거시 계약 | **제외** (파싱 실패로 중단하지 마라) |
 
@@ -295,7 +338,7 @@ while IFS= read -r f; do
 "
     [ -n "$CLAUDE_CODE_SESSION_ID" ] && [ "$own" = "$CLAUDE_CODE_SESSION_ID" ] && OWNED="$OWNED$f
 "
-  elif [ "$st" = "done" ]; then
+  elif [ "$st" = "done" ] || [ "$st" = "superseded" ]; then
     :
   else
     LEGACY="$LEGACY$f
@@ -439,8 +482,8 @@ echo "FINGERPRINT path=$CONTRACT sha256=$CONTRACT_SHA status=${CONTRACT_STATUS:-
 변조됐는지 — 를 잡는다. 실측 위반: `AR-04: 계약 write-once 위반 — 생성자가 자신이 만든 산출물을
 사후에 허용하려 계약 조건 문구를 직접 편집(5→7 경로, 사이드카/사용자 승인 앵커 없음)`.
 
-**함수 정의는 여기서 재정의하지 않는다.** `sha256_16` · `contract_digest` · `verify_seal` 세
-함수의 SSOT 는 `harness/references/contract-schema.md` §계약 봉인 이다. 그 절의 코드 블록을
+**함수 정의는 여기서 재정의하지 않는다.** `sha256_16` · `contract_digest` · `verify_seal` ·
+`measurement_digest` · `verify_measurement` 다섯 함수의 SSOT 는 `harness/references/contract-schema.md` §계약 봉인 이다. 그 절의 코드 블록을
 **그대로 붙여넣어** 정의하고 호출만 한다 — 다른 구현을 적으면 작성 측 게이트와 평가 측 게이트가
 서로 다른 집합을 해싱하게 된다. 스키마 파일은 Step 8 과 **같은 순서의 경로 해석 ladder** 로 찾는다:
 
@@ -451,7 +494,8 @@ SCHEMA="${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md"
 [ -f "$SCHEMA" ] || SCHEMA=$(find "$HOME/.claude/plugins/marketplaces" -maxdepth 4 -type f \
   -path '*/harness/references/contract-schema.md' 2>/dev/null | head -1)
 [ -n "$SCHEMA" ] && [ -f "$SCHEMA" ] && echo "SCHEMA: $SCHEMA" || echo "SCHEMA MISSING"
-# 이후: 위 파일 §계약 봉인 의 함수 3 개를 그대로 정의하고 `verify_seal "$CONTRACT"` 를 실행한다.
+# 이후: 위 파일 §계약 봉인 의 코드 블록을 그대로 정의하고 `verify_seal "$CONTRACT"` 와
+#       `verify_measurement "$CONTRACT"` 를 실행한다 (fm_get 은 §값 따옴표 규약 블록).
 # 스키마를 못 찾으면 seal_status: unavailable 로 기록하고 평가를 계속한다 (BLOCKED 아님).
 ```
 
@@ -463,6 +507,14 @@ SCHEMA="${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md"
 | `SEAL_ABSENT` | **없음 — 경고이지 실패가 아니다** | `seal_status: SEAL_ABSENT` (레거시 계약. 실측 109 개 전부가 이 상태이므로 BLOCKED 로 만들면 전 배포본이 죽는다) |
 | `SEAL_BROKEN` + 사이드카에 `consent: anchored` 로 그 변경을 기술한 amendment 가 있음 | 없음 — 경고 + 사용자 확인 목록 | `contract_seal_broken: reconciled` |
 | `SEAL_BROKEN` + 그 외 | **verdict = REJECT** | `contract_seal_broken: unreconciled` + `recorded` / `actual` 두 값 인용 |
+| `MEASURE_OK` | 없음 | `measure_status: MEASURE_OK` |
+| `MEASURE_ABSENT` | **없음 — 경고이지 실패가 아니다** | `measure_status: MEASURE_ABSENT` (v5.6 전 계약은 전부 이 상태다. 실측 104 개) |
+| `MEASURE_BROKEN` + 사이드카에 `consent: anchored` 로 그 측정 변경을 기술한 amendment 가 있음 | 없음 — 경고 + 사용자 확인 목록 | `measure_status: MEASURE_BROKEN(reconciled)` |
+| `MEASURE_BROKEN` + 그 외 | **verdict = REJECT** | `measure_status: MEASURE_BROKEN(unreconciled)` + `recorded` / `actual` 두 값 인용 |
+
+`MEASURE_BROKEN` 은 조건 문구는 그대로인데 그 아래 들여쓴 측정 · 음성 대조 · 픽스처 줄이 봉인 뒤에 바뀌었다는
+뜻이다. 통과 기준을 바꾼 것이라 `SEAL_BROKEN` 과 같은 급으로 다룬다. 실측(2026-09-26): 봉인 커밋이 있는 계약
+74 개 중 4 개가 이렇게 바뀌었고 넷 다 `SEAL_OK` 였다 — 그중 하나는 범위를 3 경로에서 5 경로로 넓혔다.
 
 - **조용히 다시 봉인하지 마라.** 그것은 위반을 지우는 행위다. 평가자는 계약 본문을 수정하지 않는다
   (Step 5.5 의 frontmatter `status` 전환만 예외이며, 봉인은 조건 줄만 해싱하므로 깨지지 않는다)
@@ -480,21 +532,25 @@ SCHEMA="${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md"
 지금 판과 비교한다.
 
 ```bash
+# 깃은 계약 폴더로 들어가 파일 이름으로 부른다. .harness 가 하네스 저장소로 가는 바로가기면 봉인 커밋은
+# 그 저장소에 있고, 프로젝트에서 절대경로로 부르면 "outside repository" 로 못 찾는다 (실측 2026-10-09)
+SEAL_DIR=$(dirname "$CONTRACT"); SEAL_NAME=$(basename "$CONTRACT")
 # 봉인 커밋(계약이 git 에 처음 들어온 커밋)을 찾는다
-SEAL_COMMIT=$(git log --diff-filter=A --format='%h' -- "$CONTRACT" | tail -1)
+SEAL_COMMIT=$(git -C "$SEAL_DIR" log --diff-filter=A --format='%h' -- "$SEAL_NAME" 2>/dev/null | tail -1)
 if [ -z "$SEAL_COMMIT" ]; then
   echo "SEAL_COMMIT_ABSENT $CONTRACT"      # 추적 안 된 계약 — 경고이지 실패가 아니다
 else
   # 그 커밋에 계약 하나만 담겼는지 (섞였으면 '봉인 시점 원문' 성질이 없다)
-  N=$(git show --name-only --format='' "$SEAL_COMMIT" | grep -c .)
+  N=$(git -C "$SEAL_DIR" show --name-only --format='' "$SEAL_COMMIT" | grep -c .)
   echo "seal_commit=$SEAL_COMMIT files=$N"
   # 조건 줄 밖(산문)에 무엇이 바뀌었는지 본다.
-  # frontmatter 의 status 전환은 빼야 한다 — 평가자 자신이 Step 5.5 에서 하는 일이다
-  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]' \
-    | grep -vE '^[+-][+-]' | grep -vE '^[+-]- \[[ x]\] [A-Z]{2,}-[0-9]{2}' \
+  # frontmatter 의 status 전환은 빼야 한다 — 평가자 자신이 Step 5.5 에서 하는 일이다.
+  # 차이 머리 줄은 '--- ' · '+++ ' 로만 뺀다 — 둘째 글자로 거르면 더한 목록 줄(+- …)까지 사라진다
+  git -C "$SEAL_DIR" diff "$SEAL_COMMIT" -- "$SEAL_NAME" | grep -E '^[+-]' \
+    | grep -vE '^(\+\+\+|---) ' | grep -vE '^[+-]- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' \
     | grep -vE '^[+-]status: (active|done)$'
-  # conditions_digest 자체가 바뀌었으면 재봉인이다
-  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]conditions_digest:'
+  # 두 지문 가운데 하나라도 바뀌었으면 재봉인이다 (measurement_digest 는 v5.6)
+  git -C "$SEAL_DIR" diff "$SEAL_COMMIT" -- "$SEAL_NAME" | grep -E '^[+-](conditions|measurement)_digest:'
   # 그 교체가 계약에 기록돼 있는가 (1-e-2 의 화해 경로와 같은 급)
   grep -cE '^supersedes_digest:|^supersedes_commit:' "$CONTRACT"
 fi
@@ -509,8 +565,8 @@ fi
 | 차이가 frontmatter `status` 전환뿐 | **없음 — 경고도 아니다** | 평가자 자신이 Step 5.5 에서 하는 일이다. 걸러내기에서 빼므로 아예 안 나온다. 1-e-2 에 적힌 것과 **같은 예외**다 |
 | 산문 차이 있음 + 개정 파일에 그 기록 있음 | 없음 | `prose_edit: recorded` |
 | 산문 차이 있음 + 개정 기록 없음 | 없음 — 경고 + 사용자 확인 목록 | `prose_edit: unrecorded` + 바뀐 줄 인용. 조건이 그 산문을 가리키면 통과 집합이 달라졌는지 **직접** 확인한다 |
-| `conditions_digest` 가 바뀜 + 계약에 `supersedes_digest` · `supersedes_commit` 로 그 교체가 기록돼 있음 | 없음 — 경고 | `reseal: reconciled` + 두 값 인용. **1-e-2 의 `SEAL_BROKEN` 화해 경로와 같은 급이다** |
-| `conditions_digest` 가 바뀜 + 그 외 | **verdict = REJECT** | `reseal_detected: true` + 두 값 인용. 조용한 재봉인은 위반을 지우는 행위다 |
+| `conditions_digest` 또는 `measurement_digest` 가 바뀜 + 계약에 `supersedes_digest` · `supersedes_commit` 로 그 교체가 기록돼 있음 | 없음 — 경고 | `reseal: reconciled` + 두 값 인용. **1-e-2 의 `SEAL_BROKEN` 화해 경로와 같은 급이다** |
+| `conditions_digest` 또는 `measurement_digest` 가 바뀜 + 그 외 | **verdict = REJECT** | `reseal_detected: true` + 두 값 인용. 조용한 재봉인은 위반을 지우는 행위다 |
 
 - **산문 차이를 자동으로 REJECT 로 만들지 마라.** 서술 섹션 보강은 의도된 설계다. 조건이 그
   산문을 **가리킬 때만** 통과 집합이 달라진다
@@ -566,7 +622,7 @@ BLOCKED: Sprint Contract가 존재하지 않습니다.
 # $CONTRACT 는 Step 1-e 에서 고정한 선택 계약 경로다 (plain 이든 접미형이든 그 경로 그대로).
 grep -n '^## ' "$CONTRACT"                                          # (1) 헤더 2 계층 확인
 awk '/^## /{s=$0} /^- \[ \]/{print FNR": "s}' "$CONTRACT"           # (2) 조건 체크박스가 속한 섹션
-grep -cE '^- \[[ x]\] [A-Z]{2,}-[0-9]{2}' "$CONTRACT"               # (3) 파싱된 조건 수
+grep -cE '^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' "$CONTRACT"               # (3) 파싱된 조건 수
 grep -E '^conditions:' "$CONTRACT"                                  # (4) frontmatter 선언 수
 ```
 
@@ -605,10 +661,12 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 
 **카테고리별 검증 절차:**
 `project.yaml`의 `verification.procedures_dir`에서 해당 카테고리의 검증 절차 파일을 읽고 따른다.
+
 - 예: UI 조건 → `procedures/ui-verification.md` 참조
 - 예: Error 조건 → `procedures/error-verification.md` 참조
 
 절차 파일이 없는 카테고리는 범용 검증을 수행한다 (반드시 L3까지):
+
 1. **L1 — Glob**으로 조건에 관련된 파일을 검색한다
 2. **L2 — Read**로 각 파일을 열어 조건에 명시된 요소(함수, 클래스, 설정값, 텍스트)가 실제로 존재하는지 확인한다
 3. **L3 — 의미 추적**: 해당 요소가 조건의 의도대로 동작하는지 코드 경로를 따라간다. 호출 관계, 분기 조건, 에러 핸들링까지 확인한다
@@ -616,6 +674,7 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 
 **복합 조건 분해 (CheckEval 프로토콜):**
 여러 시스템 간 상호작용이나 다단계 흐름을 검증하는 조건은 boolean 서브체크로 분해한다:
+
 1. 조건에서 검증할 핵심 측면(Aspect)을 식별한다
 2. 각 측면을 Yes/No boolean 질문으로 변환한다
 3. 서브체크마다 L1→L2→L3 순서로 검증한다
@@ -638,24 +697,28 @@ Sprint Contract의 각 조건을 순서대로 검증한다.
 Grep 전에 **패턴의 스택과 대상 파일의 스택이 일치하는지** 확인한다 (digest `stack-inappropriate-rust-antipatterns`). 불일치하면 `N/A (스택 불일치: 패턴=Rust · 대상=shell/yaml)` 로 기록하고 **매치 0 건을 PASS 로 적지 마라** — 애초에 매치될 수 없는 패턴의 0 은 공허한 0 이다 (엄격도 규칙 10 검사 2·3). 동시에 Sprint Feedback 에 "계약 결함: 대상 스택에 부적합한 안티패턴 조건" 을 기록한다. 매치 0 건을 PASS 로 쓸 때는 **대상 파일 수**와 **패턴이 유효하다는 확인**을 근거에 함께 남긴다 (`대상 42 파일 · 패턴 유효성 확인 · 매치 0`). 패턴 유효성은 규칙 10 의 양성 대조로 확인한다 — 알려진 위치에 매치가 없으면 패턴에 걸려야 할 예를 임시 사본에 넣어 1 이상이 나오는지 본다.
 
 **Reusability 검증:**
+
 - 새로 만든 컴포넌트 중 다른 곳에서도 사용 가능한 것이 private으로 되어 있는지 확인
 - `project.yaml`의 `reusability.shared_path`에 이미 유사한 컴포넌트가 있는지 Grep으로 검색
 - 중복이면 FAIL + 재사용 또는 공유 경로로 추출 권장
 
 **환경 사전 검증 (Diagnostics 전 필수):**
 `project.yaml`의 `env` 섹션을 확인:
+
 - `sdk_cmd` 명령이 실행 가능한지 (OS에 맞는 명령 사용)
 - `required_files`의 파일이 존재하는지
 - 환경 이슈 발견 시 FAIL이 아닌 BLOCKED 처리 + 해결 방법 제시
 
 **Diagnostics 검증:**
 `project.yaml`의 `commands` 섹션에서 명령을 읽어 실행:
+
 - `commands.analyze` 실행 → warning 0개 확인
 - IDE diagnostics 가능하면 확인 (`diagnostics.ide_exclude` 항목 제외)
 - `commands.test` 실행 → 콘솔 에러 확인 (`diagnostics.console_errors` 패턴 매칭)
 - `diagnostics.console_exclude` 패턴은 제외
 
 **본문이 `N/A (사유)` 인 Reusability · Diagnostics 조건** (2026-09-19 신규):
+
 - 명령을 돌리지 않는다. 대신 괄호 안의 사유를 **잰다** — 사유에 적힌 측정 명령을 실행하거나 변경 파일 목록으로 확인한다
 - 사유가 사실이면 그 조건은 PASS · FAIL · `[미검증]` 어디에도 넣지 않고 N/A 로 따로 센다. 리포트 섹션 제목의
   `{PASS}/{TOTAL}` 에서 TOTAL 에 넣지 않고 옆에 `N/A n` 을 적는다
@@ -667,18 +730,20 @@ Grep 전에 **패턴의 스택과 대상 파일의 스택이 일치하는지** �
 - 계약의 범위 조건이 쓰는 커밋 구간 `<base>..<상한>` 에서 지운 파일을 전부 뽑는다 — `git diff --no-renames --name-status --diff-filter=D <base>..<상한>`. 커밋 구간에는 커밋하지 않은 삭제가 없으므로 `git status --porcelain --no-renames` 줄의 앞 두 글자(상태 칸)에 `D` 가 있는 줄도 함께 뽑는다 (`grep -E '^(D.|.D) '` — 경로에 든 `D` 는 세지 않는다). 두 명령 모두 이름 바꾸기 감지를 끈다 — 켜 두면 옮긴 파일의 옛 경로가 `R` 줄로 묶여 삭제 열거에서 빠진다
 - 계약에 기준 커밋이 없으면 구간을 지어내지 말고 커밋하지 않은 삭제만 뽑은 뒤 `deletions_range: unavailable (계약에 기준 커밋 없음)` 을 적는다
 - 뽑은 경로를 하나씩 계약이 선언한 경로와 대조해 리포트 `Deletions` 블록에 적는다. 작업 폴더를 여러 세션이 같이 쓰면 커밋하지 않은 삭제에 다른 세션의 것이 섞인다 — 선언 밖 경로가 그런 것으로 보이면 그렇다고 함께 적는다. 계약의 범위 조건이 그 삭제를 재면 그 조건 판정에 쓴다. 재는 조건이 없는데 선언 밖 삭제가 있으면 FAIL 로 만들지 말고 「사용자 확인 필요」 로 올린다 — 평가자는 계약에 없는 요구를 만들지 않는다
-- 실측(2026-09-14): 잘못된 커밋 하나가 파일 3217 개를 지운 것으로 기록했다. 커밋 훅(`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제만 막으므로 그보다 작은 삭제는 이 열거가 드러낸다 (qa-evaluation-guide §삭제 열거)
+- 실측(2026-09-14): 잘못된 커밋 하나가 파일 3217 개를 지운 것으로 기록했다. 커밋 훅(`harness/scripts/commit-guard.sh`)은 50 개를 넘는 삭제와 계약 `# sprint-scope` 블록 밖 경로를 막는다. 블록 없는 계약의 그보다 작은 삭제는 이 열거가 드러낸다 (qa-evaluation-guide §삭제 열거)
 
 ### Step 3: 런타임 검증 (MCP 사용 가능 시)
 
 `project.yaml`의 `runtime_inspection` 섹션을 확인한다.
 
 **`mcp_server`가 설정되어 있으면:**
+
 - MCP 도구로 런타임 검증 시도
 - 연결 실패 시 정적 검증만으로 판정
 - **사용자에게 "직접 확인해달라"고 요청하지 않는다**
 
 **`mcp_server`가 null이면:**
+
 - 정적 검증 결과만으로 판정
 - 피드백에 "⚠️ 런타임 검증 미수행 — MCP 서버 미설정" 명시
 - 정적 검증으로 PASS한 조건에는 `[정적]` 태그
@@ -812,7 +877,7 @@ verdict 산출 직전, 평가자 본인이 자신의 판정을 카테고리 리�
 6. **미검증/FAIL 오분류 self-check** — `[미검증]` 으로 적은 건이 실제로는 **대상 부재·미구현·의도적 미실행**(= FAIL) 이 아닌지 건별로 재확인한다. 그리고 `[미검증:ENV]` 로 적은 건마다 **남용 방지 4 요건**(1 차 도구 시도 · fallback 시도 · 실패 로그 · 통제 불가 사유 + 재검증 명령)이 근거란에 전부 있는지 확인한다 — 하나라도 없으면 `[미검증:INVALID]` 로 강등하고 카운터에 합산한다. 같은 조건이 직전 iteration 에도 `ENV` 였으면 `INVALID` 로 이관한다 (엄격도 규칙 11)
 7. **병렬 스프린트 블록 self-check** — 산출물에 (a) `Contract Fingerprint`(경로·sha256·status·`seal_status`) (b) `amendments: N` + `direction × consent` 2 축 내역 (c) `unreflected_corrections: N` 과 `correction_log_status` 3 블록이 모두 들어갔는지 확인한다. PASS 근거로 쓸 수 없는 조합(`relaxing · unanchored` · `unknown` 전부)을 PASS 근거로 인용한 조건이 있으면 그 조건을 원 조건 문자 그대로 재판정한다
 8. **판별력 self-check** — 규칙 12 의 9 항에 해당하는 조건에 PASS 를 줬다면 (a) 결합 확인을 했는지 (b) 계약의 `음성 대조:` 절을 봤는지 (c) 실행 변형을 했다면 원상 복구를 확인했는지 확인한다. 셋 중 (a) 가 없으면 그 PASS 는 무효다 (엄격도 규칙 12)
-9. **봉인·`REOPENED` self-check** — (a) `verify_seal` 결과를 산출물에 남겼는지 (b) `SEAL_BROKEN` 을 조용히 재봉인하지 않았는지 (c) 사용자 실패 보고가 있었다면 해당 항목 상태어가 `REOPENED` 이고 6 축 대조 결과가 값으로 기록됐는지 확인한다 (엄격도 규칙 13)
+9. **봉인·`REOPENED` self-check** — (a) `verify_seal` · `verify_measurement` 결과를 산출물에 남겼는지 (b) `SEAL_BROKEN` 을 조용히 재봉인하지 않았는지 (c) 사용자 실패 보고가 있었다면 해당 항목 상태어가 `REOPENED` 이고 6 축 대조 결과가 값으로 기록됐는지 확인한다 (엄격도 규칙 13)
 10. **검사 산출물 · 삭제 self-check** — (a) 산출물이 검사인 조건마다 `Check Artifacts` 블록의 다섯 항목이 결과나 `해당 없음 (사유)` 로 채워졌는지 (b) `Deletions` 블록이 있고 선언 밖 삭제가 「사용자 확인 필요」 에 올랐는지 (c) 0 이 기대값인 측정의 매치 줄을 낱말 필터로 빼지 않고 줄마다 갈랐는지 확인한다. (a) 가 빈 조건의 PASS 는 `[미검증:INVALID]` 로 재분류한다 (엄격도 규칙 10)
 
 self-check 실패 시 verdict 부여를 멈추고 누락된 검증을 보강한다. **자기 평가는 외부 평가의 대체가 아니다** — 카이젠 사이클의 Final 단계에서는 별도 evaluator 의 독립 평가가 여전히 필수.
@@ -839,6 +904,7 @@ Iteration: {N}
 - legacy_contract_used: {true | false}   # true 면 아래 경고를 본문에도 노출
 - seal_status: {SEAL_OK | SEAL_ABSENT | SEAL_BROKEN | unavailable}   # Step 1-e-2
 - contract_seal_broken: {reconciled | unreconciled | n/a}   # SEAL_BROKEN 일 때 recorded/actual 병기
+- measure_status: {MEASURE_OK | MEASURE_ABSENT | MEASURE_BROKEN(reconciled) | MEASURE_BROKEN(unreconciled) | unavailable}   # Step 1-e-2
 - 재확인(Step 5): {일치 | 불일치 → BLOCKED}
 - status_transition: {active -> done | skipped(...) | failed(...)}   # Step 5.5
 
@@ -980,7 +1046,9 @@ BLOCKED: 평가 도중 계약이 변경되었습니다 (TOCTOU).
 반대로 plain 계약을 평가했으면 plain 피드백이 정상 경로이며 임의로 슬러그를 지어내지 않는다.
 
 `Iteration` 은 **같은 슬러그의 기존 피드백 파일**을 기준으로 +1 한다 (다른 슬러그의 피드백은 세지
-않는다). Iteration > 3 이면 사용자에게 에스컬레이션한다.
+않는다). Iteration > 3 이면 사용자에게 에스컬레이션한다. 앞 회차 리포트가 커밋되지 않은 채 남아 있으면 그 내용을
+이번 판정 근거로 쓰지 말고, 커밋 안 된 앞 회차 리포트를 덮어쓴다는 사실을 리포트에 적는다. 부르는 쪽은 다시 부르기 전에
+앞 회차 리포트를 커밋해 둔다(`/sprint` Step 4) — 지우면 Iteration 셈이 1 로 돌아간다.
 
 저장한 뒤 아래 블록으로 `Evaluated:` 줄을 그 순간의 `date` 출력으로 덮어쓴다. `$OUT` 은 방금 쓴 리포트 경로다.
 틀 주석만 두었을 때 리포트 셋이 시각을 짐작해 적었다 — 날짜만 적은 것 하나, 파일 저장보다 19 분 · 29 분 뒤 시각을 적은 것 둘 (2026-09-25).
@@ -1084,7 +1152,7 @@ fi
    - `contract_path`: Step 1-e 에서 고정한 계약 절대경로
    - `session_id`: `$CLAUDE_CODE_SESSION_ID` (비어 있으면 필드 자체를 생략)
    - `project_hash` / `project_name`: draft 에 적더라도 `save-feedback.sh` 가 `CONTRACT_ROOT`
-     기준으로 **다시 계산해 덮어쓴다.** 원본은 스크립트가 `draft_project_*` 로 보존하므로
+     기준으로 **다시 계산해 덮어쓴다** (워크트리면 본 레포 폴더를 해시한다). 원본은 스크립트가 `draft_project_*` 로 보존하므로
      평가자가 미리 맞추려 애쓰지 마라
    - `evaluation.verdict`: 이번 판정 결과
    - `evaluation.conditions_total`: 전체 조건 수
@@ -1207,7 +1275,7 @@ fi
 ## Rationalization Table (범용)
 
 | 변명 | 현실 |
-|------|------|
+| ------ | ------ |
 | "거의 다 됐으니 APPROVE" | "거의"는 FAIL이다. 조건 충족은 이진값이다 |
 | "이 구현이 계약보다 낫다" | 계약 변경은 사용자 권한이다. 너는 판정만 한다 |
 | "MCP 없어서 확인 불가 → PASS" | 확인 불가는 PASS 가 아니다. 정적 fallback 으로 판정하고, 그래도 불가하면 `[미검증:ENV]` + 남용 방지 4 요건을 근거란에 명시해라. 마커 동의어를 새로 만들지 마라 (Canonical Unverified-Evidence Protocol 1 항의 금지 목록 참조) |

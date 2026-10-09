@@ -19,11 +19,16 @@ user-invocable: true
 5. **silent skip 회피 체크리스트는 변경 금지** — Phase 4 끝의 "Gotcha 체크리스트 (생성 직후 자기 검증)" 7개 항목은 검증된 silent skip 회피 규칙(Codex run `a2a01770a87626167`)이다. 추가는 OK, 삭제 금지.
 6. **카이젠 스킬은 .claude/skills/에만** — bambu-research, bambu-kaizen 자체를 bambu-kit 플러그인 안으로 옮기지 마라. 외부 사용자에게 노출되면 안 되는 레포 개발용 스킬이다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 현재 상태 읽기
 
 대상 surface (단일 스킬 + references 7종):
+
 - `bambu-kit/skills/bambu-print-profile/SKILL.md`
 - `bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md` — JSON schema / 필수 필드
 - `bambu-kit/skills/bambu-print-profile/references/materials.md` — 필라멘트 카탈로그 + 수축률
@@ -35,6 +40,7 @@ user-invocable: true
 - `bambu-kit/skills/bambu-print-profile/BACKLOG.md` (v2 큐)
 
 추가 입력:
+
 - `~/Hub/60_3D Print/Settings/<modelname>/notes.md` — 실측 케이스별 detail
 - 메모리: `bambu_print_profile_skill.md`, `bambu_studio_json_import.md`, `3d_printing_setup.md`
 - 사용자 피드백 (~/.harness/feedback/ 글로벌 + 세션 내 직접 피드백)
@@ -44,18 +50,19 @@ user-invocable: true
 다음 축으로 SKILL vs references vs 실측 정합성 점검:
 
 | 축 | 점검 항목 |
-|----|----------|
+| ---- | ---------- |
 | **JSON 필드 정확성** | bambu-fields-baseline 변경분이 SKILL Phase 3 표/체크리스트에 반영됐는지 |
 | **소재 매칭** | materials.md 신규/단종 SKU가 SKILL Phase 2 매핑 표에 반영됐는지 |
 | **seam 전략** | seam-recipes.md Real-world findings가 SKILL Phase 3 결정 트리에 반영됐는지 |
 | **silent skip 회피** | bambu-fields-baseline의 필수 메타필드가 Phase 4 체크리스트에 누락 없이 모두 들어있는지 |
-| **fallback 체인** | MakerWorld Cloudflare / 메모리 자동 로드 / coupon test 가이드가 SKILL에 살아있는지 |
+| **fallback 체인** | 킷 SKILL 끝 「MakerWorld 읽는 순서」(JSON 주소 먼저 · 브라우저 서버 이름 박지 않기 · 403 에서 기다리지 않기) / 메모리 자동 로드 / coupon test 가이드가 SKILL에 살아있는지 |
 | **사용자 정책 보존** | nozzle_temperature/retraction/cooling 안 건드림 정책이 명시 유지되는지 |
 | **트리거 정합성** | description의 트리거 키워드가 사용자 실사용 어휘 ("삼프", "MakerWorld 출력")를 커버하는지 |
 
 ## Step 3: 개선 적용
 
 격차 항목별로 SKILL.md 또는 references 패치:
+
 - Gotchas 추가 (실측 회귀 case → 한 줄 규칙)
 - Phase 표/결정 트리 갱신
 - v2 TODO에 새 큐 추가 (구현은 별도 사이클)
@@ -72,6 +79,7 @@ user-invocable: true
 - 사용자 정책 (nozzle_temperature 등) 미수정 확인 (Gotcha 3)
 - **회귀 검증 (필수)**: `python3 scripts/validate-plugin.py bambu-kit` — **등록된 검사 전부** 전부 OK 여야 한다
   (목록은 아래 명령으로 얻는다)
+- **음성 대조 (게이트나 옵션 목록을 고쳤을 때 필수)**: `bambu-kit/skills/bambu-print-profile/SKILL.md` 「음성 대조 — 검사가 살아 있는지 확인」 표의 시험 파일을 전부 실제로 주입해 표의 기대(FAIL 건수 · `[미검증]` 줄)가 나오는지 본다. `RESULT: PASS` 는 검사가 돌았다는 증거가 아니다
 - **수치를 바꿨으면 출처 URL 을 함께 기록했는지** — references 는 SSOT 다. 근거 없는 수치 변경 금지
 
 ## Step 5: 검증 출력
@@ -104,7 +112,11 @@ user-invocable: true
 chore(bambu-kaizen-cycle<N>): [개선 내용 요약]
 ```
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `bambu-kit/skills/bambu-print-profile/SKILL.md` — 개선 대상 단일 스킬
 - `bambu-kit/skills/bambu-print-profile/references/` — references 7종 (SSOT)

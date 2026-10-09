@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Visual Evidence Protocol — Flutter Toolkit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -14,6 +15,18 @@
   --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','Consolas',monospace;
 }
+[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe7e0;--border:#e0dcd4;--border2:#cfc9bf;
+  --text:#1a1a24;--text2:#5a5248;--text3:#6b6259;
+  --accent:#155E75;--accent2:#164E63;--accent-dim:rgba(21,94,117,0.10);--accent-glow:rgba(21,94,117,0.05);
+  --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#0369A1;
+  --error:#b91c1c;--success:#146B32;--warn:#7A4A05;--info:#0369A1;
+}
+[data-theme="light"] h1{background:linear-gradient(135deg,var(--text) 0%,var(--accent) 60%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text}
+.theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+  background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
@@ -123,7 +136,7 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 
 .compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
 @media(max-width:760px){.compare{grid-template-columns:1fr}}
-.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative;overflow:hidden}
+.compare-bad,.compare-good{border-radius:12px;padding:22px;position:relative}
 .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.22)}
 .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.22)}
 .compare-label{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px}
@@ -156,7 +169,6 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 .code-block,pre{max-width:100%;overflow-x:auto}
 :not(pre)>code{overflow-wrap:anywhere}
 
-@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}
   a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -165,6 +177,7 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
   <!-- kaizen-cycle: 2026-09-24 (편집 전 실행 · flutter-ui-verify · Step 0 되말하기 · 화면 자체 · 관례 표 · Step 2 반영 확인 · 캡처 점검 목록 · 고장 판정 전 세 확인 · [미검증] 네 칸 · 캡처 파일 칸) -->
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
 <div class="page">
 
 <div class="hero">
@@ -249,6 +262,7 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
       <a class="card-source" href="../harness/skill-design-guide.html">Skill Design Guide §3.7</a>
     </div>
   </div>
+  <div class="card" style="margin-top:18px"><div class="card-title"><span class="dot"></span>형제 규약과 같이 쓰는 두 숫자</div><p>design-kit · react-kit 화면 규약과 같이 쓰는 두 숫자(Step 0 관례 표의 「2 개 이상」 · Step 2 의 「최대 3 회」) SSOT: <code>harness/docs/guides/skill-design-guide.md</code> §8.9. 킷은 따로 설치되어 그 파일을 읽지 못하므로 숫자는 이 문서에도 남긴다.</p></div>
 </div>
 
 <!-- WHY -->
@@ -666,5 +680,22 @@ code{font-family:var(--mono);font-size:0.85em;background:var(--surface2);padding
 </div>
 
 </div>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

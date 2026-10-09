@@ -11,7 +11,7 @@
 > Bambu Studio v2.6.0 / v02.06.00.51 시스템 base `fdm_process_common.json` 직접 grep 검증 (2026-05-27).
 
 | 키 (Bambu JSON) | 단위 | default | 권장값 | 설명 |
-|----------------|------|---------|--------|------|
+| ---------------- | ------ | --------- | -------- | ------ |
 | **`elefant_foot_compensation`** ⚠️ | mm | `"0"` | `0.10-0.20` | 첫 레이어 squish 보정 (Bambu **오타 "elefant"** — "elephant"로 쓰면 silent skip) |
 | `xy_hole_compensation` | mm | `"0"` | PLA `+0.05`, PETG `+0.075`, ASA `+0.1` | 홀 직경 보정 (음수 = 더 좁게, 양수 = 더 넓게). **베어링 외경 압입 fit / 인서트 hole** 에 사용 |
 | `xy_contour_compensation` | mm | `"0"` | PLA `-0.05`, PETG `-0.075`, ASA `-0.1` | 외경 보정. **베어링 내경에 들어가는 축 / 슬라이드 fit 외경**에 사용 |
@@ -46,7 +46,7 @@
 **환산 예 (모델 hole 이 명목 3.0mm 인 M3 통과 홀):**
 
 | 목표 최종 지름 | 필요한 `xy_hole_compensation` | 흔한 오류 |
-|---------------|------------------------------|----------|
+| --------------- | ------------------------------ | ---------- |
 | 3.10mm | `+0.05` | — |
 | **3.20mm** (권장 하한) | **`+0.10`** | `+0.20` 으로 쓰면 3.40mm (헐거움) |
 | **3.40mm** (권장 상한) | **`+0.20`** | `+0.40` 으로 쓰면 3.80mm (볼트 유격 과다) |
@@ -60,7 +60,7 @@
 공차 키를 JSON 에 정확히 써도 아래 조건에서는 슬라이서가 **값을 버린다**. 생성 후 반드시 확인하라.
 
 | 조건 | 무효화되는 키 | 근거 |
-|------|--------------|------|
+| ------ | -------------- | ------ |
 | **오브젝트가 multi-material / color-paint 됨** (`num_extruders > 1 && is_mm_painted()`) | `xy_hole_compensation`, `xy_contour_compensation` → **강제 `0`** | `PrintObjectSlice.cpp`: `xy_hole_scaled = (num_extruders > 1 && this->is_mm_painted()) ? scaled<float>(0.f) : …` · Studio 가 CRITICAL 경고 "XY Size compensation can not be combined with color-painting" |
 | **오브젝트가 fuzzy skin paint 됨** | `xy_hole_compensation`, `xy_contour_compensation` | 동일 파일 `is_fuzzy_skin_painted()` 분기 + CRITICAL 경고 |
 | **`raft_layers != 0`** | `elefant_foot_compensation` → **`0`** | `elephant_foot_compensation_scaled = (m_config.raft_layers == 0) ? … : 0.f` — "Only enable Elephant foot compensation if printing directly on the print bed" |
@@ -72,6 +72,40 @@
 
 **per-object 오버라이드 가능성:** 공차 3키는 `PrintConfig.hpp` 상 `PrintObjectConfig` 소속이라 Studio 에서 오브젝트별 오버라이드가 가능하다. 그러나 **process JSON 은 값을 1개만 표현**한다. 한 모델에 베어링 압입(빡빡)과 볼트 통과(헐거움)가 같이 있으면 **하나의 process JSON 으로 둘을 동시에 만족시킬 수 없다** → 가장 fit-critical 한 카테고리 기준으로 process JSON 을 잡고, 나머지는 notes.md 에 "Studio 에서 오브젝트별 오버라이드 필요" 로 명시하라.
 
+## 1.3 ⚠️ 구멍 축 — `xy_hole_compensation` 은 가로 구멍에 안 걸린다 (2026-09-19 소스 · 실측)
+
+**구멍 보정은 층마다 닫힌 안쪽 윤곽만 넓힌다.** 뱀부 02.08.02.61 · 오르카 2.4.2 모두 각 층 단면에서 `holes` 로
+분류된 닫힌 안쪽 다각형을 `_shrink_contour_holes()` 가 한꺼번에 오프셋한다. 원인지, 나사 구멍인지, 컵 안쪽인지
+가리지 않는다 (`PrintObjectSlice.cpp` · 두 슬라이서 같은 구조).
+
+그래서 **축이 옆으로 누운 가로 구멍**에는 효과가 없다. 얇은 벽을 옆으로 뚫은 구멍은 층 단면에서 바깥 윤곽에 이어진
+홈으로 나타나 닫힌 안쪽 윤곽이 아니다. 반대로 **컵·통 안쪽**은 층마다 닫힌 안쪽 윤곽이라 원치 않게 넓어진다.
+
+| 대상 (fly-catcher · 2026-09-19 오르카 명령줄 실측) | `xy_hole_compensation` 0 → 0.12 |
+| --- | --- |
+| M4 가로 구멍 (모델 지름 4.1 mm) | 층 단면 폭 **변화 없음** |
+| 컵 안쪽 지름 | **+0.24 mm** (경계 오프셋 0.12 × 2 · §1.1) |
+
+같은 통 안쪽이라도 가로 구멍이 뚫린 높이에서는 안쪽 경계가 바깥과 이어져 보정이 꺼지고, 그 위에서 다시 켜져
+안쪽 벽에 단차가 생길 수 있다 (오르카 Discussion `#7744` 사용자 재현). 가로 구멍 전용 보정 기능은 두 슬라이서에 없다
+(오르카 요청 #7080 은 "계획 없음" 으로 닫힘). 뱀부의 실험 기능 `Auto circle contour-hole compensation` 도 층마다 2D 원을
+판정할 뿐 가로 구멍을 알아보지 못한다.
+
+**가로 구멍은 모델에서 고친다.** 슬라이서 값으로 해결되지 않는다.
+
+1. **지름을 통과 구멍 규격으로 키운다.** 나사가 그냥 지나가는 구멍이면 ISO 273 기준 M4 는 빡빡 **4.3** · 보통 **4.5** ·
+   헐거움 **4.8** mm 다. 4.1 mm 는 금속 가공 기준으로도 빡빡 규격보다 작다. 가로로 누운 구멍은 윗부분이 처져 더 좁아지므로
+   4.5 mm 시험편을 먼저 뽑아 모자란 만큼 더 키운다
+2. **윗부분을 눈물방울 모양으로 바꾼다.** 원 윗부분을 약 45° 두 면으로 닫으면 떠 있는 천장이 스스로 서는 경사면이 된다
+3. **부품을 돌려 구멍 축을 세운다** — 가능할 때만. 세운 구멍이 가장 둥글게 나온다
+4. 치수가 정말 중요하면 작게 뽑은 뒤 드릴이나 리머로 마무리한다
+
+나사산을 직접 내거나 탭을 칠 구멍에는 4.3 · 4.5 · 4.8 을 쓰지 않는다 — 통과 구멍 규격이다.
+
+**이 스킬에서의 처리.** Phase 1.7 이 fit-critical 구멍을 찾으면 **축 방향부터 판정**한다. 세로 구멍이면 §3 대로
+보정값을 쓰고, 가로 구멍이면 보정값을 넣지 않고(`0`) notes.md 에 "모델 수정 필요 — 지름 · 눈물방울" 을 적는다.
+가로 구멍과 컵 안쪽이 같이 있는 모델에 보정값을 넣으면 **컵만 넓어진다.**
+
 ## 2. 소재별 수축률 (Bambu 공식 + 실측 보정)
 
 3D 프린팅 후 cooling 단계에서 발생하는 dimensional 수축. PLA가 가장 안정적, ASA/ABS는 가장 큰 수축. fit-critical 부품의 공차 보정값은 수축률에 비례.
@@ -79,7 +113,7 @@
 > **프레임: 아래는 전부 오프셋 값이다** (§1.1). 지름에 미치는 효과는 2배다 — `+0.05` 오프셋 = 지름 `+0.10mm`. 이 표의 값은 **소재 수축 보정 전용**이며 설계 clearance 는 포함하지 않는다.
 
 | 소재 | 평균 수축률 | 권장 `xy_hole_compensation` (오프셋) | 권장 `xy_contour_compensation` (오프셋) |
-|------|------------|----------------------------|------------------------------|
+| ------ | ------------ | ---------------------------- | ------------------------------ |
 | **PLA Basic / Matte / Tough+** | 0.2-0.3% | `+0.05` mm | `-0.05` mm |
 | **PLA-CF** | 0.15-0.20% (CF가 수축 억제) | `+0.05` mm | `-0.05` mm |
 | **PETG Basic / HF** | 0.3-0.5% | `+0.075` mm | `-0.075` mm |
@@ -90,6 +124,7 @@
 | **TPU 90A/95A** | 1.0-1.5% (가장 큼, 유연소재) | `+0.15` mm | `-0.10` mm (TPU는 squeezable이라 contour는 less critical) |
 
 ⚠️ **권장값은 0.4mm nozzle + Bambu default flow ratio 기준**. 다음 변수가 추가 영향:
+
 - Flow calibration 안 했으면 ±0.05 추가 필요
 - Pressure Advance 안 했으면 외벽 거친 부분에서 추가 ±0.05
 - AMS HT 건조 안 한 흡습 소재 (PETG/PA/PC)는 +0.05 추가 권장
@@ -101,17 +136,20 @@
 ### 3.1 Bearing (베어링 압입)
 
 **식별 패턴:**
+
 - "608ZZ", "608", "609", "688", "625", "MR105", "MR84" 등 ISO 베어링 번호
 - "bearing", "베어링", "轴承"
 - "ferris wheel", "spinner", "fidget", "회전체", "스피너" 모델
 
 **처리:**
+
 - 베어링 **외경 압입** (베어링이 인쇄물 hole에 들어감): `xy_hole_compensation` **양수** (소재별 표 §2 참조). 너무 빡빡 → 압입 실패, 너무 헐거움 → 베어링 회전 시 wobble
 - 베어링 **내경에 축 fit** (인쇄물 축이 베어링 안에 들어감): `xy_contour_compensation` **음수** (소재별 표). 너무 빡빡 → 축 안 들어감, 너무 헐거움 → 베어링 빠짐
 
 ### 3.2 Bolt / Screw
 
 **식별 패턴:**
+
 - "M3", "M4", "M5", "M6", "M8" 표준 메트릭 볼트
 - "self-tapping", "wood screw", "machine screw"
 - Lanyard hole, mounting hole 표시
@@ -121,6 +159,7 @@
 ⚠️ 아래 hole 값은 **최종 지름**이다. 보정값으로 옮길 때 §1.1 변환식 `보정값 = (목표지름 − 모델지름) / 2` 를 반드시 통과시켜라. (PL-01 재발 지점)
 
 - **Bolt 통과 hole** (볼트가 자유롭게 통과): 최종 지름 **3.2-3.4mm** (실제 3.0mm 볼트 + clearance).
+  - **구멍이 옆으로 누워 있으면 아래 보정값이 걸리지 않는다** — 모델에서 지름을 키우거나 눈물방울로 바꾼다 (§1.3).
   - 모델이 이미 3.2-3.4mm 로 설계된 경우 → clearance 추가 금지. §2 수축 보정분만 적용 (PLA 오프셋 `+0.05`).
   - 모델이 명목 **3.0mm** 인 경우 → 오프셋 **`+0.10` ~ `+0.20`** (지름 +0.20~0.40mm). `+0.2~0.3` 을 오프셋으로 쓰면 지름이 3.4-3.6mm 가 되어 과다 유격.
 - **Bolt head 매립 hole** (M3 head = 5.5mm): hole 5.6-5.8mm + counterbore 깊이.
@@ -129,11 +168,13 @@
 ### 3.3 Heat-set Insert (열 인서트)
 
 **식별 패턴:**
+
 - "heat-set insert", "brass insert", "M3 insert", "M4 insert"
 - "soldering iron" + "insert" 키워드
 - 검은 brass cylinder + thread 이미지
 
 **처리:**
+
 - M3 heat-set insert (가장 흔함): hole **4.0mm** (insert 외경 3.8-4.0mm + 0.0-0.2 squeeze)
 - M4 heat-set insert: hole **5.5mm**
 - M5 heat-set insert: hole **6.5mm**
@@ -143,11 +184,13 @@
 ### 3.4 Slide-fit / Push-lock
 
 **식별 패턴:**
+
 - "push lock", "push button", "slide fit", "snap fit"
 - Knife sheath, pen holder, drawer, sliding mechanism
 - Linear motion 부품
 
 **처리:**
+
 - 슬라이드 부품 외경: `xy_contour_compensation` **약간 더 큰 음수** (예: PLA -0.10) — 슬라이드 매끄러움 우선
 - 슬라이드 receiving hole: 원본 그대로 또는 `xy_hole_compensation +0.05` — 너무 빡빡 안 되게
 - Snap-fit (탄성 의존): `xy_contour_compensation` 미세 보정만 (-0.025), 본체는 그대로
@@ -159,7 +202,7 @@
 > **프레임: 아래 "권장 hole" / "권장 contour" 는 전부 최종 지름(mm)이다 — 보정값이 아니다.** 보정값으로 옮길 때 §1.1 변환식을 통과시켜라. 이 표의 지름을 보정값 칸에 직접 넣는 것이 PL-01 의 원인이었다.
 
 | 부품 | 실제 외경/spec | 권장 hole | 권장 contour |
-|------|---------------|-----------|------------|
+| ------ | --------------- | ----------- | ------------ |
 | **M3 bolt pass** (M3 통과) | 3.0mm thread | **3.2-3.4mm** | — |
 | **M3 head clearance** (DIN 912 cap screw head) | 5.5mm | **5.6mm** | — |
 | **M3 heat-set insert** | 3.8-4.0mm OD | **4.0mm** | — |
@@ -216,25 +259,30 @@ Coupon용 STL은 OpenSCAD/CadQuery 같은 외부 도구 필요. Bambu Studio pri
 ### 5.3 통과 / 실패 분기
 
 **통과** (베어링이 손가락 압력으로 정확히 fit, 흔들림 없음):
+
 - 본 출력 진행
 
 **실패 — 너무 빡빡** (베어링 안 들어감, 압입 시 인쇄물 깨질 위험):
+
 - `xy_hole_compensation` 0.05 증가 → 재출력
 - 또는 hole 보정값을 모델 내부 cylinder도 같이 보정 (Bambu Studio variable layer height)
 
 **실패 — 너무 헐거움** (베어링 흔들림 또는 빠짐):
+
 - `xy_hole_compensation` 0.05 감소 → 재출력
 - 또는 베어링에 thread locker 또는 super glue 한 방울 (영구 고정)
 
 ## 6. 9mm Craft Knife Elite fit 분석 (v0.4.2 dogfood)
 
 9mm 커터칼 sheath:
+
 - **slide-fit (push-lock 메커니즘)** — blade가 sheath 내부에서 슬라이드 + lock
 - blade body 폭: 표준 9mm 커터칼은 약 8.9-9.0mm
 - sheath 내부 slot: **9.0mm + clearance 0.1-0.2mm**
 - 디자이너 의도: blade가 의도적으로 슬라이드 가능해야 함 (lock 시만 잡힘)
 
 권장 공차 (PLA Basic):
+
 - `elefant_foot_compensation: "0.15"` (첫 레이어 squish — slot 입구 좁아짐 방지)
 - `xy_hole_compensation: "0.05"` (PLA 기본) — slot이 너무 좁게 출력 안 되도록
 - `xy_contour_compensation: "-0.05"` — 외경 정확도 (손에 쥐기)
@@ -244,6 +292,7 @@ Coupon용 STL은 OpenSCAD/CadQuery 같은 외부 도구 필요. Bambu Studio pri
 페리스 휠 회전 부품 — 사용자 dogfood 회귀 (2026-05-27 보고: "베어링이랑 중심부랑 안맞았음").
 
 식별 부품:
+
 - **608ZZ 베어링 × 2** (중심 축 회전용)
 - 회전체 (휠 본체) 회전축 hole — 베어링 외경(22mm) 압입
 - 중심 축 — 베어링 내경(8mm) shaft fit
@@ -251,7 +300,7 @@ Coupon용 STL은 OpenSCAD/CadQuery 같은 외부 도구 필요. Bambu Studio pri
 권장 공차 (PLA Basic, 회전체 surface-first 가능) — **§1.1 2× 규칙 적용 후 정정값**:
 
 | 키 | 보정값 (오프셋) | 모델 지름 → 최종 지름 | 목표 (§4) |
-|----|---------------|---------------------|----------|
+| ---- | --------------- | --------------------- | ---------- |
 | `xy_hole_compensation` | `"0.05"` | 22.00 → **22.10mm** | 22.05-22.10 ✅ |
 | `xy_contour_compensation` | `"-0.05"` | 8.00 → **7.90mm** | 7.90-7.95 ✅ |
 | `elefant_foot_compensation` | `"0.15"` | 첫 레이어 hole 좁아짐 방지 | — |

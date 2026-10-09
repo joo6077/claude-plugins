@@ -10,12 +10,16 @@ argument-hint: "[stories 또는 prd 파일 경로] [--repo owner/name]"
 user-invocable: true
 ---
 
-# Gotchas
+# Plan Sync GitHub
+
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
+## Gotchas
 
 1. **확인 없이 생성 금지** — Issues/Milestones 는 외부에 보이는 리소스다. 생성 목록 미리 보여주고 사용자 승인 후 실행. dry-run 먼저.
 2. **중복 생성 방지** — 같은 title 이 이미 있으면 새로 만들지 말고 update 하거나 skip. `gh issue list --search` 로 사전 확인.
 3. **gh CLI 인증 확인 우선** — `gh auth status` 로 로그인 여부 확인. 미인증이면 사용자에게 `gh auth login` 안내하고 중단.
-4. **Projects v2 는 `gh project` · GraphQL · REST 세 경로를 모두 지원 — 금지 대상은 classic Projects 다** — "Projects v2 = GraphQL only" 는 사실이 아니다 (2026-08-13 정정). 기본 실행 경로는 `gh project` 서브커맨드로 두고, CLI 로 안 되는 조작만 `gh api graphql` 또는 REST (`/orgs/{org}/projectsV2`, `/projectsV2/{project_number}/items`, `/fields`) 로 내려간다. **classic Projects API 는 쓰지 마라** — GitHub.com classic projects 는 2024-08-23, classic REST API 는 2025-04-01 sunset 을 이미 지났다. CLI 명령 버전은 실행 시점에 `gh --version` 으로 확인한다. 출처: [GitHub REST — Projects items](https://docs.github.com/en/rest/projects/items?apiVersion=2022-11-28).
+4. **Projects v2 는 `gh project` · GraphQL · REST 세 경로를 모두 지원 — 금지 대상은 classic Projects 다** — "Projects v2 = GraphQL only" 는 사실이 아니다 (2026-08-13 정정). 기본 실행 경로는 `gh project` 서브커맨드로 두고, CLI 로 안 되는 조작만 `gh api graphql` 또는 REST (`/orgs/{org}/projectsV2`, `/projectsV2/{project_number}/items`, `/fields`) 로 내려간다. **classic Projects API 는 쓰지 마라** — GitHub.com classic projects 는 2024-08-23, classic REST API 는 2025-04-01 sunset 을 이미 지났다. CLI 명령 버전은 실행 시점에 `gh --version` 으로 확인한다. 출처: [GitHub REST — Projects items](https://docs.github.com/en/rest/projects/items?apiVersion=2022-11-28). 문서 링크의 버전 날짜 `2022-11-28` 은 최신이 아니지만 2028-03-10 까지 지원되고, 최신 버전 `2026-03-10` 은 2026-03-10 에 나왔다 — `2026-03-10` 에는 옛 호출이 깨지는 변경이 있어 링크 날짜만 바꾸지 않는다 (출처: <https://docs.github.com/en/rest/about-the-rest-api/api-versions> 「The API version `2026-03-10` was released on Tue, 10 Mar 2026.」 · 「`2022-11-28` \| March 10, 2028」, 2026-09-26 대조).
 5. **라벨 난립 금지** — 스토리 규모, 리스크 레벨, 우선순위 라벨을 미리 정의하고 일관되게 사용. 매번 새 라벨 만들지 마라.
 6. **Body 마크다운 링크 상대경로 금지** — `.planning/prd.md` 같은 상대 경로는 GitHub 에서 열리지 않는다. 저장소 blob URL 로 변환하거나 본문에 인라인 붙여넣기.
 7. **Milestone due date 현실성 체크** — Appetite(Shape Up) 또는 Sprint 길이에서 벗어난 due date 면 경고.
@@ -28,7 +32,11 @@ user-invocable: true
 14. **생성 리소스 ≠ 로컬 산출물** — 이 스킬이 생성하는 GitHub Issues/Milestones/Projects 는 **외부에 보이는 reversible 리소스**다. 로컬 `.planning/*.md` 산출물 생성과 달리 사용자/팀원이 즉시 관측하므로 dry-run + 승인 없이 실행 금지 (Gotcha 1 강화). 실패 시 이미 생성된 리소스는 자동 롤백 금지 — 목록만 보고하고 사용자가 수동 cleanup 결정하도록 둔다 (Gotcha 8).
 15. **sync-log 는 재실행 안전성 계약** — `.planning/sync-log-<date>.md` 에 생성된 모든 Issue URL + Milestone number + Project item id 를 기록. 다음 실행에서 이 로그를 먼저 읽어 중복 생성 방지 (Gotcha 2 강화). 로그 없이 재실행하면 같은 Epic 이 #100 / #200 / #300 으로 세 번 생성된다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 사전 확인
 
@@ -49,7 +57,7 @@ git remote get-url origin # 레포 추론
 매핑 근거: [GitHub Projects Best Practices](https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects), [About Issues](https://docs.github.com/articles/about-issues).
 
 | 기획 산출물 | GitHub 리소스 |
-|------------|---------------|
+| ------------ | --------------- |
 | PRD | Epic Issue (label: `epic`) |
 | Story | Child Issue (label: `story`, body 에 Epic reference) |
 | Priority(RICE/Kano) | Project v2 custom field |
@@ -94,6 +102,7 @@ git remote get-url origin # 레포 추론
 ## Step 4: Issue Body 템플릿
 
 ### Epic
+
 ```markdown
 <!-- planning-kit: epic -->
 
@@ -118,6 +127,7 @@ git remote get-url origin # 레포 추론
 ```
 
 ### Story
+
 ```markdown
 <!-- planning-kit: story -->
 Part of #<epic-number>
@@ -143,6 +153,7 @@ so that <benefit>.
 ## Step 5: 검증
 
 생성 후 확인:
+
 - `gh issue list --milestone <milestone>` 개수 일치
 - 각 Issue 에 label / body / milestone 반영
 - Project 에 추가됐는지 `gh project item-list`
@@ -156,12 +167,17 @@ so that <benefit>.
 - 개발 착수 → harness `/sprint-contract` (이슈 하나당 또는 Milestone 단위)
 - 구현 후 qa-evaluator REJECT 시 → 자동으로 Issue 에 코멘트 추가하는 후속 자동화 고려
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/github-integration.md` — Issues/Milestones/Projects v2 + gh CLI 패턴 + Linear 비교
 - GitHub CLI: `gh help issue` / `gh help project` — 실행 시점 버전 참조
 
 주요 1차 출처:
+
 - [GitHub Docs — Projects Best Practices](https://docs.github.com/issues/planning-and-tracking-with-projects/learning-about-projects/best-practices-for-projects)
 - [GitHub Docs — About Issues](https://docs.github.com/articles/about-issues)
 - [GitHub Docs — About Milestones](https://docs.github.com/en/enterprise-cloud@latest/issues/using-labels-and-milestones-to-track-work/about-milestones)

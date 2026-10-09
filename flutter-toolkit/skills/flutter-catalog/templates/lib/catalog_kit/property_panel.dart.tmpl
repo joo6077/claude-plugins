@@ -1,0 +1,217 @@
+import 'package:{{package}}/catalog_kit/catalog_kit_models.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+
+/// 생성자 매개변수를 한 줄에 하나씩 보이고 바꾸게 한다.
+class PropertyPanel extends StatelessWidget {
+  /// [values] 는 지금 값, [onChanged] 는 값 하나가 바뀔 때 부른다.
+  const PropertyPanel({
+    required this.entry,
+    required this.values,
+    required this.onChanged,
+    super.key,
+  });
+
+  /// 보이는 생성자.
+  final PlaygroundEntry entry;
+
+  /// 매개변수 이름별 지금 값.
+  final Map<String, Object?> values;
+
+  /// 매개변수 하나가 바뀌었을 때.
+  final void Function(String key, Object? value) onChanged;
+
+  @override
+  Widget build(BuildContext context) => ListView.separated(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    itemCount: entry.controls.length,
+    separatorBuilder: (_, _) => const Divider(height: 1),
+    itemBuilder: (context, index) {
+      final control = entry.controls[index];
+      return PropertyItem(
+        control: control,
+        value: values[control.key],
+        onChanged: (value) => onChanged(control.key, value),
+      );
+    },
+  );
+}
+
+/// 매개변수 한 줄 — 이름 · 타입 · 조절 칸, 바꿨으면 표시와 되돌리기.
+class PropertyItem extends StatelessWidget {
+  /// [value] 가 [PropertyControl.initial] 과 다르면 되돌리기가 보인다.
+  const PropertyItem({
+    required this.control,
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
+
+  /// 조절할 매개변수.
+  final PropertyControl control;
+
+  /// 지금 값.
+  final Object? value;
+
+  /// 값을 바꿀 때.
+  final ValueChanged<Object?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final changed = value != control.initial;
+    final muted = Theme.of(context).textTheme.bodySmall;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          Row(
+            spacing: 8,
+            children: [
+              if (changed)
+                const Icon(Icons.circle, size: 8, color: Colors.orange),
+              Flexible(
+                child: Text(
+                  '${control.key} · ${control.type}',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text('기본 ${control.defaultLabel}', style: muted),
+              if (changed)
+                IconButton(
+                  tooltip: '기본값으로',
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.undo, size: 18),
+                  onPressed: () => onChanged(control.initial),
+                ),
+            ],
+          ),
+          if (control.doc.isNotEmpty) Text(control.doc, style: muted),
+          switch (control) {
+            ToggleControl() => MergeSemantics(
+              child: Row(
+                children: [
+                  Expanded(child: Text(control.key, style: muted)),
+                  Switch(
+                    value: value! as bool,
+                    onChanged: onChanged,
+                  ),
+                ],
+              ),
+            ),
+            TextControl() => PropertyTextField(
+              value: value! as String,
+              onChanged: onChanged,
+            ),
+            final NumberControl number => PropertyNumberField(
+              control: number,
+              value: value as double?,
+              onChanged: onChanged,
+            ),
+            ChoiceControl(:final options) => DropdownButton<int>(
+              isExpanded: true,
+              value: options.indexWhere((option) => option.value == value),
+              items: [
+                for (final (index, option) in options.indexed)
+                  DropdownMenuItem(value: index, child: Text(option.label)),
+              ],
+              onChanged: (index) => onChanged(options[index!].value),
+            ),
+            FixedControl(:final display) => Text(
+              '고정: $display',
+              style: muted,
+            ),
+          },
+        ],
+      ),
+    );
+  }
+}
+
+/// 글자 입력 칸. 바깥 값이 바뀌면 (되돌리기 등) 입력 칸도 따라간다.
+class PropertyTextField extends HookWidget {
+  /// [value] 는 지금 글자.
+  const PropertyTextField({
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
+
+  /// 지금 글자.
+  final String value;
+
+  /// 글자가 바뀔 때.
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = useTextEditingController(text: value);
+    useEffect(() {
+      if (controller.text != value) controller.text = value;
+      return null;
+    }, [value]);
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      decoration: const InputDecoration(isDense: true),
+    );
+  }
+}
+
+/// 숫자 미끄럼 막대. 비울 수 있는 값이면 켜고 끄는 스위치가 붙는다.
+class PropertyNumberField extends StatelessWidget {
+  /// [value] 가 null 이면 값을 비운 상태다.
+  const PropertyNumberField({
+    required this.control,
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
+
+  /// 범위와 단위.
+  final NumberControl control;
+
+  /// 지금 값.
+  final double? value;
+
+  /// 값이 바뀔 때.
+  final ValueChanged<double?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final current = value;
+    final step = control.step;
+    final divisions = step > 0
+        ? ((control.max - control.min) / step).round()
+        : null;
+    return Row(
+      spacing: 8,
+      children: [
+        if (control.nullable)
+          Switch(
+            value: current != null,
+            onChanged: (on) => onChanged(on ? control.min : null),
+          ),
+        Expanded(
+          child: Slider(
+            value: (current ?? control.min).clamp(control.min, control.max),
+            min: control.min,
+            max: control.max,
+            divisions: divisions,
+            onChanged: current == null ? null : onChanged,
+          ),
+        ),
+        SizedBox(
+          width: 48,
+          child: Text(
+            current == null
+                ? 'null'
+                : current.toStringAsFixed(step >= 1 ? 0 : 1),
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
+    );
+  }
+}

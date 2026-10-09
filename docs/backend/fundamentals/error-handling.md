@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 에러 처리
 
 Result/Either 패턴, 글로벌 에러 핸들러, 에러 분류 체계, retry 전략, circuit breaker, graceful degradation, 구조화 로깅을 다룬다.
@@ -25,13 +26,14 @@ Result/Either 패턴, 글로벌 에러 핸들러, 에러 분류 체계, retry �
 
 예외(exception)는 제어 흐름을 비선형으로 만들고, 어떤 함수가 어떤 예외를 던지는지 시그니처에서 알 수 없다(Java checked exception 제외). Result/Either 패턴은 성공과 실패를 하나의 타입으로 표현하여 컴파일러가 에러 처리를 강제한다.
 
-```
+```text
 Result<User, DbError>   -- Rust
 Either<Failure, User>    -- Dart/fp
 Result<User, AppError>   -- Kotlin
 ```
 
 핵심 규칙:
+
 - 함수 경계에서 에러를 변환한다. 인프라 에러(SqlException)를 도메인 에러(UserNotFound)로.
 - `unwrap()`/`get()`은 테스트 코드에서만 사용한다. 프로덕션에서는 항상 분기 처리한다.
 - 예외는 진짜 예외적인 상황(프로그래머 실수, 불변 조건 위반)에만 사용한다.
@@ -42,11 +44,12 @@ Result<User, AppError>   -- Kotlin
 
 개별 엔드포인트에서 에러 포맷을 만들지 않는다. 프레임워크의 에러 핸들러 미들웨어에서 모든 에러를 RFC 9457 `application/problem+json`으로 변환한다.
 
-```
+```text
 [Controller] --throws DomainError--> [Global Error Handler] --returns--> problem+json
 ```
 
 글로벌 핸들러의 책임:
+
 - 도메인 에러 → 적절한 HTTP 상태 코드 매핑
 - 예상치 못한 에러 → 500 + 내부 상세는 로그에만 기록 (클라이언트에 스택트레이스 노출 금지)
 - 상관 ID(correlation ID)를 응답과 로그에 포함
@@ -57,12 +60,12 @@ Result<User, AppError>   -- Kotlin
 
 일시적 장애(네트워크 불안정, 429 Too Many Requests)에 대해 재시도한다. 고정 간격 재시도는 장애 서버에 동시 요청 폭주(thundering herd)를 유발한다.
 
-```
+```text
 sleep = min(base * 2^attempt + random_jitter, max_interval)
 ```
 
 | 파라미터 | 권장값 |
-|---------|--------|
+| --------- | -------- |
 | base interval | 1초 |
 | max attempts | 5회 |
 | max interval | 32초 |
@@ -76,14 +79,14 @@ sleep = min(base * 2^attempt + random_jitter, max_interval)
 
 외부 서비스 호출 실패가 반복되면 요청을 차단하여 자기 서비스와 의존 서비스를 보호한다.
 
-```
+```text
 [Closed] --failure rate >= threshold--> [Open] --timeout--> [Half-Open]
    ^                                                             |
    |______________ success count >= threshold __________________|
 ```
 
 | 상태 | 동작 |
-|------|------|
+| ------ | ------ |
 | **Closed** | 정상. 모든 요청을 통과시키고 실패율을 모니터링. |
 | **Open** | 차단. 즉시 fallback 반환. 설정된 timeout 후 Half-Open 전환. |
 | **Half-Open** | 제한된 요청(3~5개)만 통과. 성공하면 Closed, 실패하면 다시 Open. |
@@ -97,6 +100,7 @@ sleep = min(base * 2^attempt + random_jitter, max_interval)
 추천 서비스가 죽어도 상품 목록은 보여야 한다. 알림 서비스가 느려도 주문은 완료되어야 한다. Bulkhead 패턴으로 서비스 간 장애를 격리한다.
 
 구현 방법:
+
 - **Bulkhead**: 서비스별 스레드 풀/커넥션 풀 분리. 하나가 고갈되어도 다른 서비스에 영향 없음.
 - **Timeout**: 모든 외부 호출에 timeout 설정. 무한 대기는 리소스 고갈의 시작.
 - **Fallback**: 캐시된 결과 반환, 기본값 사용, 기능 비활성화 + 사용자 안내.
@@ -129,7 +133,7 @@ sleep = min(base * 2^attempt + random_jitter, max_interval)
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | Retry base interval | 1초 |
 | Retry max attempts | 5회 |
 | Retry max interval | 32초 |
@@ -144,7 +148,7 @@ sleep = min(base * 2^attempt + random_jitter, max_interval)
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 모든 에러 500 반환 | 클라이언트가 복구 가능 에러와 서버 에러를 구분할 수 없다. |
 | catch-all 무시 (`catch(e) {}`) | 에러가 사라져서 디버깅 불가. 데이터 불일치 원인이 된다. |
 | Retry 무한 루프 | max attempts 없이 재시도하면 장애 서비스에 부하를 가중시킨다. |

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>계약 추출 모드 — partial · pin · exact</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -241,10 +242,6 @@
   @media(max-width:640px){
     .grid-2,.grid-3,.compare,.pair,.mut-steps,.verdict{grid-template-columns:1fr}
     .flow-step{flex:1 1 100%}
-  }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
   }
 </style>
 </head>
@@ -503,6 +500,7 @@ Cache-Control  = "no-store"</code></pre>
         <span>본문 O · 헤더 <strong>0 개</strong></span>
       </div>
     </div>
+    <p class="caption">같은 확정 결정표는 모드별 결과를 보여 줄 뷰어의 확정 시안을 <code>.mockups/api-ui-v8.html</code> 로 적는다 — v1 골격 + v2 팔레트 · 인라인 diff 에 2026-09-26 네 번째 상태 「판정 불가」 칸을 더한 판이다 (사용자 확정 2026-09-03, v8 로 바뀜 2026-09-26).</p>
     <div class="sources">
       <a class="card-source" href="https://datatracker.ietf.org/doc/html/rfc9110" target="_blank" rel="noopener">&rarr; RFC 9110 HTTP Semantics</a>
       <a class="card-source" href="https://www.rfc-editor.org/rfc/rfc8785.html" target="_blank" rel="noopener">&rarr; RFC 8785 JCS</a>

@@ -1,5 +1,7 @@
 # 입력 소스 우선순위
 
+설치본 플러그인에는 `docs/api/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 `/api-init` 이 여러 입력을 하나의 operation 인벤토리로 합칠 때 쓰는 탐색 경로, 신뢰도, 충돌 판정 절차.
 
 근거는 `docs/api/discovery/api-inventory-normalization.md` 와 `docs/api/discovery/artifact-interop-import-export.md` 다. 이 문서는 그 규칙을 초기화 실행 순서로 옮긴 것이다.
@@ -22,7 +24,7 @@ find . -maxdepth 4 \
 프레임워크별 관례 경로도 같이 본다.
 
 | 위치 | 흔한 출처 |
-|------|-----------|
+| ------ | ----------- |
 | `docs/` · `api/` · `spec/` · `openapi/` | 수동 관리 스펙 |
 | `src/main/resources/` | Spring |
 | `static/` · `public/` | 빌드 산출물이 그대로 서빙되는 경우 |
@@ -34,7 +36,7 @@ find . -maxdepth 4 \
 `allowHosts` 가 정해지기 전에는 조회하지 않는다. 이 시점엔 안전 게이트가 없다.
 
 | 경로 | 프레임워크 |
-|------|-----------|
+| ------ | ----------- |
 | `/v3/api-docs` · `/v3/api-docs.yaml` | springdoc |
 | `/openapi.json` · `/openapi.yaml` | FastAPI, utoipa, 다수 |
 | `/swagger/v1/swagger.json` | ASP.NET Core |
@@ -48,7 +50,7 @@ find . -maxdepth 4 \
 ## 2. 소스 신뢰도 매트릭스
 
 | 소스 | 기본 confidence | 성격 | 상한 |
-|------|-----------------|------|------|
+| ------ | ----------------- | ------ | ------ |
 | 유효한 OpenAPI/Swagger | `1.00` | 계약 설명 | — |
 | curl · Talend · HAR (관측 덤프) | `0.80` | 실제로 본 호출 증거 | curl import 는 `0.85` |
 | 사람이 쓴 md · 노션 · 스크린샷 | `0.55` | 설명 증거 | — |
@@ -146,7 +148,7 @@ find . -maxdepth 4 \
 ### 허용치
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | operation 내 `(name, in)` 중복 | `0` |
 | 같은 hierarchy 내 path template ambiguity | `0` |
 | header name case 구분 | `0` (case-insensitive 비교) |
@@ -159,7 +161,7 @@ find . -maxdepth 4 \
 합산하지 않는다. 합치면 스펙에 없는 실호출이 커버리지에 흡수되어 블랙박스 검증의 핵심 신호가 사라진다.
 
 | 축 | 세는 것 |
-|----|---------|
+| ---- | --------- |
 | OpenAPI operation | 스펙에 정의된 operation 수 |
 | observed-only request | 스펙에 없는데 덤프·probe 에서 관측된 호출 |
 | generated probe | 실제로 `.hurl` 이 합성된 operation |
@@ -171,7 +173,7 @@ find . -maxdepth 4 \
 ## 6. 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | `operationId` 만으로 dedupe | 선택 필드라 외부 덤프에는 대부분 없어 dedupe 가 동작하지 않는다 |
 | raw path 문자열만 비교 | `/users/me` 와 `/users/{id}` 우선순위를 놓쳐 잘못된 operation 에 probe 를 붙인다 |
 | path/query/header/cookie 를 한 namespace 에 병합 | 이름이 같고 위치가 다른 파라미터가 서로를 덮어써 사라진다 |
@@ -187,7 +189,7 @@ find . -maxdepth 4 \
 모든 산출물에 `schemaVersion` 을 넣는다. 읽을 때의 호환 정책은 다음과 같다.
 
 | 상황 | 처리 |
-|------|------|
+| ------ | ------ |
 | major mismatch | reject |
 | newer minor | warn 후 진행 |
 | patch 차이 | accept |

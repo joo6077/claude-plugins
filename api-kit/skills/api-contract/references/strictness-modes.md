@@ -1,5 +1,7 @@
 # 계약 강도 모드 — partial · pin · exact
 
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 `/api-contract` 가 모드를 배정할 때 쓰는 유일한 기준. 각 모드가 **어떤 회귀를 잡고 어떤 회귀를 놓치는지**,
 승격 자격이 무엇인지, 어떤 assertion 어휘를 쓰는지 정의한다.
 원 규칙은 `../../../../docs/api/contract/contract-extraction-modes.md` 이고, 여기서는 실행 판정용으로만 정리한다.
@@ -15,7 +17,7 @@ exact           정규화 후 본문 전체 diff     — 헤더는 보지 않는
 ```
 
 | 모드 | 검사 내용 | 스키마 개폐 | 지정 방법 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `partial` | 상태코드, content-type, 필수 필드 존재, 타입 일치, 확정된 enum | **열림** (`additionalProperties` 미지정) | 기본값 |
 | `pin` | partial + 지정 경로별 assertion 1개 | 명시한 path 만 검사, 나머지는 열림 | `pin: [{path, assert}]` |
 | `exact` | 마스크 적용 후 JCS 정규화 **본문** 전체 diff | 닫힘 | `exact: true` |
@@ -28,7 +30,7 @@ exact           정규화 후 본문 전체 diff     — 헤더는 보지 않는
 ## 2. 모드별로 잡는 회귀 / 놓치는 회귀
 
 | 회귀 사례 | partial | pin | exact |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 필드 삭제 (`$.data[].status` 사라짐) | 잡음 | 잡음 | 잡음 |
 | 타입 변경 (`total: 47` → `"47"`) | **잡음** | 잡음 | 잡음 |
 | nullable 위반 (`null` 불가 필드에 `null`) | 잡음 | 잡음 | 잡음 |
@@ -50,7 +52,7 @@ exact           정규화 후 본문 전체 diff     — 헤더는 보지 않는
 pin 은 payload 를 얼리는 모드가 아니라 **경로마다 assertion 하나를 명시**하는 모드다.
 
 | assertion | 표기 | 언제 |
-|---|---|---|
+| --- | --- | --- |
 | exists | `$.meta exists` | 존재만 계약할 때 |
 | type | `$.createdAt : string(date-time)` | 타입 + format |
 | nullable | `$.cancelledAt : [string, null]` | null 허용 명시 |
@@ -65,7 +67,7 @@ pin 은 payload 를 얼리는 모드가 아니라 **경로마다 assertion 하�
 ### 필드 성격 → assertion 선택
 
 | 필드 성격 | 적합한 assertion | 예 |
-|---|---|---|
+| --- | --- | --- |
 | 안정값 (discriminator·통화·API 버전) | 값 고정 | `$.token_type = "Bearer"` |
 | 열거형 | 집합 소속 | `$.data[].status ∈ {...}` |
 | 변동 수치 (`total`·`count`·금액) | 범위·불변식 | `$.meta.total >= len($.data)` |
@@ -79,7 +81,7 @@ pin 은 payload 를 얼리는 모드가 아니라 **경로마다 assertion 하�
 ### Hurl 표현 가능 여부
 
 | assertion | `.hurl` 로 표현 | 표현 불가 시 처리 |
-|---|---|---|
+| --- | --- | --- |
 | exists · type · const · pattern · range · header | 가능 (`jsonpath`/`header` + predicate) | — |
 | 집합 소속 | 가능하나 값마다 분해 필요 | 항목 수가 많으면 후처리로 |
 | 경로 간 불변식 (`>= len($.data)`) | 제한적 — 한쪽을 capture 해 판정식 값에 넣으면 적을 수 있다. 경로가 없으면 종료 코드 `3` | `contracts/*.yaml` 에만 기록, `/api-verify` 후처리에서 검사 — 양쪽 값과 `판정 불가` 는 후처리에서만 적을 수 있다 |
@@ -96,7 +98,7 @@ Hurl assert 는 경로 하나에 predicate 하나지만, 판정식 값에 captur
 아래 중 하나라도 해당하면 pin 후보다. 자동 승격은 하지 않고 사용자에게 제시한다.
 
 | 후보 조건 | 예 |
-|---|---|
+| --- | --- |
 | 값이 downstream 분기를 좌우한다 | `token_type`, `status`, `type` discriminator |
 | 값이 센티널로 망가질 수 있다 | `total`, `count`, 잔액·금액 |
 | 형식이 계약인 식별자 | `ord_` prefix, ULID/UUID 패턴 |
@@ -108,7 +110,7 @@ Hurl assert 는 경로 하나에 predicate 하나지만, 판정식 값에 captur
 네 조건을 **모두** 만족할 때만.
 
 | 조건 | 값 |
-|---|---|
+| --- | --- |
 | 독립 샘플 | `>= 3` |
 | distinct value | `>= 2` |
 | 최근 관측 | 최근 `20` 관측에서 신규 값 없음 |
@@ -124,7 +126,7 @@ Hurl assert 는 경로 하나에 predicate 하나지만, 판정식 값에 captur
 ### required 승격
 
 | 판정 | 조건 |
-|---|---|
+| --- | --- |
 | `required` | scoped sample 내 presence `100%` |
 | `optional` | presence `< 100%`. `null` presence 는 missing 으로 세지 않는다 |
 | `미확정` | 샘플 예산 미달 (< 3 captures) 또는 대표 페이지 미수집 |
@@ -134,7 +136,7 @@ Hurl assert 는 경로 하나에 predicate 하나지만, 판정식 값에 captur
 ### pin → exact
 
 | 대상 | 자격 조건 |
-|---|---|
+| --- | --- |
 | 단일 객체 응답 | 동일 request fingerprint 로 `>= 3` 회 반복 후 normalized JCS digest variance `0` |
 | 컬렉션 응답 | 위 + 안정 정렬/cursor 존재, duplicate stable id `0`, ordering variance `0`, item schema variance `0` |
 | 오류 응답 | 4xx deterministic 만. **5xx 본문 exact 는 0개** |
@@ -159,7 +161,7 @@ diff 대상   응답 본문 (마스크 적용 → JCS 정규화 후)
 ## 6. additionalProperties 정책
 
 | 모드 | 정책 |
-|---|---|
+| --- | --- |
 | partial | 열림 — 서버의 필드 추가는 정상이다 |
 | pin | 명시한 path 만 검사, 나머지 열림 |
 | exact | 닫힘 — 전체 diff 가 곧 strict |
@@ -172,7 +174,7 @@ composition(`allOf`/`anyOf`)이 있는 스키마에서는 `additionalProperties`
 ## 7. 컬렉션 계약은 세 조각
 
 | 조각 | 계약 대상 | 기본 모드 |
-|---|---|---|
+| --- | --- | --- |
 | envelope schema | `data`/`items` 컨테이너, `meta` 형태 | partial |
 | item schema | item 필드의 타입·required·enum | partial (+ 선별 pin) |
 | pagination marker | 종료 신호, cursor 존재·타입 | pin |
@@ -188,7 +190,7 @@ composition(`allOf`/`anyOf`)이 있는 스키마에서는 `additionalProperties`
 ## 8. 오류 응답 계약
 
 | 응답 | 계약 강도 |
-|---|---|
+| --- | --- |
 | 4xx deterministic (malformed·인증 실패·권한 부족·validation·rate limit) | status exact pin 후보 |
 | 4xx 불안정 (배포마다 코드가 흔들림) | status **class** 로 먼저 계약, 안정성 관측 후 exact 로 좁힌다 |
 | 5xx | status class + envelope 형태 + retry metadata 만. 본문 exact `0개` |
@@ -206,7 +208,7 @@ composition(`allOf`/`anyOf`)이 있는 스키마에서는 `additionalProperties`
 ## 9. 안티패턴
 
 | 안티패턴 | 문제 |
-|---|---|
+| --- | --- |
 | 단일 샘플 scalar 를 바로 `const` 또는 닫힌 `enum` 으로 승격 | 두 번째 정상 값이 회귀로 보고된다. 오탐 한 번이면 사용자는 도구를 끈다 |
 | pin 을 payload 전체 value freeze 로 구현 | `total`·`cursor`·`timestamp` 때문에 매번 실패한다 |
 | 타입 회귀를 잡고 "pin 덕분" 이라고 보고 | 원인 귀속이 틀려 다음 판단(모드 승격)이 전부 어긋난다 |

@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 테스팅 원칙
 
 Rust는 언어 차원에서 테스트를 지원한다(`#[test]`, `#[cfg(test)]`). 외부 크레이트(cargo-nextest, mockall)는 실행 속도와 모킹을 보완한다. 테스트는 격리되어야 하고, 외부 의존성(DB, 네트워크)은 주입 가능해야 한다.
@@ -61,6 +62,7 @@ cargo nextest run -p domain          # 특정 크레이트만
 ```
 
 설정 파일(`.config/nextest.toml` 또는 `nextest.toml`):
+
 ```toml
 [profile.default]
 fail-fast = false          # 실패해도 계속 실행
@@ -127,6 +129,7 @@ async fn find_existing_user(pool: sqlx::PgPool) {
 ```
 
 fixture 파일(`tests/fixtures/users.sql`):
+
 ```sql
 INSERT INTO users (id, email) VALUES (1, 'test@example.com');
 ```
@@ -138,7 +141,7 @@ INSERT INTO users (id, email) VALUES (1, 'test@example.com');
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | cargo-nextest vs cargo test 속도 | 2~3× 빠름 | 프로세스 격리 + 병렬 실행 |
 | mockall 모킹 오버헤드 | 무시 가능 | 테스트 전용 코드 |
 | sqlx::test 테스트별 새 테스트 DB 생성 + migration | 프로젝트에서 실측 | 트랜잭션 롤백이 아니라 DB 생성·정리 비용 — 환경 의존이라 고정 수치를 쓰지 마라 |

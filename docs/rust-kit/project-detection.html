@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rust 프로젝트 감지 — Rust Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0d0d14;--bg2:#12121c;--surface:#181825;--surface2:#1e1e30;--border:#2a2a40;
+    --text:#F5F0E8;--text2:#A89A8F;--text3:#948779;
+    --accent:#E85D4A;--accent2:#F08575;--accent-dim:rgba(232,93,74,0.12);
+    --accent-line:rgba(232,93,74,0.35);
+    --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+    --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
+    --mono:'SF Mono','Cascadia Code','Consolas',monospace;
+  }
+  [data-theme="light"]{
+    --bg:#f6f5f2;--bg2:#eceae4;--surface:#ffffff;--surface2:#f1efea;--border:#dcd8cf;
+    --text:#1a1a24;--text2:#4d4740;--text3:#655d54;
+    --accent:#B42318;--accent2:#912018;--accent-dim:rgba(180,35,24,0.10);
+    --accent-line:rgba(180,35,24,0.35);
+    --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  html{font-size:16px;scroll-behavior:smooth}
+  body{
+    font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:radial-gradient(ellipse at 20% 0%,var(--accent-dim) 0%,transparent 50%);
+    transition:background-color var(--transition),color var(--transition);
+  }
+  .page{max-width:1120px;margin:0 auto;padding:clamp(16px,4vw,56px)}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:clamp(24px,4vw,40px)}
+  .nav-back{color:var(--text2);text-decoration:none;font-size:14px;font-weight:600;padding:10px 0}
+  .nav-back:hover{color:var(--accent)}
+  .theme-toggle{background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;
+    padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color var(--transition)}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+
+  .hero{margin-bottom:clamp(32px,5vw,56px)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h1{font-size:clamp(26px,3.6vw,40px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;overflow-wrap:anywhere}
+  .orig-title{color:var(--text2);font-size:14px;margin-top:8px}
+  .subtitle{color:var(--text2);font-size:clamp(15px,1.3vw,17px);margin-top:12px;max-width:760px;line-height:1.7}
+  .subtitle strong{color:var(--text)}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .badge{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:12px;
+    padding:4px 12px;border-radius:20px;overflow-wrap:anywhere;max-width:100%}
+  .badge code{font-family:var(--mono);font-size:12px;color:var(--text)}
+
+  h2{font-size:clamp(20px,2.3vw,28px);font-weight:700;letter-spacing:-0.3px;line-height:1.3;margin-bottom:18px;overflow-wrap:anywhere}
+  h3{font-size:clamp(16px,1.5vw,18px);font-weight:700;line-height:1.4}
+  .section{margin-bottom:clamp(40px,6vw,72px)}
+  .section-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--accent);
+    margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--accent-line) 0%,transparent 80%)}
+  .desc{color:var(--text2);font-size:15px;line-height:1.7;max-width:720px;margin-bottom:16px}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);
+    transition:border-color var(--transition)}
+  .card:hover{border-color:var(--accent-line)}
+  .glance{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:14px}
+  .glance-card{border-top:3px solid var(--accent)}
+  .glance-card h3{margin-bottom:8px}
+  .glance-card p{color:var(--text2);font-size:15px;line-height:1.65}
+  .glance-card code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text)}
+
+  .toc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(16px,2.5vw,24px);margin-bottom:clamp(40px,6vw,64px)}
+  .toc-list{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:4px 20px}
+  .toc-list a{display:flex;gap:10px;align-items:baseline;color:var(--text2);text-decoration:none;font-size:14px;padding:6px 0;overflow-wrap:anywhere}
+  .toc-list a:hover{color:var(--accent)}
+  .toc-list code{font-family:var(--mono);font-size:12px}
+  .toc-n{font-family:var(--mono);font-size:12px;color:var(--accent);flex-shrink:0}
+
+  .lead-block .fm td.fm-val{white-space:pre-wrap}
+  .doc h2 code,.doc h3 code{font-family:var(--mono);font-size:0.85em;background:var(--accent-dim);padding:1px 6px;border-radius:5px}
+  .doc-body,.lead-block{display:flex;flex-direction:column;gap:16px}
+  .doc-body>*,.lead-block>*{min-width:0}
+  .doc-body p,.lead-block p{color:var(--text2);font-size:15px;line-height:1.75;max-width:820px;overflow-wrap:anywhere}
+  .doc-body p strong,.lead-block p strong,.md-list strong,td strong{color:var(--text)}
+  .doc-body h3.sub,.doc-body h4.sub{margin-top:14px;padding-left:12px;border-left:3px solid var(--accent);overflow-wrap:anywhere}
+  .doc-body h4.sub{font-size:15px}
+  :not(pre)>code{font-family:var(--mono);font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:4px;color:var(--text);overflow-wrap:anywhere}
+  a.ext{overflow-wrap:anywhere;text-underline-offset:3px}
+  .xref{color:var(--text)}
+  .xref-path{font-family:var(--mono);font-size:12px;color:var(--text3);overflow-wrap:anywhere}
+
+  .quote{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+  .quote p{color:var(--text)!important}
+
+  .md-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .md-list li{display:flex;gap:10px;align-items:flex-start;color:var(--text2);font-size:15px;line-height:1.7}
+  .md-list li.lv1{margin-left:22px}
+  .md-list li.lv2{margin-left:44px}
+  .md-list li.lv3{margin-left:66px}
+  .li-body{min-width:0;overflow-wrap:anywhere}
+  .li-mark{flex-shrink:0;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);
+    border-radius:6px;min-width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:0 4px}
+  .li-mark.dot{min-width:8px;width:8px;height:8px;border-radius:50%;padding:0;margin-top:10px;background:var(--accent)}
+
+  .code{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+  .code-lang{position:absolute;top:8px;right:12px;font-family:var(--mono);font-size:11px;color:var(--text3)}
+  .code pre{padding:18px 16px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--text)}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;padding:10px 14px;color:var(--text);font-weight:700;border-bottom:2px solid var(--border);font-size:13px;background:var(--surface2)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6}
+  tr:hover td{background:var(--accent-dim)}
+  td code{font-size:12px}
+  .table-wrap{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+
+  .refs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:6px 20px;counter-reset:ref}
+  .refs li{min-width:0}
+  .card-source{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent);text-decoration:none;padding:6px 0;overflow-wrap:anywhere}
+  .card-source:hover{text-decoration:underline}
+  .rule{border:0;border-top:1px dashed var(--border)}
+  .foot{border-top:1px solid var(--border);padding-top:20px;color:var(--text3);font-size:13px}
+  .foot p{color:var(--text2);font-size:13px}
+
+  /* 가로 넘침 막기 — 자르지 않고 그 자리에서 스크롤시킨다 (docs-site Gotcha 10) */
+  .glance>*,.toc-list>*,.refs>*{min-width:0}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .table-wrap>table{min-width:max-content}
+  .table-wrap .c{max-width:440px;overflow-wrap:anywhere}
+  pre{overflow-x:auto;max-width:100%}
+  pre code{white-space:pre}
+  button,.btn,[role="button"]{min-height:44px;min-width:44px}
+  @media(max-width:600px){
+    .glance,.toc-list,.refs{grid-template-columns:1fr}
+    .md-list li.lv1{margin-left:12px}
+    .md-list li.lv2{margin-left:24px}
+    .md-list li.lv3{margin-left:36px}
+    .table-wrap .c{max-width:260px}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="topbar">
+  <a href="../index.html" class="nav-back">&#8592; Rust Kit</a>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
+</div>
+
+<header class="hero">
+  <span class="eyebrow">Rust Kit · 참고 문서</span>
+  <h1>Rust 프로젝트 감지</h1>
+  <p class="subtitle">rust-kit 스킬이 공통으로 먼저 돌리는 <strong>환경 감지 절차</strong>다. 적용 범위를 선언하고, 루트를 고정하고, 툴체인 · edition · 워크스페이스 · 의존성 · 빌드 도구 · CI 를 차례로 읽어 변수로 남긴다.</p>
+  <div class="meta">
+    <span class="badge">원본 <code>rust-kit/references/project-detection.md</code></span>
+    <span class="badge">Step 0 ~ 7</span>
+    <span class="badge">감지 변수 요약 넷</span>
+  </div>
+</header>
+
+<section class="section" aria-labelledby="glance">
+  <div class="section-label" id="glance">한눈에</div>
+  <div class="glance">
+    <div class="card glance-card">
+      <h3>Step 0 · 스택 경계</h3>
+      <p>Rust 기준은 cargo 가 관리하는 산출물에만 쓴다. 셸 · compose · CI 에 <code>unwrap()</code> 금지 같은 조건을 넣으면 늘 공허하게 통과한다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>Step 1a · 루트 고정</h3>
+      <p><code>cargo locate-project --workspace</code> 로 워크스페이스 루트를 한 번 정하고 모든 명령에서 그 자리를 쓴다. 실행 가드가 막으면 폴더를 옮겨 우회하지 않고 보고한다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>Step 2c · 버전 현행성</h3>
+      <p>킷 문서의 크레이트 판 번호는 적을 때의 값이다. 판 번호를 적는 곳은 이 Step 의 표 하나뿐이고 다른 문서는 인용만 한다.</p>
+    </div>
+    <div class="card glance-card">
+      <h3>Step 3a · 타깃 구조</h3>
+      <p><code>cargo test</code> · <code>cargo run</code> 에 <code>-p</code> · <code>--lib</code> 를 붙이기 전에 <code>cargo metadata</code> 로 패키지마다 타깃 종류를 나열한다.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="toc" aria-label="목차">
+  <div class="section-label">목차</div>
+  <ol class="toc-list">
+    <li><a href="#s1"><span class="toc-n">01</span>Step 0. 적용 범위 선언 (스택 경계)</a></li>
+    <li><a href="#s2"><span class="toc-n">02</span>Step 1. Rust 프로젝트 확인</a></li>
+    <li><a href="#s3"><span class="toc-n">03</span>Step 1a. 프로젝트 루트 고정 (cwd 드리프트 차단)</a></li>
+    <li><a href="#s4"><span class="toc-n">04</span>Step 2. 툴체인 감지</a></li>
+    <li><a href="#s5"><span class="toc-n">05</span>Step 2a. Edition 감지</a></li>
+    <li><a href="#s6"><span class="toc-n">06</span>Step 2b. Workspace lints 감지</a></li>
+    <li><a href="#s7"><span class="toc-n">07</span>Step 2c. 버전 현행성 확인 (버전 리터럴 SSOT)</a></li>
+    <li><a href="#s8"><span class="toc-n">08</span>Step 3. Workspace 감지</a></li>
+    <li><a href="#s9"><span class="toc-n">09</span>Step 3a. 패키지 타깃 구조 감지 (<code>PKG_TARGETS</code>) — 테스트/실행 전 필수</a></li>
+    <li><a href="#s10"><span class="toc-n">10</span>Step 4. 의존성 감지</a></li>
+    <li><a href="#s11"><span class="toc-n">11</span>Step 5. 아키텍처 패턴 감지</a></li>
+    <li><a href="#s12"><span class="toc-n">12</span>Step 6. 빌드 도구 감지</a></li>
+    <li><a href="#s13"><span class="toc-n">13</span>Step 7. CI 감지</a></li>
+    <li><a href="#s14"><span class="toc-n">14</span>감지 결과 변수 요약</a></li>
+    <li><a href="#refs"><span class="toc-n">··</span>출처 주소 모음</a></li>
+  </ol>
+</nav>
+
+<section class="section lead-block">
+  <div class="section-label">원본 머리말</div>
+<p>rust-kit 스킬이 공통으로 실행하는 프로젝트 환경 감지 절차.</p>
+<hr class="rule">
+</section>
+
+<section class="section doc" id="s1">
+  <div class="section-label">§ 01</div>
+  <h2>Step 0. 적용 범위 선언 (스택 경계)</h2>
+  <div class="doc-body">
+<p>rust-kit 의 규칙·안티패턴·감사 기준은 <strong>cargo 가 관리하는 Rust 산출물</strong>(<code>*.rs</code>, <code>Cargo.toml</code>, <code>rust-toolchain.toml</code>, <code>deny.toml</code>, <code>migrations/*.sql</code>) 에만 적용된다. 같은 리포지토리 안에 있어도 아래 산출물에는 Rust 기준을 적용하지 않는다:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">산출물</div></th>
+  <th><div class="c">Rust 기준 적용</div></th>
+  <th><div class="c">대신 적용할 기준</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c">셸 스크립트 (<code>*.sh</code>), Makefile 타겟</div></td>
+  <td><div class="c">✗ (<code>unwrap()</code> · <code>println!</code> · <code>?</code> 연산자 기준 무의미)</div></td>
+  <td><div class="c"><code>set -euo pipefail</code> · 실패 전파(early exit) · 시크릿 하드코딩 금지 · trap 정리</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>docker-compose.yml</code>, Dockerfile</div></td>
+  <td><div class="c">✗</div></td>
+  <td><div class="c">infra-kit 기준 (헬스체크 · non-root · 이미지 핀 고정)</div></td>
+</tr>
+<tr>
+  <td><div class="c">CI 워크플로 (<code>.github/workflows/*.yml</code>)</div></td>
+  <td><div class="c">✗</div></td>
+  <td><div class="c">infra-kit 기준 (권한 최소화 · 액션 SHA 핀)</div></td>
+</tr>
+<tr>
+  <td><div class="c">프런트엔드/클라이언트 코드</div></td>
+  <td><div class="c">✗</div></td>
+  <td><div class="c">해당 kit 기준 (flutter-toolkit · react-kit)</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>금지:</strong> 셸/compose/CI 작업의 완료 조건이나 감사 항목에 <code>unwrap()</code> 금지 · <code>println!</code> 금지 같은 Rust 전용 조건을 넣지 마라. 스택이 다르면 같은 이름의 결함이 존재하지 않으므로 그 조건은 항상 공허하게 통과한다 (증거 무효 — <code>qa-evaluation-guide.md</code> §Evidence Validity Gate 검사 2). 출처: 2026-07 실측 <code>stack-inappropriate-rust-antipatterns</code> (셸/compose 백업 사이드카 계약에 Rust 안티패턴 조건 오적용).</p>
+  </div>
+</section>
+
+<section class="section doc" id="s2">
+  <div class="section-label">§ 02</div>
+  <h2>Step 1. Rust 프로젝트 확인</h2>
+  <div class="doc-body">
+<p><code>Cargo.toml</code> 존재 여부 확인. 없으면 "Rust 프로젝트가 아닙니다" 안내 후 중단.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s3">
+  <div class="section-label">§ 03</div>
+  <h2>Step 1a. 프로젝트 루트 고정 (cwd 드리프트 차단)</h2>
+  <div class="doc-body">
+<p>명령을 실행하기 전에 루트를 <strong>한 번 확정하고 이후 모든 명령에서 고정</strong>한다:</p>
+<div class="code"><span class="code-lang">bash</span><pre><code>CARGO_ROOT="$(dirname "$(cargo locate-project --workspace --message-format plain)")"</code></pre></div>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>cargo locate-project</code> 는 cwd 에서 위로 올라가며 매니페스트를 찾고, <code>--workspace</code> 는 현재 멤버가 아니라 <strong>워크스페이스 루트</strong>의 <code>Cargo.toml</code> 을 돌려준다 (<a class="ext" href="https://doc.rust-lang.org/cargo/commands/cargo-locate-project.html" target="_blank" rel="noopener">cargo-locate-project</a>).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">확정한 <code>$CARGO_ROOT</code> 는 환경 파일(<code>.env</code>, <code>.harness/env.sh</code>) · Makefile · 마이그레이션 경로의 <strong>유일한 기준</strong>이다. 서브디렉토리마다 다른 파일을 소싱하지 마라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>가드 우회 금지:</strong> 실행 가드(예: <code>server/.harness/env.sh</code> 의 <code>APP_ENV</code> 요구)가 명령을 막으면, cwd 를 옮겨 다른 <code>.harness</code> 를 소싱하거나 상위 디렉토리에서 재시도하는 방식으로 우회하지 마라. 가드가 요구하는 환경을 실제로 충족시키거나, 가드 자체가 잘못됐다고 판단되면 <strong>우회 대신 명시 보고</strong>한다. 출처: 2026-07 실측 <code>bypass-run-guard-by-cwd</code>.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s4">
+  <div class="section-label">§ 04</div>
+  <h2>Step 2. 툴체인 감지</h2>
+  <div class="doc-body">
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">조건</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>rust-toolchain.toml</code> 존재</div></td>
+  <td><div class="c">파일에서 <code>channel</code>, <code>components</code>, <code>profile</code> 파싱 → <code>$RUST_CHANNEL</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">없음</div></td>
+  <td><div class="c"><code>rustup default</code> 결과 사용</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s5">
+  <div class="section-label">§ 05</div>
+  <h2>Step 2a. Edition 감지</h2>
+  <div class="doc-body">
+<p><code>Cargo.toml</code> 또는 <code>[workspace.package]</code>의 <code>edition</code> 값을 읽어 <code>$EDITION</code> 에 저장한다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">값</div></th>
+  <th><div class="c">의미</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>"2024"</code></div></td>
+  <td><div class="c">Rust 2024 Edition (1.85+, 2026 기본) — RPIT capture 변경, <code>unsafe extern</code>, let chain stable</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>"2021"</code></div></td>
+  <td><div class="c">레거시 지원 — 신규 프로젝트에는 권장하지 않음</div></td>
+</tr>
+<tr>
+  <td><div class="c">미지정</div></td>
+  <td><div class="c"><code>Cargo.toml</code>이 잘못됨 — 에러</div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s6">
+  <div class="section-label">§ 06</div>
+  <h2>Step 2b. Workspace lints 감지</h2>
+  <div class="doc-body">
+<p><code>[workspace.lints]</code> 섹션 존재 여부:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">조건</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>[workspace.lints.clippy]</code> pedantic = deny</div></td>
+  <td><div class="c"><code>HAS_WORKSPACE_LINTS = true</code>, <code>LINTS_STRICTNESS = "pedantic"</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>[workspace.lints]</code> 존재하나 pedantic 없음</div></td>
+  <td><div class="c"><code>HAS_WORKSPACE_LINTS = true</code>, <code>LINTS_STRICTNESS = "basic"</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">없음</div></td>
+  <td><div class="c"><code>HAS_WORKSPACE_LINTS = false</code> — audit 시 권장 메시지 출력</div></td>
+</tr>
+</tbody></table></div>
+<p>member crate가 <code>[lints] workspace = true</code>를 선언하는지도 같이 확인한다.</p>
+  </div>
+</section>
+
+<section class="section doc" id="s7">
+  <div class="section-label">§ 07</div>
+  <h2>Step 2c. 버전 현행성 확인 (버전 리터럴 SSOT)</h2>
+  <div class="doc-body">
+<p>rust-kit 문서에 적힌 크레이트 버전은 <strong>작성 시점 스냅샷</strong>이다. 아래 표가 이 킷에서 버전 값을 적는 <strong>유일한 자리</strong>이며, 다른 스킬·기준 문서는 이 Step 을 인용만 하고 자체 표를 만들지 않는다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">크레이트</div></th>
+  <th><div class="c">조회 시점 최신 (crates.io · 2026-09-24)</div></th>
+  <th><div class="c">rust-kit 문서 예시가 전제하는 버전</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>axum</code></div></td>
+  <td><div class="c">0.8.9</div></td>
+  <td><div class="c">0.8 (path 문법 <code>{id}</code> · <code>#[async_trait]</code> 제거)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>sqlx</code></div></td>
+  <td><div class="c">0.9.0</div></td>
+  <td><div class="c">0.8</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>sea-orm</code></div></td>
+  <td><div class="c">2.0.3</div></td>
+  <td><div class="c">1.1</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>testcontainers</code></div></td>
+  <td><div class="c">0.28.0</div></td>
+  <td><div class="c">전제 판 없음 — 킷 예시는 크레이트 이름만 쓴다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>tonic</code></div></td>
+  <td><div class="c">0.14.6</div></td>
+  <td><div class="c">0.14 (<code>tonic-health</code> · <code>tonic-reflection</code> 도 0.14 계열)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>tower-http</code></div></td>
+  <td><div class="c">0.7.1</div></td>
+  <td><div class="c">0.6 — 0.7 은 compression · feature · redirect 동작이 바뀌었다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>utoipa</code> · <code>utoipa-scalar</code></div></td>
+  <td><div class="c">6.0.0 · 0.4.0</div></td>
+  <td><div class="c">5.4 · 0.3 — 6 은 YAML 오류 타입이 바뀌었다</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>rust-i18n</code></div></td>
+  <td><div class="c">4.2.2</div></td>
+  <td><div class="c">3</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>opentelemetry</code> · <code>opentelemetry-otlp</code> · <code>tracing-opentelemetry</code></div></td>
+  <td><div class="c">0.33.0 · 0.33.0 · 0.34.0</div></td>
+  <td><div class="c">0.31 · 0.31 · 0.32</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>mockall</code></div></td>
+  <td><div class="c">0.15.0</div></td>
+  <td><div class="c">0.13</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>rstest</code></div></td>
+  <td><div class="c">0.27.0</div></td>
+  <td><div class="c">0.26</div></td>
+</tr>
+<tr>
+  <td><div class="c">Rust stable</div></td>
+  <td><div class="c">1.98.1</div></td>
+  <td><div class="c">1.88.0 (<code>rust-init</code> 고정 예시)</div></td>
+</tr>
+</tbody></table></div>
+<p><strong>해석 규칙 — 프로젝트에 고정된 버전이 우선이다.</strong></p>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">기존 프로젝트의 <code>Cargo.toml</code> / <code>Cargo.lock</code> 이 하위 버전에 고정돼 있으면 <strong>그 버전을 그대로 따른다.</strong> 문서에 최신이 적혀 있다는 이유로 버전을 올리지 마라 — major 이동은 migration 비용을 만들고, 이 킷은 그 비용을 감수할 근거를 갖고 있지 않다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">신규 프로젝트 스캐폴딩(<code>rust-init</code>)에서는 위 최신값을 <strong>후보로 제시</strong>하되, feature 이름·기본값이 major 마다 달라질 수 있으므로 착수 시점에 공식 문서(docs.rs / CHANGELOG / Context7)로 확인한 뒤 확정한다. 확인 없이 feature 목록을 그대로 옮겨 쓰지 마라.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">위 표에 없는 크레이트의 버전을 문서에 새로 적을 때는 <strong>조회 근거(URL + 조회일)</strong> 를 함께 남긴다. 근거 없이 버전 번호를 적는 것은 날조다.</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">감사 시에는 "구버전 사용" 자체를 FAIL 로 쓰지 마라. FAIL 대상은 <strong>문서와 코드가 어긋난 경우</strong> (예: 코드가 <code>axum 0.8</code> 인데 라우트가 <code>:id</code> colon 문법) 다.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s8">
+  <div class="section-label">§ 08</div>
+  <h2>Step 3. Workspace 감지</h2>
+  <div class="doc-body">
+<p><code>Cargo.toml</code>에 <code>[workspace]</code> 섹션 존재 여부:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">조건</div></th>
+  <th><div class="c">결과</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>[workspace]</code> 존재</div></td>
+  <td><div class="c"><code>IS_WORKSPACE = true</code>, <code>WORKSPACE_MEMBERS</code> = members 목록, <code>$RESOLVER</code> = resolver 값</div></td>
+</tr>
+<tr>
+  <td><div class="c">없음</div></td>
+  <td><div class="c"><code>IS_WORKSPACE = false</code></div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s9">
+  <div class="section-label">§ 09</div>
+  <h2>Step 3a. 패키지 타깃 구조 감지 (<code>PKG_TARGETS</code>) — 테스트/실행 전 필수</h2>
+  <div class="doc-body">
+<p><code>cargo test</code>/<code>cargo run</code> 에 패키지 필터(<code>-p</code>)나 타깃 필터(<code>--lib</code> 등)를 붙이기 <strong>전에</strong> 각 패키지가 어떤 타깃을 가지는지 확정한다. 추측 금지 — 아래 명령으로 열거한다:</p>
+<div class="code"><span class="code-lang">bash</span><pre><code>cargo metadata --no-deps --format-version 1 \
+  | python3 -c "import json,sys;[print(p['name'], sorted({k for t in p['targets'] for k in t['kind']})) for p in json.load(sys.stdin)['packages']]"</code></pre></div>
+<p><code>cargo metadata</code> 의 <code>packages[].targets[].kind</code> 는 <code>lib</code> / <code>bin</code> / <code>example</code> / <code>test</code> / <code>bench</code> / <code>custom-build</code> 중 하나 이상을 담는다. <strong>어떤 타깃의 <code>kind</code> 배열에도 <code>lib</code> 이 없으면 그 패키지는 바이너리 전용</strong>이다 (<a class="ext" href="https://doc.rust-lang.org/cargo/commands/cargo-metadata.html" target="_blank" rel="noopener">cargo-metadata</a>).</p>
+<p>결과를 <code>PKG_TARGETS</code> (패키지명 → 타깃 kind 집합) 로 보관하고 아래 규칙을 적용한다:</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">패키지 타깃</div></th>
+  <th><div class="c">허용 필터</div></th>
+  <th><div class="c">금지</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>lib</code> 포함</div></td>
+  <td><div class="c"><code>--lib</code> · <code>--tests</code> · <code>--all-targets</code></div></td>
+  <td><div class="c">—</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>bin</code> 만 (바이너리 전용)</div></td>
+  <td><div class="c"><code>--bins</code> · <code>--bin &lt;name&gt;</code> · <code>--tests</code> · <code>--all-targets</code></div></td>
+  <td><div class="c"><strong><code>--lib</code></strong> — lib 타깃이 없어 실행할 테스트가 0 개이거나 에러</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>lib</code> + <code>bin</code></div></td>
+  <td><div class="c">전부</div></td>
+  <td><div class="c">—</div></td>
+</tr>
+</tbody></table></div>
+<ul class="md-list">
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><code>cargo test</code> 는 타깃 필터를 <strong>주지 않으면</strong> lib 단위 테스트 · bin 단위 테스트 · 통합 테스트 · lib doctest 를 모두 빌드/실행한다. 특정 타깃만 좁히고 싶을 때만 필터를 붙인다 (<a class="ext" href="https://doc.rust-lang.org/cargo/commands/cargo-test.html" target="_blank" rel="noopener">cargo-test 타깃 선택</a>).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body"><strong>타깃 필터는 매니페스트의 <code>test</code> 플래그를 무시하고 해당 타깃을 강제</strong>하므로, 존재하지 않는 타깃을 지정하면 "테스트 0 개 실행" 또는 에러로 끝난다. <strong>테스트 0 개는 통과가 아니다</strong> (<code>qa-evaluation-guide.md</code> §Evidence Validity Gate 검사 2).</div></li>
+  <li class="lv0"><span class="li-mark dot" aria-hidden="true"></span><div class="li-body">출처: 2026-07 실측 <code>cargo-test-wrong-target</code> — lib 타깃이 없는 바이너리 크레이트에 <code>--lib healthcheck</code> 필터를 붙인 <code>cargo test -p</code> 를 실행해 실패.</div></li>
+</ul>
+  </div>
+</section>
+
+<section class="section doc" id="s10">
+  <div class="section-label">§ 10</div>
+  <h2>Step 4. 의존성 감지</h2>
+  <div class="doc-body">
+<p><code>Cargo.toml</code>의 <code>[dependencies]</code>와 <code>[dev-dependencies]</code>에서 다음 크레이트 존재 여부를 확인하고 <code>HAS_*</code> 플래그를 설정한다.</p>
+<p>IS_WORKSPACE이면 workspace root + 모든 member의 Cargo.toml을 합산한다.</p>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">크레이트</div></th>
+  <th><div class="c">플래그</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>axum</code></div></td>
+  <td><div class="c"><code>HAS_AXUM</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>actix-web</code></div></td>
+  <td><div class="c"><code>HAS_ACTIX</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>rocket</code></div></td>
+  <td><div class="c"><code>HAS_ROCKET</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>sqlx</code></div></td>
+  <td><div class="c"><code>HAS_SQLX</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>diesel</code></div></td>
+  <td><div class="c"><code>HAS_DIESEL</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>sea-orm</code></div></td>
+  <td><div class="c"><code>HAS_SEAORM</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>tokio</code></div></td>
+  <td><div class="c"><code>HAS_TOKIO</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>async-std</code></div></td>
+  <td><div class="c"><code>HAS_ASYNC_STD</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>tonic</code></div></td>
+  <td><div class="c"><code>HAS_TONIC</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>serde</code></div></td>
+  <td><div class="c"><code>HAS_SERDE</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>utoipa</code></div></td>
+  <td><div class="c"><code>HAS_UTOIPA</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>jsonwebtoken</code></div></td>
+  <td><div class="c"><code>HAS_JSONWEBTOKEN</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>tracing</code></div></td>
+  <td><div class="c"><code>HAS_TRACING</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>rust-i18n</code></div></td>
+  <td><div class="c"><code>HAS_RUST_I18N</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>fluent</code></div></td>
+  <td><div class="c"><code>HAS_FLUENT</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>mockall</code></div></td>
+  <td><div class="c"><code>HAS_MOCKALL</code></div></td>
+</tr>
+</tbody></table></div>
+<p><code>cargo-nextest</code> 설치 여부: <code>command -v cargo-nextest</code> 또는 <code>cargo nextest --version</code> → <code>HAS_NEXTEST</code></p>
+  </div>
+</section>
+
+<section class="section doc" id="s11">
+  <div class="section-label">§ 11</div>
+  <h2>Step 5. 아키텍처 패턴 감지</h2>
+  <div class="doc-body">
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">조건</div></th>
+  <th><div class="c"><code>ARCH</code> 값</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>ports/</code> + <code>adapters/</code> 디렉토리 존재 (workspace 또는 단일 크레이트)</div></td>
+  <td><div class="c"><code>hexagonal</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>IS_WORKSPACE</code> + <code>crates/</code> 디렉토리 (api/domain/infra 등)</div></td>
+  <td><div class="c"><code>workspace_service</code></div></td>
+</tr>
+<tr>
+  <td><div class="c">단일 크레이트 + <code>src/api/</code>, <code>src/domain/</code> 등 모듈 분리</div></td>
+  <td><div class="c"><code>modular</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>src/main.rs</code> + <code>src/lib.rs</code> 수준</div></td>
+  <td><div class="c"><code>flat</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>[lib]</code> only, <code>[[bin]]</code> 없음</div></td>
+  <td><div class="c"><code>library</code></div></td>
+</tr>
+</tbody></table></div>
+<p>감지 순서가 중요하다: hexagonal이 최우선 (다른 아키텍처와 중첩 가능).</p>
+  </div>
+</section>
+
+<section class="section doc" id="s12">
+  <div class="section-label">§ 12</div>
+  <h2>Step 6. 빌드 도구 감지</h2>
+  <div class="doc-body">
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">파일</div></th>
+  <th><div class="c">플래그</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>Makefile</code></div></td>
+  <td><div class="c"><code>HAS_MAKEFILE</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>justfile</code></div></td>
+  <td><div class="c"><code>HAS_JUST</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>Makefile.toml</code> (cargo-make)</div></td>
+  <td><div class="c"><code>HAS_CARGO_MAKE</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>Cross.toml</code></div></td>
+  <td><div class="c"><code>HAS_CROSS</code> → <code>$CARGO = cross</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>build.rs</code></div></td>
+  <td><div class="c"><code>HAS_BUILD_SCRIPT</code></div></td>
+</tr>
+</tbody></table></div>
+  </div>
+</section>
+
+<section class="section doc" id="s13">
+  <div class="section-label">§ 13</div>
+  <h2>Step 7. CI 감지</h2>
+  <div class="doc-body">
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">파일/디렉토리</div></th>
+  <th><div class="c">CI 플랫폼</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>.github/workflows/</code></div></td>
+  <td><div class="c">GitHub Actions</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>.gitlab-ci.yml</code></div></td>
+  <td><div class="c">GitLab CI</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>.circleci/</code></div></td>
+  <td><div class="c">CircleCI</div></td>
+</tr>
+</tbody></table></div>
+<hr class="rule">
+  </div>
+</section>
+
+<section class="section doc" id="s14">
+  <div class="section-label">§ 14</div>
+  <h2>감지 결과 변수 요약</h2>
+  <div class="doc-body">
+<h3 class="sub">커맨드</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">변수</div></th>
+  <th><div class="c">기본값</div></th>
+  <th><div class="c">조건</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>$CARGO</code></div></td>
+  <td><div class="c"><code>cargo</code></div></td>
+  <td><div class="c"><code>HAS_CROSS</code>이면 <code>cross</code></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>$RUSTFMT</code></div></td>
+  <td><div class="c"><code>cargo fmt</code></div></td>
+  <td><div class="c"></div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>$CLIPPY</code></div></td>
+  <td><div class="c"><code>cargo clippy</code></div></td>
+  <td><div class="c"></div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">프로젝트 메타</h3>
+<div class="table-wrap"><table>
+<thead><tr>
+  <th><div class="c">변수</div></th>
+  <th><div class="c">설명</div></th>
+</tr></thead><tbody>
+<tr>
+  <td><div class="c"><code>$CARGO_ROOT</code></div></td>
+  <td><div class="c">워크스페이스 루트 절대 경로 (Step 1a — 이후 모든 명령의 고정 기준)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>$PACKAGE</code></div></td>
+  <td><div class="c">Cargo.toml [package].name</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>$EDITION</code></div></td>
+  <td><div class="c">2021 | 2024</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>IS_WORKSPACE</code></div></td>
+  <td><div class="c">true | false</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>WORKSPACE_MEMBERS</code></div></td>
+  <td><div class="c">크레이트 목록 (IS_WORKSPACE일 때만)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>PKG_TARGETS</code></div></td>
+  <td><div class="c">패키지명 → 타깃 kind 집합 (Step 3a — <code>--lib</code>/<code>--bins</code> 선택 근거)</div></td>
+</tr>
+<tr>
+  <td><div class="c"><code>ARCH</code></div></td>
+  <td><div class="c">hexagonal | workspace_service | modular | flat | library</div></td>
+</tr>
+</tbody></table></div>
+<h3 class="sub">의존성 플래그 (HAS_*)</h3>
+<p>위 Step 4 테이블 참조.</p>
+<h3 class="sub">빌드 도구</h3>
+<p>위 Step 6 테이블 참조.</p>
+  </div>
+</section>
+
+<section class="section" id="refs">
+  <div class="section-label">출처 주소 모음</div>
+  <p class="desc">원본에 적힌 주소 3 개를 나온 순서대로 옮겼다. 본문의 링크와 같은 곳을 가리킨다.</p>
+  <ol class="refs">
+    <li><a class="card-source" href="https://doc.rust-lang.org/cargo/commands/cargo-locate-project.html" target="_blank" rel="noopener">&#8599; https://doc.rust-lang.org/cargo/commands/cargo-locate-project.html</a></li>
+    <li><a class="card-source" href="https://doc.rust-lang.org/cargo/commands/cargo-metadata.html" target="_blank" rel="noopener">&#8599; https://doc.rust-lang.org/cargo/commands/cargo-metadata.html</a></li>
+    <li><a class="card-source" href="https://doc.rust-lang.org/cargo/commands/cargo-test.html" target="_blank" rel="noopener">&#8599; https://doc.rust-lang.org/cargo/commands/cargo-test.html</a></li>
+  </ol>
+</section>
+
+<footer class="foot">
+  <p>원본 <code>rust-kit/references/project-detection.md</code> 의 기준 판은 커밋 <code>6378948</code> 이다. 원본이 바뀌면 <code>python3 scripts/detect-docs-drift.py</code> 가 이 쪽을 다시 맞출 대상으로 낸다.</p>
+</footer>
+
+</div>
+
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
+</body>
+</html>

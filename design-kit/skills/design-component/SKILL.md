@@ -28,6 +28,7 @@ user-invocable: true
 12. **요청한 컴포넌트만 정의 — 카탈로그 임의 확장 금지** (insights-report #1 스코프 오독 · #3 과잉설계 대응) — "버튼 컴포넌트 정의해줘" 처럼 **특정 컴포넌트** 를 요청받으면 그 컴포넌트만 스펙화하라. 요청하지 않은 Input·Card·Modal 등 "함께 필요할 것 같은" 컴포넌트를 카탈로그에 임의로 덧붙이지 마라. 위 Gotcha들이 요구하는 완전성(상태·anatomy·접근성·When-to-use)은 **요청된 컴포넌트 내부의 완전성**을 의미하지, 카탈로그에 더 많은 컴포넌트를 채우라는 뜻이 아니다. 확정된 시안에서 추출하는 경우에도 사용자가 지목한 요소만 추출하라 — 시안에 존재하는 모든 UI 요소를 자동으로 카탈로그화하지 마라. 추가 컴포넌트가 필요해 보이면 산출물에 박지 말고 "Input·Card도 함께 정의할까요?" 형태의 별도 제안으로 분리한다. 범위가 모호하면 추측 확장 대신 한 줄로 확인하라. 출처: insights-report Friction #1·#3, [zeroheight Design Systems Report 2026](https://report.zeroheight.com/) (feature completeness보다 adoption 우선 — 작게 시작).
 13. **시각 산출물 규약은 `../../references/visual-change-protocol.md` 를 따른다** — 편집 전 확정(대상 · 되말하기 · 관례 표) · 승인 기록 · 증거 채널의 정의와 숫자는 그 규약에 있다. 이 스킬에서 다시 정의하지 않는다. Step 0 의 재사용 부품 칸도 그 규약 §0 관례 표를 쓴다.
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Process
 
 ## Step 0: 자동 감지 및 로드
@@ -53,6 +54,7 @@ user-invocable: true
 ## Step 1: 대상 파악
 
 컴포넌트 대상을 결정한다:
+
 - **시안에서 추출**: 사용자가 시안 ID로 지정 (예: "card-product-a3f2를 컴포넌트화해줘")
 - **자동 식별**: 시안에서 2회 이상 반복되는 UI 패턴을 제안
 - **사용자 직접 지정**: "버튼, 카드, 입력 필드 정의해줘"
@@ -129,7 +131,7 @@ references/component-spec-template.md의 포맷으로 각 컴포넌트를 정의
 컴포넌트 정의 시 아래 옵션을 **기본 검토**한다. 해당 컴포넌트에 불필요하면 제외하되, 필요한 옵션을 빠뜨리지 마라:
 
 | 카테고리 | 옵션 | 흔한 값 | 적용 대상 |
-|----------|------|---------|-----------|
+| ---------- | ------ | --------- | ----------- |
 | 스타일 변형 | variant | primary, secondary, outline, ghost, link, destructive | 버튼, 배지, 알림 |
 | 크기 | size | xs, sm, md, lg, xl | 거의 모든 컴포넌트 |
 | 색상 | color | primary, secondary, success, warning, error, neutral | 버튼, 배지, 태그, 알림 |
@@ -161,6 +163,7 @@ references/component-spec-template.md의 포맷으로 각 컴포넌트를 정의
 - 피드백을 받아 수정 (variant 추가/제거, 상태 조정, 토큰 변경)
 - 확정 시 `.design/components/catalog.md`에 저장
 
+<!-- markdownlint-disable-next-line MD025 -->
 # References
 
 - `references/component-spec-template.md` — 컴포넌트 정의 템플릿

@@ -4,6 +4,7 @@ version: 0.1.1
 last_updated: 2026-09-24
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 계약 추출 모드 — partial · pin · exact
 
 봉인된 baseline 에서 어떤 강도의 계약을 뽑을지 결정하는 규칙.
@@ -104,7 +105,7 @@ partial 에서는 열고, pin 에서는 명시한 path 만 검사하고, exact �
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | `required` 승격 조건 | scoped sample 내 presence `100%` | 관측 object 전체의 key 교집합 ([GenSON](https://github.com/wolverdude/GenSON)) |
 | `optional` 판정 | presence `<100%`. `null` presence 는 missing 으로 세지 않음 | null 은 값이지 부재가 아님 ([JSON Schema null](https://json-schema.org/understanding-json-schema/reference/null)) |
 | `additionalProperties: false` 허용 unexpected property | `0` — exact 또는 명시 strict 설정에서만 | strict 정책 정의 ([JSON Schema Core](https://json-schema.org/draft/2020-12/json-schema-core)) |
@@ -119,7 +120,7 @@ partial 에서는 열고, pin 에서는 명시한 path 만 검사하고, exact �
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 단일 샘플 scalar 를 바로 `const` 또는 닫힌 `enum` 으로 승격 | 두 번째 정상 값이 회귀로 보고된다. 오탐 한 번이면 사용자는 도구를 끈다 |
 | `null` 을 missing 과 합쳐 optionality 계산 | nullable 필드가 optional 로 오분류되어 필드 소실 회귀를 놓친다 |
 | partial 모드에서 `additionalProperties: false` 를 기본값으로 사용 | 서버의 정상적 필드 추가가 전부 실패로 잡힌다 |

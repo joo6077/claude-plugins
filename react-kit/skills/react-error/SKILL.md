@@ -8,7 +8,13 @@ argument-hint: "[global|feature <FeatureName>]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
+<!-- markdownlint-enable MD041 -->
 
 1. **비동기 에러는 Error Boundary 가 못 잡음** — `useEffect` 안의 throw, Promise reject 는 Error Boundary 에 도달하지 않는다. 반드시 Result 로 감쌀 것. Error Boundary 는 **렌더 중 throw** 만 포획한다.
 2. **Error Boundary 는 클래스 컴포넌트 필수** — React 19 에서도 hooks 로 구현 불가. `react-error-boundary` 라이브러리 사용도 가능하지만 기본은 자체 클래스 컴포넌트.
@@ -28,7 +34,7 @@ user-invocable: true
 기존 에러 인프라 탐색:
 
 | 탐색 대상 | 경로 |
-|----------|------|
+| ---------- | ------ |
 | Failure 타입 | `src/domain/failures/` |
 | Severity 매핑 함수 | 같은 파일의 `severityOf()` |
 | UI 표시 유틸 | `src/presentation/shared/lib/display-failure.ts` |
@@ -88,6 +94,7 @@ function isUserFailure(e: unknown): e is UserFailure {
 ```
 
 **규칙:**
+
 - throw 는 datasource 내부에서만. 즉시 두 번째 인자에서 Failure 로 변환
 - Failure 는 discriminated union (`kind` 필드 필수)
 - `cause` 필드에 원본 에러 메시지 보존 (디버깅용)
@@ -130,7 +137,7 @@ export function severityOf(failure: UserFailure): Severity {
 **Severity 정의 — 사용자 관점의 심각도:**
 
 | Severity | 의미 | 예시 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | `info` | 인지만 해도 충분, 자동 dismiss | 리소스 not-found |
 | `warning` | 일시적 문제, 재시도 가능 | rate-limit, 일시 장애 |
 | `error` | 사용자 액션 필요 | 인증 오류, 유효성 실패 |
@@ -141,7 +148,7 @@ export function severityOf(failure: UserFailure): Severity {
 **Severity → UI 매핑 테이블:**
 
 | Severity | 표시 형태 | 위치 | 상호작용 |
-|----------|----------|------|---------|
+| ---------- | ---------- | ------ | --------- |
 | `info` | Toast (자동 dismiss) | 화면 우하단 | 없음 |
 | `warning` | Snackbar (action 포함) | 화면 하단 | "다시 시도" 버튼 |
 | `error` | Inline error 또는 Dialog | 관련 위치 | 사용자 액션 유도 |
@@ -238,6 +245,7 @@ export class RootErrorBoundary extends React.Component<Props, State> {
 ```
 
 **Error Boundary 배치 규칙:**
+
 - `<RootErrorBoundary>` 는 `src/presentation/app.tsx` 또는 라우터 루트에서 **한 번만** 감싼다
 - feature 단위 Error Boundary 가 필요하면 `fallback` prop 을 활용한다
 - Error Boundary 를 자주 열린다면 Result 패턴에 구멍이 있다는 신호
@@ -314,7 +322,7 @@ async function handleSave() {
 ### 10. 파일 생성 요약
 
 | 파일 | 내용 |
-|------|------|
+| ------ | ------ |
 | `src/domain/failures/<feature>-failures.ts` | Failure discriminated union + `severityOf()` |
 | `src/presentation/shared/lib/display-failure.ts` | Severity → UI 표시 라우터 |
 | `src/presentation/shared/components/root-error-boundary.tsx` | React Error Boundary 클래스 컴포넌트 |

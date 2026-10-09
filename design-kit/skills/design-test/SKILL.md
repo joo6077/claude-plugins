@@ -11,6 +11,7 @@ argument-hint: "<file-or-directory> [token|a11y|visual|responsive]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable-next-line MD041 -->
 ## Gotchas
 
 1. **스택 감지 없이 테스트 생성 금지** — React/Vue/Svelte/Flutter/HTML 등 프로젝트 프레임워크를 먼저 감지하라. Playwright 테스트를 Flutter 프로젝트에 생성하면 안 된다
@@ -36,7 +37,7 @@ user-invocable: true
 프로젝트 루트에서 UI 스택과 디자인 시스템을 감지한다:
 
 | 감지 대상 | 스택 | 테스트 도구 |
-|-----------|------|-----------|
+| ----------- | ------ | ----------- |
 | `package.json` + React | React | Playwright + axe-core + Storybook (선택) |
 | `package.json` + Vue | Vue | Playwright + axe-core |
 | `package.json` + Svelte | Svelte | Playwright + axe-core |
@@ -45,6 +46,7 @@ user-invocable: true
 | `*.html` (정적 사이트) | HTML/CSS | Playwright + axe-core + pa11y |
 
 추가 감지:
+
 - 디자인 토큰: `**/tokens/**`, `**/theme/**`, `**/design-system/**`, CSS custom properties (`--`)
 - Storybook: `.storybook/`, `*.stories.*`
 - Tailwind: `tailwind.config.*`
@@ -57,7 +59,7 @@ user-invocable: true
 **유형 미지정 시 자동 추론:**
 
 | 대상 특성 | 테스트 유형 |
-|-----------|-----------|
+| ----------- | ----------- |
 | 토큰 파일, 테마 설정 | token (일관성 검증) |
 | 컴포넌트, 페이지 | a11y (접근성) + visual (시각 회귀) |
 | 레이아웃, 그리드 | responsive (반응형) |
@@ -273,8 +275,9 @@ test.describe('Scoped visual change — 대상만 변하고 주변은 불변', (
 manifest 가 없으면 이 단계를 건너뛰되 **"해당 없음" 이 아니라 "manifest 부재"** 로 보고한다
 (체커가 `NO_MANIFEST` + exit 3 을 내는 이유와 같다 — 대상 0 건과 통과는 다르다).
 
-manifest 가 있으면 `decision_id` 마다 `required_surfaces[]` 를 순회하며 surface 당 테스트 1 개를
-생성한다. 스키마와 커버리지 규칙 4 조는 `../../references/visual-change-protocol.md` §6 이 정본이며
+manifest 가 있으면 `status: approved` 인 `decision_id` 마다 `required_surfaces[]` 를 순회하며 surface 당 테스트 1 개를
+생성한다. `status: superseded`(대체됨) 결정은 테스트를 만들지 않는다 — 그 화면 자리는 `superseded_by` 가 가리키는
+`approved` 결정이 받는다. 스키마와 커버리지 규칙 4 조는 `../../references/visual-change-protocol.md` §6 이 정본이며
 여기서 재정의하지 않는다. 생성 규칙은 셋이다:
 
 1. surface 의 `route_or_entry` · `state` · `viewport_or_container` 를 테스트 셋업에 그대로 옮긴다.
@@ -360,7 +363,7 @@ test.describe('Responsive Layout', () => {
 생성된 테스트를 실행한다:
 
 | 테스트 유형 | 실행 명령 |
-|-----------|----------|
+| ----------- | ---------- |
 | 토큰 검증 | `npx vitest run tests/design/tokens.test.ts` |
 | 접근성 | `npx playwright test tests/design/a11y.test.ts` |
 | 시각 회귀 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` (첫 실행) |
@@ -374,13 +377,13 @@ npm install -D @playwright/test @axe-core/playwright
 npx playwright install chromium
 ```
 
-**시각 회귀 baseline 검증 루프 (필수 — 건너뛰지 마라)**
+#### 시각 회귀 baseline 검증 루프 (필수 — 건너뛰지 마라)
 
 첫 실행은 baseline 을 기록할 뿐 아무것도 비교하지 않는다. 아래 4 단계를 모두 마치기 전에는
 "시각 회귀 테스트 통과" 라고 보고하지 않는다 (Gotcha 10).
 
 | 단계 | 명령 | 기대 결과 |
-|------|------|----------|
+| ------ | ------ | ---------- |
 | 1. baseline 기록 | `npx playwright test tests/design/visual-regression.test.ts --update-snapshots` | 스냅샷 파일 생성 — **통과는 증거가 아님** |
 | 2. negative control | 대상에 의도적 변형을 준 뒤 `npx playwright test tests/design/visual-regression.test.ts` | **실패해야 한다.** 통과하면 테스트가 아무것도 검사하지 않는 것이므로 locator/threshold 를 고쳐라 |
 | 3. 되돌리기 | 변형 revert 후 동일 명령 | 통과 |

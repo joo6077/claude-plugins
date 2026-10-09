@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>인시던트 대응 — Infra Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -117,7 +118,7 @@ body{
   display:flex;
   flex-direction:column;
 }
-.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card:hover{border-color:var(--accent);transform:var(--dk-hover-move, translateY(-2px))}
 .card-num{
   display:inline-flex;
   align-items:center;
@@ -286,7 +287,7 @@ td code{
   padding:18px 22px;
   transition:var(--transition);
 }
-.anti-item:hover{border-color:var(--border2);border-left-color:var(--error);transform:translateX(2px)}
+.anti-item:hover{border-color:var(--border2);border-left-color:var(--error);transform:var(--dk-hover-move, translateX(2px))}
 .anti-name{
   font-size:14px;
   font-weight:700;
@@ -408,18 +409,30 @@ td code{
 }
 .footer .accent{color:var(--accent);font-weight:700}
 
-@media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    animation-duration:0.01ms !important;
-    animation-iteration-count:1 !important;
-    transition-duration:0.01ms !important;
-    scroll-behavior:auto !important;
-  }
-  .card:hover,.anti-item:hover{transform:none}
-}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <!-- HERO -->

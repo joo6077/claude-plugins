@@ -2,7 +2,7 @@
 """
 append-audit-log.py — orchestrator-audit-log.md 자동 append
 
-카이젠 사이클 완료 시 Step 11 Final 에서 실행된다. 이번 사이클의 meta-issue
+카이젠 사이클 끝 Step F4 7 번(Post-Kaizen Checklist 뒤 · PR 전)에서 실행된다. 이번 사이클의 meta-issue
 (수동 개입, Post-Kaizen Checklist 실패 항목, orchestrator SKILL.md 수동 edit) 를
 `.harness/.meta/orchestrator-audit-log.md` 에 append-only 로 기록한다.
 
@@ -28,6 +28,8 @@ append-audit-log.py — orchestrator-audit-log.md 자동 append
     --failures <file>        Post-Kaizen Checklist 실패 항목 JSON 파일 경로
     --manual-edits <file>    수동으로 edit 된 orchestrator SKILL.md 라인 정보 JSON
     --notes <text>           자유 기술 (1 줄)
+    --watch <text>           다음 사이클 감시 목록에 더할 한 줄. 여러 번 줄 수 있다.
+                             실패 목록에서 오지 않는 감시 거리(교차 진단이 짚은 계약 밖 결함 등)를 넘긴다
     --dry-run                append 하지 않고 stdout 에 미리보기만
     --help                   사용법 출력
 
@@ -125,15 +127,27 @@ def load_json(path: Path | None) -> list[dict]:
         sys.exit(2)
 
 
+def next_entry_tag(current: str, cycle_id: str) -> str:
+    """같은 날 같은 사이클 항목이 이미 있으면 차례 번호를 붙인다 — 시작 빈 항목과 Final 항목이 한 날에 겹친다."""
+    base = f"{datetime.date.today().isoformat()} — {cycle_id}"
+    tag, seq = base, 1
+    while f"## {tag}\n" in current:
+        seq += 1
+        tag = f"{base} ({seq})"
+    return tag
+
+
 def render_entry(
+    entry_tag: str,
     cycle_id: str,
     failures: list[dict],
     manual_edits: list[dict],
     notes: str,
+    watch: list[str],
 ) -> str:
-    today = datetime.date.today().isoformat()
+    # 소제목이 고정이면 항목마다 겹쳐 같은 제목 경고(MD024)가 쌓인다
     lines: list[str] = []
-    lines.append(f"## {today} — {cycle_id}")
+    lines.append(f"## {entry_tag}")
     lines.append("")
     lines.append(
         f"**Cycle:** {cycle_id}  "
@@ -145,7 +159,7 @@ def render_entry(
         lines.append(f"**Notes:** {notes}  ")
     lines.append("")
 
-    lines.append("### Post-Kaizen Checklist failures")
+    lines.append(f"### Post-Kaizen Checklist failures ({entry_tag})")
     lines.append("")
     if failures:
         for f in failures:
@@ -156,7 +170,7 @@ def render_entry(
         lines.append("- 없음 (모든 체크 PASS)")
     lines.append("")
 
-    lines.append("### Orchestrator SKILL.md manual edits")
+    lines.append(f"### Orchestrator SKILL.md manual edits ({entry_tag})")
     lines.append("")
     if manual_edits:
         for m in manual_edits:
@@ -168,13 +182,14 @@ def render_entry(
         lines.append("- 없음 (수동 개입 없이 완료)")
     lines.append("")
 
-    lines.append("### Next-cycle watchlist")
+    lines.append(f"### Next-cycle watchlist ({entry_tag})")
     lines.append("")
-    if failures:
-        for f in failures:
-            check = f.get("check", "unknown")
-            lines.append(f"- [ ] `{check}` 재발 방지 — Step 0.5 에서 확인")
-    else:
+    for f in failures:
+        check = f.get("check", "unknown")
+        lines.append(f"- [ ] `{check}` 재발 방지 — Step 0.5 에서 확인")
+    for item in watch:
+        lines.append(f"- [ ] {item}")
+    if not failures and not watch:
         lines.append("- 특별 감시 대상 없음")
     lines.append("")
     lines.append("---")
@@ -217,6 +232,13 @@ def main() -> int:
     )
     parser.add_argument("--notes", default="", help="자유 기술 (1 줄)")
     parser.add_argument(
+        "--watch",
+        action="append",
+        default=None,
+        metavar="<text>",
+        help="다음 사이클 감시 목록에 더할 한 줄 (여러 번 줄 수 있다)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="append 하지 않고 stdout 미리보기",
@@ -258,7 +280,11 @@ def main() -> int:
     failures = load_json(args.failures)
     manual_edits = load_json(args.manual_edits)
 
-    entry = render_entry(cycle_id, failures, manual_edits, args.notes)
+    current = AUDIT_LOG.read_text(encoding="utf-8")
+    entry_tag = next_entry_tag(current, cycle_id)
+    entry = render_entry(
+        entry_tag, cycle_id, failures, manual_edits, args.notes, args.watch or []
+    )
 
     if args.dry_run:
         print("=== DRY RUN (append 안 됨) ===")
@@ -266,8 +292,10 @@ def main() -> int:
         return 0
 
     # Append-only
-    current = AUDIT_LOG.read_text(encoding="utf-8")
+    # 새 `## ` 머리 앞에 빈 줄이 있어야 앞 항목과 갈린다 (MD022 · MD032). 옛 내용은 한 글자도 지우지 않는다
     if not current.endswith("\n"):
+        current += "\n"
+    if not current.endswith("\n\n"):
         current += "\n"
     AUDIT_LOG.write_text(current + entry, encoding="utf-8")
     print(

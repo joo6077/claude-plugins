@@ -51,16 +51,16 @@ Iteration: 1
 
 ### Skill (3/3)
 - [x] SK-01: 동의 근거 출처 목록에 세션 기록의 `AskUserQuestion` 쌍이 두 파일 모두 추가됐다 — PASS
-  - 근거(L3): `harness/references/contract-schema.md:975` · `harness/docs/guides/qa-evaluation-guide.md:435`
+  - 근거(L3): `harness/references/contract-schema.md:975` · `harness/docs/guides/qa-evaluation-guide.md:440`
     양쪽 다 "세션 기록의 `AskUserQuestion` 쌍" 행이 출처 표에 추가됨.
     측정값: contract-schema.md `AskUserQuestion` 5건, qa-evaluation-guide.md 4건 (기준: 각 >=1). 양성 대조(작성 시점 0건) 대비 활성화 확인.
 - [x] SK-02: 그 추가가 요구 값 세 개(시각·세션·작업폴더)를 늘리지 않았다 — PASS
   - 근거(L3): 두 파일 모두 `grep -Fc '사용자 발언 인용 + **reflect-kit prompt 로그 앵커**(timestamp · session · cwd)'` = 1
-    (contract-schema.md:975, qa-evaluation-guide.md:426). 원문 리터럴 그대로 보존, 새 출처는
+    (contract-schema.md:975, qa-evaluation-guide.md:431). 원문 리터럴 그대로 보존, 새 출처는
     별도 표(`harness/references/contract-schema.md:975-978`)로 추가되어 기존 요구 값을 대체하지 않음.
 - [x] SK-03: 봉인 범위 서술 2 파일에 정확한 문장이 들어갔다 — PASS
   - 근거(L3): `grep -Fc '조건 줄이 가리키는 산문을 고치면 개정 파일에 남긴다'` = 1
-    (contract-schema.md:260, sprint-contract/SKILL.md:704). SKILL.md 쪽은 "봉인 이후 조건 본문을
+    (contract-schema.md:260, sprint-contract/SKILL.md:711). SKILL.md 쪽은 "봉인 이후 조건 본문을
     편집하지 마라" 절(작성자용 write-once 지시)에 자연스럽게 통합돼 있어 문맥상으로도 유효함
     (SKILL.md:697-711 확인).
 

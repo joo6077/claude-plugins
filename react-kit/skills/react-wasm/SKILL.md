@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **G0 카탈로그 우선** — 사용자 요청만으로 이식 결정 금지. 반드시 `docs/react/wasm-catalog.md` §1/§2 카테고리 매칭을 1단계로 실행한다. 카탈로그가 비권장으로 판정하면 `--force` 없이 진행하지 않는다.
 2. **경계 비용 수치 인식** — JS↔WASM 호출 오버헤드 약 50~100 ns/call, 문자열 마샬링 약 600~2,500 ns/call (unverified secondary source). 고빈도 콜백(>1만/sec)이나 tiny 함수(<100 μs)는 경계 비용이 본 작업 비용을 압도한다. 이 두 유형은 카탈로그 §2 비권장에 명시적으로 포함되어 있다.
 3. **Rust panic → Result 변환 필수** — Rust 함수는 반드시 `Result<T, JsError>`를 반환해야 한다. `?` 연산자로 에러 전파, `JsError::new(&format!("..."))` 로 JS Error 객체 변환. panic이 JS 경계를 넘는 것을 허용하지 않는다. `console_error_panic_hook`으로 패닉 메시지를 콘솔에 표시하고, Worker 경계에서 Comlink가 throw를 Promise reject로 전달하면 `ResultAsync.fromPromise`로 포획한다.
@@ -26,10 +28,14 @@ user-invocable: true
 13. **`Transferable` 활용** — `ArrayBuffer`를 Worker로 전달할 때 Transferable로 zero-copy 이동 가능. 원본 보존이 필요한 경우만 복사한다(복사 비용 ~1~3 ms / MB).
 14. **rustwasm org 아카이빙 (2025-09)** — wasm-pack, gloo, twiggy, walrus 등 rustwasm GitHub org 프로젝트가 아카이빙됐다. **wasm-bindgen 만 독립 org (`github.com/wasm-bindgen/wasm-bindgen`) 로 이전**. wasm-pack 은 여전히 동작하지만 신규 메인테이너 활동이 제한적이다. 대안으로 `wasm-bindgen-cli` + `wasm-opt` + 빌드 스크립트 직접 조합이 커스텀 cargo profile, 병렬 빌드 등에서 유리하다. react-kit 기본은 wasm-pack 유지하되, 빌드 커스터마이징이 필요하면 대안 경로를 안내한다.
 15. **WASM SIMD 128-bit 전 브라우저 지원** — 2025 초 기준 모든 주요 브라우저에서 128-bit SIMD 를 지원한다. SIMD 활용 시 특정 워크로드에서 JS 대비 10-15배 성능 향상이 가능하다. 단, Gotcha #9 의 feature detection 은 여전히 필수 — SIMD opcode 미지원 환경에서 런타임 에러가 발생한다.
-16. **Enumerate-before-Act (skill-design-guide §5.5)** — WASM 모듈을 생성하기 전에 기존 `src/wasm/core/*` 와 바인딩 래퍼를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 모듈 명, (b) 이미 존재하는 export 함수, (c) 같은 워크로드를 처리하는 기존 Worker 를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. G0 카탈로그 판정(Process §3)은 이식 가부만 정하므로, 중복 모듈 방지에는 enumerate 가 별도로 필요하다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+16. **Enumerate-before-Act (skill-design-guide §5.5)** — WASM 모듈을 생성하기 전에 기존 `src/wasm/core/*` 와 바인딩 래퍼를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 모듈 명, (b) 이미 존재하는 export 함수, (c) 같은 워크로드를 처리하는 기존 Worker 를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. G0 카탈로그 판정(Process §3)은 이식 가부만 정하므로, 중복 모듈 방지에는 enumerate 가 별도로 필요하다 (insights-report #2 wrong_approach 대응). 출처: <https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom>
 17. **요청한 함수만 — 임의 바인딩 확장 금지** — 사용자가 요청한 export 함수만 wasm-bindgen 바인딩과 Comlink 래퍼에 노출한다. "정렬 함수 이식" 요청에 추가 알고리즘·SIMD 변형·벤치마크 하니스를 요청 없이 임의로 덧붙이지 마라. 관련 함수가 필요해 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 프로젝트 환경 감지
 
@@ -55,7 +61,7 @@ crates/core/ 디렉토리를 찾을 수 없습니다.
 **§1 권장 카테고리 → WASM 진행:**
 
 | 키워드 | 카테고리 | 추천 크레이트 |
-|--------|----------|--------------|
+| -------- | ---------- | -------------- |
 | 이미지, 리사이즈, 썸네일, 필터, 코덱 | 이미지 처리 | `image`, `fast_image_resize` |
 | 압축, 해제, gzip, brotli, lz4, zstd | 압축/해제 | `lz4_flex`, `brotli`, `zstd` |
 | ML, 추론, ONNX, tensor, 뉴럴넷 | ML 추론 | `tract-onnx`, `ndarray` |
@@ -69,7 +75,7 @@ crates/core/ 디렉토리를 찾을 수 없습니다.
 **§2 비권장 카테고리 → 거부 (--force 없이):**
 
 | 키워드 | 카테고리 | 이유 |
-|--------|----------|------|
+| -------- | ---------- | ------ |
 | DOM, 컴포넌트, 렌더, React 상태 | UI/DOM | WebAssembly DOM 직접 접근 불가. 경계 비용이 본 작업 지배 |
 | 폼 검증, form validation, Zod | 폼 검증 | V8 JIT이 hot small code path 최적화. 마샬링 비용 초과 |
 | JSON 파싱, JSON.parse, JSON.stringify | JSON 처리 | V8 네이티브 SIMD급 최적화. WASM 이식 이득 없음 |
@@ -103,7 +109,7 @@ crates/core/ 디렉토리를 찾을 수 없습니다.
 카테고리 매칭이 실패하면 `docs/react/wasm-catalog.md` §5 휴리스틱으로 판정한다. 각 축을 정적 분석 또는 사용자 질문으로 채점:
 
 | 축 | WASM 쪽 (YES=1점) | JS 쪽 |
-|----|-------------------|-------|
+| ---- | ------------------- | ------- |
 | H1. 데이터 크기 | 바이너리 버퍼 (Uint8Array, Float32Array), KB~MB 단위 | 문자열, 일반 객체, <1 KB |
 | H2. 호출 빈도 | 초당 <100 + 호출당 ms 단위 무거운 연산 | 초당 >1만 + 가벼운 연산 |
 | H3. 내부 연산 | 반복 루프, 숫자/바이너리 위주, 분기 적음 | 문자열/객체 조작, 정규식, DOM |
@@ -149,6 +155,7 @@ pub fn <function_name>(input: &[u8], /* 파라미터 */) -> Result<Vec<u8>, JsEr
 ```
 
 **핵심 규칙:**
+
 - 반환 타입은 반드시 `Result<T, JsError>` — panic이 JS 경계를 넘지 못하게 한다
 - `?` 연산자로 Rust 에러를 전파, `From` 구현으로 자동 변환
 - `JsError::new(...)` 는 JS 측에서 `Error` 객체로 변환되어 catch 가능
@@ -265,11 +272,16 @@ export function <camelFeature>(
 ## 6. 완료 후 안내
 
 생성 파일 목록 출력. 다음 단계:
+
 - WASM 연산 결과를 UI에 연결: `/react-query` (TanStack Query mutation)
 - 화면 추가: `/react-screen`
 - 감사: `/react-audit` (WASM render-in-loop, SIMD guard, 번들 크기 검사)
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 환경 감지
 - `references/clean-arch-layout.md` — 레이어 배치 규칙 (datasources/wasm/, domain/usecases/)

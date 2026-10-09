@@ -1,0 +1,41 @@
+{
+  "manifest": {
+    "endpoint": "orders.list",
+    "env": "dev",
+    "capturedAt": "2026-09-02T14:22:00+09:00",
+    "mediaType": "application/json",
+    "normalizedDigest": "sha-256:27917b00d8ba22f5facd460b1d8b9b42611981cff2a868d0f798cfbf257b521b",
+    "lineage": {
+      "env": "dev",
+      "branch": "main"
+    }
+  },
+  "raw": {
+    "status": 200,
+    "headers": [
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ]
+    ],
+    "body": {
+      "data": [
+        {
+          "orderId": "ord_8f21c",
+          "status": "active",
+          "total": 244700
+        },
+        {
+          "orderId": "ord_8f19a",
+          "status": "active",
+          "total": 60300
+        }
+      ],
+      "meta": {
+        "total": 47,
+        "hasMore": true
+      }
+    }
+  },
+  "normalized": "{\"data\":[{\"orderId\":\"ord_8f21c\",\"status\":\"active\",\"total\":244700},{\"orderId\":\"ord_8f19a\",\"status\":\"active\",\"total\":60300}],\"meta\":{\"hasMore\":true,\"total\":47}}"
+}

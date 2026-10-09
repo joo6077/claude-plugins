@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 인증 원칙
 
 `jsonwebtoken 10.x`를 사용한 JWT 기반 인증 패턴이다. access token과 refresh token을 분리하고, axum의 `FromRequestParts`로 인증된 사용자를 Extractor로 추출한다.
@@ -160,7 +161,7 @@ pub async fn refresh_token(
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | jsonwebtoken 버전 | 10.x | crypto backend feature 필수 |
 | Access token 수명 | 15분 | 짧을수록 보안 강함 |
 | Refresh token 수명 | 7~30일 | 앱 성격에 따라 조정 |

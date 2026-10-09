@@ -10,7 +10,11 @@ argument-hint: "<대상 파일 또는 설명>"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - breakpoint 값을 하드코딩하지 마라 — 프로젝트에 이미 정의된 breakpoint 상수가 있는지 먼저 확인
 - **breakpoint 양쪽을 각각 캡처해 대조하기 전에는 완료가 아니다 (`/insights` 2026-07-27 Friction #2)** — 넓은 화면만 보고 완료를 선언하면 기존 모바일 레이아웃 회귀를 놓친다. 절차: `references/visual-evidence-protocol.md`. 검증 채널이 없으면 `[미검증]` 을 명시하고 멈춰서 말하라 — 추측 금지
@@ -31,7 +35,7 @@ user-invocable: true
 `pubspec.yaml` 및 `lib/` 디렉토리에서 반응형 관련 패키지/유틸리티를 탐지한다:
 
 | 패키지/패턴 | 감지 키 | 설명 |
-|------------|---------|------|
+| ------------ | --------- | ------ |
 | `responsive_framework` | `HAS_RESPONSIVE_FW` | ResponsiveBreakpoints 위젯 제공 |
 | `responsive_builder` | `HAS_RESPONSIVE_BUILDER` | ScreenTypeLayout 위젯 제공 |
 | `lib/**/responsive/` 또는 `lib/**/breakpoint*` | `HAS_CUSTOM_RESPONSIVE` | 프로젝트 커스텀 breakpoint 상수 |
@@ -41,6 +45,7 @@ user-invocable: true
 ### 프로젝트 breakpoint 탐색
 
 프로젝트에 커스텀 breakpoint가 있는지 확인한다:
+
 1. `lib/` 내 `breakpoint`, `responsive`, `screen_size` 키워드 파일 검색
 2. 일반적 위치: `lib/core/responsive/`, `lib/core/constants/`, `lib/utils/responsive/`
 3. 파일 내 `static const` 또는 `static final` double 값으로 정의된 breakpoint 상수 확인
@@ -55,6 +60,7 @@ user-invocable: true
 ## Input
 
 `$ARGUMENTS`: 대상 파일 경로 또는 자연어 설명
+
 - `lib/features/workout/presentation/workout_screen.dart`
 - `홈 화면을 태블릿에서 2컬럼으로`
 
@@ -63,6 +69,7 @@ user-invocable: true
 ### 1. 반응형 유틸리티 읽기
 
 프로젝트에 반응형 유틸리티가 있으면 해당 파일을 읽는다:
+
 - 커스텀 breakpoint 상수 파일
 - ResponsiveLayout / ScreenTypeLayout 위젯
 
@@ -73,7 +80,7 @@ user-invocable: true
 프로젝트에 커스텀 breakpoint가 없으면 아래 기본값을 사용한다:
 
 | Breakpoint | Width | 페이지 패딩 | 카드 간격 | 카드 내부 패딩 |
-|-----------|-------|-----------|---------|-------------|
+| ----------- | ------- | ----------- | --------- | ------------- |
 | Mobile | < 600 | 16 | 16 | 16 |
 | Tablet | 600~1024 | 24 | 20 | 24 |
 | Desktop | > 1024 | 32 | 24 | 32 |
@@ -89,7 +96,7 @@ user-invocable: true
 #### 일반 패턴
 
 | 패턴 | Mobile | Tablet | Desktop |
-|------|--------|--------|---------|
+| ------ | -------- | -------- | --------- |
 | 리스트 → 그리드 | 1열 | 2열 | 3열 |
 | 스택 → 나란히 | 세로 배치 | 가로 배치 | 가로 배치 |
 | 단일 → 마스터-디테일 | 페이지 전환 | split view | split view |
@@ -98,7 +105,7 @@ user-invocable: true
 #### LayoutBuilder vs MediaQuery 선택
 
 | 상황 | 권장 | 이유 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 위젯이 부모 공간에 따라 변해야 함 | `LayoutBuilder` | 부모의 실제 가용 공간 기준 |
 | 전체 화면 크기에 따라 변해야 함 | `MediaQuery.sizeOf(context)` | 화면 전체 기준 |
 | 위젯이 네비게이션/사이드바 안에 있음 | `LayoutBuilder` | 사이드바 축소 시 자동 대응 |

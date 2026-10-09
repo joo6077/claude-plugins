@@ -1,0 +1,46 @@
+$ bash /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/measure.sh 스크립트-17
+evidence=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-17-amend-yckj2tux
+OK known valid frozen record bundle actual=[]
+positive_control=1
+OK positive control catches known violation actual=1
+known_answer expected=2 actual=2
+OK two hand-counted records actual=2
+source_ref=d72a16639edd48efa02d166a203a0d581519bf94
+OK amend-nonzero-APPROVE: exit actual=0
+OK amend-nonzero-APPROVE: exec_calls actual=1
+OK amend-nonzero-APPROVE: report exists
+OK amend-nonzero-APPROVE: report verdict actual="조\n\n## 판정 사본\n- judge-1: /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-17-amend-yckj2tux/amend-nonzero-APPROVE/codex-audit-work-ez_3bq_r\n\n감독 판정: APPROVE\n"
+OK amend-nonzero-APPROVE: audit directory actual=".harness/codex-audit/sample/impl-r1/report.md"
+OK amend-nonzero-APPROVE: script report boundary
+OK frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK command failure does not BLOCK judgment
+OK amend-nonzero-REJECT: exit actual=1
+OK amend-nonzero-REJECT: exec_calls actual=2
+OK amend-nonzero-REJECT: report exists
+OK amend-nonzero-REJECT: report verdict actual="ork-hzhiz8g7\n- review-1: /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-17-amend-yckj2tux/amend-nonzero-REJECT/codex-audit-work-20qssp7c\n\n감독 판정: REJECT\n"
+OK amend-nonzero-REJECT: audit directory actual=".harness/codex-audit/sample/impl-r1/report.md"
+OK amend-nonzero-REJECT: script report boundary
+OK frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK command failure does not BLOCK judgment
+OK amend-missing-APPROVE: exit actual=0
+OK amend-missing-APPROVE: exec_calls actual=1
+OK amend-missing-APPROVE: report exists
+OK amend-missing-APPROVE: report verdict actual="조\n\n## 판정 사본\n- judge-1: /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-17-amend-yckj2tux/amend-missing-APPROVE/codex-audit-work-yc5kpss8\n\n감독 판정: APPROVE\n"
+OK amend-missing-APPROVE: audit directory actual=".harness/codex-audit/sample/impl-r1/report.md"
+OK amend-missing-APPROVE: script report boundary
+OK frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK command failure does not BLOCK judgment
+OK amend-missing-REJECT: exit actual=1
+OK amend-missing-REJECT: exec_calls actual=2
+OK amend-missing-REJECT: report exists
+OK amend-missing-REJECT: report verdict actual="ork-9wqxyfdu\n- review-1: /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-17-amend-yckj2tux/amend-missing-REJECT/codex-audit-work-dz8xy66u\n\n감독 판정: REJECT\n"
+OK amend-missing-REJECT: audit directory actual=".harness/codex-audit/sample/impl-r1/report.md"
+OK amend-missing-REJECT: script report boundary
+OK frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+OK command failure does not BLOCK judgment
+FAIL 스크립트-17 checks=39 failures=4
+exit=1

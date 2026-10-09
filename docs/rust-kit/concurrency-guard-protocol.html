@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>동시성 가드 프로토콜 — Rust Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -104,10 +105,30 @@
   :not(pre)>code{overflow-wrap:anywhere}
   /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
   @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
-  @media(prefers-reduced-motion:reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <a href="../index.html" class="nav-back">&#8592; Rust Kit</a>
@@ -147,13 +168,13 @@
       <div class="card-body">
         <p><code>SELECT</code> 로 상태를 읽고 → Rust 코드에서 비교하고 → <code>UPDATE</code> 하는 흐름은 두 문장 사이에 다른 트랜잭션이 끼어들 수 있다(read-check-then-write). 앱 레벨 <code>if</code> 는 이 창을 닫지 못한다.</p>
         <p>기대 상태를 <code>UPDATE</code> 의 <code>WHERE</code> 술어로 내려 <strong class="lead-strong">원자적으로</strong> 판정한다.</p>
-        <pre><span style="color:#f08575">-- 기대값(읽어온 스냅샷)을 술어에 포함시켜</span>
-<span style="color:#f08575">-- 경합 시 0 행이 갱신되게 한다</span>
+        <pre><span style="color:var(--accent2)">-- 기대값(읽어온 스냅샷)을 술어에 포함시켜</span>
+<span style="color:var(--accent2)">-- 경합 시 0 행이 갱신되게 한다</span>
 UPDATE sessions
    SET exercises = $1, updated_at = now()
  WHERE id = $2
-   AND exercises = $3;   <span style="color:#4ade80">-- $3 = 읽을 때 관찰한 값</span>
-                         <span style="color:#4ade80">--      stale 이면 매치되지 않는다</span></pre>
+   AND exercises = $3;   <span style="color:var(--green)">-- $3 = 읽을 때 관찰한 값</span>
+                         <span style="color:var(--green)">--      stale 이면 매치되지 않는다</span></pre>
         <ul class="antilist">
           <li><span class="x">&#8226;</span><div>버전 컬럼(<code>version = $n</code>) · 타임스탬프 · 값 자체 스냅샷 중 무엇을 쓰든 원리는 같다.</div></li>
           <li><span class="x">&#8226;</span><div><code>INSERT</code> 경로의 중복 방지는 partial unique index + <code>ON CONFLICT</code> 로 같은 층에서 처리한다.</div></li>
@@ -193,7 +214,7 @@ UPDATE sessions
     .await?;
 
     if res.rows_affected() == 0 {
-        <span style="color:#4ade80">// 경합으로 스킵됨 — 조용히 Ok 로 흘리지 않는다</span>
+        <span style="color:var(--green)">// 경합으로 스킵됨 — 조용히 Ok 로 흘리지 않는다</span>
         return Err(DomainError::Conflict);
     }
     Ok(())
@@ -380,7 +401,7 @@ assert_eq!(out.status.code(), Some(0));</pre>
     <h4>cargo-mutants 는 보조 확인 수단이다</h4>
     <div class="card-body">
       <p><code>cargo-mutants</code> 는 &ldquo;가드를 지워도 살아남는 테스트&rdquo; 를 찾는 데 쓸 수 있다. 다만 <strong class="lead-strong">결정론적 negative test 를 대체하지 않는다.</strong> 범위는 이번 변경분 파일·패키지로 한정한다.</p>
-      <pre><span style="color:#f08575"># 이번 변경분으로 범위 한정</span>
+      <pre><span style="color:var(--accent2)"># 이번 변경분으로 범위 한정</span>
 cargo mutants --package adapters --file src/session/repo.rs</pre>
     </div>
     <a href="https://mutants.rs/" target="_blank" rel="noopener" class="card-source">&#8599; cargo-mutants (mutants.rs)</a>

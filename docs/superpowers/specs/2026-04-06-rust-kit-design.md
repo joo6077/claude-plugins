@@ -12,7 +12,7 @@
 
 ## 플러그인 구조
 
-```
+```text
 rust-kit/
 ├── .claude-plugin/plugin.json
 ├── skills/
@@ -79,7 +79,7 @@ flutter-toolkit의 7단계 감지 파이프라인을 Rust에 맞게 조정.
 
 ### 감지 파이프라인
 
-```
+```text
 Step 1. Rust 프로젝트 확인      Cargo.toml 존재
 Step 2. 툴체인 감지             rust-toolchain.toml → channel/components 파싱
                                 없으면 → rustup default 확인
@@ -95,7 +95,7 @@ Step 7. CI 감지                 .github/workflows/, .gitlab-ci.yml 등
 **Step 5 아키텍처 감지 테이블**:
 
 | ARCH | 감지 조건 |
-|------|---------|
+| ------ | --------- |
 | `hexagonal` | `ports/` + `adapters/` 디렉토리 존재 (workspace 크레이트 내 또는 단일 크레이트 src/ 내) |
 | `workspace_service` | `crates/` 디렉토리 + workspace members 존재 (ports/adapters 없을 때) |
 | `modular` | `src/api/`, `src/domain/`, `src/infra/` 모듈 분리 (단일 크레이트, ports/adapters 없을 때) |
@@ -105,17 +105,20 @@ Step 7. CI 감지                 .github/workflows/, .gitlab-ci.yml 등
 ### 감지 결과 변수
 
 **커맨드**:
+
 - `$CARGO` — `cargo` (기본) 또는 `cross` (크로스 컴파일 시)
 - `$RUSTFMT` — `cargo fmt`
 - `$CLIPPY` — `cargo clippy`
 
 **프로젝트 메타**:
+
 - `$PACKAGE` — Cargo.toml의 `[package].name`
 - `$EDITION` — 2021 | 2024
 - `IS_WORKSPACE` — true | false
 - `WORKSPACE_MEMBERS` — 크레이트 목록
 
 **의존성 플래그** (HAS_*):
+
 - `HAS_AXUM`, `HAS_ACTIX`, `HAS_ROCKET` — 웹 프레임워크
 - `HAS_SQLX`, `HAS_DIESEL`, `HAS_SEAORM` — ORM/DB
 - `HAS_TOKIO`, `HAS_ASYNC_STD` — 런타임
@@ -127,6 +130,7 @@ Step 7. CI 감지                 .github/workflows/, .gitlab-ci.yml 등
 - `HAS_RUST_I18N`, `HAS_FLUENT` — i18n
 
 **아키텍처**:
+
 - `ARCH` = `hexagonal` | `workspace_service` | `modular` | `flat` | `library`
   - `hexagonal`: `ports/` + `adapters/` 디렉토리 존재 (workspace 또는 단일 크레이트 모두 가능)
   - `workspace_service`: `crates/` 디렉토리 + workspace members (API, domain, infra 분리)
@@ -139,7 +143,7 @@ Step 7. CI 감지                 .github/workflows/, .gitlab-ci.yml 등
 ### 분류
 
 | 분류 | 스킬 | 개수 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 생성형 | rust-init, rust-feature, rust-api, rust-model, rust-service, rust-auth, rust-middleware, rust-grpc, rust-test, rust-docker, rust-l10n | 11 |
 | 가이드형 | rust-error | 1 |
 | 실행형 | rust-run, rust-build, rust-preflight | 3 |
@@ -148,7 +152,7 @@ Step 7. CI 감지                 .github/workflows/, .gitlab-ci.yml 등
 
 ### 의존 관계
 
-```
+```text
 rust-run  <── rust-build (build + clippy wrapper)
 rust-run  <── rust-preflight (fmt → clippy → test → audit 오케스트레이션)
 rust-feature ──> rust-api, rust-model, rust-service (내부 생성 가능)
@@ -163,6 +167,7 @@ rust-kaizen ──> 전 스킬 (개선 대상)
 **트리거**: "프로젝트 만들어줘", "rust init", "새 프로젝트", "cargo new", "프로젝트 생성"
 
 **생성물**:
+
 - `rust-toolchain.toml` (channel = "stable", components = ["rustfmt", "clippy"])
 - `Cargo.toml` (workspace 또는 단일 크레이트)
 - 디렉토리 구조 (ARCH에 따라)
@@ -171,6 +176,7 @@ rust-kaizen ──> 전 스킬 (개선 대상)
 - `sqlx-data.json` (SQLx offline mode용, 선택)
 
 **프로세스**:
+
 1. 프로젝트 이름, 설명 확인
 2. 아키텍처 선택 제안 (workspace_service 권장, 규모에 따라 modular/flat)
 3. 의존성 선택 (체크리스트: Axum, SQLx, serde, tracing, utoipa 등)
@@ -178,7 +184,8 @@ rust-kaizen ──> 전 스킬 (개선 대상)
 5. `cargo build` 로 초기 컴파일 확인
 
 **workspace_service 구조 예시**:
-```
+
+```text
 my-project/
 ├── Cargo.toml              # [workspace]
 ├── rust-toolchain.toml
@@ -213,7 +220,8 @@ my-project/
 ```
 
 **modular 구조 예시**:
-```
+
+```text
 my-project/
 ├── Cargo.toml
 ├── rust-toolchain.toml
@@ -239,6 +247,7 @@ my-project/
 ```
 
 **Gotchas**:
+
 - `cargo init` vs `cargo new` 혼동 금지 — 기존 디렉토리면 `init`, 새 디렉토리면 `new`
 - workspace에서 `resolver = "2"` (edition 2021+) 필수. edition 2024는 `resolver = "3"` 사용
 - `.cargo/config.toml`에 `[target.x86_64-unknown-linux-gnu]` 같은 타겟 고정 금지 — 크로스 플랫폼 깨짐
@@ -250,10 +259,12 @@ my-project/
 **트리거**: "모듈 추가", "feature 생성", "새 기능 모듈", "rust feature"
 
 **생성물** (ARCH에 따라):
+
 - workspace_service: 해당 크레이트 내 모듈 디렉토리 + mod.rs + handler + service + model + test
 - modular: `src/{layer}/{feature}/` 디렉토리 구조
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. feature 이름, 소속 레이어 확인
 3. 기존 feature 패턴 읽기 (이미 있는 feature의 구조를 따름)
@@ -261,6 +272,7 @@ my-project/
 5. 라우터에 `.nest()` 또는 `.merge()` 추가 안내
 
 **Gotchas**:
+
 - `mod.rs` vs 파일 이름 모듈(`feature.rs`) — 프로젝트 기존 패턴을 따름. 혼용 금지
 - workspace 멤버 간 순환 의존 금지 — `domain`은 `api`나 `infra`를 의존하면 안 됨
 - `pub` 범위 최소화 — `pub(crate)` 기본, `pub`은 크레이트 경계에서만
@@ -272,12 +284,14 @@ my-project/
 **트리거**: "API 추가", "엔드포인트 추가", "핸들러 만들어줘", "라우터 추가", "rust api"
 
 **생성물**:
+
 - 핸들러 함수 (`async fn`)
 - 라우터 모듈 (`.route()` 등록)
 - Request/Response 구조체 (serde Serialize/Deserialize)
 - utoipa `#[utoipa::path]` 어노테이션 (HAS_UTOIPA 시)
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. HTTP 메서드, 경로, 요청/응답 스키마 확인
 3. 기존 핸들러 패턴 읽기 (에러 반환 방식, 추출자 사용 패턴)
@@ -288,6 +302,7 @@ my-project/
 8. `cargo build` 확인 안내
 
 **핸들러 패턴**:
+
 ```rust
 // 포트 기반 DI (Hexagonal) — 인프라 직접 참조 없음
 async fn create_user(
@@ -300,6 +315,7 @@ async fn create_user(
 ```
 
 **Gotchas**:
+
 - Axum 0.7+ 에서 `State`는 `Router::with_state()`로 주입. 글로벌 상태 사용 금지
 - `Json<T>` 추출자는 요청 본문을 소비함 — 한 핸들러에서 두 번 추출 불가
 - 경로 파라미터 `Path<(String, i64)>` 순서가 URL 세그먼트 순서와 일치해야 함
@@ -311,11 +327,13 @@ async fn create_user(
 **트리거**: "모델 만들어줘", "테이블 추가", "마이그레이션 생성", "DB 모델", "rust model"
 
 **생성물**:
+
 - 구조체 + `sqlx::FromRow` derive
 - 마이그레이션 SQL 파일 (`migrations/YYYYMMDDHHMMSS_<name>.sql`)
 - CRUD 쿼리 함수 (compile-time checked `sqlx::query_as!`)
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. 테이블 이름, 컬럼, 관계 확인
 3. 기존 모델 패턴 읽기
@@ -326,6 +344,7 @@ async fn create_user(
 8. `sqlx migrate run` 또는 `cargo sqlx prepare` 안내
 
 **Gotchas**:
+
 - `sqlx::query!` 매크로는 컴파일 타임에 DB 연결 필요 — `DATABASE_URL` 환경변수 또는 `.env` 필수
 - 오프라인 모드(`sqlx-data.json`)는 `cargo sqlx prepare`로 미리 생성해야 CI에서 동작
 - 마이그레이션 파일 이름의 타임스탬프가 겹치면 에러 — 항상 현재 시각 사용
@@ -338,11 +357,13 @@ async fn create_user(
 **트리거**: "서비스 만들어줘", "비즈니스 로직", "유즈케이스", "rust service"
 
 **생성물**:
+
 - 서비스 trait + impl
 - DI를 위한 trait 기반 추상화
 - 단위 테스트 스켈레톤
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. 서비스 이름, 의존성(repository trait 등) 확인
 3. 기존 서비스 패턴 읽기
@@ -352,6 +373,7 @@ async fn create_user(
 7. 테스트 모듈 생성 (mock 포함)
 
 **패턴**:
+
 ```rust
 // 포트 기반 DI (Hexagonal)
 #[async_trait]
@@ -365,6 +387,7 @@ pub struct UserServiceImpl<R: UserRepository> {
 ```
 
 **Gotchas**:
+
 - `async_trait`은 heap allocation 발생 — 성능 크리티컬 경로에서는 RPITIT (Rust 1.75+) 사용 고려
 - 서비스가 여러 repository에 의존하면 제네릭이 복잡해짐 — 구체 타입으로 시작하고 필요 시 trait 추출
 
@@ -375,12 +398,14 @@ pub struct UserServiceImpl<R: UserRepository> {
 **트리거**: "인증 추가", "JWT", "로그인", "OAuth", "auth", "rust auth"
 
 **생성물**:
+
 - JWT 토큰 생성/검증 함수
 - Axum 인증 미들웨어 (extractor 기반)
 - Claims 구조체
 - 선택: OAuth/OIDC 클라이언트 설정
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. 인증 방식 확인 (JWT only / JWT + refresh / OAuth + JWT)
 3. 기존 auth 패턴 읽기
@@ -390,6 +415,7 @@ pub struct UserServiceImpl<R: UserRepository> {
 7. 환경변수 (.env) 에 시크릿 키 설정 안내
 
 **패턴**:
+
 ```rust
 // Axum extractor로 인증
 pub struct AuthUser(pub Claims);
@@ -407,6 +433,7 @@ where
 ```
 
 **Gotchas**:
+
 - JWT 시크릿을 소스코드에 하드코딩 금지 — 반드시 환경변수에서 로드
 - `jsonwebtoken::decode`는 exp 클레임 자동 검증 — 추가 만료 검사 중복 금지
 - refresh token은 DB에 저장해야 함 — 메모리/JWT 안에 넣으면 무효화 불가
@@ -418,10 +445,12 @@ where
 **트리거**: "미들웨어 추가", "CORS", "rate limit", "로깅 미들웨어", "rust middleware"
 
 **생성물**:
+
 - tower 미들웨어 레이어 또는 Axum `middleware::from_fn`
 - 구성: CORS, request logging, rate limiting, request ID, timeout 중 선택
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. 미들웨어 종류 확인
 3. 기존 미들웨어 스택 읽기
@@ -431,6 +460,7 @@ where
 7. `cargo build` 확인
 
 **Gotchas**:
+
 - tower 레이어 순서가 중요 — `.layer()`는 안쪽부터 바깥으로 적용됨 (마지막 `.layer()`가 가장 먼저 실행)
 - `CorsLayer`는 `tower-http` 크레이트 — `axum` 자체에 없음
 - rate limiting 상태는 `Arc<Mutex<>>` 또는 외부 저장소(Redis) — 멀티 인스턴스 환경 고려
@@ -442,12 +472,14 @@ where
 **트리거**: "gRPC 추가", "proto 파일", "tonic", "rust grpc"
 
 **생성물**:
+
 - `.proto` 파일
 - `build.rs` (tonic-build 코드 생성 설정)
 - gRPC 서비스 impl
 - 클라이언트 코드 (선택)
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. 서비스 이름, RPC 메서드 확인
 3. proto 파일 생성
@@ -458,6 +490,7 @@ where
 8. `cargo build` 로 코드 생성 확인
 
 **Gotchas**:
+
 - `protoc` 시스템 설치 필요 — tonic-build가 자체 포함하지 않음. `prost-build`의 `protoc` 자동 다운로드 옵션 안내
 - proto 파일 경로는 `build.rs`의 `compile_protos` 인자와 정확히 일치해야 함
 - streaming RPC는 `impl Stream` 반환 — `tokio_stream::wrappers` 활용
@@ -469,11 +502,13 @@ where
 **트리거**: "테스트 만들어줘", "unit test", "integration test", "테스트 추가", "rust test"
 
 **생성물**:
+
 - 단위 테스트 (`#[cfg(test)] mod tests`)
 - 통합 테스트 (`tests/` 디렉토리)
 - mock (mockall 기반, trait에 `#[automock]`)
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. 대상 파일/모듈 분석 — 공개 함수, trait 목록 추출
 3. 기존 테스트 패턴 읽기
@@ -486,6 +521,7 @@ where
 6. `cargo nextest run` 실행 안내
 
 **Gotchas**:
+
 - `#[sqlx::test]`는 테스트별 독립 DB 트랜잭션 제공 — 직접 connection pool 만들지 말 것
 - `tokio::test`에 `#[tokio::test(flavor = "multi_thread")]` 필요한 케이스 있음 — spawn 사용 시
 - mockall의 `#[automock]`은 trait에만 적용 가능 — 구체 struct 메서드에는 사용 불가
@@ -497,11 +533,13 @@ where
 **트리거**: "도커", "Dockerfile", "컨테이너", "배포 설정", "rust docker"
 
 **생성물**:
+
 - 멀티스테이지 Dockerfile (builder + runtime)
 - docker-compose.yml (앱 + PostgreSQL + Redis 등)
 - .dockerignore
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. 의존 서비스 확인 (DB, 캐시, 메시지 큐)
 3. Dockerfile 생성 (cargo-chef 기반 캐싱 최적화)
@@ -509,6 +547,7 @@ where
 5. `.dockerignore` 생성
 
 **Dockerfile 패턴** (cargo-chef):
+
 ```dockerfile
 FROM rust:1-bookworm AS chef
 RUN cargo install cargo-chef
@@ -530,6 +569,7 @@ CMD ["app"]
 ```
 
 **Gotchas**:
+
 - Rust 바이너리는 정적 링크가 아닐 수 있음 — `musl` 타겟 또는 동일 distro 베이스 사용
 - `cargo-chef`로 의존성 캐싱 — `cargo build`만 하면 소스 변경마다 전체 재빌드
 - `.sqlx/` 디렉토리를 이미지에 포함해야 오프라인 모드 동작 — `.dockerignore`에서 제외하지 말 것
@@ -541,6 +581,7 @@ CMD ["app"]
 **트리거**: "에러 처리", "error handling", "에러 타입", "Result", "rust error"
 
 **가이드 내용**:
+
 - 3계층 에러 구조: `InfraError` → `DomainError` → `ApiError`
 - infra 계층: `thiserror`로 구체적 에러 정의 (DB, 외부 API 등)
 - domain 계층: `thiserror`로 비즈니스 에러 정의, infra 에러를 `From` impl로 변환
@@ -548,6 +589,7 @@ CMD ["app"]
 - 앱 경계(main, 스크립트): `anyhow::Result`로 간단히 처리
 
 **패턴**:
+
 ```rust
 // domain/errors.rs
 #[derive(Debug, thiserror::Error)]
@@ -574,6 +616,7 @@ impl IntoResponse for ApiError {
 ```
 
 **Gotchas**:
+
 - `anyhow`와 `thiserror` 혼용 금지하지 않음 — 라이브러리 코드는 `thiserror`, 앱 코드는 `anyhow`가 관용적
 - `.unwrap()`, `.expect()` 는 프로덕션 코드에서 금지 — 테스트에서만 허용
 - `?` 연산자 체이닝 시 `From` impl 누락이 흔한 컴파일 에러 원인
@@ -585,12 +628,14 @@ impl IntoResponse for ApiError {
 **트리거**: "다국어", "번역", "i18n", "l10n", "국제화", "rust l10n"
 
 **생성물**:
+
 - i18n 설정 (rust-i18n 또는 fluent 기반)
 - 로케일 파일 (`locales/ko.toml`, `locales/en.toml` 등)
 - Accept-Language 미들웨어
 - 번역 키 추가/수정
 
 **프로세스**:
+
 1. 프로젝트 감지 (`HAS_RUST_I18N` / `HAS_FLUENT`)
 2. i18n 라이브러리 미설치 시 선택 제안 (rust-i18n 권장 — 간단한 TOML 기반)
 3. 기존 로케일 파일 패턴 읽기
@@ -598,6 +643,7 @@ impl IntoResponse for ApiError {
 5. 미들웨어 설정 확인 (Accept-Language → locale 추출)
 
 **rust-i18n 패턴**:
+
 ```toml
 # locales/en.toml
 [messages]
@@ -617,6 +663,7 @@ let msg = t!("messages.user_not_found", id = user_id, locale = &locale);
 ```
 
 **Gotchas**:
+
 - 번역 키에 변수 플레이스홀더(`%{name}`)가 모든 로케일에 일관되어야 함
 - `rust-i18n`은 컴파일 타임 키 검증 없음 — 오타 시 런타임에 키 이름 그대로 반환
 - Accept-Language 파싱은 `accept-language` 크레이트 사용 — 직접 파싱 금지 (quality factor 처리 복잡)
@@ -630,8 +677,9 @@ let msg = t!("messages.user_not_found", id = user_id, locale = &locale);
 **argument-hint**: `<build|clippy|fmt|test|audit|check> [args]`
 
 **서브커맨드**:
+
 | 커맨드 | 실행 | 성공 조건 |
-|--------|------|----------|
+| -------- | ------ | ---------- |
 | `build` | `$CARGO build` | exit 0 |
 | `clippy` | `$CARGO clippy -- -D warnings` | 워닝 0 |
 | `fmt` | `$CARGO fmt` (적용) / `$CARGO fmt -- --check` (검사) | exit 0 |
@@ -640,6 +688,7 @@ let msg = t!("messages.user_not_found", id = user_id, locale = &locale);
 | `check` | `$CARGO check` | exit 0 (build보다 빠름) |
 
 **Gotchas**:
+
 - `cargo clippy`에 `-- -D warnings` 없으면 워닝이 에러로 안 잡힘
 - workspace에서 `--workspace` 플래그 필수 — 없으면 루트 크레이트만 실행
 - `cargo nextest`가 설치 안 되어 있으면 `cargo test`로 폴백
@@ -651,6 +700,7 @@ let msg = t!("messages.user_not_found", id = user_id, locale = &locale);
 **트리거**: "빌드", "build", "컴파일", "rust build"
 
 **프로세스**:
+
 1. 프로젝트 감지
 2. `rust-run build` 실행
 3. `rust-run clippy` 실행
@@ -665,7 +715,8 @@ rust-run의 thin wrapper. flutter-build가 flutter-run의 wrapper인 것과 동�
 **트리거**: "preflight", "커밋 전 검사", "pre-commit", "품질 게이트", "rust preflight"
 
 **실행 순서**:
-```
+
+```text
 1. rust-run fmt --check    → 실패 시 자동 적용 후 재검사
 2. rust-run clippy         → 실패 시 중단
 3. rust-run test           → 실패 시 중단
@@ -673,7 +724,8 @@ rust-run의 thin wrapper. flutter-build가 flutter-run의 wrapper인 것과 동�
 ```
 
 **리포트 형식**:
-```
+
+```text
 ## Preflight Report
 
 | Step      | Status | Details          |
@@ -687,6 +739,7 @@ Result: PASS (with warnings)
 ```
 
 **Gotchas**:
+
 - `cargo fmt`는 자동 수정이므로 unstaged changes를 만듦 — git add 필요 안내
 - clippy 통과 후 test 실패 가능 — 순서 바꾸지 말 것
 - audit은 non-blocking — 외부 크레이트 취약점은 즉시 수정 불가할 수 있음
@@ -700,10 +753,12 @@ Result: PASS (with warnings)
 **argument-hint**: `[quick|deep]`
 
 **모드**:
+
 - `quick`: 단일 에이전트, 변경 파일만 검사
 - `deep`: rust-reviewer 에이전트 위임, 전체 프로젝트 구조 + 코드 품질 감사
 
 **감사 카테고리**:
+
 1. Ownership & Borrowing — 불필요한 clone, lifetime 이슈
 2. Error Handling — unwrap 남용, 에러 타입 일관성
 3. Async — blocking in async, 불필요한 .await
@@ -730,6 +785,7 @@ model: sonnet
 ```
 
 backend-reviewer와 동일 패턴:
+
 - rust-audit에서만 호출 (단독 실행 금지)
 - PASS/FAIL 이진 판정
 - 칭찬 금지
@@ -740,7 +796,7 @@ backend-reviewer와 동일 패턴:
 총 20개 문서, 5개 카테고리:
 
 | 카테고리 | 문서 | 대응 스킬 |
-|----------|------|----------|
+| ---------- | ------ | ---------- |
 | fundamentals/ | ownership-borrowing.md | rust-audit |
 | fundamentals/ | error-handling.md | rust-error |
 | fundamentals/ | async-concurrency.md | rust-service, rust-middleware |
@@ -791,21 +847,26 @@ backend-reviewer와 동일 패턴:
 ## QA 자체 검증
 
 ### Placeholder 스캔
+
 - TBD/TODO 없음 확인 완료
 
 ### 내부 일관성
+
 - 17종 스킬 분류(생성 11 + 가이드 1 + 실행 3 + 감사 1 + 메타 1) = 17 확인
 - 의존 관계에 순환 없음 확인
 - 리서치 문서 20개, docs-site HTML도 20페이지 (1:1 대응)
 
 ### 범위
+
 - 단일 구현 계획으로 처리 가능 — Phase별 분할 필요 (리서치 문서 → 플러그인 스캐폴딩 → 스킬 작성 → 에이전트 → 카이젠 → 레지스트리 → evals → docs-site)
 
 ### 모호성
+
 - Axum 기본 확정, SQLx 기본 확정 — 대안 프레임워크 지원은 v2 스코프
 - rust-l10n은 rust-i18n 기본 — fluent는 감지 시 대응
 
 ### flutter-toolkit 대비 갭 최종 확인
+
 - flutter-extract (위젯 추출) → Rust에는 해당 없음 (모듈 시스템이 대체) ✓
 - flutter-screen (화면 생성) → rust-api (핸들러 생성)가 대응 ✓
 - flutter-widget (위젯 생성) → rust-middleware (미들웨어 생성)가 부분 대응 ✓

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>인프라 테스트 — Infra Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   :root{
     --bg:#0d0d14;
@@ -28,6 +29,19 @@
     --radius-lg:20px;
     --transition:0.25s cubic-bezier(.4,0,.2,1);
   }
+[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe7e0;--border:#e0dcd4;--border2:#cfc9bf;
+  --text:#1a1a24;--text2:#5a5248;--text3:#6b6259;
+  --accent:#047857;--accent2:#065F46;--accent-dim:rgba(4,120,87,0.10);--accent-glow:rgba(4,120,87,0.05);
+  --green:#146B32;--red:#b91c1c;--yellow:#7A4A05;--blue:#0369A1;
+  --error:#b91c1c;--success:#146B32;--warn:#7A4A05;--info:#0369A1;
+}
+[data-theme="light"] h1{background:linear-gradient(135deg,var(--text) 0%,var(--accent) 60%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text}
+[data-theme="light"] .card:hover{box-shadow:0 12px 28px rgba(26,26,36,0.10),0 0 0 1px var(--accent-dim)}
+.theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+  background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
   body{
@@ -129,7 +143,7 @@
     position:relative;
   }
   .card::before{content:"";position:absolute;top:0;left:0;width:3px;height:0;background:var(--accent);transition:height var(--transition)}
-  .card:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 20px 40px rgba(0,0,0,.4),0 0 0 1px var(--accent-dim)}
+  .card:hover{transform:var(--dk-hover-move, translateY(-3px));border-color:var(--border2);box-shadow:0 20px 40px rgba(0,0,0,.4),0 0 0 1px var(--accent-dim)}
   .card:hover::before{height:100%}
   .card-num{font-size:.78rem;color:var(--accent);font-weight:700;letter-spacing:.1em;margin-bottom:10px}
   .card h3{margin-bottom:14px}
@@ -151,7 +165,7 @@
   }
   .card-source::before{content:"\2192";transition:transform var(--transition)}
   .card-source:hover{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-  .card-source:hover::before{transform:translateX(3px)}
+  .card-source:hover::before{transform:var(--dk-hover-move, translateX(3px))}
   .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
   .table-wrap>table{min-width:max-content}
   table{width:100%;border-collapse:collapse}
@@ -198,13 +212,10 @@
     .grid-2,.grid-3,.compare{grid-template-columns:1fr}
     .gotcha,.step,.evidence{padding:18px}
   }
-  @media(prefers-reduced-motion:reduce){
-    html{scroll-behavior:auto}
-    *{transition:none!important;animation:none!important}
-  }
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">Dark</button>
 <div class="container">
   <header class="hero">
     <div class="badge">Infra Kit · infra-test</div>
@@ -230,7 +241,7 @@
         <article class="card">
           <div class="card-num">PRINCIPLE 01</div>
           <h3>시크릿 fixture도 ephemeral하게</h3>
-          <p>Terraform 1.10+의 <code>ephemeral</code> 블록이나 OpenTofu 1.7+의 write-only 인수를 쓰는 모듈은 테스트에서도 평문 변수를 주입하지 않는다. 환경 변수 또는 Vault dev 모드를 사용한다.</p>
+          <p>Terraform 1.10+의 <code>ephemeral</code> 블록이나 OpenTofu 1.11+ write-only 인수(<a href="https://github.com/opentofu/opentofu/releases/tag/v1.11.0">v1.11.0 릴리스</a>, 2026-09-28 조회)를 쓰는 모듈은 테스트에서도 평문 변수를 주입하지 않는다. 환경 변수 또는 Vault dev 모드를 사용한다.</p>
           <a class="card-source" href="https://developer.hashicorp.com/terraform/language/ephemeral">Terraform ephemeral</a>
         </article>
         <article class="card">
@@ -272,7 +283,7 @@
           <tbody>
             <tr><td>Terraform test</td><td>1.6+</td><td><code>terraform test</code> 지원</td></tr>
             <tr><td>Terraform ephemeral</td><td>1.10+</td><td>ephemeral 블록</td></tr>
-            <tr><td>OpenTofu mocking</td><td>1.7+</td><td><code>tofu test</code> mocking·write-only</td></tr>
+            <tr><td>OpenTofu mocking</td><td>1.8+</td><td><code>tofu test</code> provider mocking (<a href="https://github.com/opentofu/opentofu/releases/tag/v1.8.0">v1.8.0</a>) · write-only 는 1.11+ (<a href="https://github.com/opentofu/opentofu/releases/tag/v1.11.0">v1.11.0</a>)</td></tr>
             <tr><td>원격 액션 핀</td><td>40자</td><td>전체 커밋 SHA</td></tr>
             <tr><td>Terratest 제한</td><td>30m</td><td><code>go test -v -timeout 30m</code></td></tr>
             <tr><td>PASS</td><td>exit 0</td><td>실행됨, 위반 없음</td></tr>
@@ -297,9 +308,9 @@
         <div class="gotcha"><div class="gotcha-check">05</div><div class="gotcha-body"><strong>CI 테스트에서 시크릿 노출 금지.</strong> <code>act</code>의 <code>.secrets</code>는 <code>.gitignore</code>에 넣고 환경 변수 덤프를 남기지 않는다.</div></div>
         <div class="gotcha"><div class="gotcha-check">06</div><div class="gotcha-body"><strong>K8s manifest 검증 도구 혼용 주의.</strong> kubeval은 deprecated다. kubeconform 또는 <code>kubectl --dry-run=server</code>를 쓴다. Helm 차트는 <code>helm template | kubeconform</code> 파이프라인으로 검증한다.</div></div>
         <div class="gotcha"><div class="gotcha-check">07</div><div class="gotcha-body"><strong>보안 스캔을 테스트로 대체하지 않는다.</strong> Trivy·Snyk·Checkov는 CI 게이트의 별도 단계로 둔다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">08</div><div class="gotcha-body"><strong>OpenTofu/Terraform 호환성을 확인한다.</strong> OpenTofu 1.7+ mocking과 Terraform 1.6+ test 지원을 구분한다.</div></div>
+        <div class="gotcha"><div class="gotcha-check">08</div><div class="gotcha-body"><strong>OpenTofu/Terraform 호환성을 확인한다.</strong> OpenTofu 는 1.8+ 부터 <code>tofu test</code> 에서 provider mocking 을 지원한다. Terraform은 1.6+에서 <code>terraform test</code> 지원 — 둘을 구분한다 (<a href="https://github.com/opentofu/opentofu/releases/tag/v1.8.0">OpenTofu v1.8.0 릴리스</a>, 2026-09-28 조회).</div></div>
         <div class="gotcha"><div class="gotcha-check">09</div><div class="gotcha-body"><strong>backend-test와 sibling consistency를 유지한다.</strong> Step 0 독립 감지, 기존 패턴 탐색, 외부 실환경 강제 금지를 함께 유지한다.</div></div>
-        <div class="gotcha"><div class="gotcha-check">10</div><div class="gotcha-body"><strong>ephemeral 값을 쓰는 모듈의 테스트 fixture에 평문 시크릿을 넣지 않는다.</strong> Terraform 1.10+ <code>ephemeral</code> 블록이나 OpenTofu 1.7+ write-only 인수로 시크릿을 다루는 모듈은 <code>terraform test</code> fixture에서도 평문 주입 금지다. <code>run "xxx" { variables { secret = ... } }</code> 블록 대신 환경 변수나 Vault dev 모드를 쓴다. 출처: <a href="https://developer.hashicorp.com/terraform/language/ephemeral">Terraform ephemeral</a>.</div></div>
+        <div class="gotcha"><div class="gotcha-check">10</div><div class="gotcha-body"><strong>ephemeral 값을 쓰는 모듈의 테스트 fixture에 평문 시크릿을 넣지 않는다.</strong> Terraform 1.10+ <code>ephemeral</code> 블록이나 OpenTofu 1.11+ write-only 인수로 시크릿을 다루는 모듈은 <code>terraform test</code> fixture에서도 평문 주입 금지다. <code>run "xxx" { variables { secret = ... } }</code> 블록 대신 환경 변수나 Vault dev 모드를 쓴다. 출처: <a href="https://developer.hashicorp.com/terraform/language/ephemeral">Terraform ephemeral</a>.</div></div>
         <div class="gotcha"><div class="gotcha-check">11</div><div class="gotcha-body"><strong>셸 검증 스크립트는 결과 상태를 exit code로 전파한다.</strong> 이 스킬이 만드는 스크립트는 CI 에서 통과 여부를 가르는 검사로 쓰인다. 결함을 찾고도 <code>echo "WARN: ..."</code>만 하고 0으로 끝나면 파이프라인은 항상 통과하고 스크립트는 검증하는 척만 한다. 상태어 5종(<code>PASS</code> · <code>VIOLATION</code> · <code>SKIP_NO_TARGET</code> · <code>TOOL_OR_ENV_MISSING</code> · <code>EXECUTION_ERROR</code>)과 exit 매핑, 머리말 4 카운터, 핵심/선택 도구 분리는 <code>../../references/gate-result-taxonomy.md</code>가 SSOT이므로 여기서 다시 정의하지 않는다. 그 위에 아래 네 가지를 만드는 모든 셸 스크립트에 함께 적용한다.
           <ul>
             <li><strong>파이프 실패</strong> — <code>set -euo pipefail</code> 없이 파이프를 쓰지 않는다. 파이프는 마지막 명령의 exit code만 평가한다. Docker best practices도 <code>RUN</code> 파이프에 <code>set -o pipefail &amp;&amp;</code>를 앞에 두라고 적는다.</li>
@@ -504,8 +515,8 @@ shopt -s nullglob
 
 WF_DIR="${WF_DIR:-.github/workflows}"
 PIN_ALLOW_FIRST_PARTY_TAGS="${PIN_ALLOW_FIRST_PARTY_TAGS:-0}"
-CORE_TOOLS="grep"          # 없으면 검사 자체가 불가 → EXECUTION_ERROR
-OPTIONAL_TOOLS="python3"   # 없으면 해당 rule 만 [미검증]
+CORE_TOOLS="grep"          # python3 · PyYAML 이 없을 때 checkout rule 줄 검사가 쓴다 — 그때 없으면 EXECUTION_ERROR
+OPTIONAL_TOOLS="python3"   # 없으면 핀닝 rule 은 [미검증], checkout rule 은 줄 검사로 돈다
 
 have() { command -v "${1}" &gt;/dev/null 2&gt;&amp;1; }
 # 외부 명령에 의존하지 않고 공백 구분 토큰 수를 센다 — 머리말은 도구가 없는 환경에서도 찍혀야 한다
@@ -526,9 +537,14 @@ echo "사용 가능 도구 수: $(count "$tools_ok") [${tools_ok:- 없음} ]"
 echo "미설치 도구 수   : $(count "$tools_missing") [${tools_missing:- 없음} ]"
 
 # 핵심 도구 부재는 "위반 0" 이 아니다 — 검사를 수행하지 못한 것이므로 EXECUTION_ERROR 다.
-for t in $CORE_TOOLS; do
-  have "$t" || { echo "EXECUTION_ERROR : 핵심 도구 '$t' 미설치 — 검사 미수행"; exit 2; }
-done
+# python3 · PyYAML 이 있으면 checkout rule 이 grep 을 쓰지 않으므로 그 환경에서는 grep 을 요구하지 않는다
+yaml_ok=0
+if have python3 &amp;&amp; python3 -c 'import yaml' &gt;/dev/null 2&gt;&amp;1; then yaml_ok=1; fi
+if [ "$yaml_ok" = 0 ]; then
+  for t in $CORE_TOOLS; do
+    have "$t" || { echo "EXECUTION_ERROR : python3 · PyYAML 이 없어 줄 검사로 가야 하는데 핵심 도구 '$t' 미설치 — 검사 미수행"; exit 2; }
+  done
+fi
 
 if [ "${#workflows[@]}" -eq 0 ]; then
   echo "SKIP_NO_TARGET  : ${WF_DIR} 에 워크플로 파일 0 개 — 검사 대상 없음"
@@ -537,15 +553,55 @@ fi
 
 violation=0; unverified=0; exec_error=0
 
-# 규칙 1: checkout 스텝 존재
-for f in "${workflows[@]}"; do
-  # uses: 키로 부른 줄만 센다 — 이름만 찾으면 주석 한 줄(`# uses: actions/checkout@v4`)로도 PASS 한다 (2026-09-25 재현)
-  if grep -qE '^[[:space:]]*(-[[:space:]]+)?uses:[[:space:]]*["'"'"']?actions/checkout@' "$f"; then
-    echo "PASS            : $f checkout 존재"
-  else
-    echo "VIOLATION       : $f checkout 스텝 없음"; violation=$((violation + 1))
-  fi
-done
+# 규칙 1: checkout 스텝 존재 — YAML 구조로 jobs.*.steps[].uses 를 읽는다.
+# 줄 검사는 `run: |` 본문 안의 글자로 PASS 하고 흐름 표기 스텝(`- {uses: ...}`)을 놓친다 (2026-09-26 재현)
+co_out=""; co_rc=3   # 3 = python3 · PyYAML 이 없어 구조로 못 읽음
+if have python3; then
+  set +e
+  co_out=$(python3 - "${workflows[@]}" &lt;&lt;'PY'
+import sys
+try:
+    import yaml
+except ImportError:
+    sys.exit(3)
+for path in sys.argv[1:]:
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = yaml.safe_load(fh)
+    except Exception:
+        print(f"ERR\t{path}"); continue
+    jobs = doc.get("jobs") if isinstance(doc, dict) else None
+    jobs = jobs if isinstance(jobs, dict) else {}
+    found = any(isinstance(st, dict) and str(st.get("uses", "")).startswith("actions/checkout@")
+                for job in jobs.values() if isinstance(job, dict)
+                for st in (job.get("steps") if isinstance(job.get("steps"), list) else []))
+    print(f"{'YES' if found else 'NO'}\t{path}")
+PY
+  )
+  co_rc=$?
+  set -e
+fi
+if [ "$co_rc" = 0 ]; then
+  while IFS=$'\t' read -r verdict f; do
+    case "$verdict" in
+      YES) echo "PASS            : $f checkout 존재" ;;
+      NO)  echo "VIOLATION       : $f checkout 스텝 없음"; violation=$((violation + 1)) ;;
+      *)   echo "EXECUTION_ERROR : $f — YAML 읽기 실패 (checkout rule)"; exec_error=$((exec_error + 1)) ;;
+    esac
+  done &lt;&lt;&lt; "$co_out"
+elif [ "$co_rc" = 3 ]; then
+  echo "[참고] python3 · PyYAML 이 없어 checkout rule 은 YAML 구조 대신 줄 검사로 돌았다 — run 본문 글자와 흐름 표기 스텝은 가르지 못한다"
+  for f in "${workflows[@]}"; do
+    # uses: 키로 부른 줄만 센다 — 이름만 찾으면 주석 한 줄(`# uses: actions/checkout@v4`)로도 PASS 한다 (2026-09-25 재현)
+    if grep -qE '^[[:space:]]*(-[[:space:]]+)?uses:[[:space:]]*["'"'"']?actions/checkout@' "$f"; then
+      echo "PASS            : $f checkout 존재"
+    else
+      echo "VIOLATION       : $f checkout 스텝 없음"; violation=$((violation + 1))
+    fi
+  done
+else
+  echo "EXECUTION_ERROR : checkout rule 검사 실패 (python3 종료 코드 $co_rc)"; exec_error=$((exec_error + 1))
+fi
 
 # 규칙 2: 원격 action 핀닝 — YAML 파서로 jobs.*.uses 와 jobs.*.steps[].uses 를 **둘 다** 열거한다.
 # grep 은 로컬 `./` · `docker://` · 잡 레벨 재사용 워크플로를 구분하지 못해 오탐/누락을 낸다.
@@ -571,7 +627,7 @@ for path in sys.argv[1:]:
         with open(path, encoding="utf-8") as fh:
             doc = yaml.safe_load(fh)
     except Exception as exc:
-        print(f"EXECUTION_ERROR : {path} — YAML 파싱 실패: {exc}"); err += 1; continue
+        print(f"EXECUTION_ERROR : {path} — YAML 읽기 실패: {exc}"); err += 1; continue
     if not isinstance(doc, dict):
         print(f"EXECUTION_ERROR : {path} — 최상위가 매핑이 아니다"); err += 1; continue
     jobs = doc.get("jobs")
@@ -624,7 +680,7 @@ echo "VIOLATION=$violation  [미검증]=$unverified  EXECUTION_ERROR=$exec_error
 if [ "$exec_error" -gt 0 ] || [ "$unverified" -gt 0 ]; then exit 2; fi
 if [ "$violation" -gt 0 ]; then exit 1; fi
 exit 0</code></pre>
-        <div class="callout"><strong>핵심/선택 도구 분리:</strong> 핵심 도구가 없으면 rule을 하나도 실행하지 않고 EXECUTION_ERROR다. 선택 도구가 없으면 해당 rule만 미검증 처리하고 나머지는 계속한다.</div>
+        <div class="callout"><strong>핵심/선택 도구 분리:</strong> 핵심 도구가 없으면 rule을 하나도 실행하지 않고 EXECUTION_ERROR다. 선택 도구(python3 · PyYAML)가 없으면 핀닝 rule은 미검증 처리하고, checkout rule은 줄 검사로 돌며 그 사실을 한 줄 찍는다.</div>
         <p class="mini-title">이 골격에서 빼면 안 되는 것 (음성 대조)</p>
         <p class="section-desc">각 요소는 실제로 관측된 오보/누락을 막는다. 오른쪽 열은 그 요소를 제거하고 fixture를 돌렸을 때 실제로 나온 결과다.</p>
         <div class="table-wrap">
@@ -632,7 +688,8 @@ exit 0</code></pre>
             <thead><tr><th>요소</th><th>빼면 생기는 일</th></tr></thead>
             <tbody>
               <tr><td>머리말 4 카운터</td><td>"위반 0"의 분모를 알 수 없다. 대상 0 건인지, 도구가 없어 못 돈 건지 리포트만 보고 구분 불가</td></tr>
-              <tr><td>핵심 도구 사전 검사 (<code>CORE_TOOLS</code>)</td><td><code>grep</code> 부재 환경에서 <code>grep -q</code>가 0이 아닌 값으로 끝나 <code>checkout 스텝 없음</code> VIOLATION을 오보하고 exit 1로 끝난다</td></tr>
+              <tr><td>checkout rule 의 YAML 구조 읽기</td><td>줄 검사만 쓰면 <code>run: |</code> 본문 안의 <code>uses: actions/checkout@v4</code> 글자로 PASS 하고, 흐름 표기 스텝(<code>- {uses: actions/checkout@v4}</code>)은 <code>checkout 스텝 없음</code> 으로 오보한다. python3 · PyYAML 이 없을 때만 줄 검사로 돌고 그 사실을 한 줄 찍는다</td></tr>
+              <tr><td>핵심 도구 사전 검사 (<code>CORE_TOOLS</code>)</td><td>python3 · PyYAML 이 없어 checkout rule 이 줄 검사로 돌 때 <code>grep</code> 까지 없으면 <code>grep -q</code> 가 0 이 아닌 값으로 끝나 <strong><code>checkout 스텝 없음</code> VIOLATION 을 오보</strong>한다 (종료 코드는 핀닝 rule 이 같은 까닭으로 <code>[미검증]</code> 이라 2). python3 · PyYAML 이 있으면 checkout rule 은 grep 을 쓰지 않으므로 사전 검사도 grep 을 요구하지 않고, 그 환경은 grep 없이 끝까지 돈다. 사전 검사를 통째로 빼면 grep 도 PyYAML 도 없는 환경에서 위 오보가 되살아난다</td></tr>
               <tr><td><code>${#workflows[@]}</code> 가드 + <code>exit 3</code></td><td>워크플로 0 개 프로젝트가 exit 0(PASS)이 되어 검사한 적 없는 레포가 green으로 기록된다</td></tr>
               <tr><td><code>shopt -s nullglob</code></td><td>매칭 없는 glob이 리터럴 패턴으로 남아 없는 파일을 열려다 "YAML syntax error"를 오보</td></tr>
               <tr><td>YAML 파서 (<code>yaml.safe_load</code>)</td><td>grep은 <code>jobs.&lt;id&gt;.uses</code>(재사용 워크플로)·로컬 <code>./</code>·<code>docker://</code>를 구분하지 못한다. 패턴을 좁힌 grep도 <code>actions/*</code>를 조용히 면제해 미핀닝 6 건 전부를 0 건으로 보고했다(실측)</td></tr>
@@ -803,5 +860,22 @@ deny[msg] {
 
   <footer>Infra Kit · infra-test · 원본 SKILL.md 전체 절 반영</footer>
 </div>
+<script>
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('theme-btn');
+  if(btn) btn.textContent = t === 'dark' ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function initTheme(){
+  let saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

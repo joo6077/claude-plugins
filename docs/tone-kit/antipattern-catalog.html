@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Antipattern Catalog — A~J 판정 카탈로그</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -244,10 +245,6 @@
   .desc,.subtitle,.checklist li,.caption,.rule-box,.warn-banner p,.keep-banner p,.no-grep{overflow-wrap:anywhere}
   @media(max-width:640px){
     .grid-2,.grid-3,.ba,.rule-grid{grid-template-columns:1fr}
-  }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
   }
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}

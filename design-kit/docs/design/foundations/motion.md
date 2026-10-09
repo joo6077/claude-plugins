@@ -4,6 +4,7 @@ version: 0.3.0
 last_updated: 2026-03-30
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 모션
 
 애니메이션의 목적, 타이밍, 이징 커브, 성능 예산, 접근성 모션 설정, "애니메이션하지 말아야 할 때"를 다룬다. 모든 모션은 **기능적(functional)**이어야 하며 장식적 용도는 지양한다.
@@ -39,7 +40,7 @@ last_updated: 2026-03-30
 ### 5. 애니메이션하지 말아야 할 때
 
 | 상황 | 이유 |
-|------|------|
+| ------ | ------ |
 | 에러 메시지 표시 | 에러를 읽어야 하는 상황에서 슬라이드인은 인지를 방해한다. 즉시 표시가 원칙 |
 | 대량 데이터 로딩 후 리스트 렌더링 | 50개 아이템이 순차적으로 페이드인되면 사용자가 스크롤을 시작할 수 없다 |
 | 반복 수행하는 고빈도 액션 | 이메일 삭제, 파일 이동 등 1분에 수십 번 반복하는 액션의 확인 애니메이션은 300ms × 30회 = 9초의 누적 지연 |
@@ -56,12 +57,12 @@ last_updated: 2026-03-30
 
 대부분의 애니메이션 듀레이션은 **100~500ms** 범위 내에 있어야 한다.
 
-| 유형                    | 듀레이션       | 설명                                            |
-| ----------------------- | -------------- | ----------------------------------------------- |
-| 단순 피드백             | ~100ms         | 체크박스, 토글 스위치 — 물리적 조작 착각 생성    |
-| 중간 크기 변화          | 200~300ms      | 모달 진입, 중간 거리 이동                       |
-| 대형 화면 변화          | 300~400ms      | 전체 화면 전환, 넓은 영역 이동                  |
-| **최대 임계값**         | **500ms**      | 이 이상은 "끌리는(drag)" 느낌 — 사용자에게 짜증 유발 |
+| 유형 | 듀레이션 | 설명 |
+| --- | --- | --- |
+| 단순 피드백 | ~100ms | 체크박스, 토글 스위치 — 물리적 조작 착각 생성 |
+| 중간 크기 변화 | 200~300ms | 모달 진입, 중간 거리 이동 |
+| 대형 화면 변화 | 300~400ms | 전체 화면 전환, 넓은 영역 이동 |
+| **최대 임계값** | **500ms** | 이 이상은 "끌리는(drag)" 느낌 — 사용자에게 짜증 유발 |
 
 > **출처:** [Executing UX Animations: Duration and Motion Characteristics — Nielsen Norman Group](https://www.nngroup.com/articles/animation-duration/)
 
@@ -88,11 +89,11 @@ last_updated: 2026-03-30
 
 M3는 4단계 x 4세분화 = **16개 듀레이션 토큰**을 정의한다:
 
-| 토큰 그룹    | 1     | 2     | 3     | 4     |
-| ------------ | ----- | ----- | ----- | ----- |
-| **Short**    | 50ms  | 100ms | 150ms | 200ms |
-| **Medium**   | 250ms | 300ms | 350ms | 400ms |
-| **Long**     | 450ms | 500ms | 550ms | 600ms |
+| 토큰 그룹 | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- |
+| **Short** | 50ms | 100ms | 150ms | 200ms |
+| **Medium** | 250ms | 300ms | 350ms | 400ms |
+| **Long** | 450ms | 500ms | 550ms | 600ms |
 | **Extra-long** | 700ms | 800ms | 900ms | 1000ms |
 
 - **Short**: 단순 피드백, 아이콘 상태 변경
@@ -110,15 +111,15 @@ M3는 4단계 x 4세분화 = **16개 듀레이션 토큰**을 정의한다:
 
 ### Material Design 3 이징 토큰
 
-| 이징 타입                 | cubic-bezier 값                  | 용도                                     |
-| ------------------------- | -------------------------------- | ---------------------------------------- |
-| **Standard**              | `cubic-bezier(0.2, 0, 0, 1)`    | 화면 내 요소 이동 (가장 범용)            |
-| **Standard Decelerate**   | `cubic-bezier(0, 0, 0, 1)`      | 요소 진입 — 빠르게 들어와 천천히 정지    |
-| **Standard Accelerate**   | `cubic-bezier(0.3, 0, 1, 1)`    | 요소 퇴장 — 천천히 시작해 빠르게 사라짐  |
-| **Emphasized**            | 경로 커브 (Path Motion)          | 강조가 필요한 대형 전환                  |
-| **Emphasized Decelerate** | `cubic-bezier(0.05, 0.7, 0.1, 1)` | 강조 진입 — 극적인 감속으로 주목 유도  |
-| **Emphasized Accelerate** | `cubic-bezier(0.3, 0, 0.8, 0.15)` | 강조 퇴장 — 빠르게 가속해 퇴장         |
-| **Linear**                | `cubic-bezier(0, 0, 1, 1)`      | 색상/투명도 변화 (위치 이동에는 비권장)  |
+| 이징 타입 | cubic-bezier 값 | 용도 |
+| --- | --- | --- |
+| **Standard** | `cubic-bezier(0.2, 0, 0, 1)` | 화면 내 요소 이동 (가장 범용) |
+| **Standard Decelerate** | `cubic-bezier(0, 0, 0, 1)` | 요소 진입 — 빠르게 들어와 천천히 정지 |
+| **Standard Accelerate** | `cubic-bezier(0.3, 0, 1, 1)` | 요소 퇴장 — 천천히 시작해 빠르게 사라짐 |
+| **Emphasized** | 경로 커브 (Path Motion) | 강조가 필요한 대형 전환 |
+| **Emphasized Decelerate** | `cubic-bezier(0.05, 0.7, 0.1, 1)` | 강조 진입 — 극적인 감속으로 주목 유도 |
+| **Emphasized Accelerate** | `cubic-bezier(0.3, 0, 0.8, 0.15)` | 강조 퇴장 — 빠르게 가속해 퇴장 |
+| **Linear** | `cubic-bezier(0, 0, 1, 1)` | 색상/투명도 변화 (위치 이동에는 비권장) |
 
 > **출처:** [Motion — Material Components Android (GitHub)](https://github.com/material-components/material-components-android/blob/master/docs/theming/Motion.md)
 
@@ -126,7 +127,7 @@ M3는 4단계 x 4세분화 = **16개 듀레이션 토큰**을 정의한다:
 
 Emphasized 이징은 단순한 cubic-bezier가 아닌 **SVG 경로 커브**로 정의된다:
 
-```
+```text
 M 0,0 C 0.05,0 0.133333,0.06 0.166666,0.4 C 0.208333,0.82 0.25,1 1,1
 ```
 
@@ -136,7 +137,7 @@ M 0,0 C 0.05,0 0.133333,0.06 0.166666,0.4 C 0.208333,0.82 0.25,1 1,1
 
 ### 이징 선택 가이드
 
-```
+```text
 요소가 화면에 남아 있는가?
 ├─ Yes → Standard (0.2, 0, 0, 1)
 │   └─ 강조가 필요한가?
@@ -199,7 +200,7 @@ Material Design 3는 4가지 핵심 트랜지션 패턴을 정의한다.
 
 ### 트랜지션 선택 가이드
 
-```
+```text
 두 화면이 공유하는 요소가 있는가?
 ├─ Yes → Container Transform
 └─ No
@@ -214,12 +215,12 @@ Material Design 3는 4가지 핵심 트랜지션 패턴을 정의한다.
 
 Flutter에서 M3 트랜지션을 구현할 때는 `animations` 패키지의 다음 위젯을 사용한다:
 
-| 패턴              | Flutter 위젯                     |
-| ----------------- | -------------------------------- |
-| Container Transform | `OpenContainer`                |
-| Shared Axis       | `SharedAxisTransition`           |
-| Fade Through      | `FadeThroughTransition`          |
-| Fade              | `FadeScaleTransition`            |
+| 패턴 | Flutter 위젯 |
+| --- | --- |
+| Container Transform | `OpenContainer` |
+| Shared Axis | `SharedAxisTransition` |
+| Fade Through | `FadeThroughTransition` |
+| Fade | `FadeScaleTransition` |
 
 ---
 
@@ -228,7 +229,7 @@ Flutter에서 M3 트랜지션을 구현할 때는 `animations` 패키지의 다�
 ### 프레임 레이트 기준
 
 | 기준 | 목표 | 최소 허용 | 사용자 인식 |
-|------|------|----------|-----------|
+| ------ | ------ | ---------- | ----------- |
 | **60fps** | 16.67ms/frame | - | 부드러움, 표준 |
 | **120fps** | 8.33ms/frame | - | ProMotion/고주사율 디바이스에서 눈에 띄는 차이 |
 | **30fps** | 33.33ms/frame | 긴급 폴백 | 버벅임이 인지됨 — 사용자 불만 시작 |
@@ -239,7 +240,7 @@ Flutter에서 M3 트랜지션을 구현할 때는 `animations` 패키지의 다�
 브라우저/모바일에서 리페인트(repaint) 없이 GPU 컴포지팅으로 처리 가능한 속성만 애니메이션한다.
 
 | 분류 | 속성 | GPU 컴포지팅 | 비용 |
-|------|------|-------------|------|
+| ------ | ------ | ------------- | ------ |
 | **컴포지터 전용** (권장) | `transform`, `opacity` | O | 매우 낮음 |
 | **페인트 유발** (주의) | `background-color`, `box-shadow`, `border-radius` | X | 중간 |
 | **레이아웃 유발** (금지) | `width`, `height`, `margin`, `padding`, `top/left` | X | 높음 — 리플로 발생 |
@@ -299,7 +300,7 @@ Flutter에서 M3 트랜지션을 구현할 때는 `animations` 패키지의 다�
 ### 모션 감수성(Motion Sensitivity) 트리거 유형
 
 | 트리거 | 위험도 | 예시 |
-|--------|--------|------|
+| -------- | -------- | ------ |
 | **시차 스크롤 (Parallax)** | 높음 | 배경과 전경이 다른 속도로 이동 |
 | **대규모 줌 (Zoom)** | 높음 | 지도 줌인/아웃, 카드→풀스크린 확대 |
 | **회전/스핀** | 높음 | 로딩 스피너(큰 크기), 3D 회전 |
@@ -313,7 +314,7 @@ reduced-motion이 활성화되면 높음/중간 위험도의 모션을 모두 �
 ### 플랫폼별 reduced-motion 설정 경로
 
 | 플랫폼 | 설정 경로 |
-|--------|----------|
+| -------- | ---------- |
 | iOS | 설정 → 손쉬운 사용 → 동작 → 동작 줄이기 |
 | Android | 설정 → 접근성 → 애니메이션 제거 |
 | macOS | 시스템 설정 → 손쉬운 사용 → 디스플레이 → 동작 줄이기 |

@@ -41,7 +41,7 @@ locked_at: "2026-09-19 13:18"
   - `$S:1472-1478` 완료 검사의 형상 클래스 검사 — `wall_generator` 를 보는 규칙 0 개 → SK-04
   - `$S:1680-1690` 4.4 Verify — 가져오기 확인만 있고 보낸 값 대조가 없다 → SK-06 · SK-07
   - `$S:1298` notes 템플릿 `# 4.` — 3mf 를 열고 설정을 바꾸는 절차가 섞임 경로 → SK-08
-  - `surface-recipes.md:140` §2.8 "형상 클래스(§2.7)가 `thin` 이면" — planar 를 제외하는 문구 → SK-08
+  - `surface-recipes.md:141` §2.8 "형상 클래스(§2.7)가 `thin` 이면" — planar 를 제외하는 문구 → SK-08
 - 다른 세션 브랜치 `feat/bambu-kit-orca-h2s-feedback`(미푸시 · QA 승인)이 같은 `$S` 와 `surface-recipes.md` 를 고쳤다.
   그쪽이 건드린 구간: 완료 검사의 META · 프린터 설정 블록, 음성 대조 표, 체크리스트 끝, `surface-recipes.md` §5.3.
   이 스프린트는 그 구간을 피한다 → AR-03 으로 병합 충돌 0 을 잰다.

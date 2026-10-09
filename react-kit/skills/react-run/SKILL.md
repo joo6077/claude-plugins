@@ -10,7 +10,11 @@ argument-hint: "<subcommand> [options]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - **`pnpm vitest` vs `pnpm vitest run`**: 전자는 watch 모드 기본, 후자는 1회 실행. CI/preflight 에서는 반드시 `run` 서브커맨드 사용
 - **`--max-warnings=0`**: ESLint 기본은 경고 허용. 빌드 게이트 의도면 명시 필수 — 누락하면 경고가 있어도 0 exit code
@@ -29,7 +33,7 @@ React 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정한�
 이후 단계에서 감지 결과를 사용한다:
 
 | 감지 키 | 영향받는 서브커맨드 |
-|---------|-------------------|
+| --------- | ------------------- |
 | `crates/core/` 존재 | `wasm-build` 활성화 |
 | `src-tauri/` 존재 | `tauri-dev`, `tauri-build` 활성화 |
 | `lingui.config.ts` 존재 | `codegen` 에서 Lingui extract/compile 포함 |
@@ -40,7 +44,7 @@ React 빌드 프리미티브. 첫 번째 인자로 서브커맨드를 지정한�
 서브커맨드가 없으면 사용 가능한 목록을 출력한다.
 
 | 서브커맨드 | 명령 | 용도 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | `dev` | `pnpm vite dev` | Vite dev 서버 시작 (포트 5173) |
 | `build` | `pnpm vite build` | 프로덕션 빌드 → `dist/` |
 | `preview` | `pnpm vite preview` | 프로덕션 빌드 결과 로컬 서빙 |

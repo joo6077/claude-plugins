@@ -32,7 +32,7 @@ user-invocable: true
 10. **`fold_ratio`(원시/클러스터) 로 파편화를 판정하지 마라.** 클러스터링이 아무것도 못 묶으면 이 값은 **1.00 이 되어 "정상" 으로 읽힌다** — 파편화 탐지기로 쓸 수 없다. 2026-08-13 전량 실측이 정확히 그 상태였다: `fold_ratio 1.02` 인데 `singleton_share 0.884` (클러스터 2,578 개 중 2,279 개가 1 회짜리). 판정은 **`singleton_share`** 로 한다.
 11. **표기가 닮았다고 합치지 마라 — `undesired_behavior` 와 `desired_behavior` 가 둘 다 같을 때만 alias 다.** `stale ...` 계열이 대표 사례다: 대상마다 필요한 조치가 위젯 재조회 / MCP 재연결 / 인스펙터 재바인딩 / 진단 오라클 재실행 / VM 재부착으로 전부 다르다. 이런 묶음은 alias 가 아니라 **family** 로만 보고하고 `cluster_freq` 에 합산하지 않는다 (SSOT §4).
 12. **메모리 엔트리의 `grounding` 을 근거 등급으로 읽어라 — 정의는 복제하지 마라.** `~/.claude/projects/*/memory/` 의 `type: feedback` 엔트리는 frontmatter 에 **`grounding` 필드**를 갖는다. 값의 정의·판정 절차·경계 사례는 `reflect-kit/references/memory-grounding.md` 가 **SSOT** 다 — 이 문서에서 값을 나열하거나 재정의하지 마라 (재정의하면 digest 와 promote 의 기준이 갈라진다). 이 중 **`grounding: self_inference`** 는 외부 검증이 없는 자기추론이므로 **승격 근거로 쓰지 마라.** `source_evidence` 에 넣지 말고 배경 참고로만 읽는다 — 인용하면 이전 라운드의 자기 산출물이 다음 라운드 승격의 근거가 되는 **자기검증 피드백 루프**가 닫힌다. `grounding` 필드가 아예 없는 엔트리는 `self_inference` 가 아니라 **미태깅**이다. 그렇게 구분해 보고하되 둘 다 근거로는 쓰지 않는다.
-13. **엔트리 0 을 「문제 없음」 으로 읽지 마라 — 수집기가 멈췄을 수 있다.** reflections 가 비는 경우는 둘이다: 그 기간에 실수가 없었거나, Stop 훅 분석이 실패해 아무것도 못 적었거나. 2026-09-14~23 실측은 뒤쪽이었다 — Stop 실패 시도 849 번(고유 세션 55), 기록된 세션 0, 마지막 기록 2026-08-28. 그래서 요약 머리 첫 줄은 Process 4 단계의 `collect_status` 출력이다. 엔트리가 있어도 마지막 기록과 마지막 정상 종료(`ok:no-issues` · `skip:env-dedup-all`) 가운데 늦은 쪽 뒤에 Stop 실패 시도가 있으면 기간 도중에 멈춘 것이라 같은 경고 줄이 나온다. `⚠ 수집 멈춤` 줄이 나오면 `## 승격 후보` 에는 `(수집 멈춤 — 산출하지 않는다)` 한 줄만 쓰고, `## 환경 액션 아이템` 에 수집 복구 한 줄을 `.errors.log` 의 가장 최근 `err=` 값과 함께 올린다.
+13. **엔트리 0 을 「문제 없음」 으로 읽지 마라 — 수집기가 멈췄을 수 있다.** reflections 가 비는 경우는 둘이다: 그 기간에 실수가 없었거나, Stop 훅 분석이 실패해 아무것도 못 적었거나. 2026-09-14~23 실측은 뒤쪽이었다 — Stop 실패 시도 849 번(고유 세션 55), 기록된 세션 0, 마지막 기록 2026-08-28. 그래서 요약 머리 첫 줄은 Process 4 단계의 `collect_status` 출력이다. 엔트리가 있어도 마지막 기록과 마지막 정상 종료(`ok:no-issues` · `skip:env-dedup-all`) 가운데 늦은 쪽 뒤의 Stop 실패 시도가 3 회 이상이고 그 첫 실패가 1 일 이상 지났으면 기간 도중에 멈춘 것이라 같은 경고 줄이 나온다. 그보다 적거나 짧은 실패는 한도 초과 같은 일시 실패일 수 있어 경고하지 않는다 — 이 줄 하나에 승격 후보를 통째로 비우기 때문이다. `⚠ 수집 멈춤` 줄이 나오면 `## 승격 후보` 에는 `(수집 멈춤 — 산출하지 않는다)` 한 줄만 쓰고, `## 환경 액션 아이템` 에 수집 복구 한 줄을 `.errors.log` 의 가장 최근 `err=` 값과 함께 올린다. `err=` 가 없는 `fail:` · `fallback:` 줄은 0.8.0 전 판 훅을 쥔 채 켜 둔 세션이 적은 것이다(2026-09-26 실측: 9 월 22 일에 시작한 세션 하나) — 문턱을 바꿀 근거가 아니고, 그 세션을 다시 열면 멈춘다.
 14. **facets 를 빈도에 더하지 마라 — 대조에만 쓴다.** `~/.claude/usage-data/facets/` 는 `/insights` 가 다른 분석기 · 다른 분류로 낸 세션 요약이다. `cluster_freq` · `project_count` · 4 축 · precedence 에 더하면 같은 세션을 두 번 세고 척도가 섞인다. 쓰는 곳은 `## 인사이트 세션 분석과 대조` 절 하나다 — 마찰이 적혔는데 reflections 에 없는 세션을 원문과 함께 보여 수집기가 놓친 세션을 드러낸다. 폴더가 없으면 `facets 대조: (없음)` 한 줄로 넘어간다.
 
 ## 입력
@@ -54,8 +54,9 @@ user-invocable: true
 - **워크트리 이름 폴더**: 이 규칙 전에 워크트리 이름으로 생긴 폴더는 옮기지 않는다. 그 폴더들에는 reflections 가 없고 원시 로그와 `.errors.log` 만 있다 — `project=all` 이 그대로 순회한다
 
 헬퍼: `${CLAUDE_PLUGIN_ROOT}/hooks/_lib-project-id.sh`
+
 - `compute_project_id "$cwd"` — 쓰기용 id 계산 (basename 또는 hash fallback)
-- `project_root "$cwd"` — 본 레포 root (링크된 워크트리면 본 레포, git 밖이면 cwd)
+- `project_root "$cwd"` — 본 레포 root (링크된 워크트리면 본 레포, 지워진 워크트리 경로(`.claude/worktrees/` 아래)도 본 레포, 그 밖의 git 밖 폴더는 cwd)
 - `normalize_project_query "<query>"` — 읽기용 glob pattern union 확장
 
 ### 정규화 쿼리 동작
@@ -63,7 +64,7 @@ user-invocable: true
 입력이 어느 형태든 **같은 basename 의 glob union** 으로 확장되어 backward-compat 을 보장한다:
 
 | 입력 | 확장 결과 |
-|------|-----------|
+| --- | --- |
 | `app_kiosk` | `app_kiosk  app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]` |
 | `app_kiosk-a3b4f9` | `app_kiosk  app_kiosk-[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]` (basename 추출 후 동일 union) |
 
@@ -126,6 +127,7 @@ approach_note: <str>
      bash -c '. "${1}/hooks/_lib-project-id.sh"; shift; collect_status "$@"' _ "${CLAUDE_PLUGIN_ROOT}" <일수> ~/.claude/logs/<bucket>
      ```
 
+   - **코드 블록 없는 옛 절도 엔트리다.** 0.8.0 훅은 분석기가 코드 블록을 빼면 그대로 적었고 빈 줄까지 지워 여러 블록이 붙기도 했다. `## <시각>` 아래 yaml 코드 블록 밖에 있는 `primary_category:` 줄은 버리지도 파싱 실패로 세지도 말고, 그 줄부터 다음 `primary_category:` 줄 · 빈 줄 · `---` 앞까지를 블록 하나로 읽는다. `collect_status` 의 엔트리 수도 같은 규칙으로 센다.
    - 파싱 실패 블록은 **버리지 말고 센다**. `파싱 실패: N 블록` 을 리포트 헤더에 출력 (Gotcha #9).
    - `actionability` 필드가 없는 레거시 엔트리는 `claude_behavior` 로 간주한다 (fail-open — 행동 신호 유실 방지).
 5. **actionability 분리** — 파싱된 엔트리를 두 갈래로 나눈다.
@@ -134,6 +136,7 @@ approach_note: <str>
 6. **태그 클러스터링** — 원시 태그 빈도로 곧장 집계하지 않는다 (Gotcha #8). 순서를 지켜라: **결정론 먼저, 판단은 그다음**.
 
    **6-a. 결정론적 pass (기계)** — 이 단계에서 눈대중을 섞지 마라.
+   <!-- markdownlint-disable-next-line MD031 -->
    ```bash
    # 절대경로로 source 한다. cd 로 cwd 를 맞추지 마라 — SSOT §6.1 (cwd 의존은 무증상 실패다).
    . "${CLAUDE_PLUGIN_ROOT}/hooks/_lib-tag-canon.sh"
@@ -154,14 +157,14 @@ approach_note: <str>
    - **묶는 기준은 근본원인이다.** `undesired_behavior` **와** `desired_behavior` 가 **둘 다** 같을 때만 한 클러스터다. 표기 유사도(문자열 거리)만으로 묶지 마라 — `edit-before-read` 와 `edited-wrong-file` 은 철자가 비슷해도 다른 원인이다.
    - LLM 은 **새 alias 후보와 그 근거를 제시할 뿐**이고, 최종 병합은 `tag-lemma-map.tsv` 에 `alias` 행을 추가한 뒤 6-a 를 **다시 실행해 출력으로 확인**하는 것으로 확정한다 (SSOT §7 절차). 리포트 안에서만 합산하고 맵에 남기지 않으면 다음 주기에 같은 판단을 다시 해야 한다.
    - **감사 흔적 필수** — 클러스터마다 멤버 태그 전체와 개별 freq 를 리포트에 나열한다. 묶은 근거 없이 합산 숫자만 제시하면 승격 판단을 검증할 수 없다.
-   - **과잉 병합 금지.** 서로 다른 근본원인을 한 태그로 합치면 승격 규칙 문구가 모호해져 아무 행동도 바뀌지 않는다. 확신이 없으면 묶지 말고 `## 병합 보류` 로 남겨라. 집계 키를 잘못 잡으면 신호 자체가 망가진다는 점은 Alertmanager `group_by` 설계가 보여준다 (https://prometheus.io/docs/alerting/latest/configuration/). Sentry fingerprint 규칙도 같은 취지의 경고를 하지만, 2026-08-13 재확인 시 원문 직접 인용에 실패했으므로 **직접 인용 없이** 참고 링크로만 둔다 (https://github.com/getsentry/sentry/issues/75567).
+   - **과잉 병합 금지.** 서로 다른 근본원인을 한 태그로 합치면 승격 규칙 문구가 모호해져 아무 행동도 바뀌지 않는다. 확신이 없으면 묶지 말고 `## 병합 보류` 로 남겨라. 집계 키를 잘못 잡으면 신호 자체가 망가진다는 점은 Alertmanager `group_by` 설계가 보여준다 (<https://prometheus.io/docs/alerting/latest/configuration/>). Sentry fingerprint 규칙도 같은 취지의 경고를 하지만, 2026-08-13 재확인 시 원문 직접 인용에 실패했으므로 **직접 인용 없이** 참고 링크로만 둔다 (<https://github.com/getsentry/sentry/issues/75567>).
    - 클러스터가 3개 이상 멤버를 가지면 `## ⚠️ 태그 파편화` 섹션에 별도 보고한다.
 
    **6-c. family 분리 (병합하지 않음)** — `undesired`/`desired` 중 하나라도 다르면 alias 가 아니다. 이때는 출력 포맷의 family 섹션으로만 보고하고 **`cluster_freq` 에 합산하지 않는다.** family 판별은 결정론적 문자열 규칙이다 (예: 세그먼트에 `stale` 이 있으면 `stale-context-reference`). 2026-08 실측 10 개 멤버가 전부 remediation 이 달랐다 — SSOT §4.
 7. **집계** (5·6 단계 결과 기준) — 아래 5 계층을 **분리해서** 보관한다. 하나로 뭉치면 효과 측정과 감사 중 하나가 반드시 깨진다.
 
    | 계층 | 쓰임 |
-   |---|---|
+   | --- | --- |
    | `raw_tag` | 감사·재현용. 절대 버리지 않는다 |
    | `lemma_key` | 6-a 출력. **집계·`post_freq` 의 유일한 키** |
    | `canonical_tag` | 클러스터 최빈 원시 표기. 사람이 읽는 대표 이름 |
@@ -222,7 +225,7 @@ Precedence Table #3 (`scope == global` AND 복수 프로젝트 freq ≥ 3) 판�
 single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. **진입 전제 4가지(`user_environment` 제외 · `cluster_freq` 사용 · `grounding: self_inference` 단독 근거 제외 · ledger active 재발은 등급 상향)는 아래 "Surface Precedence Table" 과 동일하게 적용한다.** 아래 `global_freq` / `project_count` 는 모두 클러스터 단위다.
 
 | # | 조건 (project=all 기준) | 승격 surface |
-|---|---|---|
+| --- | --- | --- |
 | 0 | 어느 프로젝트든 `user_stated_constraint == true` (global_freq ≥ 1) | **fast-track** — `project_count ≥ 2`면 글로벌 CLAUDE.md, 단일 프로젝트면 해당 project CLAUDE.md |
 | 1 | 어느 프로젝트든 `enforcement_need == hard_gate` | **hook 검토** |
 | 2 | `procedurality == multi_step_procedure` AND `global_freq ≥ 2` | **skill** |
@@ -237,6 +240,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 - **Given** `/reflect-digest project=all period=30d` 호출,
 - **When** digest가 `~/.claude/logs/*/reflections-*.md` 를 순회하고 (내부 디렉토리 제외),
 - **Then** 리포트 상단에 아래 형태의 메타라인이 정확히 표시된다:
+  <!-- markdownlint-disable-next-line MD031 -->
   ```text
   # Reflect Digest — project=all (30d)
   대상 프로젝트: N개 (basename B개 / hash-fallback H개) / 총 엔트리: M개
@@ -247,11 +251,12 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
   원시 태그 J개 → 클러스터 C개 / singleton S개 (singleton_share 0.NNN · 임계 0.70) · fold_ratio F
   ⚠️ 편중: <pid> 가 전체의 X% (N/M 엔트리) — 글로벌 판정(rule #3) 신뢰도 낮음
   ```
+  <!-- markdownlint-disable-next-line MD031 -->
 - `basename B개` = hash suffix 없는 Hybrid 기본 포맷 bucket 수
 - `hash-fallback H개` = `<basename>-<6자 hex>` 충돌 fallback + v0.2.0 레거시 bucket 수
 - `집계 실패 프로젝트` / `파싱 실패` / 파편화 지표 라인은 값이 0 이어도 생략하지 않고 `0` 으로 명시한다 (검증 용이성).
 - 편중 경고 라인은 최대 점유율 < 60% 일 때만 생략한다.
-- `수집 상태` 줄은 전 bucket 을 넘긴 `collect_status` 출력이며 값이 0 이어도 싣는다. `⚠ 수집 멈춤` 줄은 엔트리 0 이고 Stop 실패 시도가 1 이상일 때, 또는 마지막 기록 뒤 Stop 실패 시도가 1 이상일 때만 싣는다 (Gotcha #13).
+- `수집 상태` 줄은 전 bucket 을 넘긴 `collect_status` 출력이며 값이 0 이어도 싣는다. `⚠ 수집 멈춤` 줄은 엔트리 0 이고 마지막 정상 종료 뒤의 Stop 실패 시도가 1 이상일 때, 또는 마지막 기록 · 마지막 정상 종료 가운데 늦은 쪽 뒤의 Stop 실패 시도가 3 회 이상이고 첫 실패가 1 일 이상 지났을 때만 싣는다 (Gotcha #13).
 
 ### 5. 출력 포맷 예시 (cross-project)
 
@@ -285,7 +290,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 아래 규칙을 **위에서 아래로** 적용. 먼저 맞는 규칙 하나만 선택.
 
 | # | 조건 | 승격 surface |
-|---|------|--------------|
+| --- | ------ | -------------- |
 | 0 | `user_stated_constraint == true` (freq ≥ 1, 임계값 우회) | **매-세션 자동 로드 surface로 fast-track** — `scope==global`이면 글로벌 CLAUDE.md, 아니면 project CLAUDE.md (200줄 초과 시 path-scoped rule). `enforcement_need==hard_gate`면 추가로 hook 후보 병기 |
 | 1 | `enforcement_need == hard_gate` (빈도 무관) | **hook 검토** (다른 축 무시) |
 | 2 | `procedurality == multi_step_procedure` AND freq ≥ 2 | **skill** 신설/보강 |
@@ -295,7 +300,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 | 6 | `risk_class == low` AND freq == 1 | **관망** (no action, 다음 주 재평가) |
 | 7 | 그 외 | **review 후보 (수동)** |
 
-> **규칙 #0 근거 (Friction #2 — insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응)**: 사용자가 명시적으로 금지/지시한 제약(예: "ValueNotifier 쓰지 마")의 재위반은 일반 실수보다 **사용자 좌절이 크고**, 연구상 long-context에서 가장 먼저 잊히는 omission 제약이다 (Omission Constraints Decay While Commission Constraints Persist, https://arxiv.org/html/2604.20911). 따라서 freq 2/3회 누적을 기다리지 말고 **첫 재위반부터** 매-세션 자동 로드 surface(CLAUDE.md/hook)로 보낸다. memory(on-demand 로드)나 관망으로 보내면 재주입이 약해 friction이 해소되지 않는다. 단 surface 반영은 항상 `/reflect-promote`가 사용자 승인을 거쳐 수행한다 (digest는 후보 표시만).
+> **규칙 #0 근거 (Friction #2 — insights-report #2 "이전 세션 피드백이 durable rule로 자동 적용 안 됨" 대응)**: 사용자가 명시적으로 금지/지시한 제약(예: "ValueNotifier 쓰지 마")의 재위반은 일반 실수보다 **사용자 좌절이 크고**, 연구상 long-context에서 가장 먼저 잊히는 omission 제약이다 (Omission Constraints Decay While Commission Constraints Persist, <https://arxiv.org/html/2604.20911>). 따라서 freq 2/3회 누적을 기다리지 말고 **첫 재위반부터** 매-세션 자동 로드 surface(CLAUDE.md/hook)로 보낸다. memory(on-demand 로드)나 관망으로 보내면 재주입이 약해 friction이 해소되지 않는다. 단 surface 반영은 항상 `/reflect-promote`가 사용자 승인을 거쳐 수행한다 (digest는 후보 표시만).
 
 ### 임계값은 hypothesis
 
@@ -311,7 +316,7 @@ single-project 모드와 동일한 규칙이되 `freq` 해석이 달라진다. *
 
 ## 출력 포맷
 
-아래 섹션은 **전부 필수**다. 해당 건수가 0이어도 섹션과 숫자를 생략하지 않는다. 제목 아래 `⚠ 수집 멈춤` 줄만은 엔트리 0 이고 Stop 실패 시도가 1 이상일 때, 또는 마지막 기록 뒤 Stop 실패 시도가 1 이상일 때만 싣는다 (Gotcha #13).
+아래 섹션은 **전부 필수**다. 해당 건수가 0이어도 섹션과 숫자를 생략하지 않는다. 제목 아래 `⚠ 수집 멈춤` 줄만은 엔트리 0 이고 마지막 정상 종료 뒤의 Stop 실패 시도가 1 이상일 때, 또는 마지막 기록 · 마지막 정상 종료 가운데 늦은 쪽 뒤의 Stop 실패 시도가 3 회 이상이고 첫 실패가 1 일 이상 지났을 때만 싣는다 (Gotcha #13).
 
 ```markdown
 # Reflect Digest — <project_id> (<period>)

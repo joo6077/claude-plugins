@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>테스팅 원칙 — Rust Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -96,10 +97,30 @@
   :not(pre)>code{overflow-wrap:anywhere}
   /* (4) 좁은 뷰포트에서는 다중 컬럼을 단일 컬럼으로 스택한다 */
   @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}}
-  @media(prefers-reduced-motion:reduce){*{transition-duration:0.01ms !important;animation-duration:0.01ms !important}}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <a href="../index.html" class="nav-back">&#8592; Rust Kit</a>
@@ -128,7 +149,7 @@
       </div>
       <div class="card-body">
         <p>Rust 관례: 단위 테스트는 구현 파일 하단의 <code>#[cfg(test)]</code> 모듈, 통합 테스트는 크레이트 루트의 <code>tests/</code> 디렉토리. 통합 테스트는 크레이트 public API 만 사용한다.</p>
-        <pre><span style="color:#f08575">// src/domain/user.rs</span>
+        <pre><span style="color:var(--accent2)">// src/domain/user.rs</span>
 pub fn validate_email(email: &amp;str) -&gt; bool { ... }
 
 #[cfg(test)]
@@ -166,17 +187,17 @@ mod tests {
       </div>
       <div class="card-body">
         <p><code>cargo test</code>보다 2~3배 빠르고, 테스트를 프로세스 단위로 격리한다. 글로벌 상태 오염이 자동으로 방지된다. CI 에서도 <code>cargo nextest run</code>을 표준으로 사용한다.</p>
-        <pre><span style="color:#f08575"># 설치</span>
+        <pre><span style="color:var(--accent2)"># 설치</span>
 cargo install cargo-nextest
 
-<span style="color:#f08575"># 실행</span>
+<span style="color:var(--accent2)"># 실행</span>
 cargo nextest run
-cargo nextest run --test-threads 4   <span style="color:#4ade80"># 병렬 수 제한</span>
-cargo nextest run -p domain          <span style="color:#4ade80"># 특정 크레이트만</span></pre>
-        <pre><span style="color:#f08575"># .config/nextest.toml</span>
+cargo nextest run --test-threads 4   <span style="color:var(--green)"># 병렬 수 제한</span>
+cargo nextest run -p domain          <span style="color:var(--green)"># 특정 크레이트만</span></pre>
+        <pre><span style="color:var(--accent2)"># .config/nextest.toml</span>
 [profile.default]
-fail-fast = false          <span style="color:#4ade80"># 실패해도 계속 실행</span>
-test-threads = "num-cpus"  <span style="color:#4ade80"># CPU 수만큼 병렬</span>
+fail-fast = false          <span style="color:var(--green)"># 실패해도 계속 실행</span>
+test-threads = "num-cpus"  <span style="color:var(--green)"># CPU 수만큼 병렬</span>
 
 [profile.ci]
 fail-fast = true</pre>
@@ -194,7 +215,7 @@ fail-fast = true</pre>
       </div>
       <div class="card-body">
         <p>헥사고날 아키텍처의 Port trait 을 활용하면 테스트에서 가짜 구현을 주입할 수 있다. <code>mockall</code> 크레이트는 <code>#[automock]</code> 매크로로 mock 을 자동 생성한다.</p>
-        <pre><span style="color:#f08575">// domain/src/ports/database.rs</span>
+        <pre><span style="color:var(--accent2)">// domain/src/ports/database.rs</span>
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait DatabasePort: Send + Sync {
@@ -202,7 +223,7 @@ pub trait DatabasePort: Send + Sync {
         -&gt; Result&lt;Option&lt;User&gt;, DomainError&gt;;
 }
 
-<span style="color:#f08575">// 테스트에서 mock 사용</span>
+<span style="color:var(--accent2)">// 테스트에서 mock 사용</span>
 #[tokio::test]
 async fn get_user_returns_not_found() {
     let mut mock_db = MockDatabasePort::new();
@@ -233,7 +254,7 @@ async fn get_user_returns_not_found() {
           <span class="tag">정정 2026-08-13</span><br>
           이전 판이 &ldquo;테스트마다 트랜잭션을 열고 끝나면 롤백한다&rdquo; 고 적었으나 <strong>공식 문서 기준 사실이 아니다</strong>. 격리 단위는 트랜잭션이 아니라 <strong>DB</strong> 이며, 커밋된 데이터도 남았다가 DB 단위로 폐기된다. Postgres/MySQL 은 <code>DATABASE_URL</code> 이 필요하다.
         </div>
-        <pre><span style="color:#f08575">// adapters/tests/user_repository.rs</span>
+        <pre><span style="color:var(--accent2)">// adapters/tests/user_repository.rs</span>
 #[sqlx::test(fixtures("users"))]
 async fn find_existing_user(pool: sqlx::PgPool) {
     let adapter = PostgresUserAdapter::new(pool);
@@ -241,7 +262,7 @@ async fn find_existing_user(pool: sqlx::PgPool) {
     assert!(result.unwrap().is_some());
 }
 
-<span style="color:#f08575">// tests/fixtures/users.sql</span>
+<span style="color:var(--accent2)">// tests/fixtures/users.sql</span>
 INSERT INTO users (id, email)
 VALUES (1, 'test@example.com');</pre>
       </div>
@@ -282,12 +303,12 @@ VALUES (1, 'test@example.com');</pre>
       <h4>실행 전제 — 환경이 없으면 테스트가 아니라 스킵이다</h4>
       <div class="card-body">
         <p><code>#[sqlx::test]</code> 는 실 DB 엔진을 요구한다. CI 에서 <code>DATABASE_URL</code> 이 비어 있으면 &ldquo;통과&rdquo; 가 아니라 <strong class="lead-strong">측정이 없었던 것</strong>이다. 실행 증거에는 명령 · 실행된 테스트 수 · 종료 코드를 함께 남긴다.</p>
-        <pre><span style="color:#f08575"># 실행 전제</span>
+        <pre><span style="color:var(--accent2)"># 실행 전제</span>
 export DATABASE_URL=postgres://localhost/app_test
 cargo nextest run -p adapters
 
-<span style="color:#f08575"># 증거로 남길 것</span>
-running 12 tests   <span style="color:#4ade80"># ← 실행된 테스트 수</span>
+<span style="color:var(--accent2)"># 증거로 남길 것</span>
+running 12 tests   <span style="color:var(--green)"># ← 실행된 테스트 수</span>
 exit code: 0</pre>
       </div>
       <a href="https://docs.rs/sqlx/latest/sqlx/attr.test.html" target="_blank" rel="noopener" class="card-source">&#8599; sqlx — #[sqlx::test] attribute</a>

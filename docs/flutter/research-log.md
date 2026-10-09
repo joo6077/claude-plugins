@@ -4,6 +4,7 @@ version: 1.2.0
 last_updated: 2026-08-13
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Flutter Kit Research Log
 
 ## [2026-09-25] — Phase 5 kaizen
@@ -16,7 +17,7 @@ last_updated: 2026-08-13
 | # | URL | 확인한 사실 |
 | --- | --- | --- |
 | 1 | <https://github.com/dart-lang/build/blob/master/build_runner/test/integration_tests/build_command_build_filter_test.dart> | `--build-filter` 는 공식 옵션이다. 다만 필터 밖의 기존 생성물을 남긴다는 보장은 공식 자료에 없다 |
-| 2 | <https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md> | 2.16 부터 잘못되거나 고쳐진 생성물을 기본으로 고친다. `--delete-conflicting-outputs` 는 제거된 호환 옵션 목록으로 옮겨졌다 |
+| 2 | <https://raw.githubusercontent.com/dart-lang/build/master/build_runner/CHANGELOG.md> | 2.16 부터 잘못되거나 고쳐진 생성물을 기본으로 고친다. `--delete-conflicting-outputs` 는 제거된 호환 옵션 목록으로 옮겨졌다. 정정(2026-09-28): build_runner 원문 기준 2.7.0 부터 — 이 옵션은 이미 무시됐다. 제거된 옵션 목록으로 옮긴 판은 2.15.0 이다(태그 `build_runner-v2.15.0` 의 명령줄 원본 파일) (`.harness/.meta/after-kaizen-0926b/ex/EX-5.md`) |
 | 3 | <https://git-scm.com/docs/git-status> | `--porcelain=v1` 은 스크립트용 고정 형식이고 두 자리 가운데 어느 쪽의 `D` 도 삭제다 |
 | 4 | <https://api.flutter.dev/flutter/widgets/WidgetsApp/locale.html> | locale 이 null 이면 시스템 로캘, 지원하지 않으면 `supportedLocales` 첫 항목 |
 | 5 | <https://riverpod.dev/docs/root/do_dont> | 위젯이 provider 를 초기화하지 말고 provider 가 스스로 초기화한다 |
@@ -48,7 +49,7 @@ last_updated: 2026-08-13
 ### 리서치 소스 (evidence 파일 경유)
 
 | # | URL | 확인한 사실 |
-|---|-----|------------|
+| --- | ----- | ------------ |
 | 1 | <https://pub.dev/packages/freezed/changelog> | **[정정 2026-08-13 근거]** 최신 stable **3.2.5**. `.when`/`.map` 제거는 **3.0** 의 breaking, **3.1.0 에서 재추가**. "Freezed 3 부터 제거" 를 절대 규칙으로 쓰면 낡은 조항 |
 | 2 | <https://docs.flutter.dev/release/release-notes> | stable 목록 최상단 **3.47.0** |
 | 3 | <https://flutter.dev/blog/whats-new-in-flutter-3-47> | Android 의존성 매트릭스 — Java 17 · KGP 2.4.0 · AGP 9.1.0 · Gradle 9.3.1 |
@@ -102,7 +103,7 @@ last_updated: 2026-08-13
 ### 리서치 소스 (전부 WebFetch 실측 · Context7 은 OAuth 미인증으로 사용 불가)
 
 | # | URL | 확인한 사실 |
-|---|-----|------------|
+| --- | ----- | ------------ |
 | 1 | <https://docs.flutter.dev/release/release-notes> | stable **3.44.7** (페이지 갱신 2026-07-10). 스킬들이 기준으로 삼던 3.41 은 구버전. **[정정 2026-08-13]** 릴리스 인덱스 stable 목록 최상단은 이제 **3.47.0** 이다 |
 | 2 | <https://docs.flutter.dev/release/release-notes/release-notes-3.44.0> | `TestWidgetsApp`(WidgetTester 기본 앱 표준화) · `TestTextField` 추가, `WidgetTesterCallback` 파라미터명 `widgetTester`→`tester`, flutter_test false-positive 히트테스트 수정. `ReorderableListView.onReorder` deprecated, `ExtendSelectionByPageIntent` 제거. `AnimatedCrossFade.onEnd` · Hero curve 커스터마이징 · `CupertinoSheetRoute` · 무한 `CarouselView` · `CarouselView.onItemChanged` · `RoundedSuperellipseInputBorder` · `Overlay.alwaysSizeToContent` · `ScrollCacheExtent` 추가. Impeller SDF 렌더링 |
 | 3 | <https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html> | `expectLater` + await 필수, `--update-goldens` 로 마스터 갱신. 커스텀 폰트는 플랫폼·Flutter 버전별로 다르게 렌더 → CI 실패 원인 4 종(OS 차이 / 버전 차이 / 폰트 로드 실패 / 실제 UI 변경) |
@@ -113,6 +114,7 @@ last_updated: 2026-08-13
 | 8 | <https://pub.dev/packages/go_router/changelog> | 최신 **17.3.0**. 17.0 `ShellRoute` observer 알림 기본화(`notifyRootObserver`), 15.0 URL 대소문자 구분(`caseSensitive`) |
 | 9 | <https://pub.dev/packages/flutter_hooks> | 최신 0.21.3+1. 훅 3 원칙(이름 `use` prefix · 무조건 호출 · 조건부 호출 금지) 재확인 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 내부 데이터 소스
 
 - `.claude/kaizen-input/insights-report.md` (2026-07-27, 53 일 · 51 세션) — Friction #2 가 신규 최상위, 진앙이 Flutter
@@ -140,7 +142,6 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 
 출처: `.claude/kaizen-input/insights-report.md` Friction #3.
 
-
 > Flutter 관련 리서치 로그. `docs/kaizen/flutter-research-log.md` 와 동일 내용을 per-kit view 로 보관한다.
 > kaizen-orchestrator 의 per-kit research-log 정책 (Step 12) 에 따라 생성됨.
 > 상세 소스/인사이트는 `docs/kaizen/flutter-research-log.md` 를 참조.
@@ -163,7 +164,6 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.
 
 ---
-
 
 ---
 
@@ -210,18 +210,18 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 
 | 파일 | 추가 내용 | 주요 출처 |
 | ---- | --------- | --------- |
-| ui/animation.md | Staggered animation, AnimatedSwitcher, RepaintBoundary, 성능 프로파일링 | https://docs.flutter.dev/ui/animations/staggered-animations |
-| ui/responsive.md | Breakpoint utility, Sliver 반응형, Foldable 지원, 테스트 전략 | https://m3.material.io/foundations/layout/applying-layout/window-size-classes |
-| ui/theming.md | ThemeExtension 코드 예시, Dynamic Color, AnimatedTheme, 테스트 | https://api.flutter.dev/flutter/material/ThemeExtension-class.html |
-| ui/widget-composition.md | Child hoisting, Builder 패턴, 분해 기준, 테스트 | https://docs.flutter.dev/perf/best-practices |
-| state/state-management.md | AsyncNotifier 구조, ref.invalidate vs refresh, Provider 선택, 테스트 | https://docs-v2.riverpod.dev/docs/providers/notifier_provider |
-| state/hooks.md | 커스텀 훅, useEffect keys 규칙, Props 번들링, 테스트 | https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html |
-| state/async-patterns.md | FutureBuilder 올바른 사용, Isolate.run, 취소 패턴, Debounce | https://dart.dev/language/isolates |
-| quality/performance.md | DevTools, Impeller, 최적화 체크리스트, 메모리 관리 | https://docs.flutter.dev/perf/impeller |
-| quality/testing.md | Widget test 기본 구조, Golden test, 테스트 피라미드, Fake vs Mock | https://docs.flutter.dev/cookbook/testing/widget/tap-drag |
-| architecture/clean-architecture.md | 디렉토리 구조, UseCase 생략 기준, DI 패턴, 데이터 흐름 | https://docs.flutter.dev/app-architecture/guide |
-| architecture/routing.md | GoRouter 설정, ShellRoute, 딥링크+인증, transition | https://pub.dev/documentation/go_router/latest/ |
-| architecture/api-layer.md | Retrofit DataSource, DTO 변환, Interceptor, Pagination, 테스트 | https://pub.dev/packages/retrofit |
+| ui/animation.md | Staggered animation, AnimatedSwitcher, RepaintBoundary, 성능 프로파일링 | <https://docs.flutter.dev/ui/animations/staggered-animations> |
+| ui/responsive.md | Breakpoint utility, Sliver 반응형, Foldable 지원, 테스트 전략 | <https://m3.material.io/foundations/layout/applying-layout/window-size-classes> |
+| ui/theming.md | ThemeExtension 코드 예시, Dynamic Color, AnimatedTheme, 테스트 | <https://api.flutter.dev/flutter/material/ThemeExtension-class.html> |
+| ui/widget-composition.md | Child hoisting, Builder 패턴, 분해 기준, 테스트 | <https://docs.flutter.dev/perf/best-practices> |
+| state/state-management.md | AsyncNotifier 구조, ref.invalidate vs refresh, Provider 선택, 테스트 | <https://docs-v2.riverpod.dev/docs/providers/notifier_provider> |
+| state/hooks.md | 커스텀 훅, useEffect keys 규칙, Props 번들링, 테스트 | <https://pub.dev/documentation/flutter_hooks/latest/flutter_hooks/Hook-class.html> |
+| state/async-patterns.md | FutureBuilder 올바른 사용, Isolate.run, 취소 패턴, Debounce | <https://dart.dev/language/isolates> |
+| quality/performance.md | DevTools, Impeller, 최적화 체크리스트, 메모리 관리 | <https://docs.flutter.dev/perf/impeller> |
+| quality/testing.md | Widget test 기본 구조, Golden test, 테스트 피라미드, Fake vs Mock | <https://docs.flutter.dev/cookbook/testing/widget/tap-drag> |
+| architecture/clean-architecture.md | 디렉토리 구조, UseCase 생략 기준, DI 패턴, 데이터 흐름 | <https://docs.flutter.dev/app-architecture/guide> |
+| architecture/routing.md | GoRouter 설정, ShellRoute, 딥링크+인증, transition | <https://pub.dev/documentation/go_router/latest/> |
+| architecture/api-layer.md | Retrofit DataSource, DTO 변환, Interceptor, Pagination, 테스트 | <https://pub.dev/packages/retrofit> |
 
 ### 방법론
 
@@ -263,7 +263,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 태그 | 결과 |
-|---|------|-----|------|------|------|
+| --- | ------ | ----- | ------ | ------ | ------ |
 | 1 | Flutter 3.41.0 release notes | <https://docs.flutter.dev/release/release-notes/release-notes-3.41.0> | 공식 | [official] | 채택 |
 | 2 | What's new in Flutter 3.41 (blog.flutter.dev) | <https://blog.flutter.dev/whats-new-in-flutter-3-41-302ec140e632> | 공식 | [official] | 채택 |
 | 3 | Flutter 3.38 & Dart 3.10 (blog.flutter.dev) | <https://blog.flutter.dev/whats-new-in-flutter-3-38-3f7b258f7228> | 공식 | [official] | 채택 |
@@ -388,7 +388,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 ### flutter-toolkit 스킬 개선 포인트
 
 | 스킬 | 개선 영역 | 근거 소스 |
-|------|-----------|-----------|
+| ------ | ----------- | ----------- |
 | flutter-provider | Riverpod 3.0 Mutations, Offline Persistence, Pause/Resume Gotchas 추가 | #7, #8 |
 | flutter-api | Freezed 3.2 Mixed mode + `when`/`map` 제거 마이그레이션 Gotchas — **[정정 2026-08-13]** 3.1.0 재추가로 제거 단정은 철회, 일관성 우선으로 개정 | #10, #11 |
 | flutter-screen | go_router 17.0 `notifyRootObserver` breaking change 경고 | #12 |
@@ -403,7 +403,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 ### 향후 리서치 백로그 (갱신)
 
 | 우선순위 | 주제 | 예상 출처 | 대상 문서 | 상태 |
-|----------|------|-----------|-----------|------|
+| ---------- | ------ | ----------- | ----------- | ------ |
 | 높음 | Flutter 3.44+ (2026 Q2 예정) | flutter.dev/release | 전체 | 미착수 |
 | 높음 | Riverpod Offline Persistence 안정화 | riverpod.dev | state/state-management.md | 미착수 |
 | 높음 | Impeller on Web (wimp) 진행 상황 | docs.flutter.dev/perf/impeller | quality/performance.md | 미착수 |
@@ -415,6 +415,7 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 | 낮음 | DevTools extensions API | docs.flutter.dev/tools/devtools | quality/performance.md | 미착수 |
 | ~~높음~~ | ~~Dart macros (stable 이후)~~ | — | — | **폐기** (macro 개발 중단 확정) |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### PR
 
 - 개선 포인트 확인 완료. 다음 `/flutter-kaizen` 실행 시 위 테이블 기반으로 스킬 Gotchas/Process 업데이트 예정
@@ -425,10 +426,11 @@ flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가 (insights 2
 
 **트리거:** manual (`LATEST 2025-2026` 재검증 + research-log append-only 갱신)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 태그 | 결과 |
-|---|------|-----|------|------|------|
+| --- | ------ | ----- | ------ | ------ | ------ |
 | 27 | Breaking changes and migration guides | <https://docs.flutter.dev/release/breaking-changes> | 공식 | [official] [dated: 2026-04] | 채택 |
 | 28 | Changing RawMenuAnchor close order | <https://docs.flutter.dev/release/breaking-changes/raw-menu-anchor-close-order> | 공식 | [official] [dated: 2026-03] | 채택 |
 | 29 | Migrating Flutter Android app to Android Gradle Plugin 9.0.0 | <https://docs.flutter.dev/release/breaking-changes/migrate-to-agp-9> | 공식 | [official] [dated: 2026-02] | 채택 |

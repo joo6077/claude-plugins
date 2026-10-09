@@ -18,6 +18,17 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# Phase 1~4 는 harness 몫으로 고정이고, 5 번부터는 마켓 목록(.claude-plugin/marketplace.json)의 킷 차례를 따른다.
+# 킷을 손으로 적어 두면 새 킷이 들어와도 상한이 옛 값에 머문다 (2026-09-28: 킷을 더한 사본에서 18 번이 거부됐다).
+if ! KITS=$(python3 -c 'import json, sys
+for plugin in json.load(open(sys.argv[1], encoding="utf-8"))["plugins"]:
+    if plugin["name"] != "harness": print(plugin["name"])' .claude-plugin/marketplace.json); then
+    echo "ERROR: .claude-plugin/marketplace.json 에서 킷 목록을 읽지 못했습니다" >&2
+    exit 2
+fi
+KIT_COUNT=$(printf '%s\n' "$KITS" | grep -c .)
+MAX_PHASE=$((4 + KIT_COUNT))
+
 usage() {
     cat <<'EOF'
 spawn-kaizen-phase.sh — Phase N 실행 부트스트랩
@@ -26,26 +37,19 @@ spawn-kaizen-phase.sh — Phase N 실행 부트스트랩
   bash scripts/spawn-kaizen-phase.sh <phase-num>
   bash scripts/spawn-kaizen-phase.sh --help
 
-인자:
-  <phase-num>  1 ~ 10 사이의 Phase 번호
-
 동작:
   1. git tag kaizen-phase-{N}-pre 생성
   2. data pool §N 섹션 추출 및 stdout 출력
   3. subagent 프롬프트 템플릿 생성
 
-Phase 번호 매핑:
+Phase 번호 매핑 (5 번부터는 마켓 목록 차례):
   1 = 설계 가이드 (skill/agent-design-guide)
   2 = Contract (contract-design-guide, sprint-contract)
   3 = Evaluator (qa-evaluation-guide, qa-evaluator)
   4 = Harness (init, create-skill, create-agent, kaizen 스킬)
-  5 = flutter-toolkit
-  6 = design-kit
-  7 = backend-kit
-  8 = infra-kit
-  9 = rust-kit
-  10 = react-kit
 EOF
+    printf '%s\n' "$KITS" | awk '{ printf "  %d = %s\n", NR + 4, $0 }'
+    printf '\n인자:\n  <phase-num>  Phase 번호. 가장 큰 번호는 4 + (harness 를 뺀 킷 수) = %s\n' "$MAX_PHASE"
 }
 
 if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
@@ -61,26 +65,24 @@ fi
 
 PHASE_NUM="$1"
 
-if ! [[ "$PHASE_NUM" =~ ^[0-9]+$ ]] || [[ "$PHASE_NUM" -lt 1 ]] || [[ "$PHASE_NUM" -gt 10 ]]; then
-    echo "ERROR: phase-num 은 1~10 사이여야 합니다 (받은 값: $PHASE_NUM)" >&2
+if ! [[ "$PHASE_NUM" =~ ^[0-9]+$ ]] || [[ "$PHASE_NUM" -lt 1 ]] || [[ "$PHASE_NUM" -gt "$MAX_PHASE" ]]; then
+    echo "ERROR: phase-num 은 1~${MAX_PHASE} 사이여야 합니다 (받은 값: $PHASE_NUM)" >&2
     usage
     exit 1
 fi
 
 # Phase 이름 + 슬러그 매핑
-# 슬러그는 Phase 번호 + kit 이름에서 결정론적으로 도출한다.
+# 슬러그는 Phase 번호 + kit 이름에서 결정론적으로 도출한다. 킷 이름 끝의 -kit · -toolkit 을 뗀다.
 # Phase 를 병렬로 돌려도 계약 파일이 겹치지 않도록 Phase 마다 고유 슬러그를 발급한다.
 case "$PHASE_NUM" in
     1) PHASE_NAME="설계 가이드"; PHASE_KIT="design-guides" ;;
     2) PHASE_NAME="Contract"; PHASE_KIT="contract" ;;
     3) PHASE_NAME="Evaluator"; PHASE_KIT="evaluator" ;;
     4) PHASE_NAME="Harness"; PHASE_KIT="harness" ;;
-    5) PHASE_NAME="flutter-toolkit"; PHASE_KIT="flutter" ;;
-    6) PHASE_NAME="design-kit"; PHASE_KIT="design" ;;
-    7) PHASE_NAME="backend-kit"; PHASE_KIT="backend" ;;
-    8) PHASE_NAME="infra-kit"; PHASE_KIT="infra" ;;
-    9) PHASE_NAME="rust-kit"; PHASE_KIT="rust" ;;
-    10) PHASE_NAME="react-kit"; PHASE_KIT="react" ;;
+    *)
+        PHASE_NAME=$(printf '%s\n' "$KITS" | sed -n "$((PHASE_NUM - 4))p")
+        PHASE_KIT=$(printf '%s\n' "$PHASE_NAME" | sed -E 's/-(toolkit|kit)$//')
+        ;;
 esac
 
 SPRINT_SLUG="kaizen-phase${PHASE_NUM}-${PHASE_KIT}"
@@ -115,9 +117,12 @@ fi
 # Step 2: data pool §N 추출 (해당 Phase 섹션만)
 # kaizen-data-pool.md 의 §1 ~ §5 섹션을 Phase 별 참조 테이블에 따라 매핑
 # 모든 Phase 는 §1 (feedback) + §5 (validate-plugin) 공통 참조
+# §2 · §3 은 수집기 §6 표(scripts/collect-kaizen-data.py 「Phase 별 참조 가이드」)의 그 킷 행을 따른다 — 표를 고치면 여기도 고친다
+# 번호가 아니라 킷 이름으로 고른다. 마켓 목록 중간에 킷이 끼면 번호가 밀린다
 COMMON_SECTIONS="§1 §5"
-case "$PHASE_NUM" in
-    5|6|7|8|9|10) PHASE_SECTIONS="$COMMON_SECTIONS §2 §3" ;;
+case "$PHASE_NAME" in
+    flutter-toolkit|rust-kit|bambu-kit) PHASE_SECTIONS="$COMMON_SECTIONS §2" ;;
+    react-kit) PHASE_SECTIONS="$COMMON_SECTIONS §3" ;;
     *) PHASE_SECTIONS="$COMMON_SECTIONS" ;;
 esac
 

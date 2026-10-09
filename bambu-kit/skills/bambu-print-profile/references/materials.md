@@ -3,14 +3,15 @@
 > Last updated: 2026-05-15
 > Source: Codex research run `aeb457c7603a420db` (score 23/25)
 > Bambu Studio reference version: **런타임에 조회한다 — 이 줄에 버전을 하드코딩하지 마라.**
->   앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
->   `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
->   두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
->   최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
+> 앱 `/Applications/BambuStudio.app/Contents/Info.plist` · 프로파일 번들
+> `~/Library/Application Support/BambuStudio/system/BBL.json` 의 `version`.
+> 두 값은 **따로 갱신된다** (프로파일은 앱과 무관하게 네트워크로 갱신). 조회 절차는 `SKILL.md` §환경 검증.
+> 최초 작성 시점 기준: 앱 `02.06.00.51` / 번들 `02.06.00.05`. 2026-09-05 확인: 앱 `02.08.02.61` / 번들 `02.08.00.06`, H2S 0.4 앵커값 10/10 동일.
 
 스킬이 모델 형상/용도에 맞는 필라멘트를 추천한 뒤 `inherits`로 가리키는 base 프로파일명을 조회하기 위한 카탈로그.
 
 ⚠️ **규약**:
+
 - `Studio값` = H2S 기본 0.4 계열 프로파일의 `nozzle / bed / MVS (max volumetric speed mm³/s)`
 - `mm/s 속도`는 Studio JSON에 직접 키로 들어가지 않음 — `filament_max_volumetric_speed`가 실제 키. 표의 MVS 참고.
 - `SS` = stainless steel nozzle, `HS` = hardened steel nozzle
@@ -19,7 +20,7 @@
 ## 1. 전체 카탈로그
 
 | 제품명 | Studio base profile | nozzle/bed/MVS (H2S) | 건조 / AMS HT | AMS 2 Pro 직접 로드 | H2S 노즐/챔버 | 용도/한줄 평 |
-|---|---|---:|---|---|---|---|
+| --- | --- | ---: | --- | --- | --- | --- |
 | **PLA Basic** | `Bambu PLA Basic @base` | 220 / 55 / 25-40 | 55°C 8h, AMS HT 가능 | 가능 | SS/HS, 비가열 | cosmetic/prototype: 쉬운 출력, 낮은 내열 |
 | **PLA Matte** | `Bambu PLA Matte @base` | 220 / 55 / 25-40 | 55°C 8h | 가능 | SS/HS, 비가열 | cosmetic: 무광, 레이어 은폐 좋음, PLA급 내열 |
 | **PLA Silk** | `Bambu PLA Silk @base` | 230 / 55 / 12 | 55°C 8h | 가능 | SS/HS, 비가열 | cosmetic: 광택, 강도는 Basic보다 보수적 |
@@ -71,7 +72,7 @@
 ## 2. 용도별 우선 추천
 
 | 용도 | 우선 소재 |
-|------|----------|
+| ------ | ---------- |
 | 빠른 시제품 / 치수 확인 | PLA Basic, PLA Lite |
 | 고급 외관 / 무광 | PLA Matte, PLA-CF, ASA-CF |
 | 광택 / 장식 | PLA Silk+, PLA Metal, PLA Galaxy, PLA Sparkle |
@@ -87,23 +88,28 @@
 
 ## 3. 비슷한 소재 트레이드오프
 
-**PLA Matte vs PETG Translucent**
+### PLA Matte vs PETG Translucent
+
 - PLA Matte: 외관·쉬운 출력 ↑, 내열·내충격 ↓
 - PETG Translucent: 질김·내열 ↑, 투명감 위해 속도 ↓ 필요, 표면 튜닝 민감
 
-**PETG HF vs ABS/ASA**
+### PETG HF vs ABS/ASA
+
 - PETG HF: 냄새/수축 ↓, 실사용 부품 기본값으로 적합
 - ABS/ASA: 내열·후가공·내후성 ↑, 챔버 45-60°C + 환기 사실상 필수
 
-**PAHT-CF vs PA6-CF**
+### PAHT-CF vs PA6-CF
+
 - PAHT-CF: 저흡습·안정성 ↑, 추천 기본값
 - PA6-CF: 강도·인성 ↑, 흡습 관리 빡빡
 
-**PPA-CF / PPS-CF vs PAHT-CF**
+### PPA-CF / PPS-CF vs PAHT-CF
+
 - PPA/PPS: 고내열 최상위, 건조 온도·AMS 경로 제약 큼 → "필요할 때만"
 - PAHT-CF: 범용 엔지니어링은 더 현실적
 
-**TPU 95A HF vs TPU for AMS**
+### TPU 95A HF vs TPU for AMS
+
 - TPU 95A HF: 더 TPU답고 빠름, 외부 스풀 전제
 - TPU for AMS: 멀티컬러/AMS 워크플로 우선
 
@@ -112,7 +118,7 @@
 3D 출력 후 cooling 단계에서 발생하는 dimensional 수축률. PLA 계열이 가장 안정, ASA/ABS가 가장 큰 수축. fit-critical 부품(베어링/볼트/인서트/슬라이드 fit)의 process JSON 공차 보정값(`xy_hole_compensation`, `xy_contour_compensation`, `elefant_foot_compensation`)을 결정할 때 참조.
 
 | 소재 | 평균 수축률 | 권장 `xy_hole_compensation` | 권장 `xy_contour_compensation` | 비고 |
-|------|-----------|-----------------------------|-------------------------------|------|
+| ------ | ----------- | ----------------------------- | ------------------------------- | ------ |
 | **PLA Basic** | 0.2-0.3% | `+0.05` mm | `-0.05` mm | 가장 예측 가능, fit-critical 기본 |
 | **PLA Matte** | 0.2-0.3% | `+0.05` mm | `-0.05` mm | PLA Basic과 동일 |
 | **PLA Tough+** | 0.25-0.35% | `+0.075` mm | `-0.05` mm | 약간 더 크게 보정 |
@@ -129,6 +135,7 @@
 | **TPU 95A** | 1.0-1.5% | `+0.15` mm | `-0.10` mm | 유연 — contour는 squeezable |
 
 ⚠️ **권장값은 0.4mm nozzle + Bambu default flow ratio + flow calibration 완료 기준**. 다음 변수가 추가 영향:
+
 - Flow calibration 미수행 시 ±0.05 추가 필요
 - Pressure Advance 미수행 시 외벽 거친 영역 ±0.05
 - AMS HT 건조 미수행 흡습 소재(PETG/PA/PC)는 +0.05 추가
@@ -137,16 +144,16 @@
 
 ## 5. 미해결 / 검증 필요
 
-1. **PLA Pure** — 2026-05-14 Bambu Studio 2.7.0 Public Beta에 신규 프리셋 추가됨. 2.6.0 stable에는 미포함이라 자동 추천/inherits 대상으로는 보류 안전.
+1. **PLA Pure** — 2026-05-14 Bambu Studio 2.7.0 Public Beta에 신규 프리셋 추가됨. 정식 릴리스 `02.08.02.61` 설치본 번들에는 `Bambu PLA Pure @BBL H2S*.json` 4 개가 있다(2026-09-27 이 맥 관측). 설치본이 이 판보다 옛것이면 부모를 해석할 수 없으니 inherits 대상으로 쓰지 않는다.
 2. **PA-CF 단종** — PAHT-CF 스토어 페이지에 PA-CF가 discontinued라고 명시. Studio에는 base가 남아 있지만 신규 추천은 PAHT-CF로.
 3. **AMS 2 Pro 직접 로드 제약** — 공식 표는 PLA/PETG/ABS/ASA/PET/PA/PC/PVA/BVOH/PP/POM/HIPS, Bambu PLA-CF/PAHT-CF/PETG-CF/Support for PLA/PETG/TPU for AMS를 지원. **PET-CF/PPA-CF/PPS-CF/TPU 95A HF는 외부 스풀 또는 AMS HT bypass 권장.**
 4. **챔버 값** — Bambu Studio H2S filament JSON은 챔버 목표값을 행별 명시하지 않음. 표의 챔버 범위는 TDS 권장 + H2S 65°C active chamber 스펙 기반 분류.
 
 ## 출처
 
-- Bambu Filament Guide: https://bambulab.com/en-us/filament-guide
-- AMS 2 Pro 공식: https://us.store.bambulab.com/products/ams-2-pro
-- H2S 공식: https://us.store.bambulab.com/products/h2s
-- H2/P2S hotend compatibility: https://us.store.bambulab.com/collections/hotend
-- Bambu Studio Releases: https://github.com/bambulab/BambuStudio/releases
+- Bambu Filament Guide: <https://bambulab.com/en-us/filament-guide>
+- AMS 2 Pro 공식: <https://us.store.bambulab.com/products/ams-2-pro>
+- H2S 공식: <https://us.store.bambulab.com/products/h2s>
+- H2/P2S hotend compatibility: <https://us.store.bambulab.com/collections/hotend>
+- Bambu Studio Releases: <https://github.com/bambulab/BambuStudio/releases>
 - 로컬 Bambu Studio `02.06.00.51` 시스템 프로파일

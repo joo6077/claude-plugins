@@ -21,6 +21,8 @@ import json
 import sys
 from pathlib import Path
 
+from plugin_utils import KIT_RESEARCH_DOCS
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
 ORCHESTRATOR_SKILL = REPO_ROOT / ".claude" / "skills" / "kaizen-orchestrator" / "SKILL.md"
@@ -33,6 +35,19 @@ EXCLUDED_PLUGINS = {"harness"}
 
 # Phase 5 부터 시작
 FIRST_PLUGIN_PHASE = 5
+
+# 카이젠이 고치는 곳이 스킬 본문만이 아니다 —
+# 2026-09-24 사이클에 reflect-kit 의 hooks/ · docs/ 수정이, 킷 scripts/ · templates/ 수정도 범위 줄 밖이었다
+KIT_SCOPE_DIRS = (
+    "references/",
+    "skills/*/references/",
+    "agents/",
+    "hooks/",
+    "docs/",
+    "evals/",
+    "scripts/",
+    "templates/",
+)
 
 
 def load_marketplace() -> list[dict]:
@@ -71,8 +86,8 @@ def generate_phase_sections(plugins: list[dict]) -> str:
 
         lines.append(f"### Step {step_num}: Phase {phase_num} — {name} 카이젠")
         lines.append("")
-        refs = infer_references_dir(name)
-        lines.append(f"**범위:** `{name}/skills/*/SKILL.md`" + (f", `{refs}`" if refs else ""))
+        scope = [f"{name}/skills/*/SKILL.md", *infer_scope_dirs(name)]
+        lines.append("**범위:** " + ", ".join(f"`{path}`" for path in scope))
         if research_docs_dir:
             lines.append(f", `{research_docs_dir}` 리서치 문서")
         lines.append("")
@@ -92,18 +107,18 @@ def generate_phase_sections(plugins: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def infer_references_dir(plugin_name: str) -> str | None:
-    """킷의 참조 폴더 — 킷 바로 아래 references/, 없으면 skills/*/references/, 둘 다 없으면 None.
+def infer_scope_dirs(plugin_name: str) -> list[str]:
+    """KIT_SCOPE_DIRS 가운데 디스크에 있는 킷 폴더.
 
-    있는지 보지 않고 `<킷>/references/` 를 적으면 없는 폴더를 범위로 가르친다
+    있는지 보지 않고 적으면 없는 폴더를 범위로 가르친다
     (2026-09-25: planning-kit · bambu-kit · onboarding-kit 세 줄이 그랬다).
     """
     kit = REPO_ROOT / plugin_name
-    if (kit / "references").is_dir():
-        return f"{plugin_name}/references/"
-    if any(p.is_dir() for p in kit.glob("skills/*/references")):
-        return f"{plugin_name}/skills/*/references/"
-    return None
+    return [
+        f"{plugin_name}/{rel}"
+        for rel in KIT_SCOPE_DIRS
+        if any(p.is_dir() for p in kit.glob(rel.rstrip("/")))
+    ]
 
 
 def infer_kaizen_skill(plugin_name: str) -> str:
@@ -119,28 +134,8 @@ def infer_kaizen_skill(plugin_name: str) -> str:
 
 
 def infer_research_docs_dir(plugin_name: str) -> str | None:
-    """플러그인 이름 → 리서치 문서 디렉토리 경로.
-
-    `backend-kit` → `docs/backend/`
-    `infra-kit` → `docs/infra/`
-    `rust-kit` → `docs/rust/`
-    `react-kit` → `docs/react/`
-    `flutter-toolkit` → `docs/flutter/`
-    `design-kit` → `design-kit/docs/design/`
-    `howto-kit` → `docs/howto/`
-    """
-    mapping = {
-        "backend-kit": "docs/backend/",
-        "infra-kit": "docs/infra/",
-        "rust-kit": "docs/rust/",
-        "react-kit": "docs/react/",
-        "flutter-toolkit": "docs/flutter/",
-        "design-kit": "design-kit/docs/design/",
-        "tone-kit": "docs/tone/",
-        "api-kit": "docs/api/",
-        "howto-kit": "docs/howto/",
-    }
-    return mapping.get(plugin_name)
+    """플러그인 이름 → 리서치 문서 디렉토리 경로. 짝은 plugin_utils.KIT_RESEARCH_DOCS 가 정본이다."""
+    return KIT_RESEARCH_DOCS.get(plugin_name)
 
 
 def _marker_lines(content: str, marker: str) -> list[int]:
@@ -220,7 +215,7 @@ def main() -> int:
 
     if args.check_only:
         print(
-            f"sync-orchestrator: DRIFT 감지 — `python3 scripts/sync-orchestrator.py` 실행 필요",
+            "sync-orchestrator: DRIFT 감지 — `python3 scripts/sync-orchestrator.py` 실행 필요",
             file=sys.stderr,
         )
         return 1

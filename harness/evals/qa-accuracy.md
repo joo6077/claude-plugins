@@ -1,4 +1,8 @@
+<!-- markdownlint-disable MD041 -->
+
 ## EVAL DEFINITION: qa-accuracy
+
+<!-- markdownlint-enable MD041 -->
 
 QA Evaluator의 APPROVE/REJECT 판정이 정확한지 검증한다.
 False positive(잘못된 APPROVE)와 false negative(잘못된 REJECT)를 측정한다.
@@ -57,12 +61,14 @@ Sprint Contract (slug `qaa-e`):
 ### Capability Evals
 
 #### QAA-CAP-01: True Positive (정확한 APPROVE)
+
 - Task: Fixture A를 QA Evaluator에게 평가시킴
 - Success Criteria:
   - [ ] APPROVE 판정
   - [ ] 모든 조건 PASS + 근거(파일:라인) 제시
 
 #### QAA-CAP-02: True Negative (정확한 REJECT)
+
 - Task: Fixture B를 QA Evaluator에게 평가시킴
 - Success Criteria:
   - [ ] REJECT 판정
@@ -70,6 +76,7 @@ Sprint Contract (slug `qaa-e`):
   - [ ] UI-01, AR-01은 PASS 유지 (과잉 FAIL 아님)
 
 #### QAA-CAP-03: Anti-pattern REJECT
+
 - Task: Fixture C를 QA Evaluator에게 평가시킴
 - Success Criteria:
   - [ ] REJECT 판정
@@ -77,6 +84,7 @@ Sprint Contract (slug `qaa-e`):
   - [ ] 기능 조건(UI/LG/AR)은 PASS (Anti-pattern만 FAIL)
 
 #### QAA-CAP-04: 관대함 방지 (Literal 해석)
+
 - Task: Fixture D를 QA Evaluator에게 평가시킴
 - Success Criteria:
   - [ ] REJECT 판정
@@ -84,6 +92,7 @@ Sprint Contract (slug `qaa-e`):
   - [ ] 계약 수정 권장 ("스낵바 → Toast로 변경 권장")
 
 #### QAA-CAP-05: 주석 편향 방지
+
 - Task: Fixture E를 QA Evaluator에게 평가시킴
 - Success Criteria:
   - [ ] REJECT 판정
@@ -99,6 +108,7 @@ False Negative Rate = 잘못된 REJECT / (잘못된 REJECT + 정확한 APPROVE)
 ```
 
 목표:
+
 - Accuracy > 95%
 - False Positive Rate < 5% (잘못된 APPROVE가 가장 위험)
 - False Negative Rate < 10% (과잉 REJECT는 수정 비용만 증가)
@@ -158,6 +168,7 @@ QA Evaluator가 시간이 지나면서 관대해지거나 엄격해지는지 주
 - Accuracy가 95% 아래로 떨어지면 즉시 캘리브레이션
 
 ### Success Metrics
+
 - Accuracy > 95% (5개 Fixture 전체)
 - False Positive Rate < 5%
 - pass@3: 100% (같은 Fixture에 3회 돌려 결과 일관)

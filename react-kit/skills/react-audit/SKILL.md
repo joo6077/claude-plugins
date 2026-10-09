@@ -10,7 +10,13 @@ argument-hint: "[quick|deep] [path]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
+<!-- markdownlint-enable MD041 -->
 
 - **Library Policy 는 빌드 게이트급**: `motion`, `framer-motion`, `@dnd-kit/*`, `react-spring`, `react-transition-group`, `react-dnd`, `react-beautiful-dnd`, `gsap`, `lottie-react`, `@formkit/auto-animate`, `animate.css` import 는 빌드 실패 — 경고가 아니라 즉각 REJECT
 - **WASM 렌더 안 호출**: JSX return 블록 안에서 useMemo 없이 WASM 함수를 직접 호출하면 매 렌더마다 WASM boundary 를 건넘. ❌ 실패
@@ -26,7 +32,7 @@ React 프로젝트의 6개 카테고리 코드 품질 감사.
 `references/project-detection.md` 의 절차를 실행하여 프로젝트 환경을 파악한다.
 
 | 감지 키 | 영향받는 검사 |
-|---------|-------------|
+| --------- | ------------- |
 | `crates/core/` 존재 | Performance — WASM boundary 검사 활성화 |
 | `lingui.config.ts` 존재 | Accessibility — 하드코딩 i18n 문자열 검사 활성화 |
 | `src-tauri/` 존재 | Library Policy — Tauri API 가드 검사 활성화 |
@@ -50,7 +56,7 @@ git diff --name-only --cached
 ```
 
 | 변경 파일 수 | 모드 | 예상 소요 시간 |
-|-------------|------|--------------|
+| ------------- | ------ | -------------- |
 | 1~20 | Quick | 10초~2분 |
 | 21~50 | Deep 권장 (사용자 확인 후 실행) | 3~8분 |
 | 51+ | Deep 강제 | 5~15분 |
@@ -76,7 +82,9 @@ Clean Architecture 레이어 경계 위반을 검출한다. domain 이 data/pres
 - [ ] **상대 경로 3단계 이상** (`'../../../'`) → ⚠️ 경고
   - grep: `^import .* from ['"]\.\./\.\./\.\./`
 - [ ] **`export default` 사용** → ⚠️ 경고
+  <!-- markdownlint-disable MD038 -->
   - grep: `^export default `
+    <!-- markdownlint-enable MD038 -->
 
 ### 2. Strict TypeScript
 
@@ -89,7 +97,9 @@ Clean Architecture 레이어 경계 위반을 검출한다. domain 이 data/pres
   - grep: `\w+!\.\w+|\w+!\[|\w+!\s*[,)]`
   - ESLint rule: `@typescript-eslint/no-non-null-assertion`
 - [ ] **`as` 타입 단언** (`as const` 제외) → ⚠️ 경고
+  <!-- markdownlint-disable MD038 -->
   - grep: ` as [A-Z][a-zA-Z]+\b` (exclude `as const`)
+    <!-- markdownlint-enable MD038 -->
   - ESLint rule: `@typescript-eslint/consistent-type-assertions`
 - [ ] **`React.FC` 사용** → ⚠️ 경고
   - grep: `React\.FC<|: FC<`
@@ -265,7 +275,7 @@ shared 컴포넌트 경로: src/presentation/components/
 
 **모드**: <quick|deep>
 **변경 파일**: <N> 개
-**판정**: **<APPROVE|REJECT>** (<N> 실패, <N> 경고)
+**판정**: **<APPROVE|REJECT|BLOCKED>** (<N> 실패, <N> 경고, invalid_evidence <N>, env_gaps <N>)
 
 ### ❌ 실패 (<N>)
 1. `<file>:<line>` — <설명> (<카테고리>)
@@ -276,7 +286,7 @@ shared 컴포넌트 경로: src/presentation/components/
 ...
 
 ### 🔍 미검증 (<N>)
-1. `<규칙 ID>` (<카테고리>) — <사유> / 시도한 fallback: <단계>
+1. `<규칙 ID>` (<카테고리>) — `[미검증:ENV]` 또는 `[미검증:INVALID]` — <사유> / 시도한 fallback: <단계>
 ...
 
 ### ✅ 통과 카테고리
@@ -306,7 +316,7 @@ react-reviewer 가 돌려준 `unverified` 항목을 그대로 옮기고, quick �
 - **MUST** Library Policy 금지 목록 확장 시 `react-kit/references/common-gotchas.md` G2 동기화 필수. 삭제는 빌드 게이트 훼손으로 금지 (Phase 10 LP-01)
 - **MUST** grep 0 매치를 PASS 근거로 쓰기 전에 **스코프 대상 파일 수를 먼저 센다**. `Glob` 결과가 0 파일이면 그 규칙은 PASS 가 아니라 `[미검증]` 이다 — 대상이 없어서 안 걸린 것과 위반이 없어서 안 걸린 것은 다른 상태다 (qa-evaluation-guide §Evidence Validity Gate 검사 2)
 - **MUST** 판정하지 못한 규칙을 `🔍 미검증` 에 집계한다. 마커는 `[미검증]` 하나만 쓰고 동의어를 만들지 않는다
-- **MUST** `[미검증]` **2 건 이상이면 실패 0 건이어도 판정을 REJECT** 로 낸다. 임계값·마커 정의는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 정본을 따르며 이 스킬에서 재정의하지 않는다
+- **MUST** 판정은 아래 순서로 보아 처음 성립하는 항에서 정한다 — 실패 1 건 이상 → REJECT · `invalid_evidence`(`[미검증:INVALID]` · 접미 없는 `[미검증]`) **2 건 이상이면 실패 0 건이어도 REJECT** · `verified_coverage = (규칙 수 − env_gaps) / 규칙 수` 가 0.60 미만이면 BLOCKED · 그 외 APPROVE (`invalid_evidence` 1 건이면 경고). 4 요건을 다 채운 `[미검증:ENV]` 는 `env_gaps` 로 따로 센다. 임계값·마커 정의는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 정본을 따르며 이 스킬에서 재정의하지 않는다
 - **MUST NOT** `[미검증]` 을 카테고리로 승격한다 — 6 카테고리 구성은 고정이고 미검증은 리포트 축이다
 
 ## References

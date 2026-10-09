@@ -1,0 +1,13 @@
+{
+  "name": "codex-status",
+  "displayName": "Codex 진행 상황",
+  "description": "Codex 감독 · 리서치가 도는 동안만 하단 상태 표시줄에 한 줄로 짧게 보이고, 마우스를 올리면 세션별 진행 줄을 보인다",
+  "version": "0.2.0",
+  "publisher": "joo6077",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Other"],
+  "main": "./extension.js",
+  "activationEvents": ["onStartupFinished"]
+}

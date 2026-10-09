@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **pnpm workspace ↔ Cargo workspace 혼동 금지** — `pnpm-workspace.yaml`의 `packages` 목록과 `Cargo.toml`의 `workspace.members`는 별개다. 전자는 npm 패키지, 후자는 Rust crate. `crates/core`는 두 파일 모두에 등재한다.
 2. **Tailwind v4 설치 방식 변경 (2025-01 stable)** — v3 문서의 `npx tailwindcss init`은 v4에서 없어짐. `@tailwindcss/vite` 플러그인과 `@import "tailwindcss";` 만 사용한다. **CSS-first 설정**: `tailwind.config.ts` 대신 CSS 파일의 `@theme { --color-*: oklch(...); }` directive 로 토큰을 정의한다 (Tailwind v4 announcement).
 3. **shadcn 패키지 리네임 + CLI v4 (2026-03)** — `shadcn-ui` npm 패키지는 deprecated. 현재는 `pnpm dlx shadcn@latest init --template vite`를 사용한다. v4 CLI 는 `--dry-run`/`--diff`/`--view` 플래그로 설치 전 미리보기 가능, `components.json` 의 `tailwind.config` 필드는 **Tailwind v4 에서 공란으로 둔다** (shadcn tailwind-v4 docs).
@@ -30,11 +32,16 @@ user-invocable: true
 17. **`@vitejs/plugin-react` v6 — Babel 제거, Oxc 기반** — Vite 8 과 함께 출시. React Refresh 트랜스폼을 Oxc 로 처리하여 Babel 의존성 제거. 기존 Babel 플러그인을 사용하는 프로젝트는 별도 `babel.config.js` 와 `@vitejs/plugin-react` 의 `babel` 옵션으로 유지 가능하지만, 새 프로젝트는 Oxc 기본 경로를 따른다.
 18. **shadcn Luma 디자인 시스템 (2026-03)** — `shadcn/create` 에서 Luma preset 선택 가능. 둥근 기하학, 부드러운 elevation, 넉넉한 spacing. Radix UI 외에 Base UI 프리미티브도 선택 가능하여 번들 사이즈 최적화 옵션이 열렸다. 초기화 시 사용자에게 프리미티브 선택지(Radix/Base UI) 를 제시한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 입력 수집
 
 다음을 확인한다:
+
 - `project_name` (필수): npm 패키지명 규칙 (`^[a-z][a-z0-9-]*$`). 미지정 시 사용자에게 요청.
 - `--with-wasm` (기본 true): `crates/core/` + wasm-pack 파이프라인 포함 여부
 - `--with-tauri` (기본 true): Tauri 데스크탑 대상 포함 여부. false면 웹 전용 Vite 앱
@@ -253,8 +260,12 @@ pnpm add -D eslint typescript-eslint eslint-plugin-react eslint-plugin-react-hoo
 ### 단계 13 — harness 초기화
 
 ```text
-/harness init 호출 → .harness/project.yaml 자동 생성
+/harness init 호출 → .harness/ 와 기본 .harness/project.yaml 생성
+react-kit 의 templates/harness-project.yaml.template 을 .harness/project.yaml 로 덮어 쓴다
 ```
+
+순서는 init 이 먼저다 — init 은 `.harness/` 가 이미 있으면 멈추므로, 틀을 먼저 복사해 두면 init 이 돌지 않는다.
+틀을 덮어 쓰는 이유는 `runtime_inspection.vm_port: 5173` 이다. harness 기본 틀은 `vm_port: null` 이라 위 `vite.config.ts` 의 포트 고정과 이어지지 않는다.
 
 ### 단계 14 — git 초기 커밋
 
@@ -312,11 +323,16 @@ pnpm eslint . --max-warnings=0
 ## 6. 완료 후 안내
 
 생성된 파일/디렉토리 목록 출력 후 다음 단계 안내:
+
 - 화면 추가: `/react-screen`
 - 기능 구현: `/react-feature`
 - 재사용 컴포넌트: `/react-widget`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 감지
 - `references/clean-arch-layout.md` — 레이어 배치

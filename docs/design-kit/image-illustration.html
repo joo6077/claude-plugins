@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>이미지 & 일러스트 사용 원칙 — Image & Illustration</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -533,7 +534,7 @@ section:last-child { border-bottom: none; }
   padding: 2px 6px;
   background: rgba(0,0,0,0.6);
   border-radius: 4px;
-  color: var(--text-secondary);
+  color: #F5F0E8;
 }
 .srcset-img-placeholder {
   background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(232,150,90,0.2));
@@ -628,7 +629,7 @@ section:last-child { border-bottom: none; }
 .ph-blur-overlay {
   position: relative;
   font-size: 0.7rem;
-  color: rgba(255,255,255,0.5);
+  color: var(--dk-on-bright, rgba(255,255,255,0.5));
   z-index: 1;
 }
 /* LQIP */
@@ -799,7 +800,7 @@ section:last-child { border-bottom: none; }
 .references h4 { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 12px; }
 .references ul { list-style: none; padding: 0; }
 .references li { padding: 6px 0; font-size: 0.82rem; }
-.references a { color: var(--accent-dim); text-decoration: none; border-bottom: 1px dotted var(--accent-dim); }
+.references a { --dk-ink:var(--accent-dim);color: var(--dk-ink-out, var(--accent-dim)); text-decoration: none; border-bottom: 1px dotted var(--accent-dim); }
 .references a:hover { color: var(--accent); }
 
 /* ─── Footer ─── */
@@ -922,6 +923,27 @@ section:last-child { border-bottom: none; }
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 
 <!-- ═══════════ Hero ═══════════ -->
 <header class="hero">
@@ -1432,7 +1454,7 @@ section:last-child { border-bottom: none; }
       <div class="ph-card">
         <div class="ph-preview">
           <div class="ph-lqip"></div>
-          <div style="position:relative;z-index:1;font-size:0.7rem;color:rgba(255,255,255,0.5)">BlurHash</div>
+          <div style="position:relative;z-index:1;font-size:0.7rem;color:var(--dk-on-bright, rgba(255,255,255,0.5))">BlurHash</div>
         </div>
         <div class="ph-info">
           <h4>BlurHash</h4>

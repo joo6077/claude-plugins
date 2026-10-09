@@ -32,7 +32,7 @@ Iteration: 1
 - [x] SK-01: `step-contract.md` 의 `<taskbody>` 인용이 strict task model 임을 명시 + 두 모델 존재 서술 — PASS
   - 근거: `howto-kit/references/step-contract.md:74-88` (awk 절 추출 측정, `strict` 2회, `two task models` 1회). L3 — 원문 대조 결과(아래 DITA 검증 참조)와 서술이 일치.
 - [x] SK-02: SKILL.md DITA 인용에 조회일 + 정본 포인터 — PASS
-  - 근거: `howto-kit/skills/howto/SKILL.md:81-83` (`grep -A2` 결과에 `2026-09-10`, `procedure-standards.md` 등장)
+  - 근거: `howto-kit/skills/howto/SKILL.md:85-87` (`grep -A2` 결과에 `2026-09-10`, `procedure-standards.md` 등장)
 - [x] SK-03: `verify` 필수 규칙 유지 + 강화 명시 — PASS
   - 근거: `howto-kit/references/step-contract.md:47` (`verify`|**필수 (예외 없음)**| 변경 없음), `:52-57` (`### verify 를 모든 스텝에 요구하는 이유` 절에 `강화`·`stepresult` 인용 공존). 규칙이 약화되지 않았음을 diff로 확인 — 이전에도 "필수 (예외 없음)"이었고 이번에도 동일.
 
@@ -89,7 +89,7 @@ Iteration: 1
 
 ## 하류 갱신 누락 조사 (사용자 지시 항목 7 — 자체 전수 탐색)
 - `grep -rln DITA howto-kit/ docs/`로 DITA 인용 파일 전수 탐색: `step-contract.md`(수정됨), `skills/howto/SKILL.md`(수정됨), `docs/howto/procedure-standards.md`(신규), `docs/howto-kit/procedure-standards.html`(신규), **`docs/howto/design-brief.md`(부분 수정)**.
-- **발견**: `docs/howto/design-brief.md:237`에 `<prereq>?, <context>?, (<steps>|<steps-unordered>)?` 모델을 여전히 모델명 명시 없이 인용하고 있다. 이 문서는 "설계 시점 스냅샷이라 고치지 않는다"고 명시된 `drafts/SKILL.md`와 달리, frontmatter가 "다른 세션이 이 문서만 읽고 킷을 만들 수 있게 하는 설계 정본"이라 밝히는 활성 참조 문서이며, 이번 스프린트에서 실제로 401행(ISO 항목)은 갱신되었다. GAP 분석 표는 design-brief.md의 변경 범위를 401행(ISO)으로만 한정했고 237행(DITA taskbody 모델)은 다루지 않았다.
+- **발견**: `docs/howto/design-brief.md:241`에 `<prereq>?, <context>?, (<steps>|<steps-unordered>)?` 모델을 여전히 모델명 명시 없이 인용하고 있다. 이 문서는 "설계 시점 스냅샷이라 고치지 않는다"고 명시된 `drafts/SKILL.md`와 달리, frontmatter가 "다른 세션이 이 문서만 읽고 킷을 만들 수 있게 하는 설계 정본"이라 밝히는 활성 참조 문서이며, 이번 스프린트에서 실제로 401행(ISO 항목)은 갱신되었다. GAP 분석 표는 design-brief.md의 변경 범위를 401행(ISO)으로만 한정했고 237행(DITA taskbody 모델)은 다루지 않았다.
 - 이 건은 24개 조건 중 어느 것도 문자 그대로 요구하지 않으므로(SK-01은 `step-contract.md`만, GAP 표는 design-brief.md의 변경을 401행으로 명시적으로 한정) **조건 FAIL로 처리하지 않는다.** 다만 계약 스코프의 완전성 결함으로 Improvement에 기록한다.
 
 ## Unverifiable Summary
@@ -115,7 +115,7 @@ Iteration: 1
 ## Summary
 - Total: 24/24 conditions passed
 - Verdict: APPROVE
-- 특이사항: 계약 조건 자체는 전부 충족하나, `docs/howto/design-brief.md:237`의 DITA taskbody 인용이 이번 사이클의 모델 명시 갱신에서 누락되었다(계약 스코프 밖). 다음 사이클/후속 작업에서 정리 권장.
+- 특이사항: 계약 조건 자체는 전부 충족하나, `docs/howto/design-brief.md:241`의 DITA taskbody 인용이 이번 사이클의 모델 명시 갱신에서 누락되었다(계약 스코프 밖). 다음 사이클/후속 작업에서 정리 권장.
 
 ## Improvement Suggestions
-- [GAP분석-완전성] 측정-산출물-부재 — `docs/howto/design-brief.md:237`의 `<prereq>?, <context>?, (<steps>|<steps-unordered>)?` DITA 인용에도 SK-01과 동일하게 "strict task model" 명시 + `procedure-standards.md` 정본 포인터를 추가하는 후속 조건을 다음 계약에 명시할 것.
+- [GAP분석-완전성] 측정-산출물-부재 — `docs/howto/design-brief.md:241`의 `<prereq>?, <context>?, (<steps>|<steps-unordered>)?` DITA 인용에도 SK-01과 동일하게 "strict task model" 명시 + `procedure-standards.md` 정본 포인터를 추가하는 후속 조건을 다음 계약에 명시할 것.

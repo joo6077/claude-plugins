@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>마이크로인터랙션</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -72,8 +73,8 @@
     font-family:inherit;transition:all 0.1s ease;
   }
   .demo-btn-default{background:var(--accent);color:var(--bg)}
-  .demo-btn-hover{background:#F0B088;color:var(--bg);box-shadow:0 4px 16px rgba(232,150,90,0.3)}
-  .demo-btn-active{background:#4a7ad4;color:var(--bg);transform:scale(0.97)}
+  .demo-btn-hover{background:#F0B088;color:#0d0d14;box-shadow:0 4px 16px rgba(232,150,90,0.3)}
+  .demo-btn-active{background:#4a7ad4;color:#0d0d14;transform:scale(0.97)}
   .demo-btn-focus{background:var(--accent);color:var(--bg);outline:2px solid #fff;outline-offset:2px}
   .demo-btn-disabled{background:var(--surface2);color:var(--text3);opacity:0.38;cursor:not-allowed}
   .demo-btn-loading{background:var(--accent);color:transparent;pointer-events:none;min-width:120px}
@@ -171,7 +172,7 @@
   .timing-row{display:flex;align-items:center;gap:12px;padding:6px 0}
   .timing-label{min-width:120px;font-size:12px;font-weight:600;color:var(--text2)}
   .timing-bar-wrap{flex:1;height:24px;position:relative}
-  .timing-bar{position:absolute;height:100%;border-radius:4px;display:flex;align-items:center;
+  .timing-bar{position:absolute;height:100%;min-width:max-content;border-radius:4px;display:flex;align-items:center;
     padding-left:8px;font-size:10px;font-weight:700;color:var(--bg)}
 
   /* Haptic viz */
@@ -213,6 +214,27 @@
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <header>
@@ -971,6 +993,8 @@ function selectRadio(el){
   let pct=0;
   const fill=document.getElementById('progressFill');
   const label=document.getElementById('progressPct');
+  // 움직임 줄이기 설정이면 멈춘 한 장면만 보인다
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){fill.style.width='60%';label.textContent='60%';return}
   setInterval(()=>{
     pct+=Math.random()*8;
     if(pct>100){pct=0;fill.style.transition='none';fill.style.width='0%';label.textContent='0%';return}

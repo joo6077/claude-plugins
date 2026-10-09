@@ -1,0 +1,3 @@
+seed=11 cases=40 has_dq_subst=0 warned=1 diff=0
+seed=22 cases=40 has_dq_subst=0 warned=4 diff=0
+seed=33 cases=40 has_dq_subst=0 warned=1 diff=0

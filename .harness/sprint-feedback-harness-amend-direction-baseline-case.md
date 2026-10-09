@@ -38,7 +38,7 @@ Iteration: 1
 - [x] SK-03: 소비면 2 파일 언급 + 미재정의 — PASS [enumerated 2/2]
   - `harness/agents/qa-evaluator.md`: `grep -c 'amend_direction_oracle'`=1, `grep -c 'amend_direction_oracle() {'`=0
   - `harness/skills/sprint-contract/SKILL.md`: `grep -c 'amend_direction_oracle'`=1, `grep -c 'amend_direction_oracle() {'`=0
-  - 근거: qa-evaluator.md:649-653, SKILL.md:69 — 둘 다 "정의는 스키마가 SSOT" 로 명시하고 함수 본체 재정의 없음 (L3 확인)
+  - 근거: qa-evaluator.md:655-660, SKILL.md:69 — 둘 다 "정의는 스키마가 SSOT" 로 명시하고 함수 본체 재정의 없음 (L3 확인)
 
 ### Script (3/3)
 - [x] SC-01: `amend_direction_oracle` 실측 집합 판정 — PASS [enumerated: zsh+bash]

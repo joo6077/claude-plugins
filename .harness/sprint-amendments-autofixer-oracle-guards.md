@@ -158,8 +158,8 @@
 - 교차 진단과의 관계: 평가자가 이 항목을 "타이밍 문제 — Step 8 이후에나 생긴다" 로 지적한 것은
   **결론은 맞고 기전은 틀렸다.** 생성이 늦은 게 아니라 생성 직후 삭제된다. 또 평가자는 파일명이
   `feedback-draft-<slug>.yaml` 이어야 한다고 했으나 그것은 qa-evaluator 측 규약이고
-  (`harness/agents/qa-evaluator.md:927`), sprint-contract 측은 plain 이름을 쓴다
-  (`harness/skills/sprint-contract/SKILL.md:699`) — 원본 확인 결과 계약의 파일명 자체는 옳았다.
+  (`harness/agents/qa-evaluator.md:939`), sprint-contract 측은 plain 이름을 쓴다
+  (`harness/skills/sprint-contract/SKILL.md:706`) — 원본 확인 결과 계약의 파일명 자체는 옳았다.
 - direction 산출 (자기신고 아님 · `comm` 집합 비교): `narrowing added=0 removed=1`
   기대 집합이 줄어 PASS 집합이 좁아지므로 앵커 없이도 PASS 근거가 된다
   (contract-schema §Amendment 사이드카 v5.3 의 `narrowing · unanchored`).

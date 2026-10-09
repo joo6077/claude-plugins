@@ -1,0 +1,17 @@
+harness/skills/sprint-contract/SKILL.md	### 2. 완료 조건 생성	### 2.5.
+harness/skills/sprint-contract/SKILL.md	### 3. 안티패턴 체크리스트	### 5. 사용자 승인
+harness/references/contract-schema.md	#### 해당 없음 마커	#### 양성 대조
+harness/references/contract-schema.md	### 2. Anti-patterns	## Amendment 사이드카
+harness/references/contract-schema.md	## 복잡도별 조건 수 가이드	## 스키마 버전
+harness/docs/guides/qa-evaluation-guide.md	2. **`commands.analyze`	3. **`[미검증]`
+harness/docs/guides/contract-design-guide.md	| 과소 안티패턴	| 테스트 불가 조건
+harness/README.md		
+harness/skills/init/SKILL.md		
+harness/evals/skill-behavior.md		
+harness/skills/sprint-contract/references/red-flags.md		
+docs/harness/contract-schema.html	<span class="dot"></span>2. Anti-patterns	조건 태그 (Specificity Tag)</h3>
+docs/harness/contract-schema.html	id="na"	id="positive"
+docs/harness/contract-schema.html	N/A 줄도 조건 줄이다	id="amendment"
+docs/harness/contract-schema.html	id="complexity"	<!-- ═══
+docs/harness/qa-evaluation-guide.html	<span class="check">2</span><strong><code>commands.analyze</code>	<span class="check">3</span>
+docs/harness/contract-design-guide.html	<td>과소 안티패턴</td>	<td>테스트 불가 조건</td>

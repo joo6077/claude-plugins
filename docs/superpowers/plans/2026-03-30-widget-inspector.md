@@ -13,7 +13,7 @@
 ## 파일 구조
 
 | 액션 | 파일 | 역할 |
-|------|------|------|
+| ------ | ------ | ------ |
 | Create | `flutter-toolkit/agents/widget-inspector.md` | 에이전트 정의 |
 | Create | `flutter-toolkit/skills/flutter-extract/SKILL.md` | 추출 스킬 정의 |
 | Modify | `flutter-toolkit/skills/flutter-audit/SKILL.md` | deep 모드에 Agent 4 추가, quick 모드에 Reusability 체크리스트 추가 |
@@ -24,6 +24,7 @@
 ### Task 1: widget-inspector 에이전트 생성
 
 **Files:**
+
 - Create: `flutter-toolkit/agents/widget-inspector.md`
 
 - [ ] **Step 1: agents 디렉토리 생성 확인**
@@ -34,7 +35,7 @@ ls flutter-toolkit/agents/ 2>/dev/null || mkdir -p flutter-toolkit/agents
 
 - [ ] **Step 2: widget-inspector.md 작성**
 
-```markdown
+````markdown
 ---
 name: widget-inspector
 description: >
@@ -144,7 +145,8 @@ build 메서드 안에 논리적으로 분리 가능한 큰 덩어리가 인라�
 
 ### Step 3: 리포트 생성
 
-```
+```text
+
 -- Widget Inspector Report ([quick|deep]) --
 
 Duplicates (구조적 중복)
@@ -164,12 +166,15 @@ Pattern Repetition (패턴 반복)
   → 추출 제안: 공통 WidgetName으로 통합
 
 Total: N extraction candidates
+
 ```
 
 후보가 0건이면:
-```
+```text
+
 -- Widget Inspector Report ([quick|deep]) --
 Clean — 추출 후보 없음
+
 ```
 
 ## Gotchas
@@ -186,7 +191,7 @@ Clean — 추출 후보 없음
 - **MUST** 추출 시 예상 배치 경로를 제안한다
 - **MUST** quick 모드는 전달받은 범위만 스캔한다
 - **MUST NOT** feature 특화 로직이 있는 private 위젯을 추출 대상으로 잡지 않는다
-```
+````
 
 - [ ] **Step 3: 커밋**
 
@@ -203,6 +208,7 @@ quick/deep 두 가지 모드 지원."
 ### Task 2: flutter-extract 스킬 생성
 
 **Files:**
+
 - Create: `flutter-toolkit/skills/flutter-extract/SKILL.md`
 
 - [ ] **Step 1: 디렉토리 생성 확인**
@@ -213,7 +219,7 @@ ls flutter-toolkit/skills/flutter-extract/ 2>/dev/null || mkdir -p flutter-toolk
 
 - [ ] **Step 2: SKILL.md 작성**
 
-```markdown
+````markdown
 ---
 name: flutter-extract
 description: >
@@ -268,7 +274,8 @@ user-invocable: true
 
 사용자에게 추출 계획을 보여주고 확인받는다:
 
-```
+```text
+
 추출 계획:
 
 1. _InfoCard (home_screen.dart:45)
@@ -279,6 +286,7 @@ user-invocable: true
    → _SettingsHeader → 같은 파일 내 private 위젯으로 분리
 
 진행할까요?
+
 ```
 
 ### 3. 배치 경로 결정
@@ -355,7 +363,7 @@ user-invocable: true
 - 새 위젯 생성 → `flutter-widget`
 - 코드 품질 감사 → `flutter-audit`
 - codegen 실행 → `flutter-run codegen`
-```
+````
 
 - [ ] **Step 3: 커밋**
 
@@ -372,6 +380,7 @@ widget-inspector 에이전트 리포트와 연동."
 ### Task 3: flutter-audit에 widget-inspector 연동
 
 **Files:**
+
 - Modify: `flutter-toolkit/skills/flutter-audit/SKILL.md`
 
 - [ ] **Step 1: quick 모드에 Reusability 체크리스트 추가**
@@ -392,12 +401,13 @@ widget-inspector 에이전트 리포트와 연동."
 
 `flutter-audit/SKILL.md`의 deep 모드 섹션, Agent 3 뒤에 추가:
 
-```markdown
+````markdown
 ### Agent 4: Widget Inspector (재사용성 감사) -- 항상 실행
 
 재사용 가능한 위젯 패턴을 감지하여 추출 후보를 리포팅한다.
 
-```
+```text
+
 대상 파일에서 재사용 가능한 위젯 패턴을 감지한다:
 
 - 구조적 중복: 비슷한 위젯 트리가 2곳 이상 반복
@@ -409,8 +419,9 @@ widget-inspector 에이전트 리포트와 연동."
 프로젝트 shared 위젯 경로: {감지된 shared 경로}
 
 각 추출 후보마다 파일:라인, 감지 기준, 추출 제안(위젯 이름 + 배치 경로)을 출력한다.
+
 ```
-```
+````
 
 - [ ] **Step 3: Report Format에 Reusability 섹션 추가**
 
@@ -441,6 +452,7 @@ deep 모드에 Agent 4: Widget Inspector 추가."
 ### Task 4: README 업데이트
 
 **Files:**
+
 - Modify: `flutter-toolkit/README.md`
 
 - [ ] **Step 1: 스킬 목록에 flutter-extract 추가**

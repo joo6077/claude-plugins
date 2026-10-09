@@ -65,7 +65,9 @@ project_root() {
   [ -z "$dir" ] && dir="$PWD"
   top=$(git -C "$dir" rev-parse --show-toplevel 2>/dev/null)
   if [ -z "$top" ]; then
-    printf '%s\n' "$dir"
+    # 지운 워크트리 경로는 git 이 못 연다. `.claude/worktrees/` 꼬리를 떼야 본 레포로 묶인다
+    # (수집기 scripts/collect-kaizen-data.py project_group 과 같은 규칙). git 밖 폴더는 그대로 돌려준다
+    printf '%s\n' "${dir%%/.claude/worktrees/*}"
     return 0
   fi
   gdir=$(git -C "$dir" rev-parse --path-format=absolute --git-dir 2>/dev/null)
@@ -173,22 +175,25 @@ collect_status() {
     | while IFS= read -r rf; do cat "$rf"; done | awk -v since="$since" '
     /^## [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T/ {
       ts = substr($0, 4); if (ts > last) last = ts
-      inp = (since == "" || substr(ts, 1, 19) >= since); next
+      inp = (since == "" || substr(ts, 1, 19) >= since); iny = 0; next
     }
     inp && /^- session: `/ {
       s = $0; sub(/^- session: `/, "", s); sub(/`.*$/, "", s)
       if (s != "" && !(s in seen)) { seen[s] = 1; k++ }
     }
-    inp && /^[ \t]*```yaml[ \t]*$/ { e++ }
+    # 0.8.0 훅은 분석기가 코드 블록을 빼면 그대로 적었다 — yaml 코드 블록 밖의 primary_category 줄도 엔트리 하나다
+    iny && /^[ \t]*```[ \t]*$/ { iny = 0; next }
+    !iny && /^[ \t]*```yaml[ \t]*$/ { iny = 1; if (inp) e++; next }
+    inp && !iny && /^[ \t]*primary_category:/ { e++ }
     END { printf "%d %d %s\n", k, e, (last == "" ? "없음" : last) }')
-  local c f u p ns a k e last lastk n
+  local c f u p ns a stale k e last lastk n
   read -r k e last <<EOF
 $refl
 EOF
   # 마지막 기록 시각을 먼저 구한다 — 엔트리가 하나라도 있으면 엔트리 0 경고가 안 나와 기간 도중에 멈춘
   # 수집기를 놓친다. 마지막 기록 뒤의 실패 시도를 따로 센다
   lastk=${last:0:19}; [ "$last" = 없음 ] && lastk=
-  errs=$(for b in "$@"; do [ -f "$b/.errors.log" ] && cat "$b/.errors.log"; done | awk -v since="$since" -v last="$lastk" '
+  errs=$(for b in "$@"; do [ -f "$b/.errors.log" ] && cat "$b/.errors.log"; done | awk -v since="$since" -v last="$lastk" -v day_ago="$(_rk_since 1)" '
     $2 != "[log-reflection]" { next }
     since != "" && substr($1, 1, 19) < since { next }
     { lost = 0 }
@@ -203,17 +208,21 @@ EOF
       if (s != "" && !(s in seen)) { seen[s] = 1; ns++ }
     }
     # 정상 종료(no issues · 전 블록 억제)는 기록을 안 남긴다 — 마지막 기록과 마지막 정상 종료 가운데 늦은 쪽 뒤의 실패만 센다
-    END { cut = (okl > last) ? okl : last; for (i = 1; i <= nl; i++) if (cut == "" || lt[i] > cut) a++
-          printf "%d %d %d %d %d %d\n", c, f, u, p, ns, a }')
-  read -r c f u p ns a <<EOF
+    END { cut = (okl > last) ? okl : last
+          for (i = 1; i <= nl; i++) if (cut == "" || lt[i] > cut) { a++; if (first == "" || lt[i] < first) first = lt[i] }
+          printf "%d %d %d %d %d %d %d\n", c, f, u, p, ns, a, (first != "" && first <= day_ago) }')
+  read -r c f u p ns a stale <<EOF
 $errs
 EOF
   n=$((f + p))
   printf '수집 상태: Stop 실패 시도 %d회 (codex 실패 %d · 대체 경로 실패 %d · 대체 경로 성공 %d · 분석 전 중단 %d; 고유 세션 %d) / 기록된 세션 %d / 엔트리 %d / 마지막 기록 %s\n' \
     "$n" "$c" "$f" "$u" "$p" "$ns" "$k" "$e" "$last"
+  # 엔트리가 있는 기간은 실패 3 회 이상이 첫 실패부터 1 일 넘게 이어질 때만 멈춤으로 본다. digest 는 이 줄
+  # 하나에 승격 후보를 통째로 비우는데, 한도 초과 같은 일시 실패나 옛 판 세션의 실패 몇 줄로 켜지면 안 된다
+  # (2026-09-26 실측: 새 판이 기록하는 동안 옛 판 세션 둘이 한 시간 안에 실패 여섯 줄을 남겼다)
   if [ "$e" -eq 0 ] && [ "$a" -gt 0 ]; then
     printf '%s\n' '⚠ 수집 멈춤 — 엔트리 0은 문제 없음이 아니다'
-  elif [ "$a" -gt 0 ]; then
+  elif [ "$a" -ge 3 ] && [ "$stale" = 1 ]; then
     printf '⚠ 수집 멈춤 — 마지막 기록 뒤 Stop 실패 시도 %d회\n' "$a"
   fi
   return 0
@@ -223,7 +232,8 @@ EOF
 # 마찰이 적혔는데 reflections 에 한 번도 안 나온 세션을 원문과 함께 낸다. 수집기가 놓친 세션을
 # 찾는 데만 쓴다 — facets 는 다른 분석기 · 다른 분류라 빈도에 더하면 같은 세션을 두 번 센다.
 # facets 에는 프로젝트 경로가 없어 session-meta/<session_id>.json 의 project_path 로 잇는다.
-# 지워진 워크트리 경로는 git 이 본 레포를 못 구해 폴더 이름으로 남는다 — 그 세션은 all 에서만 보인다.
+# 지워진 워크트리 경로는 git 이 본 레포를 못 구한다 — `/.claude/worktrees/` 앞에서 잘라 본 레포 이름으로 묶는다
+# (scripts/collect-kaizen-data.py 와 같은 규칙).
 facets_unmatched() {
   [ -n "${BASH_VERSION:-}" ] || { echo "facets_unmatched: bash 로 부른다" >&2; return 2; }
   local days="$1" want="$2" usage="${3:-$HOME/.claude/usage-data}"
@@ -251,7 +261,7 @@ facets_unmatched() {
     st=$(jq -r '.start_time // ""' "$meta" 2>/dev/null)
     ep=$(jq -r '.start_time // "" | sub("\\.[0-9]+Z$"; "Z") | (fromdateiso8601? // 0) | floor' "$meta" 2>/dev/null)
     [ "${ep:-0}" -ge "$since" ] 2>/dev/null || continue
-    [ "$want" = all ] || [ "$(basename "$(project_root "$pp")")" = "$want" ] || continue
+    [ "$want" = all ] || [ "$(basename "$(project_root "${pp%%/.claude/worktrees/*}")")" = "$want" ] || continue
     total=$((total + 1))
     [ -n "$(printf '%s' "$fd" | tr -d '[:space:]')" ] || continue
     fric=$((fric + 1))

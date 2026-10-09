@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>접근성 — Accessibility</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -73,7 +74,7 @@ tbody tr:hover{background:var(--accent-glow)}
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
   padding:28px;position:relative;overflow:hidden;transition:var(--transition);
 }
-.pour-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.pour-card:hover{border-color:var(--border2);transform:var(--dk-hover-move, translateY(-2px))}
 .pour-card .pour-icon{font-size:32px;margin-bottom:16px;display:block}
 .pour-card .pour-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px}
 .pour-card .pour-name{font-size:1.25rem;font-weight:700;margin-bottom:12px}
@@ -99,8 +100,8 @@ tbody tr:hover{background:var(--accent-glow)}
 .cc-ratio{font-size:36px;font-weight:800;margin-bottom:8px}
 .cc-badges{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
 .badge{padding:4px 14px;border-radius:100px;font-size:12px;font-weight:700}
-.badge.pass{background:rgba(74,222,128,0.15);color:#4ade80}
-.badge.fail{background:rgba(248,113,113,0.15);color:#f87171}
+.badge.pass{background:rgba(74,222,128,0.15);color:var(--success)}
+.badge.fail{background:rgba(248,113,113,0.15);color:var(--error)}
 .cc-preview{margin-top:16px;padding:24px;border-radius:var(--radius);font-size:18px;font-weight:600;text-align:center}
 
 /* TOUCH TARGETS */
@@ -188,7 +189,7 @@ tbody tr:hover{background:var(--accent-glow)}
 .chart-label{font-size:13px;font-weight:600;min-width:100px;text-align:right}
 .chart-bar-track{flex:1;height:32px;background:var(--surface2);border-radius:var(--radius-sm);overflow:hidden;position:relative}
 .chart-bar-fill{height:100%;border-radius:var(--radius-sm);display:flex;align-items:center;padding-left:12px;
-  font-size:12px;font-weight:700;color:#fff;transition:width 1s ease}
+  font-size:12px;font-weight:700;color:var(--dk-on-bright, #fff);transition:width 1s ease}
 .chart-pct{font-size:13px;font-weight:600;min-width:48px;color:var(--text2)}
 
 /* CHECKLIST */
@@ -270,6 +271,27 @@ pre{overflow-x:auto;max-width:100%}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 
 <div class="page">
 
@@ -288,7 +310,7 @@ pre{overflow-x:auto;max-width:100%}
   <div class="grid-4">
     <div class="pour-card" style="--c:#E8965A" >
       <div class="pour-icon">&#x1f441;</div>
-      <div class="pour-label" style="color:#E8965A">Perceivable</div>
+      <div class="pour-label" style="color:var(--accent)">Perceivable</div>
       <div class="pour-name">인식 가능</div>
       <ul>
         <li style="--dot:#E8965A">대체 텍스트 제공 (SC 1.1.1)</li>
@@ -301,7 +323,7 @@ pre{overflow-x:auto;max-width:100%}
     </div>
     <div class="pour-card" style="--c:#4ade80">
       <div class="pour-icon">&#x1f9ad;</div>
-      <div class="pour-label" style="color:#4ade80">Operable</div>
+      <div class="pour-label" style="color:var(--success)">Operable</div>
       <div class="pour-name">운용 가능</div>
       <ul>
         <li>키보드 접근 (SC 2.1.x)</li>
@@ -314,7 +336,7 @@ pre{overflow-x:auto;max-width:100%}
     </div>
     <div class="pour-card" style="--c:#fbbf24">
       <div class="pour-icon">&#x1f4a1;</div>
-      <div class="pour-label" style="color:#fbbf24">Understandable</div>
+      <div class="pour-label" style="color:var(--warn)">Understandable</div>
       <div class="pour-name">이해 가능</div>
       <ul>
         <li>텍스트 가독성 (SC 3.1.x)</li>
@@ -327,7 +349,7 @@ pre{overflow-x:auto;max-width:100%}
     </div>
     <div class="pour-card" style="--c:#F0B088">
       <div class="pour-icon">&#x1f527;</div>
-      <div class="pour-label" style="color:#F0B088">Robust</div>
+      <div class="pour-label" style="color:var(--accent2)">Robust</div>
       <div class="pour-name">견고성</div>
       <ul>
         <li>마크업 호환성 (SC 4.1.x)</li>
@@ -461,19 +483,19 @@ pre{overflow-x:auto;max-width:100%}
         <tr>
           <td><strong>WCAG 2.5.5</strong></td>
           <td>44 x 44 CSS px</td>
-          <td><span class="badge" style="background:rgba(240,176,136,0.15);color:#F0B088">AAA</span></td>
+          <td><span class="badge" style="background:rgba(240,176,136,0.15);color:var(--accent2)">AAA</span></td>
           <td>향상된 기준</td>
         </tr>
         <tr>
           <td><strong>Apple HIG</strong></td>
           <td>44 x 44 pt</td>
-          <td><span class="badge" style="background:rgba(248,113,113,0.15);color:#f87171">필수</span></td>
+          <td><span class="badge" style="background:rgba(248,113,113,0.15);color:var(--error)">필수</span></td>
           <td>iOS/macOS 필수 요구사항</td>
         </tr>
         <tr>
           <td><strong>Material Design</strong></td>
           <td>48 x 48 dp</td>
-          <td><span class="badge" style="background:rgba(74,222,128,0.15);color:#4ade80">권장</span></td>
+          <td><span class="badge" style="background:rgba(74,222,128,0.15);color:var(--success)">권장</span></td>
           <td>Android 권장 기준</td>
         </tr>
       </tbody>
@@ -765,7 +787,7 @@ pre{overflow-x:auto;max-width:100%}
 
   <div class="card">
     <div class="card-title"><span class="dot"></span>prefers-reduced-motion CSS</div>
-    <pre style="background:var(--surface2);padding:20px;border-radius:var(--radius);font-size:13px;line-height:1.7;overflow-x:auto;color:var(--text2);font-family:'Cascadia Code','Fira Code','Consolas',monospace"><span style="color:#F0B088">@media</span> (<span style="color:var(--accent)">prefers-reduced-motion: reduce</span>) {
+    <pre style="background:var(--surface2);padding:20px;border-radius:var(--radius);font-size:13px;line-height:1.7;overflow-x:auto;color:var(--text2);font-family:'Cascadia Code','Fira Code','Consolas',monospace"><span style="color:var(--accent2)">@media</span> (<span style="color:var(--accent)">prefers-reduced-motion: reduce</span>) {
   *, *::before, *::after {
     <span style="color:var(--warn)">animation-duration</span>: 0.01ms !important;
     <span style="color:var(--warn)">animation-iteration-count</span>: 1 !important;
@@ -790,7 +812,7 @@ pre{overflow-x:auto;max-width:100%}
     <div class="card">
       <div class="card-title"><span class="dot"></span>기본 vs 감소 — 시각 비교</div>
       <div style="position:relative;border-radius:var(--radius);overflow:hidden;margin-top:8px">
-        <div style="background:linear-gradient(135deg,var(--accent),var(--info));padding:26px 20px">
+        <div style="background:linear-gradient(135deg,var(--accent),var(--info));background-color:#2a2a35;padding:26px 20px">
           <div style="background:rgba(0,0,0,0.5);border-radius:var(--radius-sm);padding:14px 16px;color:#fff;font-size:14px;font-weight:600">
             반투명 오버레이 — <code style="color:#fff;background:rgba(255,255,255,0.18)">rgba(0,0,0,0.5)</code>
           </div>
@@ -810,7 +832,7 @@ pre{overflow-x:auto;max-width:100%}
 }
 
 <span style="color:var(--text3)">/* 투명도 감소: 불투명 배경 */</span>
-<span style="color:#F0B088">@media</span> (<span style="color:var(--accent)">prefers-reduced-transparency: reduce</span>) {
+<span style="color:var(--accent2)">@media</span> (<span style="color:var(--accent)">prefers-reduced-transparency: reduce</span>) {
   .overlay {
     <span style="color:var(--warn)">background</span>: rgb(30, 30, 30);
   }
@@ -962,7 +984,7 @@ function updateContrast() {
   var ratio=contrastRatio(fg,bg);
   var r=ratio.toFixed(1);
   document.getElementById('ccRatio').textContent=r+' : 1';
-  document.getElementById('ccRatio').style.color=ratio>=4.5?'#4ade80':ratio>=3?'#fbbf24':'#f87171';
+  document.getElementById('ccRatio').style.color=ratio>=4.5?'var(--success)':ratio>=3?'var(--warn)':'var(--error)';
   var badges='';
   badges+='<span class="badge '+(ratio>=4.5?'pass':'fail')+'">AA Normal '+(ratio>=4.5?'PASS':'FAIL')+'</span>';
   badges+='<span class="badge '+(ratio>=3?'pass':'fail')+'">AA Large '+(ratio>=3?'PASS':'FAIL')+'</span>';

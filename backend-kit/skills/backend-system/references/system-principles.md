@@ -2,10 +2,12 @@
 
 프로젝트 백엔드 아키텍처 세팅 시 참조하는 원칙 문서 매핑.
 
+설치본 플러그인에는 `docs/backend/` 가 없다 — 아래 상대 경로를 열 수 없으면 앞의 `../` 를 떼고 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/backend/...` 를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 ## 아키텍처 패턴
 
 | 패턴 | 핵심 원칙 | 도입 기준 |
-|------|-----------|-----------|
+| ------ | ----------- | ----------- |
 | Hexagonal (Ports & Adapters) | 도메인은 어댑터를 직접 import 하지 않고 port 인터페이스만 의존. 외부 시스템 교체 시 어댑터만 재작성. | 소~중 규모 앱. "technological churn 보험". [Hexagonal vs Clean vs Onion 2026](https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f) |
 | Clean Architecture | Hexagonal + 의존성 규칙(inward-only) + 엔티티/유스케이스/인터페이스 어댑터/프레임워크 4계층 분리. | 중~대 규모, 명확한 레이어 네이밍이 필요할 때. [AWS Prescriptive Hexagonal](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html) |
 | DDD (Domain-Driven Design) | 도메인 모델-persistence 모델 분리. Ubiquitous Language. Aggregate / Value Object / Bounded Context. | bounded context 2+ 또는 풍부한 비즈니스 규칙이 있을 때. 단순 CRUD엔 과도. [Vaadin DDD+Hexagonal](https://vaadin.com/blog/ddd-part-3-domain-driven-design-and-the-hexagonal-architecture) |
@@ -17,8 +19,8 @@
 ## 필수 카테고리
 
 | 카테고리 | 참조 문서 | 핵심 원칙 |
-|----------|-----------|-----------|
-| API 규격 | ../../../../docs/backend/fundamentals/api-design.md | 리소스 명사, RFC 9110 메서드, RFC 9457 에러(`type` URI 로 유형 식별 — 없으면 `about:blank`. 다섯 필드는 이 킷 규칙), OpenAPI 3.1 JSON Schema 호환, API Versioning(REST=URL path, GraphQL=@deprecated 진화) |
+| ---------- | ----------- | ----------- |
+| API 규격 | ../../../../docs/backend/fundamentals/api-design.md | 리소스 명사, RFC 9110 메서드, RFC 9457 에러(`type` URI 로 유형 식별 — 없으면 `about:blank`. 다섯 필드는 이 킷 규칙), OpenAPI 3.1 이상(최소 지원선 — 최신판 3.2.1 을 요구하지 않는다)과 JSON Schema 호환, API Versioning(REST=URL path, GraphQL=@deprecated 진화) |
 | 에러 처리 | ../../../../docs/backend/fundamentals/error-handling.md | Result 패턴, backoff+jitter, circuit breaker(3-state) + rate limiter 조합, RFC 9457 problem+json 통일. 출처: [Azure Circuit Breaker](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker) |
 | 인증/인가 | ../../../../docs/backend/fundamentals/auth.md | OAuth 2.1 Authorization Code + PKCE 필수 (Implicit/ROPC 금지), RFC 9068 JWT profile, 고보안 시 FAPI 2.0(DPoP/mTLS + PAR 필수 + JARM 권장). Passkeys/WebAuthn 도입 권장(패스워드 전용 인증은 WARNING). 출처: [RFC 9700](https://datatracker.ietf.org/doc/rfc9700/), [FAPI 2.0 Final](https://openid.net/specs/fapi-security-profile-2_0-final.html), [FIDO Alliance](https://fidoalliance.org/passkeys/) |
 | 관측성 | ../../../../docs/backend/patterns/observability.md (TBD) | OTel 3 Signals(Traces+Metrics+Logs) 통합 관측, OTLP 1.10.0, W3C Trace Context 기본 전파, 구조화 로깅(JSON + trace_id/span_id), PII 마스킹 필수. OTel Profiles는 2026-03 Public Alpha — 프로덕션 안정 아님. 출처: [OTel Status](https://opentelemetry.io/docs/specs/status/), [OTLP 1.10.0](https://opentelemetry.io/docs/specs/otlp/) |
@@ -27,7 +29,7 @@
 ## 선택 카테고리
 
 | 카테고리 | 참조 문서 | 도입 기준 |
-|----------|-----------|-----------|
+| ---------- | ----------- | ----------- |
 | 캐싱 | ../../../../docs/backend/patterns/caching.md | 읽기 비율 높은 데이터 존재 시 |
 | 이벤트 | ../../../../docs/backend/patterns/event-driven.md | 비동기 처리, 서비스 간 통신 필요 시. **AsyncAPI 3.0+** 스펙 + **Outbox relay(batch 200-500 + backpressure + checkpoint)** + CDC(Debezium) + idempotency. 메시지 브로커: 대용량→Kafka 4.x(KRaft), 단건→RabbitMQ(Quorum Queues), 경량→NATS. 출처: [microservices.io Outbox](https://microservices.io/patterns/data/transactional-outbox.html), [JavaCodeGeeks Kafka vs RabbitMQ](https://www.javacodegeeks.com/2025/12/event-driven-architecture-kafka-vs-rabbitmq-vs-pulsar-a-2025-decision-framework.html) |
 | 테스트 | ../../../../docs/backend/fundamentals/testing.md | 항상 권장. **Pact v4 + Testcontainers** 계약 테스트를 기본 도입. AI-assisted(PactFlow MCP Server) 도입 시 60% 가속. 출처: [prgrmmng Pact+Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact), [PactFlow MCP](https://pactflow.io/blog/pactflow-mcp-server/) |

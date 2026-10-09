@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 오류·상태 코드 계약
 
 실제 오류 응답을 SSOT로 삼아 계약을 만들 때, 무엇을 고정하고 무엇을 class 수준으로만 둘지 판정하는 규칙.
@@ -80,7 +81,7 @@ RFC 9457도 problem detail이 구현 디버깅 도구가 아니며 내부 정보
 ## 수치 기준
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | problem `status` 유효 범위 | 100..599 정수 | RFC 9457 Appendix A |
 | problem extension member name | 3자 이상, letter로 시작, letter/digit/`_` 구성 권장 | RFC 9457 §4 |
 | `Retry-After` delay-seconds | 0 이상 정수 (또는 HTTP-date) | RFC 9110 §10.2.3 |
@@ -93,7 +94,7 @@ RFC 9457도 problem detail이 구현 디버깅 도구가 아니며 내부 정보
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | `detail` 문자열 전체를 exact match로 고정 | 문구·다국어 변경만으로 계약이 깨진다. 실제 회귀와 구분되지 않는다 |
 | body의 `status` 필드와 실제 HTTP status가 다를 때 body만 신뢰 | HTTP status가 실제 전송 계층 결과다. body 값은 advisory다 |
 | 401 / 403 / `invalid_token` / `insufficient_scope`를 하나로 합침 | 토큰 갱신으로 풀리는 실패와 권한 자체가 없는 실패가 섞인다 |

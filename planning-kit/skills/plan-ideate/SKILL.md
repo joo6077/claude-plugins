@@ -15,6 +15,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **발산 전 수렴 금지** — "이거 좋아 보인다" 로 바로 시작하면 편향된 단일 방향만 파게 된다. 반드시 발산 단계에서 최소 8개 이상의 후보 아이디어를 만든 뒤 수렴하라. 출처: [Design Council UK — Double Diamond](https://www.designcouncil.org.uk/our-resources/the-double-diamond/).
 2. **HMW 질문을 해결책으로 쓰지 마라** — "How Might We 푸시 알림을 더 자주 보낼까?" 는 해결책이 박힌 질문이다. "사용자가 중요한 순간을 놓치지 않도록 어떻게 도울 수 있을까?" 가 올바른 HMW. 명사(기능) 가 아니라 동사(결과) 중심. 출처: [Stanford d.school — Design Resources](https://dschool.stanford.edu/resources).
 3. **Crazy 8s 시간 제한 지키기** — 8분 8개. 시간을 늘리면 자기검열이 시작된다. 초안은 황당해도 적어야 한다. 출처: [Google Ventures — Design Sprint](https://www.gv.com/sprint/).
@@ -31,7 +33,11 @@ user-invocable: true
 14. **Double Diamond 이름만 붙이지 마라** — "지금 발산/수렴 단계" 라벨만 붙이고 실제로는 의견 강자가 방향을 고정해 버리면 아무 효과가 없다. 각 단계 **종료 조건**을 미리 정하고 퍼실리테이터 룰(발산 중 평가 금지, 수렴 중 기준 없는 인기투표 금지)을 명시하라. 출처: `docs/planning/ideation.md` — Divergent/Convergent, [Design Council — Double Diamond History](https://www.designcouncil.org.uk/our-resources/the-double-diamond/history-of-the-double-diamond/).
 15. **ideation 단계 범위 유지 — 다음 단계로 임의 진주 금지 (skill-design-guide §5.5 Scope-Bound)** — 이 스킬은 0단계(발산→정리→수렴)다. 산출물은 "탐색할 문제 영역 후보 Top 3~5" 이지 PRD/스토리/우선순위가 아니다. 사용자가 ideation 만 요청했는데 plan-discover/plan-prd 작업까지 임의로 이어가지 마라 (Gotcha 9 "discovery 로 바로 점프 금지", Gotcha 10 "솔루션 오인 금지" 와 짝). 다음 단계 준비가 됐으면 plan-discover 인계 여부를 **먼저 묻고** 진행한다. 발산은 최소 기법 수(Gotcha 5)만 충족하면 되고, 요청 없이 기법을 무한 추가하는 것도 scope 확장이다 (insights-report #1 excessive_changes / over-exploration 대응). 출처: [Design Council UK — Double Diamond](https://www.designcouncil.org.uk/our-resources/the-double-diamond/).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 리서치 문서 로드
 
@@ -52,9 +58,11 @@ user-invocable: true
 다음 중 2개 이상 조합 선택:
 
 ### A. How Might We (HMW) 생성
+
 Starting Point 를 "어떻게 하면 ~할 수 있을까?" 질문 5-10개로 재프레이밍.
 
 예시 (AI 가계부):
+
 - HMW 돈 관리 스트레스를 느끼는 순간에 개입할 수 있을까?
 - HMW 지출 후회를 줄이면서도 즐거움을 해치지 않을까?
 - HMW 숫자 입력 없이 소비 패턴을 파악하게 할까?
@@ -65,19 +73,24 @@ Starting Point 를 "어떻게 하면 ~할 수 있을까?" 질문 5-10개로 재�
 출처: [Stanford d.school](https://dschool.stanford.edu/resources), [IDEO Design Kit — How Might We](https://www.designkit.org/methods/how-might-we.html), [Design Kit — Create Insight Statements](https://www.designkit.org/methods/create-insight-statements.html).
 
 ### B. Crazy 8s
+
 8분 타이머. A4 1장을 8칸으로 접고 각 칸에 1분 내 아이디어 1개 스케치(텍스트 OK).
 반복 · 황당함 · 모순 모두 허용.
 
 ### C. SCAMPER
+
 기존 유사 제품 하나 정하고:
+
 - **S**ubstitute · **C**ombine · **A**dapt · **M**odify · **P**ut to other use · **E**liminate · **R**everse
 
 각 글자당 1개 이상 변형 아이디어.
 
 ### D. Brainwriting 6-3-5 (팀일 때)
+
 6명 × 3개 아이디어 × 5분 × 6라운드 = 108개. Bernd Rohrbach 1968.
 
 ### E. Worst Possible Idea (IDEO)
+
 의도적으로 최악의 아이디어를 내면 심리적 안전감이 생겨 이후 양질 아이디어가 나온다.
 
 각 기법마다 타임박스 명시. 최소 20개 이상의 아이디어 후보 확보.
@@ -85,9 +98,11 @@ Starting Point 를 "어떻게 하면 ~할 수 있을까?" 질문 5-10개로 재�
 ## Step 3: 정리 (Organize · 15-25분)
 
 ### A. Affinity Diagram (KJ Method)
+
 발산 아이디어를 포스트잇처럼 나열 → **사전 카테고리 없이** 유사성으로 그룹핑 → 그룹에 이름 부여.
 
 텍스트 포맷 예:
+
 ```text
 [Cluster: 타이밍]
 - 결제 직후 후회 알림
@@ -126,6 +141,7 @@ Mermaid 공식 mindmap 문법: 들여쓰기 2칸 = 레벨. 노드 모양: `((...
 ## Step 4: 수렴 (Convergent · 15-20분)
 
 ### A. Dot Voting
+
 각 참여자에게 3-5개 투표권. 자신 아이디어에 투표 금지 규칙 선택 가능.
 
 출처: [Miro — Dot Voting](https://miro.com/templates/dot-voting/), [Mural — Visualize the Vote](https://www.mural.co/templates/visualize-the-vote).
@@ -154,6 +170,7 @@ Low Effort ←─┼─→ High Effort
 출처: [Miro — Impact-Effort Matrix](https://miro.com/templates/impact-effort-matrix/), [Miro — Action Priority Matrix](https://miro.com/templates/action-priority-matrix/).
 
 ### C. NUF Test (보조)
+
 선정 후보 각각에 (New? Useful? Feasible?) 체크. 2/3 이상이어야 통과.
 
 ## Step 5: 재확인 단계
@@ -207,12 +224,17 @@ Low Effort ←─┼─→ High Effort
 - 여러 개 병행 가능성 → 각각 discovery 후 `/plan-prioritize`
 - 완전히 새로운 방향이 나옴 → ideation 재실행 (HMW 재작성)
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/ideation.md` — Ideation 방법론 SSOT (HMW · Crazy 8s · SCAMPER · Brainwriting · Affinity · Mindmap · Dot Voting · Impact-Effort · NUF)
 - `docs/planning/cognitive-biases.md` — 발산 시 피해야 할 편향
 
 주요 1차 출처 (리서치 md 검증된 URL):
+
 - [Design Council — Double Diamond Framework](https://www.designcouncil.org.uk/our-work/skills-learning/tools-frameworks/framework-for-innovation-design-councils-evolved-double-diamond/)
 - [Design Council — Double Diamond History](https://www.designcouncil.org.uk/our-resources/the-double-diamond/history-of-the-double-diamond/)
 - [IDEO Design Kit — How Might We](https://www.designkit.org/methods/how-might-we.html)

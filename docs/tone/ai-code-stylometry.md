@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-02
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # AI 생성 코드 스타일로메트리와 킷의 포지셔닝
 
 ## 이 문서가 잡는 것
@@ -185,7 +186,7 @@ rule: prefer_const_constructor
 이 킷의 모든 규칙은 세 등급 중 하나를 명시한다.
 
 | 등급 | 조건 | 표기 |
-|---|---|---|
+| --- | --- | --- |
 | MUST | 공식 문서/표준이 금지 또는 강제 | 규칙 문장에 근거 URL 병기 |
 | SHOULD | 공식 문서가 `prefer` 수준으로 권고 | 근거 URL + "권고" 명시 |
 | 관측 컨벤션 | 공개 근거 없음, 프로젝트 실측만 존재 | "관측 컨벤션 (실측 N건)" 라벨 필수 |
@@ -197,7 +198,7 @@ rule: prefer_const_constructor
 ## 수치 기준
 
 | 항목 | 값 | 출처 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | GPT-Zero adversarial recall | 0.10 | Droid (EMNLP 2025) |
 | DroidDetectCLS-Base/Large adversarial recall | 0.92 | Droid (EMNLP 2025) |
 | 다국어 코드 스타일로메트리 정확도 | 84.1% ± 3.8% (10개 언어) | SANER 2025 |
@@ -210,7 +211,7 @@ rule: prefer_const_constructor
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | DetectGPT·Binoculars 를 코드 스타일 규칙 근거로 인용 | 둘 다 자연어 텍스트 탐지기다. 대상 범위가 달라 근거가 성립하지 않는다 |
 | "AI 탐지를 피하기 위해"를 규칙의 목적으로 서술 | 문헌이 adversarial humanizing 을 별도 위험군으로 분류한다. 목적 문장 자체가 위험군과 겹친다 |
 | OpenReview forum 링크를 venue 로 표기 | SANER 2025 논문의 OpenReview 항목은 CoRR 프리프린트다. venue 는 SANER 2025 |

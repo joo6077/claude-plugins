@@ -23,18 +23,19 @@ research_sources:
 아래 카테고리는 공개된 프로덕션 시스템 또는 엔진팀 벤치마크에서 WebAssembly가 JavaScript를 유의미하게 앞선 것이 확인된 영역이다. `/react-wasm`은 이 카테고리 매칭 시 자동으로 Rust 크레이트 + `wasm-pack` 바인딩을 제안한다.
 
 | 카테고리 | 근거 (측정/프로덕션) | 프로덕션 사례 | 출처 URL |
-|---|---|---|---|
-| **이미지 처리** (resize, filter, codec) | Figma의 dense-file 로드 경로가 WebAssembly 최적화 후 29s → <8s (약 3.6x) 로 개선. Squoosh는 WASM 코덱·hot path를 출시 이후 전 브라우저에서 일관된 이득 확인 | Figma, Squoosh | https://www.figma.com/blog/figma-faster/ , https://developer.chrome.com/blog/hotpath-with-wasm?hl=en |
-| **비디오/오디오 인코딩·디코딩** | 브라우저에서 ffmpeg.wasm이 SIMD/threads로 C/C++ 코덱 스택을 실용적 속도로 구동. JS 기준 baseline은 현실적으로 존재하지 않아 "JS 대비 N배" 수치는 unverified, 그러나 "실용성 자체가 WASM 덕"이라는 점은 확립 | ffmpeg.wasm | https://ffmpegwasm.netlify.app/docs/performance/ |
-| **압축/해제** (lz4, brotli, zstd, gzip) | `lz4-wasm` README 벤치마크: 66k JSON에서 compression ~2.9x (292 vs 101 MB/s), decompression ~25x (687 vs 27 MB/s) 대비 `lz4 js` | lz4-wasm, fflate, brotli-wasm | https://github.com/PSeitz/lz4-wasm |
-| **ML 추론** (ONNX, TFLite, tensor ops) | V8 SIMD 적용 시 hand-tracking 추론이 14~15 FPS → 38~40 FPS (약 2.6x). XNNPACK·MediaPipe가 WASM 백엔드로 이식됨 | MediaPipe, onnxruntime-web, transformers.js | https://v8.dev/features/simd , https://onnxruntime.ai/docs/tutorials/web/deploy.html |
-| **SQL / DB 엔진** | DuckDB-Wasm이 TPC-H 다중 스케일에서 이전 웹 데이터 처리 라이브러리들을 앞섬. Worker 안에서 비동기 분석 SQL 실행 | DuckDB-Wasm, sql.js | https://duckdb.org/library/duckdb-wasm/ |
-| **복잡 파서** (markdown, SQL, 바이너리 포맷, protobuf) | `markdown-wasm`이 JS 파서 대비 벤치마크 우위를 공식 문서화. 단, JS 콜백으로 빠져나갈수록 bridge overhead로 이득이 깎임을 명시 | markdown-wasm, wasmparser | https://github.com/rsms/markdown-wasm |
-| **수치 계산 / 행렬 / FFT** | `pffft.wasm`이 pure JS FFT 베이스라인을 SIMD로 추월. 정확한 고정 배수는 머신 의존적으로 unverified, 방향성은 확립 | pffft.wasm, Rapier 물리 엔진 | https://0110.be/l/pffft_benchmark , https://github.com/JorenSix/pffft.wasm |
-| **대용량 집계** (>10만 row 스캔·집계·JOIN) | DuckDB-Wasm이 브라우저에서 컬럼형 벡터 실행으로 분석 SQL을 Worker 안에서 구동 | DuckDB-Wasm, DataFusion WASM, Arquero | https://duckdb.org/library/duckdb-wasm/ |
-| **암호화 bulk** (blake3, argon2, 스트림 AES-CTR) | 반복 라운드가 많은 해시/KDF는 WASM이 네이티브 레이아웃과 SIMD로 JS 대비 우위. 정확 배수는 알고리즘별 상이, 방향성 확립 | hash-wasm, argon2-browser | (catalog: hash-wasm 벤치마크 페이지, unverified specific numbers) https://github.com/Daninet/hash-wasm |
+| --- | --- | --- | --- |
+| **이미지 처리** (resize, filter, codec) | Figma의 dense-file 로드 경로가 WebAssembly 최적화 후 29s → <8s (약 3.6x) 로 개선. Squoosh는 WASM 코덱·hot path를 출시 이후 전 브라우저에서 일관된 이득 확인 | Figma, Squoosh | <https://www.figma.com/blog/figma-faster/> , <https://developer.chrome.com/blog/hotpath-with-wasm?hl=en> |
+| **비디오/오디오 인코딩·디코딩** | 브라우저에서 ffmpeg.wasm이 SIMD/threads로 C/C++ 코덱 스택을 실용적 속도로 구동. JS 기준 baseline은 현실적으로 존재하지 않아 "JS 대비 N배" 수치는 unverified, 그러나 "실용성 자체가 WASM 덕"이라는 점은 확립 | ffmpeg.wasm | <https://ffmpegwasm.netlify.app/docs/performance/> |
+| **압축/해제** (lz4, brotli, zstd, gzip) | `lz4-wasm` README 벤치마크: 66k JSON에서 compression ~2.9x (292 vs 101 MB/s), decompression ~25x (687 vs 27 MB/s) 대비 `lz4 js` | lz4-wasm, fflate, brotli-wasm | <https://github.com/PSeitz/lz4-wasm> |
+| **ML 추론** (ONNX, TFLite, tensor ops) | V8 SIMD 적용 시 hand-tracking 추론이 14~15 FPS → 38~40 FPS (약 2.6x). XNNPACK·MediaPipe가 WASM 백엔드로 이식됨 | MediaPipe, onnxruntime-web, transformers.js | <https://v8.dev/features/simd> , <https://onnxruntime.ai/docs/tutorials/web/deploy.html> |
+| **SQL / DB 엔진** | DuckDB-Wasm이 TPC-H 다중 스케일에서 이전 웹 데이터 처리 라이브러리들을 앞섬. Worker 안에서 비동기 분석 SQL 실행 | DuckDB-Wasm, sql.js | <https://duckdb.org/library/duckdb-wasm/> |
+| **복잡 파서** (markdown, SQL, 바이너리 포맷, protobuf) | `markdown-wasm`이 JS 파서 대비 벤치마크 우위를 공식 문서화. 단, JS 콜백으로 빠져나갈수록 bridge overhead로 이득이 깎임을 명시 | markdown-wasm, wasmparser | <https://github.com/rsms/markdown-wasm> |
+| **수치 계산 / 행렬 / FFT** | `pffft.wasm`이 pure JS FFT 베이스라인을 SIMD로 추월. 정확한 고정 배수는 머신 의존적으로 unverified, 방향성은 확립 | pffft.wasm, Rapier 물리 엔진 | <https://0110.be/l/pffft_benchmark> , <https://github.com/JorenSix/pffft.wasm> |
+| **대용량 집계** (>10만 row 스캔·집계·JOIN) | DuckDB-Wasm이 브라우저에서 컬럼형 벡터 실행으로 분석 SQL을 Worker 안에서 구동 | DuckDB-Wasm, DataFusion WASM, Arquero | <https://duckdb.org/library/duckdb-wasm/> |
+| **암호화 bulk** (blake3, argon2, 스트림 AES-CTR) | 반복 라운드가 많은 해시/KDF는 WASM이 네이티브 레이아웃과 SIMD로 JS 대비 우위. 정확 배수는 알고리즘별 상이, 방향성 확립 | hash-wasm, argon2-browser | (catalog: hash-wasm 벤치마크 페이지, unverified specific numbers) <https://github.com/Daninet/hash-wasm> |
 
-**공통 원인 (왜 WASM이 이기는가)**
+### 공통 원인 (왜 WASM이 이기는가)
+
 - 타이트한 내부 루프 + 명시적 메모리 레이아웃 + 낮은 GC 압력
 - SIMD 벡터화 가능한 산술 (pixel, float 배열)
 - JS↔WASM 경계 진입은 드물고, 한 번 들어가면 오래 머무는 호출 패턴
@@ -45,31 +46,32 @@ research_sources:
 아래 카테고리는 **WASM으로 이식해도 이득이 없거나 오히려 손해**인 영역이다. `/react-wasm`은 이 카테고리 매칭 시 제안을 거부하고 이유를 설명한다.
 
 | 카테고리 | 이유 | 출처 |
-|---|---|---|
-| **UI 상태, DOM 인접 작업, 컴포넌트 렌더** | WebAssembly는 DOM 직접 접근 불가. 모든 DOM 업데이트가 JS 글루를 통과하므로 경계 비용이 본 작업 비용을 지배 | https://developer.mozilla.org/en-US/docs/WebAssembly , https://v8.dev/blog/v8-release-90 |
-| **폼 검증, 작은 함수, 소규모 리스트 (<1만 아이템)** | V8 JIT (Sparkplug, Maglev, TurboFan) 이 hot small code path를 공격적으로 최적화. JS↔WASM 래퍼 비용이 남아 JS가 동률 또는 우위 | https://v8.dev/blog/maglev , https://v8.dev/blog/v8-release-90 |
-| **JSON 파싱 / 직렬화** | V8가 Chrome 138에서 `JSON.stringify`를 "2x 이상" 향상. JSON 경로는 이미 네이티브 SIMD급 최적화. WASM 이식 이득 unverified | https://v8.dev/blog/json-stringify |
-| **문자열 처리 (정규식, split, concat, template)** | JS 문자열은 엔진 네이티브. WASM은 UTF-16↔UTF-8 마샬링/복사 비용을 항상 지불. V8 Irregexp은 매우 빠름 | https://github.com/rsms/markdown-wasm (bridge overhead 경고), https://v8.dev/blog/v8-release-90 |
-| **Web Crypto 소규모 호출** (단발 AES-GCM, SHA-256 한 번) | 브라우저가 이미 네이티브 crypto API를 노출. 소규모 호출의 WASM 우위는 unverified이며 경계 비용에 묻힐 가능성 큼 | https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto |
-| **고빈도 콜백 (>1만/sec)** | 매 호출마다 JS↔WASM 경계를 넘으면 누적 비용이 compute 비용을 압도. 배치화하지 못하면 WASM 금기 | https://github.com/rsms/markdown-wasm (JS callback overhead 문서화) |
-| **tiny 함수 (<100μs per call)** | 호출 오버헤드 (추정 50~100 ns 급, unverified) 가 상대적으로 크게 느껴짐. 호출당 compute가 작을수록 JS 우위 | https://v8.dev/blog/v8-release-90 |
-| **애니메이션, 스크롤, 드래그** | `requestAnimationFrame` + CSS/GPU 경로가 정답. WASM은 프레임 예산 16ms를 깎아먹을 뿐 | https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame |
-| **네트워크 호출, fetch 래퍼, 요청 파이프라인** | I/O 바운드. CPU 가속 의미 없음 | https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API |
-| **이벤트 버스, 작은 reducer, Zustand store 업데이트** | hot small path. V8 JIT 영역 | https://v8.dev/blog/maglev |
+| --- | --- | --- |
+| **UI 상태, DOM 인접 작업, 컴포넌트 렌더** | WebAssembly는 DOM 직접 접근 불가. 모든 DOM 업데이트가 JS 글루를 통과하므로 경계 비용이 본 작업 비용을 지배 | <https://developer.mozilla.org/en-US/docs/WebAssembly> , <https://v8.dev/blog/v8-release-90> |
+| **폼 검증, 작은 함수, 소규모 리스트 (<1만 아이템)** | V8 JIT (Sparkplug, Maglev, TurboFan) 이 hot small code path를 공격적으로 최적화. JS↔WASM 래퍼 비용이 남아 JS가 동률 또는 우위 | <https://v8.dev/blog/maglev> , <https://v8.dev/blog/v8-release-90> |
+| **JSON 파싱 / 직렬화** | V8가 Chrome 138에서 `JSON.stringify`를 "2x 이상" 향상. JSON 경로는 이미 네이티브 SIMD급 최적화. WASM 이식 이득 unverified | <https://v8.dev/blog/json-stringify> |
+| **문자열 처리 (정규식, split, concat, template)** | JS 문자열은 엔진 네이티브. WASM은 UTF-16↔UTF-8 마샬링/복사 비용을 항상 지불. V8 Irregexp은 매우 빠름 | <https://github.com/rsms/markdown-wasm> (bridge overhead 경고), <https://v8.dev/blog/v8-release-90> |
+| **Web Crypto 소규모 호출** (단발 AES-GCM, SHA-256 한 번) | 브라우저가 이미 네이티브 crypto API를 노출. 소규모 호출의 WASM 우위는 unverified이며 경계 비용에 묻힐 가능성 큼 | <https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto> |
+| **고빈도 콜백 (>1만/sec)** | 매 호출마다 JS↔WASM 경계를 넘으면 누적 비용이 compute 비용을 압도. 배치화하지 못하면 WASM 금기 | <https://github.com/rsms/markdown-wasm> (JS callback overhead 문서화) |
+| **tiny 함수 (<100μs per call)** | 호출 오버헤드 (추정 50~100 ns 급, unverified) 가 상대적으로 크게 느껴짐. 호출당 compute가 작을수록 JS 우위 | <https://v8.dev/blog/v8-release-90> |
+| **애니메이션, 스크롤, 드래그** | `requestAnimationFrame` + CSS/GPU 경로가 정답. WASM은 프레임 예산 16ms를 깎아먹을 뿐 | <https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame> |
+| **네트워크 호출, fetch 래퍼, 요청 파이프라인** | I/O 바운드. CPU 가속 의미 없음 | <https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API> |
+| **이벤트 버스, 작은 reducer, Zustand store 업데이트** | hot small path. V8 JIT 영역 | <https://v8.dev/blog/maglev> |
 
 ## 3. Boundary Cost — 경계 넘기 비용 (2025~2026)
 
 WASM 결정에서 가장 자주 오해되는 축. "WASM이 빠르니까 작은 것도 옮기자"는 이 수치 때문에 거의 항상 손해다.
 
 | 비용 항목 | 수치 | 비고 |
-|---|---|---|
+| --- | --- | --- |
 | JS ↔ WASM 호출 오버헤드 (정수 인자) | **50~100 ns / call** (추정, unverified) | 2025 secondary source 기반. primary 검증 미완. 호출 빈도가 초당 수십만을 넘으면 누적 비용 체감 |
 | 문자열 마샬링 (짧은 문자열) | **600~2,500 ns / call** (추정, unverified) | 동일 secondary source. 긴 문자열 per-KB 수치는 unverified. UTF-16↔UTF-8 변환 비용 포함 |
 | ArrayBuffer 전송 (zero-copy) | **~0 (transfer)** | `Transferable` 이용 시 zero-copy 이동 가능 |
 | ArrayBuffer 복사 (1 MB) | **~1~3 ms** (추정, unverified) | 2025 secondary source. 원본 보존이 필요할 때만 |
 | Worker + WASM 스레드 결합 | 정량 수치 unverified | 운영 제약은 확립: cross-origin isolation 헤더 (COOP/COEP) 필요 |
 
-**단위 해석**
+### 단위 해석
+
 - 50 ns는 "초당 2천만 회 이하 호출이면 누적 경계 비용이 CPU 1% 미만"이라는 뜻
 - 2,500 ns (2.5 μs) 는 "초당 40만 회 문자열 호출이면 경계 비용이 CPU의 100%" 라는 뜻
 - 따라서 **경계를 자주 넘는 코드일수록 WASM이 불리**하고, **경계를 드물게 넘고 안에서 오래 머무는 코드일수록 유리**하다
@@ -78,11 +80,12 @@ WASM 결정에서 가장 자주 오해되는 축. "WASM이 빠르니까 작은 �
 
 ## 4. SIMD + Threads 지원 현황 (2026-04 기준)
 
-- **WebAssembly SIMD (fixed-width 128)** — 주요 브라우저에서 실사용 가능. MDN 호환성 테이블에 정식 지원으로 등재, SIMD 참조 문서 2026-03-23 최종 업데이트. https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/SIMD , https://developer.mozilla.org/en-US/docs/WebAssembly
-- **Threads (SharedArrayBuffer + Atomics)** — 사용 가능하나 **cross-origin isolation** 이 운영 요건. `Cross-Origin-Opener-Policy: same-origin` + `Cross-Origin-Embedder-Policy: require-corp` 헤더 없이는 `SharedArrayBuffer`가 차단됨. 정적 호스팅 시 호스트가 해당 헤더를 허용해야 함. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer , https://onnxruntime.ai/docs/tutorials/web/deploy.html
+- **WebAssembly SIMD (fixed-width 128)** — 주요 브라우저에서 실사용 가능. MDN 호환성 테이블에 정식 지원으로 등재, SIMD 참조 문서 2026-03-23 최종 업데이트. <https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/SIMD> , <https://developer.mozilla.org/en-US/docs/WebAssembly>
+- **Threads (SharedArrayBuffer + Atomics)** — 사용 가능하나 **cross-origin isolation** 이 운영 요건. `Cross-Origin-Opener-Policy: same-origin` + `Cross-Origin-Embedder-Policy: require-corp` 헤더 없이는 `SharedArrayBuffer`가 차단됨. 정적 호스팅 시 호스트가 해당 헤더를 허용해야 함. <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer> , <https://onnxruntime.ai/docs/tutorials/web/deploy.html>
 - **Safari 특수사항** — 과거 SIMD/threads 지원이 지연된 이력 있음. 2026-04 시점의 정확한 Safari 최신 버전별 지원 테이블은 unverified (MDN 호환성 표가 JS 렌더 기반이라 정적 크롤로는 확인 제한)
 
 react-kit의 결정 기준:
+
 - **SIMD 의존 WASM**: 2+ 계열 (크롬/엣지/파이어폭스) 에서는 안전. Safari 대응은 런타임 feature detection (`WebAssembly.validate` + SIMD opcode probe) 로 가드
 - **Threads 의존 WASM**: 데스크탑 Tauri 빌드는 항상 활성화 가능. 웹 빌드는 COOP/COEP 헤더 설정 여부를 `/react-init` 스캐폴딩 단계에서 사용자에게 고지
 
@@ -134,12 +137,12 @@ react-kit의 결정 기준:
 
 ### 오해 2: "JSON 파싱/문자열 처리를 WASM으로 빼면 빠르다"
 
-- **틀림.** V8은 Chrome 138에서 `JSON.stringify` 를 2x 이상 개선 (https://v8.dev/blog/json-stringify). JSON parse는 이미 SIMD 경로 사용. 문자열은 JS 네이티브 타입이라 WASM 쪽에서 받으려면 UTF-16→UTF-8 복사가 필수.
+- **틀림.** V8은 Chrome 138에서 `JSON.stringify` 를 2x 이상 개선 (<https://v8.dev/blog/json-stringify>). JSON parse는 이미 SIMD 경로 사용. 문자열은 JS 네이티브 타입이라 WASM 쪽에서 받으려면 UTF-16→UTF-8 복사가 필수.
 - **예외**: **바이너리 포맷** (protobuf, MessagePack, Arrow IPC) 은 다르다. 이건 WASM 후보.
 
 ### 오해 3: "큰 데이터면 무조건 WASM이 이긴다"
 
-- **틀림.** 2026년 리서치 합성에 따르면 "많은 WASM 구현이 중규모·대규모 입력에서도 진다"는 결과가 반복 관찰됨. https://unanswered.io/guide/webassembly-vs-javascript-performance (secondary, unverified at primary level)
+- **틀림.** 2026년 리서치 합성에 따르면 "많은 WASM 구현이 중규모·대규모 입력에서도 진다"는 결과가 반복 관찰됨. <https://unanswered.io/guide/webassembly-vs-javascript-performance> (secondary, unverified at primary level)
 - **진짜 규칙**: 크기가 아니라 **연산 밀도 (compute per byte)** 가 결정한다. 1 GB 데이터라도 "한 번 훑고 끝" 이면 V8 SIMD + 선형 스캔이 충분히 빠르다. 반대로 10 MB라도 "복잡한 순회 + 재계산" 이면 WASM 이득.
 
 ### 오해 4: "Threads를 켜면 자동으로 빨라진다"
@@ -148,7 +151,7 @@ react-kit의 결정 기준:
 
 ### 오해 5: "Rust가 더 빠른 언어이므로 Rust로 쓴 WASM이 JS보다 빠르다"
 
-- **조건부 틀림.** Rust 언어의 모델 속도와 WASM 타겟 속도는 다르다. Rust는 네이티브 타겟에서 LLVM 풀 최적화를 받지만, wasm32 타겟은 SIMD·스레드 활용도·메모리 모델이 제한된다. Jangda et al. (2019) 의 "Not So Fast" 가 이 점을 최초 체계화 — WASM은 네이티브의 완전한 대체가 아니다. https://www.usenix.org/conference/atc19/presentation/jangda
+- **조건부 틀림.** Rust 언어의 모델 속도와 WASM 타겟 속도는 다르다. Rust는 네이티브 타겟에서 LLVM 풀 최적화를 받지만, wasm32 타겟은 SIMD·스레드 활용도·메모리 모델이 제한된다. Jangda et al. (2019) 의 "Not So Fast" 가 이 점을 최초 체계화 — WASM은 네이티브의 완전한 대체가 아니다. <https://www.usenix.org/conference/atc19/presentation/jangda>
 - **그래도 JS 대비**: 위에 나열한 WASM 권장 카테고리에선 여전히 확실히 빠름. 다만 "네이티브 Rust = WASM Rust" 는 아님.
 
 ## 7. react-kit 의사결정 알고리즘
@@ -179,27 +182,28 @@ react-kit의 결정 기준:
 
 ## 참고자료 (Primary sources)
 
-1. Jangda, Powers, Berger, Guha — "Not So Fast: Analyzing the Performance of WebAssembly vs Native Code" (USENIX ATC 2019). WASM vs 네이티브 성능 차이의 기초 분석. https://www.usenix.org/conference/atc19/presentation/jangda
-2. V8 팀 — "WebAssembly SIMD" feature note. 엔진 레벨 SIMD 지원 및 hand-tracking 벤치마크. https://v8.dev/features/simd
-3. V8 팀 — "Speculative optimizations for WebAssembly" (2025-06-24). https://v8.dev/blog/wasm-speculative-optimizations
-4. V8 팀 — "Making JSON.stringify more than 2x faster" (2025-08-04). JS JSON 경로 최적화. https://v8.dev/blog/json-stringify
-5. V8 팀 — "Maglev — V8's Fastest Optimizing JIT" blog. JS JIT 성능 배경. https://v8.dev/blog/maglev
-6. V8 팀 — V8 release 9.0 notes. WASM/JS 최적화 요약. https://v8.dev/blog/v8-release-90
-7. Figma Engineering — "Figma is faster" 프로덕션 사례 (이미지/그래픽 경로 WASM 최적화). https://www.figma.com/blog/figma-faster/
-8. DuckDB-Wasm 프로젝트 페이지. TPC-H 브라우저 벤치마크. https://duckdb.org/library/duckdb-wasm/
-9. ffmpeg.wasm 성능 문서. https://ffmpegwasm.netlify.app/docs/performance/
-10. MDN — WebAssembly reference + SIMD reference (2026-03 업데이트). https://developer.mozilla.org/en-US/docs/WebAssembly , https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/SIMD
-11. MDN — SharedArrayBuffer, Transferable objects 문서. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer , https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
-12. Chrome Developers — "Hotpath with Wasm" (Squoosh 사례). https://developer.chrome.com/blog/hotpath-with-wasm?hl=en
-13. markdown-wasm 프로젝트 README (JS 콜백 오버헤드 경고 포함). https://github.com/rsms/markdown-wasm
-14. pffft.wasm 프로젝트 (SIMD FFT 벤치마크). https://github.com/JorenSix/pffft.wasm , https://0110.be/l/pffft_benchmark
-15. lz4-wasm 프로젝트 (벤치마크). https://github.com/PSeitz/lz4-wasm
-16. hash-wasm 프로젝트. https://github.com/Daninet/hash-wasm
-17. ONNX Runtime Web 배포 가이드 (cross-origin isolation 운영 요건). https://onnxruntime.ai/docs/tutorials/web/deploy.html
+1. Jangda, Powers, Berger, Guha — "Not So Fast: Analyzing the Performance of WebAssembly vs Native Code" (USENIX ATC 2019). WASM vs 네이티브 성능 차이의 기초 분석. <https://www.usenix.org/conference/atc19/presentation/jangda>
+2. V8 팀 — "WebAssembly SIMD" feature note. 엔진 레벨 SIMD 지원 및 hand-tracking 벤치마크. <https://v8.dev/features/simd>
+3. V8 팀 — "Speculative optimizations for WebAssembly" (2025-06-24). <https://v8.dev/blog/wasm-speculative-optimizations>
+4. V8 팀 — "Making JSON.stringify more than 2x faster" (2025-08-04). JS JSON 경로 최적화. <https://v8.dev/blog/json-stringify>
+5. V8 팀 — "Maglev — V8's Fastest Optimizing JIT" blog. JS JIT 성능 배경. <https://v8.dev/blog/maglev>
+6. V8 팀 — V8 release 9.0 notes. WASM/JS 최적화 요약. <https://v8.dev/blog/v8-release-90>
+7. Figma Engineering — "Figma is faster" 프로덕션 사례 (이미지/그래픽 경로 WASM 최적화). <https://www.figma.com/blog/figma-faster/>
+8. DuckDB-Wasm 프로젝트 페이지. TPC-H 브라우저 벤치마크. <https://duckdb.org/library/duckdb-wasm/>
+9. ffmpeg.wasm 성능 문서. <https://ffmpegwasm.netlify.app/docs/performance/>
+10. MDN — WebAssembly reference + SIMD reference (2026-03 업데이트). <https://developer.mozilla.org/en-US/docs/WebAssembly> , <https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/SIMD>
+11. MDN — SharedArrayBuffer, Transferable objects 문서. <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer> , <https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects>
+12. Chrome Developers — "Hotpath with Wasm" (Squoosh 사례). <https://developer.chrome.com/blog/hotpath-with-wasm?hl=en>
+13. markdown-wasm 프로젝트 README (JS 콜백 오버헤드 경고 포함). <https://github.com/rsms/markdown-wasm>
+14. pffft.wasm 프로젝트 (SIMD FFT 벤치마크). <https://github.com/JorenSix/pffft.wasm> , <https://0110.be/l/pffft_benchmark>
+15. lz4-wasm 프로젝트 (벤치마크). <https://github.com/PSeitz/lz4-wasm>
+16. hash-wasm 프로젝트. <https://github.com/Daninet/hash-wasm>
+17. ONNX Runtime Web 배포 가이드 (cross-origin isolation 운영 요건). <https://onnxruntime.ai/docs/tutorials/web/deploy.html>
 
-**Secondary (수치 unverified — primary 재검증 필요)**
-- "Development of Modern Scientific Technologies in the Era of Globalization" (2025-10). JS↔WASM 호출 오버헤드, 문자열 마샬링, ArrayBuffer 복사 수치 인용 출처. https://isg-konf.com/wp-content/uploads/2025/10/DEVELOPMENT_OF_MODERN_SCIENTIFIC_TECHNOLOGIES_IN_THE_ERA_OF_GLOBALIZATION.pdf
-- "WebAssembly vs JavaScript performance" 2026 합성 가이드 (mid/large 입력에서 WASM이 지는 사례 인용). https://unanswered.io/guide/webassembly-vs-javascript-performance
+### Secondary (수치 unverified — primary 재검증 필요)
+
+- "Development of Modern Scientific Technologies in the Era of Globalization" (2025-10). JS↔WASM 호출 오버헤드, 문자열 마샬링, ArrayBuffer 복사 수치 인용 출처. <https://isg-konf.com/wp-content/uploads/2025/10/DEVELOPMENT_OF_MODERN_SCIENTIFIC_TECHNOLOGIES_IN_THE_ERA_OF_GLOBALIZATION.pdf>
+- "WebAssembly vs JavaScript performance" 2026 합성 가이드 (mid/large 입력에서 WASM이 지는 사례 인용). <https://unanswered.io/guide/webassembly-vs-javascript-performance>
 
 ---
 
@@ -208,7 +212,7 @@ react-kit의 결정 기준:
 `/react-wasm` 스킬이 WASM 제안 시 기본 후보로 제시하는 Rust 크레이트. 모두 `wasm32-unknown-unknown` 타겟에서 동작 확인되었거나 공식 WASM 바인딩이 존재함.
 
 | 카테고리 | 1순위 크레이트 | 비고 |
-|---|---|---|
+| --- | --- | --- |
 | 이미지 처리 (resize, format 변환) | `image` + `fast_image_resize` | SIMD 가속 resize. `image` 는 PNG/JPEG/WebP 디코딩 표준 |
 | 이미지 필터/픽셀 조작 | `imageproc` | `image` 위에 쌓는 알고리즘 계층 |
 | 비디오 (VP9/AV1 디코딩) | `dav1d-wasm`, `vp9` | 본격 인코딩은 ffmpeg.wasm 그대로 쓰는 편이 현실적 |
@@ -224,7 +228,8 @@ react-kit의 결정 기준:
 | 날짜·시간 고성능 계산 | `chrono` (기본) / `jiff` (최신) | 대량 파싱일 때만 WASM 고려 |
 | Arrow / Parquet | `arrow`, `parquet` | Arrow IPC 로 JS 와 zero-copy 교환 가능 |
 
-**주의사항**
+### 주의사항
+
 - 크레이트의 기본 feature flag가 `std` 의존성을 끌어올 수 있음 — `default-features = false` + 필요한 feature만 선택해서 번들 최소화
 - `wee_alloc` 은 deprecated — 기본 Rust 할당자가 더 빠른 경우 많음
 - `wasm-bindgen` + `serde-wasm-bindgen` 조합이 JS 객체 왕복 시 표준
@@ -283,7 +288,8 @@ Vitest bench는 자동으로 warm-up + 샘플링 + 표준편차 제공. 권장.
 
 `performance.measure()` + User Timing API로 실제 사용자 환경에서 p50/p95 수집. 라이브러리: `web-vitals`, 자체 구현 가능.
 
-**함정 목록**
+#### 함정 목록
+
 - 첫 호출은 항상 느림 (wasm 모듈 컴파일). warm-up 필수
 - Chrome DevTools Performance 탭은 WASM 프레임을 보여주지만 per-call 오버헤드는 averaging 됨
 - `console.time`은 해상도 부족, 쓰지 말 것
@@ -450,35 +456,35 @@ for (let i = 0; i < 1_000_000; i++) {
 - **문제**: 대용량 Figma 파일 로딩에서 JS 기반 파서/렌더러 성능 한계
 - **해결**: C++ 핵심 로직을 WebAssembly 로 이식. 초기 로드 29s → 8s (약 3.6x)
 - **교훈**: 단일 진입점 (파일 로드) 으로 들어가서 내부에서 오래 머무는 작업은 WASM 최적 후보
-- **출처**: https://www.figma.com/blog/figma-faster/
+- **출처**: <https://www.figma.com/blog/figma-faster/>
 
 ### Case 2 — Squoosh (이미지 코덱 비교 도구)
 
 - **문제**: 브라우저에서 MozJPEG, WebP, AVIF 같은 코덱을 실제로 돌려봐야 하는데 JS 구현이 현실적으로 없음
 - **해결**: 각 코덱의 C 구현을 WASM으로 컴파일. 코덱마다 `.wasm` 파일 분리해서 lazy load
 - **교훈**: "JS 대안이 없는" 영역에서는 WASM이 선택의 문제가 아니라 유일한 길
-- **출처**: https://developer.chrome.com/blog/hotpath-with-wasm?hl=en
+- **출처**: <https://developer.chrome.com/blog/hotpath-with-wasm?hl=en>
 
 ### Case 3 — DuckDB-Wasm (브라우저 SQL 엔진)
 
 - **문제**: 브라우저에서 대용량 CSV/Parquet에 대한 분석 SQL 실행
 - **해결**: DuckDB 컬럼 엔진을 WASM 으로 빌드. Worker 에서 실행, Arrow IPC로 zero-copy 교환
 - **교훈**: 전문화된 실행 엔진을 통째로 WASM으로 가져오는 것이 "JS로 재구현" 보다 훨씬 현실적
-- **출처**: https://duckdb.org/library/duckdb-wasm/
+- **출처**: <https://duckdb.org/library/duckdb-wasm/>
 
 ### Case 4 — MediaPipe Hand Tracking (온디바이스 ML)
 
 - **문제**: 실시간 손 추적을 JS로는 frame rate 확보 불가
 - **해결**: XNNPACK + WASM SIMD. 14~15 FPS → 38~40 FPS (약 2.6x)
 - **교훈**: ML 추론은 텐서 연산이라 SIMD 효과가 강하게 나오는 전형적 WASM 승리 카테고리
-- **출처**: https://v8.dev/features/simd
+- **출처**: <https://v8.dev/features/simd>
 
 ### Case 5 — Photopea (Photoshop 웹 클론)
 
 - **문제**: PSD 파일 파싱, 레이어 블렌딩, 필터 적용 모두 JS로는 성능 한계
 - **해결**: C++ 이미지 처리 코어를 WASM 으로 컴파일. 복잡한 필터/블렌딩은 대부분 WASM 내부에서 수행
 - **교훈**: 이미지 편집기처럼 "사용자 인터랙션 → 대량 픽셀 처리 → 결과 표시" 사이클은 WASM 코어 + JS UI 조합의 이상적 분할
-- **출처**: https://www.photopea.com/learn/about
+- **출처**: <https://www.photopea.com/learn/about>
 
 ## 17. Anti-example 케이스 — WASM 선택이 손해였던 사례
 

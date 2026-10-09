@@ -51,7 +51,7 @@
 처리 배정표에서 `배정` 칸이 `Phase 5` 인 행은 열이다 — `F02` · `F06` · `F22` · `F24` · `F25` · `flutter:P-F06-codegen-delete-count` ·
 `flutter:P-INSPECTOR-convention` · `flutter:P-TEST-locale-buildmod` · `flutter:P-CATALOG-tile-height` · `user-setup:P1`. 열 행 모두
 배경 표에 반영이나 미반영 사유로 있고, ER-01 이 열 키를 notes 에서 센다. 러닝북 추가 과제 셋(필터 방향 · 다시 넣지 않기 · 특정 앱 이름)과
-앞 Phase 넘김 셋(Phase 1 `visual-evidence-protocol.md:136` · Phase 3 `F31` · Phase 4 `flutter-preflight`)도 빠짐없다. Phase 4 넘김은
+앞 Phase 넘김 셋(Phase 1 `visual-evidence-protocol.md:140` · Phase 3 `F31` · Phase 4 `flutter-preflight`)도 빠짐없다. Phase 4 넘김은
 「필요하면」 이라 미반영 사유(이 Phase 근거 파일에 없음)를 받아들인다.
 
 필터 방향(킷이 스스로 붙이지 않고, 사용자가 이름으로 부를 때만 쓴다)은 근거 파일 §2 · §4 1 번 문구와 같다. 새 URL 은 근거 파일 밖이 0 개다(AR-02).
@@ -64,7 +64,7 @@
 - Phase 6 초안은 `visual-evidence-protocol.md` 를 읽기만 하고 `:52` · `:91` 숫자를 제 시작 커밋 판으로 잰다. 이 계약은 그 두 줄을 건드리지 않고
   줄 번호도 밀지 않는다(바뀌는 줄은 `:3` 한 줄 교체 · `:136-137` · `:156` · `:164`). 부딪히지 않는다
 - 조건끼리: SK-09 (a) 는 킷 전체에서 「`[미검증]` + 사유」 모양을 0 으로 요구하는데 SK-04 는 inspector 에 `[미검증] 관례 표 없음` 을 새로 넣는다.
-  정규식에 걸리지 않아 값은 부딪히지 않고, 평가 측 `[미검증]` 모양은 다음 사이클로 넘긴다고 적혀 있다(ER-01 `flutter-audit/SKILL.md:50`). 받아들인다
+  정규식에 걸리지 않아 값은 부딪히지 않고, 평가 측 `[미검증]` 모양은 다음 사이클로 넘긴다고 적혀 있다(ER-01 `flutter-audit/SKILL.md:54`). 받아들인다
 
 ## 4. 조건마다 FAIL 한 문장
 
@@ -115,9 +115,9 @@ changelog 단락(SK-03 을 설명하면)에, `Phase 6` 은 다른 메모에 거�
 ### C3 — 킷이 codegen 을 직접 돌리는 다섯째 자리
 
 배경 표와 조사 기록 초안은 「전후 삭제 수는 필터와 상관없이 매번 센다」 고 쓰고 `flutter-run` Rules 에 MUST 를 둔다. 그런데
-`flutter-transition/SKILL.md:303`(§5 「route codegen을 실행한다」 bash 블록)은 날 codegen 한 줄을 그대로 돌린다. `flutter-l10n` 은 블록을 가리키게
-고쳤는데 transition 은 빠졌다. 이 파일은 이미 스물셋 안이라 범위가 늘지 않는다. 사용자에게 보여 주는 안내 셋(`flutter-api/SKILL.md:336` ·
-`flutter-feature/SKILL.md:151` · `flutter-screen/SKILL.md:272`)도 블록을 가리키지 않는데 계약 어디에도 적혀 있지 않다.
+`flutter-transition/SKILL.md:317`(§5 「route codegen을 실행한다」 bash 블록)은 날 codegen 한 줄을 그대로 돌린다. `flutter-l10n` 은 블록을 가리키게
+고쳤는데 transition 은 빠졌다. 이 파일은 이미 스물셋 안이라 범위가 늘지 않는다. 사용자에게 보여 주는 안내 셋(`flutter-api/SKILL.md:351` ·
+`flutter-feature/SKILL.md:157` · `flutter-screen/SKILL.md:282`)도 블록을 가리키지 않는데 계약 어디에도 적혀 있지 않다.
 
 고칠 문구:
 
@@ -127,8 +127,8 @@ changelog 단락(SK-03 을 설명하면)에, `Phase 6` 은 다른 메모에 거�
   ``toks "$(sect "$TRN" '### 5. Codegen')" '`flutter-run` codegen 절의 블록으로 돌린다'`` 1 ·
   ``sect "$TRN" '### 5. Codegen' | grep -c 'build_runner build'`` 0.
   검토 실측: 시작 커밋 판 `0` · `1`, 지금 모의본도 `0` · `1`(아직 안 고침). SK-01 산문의 「여덟 문장」 도 같이 고친다
-- ER-01 넘김 문자열에 `flutter-feature/SKILL.md:151` 을 더한다(스물하나 → 스물둘). notes 에 쓸 줄: 「사용자에게 보여 주는 codegen 안내 셋
-  (`flutter-api/SKILL.md:336` · `flutter-feature/SKILL.md:151` · `flutter-screen/SKILL.md:272`)은 전후 삭제 수 블록을 가리키지 않는다 — 다음 사이클」
+- ER-01 넘김 문자열에 `flutter-feature/SKILL.md:157` 을 더한다(스물하나 → 스물둘). notes 에 쓸 줄: 「사용자에게 보여 주는 codegen 안내 셋
+  (`flutter-api/SKILL.md:351` · `flutter-feature/SKILL.md:157` · `flutter-screen/SKILL.md:282`)은 전후 삭제 수 블록을 가리키지 않는다 — 다음 사이클」
 - 배경 표 `F06` 행과 조사 기록 초안의 「매번 센다」 를 「킷이 codegen 을 직접 돌리는 다섯 자리(run · build · preflight · l10n · transition)는 매번 센다」 로 좁힌다
 
 ### C4 — 생성물을 git 에 올리지 않는 프로젝트에서 늘 0
@@ -177,7 +177,7 @@ VERDICT: CHANGES
 | 지적 | 계약에 들어간 자리 | 다시 잰 값 |
 | --- | --- | --- |
 | C1 bash 가 아니면 멈춤 | 공통 정의 둘째 줄 · 측정 공통 정의 절 첫 문단 끝 문장 · 봉인 전 실측 「bash 가드」 줄 | 블록을 이 세션 zsh 의 부분 셸에서 `. 파일` → `NOT_BASH …` 한 줄 · 종료 2. `bash -c` 에서는 가드를 지나 `END_UNRESOLVED`(개정 파일이 아직 없다) · 종료 2 |
-| C2 세 낱말은 사유와 한 줄로 | ER-01 산문 · 측정 셋째 줄 · 범위 경계 「넘기는 것」 끝 · 봉인 전 실측 | 초안 가짜 notes 를 작은 저장소에 커밋하고 계약 측정 세 줄을 글자 그대로 돌림: 온전한 사본 `1 1 2 1 1 1 1` · 열둘 전부 1 · `1 1 1` / 넘김 세 줄 뺀 사본 같은 줄 `0 0 0` / `flutter-feature/SKILL.md:151` 줄 뺀 사본 열둘 가운데 열째 0 / `flutter-preflight` 줄에서 사유만 떼어 낸 사본 `0 1 1` |
+| C2 세 낱말은 사유와 한 줄로 | ER-01 산문 · 측정 셋째 줄 · 범위 경계 「넘기는 것」 끝 · 봉인 전 실측 | 초안 가짜 notes 를 작은 저장소에 커밋하고 계약 측정 세 줄을 글자 그대로 돌림: 온전한 사본 `1 1 2 1 1 1 1` · 열둘 전부 1 · `1 1 1` / 넘김 세 줄 뺀 사본 같은 줄 `0 0 0` / `flutter-feature/SKILL.md:157` 줄 뺀 사본 열둘 가운데 열째 0 / `flutter-preflight` 줄에서 사유만 떼어 낸 사본 `0 1 1` |
 | C3 transition §5 | 배경 · 편집 전 감사 · 개선안 초안 · SK-01 (b) · ER-01 스물둘 · 조사 기록 초안 | SK-01 (b) transition 값: 시작 커밋 판 `0` · 옛 줄 `1`, 모의본 `1` · `0`. 모의본에서 그 문장만 뺀 사본 `0`, 옛 bash 블록을 되살린 사본은 옛 줄 `1`. 모의본 조사 기록 31 줄이 「다섯 자리(run · build · preflight · l10n · transition)」 로 좁혀졌다 |
 | C4 생성물을 추적하지 않는 저장소 | 세 스킬 codegen 절(블록 바로 아래 문단) · SK-02 (c) 열셋 | 시작 커밋 판 0 · 모의본 1. 세 문장을 하나씩 뺀 사본에서 그 값만 0 |
 | O1 킷 전체 필터 세기 | SK-01 (a) | 시작 커밋 판 `6` · 모의본 `0`. 모의본에 `--build-filter "lib/**"` 한 줄을 더한 사본 `1` |

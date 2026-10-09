@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Docker 원칙
 
 `cargo-chef 0.1.x`를 활용한 멀티스테이지 빌드로 Docker 레이어 캐시를 극대화한다. 의존성 레이어를 소스 레이어와 분리하여 소스만 변경될 때 의존성 재컴파일을 방지한다.
@@ -94,7 +95,7 @@ tests/
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | cargo-chef 버전 | 0.1.77 | `--locked` 플래그로 고정 |
 | runtime base image | `debian:bookworm-slim` | glibc 링크 시. musl이면 `scratch` |
 | 최종 이미지 크기 | 20~50MB (slim), ~10MB (musl+scratch) | |

@@ -11,7 +11,11 @@ argument-hint: "[--env <name>] [--no-open]"
 user-invocable: true
 ---
 
+# `.api/ui.html` 정적 뷰어 생성
+
 ## Gotchas
+
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
 
 - **브라우저가 요청을 쏘게 만들지 마라.** `fetch` · XHR · WebSocket · 프록시 · "Try it" 버튼을 넣는 순간 세 문제가 동시에 생긴다: CORS 실패가 기본값이고(`Authorization` 이 `Access-Control-Allow-Headers` 에 없거나 preflight 가 401), 우회용 프록시 운영자가 URL·헤더·베어러 토큰·본문을 전부 보게 되고, 토큰을 브라우저 저장소에 두게 된다(OWASP 는 `localStorage`/`sessionStorage` 에 토큰 저장을 금지한다). 요청 실행은 이미 Hurl + CLI 가 한다. `실행` 버튼의 유일한 동작은 **커맨드를 클립보드에 복사**하는 것이다.
 - **`file://` 는 opaque origin 이다.** `fetch('./data.json')` 로 사이드카를 읽는 순간 리포트가 빈 화면이 된다. 같은 폴더의 파일조차 same-origin 이 아니다. 모든 데이터는 HTML 안에 인라인한다. 그래서 §스냅샷 상한이 필요하다.
@@ -32,16 +36,15 @@ user-invocable: true
 - **prod 스냅샷을 인라인하지 마라.** prod 응답에는 실 고객 데이터가 들어온다. prod 환경 뷰는 **계약 스키마와 마스킹된 형태만** 보여준다. `snapshots/prod/` 는 커밋 대상도 아니다.
 - **prod + 쓰기 메서드는 커맨드 생성 자체를 막는다.** 복사 버튼이 눌려도 커맨드가 만들어지면 안 된다. 확정 시안은 `buildCommand()` 가 `null` 을 돌려주고 커맨드 바에 차단 메시지를, 클릭 시 토스트를 띄운다. 복사 경로는 함수 하나뿐이어야 우회가 생기지 않는다.
 - **스냅샷이 없는 엔드포인트를 목록에서 빼지 마라.** `미실행` 상태로 트리에 남기고 상단 요약 칩에도 센다. 빼면 아직 안 때려본 엔드포인트가 사라져 커버리지 착시가 생긴다.
+- **`판정 불가` 를 PASS 에 합치지 마라.** `/api-verify` 는 경로 간 불변식의 한쪽 경로가 없으면 그 판정 줄을 `판정 불가` 로 따로 센다. 뷰어가 상태를 PASS · FAIL · 미실행 셋만 두면 그 엔드포인트가 PASS 칩으로 들어가, 경로가 사라진 회귀가 초록 표시 뒤로 숨는다. 네 번째 상태(`unjudged`)로 두고 요약 칩은 0 이어도 남긴다. 상태를 정하는 순서는 §2 표다.
 - **`ui.html` 커밋 여부는 미결이다.** dev/stg 스냅샷이 인라인되므로 커밋은 가능하지만 diff 가 매우 시끄럽다. 기본은 `.gitignore` 등록이고, 사용자가 커밋을 원하면 그때 빼준다. 임의로 결정해서 커밋하지 마라.
-
-# `.api/ui.html` 정적 뷰어 생성
 
 ## 0. 프로젝트 감지
 
 `../../references/project-detection.md` 의 절차를 실행한다. 최소한 아래를 확정한 뒤 진행한다.
 
 | 변수 | 출처 |
-|------|------|
+| --- | --- |
 | `API_ROOT` | `.api/` 디렉토리 경로 |
 | `ENV` | `--env` 인자 → 없으면 `project.yaml` 의 기본 환경 |
 | `TIER` | 해당 환경의 `tier` (`dev`/`stg`/`prod`) |
@@ -54,14 +57,14 @@ user-invocable: true
 `.api/` 를 읽는다. 레이아웃 정본은 `../../references/api-layout.md` 다.
 
 | 파일 | 뷰어에서의 역할 |
-|------|-----------------|
+| --- | --- |
 | `project.yaml` | 환경 목록 · baseUrl · tier · read-only 여부 → 상단 환경 선택기 |
 | `auth.yaml` | 프로파일 이름 · 만료 정보 → 토큰 만료 미터, 인증 탭 (**값은 읽지 않는다**) |
 | `inventory.yaml` | 그룹 · 엔드포인트 · 파라미터 · 헤더 → 트리와 요청 폼 |
 | `contracts/*.yaml` | 모드(partial/pin/exact) · pin assertion · required/optional/설명 → 배지, `*` 마크, 데이터 구조 표 |
 | `snapshots/<ENV>/*.json` | 응답 본문 · 상태코드 · 헤더 · 타이밍 |
 | `masks/*.yaml` | sentinel 치환 규칙 → 값 옆 `정규화됨` 힌트 |
-| `reports/` 최신 실행 | PASS/FAIL/미실행 · 위반 목록 → 요약 칩, `실패 원인` 탭 |
+| `reports/` 최신 실행 | PASS/FAIL/미실행/판정 불가 · 위반 목록 · 경로 간 불변식 판정 줄 → 요약 칩, `실패 원인` 탭, 판정 불가 알림 |
 
 ## 2. 데이터 모델 조립
 
@@ -70,12 +73,30 @@ user-invocable: true
 ```text
 ENVS     환경 목록 (id · baseUrl · label · readOnly)
 GROUPS   그룹 → 엔드포인트 id 배열
-EP       엔드포인트별 method · path · state · contract · pins · resp · params · pathParams · reqBody · body · timing · violations · diff
+EP       엔드포인트별 method · path · state · contract · pins · resp · params · pathParams · reqBody · body · timing · violations · unjudged · diff
 SCHEMA   엔드포인트별 JSONPath → { req, t, removed, d } — 값만 봐서는 알 수 없는 것만 적는다
 RECENT   최근 실행 id 배열 (팔레트 `최근 실행` 스코프)
 ```
 
 `SCHEMA` 에는 **타입을 적지 마라**. 타입은 실제 값에서 유도한다. 여기에 적는 것은 필수 여부, enum 후보, 설명, 그리고 `removed: true`(응답에는 없지만 계약에는 남아 있는 필드)뿐이다.
+
+엔드포인트 `state` 는 아래 표를 위 줄부터 대어 **먼저 맞는 줄**로 정한다. FAIL 이 판정 불가를 이긴다 — 판정 불가는 그 자체로 게이트를 깨지 않고, 게이트는 계약 실패만 깬다.
+
+| 상태 | 조건 | `state` |
+| --- | --- | --- |
+| `미실행` | 이 환경의 스냅샷이 없다 | `'pending'` |
+| `FAIL` | 최신 리포트에 계약 실패(위반)가 1 건 이상 | `'fail'` |
+| `판정 불가` | 경로 간 불변식 판정 줄 가운데 `→ 판정 불가` 로 끝나는 줄이 1 줄 이상 | `'unjudged'` |
+| `PASS` | 위 셋에 걸리지 않는다 | `'pass'` |
+
+판정 불가는 `/api-verify` 의 판정 조건을 그대로 따른다 — 한쪽 경로라도 없으면 `판정 불가` 다. 판정 줄은 `<엔드포인트 id>:` 앞머리(뒤에 빈칸 하나) 다음에 양쪽 값과 결과를 한 줄에 적은 것이다(`/api-verify` §6). `→ 판정 불가` 로 끝나는 줄만 골라, 앞머리가 가리키는 엔드포인트 id 의 `unjudged` 배열에 앞머리를 뗀 나머지를 글자 그대로 옮긴다.
+
+```text
+리포트    products.list: $.meta.total=(없음) · len($.data)=3 → 판정 불가
+unjudged  $.meta.total=(없음) · len($.data)=3 → 판정 불가
+```
+
+FAIL 로 정한 엔드포인트에 이런 줄이 있어도 버리지 않는다 — `실패 원인` 탭에 위반 카드와 함께 둔다.
 
 ## 3. 마스킹 게이트 (fail-closed)
 
@@ -93,7 +114,7 @@ RECENT   최근 실행 id 배열 (팔레트 `최근 실행` 스코프)
 브라우저는 렌더만 한다. 무거운 계산은 전부 여기서 끝낸다.
 
 | 계산 | 방법 |
-|------|------|
+| --- | --- |
 | 비교 기준선 | RFC 8785 JCS canonical JSON (키 재귀 정렬 · 공백 0) |
 | 화면 표시본 | prettier `json` parser → 없으면 `JSON.stringify(obj, null, 2)` |
 | 구조 diff | `microdiff` 로 baseline ↔ 현재 스냅샷 비교 → 경로 단위 `add`/`rm`/`chg` 목록 |
@@ -106,7 +127,7 @@ diff 결과는 **본문 트리의 인라인 거터**와 **데이터 구조 표�
 ## 5. 상한 적용
 
 | 항목 | 상한 | 초과 시 |
-|------|------|---------|
+| --- | --- | --- |
 | 단일 스냅샷 본문 | `256KB` | 잘라내고 원본 파일 경로 표시 + 잘림 배너. 잘린 구간 diff 거터는 비운다 |
 | 단일 HTML evidence payload | `10MiB` | 경고 후 진행 |
 | 〃 | `50MiB` | split · excerpt 모드로 전환 (엔드포인트 그룹별 분할) |
@@ -115,16 +136,19 @@ diff 결과는 **본문 트리의 인라인 거터**와 **데이터 구조 표�
 
 ## 6. 렌더
 
-`references/viewer-spec.md` 를 그대로 따라 단일 HTML 을 쓴다. 확정 시안은 `.mockups/api-ui-v7.html` 이고, 레이아웃·토큰·상호작용의 정본이다. **시안에 없는 영역을 발명하지 마라.**
+`references/viewer-spec.md` 를 그대로 따라 단일 HTML 을 쓴다. 확정 시안은 `.mockups/api-ui-v8.html` 이고, 레이아웃·토큰·상호작용의 정본이다. **시안에 없는 영역을 발명하지 마라.**
+
+확정 시안에는 CSP `<meta>` 가 없다. 시안만 옮기면 CSP 가 빠지므로 `references/viewer-spec.md` §1 의 CSP `<meta>` 문자열을 `<head>` 에 그대로 넣는다. §7 이 1 줄인지 잰다.
 
 골격은 이렇다.
 
 ```text
-상단바   환경 선택 · 토큰 만료 미터 · PASS/FAIL/미실행 요약 칩(클릭 시 필터) · 테마 토글
+상단바   환경 선택 · 토큰 만료 미터 · PASS/FAIL/미실행/판정 불가 요약 칩(클릭 시 필터, 0 이어도 남긴다) · 테마 토글
 좌측     엔드포인트 트리 (그룹 accordion → 엔드포인트, 실패 배지, 경로 전문)
 우측     좌: 요청 폼(파라미터·헤더·인증 탭) + 커맨드 바 / 우: 응답
 응답 탭  [실패 원인] · 본문 · 헤더 · 타이밍
-본문 탭  JSON 본문(값 + 타입 배지 + 필수 `*` + 인라인 diff) → 그 아래 데이터 구조 표
+본문 탭  [판정 불가 알림] → JSON 본문(값 + 타입 배지 + 필수 `*` + 인라인 diff) → 그 아래 데이터 구조 표
+판정 불가 줄  FAIL 이면 `실패 원인` 탭 안, 판정 불가 단독이면 본문 탭 맨 위 알림
 팔레트   ⌘K · Ctrl+K · / — 스코프 4종
 하단     status bar (base URL · read-only 표시)
 ```
@@ -141,6 +165,7 @@ printf '<script src="x"></script>' | grep -c '<script src'      # 기대 1
 grep -c '<script src' "$UI"                                      # 기대 0
 grep -c '<link rel="stylesheet"' "$UI"                           # 기대 0
 grep -c 'fetch(' "$UI"                                           # 기대 0
+grep -c 'http-equiv="Content-Security-Policy"' "$UI"             # 기대 1
 grep -c 'XMLHttpRequest' "$UI"                                   # 기대 0
 grep -cE 'WebSocket|EventSource|sendBeacon|navigator\.sendBeacon' "$UI"   # 기대 0
 grep -oE 'src="https?://|href="https?://[^"]*\.(css|js)' "$UI" | sort -u  # 기대 출력 없음
@@ -148,17 +173,19 @@ wc -c "$UI"                                                      # 10MiB 이하
 ```
 
 | 항목 | 기대값 | 근거 |
-|------|--------|------|
+| --- | --- | --- |
 | `<script src` 매치 라인 | 0 | 확정 시안 실측 0 |
 | `<link rel="stylesheet"` 매치 라인 | 0 | 확정 시안 실측 0 |
 | `fetch(` 매치 라인 | 0 | 확정 시안 실측 0 |
+| CSP `<meta>` 매치 라인 | 1 | 예시 `ui.html` 실측 1 · 확정 시안 실측 0 (2026-09-27) — 시안에 없어 §6 에서 넣는다 |
 | `XMLHttpRequest` 매치 라인 | 0 | 확정 시안 실측 0 |
 | 외부 리소스 URL | 0 | 확정 시안의 `https://` 출현은 전부 baseUrl **텍스트** 3건뿐이며 리소스 로드가 아니다 |
 | known secret pattern unredacted | 0 | 마스킹 게이트 (Step 3) |
-| 누르는 자리 최소 크기 | 요소 상자 24×24 CSS px 미만 `0` 개 (아래 `under24`). 44 는 권장값 | WCAG 2.2 2.5.8 (AA, 24) · 2.5.5 (AAA, 44). 확정 시안 실측은 44 미만 39/56 · 24 미만 0 (2026-09-25) |
+| 누르는 자리 최소 크기 | 요소 상자 24×24 CSS px 미만 `0` 개 (아래 `under24`). 44 는 권장값 | WCAG 2.2 2.5.8 (AA, 24) · 2.5.5 (AAA, 44). 확정 시안 실측은 44 미만 40/57 · 24 미만 0 (2026-09-26) |
 | 텍스트 대비 | 일반 `4.5:1` · large `3:1` · UI component `3:1` | WCAG 2.2 |
 | 테마 | 라이트·다크 양립 (둘 다 대비 충족) | 확정 시안 실측 |
-| 인라인 항목 수 = 화면 항목 수 | `ep` = `shown` | 확정 시안 실측 14 = 14 (2026-09-24) |
+| 인라인 항목 수 = 화면 항목 수 | `ep` = `shown` | 확정 시안 실측 14 = 14 (2026-09-26) |
+| 칩 숫자 = 상태별 트리 줄 수 | `chips` = `rows` (네 상태 모두) | 확정 시안 실측 PASS 10 · FAIL 1 · 미실행 2 · 판정 불가 1 (2026-09-26) |
 | 콘솔 error 메시지 | `0` (`favicon.ico` 404 한 건은 뺀다) | 확정 시안 실측 — 아이콘을 부르는 브라우저에서 `favicon.ico` 404 한 건 |
 
 **0 매치를 근거로 쓰려면 positive control 이 먼저다.** 경로 오타나 빈 파일로 생긴 0 은 PASS 증거가 아니라 측정 실패다.
@@ -175,7 +202,7 @@ wc -c "$UI"                                                      # 10MiB 이하
 
    첫 줄과 둘째 줄은 줄바꿈이나 `;` 로 잇고 `&&` 로 잇지 않는다 — bash 는 `&&` 로 이은 목록 끝의 `&` 가 목록 전체를 하위 셸로 보내, 부모 셸의 `$D` 가 비고 `$!` 가 파이썬이 아니라 그 하위 셸 번호가 된다. 이 블록 그대로면 bash · zsh 둘 다 `SERVING` 줄의 번호가 8765 를 쥔 파이썬이다(실측 2026-09-26). 명령마다 새 셸이 뜨는 도구에서는 `$D` 가 비어 지금 폴더(`.api/` 포함)를 띄운다. 앞에서 띄우면 셸이 서버에 묶여 다음 단계로 못 간다. 뒤에서 띄운 파이썬의 `Address already in use` 는 도구 출력에 안 실릴 수 있어 같은 호출 끝의 판정 줄로 가른다. `NOT_SERVING` 이면 8765 를 다른 서버(앞 실행이 남긴 서버일 수 있다)가 쥐고 있으니 그 주소를 열지 않는다 — 그 서버는 끄지 말고 빈 포트로 바꿔 다시 띄우고 여는 주소의 포트도 같이 바꾼다. 어느 쪽으로 열었는지 보고에 적는다. 확인이 끝나면 `SERVING` 줄에 찍힌 번호와 폴더로 `kill <번호>` · `rm -rf <폴더>` 를 돌린다 — 다른 셸 호출에서 `kill $!` 를 쓰지 마라(zsh 는 빈 `$!` 가 `0` 이라 `kill 0` 이 된다). `.api/` 를 통째로 띄우지 마라 — `credentials.local.json`(아이디 · 비밀번호) · `reports/`(가리지 않은 원본 응답) · `snapshots/prod/` 가 HTTP 로 열리고, 출처가 `http://127.0.0.1` 로 바뀌어 옆 파일 `fetch` 가 성공해 버린다. 한 장만 든 폴더에서는 옆 파일 `fetch` 가 404 콘솔 오류로 드러난다(실측 2026-09-25). 그래도 외부 참조 0 건은 위 `grep` 검사로 잰다 — 브라우저 확인으로 대신하지 마라.
 2. **콘솔 오류** — error 등급 메시지가 0 개다. 웹 서버로 열었을 때 `favicon.ico` 를 가리키는 404 한 건은 빼고 세되 뺀 건수를 따로 적는다 — 아이콘 링크가 없어 브라우저가 기본 경로를 부른 것이지 뷰어 결함이 아니다.
-3. **항목 수 · 누르는 자리** — 필터와 검색을 건드리지 않은 첫 화면에서 아래 식을 페이지 안에서 돌린다. `ep` 와 `shown` 이 같고 `under24` 가 0 이어야 한다. `under44` 는 권장값 44 에 못 미치는 수라 판정에 쓰지 않고 보고에만 적는다.
+3. **항목 수 · 누르는 자리 · 상태 칸** — 필터와 검색을 건드리지 않은 첫 화면에서 아래 식을 페이지 안에서 돌린다. `ep` 와 `shown` 이 같고 `under24` 가 0 이어야 한다. `chips` 와 `rows` 는 상태 네 가지 각각의 칩 숫자와 트리 줄 수이고 네 값이 모두 같아야 한다 — 다르면 칩을 눌러 거른 목록이 칩 숫자와 어긋난다. `under44` 는 권장값 44 에 못 미치는 수라 판정에 쓰지 않고 보고에만 적는다.
 
 ```js
 (() => {
@@ -183,12 +210,22 @@ wc -c "$UI"                                                      # 10MiB 이하
     return r.width > 0 && r.height > 0 && s.display !== 'none' && s.visibility !== 'hidden'; };
   const hits = [...document.querySelectorAll('button, a[href], input, select, textarea, [role="tab"], [role="switch"], [role="menuitem"], [role="option"]')].filter(shown);
   const under = n => hits.filter(el => { const r = el.getBoundingClientRect(); return r.width < n || r.height < n; }).length;
+  const LABELS = ['PASS', 'FAIL', '미실행', '판정 불가'];
+  const labelsIn = el => LABELS.filter(label => el.textContent.includes(label));
+  const chipNum = Object.fromEntries(LABELS.map(label => [label, null]));
+  const rowNum = Object.fromEntries(LABELS.map(label => [label, 0]));
+  document.querySelectorAll('header button[aria-pressed]').forEach(chip => {
+    const [label, ...extra] = labelsIn(chip), num = chip.textContent.match(/\d+/);
+    if (label && !extra.length) chipNum[label] = num ? Number(num[0]) : null; });
+  document.querySelectorAll('[data-ep]').forEach(row => {
+    const [label, ...extra] = labelsIn(row);
+    if (label && !extra.length) rowNum[label] += 1; });
   return { ep: Object.keys(EP).length, shown: [...document.querySelectorAll('[data-ep]')].filter(shown).length,
-           targets: hits.length, under24: under(24), under44: under(44) };
+           targets: hits.length, under24: under(24), under44: under(44), chips: chipNum, rows: rowNum };
 })()
 ```
 
-확정 시안 1280×720 실측(2026-09-25): `ep 14 · shown 14 · targets 56 · under24 0 · under44 39`. 콘솔 error 는 헤드리스 셸 0 건, 아이콘을 부르는 브라우저에서 `favicon.ico` 404 한 건.
+확정 시안 1280×720 실측(2026-09-26): `ep 14 · shown 14 · targets 57 · under24 0 · under44 40`. 콘솔 error 는 헤드리스 셸 0 건, 아이콘을 부르는 브라우저에서 `favicon.ico` 404 한 건.
 
 브라우저 조종 도구가 없어 이 확인을 못 하면 조용히 건너뛰지 말고 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙여 보고한다.
 
@@ -205,17 +242,17 @@ start .api/ui.html         # Windows
 보고에는 아래를 포함한다.
 
 - 인라인된 엔드포인트 수 · 스냅샷 수 · 환경
-- PASS / FAIL / 미실행 카운트
+- PASS / FAIL / 미실행 / 판정 불가 카운트 (요약 칩과 같은 엔드포인트 수)
 - 잘라낸 스냅샷이 있으면 그 목록과 원본 경로
 - Step 7 측정 결과 (명령 출력 인용)
-- Step 7 브라우저 확인 — 연 방법 · 콘솔 error 수와 뺀 `favicon.ico` 건수 · `ep` · `shown` · `under24` · `under44`. 못 했으면 `[미검증]` 과 네 칸
+- Step 7 브라우저 확인 — 연 방법 · 콘솔 error 수와 뺀 `favicon.ico` 건수 · `ep` · `shown` · `under24` · `under44` · 상태 네 가지의 칩 숫자 `chips` 와 트리 줄 수 `rows`. 못 했으면 `[미검증]` 과 네 칸
 - 마스킹 게이트 통과 여부
 
-# References
+## References
 
 - `references/viewer-spec.md` — 뷰어 구조·데이터 모델·토큰·상호작용 정본
 - `../../references/api-layout.md` — `.api/` 산출물 레이아웃
 - `../../references/project-detection.md` — 프로젝트 감지 절차
-- `.mockups/api-ui-v7.html` — 확정 UI 시안 (레이아웃·토큰·상호작용 실측 기준)
+- `.mockups/api-ui-v8.html` — 확정 UI 시안 (레이아웃·토큰·상호작용 실측 기준)
 - `docs/api/verification/static-evidence-viewer-contract.md` — 정적 증거 뷰어 계약 (원칙 10 · 수치 기준 · 안티패턴)
 - `docs/superpowers/specs/2026-09-02-api-kit-design.md` §11 — UI 레이어 설계 근거

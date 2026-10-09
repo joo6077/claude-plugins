@@ -14,6 +14,8 @@ user-invocable: true
 allowed-tools: Read, Grep, Glob, Bash, Agent
 ---
 
+# 이미 나간 절차 문서 다시 재기
+
 이미 나간 절차 문서를 **다시 잰다.** 고치지 않는다 — 판정과 근거만 낸다.
 
 ## 왜 필요한가
@@ -122,7 +124,7 @@ Phase 1 의 파일 수와 셋 다 같아야 한다. 다르면 판정이 아니�
 검사 범위:  <N> 파일
 스크립트:   <Phase 2 첫 줄의 RESOLVED: 줄 그대로>
 게이트:     GATE_PASS <a> / GATE_FAIL <b> / GATE_BLOCKED <c>
-에이전트:   PASS <x> / FAIL <y>
+에이전트:   PASS <x> / FAIL <y> / N/A <n> / [미검증:ENV] <e> / [미검증:INVALID] <i>
 
 파일별 판정
   <경로>  게이트=<판정>  에이전트=<판정>  주된 사유=<한 줄>
@@ -132,6 +134,8 @@ Phase 1 의 파일 수와 셋 다 같아야 한다. 다르면 판정이 아니�
 ```
 
 FAIL 이 1 건이라도 있으면 리포트 결론은 FAIL 이다. "대체로 양호" 같은 중간 판정은 없다.
+
+에이전트 줄의 미검증 칸은 `howto-reviewer` 가 그 분류를 붙인 row 수다. 미검증 row 는 PASS 로 세지 않는다 — `N/A` 도 따로 센다. `[미검증:INVALID]` 건수에 따른 판정은 `howto-reviewer` 가 든 정본 사본(임계값 2 조항)을 그대로 따른다.
 
 ## 관련 스킬
 

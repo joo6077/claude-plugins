@@ -1,9 +1,20 @@
 ---
-version: 1.4.0
-last_updated: 2026-09-25
+version: 1.4.1
+last_updated: 2026-09-26
 ---
 
 # Backend Kit Research Log
+
+## [2026-09-26] — 카이젠 뒤 남은 것 (k2)
+
+판정: **CHANGED**. 근거는 Codex 원문 대조 `.harness/.meta/after-kaizen-0926b/ex/EX-7.md`(2026-09-26 조회) 하나다.
+
+| 대상 | 원문 | 반영 |
+| --- | --- | --- |
+| OpenAPI | [spec.openapis.org/oas/latest.html](https://spec.openapis.org/oas/latest.html) — 최신판 3.2.1. 「Tooling which supports OAS 3.1 SHOULD be compatible with all OAS 3.1.* versions.」 | 킷의 「OpenAPI 3.1」 세 자리(backend-system API 규격 행 · backend-audit 5 행 · 감사 기준 JSON Schema 호환 행)에 「3.1 이상 — 최소 지원선」 을 적어 최신판 뜻이 아님을 밝혔다 |
+| AsyncAPI | [asyncapi/spec/releases/tag/v3.1.0](https://github.com/asyncapi/spec/releases/tag/v3.1.0) — 3.1.0 은 2026-01-31 발표, 적힌 기능 변경은 ROS 2 binding 추가 | 킷 문장 「AsyncAPI 3.0+」 은 최소선이라 이 원문으로도 참이다. 킷은 고치지 않고 여기에만 남긴다 |
+
+벽시계 값을 보낼 문자열 형태는 근거 파일에도 원문 대조에도 없어 이번에 규칙으로 올리지 않았다.
 
 ## [2026-09-24] — Phase 7 kaizen
 
@@ -147,8 +158,8 @@ Enumeration · 빈 상태 상태코드 · timestamp 타임존 · mock-only 통�
 | 위치 | 이전 서술 | 정정 |
 | ------ | ------ | ------ |
 | `backend-kit/agents/backend-reviewer.md` §Canonical [정정 2026-08-13] | "정본을 **문구 변형 없이 복제**한 것" 이라 선언하면서 v4.0 의 3 분기 · 단일 임계 서술을 유지 | 정본 v5.0(카운터 2 분리 · 임계 2 는 `INVALID` 에만 · `env_gaps` 커버리지 게이트 · 남용 방지 4 요건)으로 재동기화. 조항 1~3 문자 단위 일치 확인 |
-| `docs/backend/research-log.md:151` [정정 2026-08-13] | "Outbox + CDC 조합 … **exactly-once 보장**" | 이중쓰기는 막지만 전달 보장은 **at-least-once**. relay 중복 발행 → consumer idempotency 필수. 같은 킷의 `patterns/event-driven.md` 원칙 4 와 자기모순이었다 |
-| `docs/backend/patterns/event-driven.md:47` | "서버가 **24시간 동안 동일 key 에 대해 같은 응답을 반환**한다" | Stripe 는 결과 저장 + **payload 비교** + **24h pruning** 을 문서화한다. 24 시간은 응답 보장 기간이 아니라 **키 보관 기간**이며, 만료 후 같은 키는 새 요청으로 처리된다 |
+| `docs/backend/research-log.md:221` [정정 2026-08-13] | "Outbox + CDC 조합 … **exactly-once 보장**" | 이중쓰기는 막지만 전달 보장은 **at-least-once**. relay 중복 발행 → consumer idempotency 필수. 같은 킷의 `patterns/event-driven.md` 원칙 4 와 자기모순이었다 |
+| `docs/backend/patterns/event-driven.md:48` | "서버가 **24시간 동안 동일 key 에 대해 같은 응답을 반환**한다" | Stripe 는 결과 저장 + **payload 비교** + **24h pruning** 을 문서화한다. 24 시간은 응답 보장 기간이 아니라 **키 보관 기간**이며, 만료 후 같은 키는 새 요청으로 처리된다 |
 
 ### Phase 7 변경 요약
 
@@ -166,10 +177,10 @@ Enumeration · 빈 상태 상태코드 · timestamp 타임존 · mock-only 통�
 
 ### 미반영 (근거 부족 · 범위 밖)
 
-- `backend-kit/skills/backend-audit/references/audit-criteria.md:93` 의 "Outbox+CDC 조합으로 exactly-once 보장 가능" [정정 2026-08-13 대상 · 미반영] 은
+- `backend-kit/skills/backend-audit/references/audit-criteria.md:97` 의 "Outbox+CDC 조합으로 exactly-once 보장 가능" [정정 2026-08-13 대상 · 미반영] 은
   같은 오류이나 **Phase 7 Scope 밖 경로**라 이번에 고치지 않았다.
   backend-audit Gotcha 16 으로 무효화 조항을 걸어 두었고, 문구 정정은 downstream 으로 넘긴다.
-- `docs/backend/fundamentals/database.md:78` 의 `ALTER TABLE ... ADD COLUMN` 재작성 조건 서술은
+- `docs/backend/fundamentals/database.md:82` 의 `ALTER TABLE ... ADD COLUMN` 재작성 조건 서술은
   PostgreSQL 버전에 따라 달라질 수 있으나 evidence 파일에 근거가 없어 **미반영**. 다음 사이클
   리서치 대상.
 - evidence §4 열린 질문(DB-specific annex 를 별도 문서로 뺄지)은 이번엔 "PostgreSQL 감지 시"
@@ -180,6 +191,7 @@ Enumeration · 빈 상태 상태코드 · timestamp 타임존 · mock-only 통�
 
 판정: **CHANGED**. 이번 사이클 최우선 신호는 insights §0 **Friction #4 (풀스택 변경에서 클라이언트 누락 · 반복)** 이었고, backend-kit 4 스킬 + 에이전트 전수 grep 결과 Counterpart 관련 문장이 **0 건**이었다. 신규 문장 규칙 남발이 아니라 Phase 1 §5.5 가 요구하는 **E2(체크리스트 아티팩트) 등급**으로 도메인 일반화하여 도입했다.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 데이터 소스
 
 - `.claude/kaizen-input/insights-report.md` §0 — Friction #4, on_the_horizon 2(풀스택 슬라이스), Phase 7 적용 힌트
@@ -198,6 +210,7 @@ Enumeration · 빈 상태 상태코드 · timestamp 타임존 · mock-only 통�
 7. **AsyncAPI 3.0.0** (<https://www.asyncapi.com/docs/reference/specification/v3.0.0> [official]) — 문서는 애플리케이션 관점(`send`/`receive`)을 기술하며 **"수신자 AsyncAPI 문서를 발신자 문서에서 파생하거나 그 역은 권장되지 않는다(NOT RECOMMENDED)"** 고 명시. 이벤트 계열에서도 양면이 각자 문서를 가져야 한다는 Counterpart 근거로 채택.
 8. **Testcontainers Getting Started** (<https://testcontainers.com/getting-started/> [official]) — "인메모리 서비스는 프로덕션 서비스의 모든 기능을 갖지 못하고 동작이 조금씩 다를 수 있다", "mock 이나 인메모리 서비스 없이 프로덕션과 같은 서비스에 의존하는 테스트를 작성한다". 글로벌 REJECT `API-01`(MockDatabase 단위 테스트를 통합 테스트로 주장) 대응 기준의 출처.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### Phase 7 변경 요약
 
 | 파일 | 변경 |
@@ -218,12 +231,12 @@ Enumeration · 빈 상태 상태코드 · timestamp 타임존 · mock-only 통�
 
 NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12 에 이미 포화. §1 backend 신호 0건. SKIP.
 
-
 > backend-kaizen 실행 시 리서치한 외부 소스와 채택 여부를 누적 기록한다.
 > 다음 사이클에서 중복 리서치를 방지하고, 개선 결정의 근거 출처를 추적한다.
 
 ## [2026-05-07] — Phase 7 kaizen (backend, /insights 흡수)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 데이터 소스
 
 - 데이터 풀 §0 `/insights` 30 일 분석 (3 friction · 3 pattern · 3 feature)
@@ -240,7 +253,6 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 이전 카이젠 사이클의 리서치 인용은 본 로그 하단 + cross-kit-principles 매트릭스로 보존된다.
 
 ---
-
 
 ---
 
@@ -408,6 +420,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 | `backend-validation` | 런북 | Pydantic v2 / Zod / JSON Schema 크로스 에코시스템 검증 가이드 | 낮음 | backlog (신규) |
 | `backend-serverless` | 런북 | Cold start 완화 + SnapStart + runtime 선택 가이드 | 낮음 | backlog (신규) |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 없음.
@@ -418,6 +431,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 
 **트리거:** kaizen-orchestrator Phase 7 (research-mode rerun)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 신뢰도 | 결과 |
@@ -438,6 +452,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 | 14 | Pact + Testcontainers | <https://prgrmmng.com/contract-testing-with-testcontainers-and-pact> | blog | 중간 | 채택 |
 | 15 | Microsoft ISE Pact Contract Testing | <https://devblogs.microsoft.com/ise/pact-contract-testing-because-not-everything-needs-full-integration-tests/> | 공식 | 높음 | 채택 |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 - **Architecture 카테고리 신설 (9번째)**: Hexagonal / Clean / DDD + Port-Adapter 경계 + 의존성 inward-only + 과복잡도 FAIL 사유. backend-kit audit-criteria 에 신설. 적용: backend-audit, backend-guide, backend-system.
@@ -449,6 +464,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 - **Outbox relay 실무 튜닝**: batch 200~500 + backpressure (처리 지연 시 큐에 재적재) + checkpoint (마지막 처리 position 기록). 실패 시 attempts/DLQ/backoff. 적용: backend-system Event-Driven 섹션.
 - **Pact v4 + Testcontainers**: Consumer-driven contract testing. Pact v4 의 message queue pact 지원으로 AsyncAPI / Event 기반 시스템 검증 가능. Testcontainers 로 격리된 인프라 실행. 적용: backend-system Testing 섹션.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 신규 스킬 갭 분석
 
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | 상태 |
@@ -456,6 +472,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 | `backend-observability` | 런북 | OTel 3 signals 시대 — 공용 계측 가이드 필요 | 중간 | backlog |
 | `backend-event` | 코드 스캐폴딩 | AsyncAPI 3.0 + Outbox 패턴 실무 스캐폴딩 | 중간 | backlog |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 없음.
@@ -466,10 +483,12 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 
 ---
 
+<!-- markdownlint-disable-next-line MD024 -->
 ## 2026-04-12
 
 **트리거:** backend-research 스킬 실행 (백엔드 최신 스택 보강 리서치)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 조사한 소스
 
 | # | 제목 | URL | 유형 | 태그 | 결과 |
@@ -516,6 +535,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 - Database: TiDB Serverless, Neon Postgres, Turso/libSQL latest: 신규 #70, #71, #72, #73, #74, #75 추가
 - AI-augmented backends (LLM integration patterns, RAG architectures): 기존 #23 참고 + 신규 #76, #77 추가
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 채택한 인사이트
 
 #### 1. OAuth 2.1 finalization status (RFC timeline)
@@ -580,6 +600,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 - OpenAI 공식 패턴은 "모델 + tool calling + application-side execution loop" 다. 함수 호출 가이드는 도구 선언, 모델의 tool call 수신, 애플리케이션에서 실행, 결과를 다시 모델에 전달하는 5단계 루프를 명시한다. 이 패턴은 agent backend 와 LLM orchestration backend 의 기본 골격이다. (출처: <https://developers.openai.com/api/docs/guides/function-calling> [official])
 - RAG 쪽은 직접 벡터 검색 파이프라인을 전부 구현하는 대신, Responses API 의 hosted `file search` / `vector stores` 를 써서 semantic + keyword retrieval 을 붙이는 managed retrieval 패턴이 공식화되어 있다. 즉 최신 흐름은 "앱에서 오케스트레이션, 검색은 managed tool, 도메인 데이터는 vector store" 조합이다. (출처: <https://platform.openai.com/docs/guides/tools-file-search?lang=javascript> [official], <https://developers.openai.com/api/docs/guides/function-calling> [official])
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 신규 스킬 갭 분석
 
 | 제안 스킬 | 아키타입 | 근거 | 우선순위 | 상태 |
@@ -587,6 +608,7 @@ NO_CHANGE. Friction #1·#3 가드가 backend-system #3/#4, backend-guide #11/#12
 | `backend-edge` | 런북 | Hono + Workers + D1 + Durable Objects 조합 가이드 필요 | 중간 | backlog (신규) |
 | `backend-ai-runtime` | 런북 | Tool calling / file search / vector store / agent backend 패턴 가이드 필요 | 높음 | backlog (신규) |
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 폐기 사유
 
 없음.

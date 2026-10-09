@@ -1,0 +1,29 @@
+{
+  "manifest": {
+    "endpoint": "products.inventory",
+    "env": "dev",
+    "capturedAt": "2026-09-02T14:22:00+09:00",
+    "mediaType": "application/json",
+    "normalizedDigest": "sha-256:beb0043620febaf6d296238e4cb3e42c58c1e318f911d1cc9a5cd9fa171c387c",
+    "lineage": {
+      "env": "dev",
+      "branch": "main"
+    }
+  },
+  "raw": {
+    "status": 503,
+    "headers": [
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ]
+    ],
+    "body": {
+      "error": {
+        "code": "UPSTREAM_UNAVAILABLE",
+        "message": "재고 서비스에 연결할 수 없습니다"
+      }
+    }
+  },
+  "normalized": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"재고 서비스에 연결할 수 없습니다\"}}"
+}

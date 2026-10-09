@@ -4,13 +4,18 @@ version: 1.0.0
 last_updated: 2026-03-30
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Widget Inspector 에이전트 + Flutter Extract 스킬 설계
+
+<!-- markdownlint-enable MD025 -->
 
 > flutter-toolkit에 재사용 가능한 위젯 패턴 감지(에이전트) + 추출(스킬)을 추가한다.
 
 ## 배경
 
 Flutter 프로젝트에서 흔한 문제:
+
 - `_WidgetName`으로 분리했지만 여러 파일에서 중복
 - build 메서드 안에 분리 가능한 덩어리가 인라인으로 박혀 있음
 - private 위젯이 feature에 갇혀 있지만 실제로는 범용적
@@ -21,7 +26,7 @@ Flutter 프로젝트에서 흔한 문제:
 ## 구성
 
 | 구성 | 역할 | 타입 |
-|------|------|------|
+| --- | --- | --- |
 | `widget-inspector` | 읽기 전용 스캔 + 리포팅 | 에이전트 |
 | `flutter-extract` | 사용자 승인 후 추출 수행 | 스킬 |
 
@@ -44,7 +49,7 @@ model: sonnet
 ### 두 가지 모드
 
 | 모드 | 트리거 | 범위 |
-|------|--------|------|
+| --- | --- | --- |
 | `quick` | 구현 후 / 프로액티브 / 코드 수정 시 | 변경 파일의 feature 디렉토리 + 관련 shared 디렉토리 |
 | `deep` | audit 연동 / 명시 요청 | `lib/` 내 전체 presentation 레이어 |
 
@@ -57,7 +62,7 @@ model: sonnet
 
 ### 리포트 포맷
 
-```
+```text
 -- Widget Inspector Report ([quick|deep]) --
 
 Duplicates (구조적 중복)
@@ -84,7 +89,11 @@ Total: N extraction candidates
 
 ## 스킬: flutter-extract
 
+<!-- markdownlint-disable MD024 -->
+
 ### 메타데이터
+
+<!-- markdownlint-enable MD024 -->
 
 ```yaml
 name: flutter-extract
@@ -127,12 +136,14 @@ user-invocable: true
 ### flutter-audit 연동
 
 `flutter-audit`의 deep 모드에 widget-inspector를 4번째 에이전트로 추가:
+
 - Agent 4: Widget Inspector (재사용성 감사)
 - quick 모드에도 간단한 Reusability 체크리스트 항목 추가
 
 ### 구현 스킬 연동
 
 `flutter-screen`, `flutter-feature`, `flutter-widget` 실행 후:
+
 - widget-inspector를 quick 모드로 자동 실행
 - 변경된 파일 주변만 스캔
 - 후보가 있으면 리포팅, 없으면 조용히 넘어감
@@ -140,5 +151,6 @@ user-invocable: true
 ### 프로액티브 동작
 
 description에 "use proactively" 포함:
+
 - 프로젝트 코드를 수정할 때 Claude가 자동으로 widget-inspector를 실행할 수 있음
 - quick 모드로 가볍게 스캔

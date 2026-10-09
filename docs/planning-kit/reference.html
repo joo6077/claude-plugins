@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reference &amp; Competitive Analysis — Planning Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 :root {
   --bg: #0d0d14; --bg2: #12121c; --surface: #181825; --surface2: #1e1e30; --surface3: #282845;
@@ -60,7 +61,7 @@ section { margin-bottom: 72px; }
   border-top: 3px solid var(--accent); border-radius: var(--radius-sm); padding: 18px 20px;
   transition: var(--transition);
 }
-.flow-step:hover { border-color: var(--border2); border-top-color: var(--accent2); transform: translateY(-2px); }
+.flow-step:hover { border-color: var(--border2); border-top-color: var(--accent2); transform: var(--dk-hover-move, translateY(-2px)); }
 .flow-step .n { display: block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent2); margin-bottom: 6px; }
 .flow-step h4 { font-size: 15px; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
 .flow-step p { font-size: 13px; color: var(--text2); line-height: 1.65; }
@@ -72,7 +73,7 @@ section { margin-bottom: 72px; }
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 28px; transition: var(--transition); display: flex; flex-direction: column; min-width: 0;
 }
-.card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
+.card:hover { border-color: var(--accent); transform: var(--dk-hover-move, translateY(-2px)); box-shadow: 0 8px 32px rgba(236, 72, 153, 0.12); }
 .card:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 .card-number {
@@ -158,7 +159,7 @@ td code { background: var(--surface3); color: var(--accent2); padding: 2px 6px; 
   border: 1px solid var(--border); border-left: 3px solid var(--accent);
   border-radius: var(--radius-sm); transition: var(--transition); min-width: 0;
 }
-.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: translateX(2px); }
+.checklist-item:hover { border-color: var(--border2); border-left-color: var(--accent2); transform: var(--dk-hover-move, translateX(2px)); }
 .checklist-icon {
   flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
   background: var(--accent-dim); color: var(--accent); display: flex; align-items: center;
@@ -212,13 +213,33 @@ footer code { font-family: var(--mono); color: var(--text2); }
   .grid-2, .compare-grid, .srclist { grid-template-columns: 1fr; }
   .flow-step { flex: 1 1 100%; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}
   a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="container">
 
   <header class="hero">
@@ -574,7 +595,7 @@ footer code { font-family: var(--mono); color: var(--text2); }
     <div class="snippet">
       <h4>예시 1 · Strategy Canvas (xychart-beta)</h4>
       <p>업계 경쟁 요소별 투자 강도를 곡선으로 비교한다.</p>
-      <pre>xychart-beta
+      <pre aria-label="Mermaid xychart 예시">xychart-beta
     title "Node Editor Strategy Canvas Example"
     x-axis ["학습 용이성", "표현력", "디버깅 가시성", "템플릿 생태계", "협업성", "확장성"]
     y-axis "투자 강도" 0 --&gt; 5
@@ -586,7 +607,7 @@ footer code { font-family: var(--mono); color: var(--text2); }
     <div class="snippet">
       <h4>예시 2 · quadrantChart</h4>
       <p>차별화 정도와 구현 복잡도 두 축으로 후보 기능을 배치한다.</p>
-      <pre>quadrantChart
+      <pre aria-label="Mermaid quadrantChart 예시">quadrantChart
     title Feature Prioritization by Differentiation vs Complexity
     x-axis 낮은 차별화 --&gt; 높은 차별화
     y-axis 낮은 구현복잡도 --&gt; 높은 구현복잡도
@@ -604,7 +625,7 @@ footer code { font-family: var(--mono); color: var(--text2); }
     <div class="snippet">
       <h4>예시 3 · teardown mindmap</h4>
       <p>수집 → 해부 → 비교 → 차별화 → 우선순위 전체 구조를 한 장으로 정리한다.</p>
-      <pre>mindmap
+      <pre aria-label="Mermaid mindmap 예시">mindmap
   root((Reference Analysis))
     Lightning Demos
       direct competitors

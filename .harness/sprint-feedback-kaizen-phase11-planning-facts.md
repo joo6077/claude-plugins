@@ -34,7 +34,7 @@ Iteration: 1
 - [x] SK-03: Gotcha 5 내부규칙 라벨링 + Cucumber 공식 근거 한정 — PASS
   - 근거: `planning-kit/skills/plan-stories/SKILL.md:19` — `내부 원자성 규칙`, `Cucumber 공식 규칙이 아니다`, `as many steps as you like`, `3-5 steps` 4토큰 전부 매치.
 - [x] SK-04: premortem 절차 서술 전부 [미확인] 표기 — PASS
-  - 근거: `plan-risks/SKILL.md:22,40`, `docs/planning/risks.md:25,31` — `grep -rn '먼저 쓰고\|개별 기록\|그 다음 공유' ... | grep -vc '미확인'` = 0 (사전 3).
+  - 근거: `plan-risks/SKILL.md:22,40`, `docs/planning/risks.md:28,31` — `grep -rn '먼저 쓰고\|개별 기록\|그 다음 공유' ... | grep -vc '미확인'` = 0 (사전 3).
 
 ### Error (2/2)
 - [x] ER-01: 규칙 보존(라벨 강등 ≠ 폐기) — PASS
@@ -46,7 +46,7 @@ Iteration: 1
 - [x] AR-01: 변경 경로 정확히 6개 — PASS
   - 근거: `git diff --name-only 1ba6059^..1ba6059 -- planning-kit docs/planning | LC_ALL=C sort` → `docs/planning/reference.md, docs/planning/research-log.md, docs/planning/risks.md, planning-kit/skills/plan-risks/SKILL.md, planning-kit/skills/plan-stories/SKILL.md, planning-kit/skills/plan-sync-github/SKILL.md` (계약 기대 집합과 정확히 일치). 평가는 커밋이 이미 HEAD 조상이라 `git diff HEAD --` 대신 `commit^..commit` 동치 측정으로 대체 (Given 조건이 "커밋 직전 working tree"이므로 커밋-부모 비교가 등가). zsh/bash 출력 동일.
 - [x] AR-02: research-log 최상단 2026-08-13 엔트리 + last_updated 갱신 — PASS
-  - 근거: `docs/planning/research-log.md:9` `## [2026-08-13] — Phase 11 kaizen`, 본문에 `projectsV2`/`2.2-chapter-08`/`미확인`/`v10` 4토큰 전부 매치, `grep -c '^last_updated: 2026-08-13'` = 1.
+  - 근거: `docs/planning/research-log.md:26` `## [2026-08-13] — Phase 11 kaizen`, 본문에 `projectsV2`/`2.2-chapter-08`/`미확인`/`v10` 4토큰 전부 매치, `grep -c '^last_updated: 2026-08-13'` = 1.
 - [x] AR-03: 구 엔트리 GraphQL-only 판단 전부 정정 포인터 동반 — PASS
   - 근거: `sed -n '/^## \[2026-07-27\]/,$p' research-log.md | grep 'GraphQL' | grep -vc '정정 2026-08-13'` = 0 (사전 4, 4곳 전부 확인: `:85`,`:93`,`:120`,`:165` 라인에 `[정정 2026-08-13: ...]` 동반).
 

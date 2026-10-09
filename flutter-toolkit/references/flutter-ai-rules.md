@@ -16,6 +16,7 @@ flutter-toolkit 스킬은 이 규칙과 정합성을 유지해야 한다.
 ## State Management (서드파티 패키지 없을 때)
 
 공식 우선순위:
+
 1. `ValueNotifier` + `ValueListenableBuilder` — 단일 값
 2. `Stream` + `StreamBuilder` — 비동기 이벤트 시퀀스
 3. `Future` + `FutureBuilder` — 일회성 비동기
@@ -112,4 +113,4 @@ Flutter 공식 rules 외에 2026 기준으로 flutter-toolkit 이 추가로 정�
 ### Makefile 기반 monorepo 관습
 
 - `dart-define-from-file=.dart_defines.json`, `--observatory-port=8181` 등 실행 옵션을 Makefile 타겟에 집중. 직접 `fvm flutter run` 호출 시 환경 누락으로 다른 플레이버 기동 위험
-- flutter-preflight / flutter-run 스킬은 `HAS_MAKEFILE = true` 감지 시 `make <target>` 우선
+- flutter-preflight / flutter-run 스킬은 `project-detection.md` Step 2b 4 번의 타겟별 확인으로 그 단계의 타겟이 있을 때만 `make <target>` 우선. 묶음 타겟만 있으면 기본 명령

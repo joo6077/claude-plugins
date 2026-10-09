@@ -4,6 +4,7 @@ version: 1.5.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Flutter Kaizen Changelog
 
 ## [2026-09-24] — Phase 5 kaizen (codegen 필터 · 삭제 수 블록 · 관례 대조)
@@ -92,7 +93,6 @@ widget-inspector 의 "Clean — 추출 후보 없음" vacuous pass 차단.
 
 flutter-feature/flutter-screen 에 과잉설계 방지 Gotcha 추가(요청 범위 넘는 레이어/provider/state 임의 스캐폴딩 금지, Friction #3).
 
-
 > flutter-kaizen에 의한 flutter-toolkit 변경 이력을 기록한다.
 
 ## [2026-05-07] — Phase 5 kaizen (Phase 1 v1.3.0 신규 원칙 흡수)
@@ -162,12 +162,14 @@ Phase 5 sprint-contract 16 조건 모두 L3 PASS, iter 1 APPROVE. 독립 qa-eval
 - **evals.json**: flutter-test eval 케이스 추가 (id: 18)
 
 ### 버전 판단 근거
+>
 > 신규 스킬 초안 생성 + 스킬 프롬프트 변경 = minor
 
 ## [0.4.0] - 2026-03-30
 
 ### 변경 유형: minor (skill-prompt, reference, detection)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 연구 기반
 
 - [Flutter Official Architecture Guide](https://docs.flutter.dev/app-architecture/guide) — MVVM 패턴 공식 권장
@@ -175,6 +177,7 @@ Phase 5 sprint-contract 16 조건 모두 L3 PASS, iter 1 APPROVE. 독립 qa-eval
 - [Flutter 3.38 Release Notes](https://docs.flutter.dev/release/release-notes/release-notes-3.38.0) — WidgetState 마이그레이션, PredictiveBack 기본 전환
 - [Flutter Official AI Rules](https://raw.githubusercontent.com/flutter/flutter/main/docs/rules/README.md) — LLM 코드 생성 공식 가이드라인
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 변경 내역
 
 - **flutter-toolkit/references/flutter-ai-rules.md**: 신규 생성 — Flutter 공식 AI rules 핵심 요약
@@ -202,5 +205,7 @@ Phase 5 sprint-contract 16 조건 모두 L3 PASS, iter 1 APPROVE. 독립 qa-eval
   - After: mvvm 패턴 추가 (View ↔ ViewModel 1:1, Repository, Service)
   - 근거: [Flutter Architecture Guide](https://docs.flutter.dev/app-architecture/guide)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 버전 판단 근거
+>
 > 스킬 프롬프트 변경(Gotchas) + 새 reference + detection 로직 변경 = minor

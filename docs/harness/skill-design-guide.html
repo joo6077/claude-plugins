@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>스킬 설계 가이드 v1.6.0 — Harness</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -48,7 +49,7 @@ body{
 h3.sub{font-size:1rem;font-weight:700;margin:28px 0 12px;color:var(--text);letter-spacing:-0.01em}
 h3.sub::before{content:'▸ ';color:var(--accent)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;margin-bottom:16px}
-.card:hover{border-color:rgba(217,119,87,0.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
+.card:hover{border-color:rgba(217,119,87,0.45);transform:var(--dk-hover-move, translateY(-2px));box-shadow:0 8px 28px rgba(217,119,87,0.08)}
 .card-title{font-size:1.01rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.72}
@@ -140,7 +141,6 @@ code,.code-block{font-family:var(--mono);font-size:12.3px}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 
 /* ═══ 가로 오버플로 4 규칙 (docs-site Gotcha 10) — 자르지 말고 스크롤시킨다 ═══ */
 /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 라 긴 토큰의 최소폭이 트랙 폭으로 전파된다 */
@@ -187,6 +187,27 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <!-- kaizen-cycle: 2026-09-24 · source: harness/docs/guides/skill-design-guide.md (v1.6.0) -->
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <div class="topbar">
@@ -209,7 +230,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     <ul>
       <li><strong>§3.7 5 조항 3 번</strong> — 검증 불가 시 <code>[미검증]</code> 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙인다. 작업 자체를 못 한다고 결론 내리기 전에도 같은 네 칸을 먼저 적는다</li>
       <li><strong>§3.7 새 항목 둘</strong> — 0 이 기대값인 검증의 양성 대조, 0 이 아닌 값을 내는 새 측정의 알려진 답 대조. 둘 다 현재 등급 E2</li>
-      <li><strong>등급 원장 10 행</strong> — 위 두 항목이 원장에 올랐고, Scope-Bound Edits 의 E3 부분은 커밋의 대량 삭제·되돌림만 막는 <code>harness/scripts/commit-guard.sh</code> 로 적었다</li>
+      <li><strong>등급 원장 10 행</strong> — 위 두 항목이 원장에 올랐고, Scope-Bound Edits 의 E3 부분은 <code>harness/scripts/commit-guard.sh</code> 가 막는 커밋의 대량 삭제·되돌림과 계약 <code># sprint-scope</code> 블록 밖 경로로 적었다</li>
       <li><strong>§5</strong> — SKILL.md 본문 500 라인은 공식 문서 표현대로 「미만 권고」 다</li>
       <li><strong>§11</strong> — parity 표가 16 개가 됐다 (15 · 16 행 추가)</li>
     </ul>
@@ -219,7 +240,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     <a href="#s3-6">§3.6 검증 기준</a><a href="#s3-7">§3.7 증거 게이트</a><a href="#s3-8">§3.8 사용자 보고</a>
     <a href="#s4">§4 description</a><a href="#s5">§5 점진적 공개</a><a href="#s5-5">§5.5 자유도</a>
     <a href="#s5-6">§5.6 Variant Budget</a><a href="#s6">§6 스크립트</a><a href="#s7">§7 훅</a><a href="#s8">§8 공유</a>
-    <a href="#s8-5">§8.5~8.8 평가 · 품질</a><a href="#s9">§9 실전</a><a href="#s10">§10 적용 사례</a>
+    <a href="#s8-5">§8.5~8.8 평가 · 품질</a><a href="#s8-9">§8.9 공통 숫자</a><a href="#s9">§9 실전</a><a href="#s10">§10 적용 사례</a>
     <a href="#s11">§11 Parity</a><a href="#summary">요약</a><a href="#sources">출처</a>
   </nav>
 </div>
@@ -580,7 +601,7 @@ Good: 대상 파일 전수 audit → 위반 N 건 체크리스트
         <tr><td>Enumerate-before-Act</td><td>§5.5</td><td>E1</td><td>low-freedom 영역 추정 착수 2 회 재발 → 열거 산출물을 남기는 E2</td></tr>
         <tr><td>Pre-Edit Batch Audit</td><td>§3.6</td><td>E2 (승인받는 위반 체크리스트)</td><td>체크리스트 없이 편집 착수 2 회 재발 → 편집 전 audit 산출물 존재를 확인하는 E3</td></tr>
         <tr><td>Rule-by-Rule Audit</td><td>§3.6</td><td>E2 (완료 전 대조 리포트)</td><td>완료 보고에 대조 결과 누락 2 회 재발 → 규칙 리스트 자동 대조 스크립트 E3</td></tr>
-        <tr class="new-row"><td>Scope-Bound Edits</td><td>§3.6</td><td>E1 + Hard-stop 중 커밋의 대량 삭제·되돌림만 E3 (<code>harness/scripts/commit-guard.sh</code>)</td><td>범위 밖 편집 2 회 재발 → 허용 경로 화이트리스트를 검사하는 E3</td></tr>
+        <tr class="new-row"><td>Scope-Bound Edits</td><td>§3.6</td><td>E1 + Hard-stop 중 커밋의 대량 삭제·되돌림 · 계약 <code># sprint-scope</code> 블록 밖 경로가 E3 (<code>harness/scripts/commit-guard.sh</code>)</td><td>블록 없는 계약의 범위 밖 편집 2 회 재발 → 계약 작성 때 블록을 빠뜨리지 않게 막는 E3</td></tr>
         <tr class="new-row"><td>Completion Evidence Gate</td><td>§3.7</td><td>E2 (<code>[미검증]</code> 네 칸 · 증거 블록)</td><td>증거 없는 완료 주장 재발 → 검증 스크립트 통과 전 완료 차단 E3</td></tr>
         <tr class="new-row"><td>0 기대 양성 대조</td><td>§3.7</td><td>E2 (명령 성공 · 대상 수 · 양성 대조 세 기록)</td><td>대조 없이 0 을 통과로 읽은 일 2 회 재발 → 측정이 대조 결과를 함께 내게 하는 E3</td></tr>
         <tr class="new-row"><td>알려진 답 대조</td><td>§3.7</td><td>E2 (기대값 · 실제값 · 명령 기록)</td><td>대조 없이 새 측정 값을 믿은 일 2 회 재발 → 알려진 답 입력을 측정과 함께 돌리는 E3</td></tr>
@@ -696,9 +717,24 @@ Good: 검증 불가 → "[미검증] 막는 것: 캡처 명령과 그 실패 출
       <a class="card-source" href="https://zsh.sourceforge.io/Doc/Release/Parameters.html#Array-Subscripts">zsh 매뉴얼 — Array Subscripts</a>
     </div>
     <div class="note">
+      <div class="note-title">알려진 답 입력은 흔한 실수를 넣은 사본이 다른 값을 내도록 고른다</div>
+      <p>측정이 저지르기 쉬운 실수(방향 무시 · 첫 칸만 읽기 · 0 부터 세기)를 넣은 사본에서도 같은 값이 나오면 그 입력은 그 실수를 못 잡는다. 봉인 전에 사본으로 한 번 돌려 값이 떨어지는지 본다.</p>
+      <p>실측(2026-09-24, bambu-kit 계약): G-code 길이의 알려진 답으로 반원을, 다음에 1/4 호 둘을 골랐는데 둘 다 방향을 무시해도 같은 길이라 방향 실수를 못 잡았다. 봉인 전 검토가 두 번 고쳐 <code>G2</code> 3/4 호 · <code>G3</code> 1/4 호(반지름 다름)로 바꿨다.</p>
+    </div>
+    <div class="note">
       <div class="note-title">Cross-Surface Parity — §11 표 16 번째 항목</div>
       <p>생성 측 전용이라 agent-design-guide 에 대응 절을 두지 않고, 평가자는 이 대조를 계약 조건으로 받는다. 평가자 쪽 짝은 <code>qa-evaluation-guide.md</code> §산출물이 검사일 때 ⑤ (효과 증명 — 답을 아는 사본으로 돌린다) 다.</p>
     </div>
+  </div>
+  <h3 class="sub">검사를 만드는 스킬 — 사본 네 가지로 먼저 돌린다</h3>
+  <p class="section-desc">스킬이 만드는 산출물이 입력을 읽어 통과 · 실패나 수를 내는 것(검사 스크립트 · 막는 훅 · 검증기 · 측정 스크립트 · 새 시험 파일)이면, 원본 대상에서 나온 「위반 0」 · 「통과」 는 검사가 살아 있다는 증거가 아니다. 완료 보고 전에 대상 파일은 건드리지 않고 임시 사본으로 아래 넷을 돌려 사본 경로 · 명령 · 종료 코드 · 읽은 대상 수를 증거 블록에 붙인다. 평가 측 기준 원본은 <code>qa-evaluation-guide.md</code> §산출물이 검사일 때 — 사본으로 돌리는 다섯 가지 이고, 이 넷은 그 ①~④ 의 생성 측 짝이다. ⑤ 효과 증명은 위 양성 대조 · 알려진 답 대조가 맡는다.</p>
+  <div class="card">
+    <ol>
+      <li><strong>첫 칸만 읽기</strong> — 위반을 둘째 이후 칸에만 둔 사본에서 실패와 그 칸이 나오고, 읽은 칸 수가 전체 칸 수와 같다</li>
+      <li><strong>표에만 올린 시험</strong> — 새 시험 파일이 실행 목록(러너 수집 명령 · 실행 스크립트 · CI 단계)에 들어가 실행 출력에 그 파일이 나온다. 종료 코드 0 은 수집 여부를 말하지 않는다</li>
+      <li><strong>한 칸 못 읽으면 전체 꺼짐</strong> — 한 칸은 못 읽게, 다른 칸에는 실제 위반을 넣은 사본에서 위반이 잡히고 못 읽은 칸이 따로 나온다. 「위반 없음」 이나 종료 코드 0 이면 결함이다</li>
+      <li><strong>셸마다 다른 대상 수</strong> — 셸 코드면 zsh · bash 양쪽에서 읽은 대상 수가 같고 0 보다 크다. 해석기가 정해진 스크립트(첫 줄 <code>#!</code> 이나 부르는 쪽이 <code>bash</code> 로 고정)는 그 해석기로만 돌린다</li>
+    </ol>
   </div>
 </div>
 
@@ -774,6 +810,7 @@ Good: 검증 불가 → "[미검증] 막는 것: 캡처 명령과 그 실패 출
   <div class="section-title">§4 디스크립션은 트리거 조건이다</div>
   <p class="section-desc">스킬의 <code>description</code> 필드는 사람을 위한 요약이 아니라 <strong>Claude 가 스킬을 선택하는 트리거 조건</strong>이다. Claude 는 세션 시작 시 모든 스킬의 메타데이터(<code>name</code> + <code>description</code>)를 시스템 프롬프트에 pre-load 하며, 이 값 하나로 100 개 이상의 스킬 중 어느 것을 로드할지 판단한다.</p>
   <h3 class="sub">frontmatter 필드 규칙 (공식 스키마)</h3>
+  <p class="section-desc"><code>name</code> · <code>description</code> 을 필수로 두는 것은 Agent Skills 표준(<code>agentskills.io/specification</code>)이다. Claude Code 런타임은 frontmatter 필드를 모두 선택으로 받는다 — <code>description</code> 은 권장이고 <code>name</code> 이 없으면 폴더 이름을 쓴다(<code>code.claude.com/docs/en/skills</code> Frontmatter reference, 2026-09-26 원문 대조). 여러 런타임에서 쓰려면 두 필드를 채우고, 채운 값은 아래 검증 규칙을 따른다.</p>
   <div class="grid-2">
     <div class="card">
       <div class="card-title"><span class="dot"></span><code>name</code> 필드 규칙</div>
@@ -1080,7 +1117,7 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
         <thead><tr><th>용어</th><th>정의</th><th>위치</th></tr></thead>
         <tbody>
           <tr><td><strong>Exploration Budget</strong></td><td>산출 <strong>이전</strong>의 read-only 탐색에 쓰는 turn·비용 상한 (과탐색 stall 방지)</td><td>agent-design-guide §7</td></tr>
-          <tr><td><strong>Variant Budget</strong></td><td>산출 <strong>자체</strong>의 개수 상한과 변주 축 고정 (탐색 발산 방지)</td><td>이 절</td></tr>
+          <tr><td><strong>Variant Budget</strong></td><td>산출 <strong>자체</strong>의 개수 상한(시안은 최소 5 · 위 제한 없음)과 변주 축 고정 (탐색 발산 방지)</td><td>이 절</td></tr>
         </tbody>
       </table>
     </div>
@@ -1091,7 +1128,7 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
   <p class="section-desc">실측: 글로벌 REJECT <code>UI-04</code> 는 <strong>계약이 4 축(버블 컨테이너 유무 / 정렬 컬럼 수 / 메타 위치 / 묶음 단위)을 이미 명시</strong>했는데도 variant 두 개가 4 축 전부에서 같은 값이었다. 즉 축을 선언해도 구현이 무시한다. <strong>축 값의 상이성이 기계적으로 검사 가능해야</strong> 조항이 작동한다.</p>
   <p class="section-desc">DOE 의 factor / level / design matrix 가 그 형태다 — 입력 factor 와 그 level 을 먼저 정하고, design matrix 로 조합을 제한한다. 디자인 제약 연구도 같은 방향을 지지한다: 제약은 탐색을 막는 것이 아니라 특정 방향으로 유도한다.</p>
   <div class="pattern-grid">
-    <div class="pattern"><div class="pattern-num">1</div><h4>기본 산출물 상한 3 개</h4><p>4 개 이상은 사용자 승인이 선행되어야 한다. &#8220;많이 뽑아 놓고 고르게 하자&#8221; 는 수량으로 품질을 대체하려는 시도이며, 실제로는 사용자가 전부 지우게 만든다.</p></div>
+    <div class="pattern"><div class="pattern-num">1</div><h4>개수 — 시안과 그 밖을 나눈다</h4><p><strong>시안</strong>(화면·컨셉을 눈으로 비교하는 시각 변주안)은 최소 5 개부터 위 제한 없이 필요한 만큼 낸다. 사용자가 개수를 말하면 정확히 그 수다(2026-09-28 레포 결정).</p><p><strong>그 밖의 탐색형 산출물</strong>(후보안·네이밍 후보 등)은 기본 상한 3 개, 4 개 이상은 사용자 승인이 선행되어야 한다. &#8220;많이 뽑아 놓고 고르게 하자&#8221; 는 수량으로 품질을 대체하려는 시도이며, 실제로는 사용자가 전부 지우게 만든다.</p></div>
     <div class="pattern"><div class="pattern-num">2</div><h4>primary axis 1 개 고정 (+ secondary 1 개까지)</h4><p>3 축 이상 동시 변주는 비교 불가능한 산출물을 만든다.</p></div>
     <div class="pattern"><div class="pattern-num">3</div><h4>축 값은 서로 다르고 나머지는 constants</h4><p>같은 축 값 조합이 2 개 이상이면 그 세트는 실패다.</p></div>
     <div class="pattern"><div class="pattern-num">4</div><h4>실행 전에 Variant Matrix 합의</h4><p>아래 5 열(id · axis · axis value · constants · 생성·수정 파일)을 채운다.</p></div>
@@ -1103,6 +1140,7 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
   </div>
 
   <h3 class="sub">Variant Matrix (실행 전 산출 · E2 아티팩트)</h3>
+  <p class="section-desc">아래 예시는 <strong>시안</strong>(<code>mock/a*.html</code>)이라 조항 1 의 시안 규칙대로 최소 5 행이다. 시안이 아닌 탐색형 산출물은 같은 표를 쓰되 기본 상한 3 행이다.</p>
   <div class="table-wrap">
     <table>
       <thead><tr><th>id</th><th>axis</th><th>axis value</th><th>constants</th><th>생성·수정 파일</th></tr></thead>
@@ -1110,6 +1148,8 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
         <tr><td>A1</td><td>버블 컨테이너</td><td>없음</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a1.html</code></td></tr>
         <tr><td>A2</td><td>버블 컨테이너</td><td>카드 테두리</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a2.html</code></td></tr>
         <tr><td>A3</td><td>버블 컨테이너</td><td>채움 배경</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a3.html</code></td></tr>
+        <tr><td>A4</td><td>버블 컨테이너</td><td>그림자만</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a4.html</code></td></tr>
+        <tr><td>A5</td><td>버블 컨테이너</td><td>왼쪽 띠</td><td>컬럼 1 · 메타 하단 · 세션 묶음</td><td><code>mock/a5.html</code></td></tr>
       </tbody>
     </table>
   </div>
@@ -1119,8 +1159,8 @@ Good: 서버 응답 필드 rename → producer 1 파일 + consumer 3 파일 경�
   </div>
   <div class="flow"><pre>Bad:  "목업 몇 개" 요청 → 9~40 타일 + 토큰 파일 + 서페이스 레인 생성 → 사용자가 전부 삭제 요구
 Bad:  variant 6 개를 냈으나 B3 와 B6 가 지정된 4 축 전부에서 같은 값 → 구별 불가 → REJECT
-Good: Variant Matrix 3 행 합의 → axis value 3 종이 서로 다름 · constants 동일 → 3 파일만 생성</pre></div>
-  <p class="section-desc"><strong>트레이드오프:</strong> 상한 3 개는 과잉 생성을 막지만 <strong>탐색 폭을 줄인다.</strong> 축 고정은 비교 가능성을 높이지만 <strong>의외의 조합을 놓친다.</strong> 부대 산출물 금지는 scope creep 을 막지만 <strong>장기적으로 유용한 인프라 생성을 늦춘다.</strong> 그래서 이 조항은 상한을 없애는 대신 <strong>승인 경로</strong>를 둔다 — 4 개 이상도, 3 축 변주도, 토큰 파일 생성도 사용자가 승인하면 정상 경로다. 금지되는 것은 승인 없는 확장뿐이다.</p>
+Good: 시안 Variant Matrix 5 행 합의 → axis value 5 종이 서로 다름 · constants 동일 → 5 파일만 생성</pre></div>
+  <p class="section-desc"><strong>트레이드오프:</strong> 시안 밖 산출물의 상한 3 개는 과잉 생성을 막지만 <strong>탐색 폭을 줄인다.</strong> 시안은 반대로 최소 5 개로 폭을 넓히고, 과잉은 조항 3 의 구별성 검사로 거른다. 축 고정은 비교 가능성을 높이지만 <strong>의외의 조합을 놓친다.</strong> 부대 산출물 금지는 scope creep 을 막지만 <strong>장기적으로 유용한 인프라 생성을 늦춘다.</strong> 그래서 이 조항은 상한을 없애는 대신 <strong>승인 경로</strong>를 둔다 — 시안 밖 산출물의 4 개 이상도, 3 축 변주도, 토큰 파일 생성도 사용자가 승인하면 정상 경로다. 금지되는 것은 승인 없는 확장뿐이다.</p>
   <p class="section-desc"><strong>Cross-Surface Parity:</strong> §11 parity 표 13 번째 항목 — agent-design-guide §7 과 <strong>짝이 아니라 구분 대상</strong>이다. 두 절은 서로를 참조하여 이름 혼동을 막는다.</p>
 </div>
 
@@ -1200,7 +1240,7 @@ Good: Variant Matrix 3 행 합의 → axis value 3 종이 서로 다름 · const
   <h3 class="sub">호환성 유지 규칙</h3>
   <ul class="checklist">
     <li><span class="check">✓</span>frontmatter 는 <code>name</code>, <code>description</code> 필드를 공통으로 사용 (모든 플랫폼 지원)</li>
-    <li><span class="check">✓</span><code>argument-hint</code>, <code>user-invocable</code> 등 Claude Code 전용 필드는 다른 플랫폼에서 무시됨 (호환에 영향 없음)</li>
+    <li><span class="check">✓</span><code>argument-hint</code>, <code>user-invocable</code> 등 Claude Code 전용 필드를 다른 런타임이 무시한다는 보장은 없다. Claude Code 는 모르는 필드를 오류 없이 넘기지만, Agent Skills 표준은 표준 밖 필드를 모든 런타임이 무시하라고 정하지 않았고, claude.ai 업로드 같은 배포 경로는 검증 오류로 거부한다. 표준 밖 값을 담을 자리는 <code>metadata</code> 다</li>
     <li><span class="check">✓</span>본문의 Process/Gotchas 구조는 마크다운이므로 플랫폼 무관</li>
     <li><span class="check">✓</span>플랫폼 전용 기능(hooks, MCP 서버)은 별도 설정 파일로 분리</li>
   </ul>
@@ -1331,6 +1371,24 @@ rust-init/SKILL.md     Gotchas: ["Composition Root 단일화 원칙", "domain ev
   </ul>
 </div>
 
+<!-- ═══ 8.9 화면 규약 숫자 ═══ -->
+<div class="section" id="s8-9">
+  <div class="section-label">Shared Numbers</div>
+  <div class="section-title">§8.9. 화면 규약 세 벌이 같이 쓰는 숫자</div>
+  <p class="section-desc">화면을 만들거나 고치는 킷 셋은 규약을 따로 든다 — design-kit <code>references/visual-change-protocol.md</code> · flutter-toolkit <code>references/visual-evidence-protocol.md</code> · react-kit <code>references/render-evidence-protocol.md</code>. 채널 · 도구 · 명령은 스택마다 다르지만 아래 두 숫자는 셋이 같이 쓴다. 두 숫자의 기준 원본은 이 절이다.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>숫자</th><th>뜻</th><th>규약 자리</th></tr></thead>
+      <tbody>
+        <tr><td>2 개 이상</td><td>편집 전에 같은 역할의 서로 다른 기존 화면을 2 개 이상 읽어 관례 표로 남긴다</td><td>design §0 · flutter Step 0 · react §1</td></tr>
+        <tr><td>최대 3 회</td><td>의도 밖 영역이 바뀌면 스스로 되돌리고 다시 고친다. 3 회를 넘기면 사용자에게 넘긴다</td><td>design §3 · flutter Step 2 · react §2</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-desc">킷은 따로 설치되어 harness 파일을 읽지 못하므로 세 규약도 숫자를 그대로 들고 이 절을 인용한다. 값을 바꿀 때는 이 절을 먼저 고치고, 같은 작업에서 세 규약의 숫자를 함께 바꾼다.</p>
+  <p class="section-desc"><strong>한계.</strong> 두 숫자를 정하는 바깥 표준은 없다. 형제 규약끼리 맞추는 것과 운영 비용(편집 전에 읽을 화면 수 · 되풀이 횟수)을 보고 고른 레포 결정이다 (<code>.harness/.meta/kaizen-0924/phase6-notes.md</code>).</p>
+</div>
+
 <!-- ═══ 9. 실전 ═══ -->
 <div class="section" id="s9">
   <div class="section-label">Operations</div>
@@ -1382,6 +1440,7 @@ v0.5: templates/report.md 추가</pre></div>
         <li>Sprint task 첫 단계에서 <code>git fetch --all &amp;&amp; git log origin/&lt;base&gt; --oneline -20</code> 실행</li>
         <li>인접 파일 동시 수정 흔적이 있으면 reconciliation commit 후 진행, 없으면 그대로 진행</li>
         <li>orchestrator 류 스킬은 이 단계를 Step 0 (pre-flight) 의 일부로 흡수 — 매 sprint 마다 따로 실행하지 않도록 자동화</li>
+        <li>다른 세션과 같은 작업 폴더를 쓰고 있으면 <code>git checkout -b</code> 로 가지만 바꾸지 않는다 — 남의 미커밋 변경이 새 가지로 따라온다. <code>git worktree add &lt;새 폴더&gt; -b &lt;가지&gt; &lt;기준 커밋&gt;</code> 으로 폴더를 따로 만든다 (<a class="card-source" href="https://git-scm.com/docs/git-worktree">git-worktree</a>)</li>
       </ol>
     </div>
     <div class="card">
@@ -1546,7 +1605,7 @@ Good: 세션 시작 → git fetch + log 검사 → 병행 흔적 확인
         <tr><td><strong>Rule-by-rule audit</strong></td><td>완료 선언 전 규칙 전수 대조 패스 의무</td></tr>
         <tr class="new-row"><td><strong>Completion Evidence Gate</strong></td><td>도구 출력 증거 없는 완료 선언 금지 · 검증 불가 시 <code>[미검증]</code> 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령) · 작업 불가 선언 전에도 같은 네 칸</td></tr>
         <tr><td><strong>Enforcement 등급</strong></td><td>E1 문장 → E2 아티팩트 → E3 결정론적 게이트. 재발 시 문장을 다듬지 말고 §3.7 등급 원장에서 등급을 올려라</td></tr>
-        <tr><td><strong>Variant Budget</strong></td><td>탐색형 산출물은 상한 3 · 축 1(+1) 고정 · Variant Matrix 합의 후 생성</td></tr>
+        <tr><td><strong>Variant Budget</strong></td><td>시안은 최소 5 · 위 제한 없음, 그 밖의 탐색형 산출물은 상한 3 · 축 1(+1) 고정 · Variant Matrix 합의 후 생성</td></tr>
         <tr><td><strong>User-Reported Failure Gate</strong></td><td>사용자 실패 보고는 <code>REOPENED</code> — 반박 금지, 오라클 유효성부터 의심</td></tr>
         <tr><td>Eval 먼저</td><td>최소 3 개 평가를 문서보다 먼저 작성</td></tr>
         <tr><td>MCP 도구 풀네임</td><td><code>ServerName:tool_name</code> 필수</td></tr>

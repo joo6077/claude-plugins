@@ -2,10 +2,12 @@
 
 섹션 순서가 `backend-reviewer` 에이전트의 평가 카테고리 순서와 일치한다. 2026-07 기준 최신 표준·BCP·커뮤니티 모범 사례를 반영한다.
 
+설치본 플러그인에는 `docs/backend/` 가 없다 — 이 파일의 `docs/backend/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.
+
 ## 1. Architecture
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 도메인-persistence 분리 | 도메인 엔티티와 DB 매핑 클래스가 분리되어 있다 (단일 엔티티로 DB 애노테이션·비즈니스 규칙 혼재 없음) | [Vaadin DDD+Hexagonal](https://vaadin.com/blog/ddd-part-3-domain-driven-design-and-the-hexagonal-architecture) |
 | Port / Adapter 경계 | 외부 시스템(DB, HTTP, MQ)은 어댑터 경계 뒤에 있고 도메인이 어댑터를 직접 import 하지 않는다 | [AWS Prescriptive Hexagonal](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/hexagonal-architecture.html) |
 | 의존성 방향 inward-only | 외부 레이어가 내부 레이어에 의존하고 반대는 금지 (Clean Architecture의존성 규칙) | [Hexagonal vs Clean 2026](https://dev.to/dev_tips/hexagonal-vs-clean-vs-onion-which-one-actually-survives-your-app-in-2026-273f) |
@@ -15,27 +17,27 @@
 ## 2. API Design
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | HTTP 메서드 의미론 | GET=safe, PUT=전체교체, PATCH=부분수정 | [RFC 9110](https://datatracker.ietf.org/doc/html/rfc9110) |
 | 에러 응답 포맷 | application/problem+json (RFC 9457) — `type` URI로 문제 유형 식별, `title`/`status`/`detail`/`instance` 까지 다섯 필드를 넣는다. 다섯 필드를 모두 넣는 것은 이 킷 규칙(`api-design.md` 원칙 3)이다 — RFC 9457 은 `type` 이 없으면 `about:blank` 로 보므로 누락을 RFC 위반으로 적지 않는다. 커스텀 확장 필드 허용 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), [Swagger RFC 9457](https://swagger.io/blog/problem-details-rfc9457-doing-api-errors-well/) |
 | 페이지네이션 | 대량 목록에 cursor/keyset 사용 | [Slack Engineering — Evolving Pagination](https://slack.engineering/evolving-api-pagination-at-slack/) |
-| OpenAPI 3.1 JSON Schema 호환 | 스펙이 OpenAPI 3.1.x 이상이고 JSON Schema draft와 호환되며 실제 응답과 일치 | [OpenAPI Spec 3.1](https://swagger.io/specification/) |
+| OpenAPI 3.1 JSON Schema 호환 | 스펙이 OpenAPI 3.1 이상(최소 지원선 — 3.1 지원 도구는 3.1.* 전부와 호환해야 하고, 최신판 3.2.1 을 요구하지 않는다)이고 JSON Schema draft와 호환되며 실제 응답과 일치 | [OpenAPI Spec 3.1](https://swagger.io/specification/) |
 | 하이브리드 API 경계 선택 | REST/GraphQL/gRPC 선택이 boundary별 설명되어 있다 (단일 프로토콜 강요 금지, public=REST / 다중 클라이언트=GraphQL / internal=gRPC) | [GraphQL vs REST vs gRPC 2026](https://www.javacodegeeks.com/2026/02/graphql-vs-rest-vs-grpc-the-2026-api-architecture-decision.html), [Fordel Studios 2026](https://fordelstudios.com/) |
 | API Versioning 전략 | REST: URL path(/v1/) 기본, Header(Accept-Version + Sunset RFC 8594) 보조. GraphQL: 버전 없는 진화(@deprecated + additive changes). Contract-First 스키마 진화 원칙 존재 | [Moesif API Versioning](https://www.moesif.com/blog/technical/api-design/Best-Practices-for-Versioning-REST-and-GraphQL-APIs/), [Dan Vega GraphQL Evolution](https://www.danvega.dev/blog/2025/09/30/api-versioning-with-graphql) |
 | 빈 상태 상태코드 일관성 | 원소 0 개인 컬렉션에 200(빈 배열) 또는 204 를 반환한다. 404 는 "대상 리소스의 현재 표현을 찾지 못했거나 존재를 밝히지 않겠다" 는 뜻이므로 **존재하는 빈 컬렉션에 쓰면 FAIL**. 같은 리소스군 안에서 빈 상태 처리가 엔드포인트마다 갈리는 것도 FAIL | [RFC 9110 §15](https://www.rfc-editor.org/rfc/rfc9110.html) |
-| Timestamp 직렬화 규칙 | 순간(한 시점) timestamp 응답 필드가 전부 RFC 3339 문자열이며 타임존 표기가 스펙과 코드에서 일치한다. `Z` / `+00:00`(UTC 가 선호 기준점)과 `-00:00`(UTC 시각은 알지만 로컬 오프셋 미상)은 **의미가 다르므로** 혼용 시 FAIL. OpenAPI 3.1 은 `format` 을 JSON Schema 2020-12 에 위임하고 기본적으로 비검증 애노테이션으로 취급하므로 `format: date-time` 선언만으로 PASS 처리 금지 — 직렬화 코드까지 확인. 벽시계 필드(반복 일정·영업시간·알림 시각)는 이 행이 아니라 §3 `시각 종류별 저장` 행이 본다 | [RFC 3339 §4.3](https://www.rfc-editor.org/rfc/rfc3339), [OpenAPI 3.1.1](https://spec.openapis.org/oas/v3.1.1.html) |
+| Timestamp 직렬화 규칙 | 순간(한 시점) timestamp 응답 필드가 전부 RFC 3339 문자열이며 타임존 표기가 스펙과 코드에서 일치한다. `Z` / `+00:00`(UTC 가 선호 기준점)과 `-00:00`(UTC 시각은 알지만 로컬 오프셋 미상)은 **의미가 다르므로** 혼용 시 FAIL. OpenAPI 3.1 은 `format` 을 JSON Schema 2020-12 에 위임하고 기본적으로 비검증 애노테이션으로 취급하므로 `format: date-time` 선언만으로 PASS 처리 금지 — 직렬화 코드까지 확인. 오프셋 없는 벽시계 문자열(`2026-09-28T09:30:00` 모양)에 `format: date-time` 을 붙이면 FAIL — OpenAPI `date-time` 은 RFC 3339 를 따르고 RFC 3339 의 `full-time` 은 `time-offset` 을 반드시 가진다. 벽시계 문자열은 `YYYY-MM-DDTHH:mm:ss[.fraction]` 모양을 `type: string` · `pattern` · `example` 로 명세했는지 확인한다 — 이 모양은 ISO 8601 의 유일한 권고가 아니라 이 킷이 고른 형식이다. 벽시계 필드(반복 일정·영업시간·알림 시각)의 저장은 이 행이 아니라 §3 `시각 종류별 저장` 행이 본다 | [RFC 3339 §4.3](https://www.rfc-editor.org/rfc/rfc3339), [OpenAPI 3.1.1](https://spec.openapis.org/oas/v3.1.1.html), [OpenAPI Format Registry — date-time](https://spec.openapis.org/registry/format/date-time), [ISO — ISO 8601 date and time format](https://www.iso.org/iso-8601-date-and-time-format.html) (뒤 둘은 2026-09-28 조회) |
 | 비멱등 write path idempotency | POST/PATCH 등 비멱등 연산에 재시도 안전 경로가 있다 (Idempotency-Key 헤더 또는 동등한 업서트/자연키 dedupe). 헤더 방식 채택 시: 동일 키 재요청은 원 결과를 반환, 원 요청 처리 중이면 409, 같은 키에 다른 페이로드면 422, 필수인데 헤더 누락이면 400. **IETF `draft-ietf-httpapi-idempotency-key-header-07` 는 만료(expired)된 Internet-Draft 이므로 "표준" 으로 서술하면 FAIL** — 사실상 관행으로만 인용한다 | [draft-07 (expired)](https://www.ietf.org/archive/id/draft-ietf-httpapi-idempotency-key-header-07.html), [IETF datatracker](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/) |
 | 소비면 정합성 (provider verification) | 응답 형태·상태코드·직렬화가 바뀐 흔적이 있으면 그 응답을 역직렬화하는 소비면 코드가 같은 변경을 반영했는지 확인한다. 소비면이 **같은 저장소 안에 있으면 열거해서 대조**(안 봤으면 감사 누락), 접근 불가한 별도 저장소면 `[미검증]` + 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령). 열거 범위는 파일 경로와 외부 관찰 가능한 동작까지이며 소비면 내부 구현은 판정 대상이 아니다(over-specified contract 방지). 이벤트 계열은 AsyncAPI 가 "수신자 문서를 발신자 문서에서 파생하는 것은 권장되지 않는다" 고 명시하므로 양면 문서 존재 여부로 본다 | [Pact — What is Pact good for](https://docs.pact.io/getting_started/what_is_pact_good_for), [PactFlow BDCT](https://pactflow.io/bi-directional-contract-testing/), [AsyncAPI 3.0.0](https://www.asyncapi.com/docs/reference/specification/v3.0.0) |
 
 ## 3. Database
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | N+1 부재 | 루프 내 개별 쿼리 없음 | PostgreSQL docs |
 | 인덱스 존재 | WHERE/JOIN 컬럼에 적절한 인덱스 | PostgreSQL indexes |
 | Connection pooling | 풀링 설정 존재 (HikariCP/PgBouncer) | HikariCP docs |
 | Migration 안전성 | expand-contract 패턴 준수 | Martin Fowler |
-| 시각 종류별 저장 | 뜻이 벽시계(반복 일정·영업시간·알림 시각)인 필드를 순간(`TIMESTAMPTZ` 등) 하나로만 저장하면 FAIL. 특정 지역에 묶인 벽시계에 IANA 시간대 식별자 칸이 없으면 FAIL. 필드의 뜻이 실제로 벽시계일 때만 판정한다 — 순간 필드는 §2 `Timestamp 직렬화 규칙` 행이 본다 | [RFC 5545 §3.3.5](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5), [PostgreSQL Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html) |
+| 시각 종류별 저장 | 뜻이 벽시계(반복 일정·영업시간·알림 시각)인 필드를 순간(`TIMESTAMPTZ` 등) 하나로만 저장하면 FAIL. 특정 지역에 묶인 벽시계에 IANA 시간대 식별자 칸이 없으면 FAIL. 필드의 뜻이 실제로 벽시계일 때만 판정한다 — 순간 필드는 §2 `Timestamp 직렬화 규칙` 행이 본다. 두 FAIL 은 RFC · IANA 가 직접 요구하는 것이 아니라 이 킷 규칙이다 — IANA 는 시간대 이름(`AREA/LOCATION` 모양)과 그 규칙이 바뀔 수 있다는 사실을 줄 뿐, 어느 칸에 저장하라고 하지 않는다 | [RFC 5545 §3.3.5](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5), [PostgreSQL Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html), [IANA — Theory and pragmatics of the tz code and data](https://www.iana.org/time-zones/theory) (2026-09-28 조회) |
 | 시간대·나라 상수 금지 | 시간대나 나라를 코드 상수 하나로 강제하면 FAIL. 사용자가 한 지역 전용 서비스라고 밝혔으면 N/A — RFC 요구가 아니라 이 킷의 범위 예외다 | 이 킷 규칙 — `docs/backend/fundamentals/database.md` 원칙 10 (RFC 5545 는 시간대를 어디서 받을지 정하지 않는다) |
 
 **정적 대체 판정 규약 (글로벌 개선제안 DA-01/DA-02 흡수)** — 라이브 DB 접속이 불가능한 환경에서 스키마·FK action·인덱스·제약 조건을 판정할 때는 **마이그레이션 파일(DDL) 정적 확인으로 대체 판정할 수 있다.** 이때 근거 열에 `[정적]` 보조 태그와 확인한 마이그레이션 파일 경로를 함께 남긴다. `[정적]` 은 `[미검증]` 을 대체하지 않는 보조 태그이며, 마이그레이션 파일 확인조차 불가능하면 그때 `[미검증]` 에 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 붙인다. 마이그레이션 파일과 실제 DB 상태가 다를 수 있다는 한계는 리포트에 1 줄로 명시한다.
@@ -43,7 +45,7 @@
 ## 4. Authentication & Authorization
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 비밀번호 해싱 | bcrypt(12+) 또는 Argon2id | OWASP |
 | 토큰 저장 | JWT를 localStorage에 미저장 (XSS 탈취 방지) | OWASP Session |
 | CORS 설정 | 와일드카드(*) + credentials 미사용 | MDN CORS |
@@ -57,7 +59,7 @@
 ## 5. Error Handling
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 글로벌 핸들러 | 표준 에러 포맷(RFC 9457 problem+json)으로 변환. `type` URI 필드로 에러 문서 자동 연결 | [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457.html), [Swagger RFC 9457](https://swagger.io/blog/problem-details-rfc9457-doing-api-errors-well/) |
 | 스택트레이스 미노출 | 프로덕션 에러에 내부 정보 없음 | OWASP |
 | Retry 전략 | exponential backoff + jitter | AWS Architecture |
@@ -67,7 +69,7 @@
 ## 6. Security
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | Injection 방어 | 파라미터화된 쿼리 | OWASP Top 10 |
 | XSS 방어 | 출력 인코딩 + CSP | OWASP XSS |
 | 보안 헤더 | HSTS, X-Content-Type-Options, CSP | OWASP Headers |
@@ -77,7 +79,7 @@
 ## 7. Caching
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | TTL 존재 | 모든 캐시 키에 TTL 설정 | Redis docs |
 | Stampede 방지 | 인기 키에 lock/early expiry | Cloudflare |
 | 무효화 전략 | TTL만이 아닌 이벤트 기반 | Azure Architecture |
@@ -85,7 +87,7 @@
 ## 8. Event-Driven
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | Idempotency | consumer에 중복 처리 방어 (dedupe key, per-aggregate sequence) | Stripe |
 | DLQ 존재 | 실패 메시지 격리 경로 | AWS SQS |
 | 이중쓰기 방지 | outbox 패턴 또는 동등한 원자성 | [microservices.io Outbox](https://microservices.io/patterns/data/transactional-outbox.html) |
@@ -98,7 +100,7 @@
 ## 9. Testing
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 테스트 존재 | 핵심 로직에 단위 테스트 | Google Testing Blog |
 | DB 테스트 | 실제 DB (Testcontainers 등) | Testcontainers |
 | Contract test (Pact v4+) | consumer-driven contract, Pact v4 + Testcontainers 기반, GraphQL/async 메시지 지원. AI-assisted contract testing(PactFlow MCP Server) 도입 시 생성/유지보수 60% 가속화 가능 | [prgrmmng Pact+Testcontainers](https://prgrmmng.com/contract-testing-with-testcontainers-and-pact), [PactFlow MCP Server](https://pactflow.io/blog/pactflow-mcp-server/) |
@@ -109,7 +111,7 @@
 ## 10. Observability
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 구조화 로깅 | JSON 포맷, 표준 필드명, trace_id/span_id 포함, semantic conventions 준수 | [BetterStack OTel Best Practices](https://betterstack.com/community/guides/observability/opentelemetry-best-practices/) |
 | OTel 3 Signals 통합 | Traces + Metrics + Logs 가 OTLP exporter 로 통합 수집된다. W3C Trace Context 가 기본 전파 포맷 | [OTel Specification Status](https://opentelemetry.io/docs/specs/status/), [OTLP 1.10.0](https://opentelemetry.io/docs/specs/otlp/) |
 | PII 마스킹 | 로그에 이메일/전화번호/IP 등 개인정보가 마스킹 처리되어 있다 (GDPR/PIPA 준수) | OWASP Logging |

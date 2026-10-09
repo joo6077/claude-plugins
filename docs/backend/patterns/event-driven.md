@@ -4,6 +4,7 @@ version: 0.2.0
 last_updated: 2026-08-13
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 이벤트 기반 아키텍처
 
 메시지 큐 vs 이벤트 스트리밍, outbox 패턴, saga, 전달 보장(exactly-once/at-least-once), DLQ, idempotency, CQRS, 이벤트 소싱, 스키마 진화를 다룬다.
@@ -59,7 +60,7 @@ Command Query Responsibility Segregation은 쓰기 모델(command)과 읽기 모
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | Kafka 기본 retention | 7일 (168시간) | `log.retention.hours`로 설정 |
 | Kafka consumer group rebalance timeout | 300초 (5분) | `max.poll.interval.ms` 기본값 |
 | SQS 메시지 보존 | 기본 4일, 최대 14일 | `MessageRetentionPeriod` |

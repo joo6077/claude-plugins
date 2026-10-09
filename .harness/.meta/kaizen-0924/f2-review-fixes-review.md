@@ -34,7 +34,7 @@ ER-04 digest 입력 설명 줄 · 입력 표 39 행 사유 문장. 그 밖에 �
   (예: ER-04 `before=1 after_noissues=0 after_new_fail=1` · `start_lib rc=1 start_hook rc=1` / SK-07 두 셸 `pid_is_server=1,dir_ok=1,released=1` / AR-01 `0` · `0 46` · `mixed=0 one_kit=13` · `0` · `SEAL_OK` · `scope_same=1 harness_line=1`)
 - DG-06 은 `m` 대신 예행 저장소에서 직접: `scope-isolation` · `doc-contracts` 두 줄 `[ PASS  ]`
 - 입력 표 40 행(N4) 재현 안 됨 확인: `760a75f` 판 「파일 389 개」 · `6a8be19` 판 「파일 391 개」 — 초안 말대로다
-- 입력 표 34 행 확인: `qa-evaluation-guide.md:1231` 절의 항목 번호가 `1 · 2 · 3 · 3 · 4 · 5` 여섯이다 — 초안 말대로다
+- 입력 표 34 행 확인: `qa-evaluation-guide.md:1244` 절의 항목 번호가 `1 · 2 · 3 · 3 · 4 · 5` 여섯이다 — 초안 말대로다
 
 ### 이 검토가 새로 돌린 대조
 

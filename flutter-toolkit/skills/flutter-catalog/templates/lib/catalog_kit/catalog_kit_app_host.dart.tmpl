@@ -1,0 +1,11 @@
+// 놀이터 화면을 띄우는 환경. 앱의 테마 · 상태 저장소 · 번역을 여기에 붙인다.
+import 'package:flutter/material.dart';
+
+/// 놀이터 화면 전체를 앱과 같은 환경으로 감싼다.
+Widget appWrap(Widget child) {
+  return MaterialApp(
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(brightness: Brightness.dark),
+    home: child,
+  );
+}

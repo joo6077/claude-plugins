@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-02
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 추출 임계 — 언제 쪼개고 언제 두는가
 
 ## 이 문서가 잡는 것
@@ -387,7 +388,7 @@ Widget build(BuildContext context) => orders.isEmpty
 ## 수치 기준
 
 | 항목 | 값 | 출처 |
-|---|---|---|
+| --- | --- | --- |
 | 공식 build() LOC 임계값 | 없음 | [Flutter performance best practices](https://docs.flutter.dev/perf/best-practices) |
 | build() 호출 빈도 상한 | 렌더 프레임당 1회까지 | [Flutter architectural overview](https://docs.flutter.dev/resources/architectural-overview) |
 | 위젯 교체 판정 기준 | `runtimeType` + `key` 2개 | [Widget.canUpdate](https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html) |
@@ -404,7 +405,7 @@ Widget build(BuildContext context) => orders.isEmpty
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|---|---|
+| --- | --- |
 | 줄 수 임계치를 분리 여부의 판정식으로 사용 | 관심사가 하나인 긴 코드를 쪼개고 관심사가 섞인 짧은 코드는 방치한다 |
 | 공식 문서의 `prefer` 를 전역 `MUST` 로 승격 | 승격분이 근거로 둔갑한다. 승격하려면 rebuild 빈도·프로파일링 사유를 병기해야 한다 |
 | 파일 분리 규칙을 성능 문서로 정당화 | 공개 1차 출처는 "different widgets" 까지만 지지한다. 파일 단위 근거는 탐색성이다 |

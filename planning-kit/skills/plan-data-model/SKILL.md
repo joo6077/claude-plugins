@@ -14,6 +14,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **구현 스키마로 점프 금지** — 이 스킬은 **개념 모델**이다. `VARCHAR(255)`, 인덱스, FK 제약 등 구현 디테일 금지. 구현은 backend-kit/rust-kit 가 담당.
 2. **CRUD 함정** — 모든 기능을 "X 를 Create/Read/Update/Delete" 로 환원하면 도메인 이벤트가 사라진다. "OrderPlaced", "PaymentRefunded" 같은 **사건 중심** 모델링 선행.
 3. **Aggregate 경계 누락 금지** — 엔티티를 나열만 하고 경계를 안 그으면 의존성이 폭발한다. 각 Aggregate 의 **Root** 를 명시.
@@ -28,7 +30,11 @@ user-invocable: true
 12. **Data Dictionary 는 ownership 없으면 썩는다** — glossary 와 schema registry 가 분리되면 중복 관리 생김. PII/retention 필수. 출처: [DDD Reference §Model](https://www.domainlanguage.com/ddd/reference/).
 13. **요청한 도메인 범위만 — 임의 엔티티·이벤트 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 특정 Bounded Context/도메인만 요청하면 그 경계 안만 모델링한다. "모델이 완결돼야 한다"는 이유로 요청하지 않은 인접 컨텍스트·엔티티·Domain Event·Data Dictionary 항목을 임의로 추가하지 마라. Aggregate 도 모든 곳에 크게 잡는 것이 over-modeling 이듯, 범위 자체를 넘어 부풀리는 것도 동일한 함정이다. 인접 컨텍스트가 필요해 보이면 그 사실을 **먼저 알리고** 확장 여부를 확인한다 (insights-report #1 excessive_changes 대응). 출처: [Eric Evans — DDD Reference (Bounded Context)](https://www.domainlanguage.com/ddd/reference/).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 리서치 문서 로드
 
@@ -68,6 +74,7 @@ UserSignedUp → EmailVerified → ProfileCompleted → FirstOrderPlaced → ...
 ## Step 3: Aggregate + Entity + VO 정의
 
 각 BC 내부에:
+
 - **Aggregate Root**: 외부에서 접근 가능한 진입점
 - **Entity**: ID 로 식별, lifecycle 존재
 - **Value Object**: 값 자체로 식별, immutable
@@ -119,6 +126,7 @@ erDiagram
 ```
 
 카디널리티 기호:
+
 - `||--||` one-to-one
 - `||--o{` one-to-many (optional many)
 - `||--|{` one-to-many (at-least-one)
@@ -197,11 +205,16 @@ classDiagram
 - 유저 플로우와 상호 참조 → `/plan-flow` 의 sequenceDiagram 갱신
 - 완성도 감사 → `/plan-audit`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/data-modeling.md` — DDD, Event Storming, ERD, Mermaid erDiagram/classDiagram, Data Dictionary
 
 주요 1차 출처:
+
 - [Eric Evans — DDD Reference](https://www.domainlanguage.com/ddd/reference/)
 - [DDD Blue Book](https://www.domainlanguage.com/ddd/blue-book/)
 - [Bounded Context Intro](https://elearn.domainlanguage.com/modules/bcintro/)

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>성능 원칙 — Rust Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -85,6 +86,27 @@
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <a href="../index.html" class="nav-back">&#8592; Rust Kit</a>
@@ -109,13 +131,13 @@
       </div>
       <div class="card-body">
         <p>힙 할당(<code>Box</code>, <code>Vec</code>, <code>String</code> 생성)은 ~50ns 수준의 비용이다. 루프 안에서 반복 할당하거나 크기를 알고 있는데도 동적 할당하면 성능에 영향을 준다.</p>
-        <pre><span style="color:#f87171">// 비효율 — 루프마다 String 할당</span>
+        <pre><span style="color:var(--red)">// 비효율 — 루프마다 String 할당</span>
 for item in items {
     let s = format!("prefix_{}", item.name); // 매 반복 힙 할당
     process(&amp;s);
 }
 
-<span style="color:#4ade80">// 효율 — 버퍼 재사용</span>
+<span style="color:var(--green)">// 효율 — 버퍼 재사용</span>
 let mut buf = String::with_capacity(64);
 for item in items {
     buf.clear();
@@ -136,19 +158,19 @@ for item in items {
       </div>
       <div class="card-body">
         <p><code>Vec::new()</code>에 원소를 push하면 용량 초과 시 2배 재할당이 발생한다. 원소 수를 알거나 추정할 수 있으면 <code>with_capacity</code>로 재할당을 방지한다.</p>
-        <pre><span style="color:#f87171">// 재할당 발생 가능</span>
+        <pre><span style="color:var(--red)">// 재할당 발생 가능</span>
 let mut results = Vec::new();
 for item in source.iter() {
     results.push(transform(item));
 }
 
-<span style="color:#4ade80">// 재할당 없음</span>
+<span style="color:var(--green)">// 재할당 없음</span>
 let mut results = Vec::with_capacity(source.len());
 for item in source.iter() {
     results.push(transform(item));
 }
 
-<span style="color:#4ade80">// 또는 Iterator::collect — 크기 힌트 자동 활용</span>
+<span style="color:var(--green)">// 또는 Iterator::collect — 크기 힌트 자동 활용</span>
 let results: Vec&lt;_&gt; = source.iter().map(transform).collect();</pre>
       </div>
       <a href="https://nnethercote.github.io/perf-book/heap-allocations.html" target="_blank" class="source-link">&#8599; Rust Performance Book — Vec</a>
@@ -164,19 +186,19 @@ let results: Vec&lt;_&gt; = source.iter().map(transform).collect();</pre>
       </div>
       <div class="card-body">
         <p><code>collect()</code>는 새 컬렉션을 힙에 할당한다. 중간 결과가 필요 없으면 iterator 체인을 끝까지 이어서 한 번에 처리한다.</p>
-        <pre><span style="color:#f87171">// 중간 Vec 할당 2번</span>
+        <pre><span style="color:var(--red)">// 중간 Vec 할당 2번</span>
 let filtered: Vec&lt;_&gt; = items.iter()
     .filter(|x| x.active).collect();    // 힙 할당
 let names: Vec&lt;_&gt; = filtered.iter()
     .map(|x| &amp;x.name).collect();        // 힙 할당
 
-<span style="color:#4ade80">// 지연 평가 — collect 한 번</span>
+<span style="color:var(--green)">// 지연 평가 — collect 한 번</span>
 let names: Vec&lt;_&gt; = items.iter()
     .filter(|x| x.active)
     .map(|x| &amp;x.name)
     .collect();
 
-<span style="color:#4ade80">// 소비만 할 경우 collect 불필요</span>
+<span style="color:var(--green)">// 소비만 할 경우 collect 불필요</span>
 items.iter()
     .filter(|x| x.active)
     .for_each(|x| process(x));</pre>
@@ -194,14 +216,14 @@ items.iter()
       </div>
       <div class="card-body">
         <p>직관 기반 최적화 전에 반드시 측정한다. <code>criterion</code>은 통계적으로 유의미한 결과를 제공하며, 워밍업과 반복 실행을 자동 처리한다.</p>
-        <pre><span style="color:#f08575"># Cargo.toml</span>
+        <pre><span style="color:var(--accent2)"># Cargo.toml</span>
 [[bench]]
 name = "user_processing"
 harness = false
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }</pre>
-        <pre><span style="color:#f08575">// benches/user_processing.rs</span>
+        <pre><span style="color:var(--accent2)">// benches/user_processing.rs</span>
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 fn bench_validate_email(c: &amp;mut Criterion) {
@@ -212,10 +234,10 @@ fn bench_validate_email(c: &amp;mut Criterion) {
 
 criterion_group!(benches, bench_validate_email);
 criterion_main!(benches);</pre>
-        <pre><span style="color:#f08575"># 실행</span>
+        <pre><span style="color:var(--accent2)"># 실행</span>
 cargo bench
 cargo bench -- user_processing
-cargo bench -- --save-baseline main  <span style="color:#4ade80"># 기준선 저장</span></pre>
+cargo bench -- --save-baseline main  <span style="color:var(--green)"># 기준선 저장</span></pre>
       </div>
       <a href="https://bheisler.github.io/criterion.rs/book/getting_started.html" target="_blank" class="source-link">&#8599; criterion — Getting Started</a>
     </div>
@@ -231,14 +253,14 @@ cargo bench -- --save-baseline main  <span style="color:#4ade80"># 기준선 저
       <div class="card-body">
         <p>debug 빌드는 최적화가 없어 release 빌드보다 10~100배 느릴 수 있다. 성능 측정과 프로파일링은 항상 <code>--release</code>로 실행한다.</p>
         <pre>cargo build --release
-cargo bench                   <span style="color:#4ade80"># 자동으로 release 빌드</span>
-cargo flamegraph --release     <span style="color:#4ade80"># 프로파일링</span></pre>
+cargo bench                   <span style="color:var(--green)"># 자동으로 release 빌드</span>
+cargo flamegraph --release     <span style="color:var(--green)"># 프로파일링</span></pre>
         <p style="margin-top:12px;font-size:12px;color:var(--text3)">release 프로파일 추가 최적화 (빌드 시간과 트레이드오프):</p>
-        <pre><span style="color:#f08575"># Cargo.toml</span>
+        <pre><span style="color:var(--accent2)"># Cargo.toml</span>
 [profile.release]
-opt-level = 3       <span style="color:#4ade80"># 기본값. 최대 최적화</span>
-lto = true          <span style="color:#fbbf24"># +5~20% 성능, 빌드 시간 증가</span>
-codegen-units = 1   <span style="color:#fbbf24"># 최적화 향상, 병렬 빌드 비활성화</span></pre>
+opt-level = 3       <span style="color:var(--green)"># 기본값. 최대 최적화</span>
+lto = true          <span style="color:var(--yellow)"># +5~20% 성능, 빌드 시간 증가</span>
+codegen-units = 1   <span style="color:var(--yellow)"># 최적화 향상, 병렬 빌드 비활성화</span></pre>
       </div>
       <a href="https://doc.rust-lang.org/cargo/reference/profiles.html" target="_blank" class="source-link">&#8599; Cargo Book — Profiles</a>
     </div>

@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>비동기 패턴 — Flutter Toolkit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   :root{
     --bg:#0d0d14;
@@ -46,7 +47,6 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
     background:var(--bg);
     color:var(--text);
-    line-height:1.65;
     font-size:16px;
     min-height:100vh;
     background-image:
@@ -177,7 +177,7 @@
 
   .card:hover{
     border-color:var(--border2);
-    transform:translateY(-1px);
+    transform:var(--dk-hover-move, translateY(-1px));
   }
 
   .card-num{
@@ -326,7 +326,7 @@
 
   .compare-item code{
     background:var(--surface3);
-    color:#fda4af;
+    --dk-ink:#fda4af;color:var(--dk-ink-out, #fda4af);
     padding:2px 7px;
     border-radius:4px;
     font-family:"SF Mono",Menlo,Consolas,monospace;
@@ -410,22 +410,33 @@
   }
 
   /* ─── Reduced motion ─── */
-  @media (prefers-reduced-motion:reduce){
-    *,
-    *::before,
-    *::after{
-      transition:none !important;
-      animation:none !important;
-      scroll-behavior:auto !important;
-    }
-    .card:hover{ transform:none; }
-  }
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}
   a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="container">
 
   <!-- ═══════════ Hero ═══════════ -->

@@ -1,7 +1,7 @@
 # G3 — Performance Layer Skills
 
 ```yaml
-last_updated: 2026-04-10
+last_updated: 2026-09-26
 group: G3
 scope: react-kit 고성능 레이어 스킬 2종
 skills: [/react-wasm, /react-tauri]
@@ -34,6 +34,7 @@ react-kit **G3 그룹** 은 앱의 "느린 곳"을 풀어내는 두 개 스킬�
 - **Clean Architecture 준수**: WASM 호출은 `data/datasources/wasm/` 레이어, Tauri 호출은 `infrastructure/tauri/` 레이어에만 배치. `domain/` 과 `presentation/` 는 하위 런타임을 모른다.
 - **Feature detection 우선**: 환경 분기는 런타임 감지로만. 빌드 타임 define 플래그 (예: `if (import.meta.env.TAURI)`) 는 웹 빌드와 데스크탑 빌드가 같은 dist 를 공유하는 시나리오에서 혼란을 유발하므로 보조로만 사용.
 - **Strict TypeScript**: WASM 바인딩의 자동 생성 `.d.ts` 를 신뢰하되, 경계 (데이터 진입 시점) 에서 Zod 재검증. Tauri invoke 의 반환값도 마찬가지.
+- **생성 전 전수 스캔 · 요청 범위만**: `/react-wasm` · `/react-tauri` 는 만들기 전에 기존 바인딩 · command · capability 를 열거하고 합의한 뒤 생성한다. 요청하지 않은 permission 을 덧붙이지 않는다.
 - **G0 카탈로그 불변**: `/react-wasm` 이 Rust 이식 제안 시 반드시 `docs/react/wasm-catalog.md` 의 판정 로직을 1차 기준으로 사용. 카탈로그를 무시하고 사용자 요청만으로 이식 결정 금지.
 
 ## /react-wasm vs /react-tauri — 경계 결정 규칙
@@ -41,7 +42,7 @@ react-kit **G3 그룹** 은 앱의 "느린 곳"을 풀어내는 두 개 스킬�
 두 스킬이 기술적으로 유사한 문제 ("느린 부분 네이티브로 보내기") 를 풀지만 **서로 다른 레이어에 배치된다**. 결정 규칙:
 
 | 시나리오 | 선택 | 이유 |
-|----------|------|------|
+| ---------- | ------ | ------ |
 | CPU 바운드 순수 계산 (이미지 처리, 압축, ML 추론) | **`/react-wasm`** | 웹 배포에서도 동작 필요. WASM 이 양쪽 타겟 지원 |
 | 파일시스템 접근 (로컬 파일 읽기/쓰기) | **`/react-tauri`** | 브라우저는 File System Access API 로 제한적, Tauri 네이티브 호출로 완전 지원 |
 | OS 기능 (네이티브 메뉴, 트레이, 알림, 다이얼로그) | **`/react-tauri`** | 브라우저 불가 |
@@ -73,7 +74,7 @@ react-kit **G3 그룹** 은 앱의 "느린 곳"을 풀어내는 두 개 스킬�
 
 스킬의 1단계는 **`docs/react/wasm-catalog.md` 의 판정 플로우를 실행** 하는 것이다. 판정은 3단계로 진행:
 
-**Step 1 — 카테고리 키워드 매칭**
+#### Step 1 — 카테고리 키워드 매칭
 
 카탈로그 §1 (WASM 권장) / §2 (비권장) 테이블과 task_description 을 매칭. 예시 규칙:
 
@@ -85,7 +86,7 @@ react-kit **G3 그룹** 은 앱의 "느린 곳"을 풀어내는 두 개 스킬�
 
 카탈로그에 정확히 일치하면 즉시 결정 (권장 또는 거부).
 
-**Step 2 — 휴리스틱 fallback (카탈로그 미스 시)**
+#### Step 2 — 휴리스틱 fallback (카탈로그 미스 시)
 
 카테고리 매칭이 실패하면 G0 카탈로그 §5 의 5개 휴리스틱으로 판정. 스킬이 사용자에게 각 축에 대한 단순 질문 또는 코드 정적 분석으로 자동 채점:
 
@@ -97,11 +98,11 @@ react-kit **G3 그룹** 은 앱의 "느린 곳"을 풀어내는 두 개 스킬�
 
 각 축 YES = 1점. **3/5 이상 → WASM 제안**, 미만 → JS 유지 권고.
 
-**Step 3 — 최종 사용자 확인**
+#### Step 3 — 최종 사용자 확인
 
 판정 결과를 사용자에게 요약 제시. 거부 판정이어도 `--force` 플래그가 있으면 사용자 의지 우선으로 진행 (단, 경고 표시).
 
-```
+```text
 > /react-wasm "이미지 리사이즈"
 카탈로그 매칭: §1 이미지 처리 ✅
 프로덕션 사례: Figma (29s → 8s), Squoosh
@@ -119,7 +120,7 @@ react-kit **G3 그룹** 은 앱의 "느린 곳"을 풀어내는 두 개 스킬�
 
 5 단계 자동화:
 
-```
+```text
 [1. Rust 함수 추가]   crates/core/src/<module>.rs  에 wasm-bindgen 어노테이션 함수 삽입
          ↓
 [2. wasm-pack 빌드]   pnpm wasm:build   (wasm-pack build --target web --release)
@@ -457,7 +458,7 @@ react-kit 의 핵심 약속: **같은 React 소스가 양쪽 타겟 모두에서
 
 ### 빌드 흐름
 
-```
+```text
 src/  ────────┬── pnpm build  ────► dist/        ────► 웹 호스팅 (S3, CDN, Vercel 등)
               │                                          (브라우저에서 실행, isTauri() = false)
               │
@@ -476,6 +477,7 @@ src/  ────────┬── pnpm build  ────► dist/       
 ### 데스크탑 우위 활용
 
 Tauri 빌드에서만 쓸 수 있는 것:
+
 - WASM SIMD + threads (COOP/COEP 헤더 걱정 없음, 내부 WebView 설정 제어 가능)
 - 네이티브 파일 I/O, OS 다이얼로그, 트레이
 - 더 긴 CPU 작업 허용 (브라우저 탭처럼 백그라운드 throttling 없음)
@@ -484,6 +486,7 @@ Tauri 빌드에서만 쓸 수 있는 것:
 ### 공유 Rust 코어
 
 `crates/core/` 의 함수는:
+
 - **웹 + Tauri 양쪽** 모두에서 WASM 으로 호출 가능 (`/react-wasm` 경로)
 - **Tauri 에서만** 네이티브로 직접 호출 가능 (`src-tauri/` 가 `crates/core` 를 dependency 로 import → Tauri command 로 노출)
 
@@ -499,21 +502,31 @@ Tauri 빌드에서만 쓸 수 있는 것:
 
 ## 5. 출처 요약
 
-1. wasm-bindgen Guide — Result 타입: https://rustwasm.github.io/docs/wasm-bindgen/reference/types/result.html
-2. wasm-bindgen JsError 문서: https://docs.rs/wasm-bindgen/latest/wasm_bindgen/struct.JsError.html
-3. wasm-bindgen 전체 가이드: https://rustwasm.github.io/docs/wasm-bindgen/
-4. serde-wasm-bindgen: https://docs.rs/serde-wasm-bindgen
-5. Comlink GitHub: https://github.com/GoogleChromeLabs/comlink
-6. vite-plugin-comlink: https://github.com/mathe42/vite-plugin-comlink
-7. Tauri 2 — Calling Rust from Frontend: https://v2.tauri.app/develop/calling-rust/
-8. Tauri 2 — Capabilities: https://v2.tauri.app/security/capabilities/
-9. Tauri 2 — Permissions: https://v2.tauri.app/security/permissions/
-10. Tauri 2 — core namespace (isTauri): https://v2.tauri.app/reference/javascript/api/namespacecore/
-11. Tauri 2 discussion — browser detection: https://github.com/tauri-apps/tauri/discussions/6119
-12. Tauri 2 Stable Release: https://v2.tauri.app/blog/tauri-20/
-13. Menci/vite-plugin-wasm: https://github.com/Menci/vite-plugin-wasm
+1. wasm-bindgen Guide — Result 타입: <https://rustwasm.github.io/docs/wasm-bindgen/reference/types/result.html>
+2. wasm-bindgen JsError 문서: <https://docs.rs/wasm-bindgen/latest/wasm_bindgen/struct.JsError.html>
+3. wasm-bindgen 전체 가이드: <https://rustwasm.github.io/docs/wasm-bindgen/>
+4. serde-wasm-bindgen: <https://docs.rs/serde-wasm-bindgen>
+5. Comlink GitHub: <https://github.com/GoogleChromeLabs/comlink>
+6. vite-plugin-comlink: <https://github.com/mathe42/vite-plugin-comlink>
+7. Tauri 2 — Calling Rust from Frontend: <https://v2.tauri.app/develop/calling-rust/>
+8. Tauri 2 — Capabilities: <https://v2.tauri.app/security/capabilities/>
+9. Tauri 2 — Permissions: <https://v2.tauri.app/security/permissions/>
+10. Tauri 2 — core namespace (isTauri): <https://v2.tauri.app/reference/javascript/api/namespacecore/>
+11. Tauri 2 discussion — browser detection: <https://github.com/tauri-apps/tauri/discussions/6119>
+12. Tauri 2 Stable Release: <https://v2.tauri.app/blog/tauri-20/>
+13. Menci/vite-plugin-wasm: <https://github.com/Menci/vite-plugin-wasm>
 14. docs/react/wasm-catalog.md (G0, 이 레포 내부 문서)
+
+## 현행화 기록
+
+2026-09-26 에 지금 스킬과 맞췄다(결정 UD-6). 아래 표는 시작 판 `6378948` 에서 이 문서가 맡은 경로(머리 블록 `skills` 둘)를 2026-04-11 뒤에 바꾼 커밋 전부다. 스킬 · 참조 문서가 기준 원본이고, 이 문서는 설계 뼈대(단계 · 산출물 · 배치)만 따라간다. 버전 값과 세부 Gotcha 는 옮겨 적지 않는다 — 옮기면 두 곳이 다시 어긋난다.
+
+| 커밋 | 날짜 | 이 문서에 준 영향 |
+| --- | --- | --- |
+| `644e2df` | 2026-06-05 | 고친 절: 공통 설계 원칙 — 생성 전 전수 스캔 · 요청 범위만 (wasm · tauri) |
+| `d59cc5e` | 2026-04-12 | 설계 영향 없음 — react-wasm(rustwasm 조직 보관 · SIMD) · react-tauri(Raw Payload · Stronghold · Updater · Deep Link) Gotcha 추가뿐이다. 경계 결정 규칙 · 생성 산출물은 그대로 |
 
 ## 6. 변경 이력
 
 - **2026-04-10** — 초판. G3 2개 스킬 (`/react-wasm`, `/react-tauri`) 상세 설계. WebSearch fallback 으로 wasm-bindgen Result, Comlink + Vite 통합, Tauri 2 invoke/capabilities/isTauri 공식 문서 검증. G0 wasm-catalog.md 의 판정 로직 참조 흐름 통합.
+- **2026-09-26** — 현행화. 바뀐 절과 커밋별 영향은 §현행화 기록에 적었다.

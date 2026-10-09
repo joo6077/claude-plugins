@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # OpenAPI 원칙
 
 `utoipa 5.x`를 사용하여 Rust 코드에서 OpenAPI 3.x 스펙을 생성한다. 핸들러 함수와 DTO에 매크로를 붙이면 런타임에 JSON 스펙이 자동 생성되고, Swagger UI로 서빙한다.
@@ -148,7 +149,7 @@ doc.merge(PostsApiDoc::openapi());
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | utoipa 버전 | 5.4.x | axum_extras feature 필요 |
 | utoipa-swagger-ui 버전 | 9.0.x | axum feature 필요 |
 | Swagger UI 경로 | `/swagger-ui` (프로덕션 비활성화) | 환경변수로 조건부 마운트 |

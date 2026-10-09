@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>헥사고날 아키텍처 — Rust Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -97,6 +98,27 @@
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <a href="../index.html" class="nav-back">&#8592; Rust Kit</a>
@@ -137,7 +159,7 @@
       </div>
       <div class="card-body">
         <p>도메인 크레이트(<code>domain/</code>)는 어떤 DB, 브로커, HTTP 클라이언트도 <code>use</code>하지 않는다. 도메인은 Port(trait)만 정의하고, 인프라 크레이트가 Adapter(impl)를 제공한다.</p>
-        <pre><span style="color:#4ade80">// 올바른 Port — 도메인 타입만 사용</span>
+        <pre><span style="color:var(--green)">// 올바른 Port — 도메인 타입만 사용</span>
 #[async_trait]
 pub trait DatabasePort: Send + Sync {
     async fn find_user(&amp;self, id: UserId)
@@ -146,7 +168,7 @@ pub trait DatabasePort: Send + Sync {
         -&gt; Result&lt;(), DomainError&gt;;
 }
 
-<span style="color:#f87171">// 잘못된 Port — 인프라 타입 노출</span>
+<span style="color:var(--red)">// 잘못된 Port — 인프라 타입 노출</span>
 pub trait DatabasePort {
     async fn find_user(&amp;self, id: i64)
         -&gt; Result&lt;sqlx::Row, sqlx::Error&gt;; // ❌
@@ -166,11 +188,11 @@ pub trait DatabasePort {
       <div class="card-body">
         <p>Port는 도메인이 필요한 능력만 선언한다. trait의 파라미터가 인프라 타입(<code>sqlx::Row</code>, <code>hyper::Response</code> 등)을 포함하면 Port가 아니라 구현 상세가 누출된 것이다.</p>
         <p style="margin-top:10px;font-size:12px;color:var(--text3)">포트당 메서드 수 권장: 3~7개. 그 이상이면 포트 분리를 검토한다.</p>
-        <pre><span style="color:#f08575">// domain/src/ports/</span>
+        <pre><span style="color:var(--accent2)">// domain/src/ports/</span>
 pub trait DatabasePort: Send + Sync { ... }
 pub trait StoragePort: Send + Sync { ... }
 pub trait EmailPort: Send + Sync { ... }
-<span style="color:#4ade80">// 각 Port는 도메인 타입만 참조</span></pre>
+<span style="color:var(--green)">// 각 Port는 도메인 타입만 참조</span></pre>
       </div>
       <a href="https://alistair.cockburn.us/hexagonal-architecture/" target="_blank" class="source-link">&#8599; Alistair Cockburn — Hexagonal Architecture (2005)</a>
     </div>
@@ -199,7 +221,7 @@ impl DatabasePort for PostgresUserAdapter {
         .fetch_one(&amp;self.pool)
         .await
         .map_err(|e| DomainError::NotFound(e.to_string()))?;
-        Ok(row.into()) <span style="color:#4ade80">// 변환만 담당</span>
+        Ok(row.into()) <span style="color:var(--green)">// 변환만 담당</span>
     }
 }</pre>
       </div>
@@ -230,7 +252,7 @@ impl DatabasePort for PostgresUserAdapter {
             <div class="disp-con">- vtable 간접 호출 ~5ns/call</div>
           </div>
         </div>
-        <pre><span style="color:#f08575">// 3개 이상 — Arc&lt;dyn Port&gt; 혼용</span>
+        <pre><span style="color:var(--accent2)">// 3개 이상 — Arc&lt;dyn Port&gt; 혼용</span>
 pub struct UserService {
     db: Arc&lt;dyn DatabasePort&gt;,
     storage: Arc&lt;dyn StoragePort&gt;,
@@ -426,7 +448,7 @@ async fn test_service() {
         <div>
           <strong style="color:var(--text)">Rust 1.75+ AFIT로 async_trait 없이 async fn in trait 가능</strong><br>
           <code>#[async_trait]</code>는 매 호출마다 힙 할당이 발생한다(~5ns). hot path에서는 <code>impl Future</code>를 직접 사용하거나 AFIT(Return Position Impl Trait in Trait)로 대체할 수 있다.
-          <pre style="margin-top:8px"><span style="color:#4ade80">// Rust 1.75+ — async_trait 없이</span>
+          <pre style="margin-top:8px"><span style="color:var(--green)">// Rust 1.75+ — async_trait 없이</span>
 pub trait DatabasePort: Send + Sync {
     fn find_user(&amp;self, id: UserId)
         -&gt; impl Future&lt;Output = Result&lt;Option&lt;User&gt;, DomainError&gt;&gt; + Send;

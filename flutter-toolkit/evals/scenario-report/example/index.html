@@ -1,5 +1,5 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"><title>테스트 기록</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>테스트 기록</title><link rel="icon" href="data:,">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -18,6 +18,7 @@ h1{font-size:26px;line-height:1.35;font-weight:700;letter-spacing:-.01em;margin-
 .pill.skip{background:#eaeef2;color:var(--soft)}
 .tally{font-size:14px;color:var(--soft)}
 .reason{margin-top:10px;font-size:16px}
+.fix{margin-top:8px;font-size:14px;color:var(--soft);background:#f6f8fa;border-radius:8px;padding:8px 12px}
 .case-body{display:grid;grid-template-columns:240px minmax(0,1fr);column-gap:28px;align-items:start;margin-top:24px;border-top:1px solid var(--line)}
 .pre{position:sticky;top:max(24px,calc(20vh - 20px));margin-top:28px}
 .rail-head{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .2s ease,visibility .2s}
@@ -46,10 +47,20 @@ h1{font-size:26px;line-height:1.35;font-weight:700;letter-spacing:-.01em;margin-
 .scn-h h2{font-size:18px;font-weight:700;margin-top:2px}
 .state{font-size:14px;font-weight:700;white-space:nowrap}
 .state.pass{color:var(--pass)}.state.fail{color:var(--fail)}.state.skip{color:var(--soft)}
-.body{display:grid;grid-template-columns:auto minmax(0,1fr);gap:36px;align-items:start}
-.body.noshot{grid-template-columns:minmax(0,1fr)}
-.shots{display:flex;gap:14px;align-items:flex-start}
-.shots img{display:block;height:min(600px,66vh);height:min(600px,66dvh);width:auto;border:1px solid var(--line);border-radius:18px;background:#000;cursor:zoom-in}
+.body{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
+.body>*{min-width:0}
+.shot-strip{position:relative}
+.shot-count{font-size:13px;color:var(--soft);margin-bottom:8px}
+.shots{--slot:max(160px,calc((100% - 4 * 14px) / 4.3));display:flex;gap:14px;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;padding-bottom:6px}
+.shots figure{flex:0 0 var(--slot);scroll-snap-align:start}
+.shots figure.wide{flex-basis:calc(var(--slot) * 2 + 14px)}
+.shot-frame{aspect-ratio:402/874;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f6f7f9;border:1px solid var(--line);border-radius:14px}
+.shots figure.wide .shot-frame{aspect-ratio:818/874}
+.shots img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;cursor:zoom-in}
+.shot-strip::after{content:"";position:absolute;top:0;right:0;bottom:6px;width:64px;pointer-events:none;background:linear-gradient(to right,rgba(255,255,255,0),var(--card));opacity:0;transition:opacity .2s}
+.shot-strip.has-more::after{opacity:1}
+.shot-next{display:none;position:absolute;right:8px;top:calc(50% - 30px);z-index:1;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.12);font-size:20px;line-height:1;cursor:pointer}
+.shot-strip.has-more .shot-next{display:block}
 figcaption{font-size:13px;color:var(--soft);margin-top:8px;text-align:center}
 .stepl{list-style:none;margin:0;padding:0}
 .step{display:grid;grid-template-columns:52px minmax(0,1fr) 28px;column-gap:12px;padding:12px 0;border-top:1px solid var(--line)}
@@ -58,6 +69,23 @@ figcaption{font-size:13px;color:var(--soft);margin-top:8px;text-align:center}
 .step .kw{font-size:13px;font-weight:600;color:var(--faint);padding-top:3px}
 .tx{line-height:1.55}
 .mk{text-align:right;font-size:16px}
+.do{grid-column:2 / 3;list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.do li{display:grid;grid-template-columns:22px 72px minmax(0,1fr);align-items:center;column-gap:10px}
+.do .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#eaeef2;color:var(--ink);font-size:12px;font-weight:600}
+.do img{display:block;width:44px;height:auto;border:1px solid var(--line);border-radius:6px;cursor:zoom-in}
+.op-thumb{position:relative;display:block;width:72px;height:72px;padding:0;border:0;box-shadow:0 0 0 1px var(--line);border-radius:8px;overflow:hidden;background:#f6f7f9;cursor:zoom-in}
+.op-thumb:focus-visible{outline:2px solid #1f6feb;outline-offset:2px}
+.op-thumb img{position:absolute;max-width:none;width:72px;height:auto;border:0;border-radius:0}
+.op-thumb .tap{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:rgba(31,111,235,.25);border:2px solid #1f6feb;box-shadow:0 0 0 2px #fff}
+.follow{display:none}
+.do .act{font-size:13px;color:var(--soft);line-height:1.45}
+.more{grid-column:2 / 3;margin-top:6px}
+.more summary{cursor:pointer;min-height:32px;display:flex;align-items:center;font-size:13px;color:var(--soft);list-style:none}
+.more summary::-webkit-details-marker{display:none}
+.more summary::before{content:"▸";width:22px;margin-right:10px;text-align:center}
+.more[open] summary::before{content:"▾"}
+.more .more-close,.more[open] .more-open{display:none}
+.more[open] .more-close{display:inline}
 .obs{grid-column:2 / 3;margin-top:6px;font-size:14px;color:var(--soft);line-height:1.5}
 .step.fail .obs{color:var(--fail)}
 .step.fail{background:var(--fail-soft);margin:0 -12px;padding-left:12px;padding-right:12px;border-radius:8px}
@@ -70,24 +98,59 @@ figcaption{font-size:13px;color:var(--soft);margin-top:8px;text-align:center}
 .run[open] summary::before{transform:rotate(90deg)}
 .run dl{display:grid;grid-template-columns:90px 1fr;gap:4px 12px;margin-top:8px}
 .run dt{color:var(--faint)} .run dd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow-wrap:anywhere}
+.list .meta{margin-top:6px}
+.cases{list-style:none;margin:24px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.cases a{display:grid;grid-template-columns:auto 72px minmax(0,1fr);align-items:center;column-gap:14px;padding:14px 18px;
+ background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink);text-decoration:none}
+.cases a:hover{border-color:#d0d7de}
+.cases li.fail a{border-color:#ffcecb}
+.cases .id{font-size:13px;color:var(--soft)}
 dialog.viewer{border:0;padding:0;background:transparent;max-width:none;max-height:none}
+dialog.viewer[open]{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;margin:0;display:flex;align-items:center;justify-content:center}
 dialog.viewer::backdrop{background:rgba(0,0,0,.72)}
-dialog.viewer img{display:block;max-height:92vh;max-height:92dvh;max-width:92vw;width:auto;height:auto;border-radius:18px}
-dialog.viewer button{position:fixed;top:16px;right:16px;min-width:44px;min-height:44px;border:0;border-radius:999px;background:#fff;color:#1a1a1a;font:inherit;font-size:14px;padding:0 16px;cursor:pointer}
+dialog.viewer .stage{position:relative;line-height:0}
+dialog.viewer img{display:block;max-height:84vh;max-height:84dvh;max-width:80vw;width:auto;height:auto;border-radius:18px}
+dialog.viewer .stage .tap{position:absolute;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:rgba(31,111,235,.25);border:3px solid #1f6feb;box-shadow:0 0 0 2px #fff}
+dialog.viewer .close{position:fixed;top:16px;right:16px;min-width:44px;min-height:44px;border:0;border-radius:999px;background:#fff;color:#1a1a1a;font:inherit;font-size:14px;padding:0 16px;cursor:pointer}
+dialog.viewer .nav{position:fixed;top:50%;width:48px;height:48px;margin-top:-24px;border:0;border-radius:50%;background:#fff;color:#1a1a1a;font-size:26px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+dialog.viewer .prev{left:16px}
+dialog.viewer .next{right:16px}
+dialog.viewer .nav[hidden],dialog.viewer .tap[hidden]{display:none}
+dialog.viewer .info{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:calc(100vw - 32px);margin:0;padding:8px 14px;border-radius:999px;background:#fff;color:#1a1a1a;font-size:14px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (min-width:901px){.do li{grid-template-columns:22px 108px minmax(0,1fr)}.op-thumb{zoom:1.5;border-radius:6px}.op-thumb .tap{width:14px;height:14px;margin:-7px 0 0 -7px;border-width:1.5px;box-shadow:0 0 0 1px #fff}}
+@media (min-width:1100px){.has-follow{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:32px;align-items:start}.follow{display:block;position:sticky;top:90px}.follow .stage{position:relative;line-height:0;width:fit-content;margin:0 auto}.follow .stage img{display:block;height:min(560px,calc(100vh - 170px));width:auto;border-radius:14px;border:1px solid var(--line)}.follow .tap{position:absolute;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:rgba(31,111,235,.25);border:3px solid #1f6feb;box-shadow:0 0 0 2px #fff}.follow .label{max-width:280px;margin:10px auto 0;font-size:13px;color:var(--soft);text-align:center}.do li.on .op-thumb,.do li.on>img{outline:2px solid #1f6feb;outline-offset:2px}}
 @media (max-width:1280px){.case-body{grid-template-columns:minmax(0,1fr);border-top:0}.rail-head,.rail-scn-wrap{display:none}
  .pre{top:0;z-index:5;display:flex;align-items:baseline;gap:18px;margin:0 -32px;padding:12px 32px;
   background:rgba(246,247,249,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
  .pre h3{flex:none}.pre ul{flex-direction:row;flex-wrap:wrap;gap:6px;margin:0}
  .pre ul li{padding:3px 12px 3px 24px;border-radius:999px}.pre ul li::before{left:11px;top:calc(3px + .75em - 3px)}}
 @media (max-width:900px){.wrap{padding-left:16px;padding-right:16px}.scn{padding:20px 16px}
- .body{grid-template-columns:minmax(0,1fr)}.shots figure{flex:1 1 0;min-width:0;max-width:280px}.shots img{height:auto;width:100%}
+ .body{grid-template-columns:minmax(0,1fr)}
  .pre{flex-direction:column;gap:6px;margin:0 -16px;padding:12px 16px}
  .pre ul{align-self:stretch;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;font-size:13px}.pre ul::-webkit-scrollbar{display:none}
  .pre ul li{flex:none;white-space:nowrap}}
-</style></head><body><main class="wrap"><article class="case" id="TC-002"><p class="meta">TC-002 · 2026-09-24 22:09 · iPhone 17 시뮬레이터 (iOS 26.5) · 커밋 8df171a7</p><h1>다른 사람 프로필에서 부방장으로 임명한다</h1><div class="verdict"><span class="pill fail">❌ 실패</span><span class="tally">시나리오 3개 · 통과 1 · 실패 1 · 미실행 1</span></div><p class="reason">두 번째 시나리오에서 그룹을 고르는 창의 제목이 잘려 「어느 그룹의 부방장으로 임명할」까지만 보였다.</p><div class="case-body"><section class="pre"><div class="rail-head"><div class="rail-head-in"><div class="rail-head-box"><p class="rail-meta">TC-002</p><p class="rail-title">다른 사람 프로필에서 부방장으로 임명한다</p></div></div></div><div class="rail-scn-wrap"><h3>시나리오</h3><ol class="rail-scn"><li><a class="pass" href="#TC-002-s1"><span class="m">✅</span><span class="n">1</span><span class="t">⋯ 메뉴에 관리 항목이 보인다</span></a></li><li><a class="fail" href="#TC-002-s2"><span class="m">❌</span><span class="n">2</span><span class="t">부방장으로 임명할 그룹을 고른다</span></a></li><li><a class="skip" href="#TC-002-s3"><span class="m">–</span><span class="n">3</span><span class="t">PGA 알파를 부방장으로 임명한다<span class="tag">미실행</span></span></a></li></ol></div><h3>테스트 전 상태</h3><ul><li>Bob2 가 PGA 알파·브라보의 방장, PGA 에코의 부방장이다</li><li>티나는 세 그룹 모두 멤버다</li><li>티나의 프로필 화면을 열었다</li></ul></section><div class="scns"><section class="scn pass" id="TC-002-s1"><div class="scn-h"><div><div class="no">시나리오 1</div><h2>⋯ 메뉴에 관리 항목이 보인다</h2></div><span class="state pass">✅ 통과</span></div><div class="body"><div class="shots"><figure><img src="TC-002-appoint-vice-leader/01-menu.png" width="402" height="874" alt="⋯ 버튼을 누른 뒤"><figcaption>⋯ 버튼을 누른 뒤</figcaption></figure></div><div><ol class="stepl"><li class="step"><span class="kw">만일</span><span class="tx">⋯ 버튼을 누른다</span><span class="mk"></span></li><li class="step check-start pass"><span class="kw">그러면</span><span class="tx">부방장 임명, 방장 넘기기, 그룹에서 내보내기가 보인다</span><span class="mk">✅</span><div class="obs">세 항목 모두 있었다.</div></li><li class="step pass"><span class="kw">하지만</span><span class="tx">부방장 해제는 없다</span><span class="mk">✅</span><div class="obs">없었다.</div></li></ol></div></div></section><section class="scn fail" id="TC-002-s2"><div class="scn-h"><div><div class="no">시나리오 2</div><h2>부방장으로 임명할 그룹을 고른다</h2></div><span class="state fail">❌ 실패</span></div><div class="body"><div class="shots"><figure><img src="TC-002-appoint-vice-leader/02-picker.png" width="402" height="874" alt="부방장 임명을 누른 뒤"><figcaption>부방장 임명을 누른 뒤</figcaption></figure></div><div><ol class="stepl"><li class="step"><span class="kw">만일</span><span class="tx">부방장 임명을 누른다</span><span class="mk"></span></li><li class="step check-start fail"><span class="kw">그러면</span><span class="tx">「어느 그룹의 부방장으로 임명할까요?」 제목이 다 보인다</span><span class="mk">❌</span><div class="obs">제목이 두 줄로 접히면서 둘째 줄 「까요?」가 가려졌다.</div><figure class="zoom"><img src="TC-002-appoint-vice-leader/02-picker-title.png" width="402" height="107" alt="잘린 제목"></figure></li><li class="step pass"><span class="kw">그리고</span><span class="tx">목록에는 PGA 알파와 PGA 브라보만 나온다</span><span class="mk">✅</span><div class="obs">두 그룹만 나왔다.</div></li></ol></div></div></section><section class="scn skip" id="TC-002-s3"><div class="scn-h"><div><div class="no">시나리오 3</div><h2>PGA 알파를 부방장으로 임명한다</h2></div><span class="state skip">미실행</span></div><div class="body noshot"><div><ol class="stepl"><li class="step"><span class="kw">만일</span><span class="tx">그룹 고르는 창에서 PGA 알파를 고른다</span><span class="mk"></span></li><li class="step check-start"><span class="kw">그러면</span><span class="tx">「PGA 알파」 부방장으로 임명했다는 안내가 뜬다</span><span class="mk"></span></li></ol><p class="skipped">앞 시나리오의 결함을 먼저 고치기로 해서 진행하지 않았다. 창을 닫은 뒤에도 티나는 두 그룹 모두 멤버였다.</p></div></div></section></div></div><details class="run"><summary>실행 정보</summary><dl><dt>앱 실행</dt><dd>2026-09-24 22:05</dd><dt>MCP 서버</dt><dd>app-mobile</dd><dt>시나리오 1</dt><dd>tap_native_point 355,97 → find_widget 부방장 임명 1 · 방장 넘기기 1 · 그룹에서 내보내기 1 · 부방장 해제 0</dd><dt>시나리오 2</dt><dd>tap_widget &quot;부방장 임명&quot; → find_widget PGA 알파 1 · PGA 브라보 1 · PGA 에코 0</dd><dt>시나리오 3</dt><dd>tap_widget &quot;취소&quot; → 데이터베이스 PGA 알파 member · PGA 브라보 member</dd></dl></details></article><article class="case" id="TC-001"><p class="meta">TC-001 · 2026-09-24 22:33 · iPhone 17 시뮬레이터 (iOS 26.5) · 커밋 48426a79</p><h1>방장 넘기기를 중간에 취소하면 아무것도 바뀌지 않는다</h1><div class="verdict"><span class="pill pass">✅ 통과</span><span class="tally">시나리오 2개 · 통과 2</span></div><p class="reason">그룹을 고르는 창에서 취소해도, 마지막 확인 창에서 취소해도 방장은 Bob2 그대로였다.</p><div class="case-body"><section class="pre"><div class="rail-head"><div class="rail-head-in"><div class="rail-head-box"><p class="rail-meta">TC-001</p><p class="rail-title">방장 넘기기를 중간에 취소하면 아무것도 바뀌지 않는다</p></div></div></div><div class="rail-scn-wrap"><h3>시나리오</h3><ol class="rail-scn"><li><a class="pass" href="#TC-001-s1"><span class="m">✅</span><span class="n">1</span><span class="t">그룹 고르는 창에서 취소한다</span></a></li><li><a class="pass" href="#TC-001-s2"><span class="m">✅</span><span class="n">2</span><span class="t">확인 창에서 취소한다</span></a></li></ol></div><h3>테스트 전 상태</h3><ul><li>Bob2 가 PGA 브라보의 방장이고 티나는 멤버다</li><li>티나의 프로필 화면을 열었다</li></ul></section><div class="scns"><section class="scn pass" id="TC-001-s1"><div class="scn-h"><div><div class="no">시나리오 1</div><h2>그룹 고르는 창에서 취소한다</h2></div><span class="state pass">✅ 통과</span></div><div class="body"><div class="shots"><figure><img src="TC-001-transfer-leader-cancel/01-picker.png" width="402" height="874" alt="그룹 고르는 창"><figcaption>그룹 고르는 창</figcaption></figure><figure><img src="TC-001-transfer-leader-cancel/02-after-picker-cancel.png" width="402" height="874" alt="취소한 뒤"><figcaption>취소한 뒤</figcaption></figure></div><div><ol class="stepl"><li class="step"><span class="kw">만일</span><span class="tx">⋯ 버튼과 방장 넘기기를 누른다</span><span class="mk"></span></li><li class="step"><span class="kw">그리고</span><span class="tx">그룹 고르는 창에서 취소를 누른다</span><span class="mk"></span></li><li class="step check-start pass"><span class="kw">그러면</span><span class="tx">프로필로 돌아오고 방장은 Bob2 그대로다</span><span class="mk">✅</span><div class="obs">안내 문구 없이 프로필로 돌아왔고, 데이터베이스에서도 방장은 Bob2 였다.</div></li></ol></div></div></section><section class="scn pass" id="TC-001-s2"><div class="scn-h"><div><div class="no">시나리오 2</div><h2>확인 창에서 취소한다</h2></div><span class="state pass">✅ 통과</span></div><div class="body"><div class="shots"><figure><img src="TC-001-transfer-leader-cancel/03-confirm.png" width="402" height="874" alt="확인 창"><figcaption>확인 창</figcaption></figure><figure><img src="TC-001-transfer-leader-cancel/04-after-confirm-cancel.png" width="402" height="874" alt="취소한 뒤"><figcaption>취소한 뒤</figcaption></figure></div><div><ol class="stepl"><li class="step"><span class="kw">만일</span><span class="tx">방장 넘기기에서 PGA 브라보를 고른다</span><span class="mk"></span></li><li class="step"><span class="kw">그리고</span><span class="tx">확인 창에서 취소를 누른다</span><span class="mk"></span></li><li class="step check-start pass"><span class="kw">그러면</span><span class="tx">프로필로 돌아오고 방장은 Bob2 그대로다</span><span class="mk">✅</span><div class="obs">안내 문구 없이 프로필로 돌아왔고, 데이터베이스에서도 방장은 Bob2 였다.</div></li></ol></div></div></section></div></div><details class="run"><summary>실행 정보</summary><dl><dt>앱 실행</dt><dd>2026-09-24 22:05, 22:11 hot reload</dd><dt>MCP 서버</dt><dd>app-mobile</dd><dt>배경</dt><dd>login_as dev-account, er-04-reset.sql 실행</dd><dt>시나리오 1</dt><dd>tap_native_point 355,97 → tap_widget &quot;방장 넘기기&quot; → tap_widget &quot;취소&quot;</dd><dt>시나리오 2</dt><dd>tap_native_point 355,97 → tap_widget &quot;방장 넘기기&quot; → tap_widget &quot;PGA 브라보&quot; → tap_widget &quot;취소&quot;</dd></dl></details></article></main><dialog class="viewer"><button type="button" autofocus>닫기</button><img alt=""></dialog>
-<script>(function(){var viewer=document.querySelector("dialog.viewer"),big=viewer.querySelector("img");
-document.querySelectorAll(".shots img,.zoom img").forEach(function(shot){shot.addEventListener("click",function(){big.src=shot.src;big.alt=shot.alt;viewer.showModal()})});
-viewer.querySelector("button").onclick=function(){viewer.close()};viewer.addEventListener("click",function(ev){if(ev.target===viewer)viewer.close()});})();</script><script>(function(){
+</style></head><body><main class="wrap"><section class="list"><h1>테스트 기록</h1><p class="meta">케이스 3개 · 실패 1 · 통과 2</p><ol class="cases"><li class="fail"><a href="TC-002-appoint-vice-leader/index.html"><span class="pill fail">❌ 실패</span><span class="id">TC-002</span><span class="t">다른 사람 프로필에서 부방장으로 임명한다</span></a></li><li class="pass"><a href="TC-001-transfer-leader-cancel/index.html"><span class="pill pass">✅ 통과</span><span class="id">TC-001</span><span class="t">방장 넘기기를 중간에 취소하면 아무것도 바뀌지 않는다</span></a></li><li class="pass"><a href="TC-003-shot-strip/index.html"><span class="pill pass">✅ 통과</span><span class="id">TC-003</span><span class="t">사진이 많은 시나리오는 한 줄로 넘겨 본다</span></a></li></ol></section></main><dialog class="viewer" aria-labelledby="viewer-info"><button type="button" class="close" autofocus>닫기</button><div class="stage"><img alt=""><i class="tap" hidden></i></div><button type="button" class="nav prev" aria-label="이전 사진">‹</button><button type="button" class="nav next" aria-label="다음 사진">›</button><p class="info" id="viewer-info" aria-live="polite"></p></dialog>
+<script>(function(){var viewer=document.querySelector("dialog.viewer"),big=viewer.querySelector(".stage img"),dot=viewer.querySelector(".stage .tap"),
+info=viewer.querySelector(".info"),prev=viewer.querySelector(".prev"),next=viewer.querySelector(".next"),group=[],current=0,opener=null;
+function bundle(image){var step=image.closest(".do")&&image.closest("li.step"),strip=image.closest(".shots");
+var images=[].slice.call(step?step.querySelectorAll(".do img"):strip?strip.querySelectorAll("img"):[image]);
+return images.map(function(member,index){var place=" "+(index+1)+"/"+images.length+" · ",row=member.closest("li");
+var label=step?"조작"+place+row.querySelector(".act").textContent:strip?"사진"+place+member.closest("figure").querySelector("figcaption").textContent:"확대 · "+member.alt;
+return {image:member,thumb:member.closest(".op-thumb"),label:label}})}
+function show(index){var entry=group[index],thumb=entry.thumb;current=index;big.src=entry.image.src;big.alt=entry.label;info.textContent=entry.label;
+dot.hidden=!thumb;if(thumb){dot.style.left=thumb.dataset.x/entry.image.getAttribute("width")*100+"%";dot.style.top=thumb.dataset.y/entry.image.getAttribute("height")*100+"%"}
+prev.hidden=index===0;next.hidden=index===group.length-1}
+function open(image,source){opener=source;group=bundle(image);viewer.showModal();show(group.findIndex(function(entry){return entry.image===image}))}
+document.querySelectorAll(".shots img,.zoom img,.do img").forEach(function(image){var thumb=image.closest(".op-thumb");
+(thumb||image).addEventListener("click",function(){open(image,thumb||image)})});
+prev.onclick=function(){if(current>0)show(current-1)};next.onclick=function(){if(current<group.length-1)show(current+1)};
+viewer.addEventListener("keydown",function(ev){if(ev.key==="ArrowLeft"){prev.onclick();ev.preventDefault()}else if(ev.key==="ArrowRight"){next.onclick();ev.preventDefault()}});
+viewer.querySelector(".close").onclick=function(){viewer.close()};viewer.addEventListener("click",function(ev){if(ev.target===viewer)viewer.close()});
+viewer.addEventListener("close",function(){if(opener)opener.focus()});})();</script><script>(function(){
+document.querySelectorAll(".shot-strip").forEach(function(strip){var row=strip.querySelector(".shots");
+function sync(){strip.classList.toggle("has-more",row.scrollLeft+row.clientWidth<row.scrollWidth-2)}
+row.addEventListener("scroll",sync,{passive:true});addEventListener("resize",sync);addEventListener("load",sync);sync();
+strip.querySelector(".shot-next").onclick=function(){row.scrollBy({left:row.clientWidth*0.8,behavior:"smooth"})};});})();</script><script>(function(){
 var cases=[].slice.call(document.querySelectorAll("article.case")),queued=false;
 function update(){queued=false;var line=innerHeight*0.4;
 cases.forEach(function(article){
@@ -96,4 +159,14 @@ var links=[].slice.call(article.querySelectorAll(".rail-scn a")),current=0;
 links.forEach(function(link,i){var section=document.getElementById(link.getAttribute("href").slice(1));if(section&&section.getBoundingClientRect().top<=line)current=i;});
 links.forEach(function(link,i){if(i===current)link.setAttribute("aria-current","true");else link.removeAttribute("aria-current");});});}
 addEventListener("scroll",function(){if(!queued){queued=true;requestAnimationFrame(update);}},{passive:true});
-addEventListener("resize",update);update();})();</script></body></html>
+addEventListener("resize",update);update();})();</script><script>(function(){
+document.querySelectorAll(".scn").forEach(function(card){var rows=[].slice.call(card.querySelectorAll(".do li")).filter(function(row){return row.querySelector("img")});
+if(!rows.length)return;var column=card.querySelector(".stepl").parentNode,steps=document.createElement("div"),panel=document.createElement("aside"),current=null;
+while(column.firstChild)steps.appendChild(column.firstChild);column.appendChild(steps);column.classList.add("has-follow");
+panel.className="follow";panel.setAttribute("aria-hidden","true");panel.innerHTML='<div class="stage"><img alt=""><i class="tap"></i></div><p class="label"></p>';column.appendChild(panel);
+var big=panel.querySelector(".stage img"),dot=panel.querySelector(".tap"),label=panel.querySelector(".label");
+function pick(row){if(current===row)return;if(current)current.classList.remove("on");current=row;row.classList.add("on");
+var image=row.querySelector("img"),thumb=row.querySelector(".op-thumb"),step=row.closest("li.step"),siblings=rows.filter(function(other){return other.closest("li.step")===step});
+big.src=image.src;dot.hidden=!thumb;if(thumb){dot.style.left=thumb.dataset.x/image.getAttribute("width")*100+"%";dot.style.top=thumb.dataset.y/image.getAttribute("height")*100+"%"}
+label.textContent=step.querySelector(".tx").textContent+" — 조작 "+(siblings.indexOf(row)+1)+"/"+siblings.length+" · "+row.querySelector(".act").textContent}
+rows.forEach(function(row){row.addEventListener("mouseenter",function(){pick(row)});row.addEventListener("focusin",function(){pick(row)})});pick(rows[0]);});})();</script></body></html>

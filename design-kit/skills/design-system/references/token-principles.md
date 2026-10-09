@@ -5,7 +5,7 @@
 > **출처:** [Material Design 3 — Design Tokens](https://m3.material.io/foundations/design-tokens)
 
 | 계층 | 역할 | 예시 |
-|------|------|------|
+| ------ | ------ | ------ |
 | Reference (원시) | 값 자체 | `blue-500: #2196F3` |
 | System (시맨틱) | 역할 기반 매핑 | `primary: ref.blue-500` |
 | Component | 컴포넌트별 오버라이드 | `button-bg: sys.primary` |
@@ -23,6 +23,7 @@
 > **출처:** [Space, Subtraction — Designing Spacing Systems](https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62)
 
 4px 베이스 스케일을 기본으로 한다:
+
 - `xs: 4px`, `sm: 8px`, `md: 16px`, `lg: 24px`, `xl: 32px`, `2xl: 48px`
 
 8px 베이스를 선택할 경우 근거를 명시해야 한다.
@@ -32,6 +33,7 @@
 > **출처:** [Apple HIG — Color](https://developer.apple.com/design/human-interface-guidelines/color)
 
 필수 시맨틱 컬러:
+
 - `primary`, `secondary`, `tertiary` — 브랜드/강조
 - `surface`, `on-surface` — 배경/텍스트
 - `error`, `on-error` — 에러 상태
@@ -44,6 +46,7 @@
 > **출처:** [Material Design 3 — Typography](https://m3.material.io/styles/typography)
 
 최소 5단계 스케일:
+
 - `display` — 히어로, 대형 제목
 - `heading` — 섹션 제목
 - `title` — 카드/리스트 제목

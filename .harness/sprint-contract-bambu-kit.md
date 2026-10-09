@@ -45,9 +45,9 @@ outer 대비 최대 속도 배율 중앙값 5.1x, 최대 9.2x.
 
 - `SKILL.md:713` 튜닝 허용 키에 유량 인접 속도·가속 키 부재 → 속도 불연속의 구조적 원인
 - `SKILL.md:736` / `failure-recipes.md:120` 이 참조하는 "기준값(§10.2)" 은 제네릭 nil-fallback
-- `seam-recipes.md:86` 이 "커뮤니티 기본 10%" 를 기본값으로 승격. 같은 파일 138 행은 이미
+- `seam-recipes.md:89` 이 "커뮤니티 기본 10%" 를 기본값으로 승격. 같은 파일 138 행은 이미
   "gap 과다" 를 언더익스트루전 원인으로 지목 — 자기모순
-- `seam-recipes.md:117`(PETG outer 50-70) 과 `SKILL.md:804`(outer 20-40) 정면 충돌
+- `seam-recipes.md:120`(PETG outer 50-70) 과 `SKILL.md:804`(outer 20-40) 정면 충돌
 - Phase 4.3 게이트(`SKILL.md:931-962`)에 속도비·부모값 이탈 검사 없음
 
 ## 범위 경계

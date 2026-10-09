@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Procedure Standards — 표준과 킷 규약의 대조</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -27,7 +28,6 @@
     font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
     background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
     -webkit-font-smoothing:antialiased;
-    transition:background var(--transition),color var(--transition);
     background-image:radial-gradient(ellipse at 20% 0%,rgba(245,158,11,0.06) 0%,transparent 50%),
                      radial-gradient(ellipse at 80% 100%,rgba(245,158,11,0.03) 0%,transparent 50%);
   }
@@ -213,13 +213,13 @@
     .grid-2,.grid-3{grid-template-columns:1fr}
     .flow-step{flex:1 1 100%}
   }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
-  }
 </style>
 </head>
 <body>
+<nav class="nav">
+  <span class="nav-logo">Howto <span>Kit</span></span>
+  <button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환"><span id="theme-icon" aria-hidden="true"></span><span id="theme-label"></span></button>
+</nav>
 
 <div class="page">
 

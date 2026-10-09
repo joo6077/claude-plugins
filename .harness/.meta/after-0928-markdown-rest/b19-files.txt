@@ -1,0 +1,10 @@
+.claude/skills/docs-site/SKILL.md
+bambu-kit/skills/bambu-print-profile/references/comment-analysis.md
+flutter-toolkit/skills/flutter-hooks/SKILL.md
+flutter-toolkit/skills/flutter-kaizen/SKILL.md
+harness/skills/sprint-contract/SKILL.md
+infra-kit/skills/infra-audit/SKILL.md
+react-kit/skills/react-skeleton/SKILL.md
+reflect-kit/skills/reflect-digest/SKILL.md
+reflect-kit/skills/reflect-promote/SKILL.md
+rust-kit/skills/rust-docker/SKILL.md

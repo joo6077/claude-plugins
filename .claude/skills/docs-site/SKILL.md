@@ -2,7 +2,7 @@
 name: docs-site
 description: >
   플러그인 문서 사이트(docs/)의 HTML 시각 페이지를 생성·관리한다.
-  .md 리서치/가이드 소스를 읽어 standalone HTML로 변환하고 index.html에 등록한다.
+  .md 리서치/가이드 소스를 읽어 HTML 페이지로 변환하고 index.html에 등록한다.
   생성 후 sprint-contract + qa-evaluator를 실행하여 품질을 보증한다.
   "문서 사이트", "visual docs", "docs site", "HTML 문서 생성",
   "페이지 추가", "docs page" 같은 요청 시 트리거.
@@ -13,7 +13,7 @@ user-invocable: true
 
 # Gotchas
 
-1. **외부 리소스 금지** — 페이지는 반드시 standalone HTML이어야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 모든 스타일은 `<style>` 내 인라인.
+1. **외부 리소스 금지** — 페이지는 레포 밖 자원 없이 열려야 한다. 외부 CSS/JS/font CDN 링크를 절대 추가하지 마라. 스타일은 공통 파일 `docs/assets/site.css` 링크 한 줄(`<style>` 앞)과 `<style>` 안 인라인뿐이다. 공통 파일이 맡는 규칙은 쪽에 다시 적지 않는다 — 움직임 줄이기(`prefers-reduced-motion`)와 본문 행간 1.7 이다. 링크가 하나인지는 `python3 scripts/check-docs-common-css.py` 가 `<link>` 요소를 세어 잰다(CI). 본문에서 이 이름들을 말할 때는 원래 글자로 적는다 — `site&#46;css` · `site&period;css` 같은 글자 참조나 `site<span>.</span>css` 같은 태그 끼우기로 쪼개 적지 마라. 예전 검사가 글자 수를 세던 때 생긴 우회이고, 새 검사는 쪼갠 자리를 위반으로 잡는다. 쪽 `<style>` 에 `prefers-reduced-motion` 블록을 다시 적으면 같은 검사가 어긋난 쪽으로 잡는다. 가리킬 때 위로 들뜨는 카드처럼 `transform` 으로 주는 움직임은 값을 `var(--dk-hover-move, 원래 값)` 으로 적는다 — 공통 파일이 움직임 줄이기 설정에서 `--dk-hover-move` 를 `none` 으로 둬 멈춘다.
 2. **index.html 등록 필수** — 페이지를 생성했는데 `docs/index.html`의 `categories` 배열에 등록하지 않으면 네비게이션에 표시되지 않는다. 아이콘도 `getIcon()` 함수에 추가해야 한다.
 3. **플러그인 accent 컬러 준수** — `references/css-tokens.md`의 플러그인별 accent 매핑을 따라라. Harness에 Design Kit 컬러를 쓰면 안 된다.
 4. **iframe 경로는 index.html 기준 상대경로** — `docs/index.html`에서 iframe으로 로드하므로 `file` 값은 `design-kit/typography-scale.html` 형태여야 한다.
@@ -29,7 +29,7 @@ user-invocable: true
     - **좁은 뷰포트 단일 컬럼 스택** — `@media(max-width:600px){ <그리드클래스>{grid-template-columns:1fr} }`.
 11. **오버플로를 잘라서 없애지 마라** — `overflow:hidden` / `overflow-x:hidden` / `display:none` 으로 억제하는 것은 내용 손실이므로 FAIL 이다. 특히 `body`/`html` 에 `overflow-x:hidden` 을 걸면 증상만 가려지고 원인이 남는다. 표·코드는 **끝까지 스크롤 도달 가능**해야 한다.
 12. **경계값 튜닝 금지** — 페이지별 고유 하드코딩 폭(`width:340px` 류)으로 맞추지 마라. CI(Linux)가 로컬(macOS)보다 나쁘게 렌더된다 (실측: 오버플로 CI 11 / 로컬 7). **0px 를 목표로** 하라.
-13. **테마 토글을 넣으면 영속화까지** — `localStorage` 키는 `dk-theme` 로 통일하고 로드 시 복원 IIFE 를 넣는다. 저장값이 없으면 `prefers-color-scheme` 을 따른다. 키를 새로 만들지 마라 (현재 레포에 `dk-theme`/`theme`/`vs-theme`/`cp-theme` 4 종이 갈려 있다).
+13. **테마 토글을 넣으면 영속화까지** — `localStorage` 키는 `dk-theme` 로 통일하고 로드 시 복원 IIFE 를 넣는다. 저장값이 없으면 `prefers-color-scheme` 을 따른다. 키를 새로 만들지 마라 (현재 레포에 `dk-theme`/`theme`/`vs-theme`/`cp-theme` 4 종이 갈려 있다). 쪽 `<style>` 에 밝은 테마 규칙이 없는 쪽은 단추(`class="dk-theme-btn"`)만 달면 공통 파일 `docs/assets/site.css` 가 `:root` 색 변수를 밝은 값으로 바꿔 준다 — 쪽에 밝은 테마 CSS 를 새로 쓰지 마라.
 14. **대비는 토큰에서 터진다** — 실측 2026-09-05: 172 페이지 중 150 개가 WCAG AA 미달이었고,
     실패 1088 건 중 836 건(77%)이 `--text3:#7A6F64` 한 토큰이었다. 다크 `--bg` 위 3.95,
     `--surface2` 위 3.34 다. 현재 값은 `#948779`(5.55 / 4.67)이니 **내리지 마라.**
@@ -38,29 +38,38 @@ user-invocable: true
     저대비가 본질인 디자인 스타일 표본은 `data-contrast-exempt="specimen"` 으로 **명시 면제**하고
     왜 면제인지 페이지에 한 줄 적어라 — 조용히 넘기는 것과 구분된다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 대상 식별
 
-사용자 요청에서 플러그인명과 페이지명을 파악한다. 표는 `.claude/skills/kaizen-orchestrator/SKILL.md` Step F2 표와 같다 — 한쪽을 고치면 다른 쪽도 고친다:
+사용자 요청에서 플러그인명과 페이지명을 파악한다. 원본 → 페이지 매핑 표는 여기 한 곳에만 둔다 — 오케스트레이터 Step F2 는 이 표를 가리키고,
+`scripts/detect-docs-drift.py` 는 같은 매핑으로 다시 만들 페이지를 고른다. 표를 고치면 스크립트의 매핑도 같은 커밋에서 고친다 — 둘이 어긋나면 CI 의 `python3 scripts/detect-docs-drift.py --check-table` 이 떨어진다:
 
 | 플러그인 | 소스 경로 | 출력 경로 |
 | -------- | --------- | --------- |
 | harness | `harness/docs/guides/`, `harness/references/` | `docs/harness/` |
-| flutter-toolkit | `flutter-toolkit/references/` | `docs/flutter-toolkit/` |
-| design-kit | `design-kit/docs/design/` | `docs/design-kit/` |
+| flutter-toolkit | `flutter-toolkit/references/`, `docs/flutter/` | `docs/flutter-toolkit/` |
+| design-kit | `design-kit/docs/design/`, `docs/design/`, `design-kit/references/visual-change-protocol.md`, `design-kit/skills/design-test/SKILL.md`, `design-kit/skills/design-mockup/SKILL.md` | `docs/design-kit/` |
 | backend-kit | `docs/backend/` | `docs/backend-kit/` |
-| infra-kit | `docs/infra/` | `docs/infra-kit/` |
+| infra-kit | `docs/infra/`, `infra-kit/skills/infra-test/SKILL.md` | `docs/infra-kit/` |
 | rust-kit | `rust-kit/references/`, `docs/rust/` | `docs/rust-kit/` |
 | react-kit | `react-kit/references/`, `docs/react/` | `docs/react-kit/` |
 | planning-kit | `docs/planning/` | `docs/planning-kit/` |
-| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/` | `docs/reflect-kit/` |
+| reflect-kit | `reflect-kit/skills/`, `reflect-kit/references/`, `reflect-kit/docs/DESIGN.md`, `reflect-kit/docs/SCHEMA.md`, `reflect-kit/docs/RESEARCH.md` | `docs/reflect-kit/` |
 | bambu-kit | `bambu-kit/skills/bambu-print-profile/SKILL.md`, `bambu-kit/skills/bambu-print-profile/references/` | `docs/bambu-kit/` |
 | onboarding-kit | `onboarding-kit/skills/setup-guide/SKILL.md`, `onboarding-kit/skills/setup-guide/references/`, `docs/onboarding-kit/examples/fcm-ios-setup-guide.md` | `docs/onboarding-kit/` |
 | tone-kit | `tone-kit/references/`, `docs/tone/` | `docs/tone-kit/` |
-| api-kit | `docs/api/` | `docs/api-kit/` |
+| api-kit | `docs/api/`, `api-kit/skills/api-ui/SKILL.md`, `docs/superpowers/specs/2026-09-02-api-kit-design.md` | `docs/api-kit/` |
 | howto-kit | `docs/howto/` | `docs/howto-kit/` |
-| process (공유) | (내부 문서) | `docs/process/` |
+| process (공유) | `.claude/skills/kaizen-orchestrator/SKILL.md` · `.claude/skills/kaizen-orchestrator/references/phase-research-templates.md` (그 밖은 내부 문서) | `docs/process/` |
+
+`docs/howto/drafts/` 는 초안 폴더라 매핑 밖이다 — 페이지를 만들지 않고 `scripts/detect-docs-drift.py` 도 건너뛴다. `tone-kit/references/project-detection.md` 도 페이지를 만들지 않는 원본이다 — 킷이 프로젝트 값을 감지하는 절차라 읽을 쪽으로 옮기지 않고, 스크립트가 건너뛴다. 원본마다 쪽 · 짝 · 페이지 없음 결정은 `.harness/.meta/after-kaizen-0928/d1-notes.md` 결정표에 있다.
+
+`scripts/detect-docs-drift.py` 는 모양만 바뀐 원본을 기본으로 뺀다 — 두 판에서 HTML 주석을 지우고 코드 울타리 줄을 한 표지로 바꾼 뒤 낱말과 기호의 순서가 같으면 다시 맞출 것이 없다고 본다. 기호 가운데 마크다운 꾸밈(줄 앞 제목 · 인용 · 목록 기호, 표 구분 줄 · 가로줄, 표 칸 `|`, 강조 `*`, 백틱, `<주소>` 의 꺾쇠, 역슬래시)만 빼고 센다 — 그래서 표 구분 줄 · 빈 줄 · 목록 기호 · 울타리 언어 표시 · 강조를 제목으로 바꾼 것 · 주소를 꺾쇠로 감싼 것은 빠지고, `>=` → `<=` 나 코드 안 `+` → `-` 처럼 기호만 바뀐 내용 수정은 남는다. 코드 울타리 안과 인라인 코드 안의 기호는 하나도 빼지 않는다. 뺀 짝 수는 표준 오류에 한 줄로 나온다. 모든 짝을 보려면 `--include-format-only` 를 준다.
 
 신규 킷이면 `references/css-tokens.md`의 플러그인 매핑에 새 accent를 추가한 뒤 진행한다.
 
@@ -73,6 +82,7 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 **문서를 묶거나 단일 overview로 만들지 마라.** 콘텐츠 밀도가 떨어지고 네비게이션에서 찾기 어려워진다.
 
 예시:
+
 - design-kit 22개 문서 → 22개 페이지 (color.md → color-palette.html)
 - backend-kit 12개 문서 → 12개 페이지 (api-design.md → api-design.html, database.md → database.html ...)
 - infra-kit 12개 문서 → 12개 페이지
@@ -82,6 +92,7 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 ## Step 3: 소스 .md 읽기
 
 해당 .md 파일을 읽어 핵심 내용을 파악한다:
+
 - 제목, 버전, 주요 섹션
 - 표, 코드 블록, 다이어그램 요소
 - 원칙 리스트와 출처 URL (반드시 HTML에 옮겨야 함)
@@ -91,6 +102,7 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 ## Step 4: HTML 생성
 
 `references/page-template.html`을 골격으로 사용한다:
+
 - `:root`의 `--accent`/`--accent2`를 `references/css-tokens.md`의 플러그인 매핑에 따라 설정
 - `.md` 내용을 시각적 HTML 섹션으로 변환 (카드, 테이블, 비교 패널, 체크리스트 등)
 - 제목에 `h1` + gradient, 섹션에 `.section-label`, 내용에 `.card` + `.grid-2/3` 패턴 사용
@@ -98,26 +110,30 @@ design-kit 패턴이 유일한 기준이다. 22개 리서치 문서가 있으면
 ### design-kit 원칙 적용
 
 `design-kit/skills/design-audit/references/audit-criteria.md`를 읽고 다음을 준수한다:
-- **Typography**: 타이포 스케일 일관성, line-height 1.2~1.6배, 본문 최소 16px
+
+- **Typography**: 타이포 스케일 일관성, 본문 최소 16px. 본문 행간 1.7 은 공통 파일 `docs/assets/site.css` 가 준다 — 쪽에서 다시 정하지 않는다
 - **Color**: 텍스트/배경 대비 WCAG AA 4.5:1 이상, 시맨틱 토큰 사용
 - **Spacing**: 스페이싱 스케일 일관성, 같은 레벨 요소 동일 간격
 - **Accessibility**: 색상 대비 AA, 포커스 인디케이터
 - **Interaction**: 인터랙티브 요소에 시각적 피드백 존재, 상태 전환 가시성
-- **Motion**: 애니메이션 200~500ms 범위, prefers-reduced-motion 대응
+- **Motion**: 애니메이션 200~500ms 범위. CSS 움직임(전환 · 키프레임 · `scroll-behavior` · 가리킬 때의 `transform`)의 움직임 줄이기는 공통 파일 `docs/assets/site.css` 가 맡는다 — 가리킬 때의 `transform` 은 `var(--dk-hover-move, 원래 값)` 으로 적어야 멈춘다. 스크립트로 주는 움직임(`behavior:'smooth'` 스크롤 · 타이머로 도는 표본)은 공통 파일이 못 멈추므로 쪽 스크립트가 `matchMedia('(prefers-reduced-motion: reduce)')` 를 확인해 그 설정에서는 멈춘다
 - **Authenticity**: 연속 섹션 동일 구조 3회 반복 금지, 레이아웃 변주
 
 ## Step 5: 파일 저장 + index.html 등록
 
 1. `docs/{plugin-name}/{page-name}.html`에 저장
 2. `docs/index.html`의 해당 플러그인 카테고리에 페이지 항목 추가:
+   <!-- markdownlint-disable-next-line MD031 -->
    ```javascript
    { id: '{page-name}', title: '{한국어 제목}', file: '{plugin-name}/{page-name}.html' }
    ```
+   <!-- markdownlint-disable-next-line MD031 -->
 3. `getIcon()` 함수에 SVG 아이콘 추가
 
 ## Step 6: 자가 검증
 
 Sprint Contract 전에 다음을 확인한다:
+
 1. Glob `docs/{plugin-name}/{page-name}.html` → 파일 존재 확인
 2. Read `docs/index.html` → categories 배열에 해당 `id` 항목이 추가되었는지 확인
 3. Read `docs/index.html` → `getIcon()` 함수에 해당 `id` 키가 존재하는지 확인
@@ -128,7 +144,7 @@ Sprint Contract 전에 다음을 확인한다:
    node scripts/check-docs-a11y.js docs/{plugin-name}/{page-name}.html
    ```
 
-   이 스크립트가 재는 것: 가로 오버플로(375/768/1280px, `> 2px` 면 FAIL) · 콘솔 에러 ·
+   이 스크립트가 재는 것: 가로 오버플로(320/375/768/1280px, `> 2px` 면 FAIL) · 콘솔 에러 ·
    **직접 자식 텍스트를 가진 모든 요소**의 WCAG AA 대비 · 테마 토글 44×44.
 
    대비를 선택자 몇 개만 재면 통과가 나온다. `.desc`/`.card-source`/`.section-label` 3 종만
@@ -158,10 +174,15 @@ Sprint Contract 전에 다음을 확인한다:
 ## Step 7: Sprint Contract + QA
 
 1. `/sprint-contract` 실행 — 페이지 존재, iframe 로딩, 컬러 토큰 정합성 등 조건 정의
-2. 구현 완료 확인
-3. `qa-evaluator` 실행 — 계약 기준 APPROVE/REJECT
+2. 있던 페이지를 다시 만들면 담김 조건 둘을 계약에 넣는다 — 옛 페이지에 있던 원본 코드 표시(원본의 백틱 글)가 새 페이지에서 빠진 수 0, 원본 낱말 가운데 페이지 글에 든 몫을 재어 낱말 비율이 옛 페이지 이상. 줄 수 · 제목 수만 재면 새 페이지가 원본을 덜 담아도 통과한다 (실측 2026-09-26: 26 개 조건을 모두 통과한 판에서 Codex 페이지 10 쪽이 옛 페이지보다 원본을 덜 담았다)
+3. 구현 완료 확인
+4. `qa-evaluator` 실행 — 계약 기준 APPROVE/REJECT
+
+<!-- markdownlint-disable MD025 -->
 
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/page-template.html` — HTML 페이지 골격 템플릿
 - `references/css-tokens.md` — Claude 컬러 시스템 + 플러그인별 accent 매핑

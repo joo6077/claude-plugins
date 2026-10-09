@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>관측성 — Rust Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -17,6 +18,15 @@
   --transition:0.25s cubic-bezier(.4,0,.2,1);
   --mono:'SF Mono','Cascadia Code','JetBrains Mono','Consolas',monospace;
 }
+[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe7e0;--border:#e0dcd4;--border2:#cfc9bf;--text:#1a1a24;--text2:#5a5248;--text3:#6b6259;--accent:#B42318;--accent2:#9B1C12;--accent-dim:rgba(180,35,24,0.1);--accent-glow:rgba(180,35,24,0.06);--error:#b91c1c;--success:#146B32;--warn:#7A4A05;
+}
+  .theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+    background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  [data-theme="light"] pre{color:var(--text)}
+
 html{font-size:16px;scroll-behavior:smooth}
 body{
   font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
@@ -43,7 +53,7 @@ h2{font-size:clamp(20px,2.5vw,30px);font-weight:700;letter-spacing:-0.5px;margin
 h3{font-size:clamp(15px,1.6vw,19px);font-weight:700;margin-bottom:8px}
 .desc{color:var(--text2);font-size:clamp(13px,1.1vw,15px);line-height:1.8;max-width:740px;margin-bottom:28px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(18px,2.5vw,30px);transition:border-color var(--transition),transform var(--transition)}
-.card:hover{border-color:rgba(232,93,74,0.3);transform:translateY(-2px)}
+.card:hover{border-color:rgba(232,93,74,0.3);transform:var(--dk-hover-move, translateY(-2px))}
 .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
 .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
 .principle-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:var(--accent-dim);color:var(--accent);font-size:13px;font-weight:800;flex-shrink:0;margin-bottom:10px}
@@ -55,8 +65,8 @@ td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2)}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:rgba(232,93,74,0.04)}
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;-webkit-overflow-scrolling:touch}
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-@media(max-width:640px){.compare{grid-template-columns:1fr}}
+.compare{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+@media(max-width:640px){.compare{grid-template-columns:minmax(0,1fr)}}
 .compare-bad,.compare-good{border-radius:12px;padding:22px}
 .compare-bad{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
 .compare-good{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
@@ -64,7 +74,7 @@ tr:hover td{background:rgba(232,93,74,0.04)}
 .compare-bad .compare-label{color:var(--error)}
 .compare-good .compare-label{color:var(--success)}
 .checklist{list-style:none;display:flex;flex-direction:column;gap:10px}
-.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.65}
+.checklist li{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;color:var(--text2);line-height:1.65;overflow-wrap:anywhere}
 .check{width:20px;height:20px;border-radius:5px;border:2px solid var(--accent);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
 .tag{display:inline-block;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px}
 .pillar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
@@ -75,6 +85,7 @@ tr:hover td{background:rgba(232,93,74,0.04)}
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">라이트</button>
 <div class="page">
 
 <a class="back-link" href="../index.html">← Rust Kit</a>
@@ -443,5 +454,23 @@ gauge!("active_connections").set(active_count as f64);</pre>
 </div>
 
 </div>
+<script>
+// 테마 — 저장 키 dk-theme. 저장값이 없으면 브라우저 색 설정을 따르고, 누를 때만 저장한다
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  var btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = t === 'dark' ? '라이트' : '다크';
+}
+function toggleTheme(){
+  var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

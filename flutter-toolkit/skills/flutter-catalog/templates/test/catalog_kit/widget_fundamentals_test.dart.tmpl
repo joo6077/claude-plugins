@@ -1,0 +1,429 @@
+// 공용 위젯 기본기 검사. 규칙: flutter-toolkit references/widget-fundamentals.md
+//
+// 실행: fvm flutter test test/catalog_kit/widget_fundamentals_test.dart
+// 결과 표: build/widget_fundamentals.csv (돌린 시험만 한 줄씩)
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math' as math;
+
+import 'package:{{package}}/catalog_kit/catalog_kit_models.dart';
+import 'package:{{package}}/catalog_kit/generated/catalog_entries.g.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'catalog_kit_host.dart';
+
+const _widths = [320.0, 360.0, 393.0];
+const _scales = [1.0, 1.3, 1.6, 2.0];
+const _texts = {
+  'short': '확인',
+  'long_ko': '아주 긴 한국어 글자가 들어가면 위젯이 어떻게 되는지 보는 문장',
+  'long_en': 'A considerably longer English label to see how the widget copes',
+};
+const _looseWidth = 390.0;
+const _tapMin = 44.0;
+const _centerTolerance = 1.0;
+const ValueKey<String> _stageKey = ValueKey('catalog_kit_stage');
+
+final _rows = <List<String>>[];
+final _fontFamilies = <String>[];
+
+void main() {
+  setUpAll(_loadAppFonts);
+  tearDownAll(_writeCsv);
+
+  testWidgets('catalog_kit | 글꼴 | 등록', (tester) async {
+    await tester.runAsync(() => setUpHost(hostLocales.first));
+    final used = <String>{};
+    await _pump(
+      tester,
+      Builder(
+        builder: (context) {
+          final theme = Theme.of(context);
+          final defaults = _families(ThemeData(platform: theme.platform));
+          // Flutter 기본 글꼴은 앱이 등록할 글꼴이 아니다.
+          used.addAll(_families(theme).difference(defaults));
+          return const SizedBox();
+        },
+      ),
+    );
+    final missing = [
+      for (final name in used)
+        if (!_fontFamilies.any(
+          (family) => family == name || family.endsWith('/$name'),
+        ))
+          name,
+    ];
+    final ok = missing.isEmpty;
+    final measured = used.isEmpty
+        ? '테마 글꼴 지정 없음'
+        : ok
+        ? '${used.join(' ')} 등록됨'
+        : '테마 글꼴 ${missing.join(' ')} 이 pubspec 글꼴에 없음';
+    _record('catalog_kit', '-', '글꼴', '등록', ok, measured);
+    expect(ok, isTrue, reason: measured);
+  });
+
+  for (final entry in catalogEntries) {
+    final id = '${entry.widget}.${entry.variant}';
+    final texts = entry.textKeys.isEmpty ? const {'default': null} : _texts;
+
+    for (final width in _widths) {
+      for (final scale in _scales) {
+        for (final locale in hostLocales) {
+          for (final MapEntry(key: textName, value: text) in texts.entries) {
+            final label =
+                'w=${width.round()} s=$scale '
+                '${locale.languageCode} t=$textName';
+            testWidgets('$id | 넘침 | $label', (tester) async {
+              final values = {
+                ...entry.initialValues,
+                if (text != null)
+                  for (final key in entry.textKeys) key: text,
+              };
+              final error = await _place(
+                tester,
+                entry,
+                values,
+                width: width,
+                scale: scale,
+                locale: locale,
+              );
+              final measured = error == null
+                  ? '넘침 없음'
+                  : _isOverflow(error)
+                  ? '넘침 — ${_firstLine(error)}'
+                  : _hostHint(error);
+              _record(
+                entry.widget,
+                entry.variant,
+                '넘침',
+                label,
+                error == null,
+                measured,
+              );
+              expect(error, isNull, reason: measured);
+            });
+          }
+        }
+      }
+    }
+
+    testWidgets('$id | 크기 동작 | 느슨한 폭 390', (tester) async {
+      final error = await _place(tester, entry, entry.initialValues);
+      if (error != null) return _failHost(entry, '크기 동작', '느슨한 폭 390', error);
+      final size = tester.getSize(find.byKey(_stageKey));
+      final fills = size.width >= _looseWidth - 1;
+      final ok = entry.sizing == Sizing.fill ? fills : !fills;
+      final measured = 'w=${_n(size.width)} h=${_n(size.height)}';
+      _record(entry.widget, entry.variant, '크기 동작', '느슨한 폭 390', ok, measured);
+      expect(ok, isTrue, reason: '${entry.sizing.name} 인데 $measured');
+    });
+
+    if (entry.minPadding > 0) {
+      testWidgets('$id | 여백 | 내용 폭', (tester) async {
+        final error = await _place(
+          tester,
+          entry,
+          entry.initialValues,
+          intrinsic: true,
+        );
+        if (error != null) return _failHost(entry, '여백', '내용 폭', error);
+        final box = tester.getRect(find.byKey(_stageKey));
+        final content = _contentRect(tester);
+        if (content == null) {
+          _record(
+            entry.widget,
+            entry.variant,
+            '여백',
+            '내용 폭',
+            false,
+            '글자 · 아이콘을 못 찾음',
+          );
+          fail('글자 · 아이콘을 못 찾음');
+        }
+        final left = content.left - box.left;
+        final right = box.right - content.right;
+        final ok = math.min(left, right) >= entry.minPadding - 0.5;
+        final measured = 'left=${_n(left)} right=${_n(right)}';
+        _record(entry.widget, entry.variant, '여백', '내용 폭', ok, measured);
+        expect(ok, isTrue, reason: '최소 ${entry.minPadding} 인데 $measured');
+      });
+    }
+
+    for (final key in entry.stateKeys) {
+      testWidgets('$id | 상태 불변 | $key', (tester) async {
+        final sizes = <Size>[];
+        for (final on in [false, true]) {
+          final error = await _place(tester, entry, {
+            ...entry.initialValues,
+            key: on,
+          });
+          if (error != null) return _failHost(entry, '상태 불변', key, error);
+          sizes.add(tester.getSize(find.byKey(_stageKey)));
+        }
+        final ok =
+            (sizes[0].width - sizes[1].width).abs() < 0.5 &&
+            (sizes[0].height - sizes[1].height).abs() < 0.5;
+        final measured = '${_size(sizes[0])} → ${_size(sizes[1])}';
+        _record(entry.widget, entry.variant, '상태 불변', key, ok, measured);
+        expect(ok, isTrue, reason: measured);
+      });
+    }
+
+    testWidgets('$id | 아이콘 정렬 | 줄 가운데', (tester) async {
+      final error = await _place(tester, entry, entry.initialValues);
+      if (error != null) return _failHost(entry, '아이콘 정렬', '줄 가운데', error);
+      final icons = _paragraphs(tester, insideIcon: true);
+      final labels = _paragraphs(tester, insideIcon: false);
+      // 아이콘과 글자가 함께 있을 때만 잰다.
+      if (icons.isEmpty || labels.isEmpty) return;
+      final dy = (icons.first.center.dy - labels.first.center.dy).abs();
+      final ok = dy <= _centerTolerance;
+      _record(
+        entry.widget,
+        entry.variant,
+        '아이콘 정렬',
+        '줄 가운데',
+        ok,
+        'dy=${_n(dy)}',
+      );
+      expect(ok, isTrue, reason: 'dy=${_n(dy)}');
+    });
+
+    testWidgets('$id | 터치 크기 | $_tapMin', (tester) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        final error = await _place(tester, entry, entry.initialValues);
+        if (error != null) return _failHost(entry, '터치 크기', '$_tapMin', error);
+        final tappable = _tapRects(tester);
+        // 누를 곳이 없는 위젯은 재지 않는다.
+        if (tappable.isEmpty) return;
+        final result = await iOSTapTargetGuideline.evaluate(tester);
+        final smallest = tappable.reduce(
+          (a, b) => a.width * a.height <= b.width * b.height ? a : b,
+        );
+        final measured = '가장 작은 칸 ${_size(smallest.size)}';
+        _record(
+          entry.widget,
+          entry.variant,
+          '터치 크기',
+          '$_tapMin',
+          result.passed,
+          measured,
+        );
+        expect(result.passed, isTrue, reason: measured);
+      } finally {
+        semantics.dispose();
+      }
+    });
+  }
+}
+
+/// 위젯을 왼쪽 위에 놓고 그리는 동안 난 첫 예외를 돌려준다.
+Future<Object?> _place(
+  WidgetTester tester,
+  PlaygroundEntry entry,
+  Map<String, Object?> values, {
+  double width = _looseWidth,
+  double scale = 1,
+  Locale? locale,
+  bool intrinsic = false,
+}) async {
+  final target = locale ?? hostLocales.first;
+  // 번역 파일처럼 실제 시간이 걸리는 준비는 가짜 시간 밖에서 기다린다.
+  await tester.runAsync(() => setUpHost(target));
+  Widget stage;
+  try {
+    stage = KeyedSubtree(key: _stageKey, child: entry.build(values));
+  } on Object catch (error) {
+    return error;
+  }
+  if (intrinsic) stage = IntrinsicWidth(child: stage);
+  await _pump(
+    tester,
+    // 화면 가장자리에 닿은 칸은 터치 크기 검사가 건너뛰어 띄워 놓는다.
+    Padding(
+      padding: const EdgeInsets.all(24),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: width),
+          child: stage,
+        ),
+      ),
+    ),
+    scale: scale,
+    locale: target,
+  );
+  return tester.takeException();
+}
+
+Future<void> _pump(
+  WidgetTester tester,
+  Widget child, {
+  double scale = 1,
+  Locale? locale,
+}) async {
+  tester.view
+    ..physicalSize = const Size(1000, 1000)
+    ..devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  await tester.pumpWidget(
+    wrap(child, textScale: scale, locale: locale ?? hostLocales.first),
+  );
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+/// 무대 안 글자 상자들. [insideIcon] 이면 `Icon` 이 그린 것만, 아니면 그 밖의 것만.
+List<Rect> _paragraphs(WidgetTester tester, {required bool insideIcon}) {
+  final stage = find.byKey(_stageKey);
+  final all = find.descendant(of: stage, matching: find.byType(RichText));
+  final inIcon = find
+      .descendant(
+        of: find.descendant(of: stage, matching: find.byType(Icon)),
+        matching: find.byType(RichText),
+      )
+      .evaluate()
+      .toSet();
+  return [
+    for (final element in all.evaluate())
+      if (inIcon.contains(element) == insideIcon)
+        tester.getRect(
+          find.byElementPredicate((candidate) => candidate == element),
+        ),
+  ];
+}
+
+Rect? _contentRect(WidgetTester tester) {
+  final rects = [
+    ..._paragraphs(tester, insideIcon: true),
+    ..._paragraphs(tester, insideIcon: false),
+  ];
+  return rects.isEmpty ? null : rects.reduce((a, b) => a.expandToInclude(b));
+}
+
+List<Rect> _tapRects(WidgetTester tester) {
+  final rects = <Rect>[];
+  void visit(SemanticsNode node, Matrix4 transform) {
+    final current = node.transform == null
+        ? transform
+        : (transform.clone()..multiply(node.transform!));
+    final data = node.getSemanticsData();
+    if (data.hasAction(SemanticsAction.tap) ||
+        data.hasAction(SemanticsAction.longPress)) {
+      rects.add(MatrixUtils.transformRect(current, node.rect));
+    }
+    node.visitChildren((child) {
+      visit(child, current);
+      return true;
+    });
+  }
+
+  // 접근성 트리는 화면(RenderView)마다 따로 있다.
+  for (final view in tester.binding.renderViews) {
+    final root = view.owner?.semanticsOwner?.rootSemanticsNode;
+    if (root != null) visit(root, Matrix4.identity());
+  }
+  return rects;
+}
+
+bool _isOverflow(Object error) => '$error'.contains('overflowed');
+
+String _firstLine(Object error) => '$error'.trim().split('\n').first;
+
+String _hostHint(Object error) =>
+    '그리기 실패 — 감싸개(test/catalog_kit/catalog_kit_host.dart)에 '
+    '필요한 상위 위젯이 빠졌을 수 있다: ${_firstLine(error)}';
+
+void _failHost(
+  PlaygroundEntry entry,
+  String check,
+  String label,
+  Object error,
+) {
+  final measured = _hostHint(error);
+  _record(entry.widget, entry.variant, check, label, false, measured);
+  fail(measured);
+}
+
+void _record(
+  String widget,
+  String variant,
+  String check,
+  String label,
+  bool ok,
+  String measured,
+) {
+  String cell(String text) =>
+      text.replaceAll(',', ';').replaceAll('\n', ' ').replaceAll('"', "'");
+  _rows.add(
+    [
+      widget,
+      variant,
+      check,
+      label,
+      if (ok) 'PASS' else 'FAIL',
+      measured,
+    ].map(cell).toList(),
+  );
+}
+
+void _writeCsv() {
+  File('build/widget_fundamentals.csv')
+    ..parent.createSync(recursive: true)
+    ..writeAsStringSync(
+      [
+        'widget,variant,check,case,result,measured',
+        for (final row in _rows) row.join(','),
+      ].join('\n'),
+    );
+}
+
+/// 테마의 글자 단계 전부가 쓰는 글꼴 이름.
+Set<String> _families(ThemeData theme) {
+  final text = theme.textTheme;
+  return {
+    for (final style in [
+      text.displayLarge,
+      text.displayMedium,
+      text.displaySmall,
+      text.headlineLarge,
+      text.headlineMedium,
+      text.headlineSmall,
+      text.titleLarge,
+      text.titleMedium,
+      text.titleSmall,
+      text.bodyLarge,
+      text.bodyMedium,
+      text.bodySmall,
+      text.labelLarge,
+      text.labelMedium,
+      text.labelSmall,
+    ])
+      ?style?.fontFamily,
+  };
+}
+
+String _n(double value) => value.toStringAsFixed(1);
+
+String _size(Size size) => '${_n(size.width)}x${_n(size.height)}';
+
+/// 시험 글꼴 대신 앱 글꼴로 글자 폭을 잰다 — 그래야 넘침이 실제와 같다.
+/// 자산 읽기는 가짜 시간 안에서 끝나지 않아 시험 전에 한 번만 한다.
+Future<void> _loadAppFonts() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final manifest =
+      jsonDecode(await rootBundle.loadString('FontManifest.json')) as List;
+  for (final font in manifest.cast<Map<String, Object?>>()) {
+    final family = font['family']! as String;
+    _fontFamilies.add(family);
+    final loader = FontLoader(family);
+    for (final asset in (font['fonts']! as List).cast<Map<String, Object?>>()) {
+      loader.addFont(rootBundle.load(asset['asset']! as String));
+    }
+    await loader.load();
+  }
+}

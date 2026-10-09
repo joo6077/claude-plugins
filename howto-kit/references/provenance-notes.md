@@ -1,5 +1,7 @@
 # 이 킷이 사실로 말하지 않는 것 — 미확정 근거 원장
 
+설치본 플러그인에는 `docs/howto/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 이 킷은 절차 안내에서 **확인 못 한 것을 확인한 척하지 않는 것**을 요구한다. 그 요구를 킷 자신에게
 먼저 적용한 결과가 이 파일이다. 아래 항목은 킷의 규칙에 영향을 주지만 1 차 출처를 확보하지
 못했다. **인용할 때 반드시 등급 표기를 함께 쓴다.**
@@ -228,6 +230,8 @@ https://cloud.google.com/terms
 | --- | --- | --- |
 | **ISO/IEC/IEEE 26514 · 26515 의 절차 작성 세부 조항** | **확인 실패** | ISO 를 근거로 인용하지 않는다. 유료 전문의 내용을 2 차 요약으로 추정해 쓰지 않는다 |
 | 스타일 가이드의 **매 스텝 verification 규정** | **확인 실패** | `verify` 필수는 **표준 인용이 아니라 도메인 실패 데이터에 근거한 강화**로 표기한다 |
+
+**DITA 2.0 확인 결과 (조회 2026-09-26)**: OASIS DITA 위원회 페이지(<https://www.oasis-open.org/committees/tc_home.php?wg_abbrev=dita>)는 DITA 1.3 을 2015-12-17 승인된 OASIS Standard 로 적지만, DITA 2.0 의 Committee Specification · OASIS Standard 승인 여부와 날짜는 적지 않는다. 킷은 DITA 1.3 을 인용하고 DITA 2.0 을 승인된 표준으로 인용하지 않는다. 위 두 건과 달리 킷이 기대는 근거가 아니라서 `[미확인]` 건수에 넣지 않는다.
 
 시도했으나 확인하지 못한 URL:
 

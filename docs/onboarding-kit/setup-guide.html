@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Setup Guide — 최신 외부 서비스 설정 가이드</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -14,6 +15,14 @@
     --radius:14px;--transition:0.25s cubic-bezier(.4,0,.2,1);
     --mono:'SF Mono','Cascadia Code','Consolas',monospace;
   }
+  [data-theme="light"]{
+    --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--border:#e0dcd4;--text:#1a1a24;--text2:#5a5248;--text3:#6b6259;--accent:#4338CA;--accent2:#3730A3;--accent-dim:rgba(67,56,202,0.1);--green:#146B32;--red:#b91c1c;--yellow:#7A4A05;
+  }
+  .theme-toggle{position:fixed;top:12px;right:12px;z-index:60;min-width:44px;min-height:44px;padding:0 12px;
+    background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+  .theme-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
   html{font-size:16px;scroll-behavior:smooth}
   body{
     font-family:'Pretendard Variable','Pretendard',-apple-system,'Segoe UI',system-ui,sans-serif;
@@ -54,6 +63,7 @@
     border-bottom:1px dashed var(--accent);padding:4px 0;align-self:flex-start}
   .card-source:hover{color:var(--accent2);border-bottom-color:var(--accent2)}
   a:focus-visible{outline:2px solid var(--accent2);outline-offset:4px;border-radius:4px}
+  .checklist a{color:var(--accent);overflow-wrap:anywhere}
   table{width:100%;border-collapse:collapse;font-size:13px}
   th{text-align:left;padding:11px 14px;color:var(--text2);font-weight:600;border-bottom:2px solid var(--border);
     font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--surface2)}
@@ -100,10 +110,10 @@
   .metric-label{font-size:13px;color:var(--text2)}
   @media(max-width:720px){.compare{grid-template-columns:1fr}}
   @media(max-width:600px){.grid-2,.grid-3,.grid-4,.compare{grid-template-columns:1fr}.page{padding:20px}}
-  @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<button class="theme-toggle" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="테마 전환">라이트</button>
 <main class="page">
   <a href="../index.html" class="nav-back">&#8592; Onboarding Kit</a>
   <header>
@@ -146,7 +156,7 @@
       <article class="card">
         <div class="card-header"><span class="num">1</span><div><div class="rule-number">Freshness</div><h3>각 Step 전에 1차 출처 fetch</h3></div></div>
         <div class="card-body">
-          <p>학습 데이터의 콘솔 UI 정보는 자주 outdated된다. Step을 쓰기 전에 공식 help 문서를 조회하고, 본문에 출처 URL과 조회일을 남긴다.</p>
+          <p>학습 데이터의 콘솔 UI 정보는 자주 outdated된다. Step을 쓰기 전에 공식 help 문서를 조회하고, 본문에 출처 URL과 조회일을 남긴다 (<code>references/format-checklist.md</code> §3 의 <code>**출처:**</code> 줄).</p>
           <p>fetch하지 않은 Step은 쓰지 않는다. 대표 URL 하나로 전체 가이드를 정당화할 수 없다.</p>
         </div>
         <a class="card-source" href="../../onboarding-kit/skills/setup-guide/SKILL.md">↗ 원본 SKILL.md · 출처 원장</a>
@@ -192,6 +202,7 @@
       </table>
     </div>
     <div class="callout callout-accent"><strong>검증 커버리지:</strong> <code>(총 Step − env_gaps) / 총 Step</code>. ENV는 INVALID 임계에 합산하지 않으며 커버리지 임계도 정본을 따른다.</div>
+    <div class="callout"><strong>두 날짜 — 이 킷의 규칙:</strong> 출처 줄에는 두 날짜를 따로 적는다. 조회일(<code>조회 YYYY-MM-DD</code>)은 페이지를 가져와 그 Step 본문의 주장을 다시 확인한 날이고, 원문 갱신일(<code>Last updated YYYY-MM-DD UTC</code>)은 원문 페이지가 표시할 때만 글자 그대로 옮긴다. 페이지 갱신일만 새로 보고 Step 본문을 다시 확인하지 않았으면 조회일을 바꾸지 않는다 — 날짜만 옮기면 확인하지 않은 주장을 확인했다고 적게 된다. 원문은 저장소의 기록법을 정하지 않으므로 이 구분은 이 킷의 규칙이다.</div>
     <h3>ENV 마커를 인정받는 네 가지 근거</h3>
     <div class="grid-4">
       <div class="card"><div class="metric">①</div><div class="metric-label">1차 도구 시도 기록과 실제 출력</div></div>
@@ -213,6 +224,7 @@
           <tr><td><span class="badge badge-info">G2_MARKER</span></td><td>미검증 마커</td><td>접미 없는 레거시 0건, INVALID 2건 이상이면 FAIL, ENV는 별도 집계. 2는 이 킷의 새 임계가 아니라 현재 정본을 그대로 구현한 값이다.</td></tr>
           <tr><td><span class="badge badge-info">G3_STACKMIX</span></td><td>스택 혼용</td><td>스택 인자 필수. Flutter 가이드의 Swift 코드 fence를 실패 처리</td></tr>
           <tr><td><span class="badge badge-info">G4_DEPRECATION</span></td><td>deprecated 주장 결합</td><td>Deprecated 박스가 있는 Step의 출처 줄에 근거 토큰 필요</td></tr>
+          <tr><td><span class="badge badge-info">G5_BLOCKING</span></td><td>막는 요구 세 칸</td><td><code>| 요구 | 출처 | 막히는 것 | 우회 |</code> 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다. 표가 없으면 <code>PASS rows=0</code> 이다 — 막는 요구가 없는 가이드도 있다. 네 낱말이 다 든 머리인데 네 칸 표가 아니면 <code>unrecognized</code> 로 FAIL 한다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9)</td></tr>
         </tbody>
       </table>
     </div>
@@ -227,31 +239,148 @@ G1_LEDGER ...
 G2_MARKER ...
 G3_STACKMIX ...
 G4_DEPRECATION ...
+G5_BLOCKING ...
 GATE_PASS</code></pre>
+    <h3>함수 원문</h3>
+    <p class="desc">원본 <code>onboarding-kit/skills/setup-guide/SKILL.md</code> 의 함수를 그대로 옮겼다. 게이트를 고칠 때는 원본을 먼저 고친다.</p>
+    <pre><code># Guide Conformance Gate — LLM 호출 없는 순수 판정. zsh · bash 동일 출력 (2026-08-13 양쪽 실행 확인).
+# 사용: guide_gate &lt;가이드.md&gt; &lt;스택&gt;     예) guide_gate docs/setup/firebase/fcm-ios.md flutter
+#       스택은 필수다 — 비우면 G3 가 FAIL 한다 (판정 불가를 PASS 로 흘리지 않는다)
+guide_gate() {
+  g=${1}; stack=${2:-}
+  [ -f "$g" ] || { echo "GATE_BLOCKED no_such_file=$g"; return 0; }
+  fence=$(printf '\140\140\140')   # 백틱 3 개 — 문서 렌더링 보호를 위해 8 진수로 생성
+  fail=0
+
+  # G1 출처 원장 완전성 — Step 수와 출처 줄 수가 같아야 한다 (열거값은 타이핑하지 말고 계산)
+  steps=$(grep -c '^## Step ' "$g" || true)
+  ledger=$(grep -c '^\*\*출처:\*\*' "$g" || true)
+  #    전체 수만 맞추면 한 Step 에 출처 둘 · 다른 Step 에 0 인 배치가 통과한다 — Step 마다 정확히 하나인지 따로 센다
+  misplaced=$(awk '
+    function flush(){ if (st &amp;&amp; n != 1) m++ }
+    /^## /           { flush(); st=0; n=0 }
+    /^## Step /      { st=1 }
+    /^\*\*출처:\*\*/ { n++ }
+    END              { flush(); print m+0 }
+  ' "$g")
+  if [ "$steps" -eq 0 ] || [ "$steps" -ne "$ledger" ]; then
+    echo "G1_LEDGER FAIL steps=$steps ledger=$ledger"; fail=1
+  elif [ "$misplaced" -ne 0 ]; then
+    echo "G1_LEDGER FAIL steps=$steps ledger=$ledger misplaced=$misplaced"; fail=1
+  else
+    echo "G1_LEDGER PASS steps=$steps ledger=$ledger"
+  fi
+
+  # G2 미검증 마커 — 접미 없는 레거시 0 건 · INVALID 는 정본 임계 미만 (ENV 는 별도 카운터).
+  #    아래 상수는 정본(qa-evaluation-guide §카운팅 및 자동 REJECT 임계)을 그대로 **구현**한 것이지
+  #    킷이 새로 정한 값이 아니다. 정본이 바뀌면 이 상수도 같이 바꾼다 — 여기서 먼저 바꾸지 마라.
+  bare=$(grep -oF '[미검증]' "$g" | grep -c . || true)
+  inval=$(grep -oF '[미검증:INVALID]' "$g" | grep -c . || true)
+  envg=$(grep -oF '[미검증:ENV]' "$g" | grep -c . || true)
+  if [ "$bare" -ne 0 ] || [ "$inval" -ge 2 ]; then
+    echo "G2_MARKER FAIL bare=$bare invalid=$inval env=$envg"; fail=1
+  else
+    echo "G2_MARKER PASS bare=$bare invalid=$inval env=$envg"
+  fi
+
+  # G3 스택 혼용 — Flutter 가이드에 네이티브 Swift 코드블록이 있으면 실패.
+  #    산문으로 "Flutter 는 AppDelegate 를 건드리지 않는다" 고 쓰는 것은 통과한다 — 코드 지시만 잡는다.
+  #    스택이 비어 있으면 PASS 가 아니라 FAIL 이다. 2026-09-08 까지는 빈 스택을 PASS 로 흘렸고,
+  #    Drift 루프의 $STACK 이 어디에도 정의되지 않아 이 검사가 3 개월간 no-op 이었다.
+  sw=$(grep -c "^${fence}swift" "$g" || true)
+  if [ -z "$stack" ]; then
+    echo "G3_STACKMIX FAIL stack=unset swift_fence=$sw"; fail=1
+  elif [ "$stack" = "flutter" ] &amp;&amp; [ "$sw" -ne 0 ]; then
+    echo "G3_STACKMIX FAIL swift_fence=$sw"; fail=1
+  else
+    echo "G3_STACKMIX PASS stack=$stack swift_fence=$sw"
+  fi
+
+  # G4 deprecation 주장 결합 — Deprecated 박스를 쓴 Step 은 그 Step 의 출처 줄이
+  #    "출처가 실제로 deprecated 라고 말했다" 는 근거를 담아야 한다 (출처보다 강한 주장 금지).
+  #    근거 토큰은 영문(deprecated/sunset/removed)과 한국어(지원 종료/폐지/중단/서비스 종료/단종)를
+  #    모두 인정한다 — 영문 토큰에만 묶여 있던 동안 한국어 1 차 출처는 근거가 있어도 FAIL 이었다.
+  g4=$(awk '
+    function flush(){ if (st != "" &amp;&amp; dep &amp;&amp; src !~ /[Dd]eprecat|[Ss]unset|[Rr]emoved|지원 ?종료|폐지|중단|서비스 종료|단종/) print ln }
+    /^## /           { flush(); st=""; src=""; dep=0 }
+    /^## Step /      { st=$(0); ln=FNR }
+    /^\*\*출처:\*\*/ { src=$(0) }
+    /❌ Deprecated/  { dep=1 }
+    END              { flush() }
+  ' "$g" | grep -c . || true)
+  if [ "$g4" -ne 0 ]; then
+    echo "G4_DEPRECATION FAIL unsourced_boxes=$g4"; fail=1
+  else
+    echo "G4_DEPRECATION PASS unsourced_boxes=0"
+  fi
+
+  # G5 막는 요구 세 칸 — `| 요구 | 출처 | 막히는 것 | 우회 |` 표의 행마다 네 칸이 다 차고 출처 칸에 http 주소가 있어야 한다.
+  #    표가 없으면 PASS rows=0 이다 — 막는 요구가 없는 가이드도 있다. 출처가 그 요구를 실제로 말하는지는 사람이 본다 (Gotcha 9).
+  #    마크다운이 표로 그리는 모양은 다 읽는다 — 줄 앞 공백 세 칸까지 · 인용(&gt;) 속 표 · 굵은(** __) · 기울인(* _) 머리 · 양 끝 | 를 뺀 줄 · U+00A0 / U+3000 공백.
+  #    네 낱말이 다 든 머리인데 네 칸 표가 아니면(다섯 칸 등) 「표 없음」 과 같은 PASS 로 흘리지 않고 unrecognized 로 FAIL 한다.
+  #    LC_ALL=C 는 두 공백 글자를 바이트로 지우려는 것이다 — 어느 awk(BSD · mawk · gawk)든 같은 바이트로 읽는다.
+  blk=$(LC_ALL=C awk '
+    function trim(text){ gsub(/^[ \t]+|[ \t]+$/, "", text); return text }
+    { sub(/\r$/, "") }   # CRLF 가이드는 마지막 칸이 "우회\r" 가 되어 표 머리를 못 찾는다
+    {
+      line=$(0); gsub(/\302\240|\343\200\200/, " ", line)
+      match(line, /^ */)
+      if (RLENGTH &gt;= 4) { in_table=0; next }   # 네 칸 이상 들여쓰면 표가 아니라 코드 블록이다
+      sub(/^ */, "", line)
+      while (line ~ /^&gt;/) sub(/^&gt; */, "", line)
+      if (line !~ /\|/) { in_table=0; next }   # 양 끝 | 가 없어도 | 가 든 줄은 표로 그린다
+      row=line; sub(/^\|/, "", row); sub(/\|[ \t]*$/, "", row)
+      ncell=split(row, cell, "|")
+      words=0
+      for (i=1; i&lt;=ncell; i++) {
+        cell[i]=trim(cell[i]); head[i]=cell[i]; gsub(/[*_]/, "", head[i])
+        if (head[i]=="요구" || head[i]=="출처" || head[i]=="막히는 것" || head[i]=="우회") words++
+      }
+      if (ncell==4 &amp;&amp; head[1]=="요구" &amp;&amp; head[2]=="출처" &amp;&amp; head[3]=="막히는 것" &amp;&amp; head[4]=="우회") { in_table=1; next }
+      if (words==4) { unrec++; in_table=0; next }
+      if (!in_table || row ~ /^[ \t:|-]+$/) next
+      rows++
+      if (ncell!=4 || cell[1]=="" || cell[2]=="" || cell[3]=="" || cell[4]=="") empty++
+      if (cell[2] !~ /http/) nourl++
+    }
+    END { print rows+0, empty+0, nourl+0, unrec+0 }
+  ' "$g")
+  blk_rows=${blk%% *}; blk_rest=${blk#* }; blk_empty=${blk_rest%% *}; blk_rest=${blk_rest#* }
+  blk_nourl=${blk_rest%% *}; blk_unrec=${blk_rest#* }
+  if [ "$blk_unrec" -ne 0 ]; then
+    echo "G5_BLOCKING FAIL rows=$blk_rows empty=$blk_empty nourl=$blk_nourl unrecognized=$blk_unrec"; fail=1
+  elif [ "$blk_empty" -ne 0 ] || [ "$blk_nourl" -ne 0 ]; then
+    echo "G5_BLOCKING FAIL rows=$blk_rows empty=$blk_empty nourl=$blk_nourl"; fail=1
+  else
+    echo "G5_BLOCKING PASS rows=$blk_rows"
+  fi
+  [ "$fail" -eq 0 ] &amp;&amp; echo GATE_PASS || echo GATE_FAIL
+}</code></pre>
     <ul class="checklist">
-      <li><span class="check">!</span><div>게이트 출력 5줄을 보고에 그대로 붙인다. “통과함”이라는 문장은 증거가 아니다.</div></li>
-      <li><span class="check">!</span><div>G3는 스택 인자가 비어 있으면 FAIL이다. 판정 불가를 PASS로 흘리지 않는다.</div></li>
-      <li><span class="check">!</span><div><code>GATE_FAIL</code>이면 완료 보고를 중단하고 수정한 뒤 다시 실행한다.</div></li>
-      <li><span class="check">!</span><div>게이트를 우회하거나 느슨하게 바꾸지 않는다. 정당한 케이스를 막으면 사용자 판단을 받는다.</div></li>
-      <li><span class="check">!</span><div>함수를 바꿨다면 <code>sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh</code>가 <code>EVALS_PASS</code>로 끝나야 한다.</div></li>
-      <li><span class="check">!</span><div>게이트가 잡는 것은 네 가지뿐이다. 사실 정확성·스코프·경로 날조는 별도 검증한다.</div></li>
+      <li><span class="check">!</span><div><strong>게이트 출력을 그대로 보고에 붙여라.</strong> "게이트 통과함" 이라는 문장은 증거가 아니다 — <code>GATE_PASS</code> 를 포함한 6 줄 출력이 증거다.</div></li>
+      <li><span class="check">!</span><div><strong>G3 는 스택 인자가 없으면 <code>FAIL</code> 이다.</strong> 스택을 모르면 혼용을 판정할 수 없고, 판정할 수 없는 것을 PASS 로 흘리는 것이 no-op 게이트의 정체다. 스택은 Phase 1 에서 확정한 값을 넘긴다.</div></li>
+      <li><span class="check">!</span><div><code>GATE_FAIL</code> 이면 완료 보고를 하지 마라. 고치고 다시 돌린다.</div></li>
+      <li><span class="check">!</span><div><strong>게이트를 우회하거나 조건을 느슨하게 고치지 마라.</strong> 우회된 게이트는 없는 게이트보다 나쁘다. 게이트가 정당한 케이스를 막는다고 판단되면 그 사실을 사용자에게 보고하고 판단을 받는다.</div></li>
+      <li><span class="check">!</span><div><strong>게이트 함수를 고쳤으면 <code>sh onboarding-kit/skills/setup-guide/evals/run-gate-evals.sh</code> 가 <code>EVALS_PASS</code> 로 끝나야 한다.</strong> 이 스크립트는 SKILL.md 에서 함수를 그대로 뽑아 <code>evals/evals.json</code> 의 <code>gate_cases</code> 입력마다 zsh · bash 두 셸의 출력을 기대 출력 전체와 대조한다. 판정이 바뀌는 수정이면 기대 출력도 같은 커밋에서 고친다.</div></li>
+      <li><span class="check">!</span><div>게이트가 잡는 것은 <strong>기계로 판정 가능한 5 가지</strong>뿐이다. 사실 정확성·스코프·경로 날조는 여전히 Gotchas 와 Phase 4 검증의 몫이다 (단일 게이트는 보장이 아니다).</div></li>
     </ul>
   </section>
 
   <!-- ## Gotchas (반복 실수 방지) -->
   <section class="section" aria-labelledby="gotchas-title">
     <div class="section-label" id="gotchas-title">Gotchas (반복 실수 방지)</div>
-    <p class="desc">반복 실패를 막는 9개 체크다. 서비스 절차뿐 아니라 스택, 공개 문서의 한계, 범위, 저장소 근거, 비밀 보호까지 통제한다.</p>
+    <p class="desc">반복 실패를 막는 10개 체크다. 서비스 절차뿐 아니라 스택, 공개 문서의 한계, 범위, 저장소 근거, 비밀 보호까지 통제한다.</p>
     <ul class="checklist">
-      <li><span class="check">1</span><div><strong>스택 확정 없이 작성 금지.</strong> Flutter·네이티브 iOS·React Native·Node 백엔드는 SDK, 초기화 코드, CLI가 다르다. 탐지 실패 시 명시적으로 묻는다.</div></li>
+      <li><span class="check">1</span><div><strong>스택 확정 없이 작성 금지.</strong> Flutter·네이티브 iOS·React Native·Node 백엔드는 SDK, 초기화 코드, CLI가 다르다. 탐지 실패 시 명시적으로 묻는다.<br>iOS Firebase SDK 설치 방식도 스택마다 갈린다.<br>· 네이티브 Apple 가이드는 Swift Package Manager 로 안내한다 — 공식 문서가 새 프로젝트에 SPM 을 쓰라 하고, CocoaPods 는 폐기 예정이며 Firebase 12 가 CocoaPods 로 나오는 마지막 major 라고 적었다. 폐기 날짜는 원문에 없다 (<a href="https://firebase.google.com/docs/ios/setup">https://firebase.google.com/docs/ios/setup</a>, 조회 2026-09-26)<br>· Flutter 가이드는 FlutterFire 절차를 따르고, 위 문서를 근거로 그 절차의 CocoaPods 단계를 SPM 으로 바꾸지 않는다 — 위 문서는 Apple 네이티브 범위라 FlutterFire 가 무엇으로 설치하는지 말하지 않는다</div></li>
       <li><span class="check">2</span><div><strong>로그인 뒤 콘솔 화면은 검증 불가.</strong> 공개 문서에 적힌 라벨만 인용하고 버튼 단위 흐름을 단정하지 않는다. 화면 차이 안내와 상위 섹션 검색어를 남긴다.</div></li>
       <li><span class="check">3</span><div><strong>Apple 사이트는 작업별로 나눈다.</strong> 키·식별자 발급은 Developer Account, 앱 레코드와 배포는 App Store Connect다. GCP/Firebase와 AWS Console/Marketplace도 구분한다.</div></li>
-      <li><span class="check">4</span><div><strong>글로벌 유니크 식별자 충돌.</strong> Bundle ID, Package Name, Project ID의 “not available” 해결책으로 조직·도메인의 reverse prefix를 안내한다.</div></li>
+      <li><span class="check">4</span><div><strong>글로벌 유니크 식별자 충돌.</strong> Bundle ID, Package Name, Project ID의 “not available” 해결책으로 조직·도메인의 reverse prefix를 안내한다. 조직 식별자 없는 흔한 조합(<code>com.&lt;앱이름&gt;.app</code>)은 누가 선점했을 확률이 높다.</div></li>
       <li><span class="check">5</span><div><strong>등록과 활성화는 다르다.</strong> App ID와 Provisioning Profile, Firebase 프로젝트와 APNs Key 업로드를 별도 단계로 쓴다.</div></li>
       <li><span class="check">6</span><div><strong>출시 후 변경 불가 정책.</strong> Bundle ID는 빌드 업로드 뒤, Firebase Project ID는 생성 뒤 변경 불가임을 사전 요구사항에 둔다.</div></li>
-      <li><span class="check">7</span><div><strong>임의 확장 금지.</strong> FCM에 Analytics·Crashlytics·Remote Config를, Stripe에 webhook·refund·subscription을, 단순 셋업에 CI/CD·모니터링·IaC를 자동 추가하지 않는다.</div></li>
-      <li><span class="check">8</span><div><strong>경로·파일명·env 키 날조 금지.</strong> 패턴으로 탐색하고 <code>파일:라인</code>으로 열거한다. 0건이면 새로 만든다고 적거나 묻는다. 값이 든 env 파일은 열지 않는다.</div></li>
-      <li><span class="check">9</span><div><strong>막는 요구는 세 칸으로.</strong> 실기기·유료 계정·출시 여부마다 출처, 실제로 막히는 작업, 확인된 우회를 적는다.</div></li>
+      <li><span class="check">7</span><div><strong>임의 확장 금지.</strong> FCM에 Analytics·Crashlytics·Remote Config를, Stripe에 webhook·refund·subscription을, 단순 셋업에 CI/CD·모니터링·IaC를 자동 추가하지 않는다. 더 다룰 가치가 있어 보이면 마지막에 한 줄로 제안만 한다 ("Analytics도 필요하면 <code>/setup-guide firebase analytics</code>").</div></li>
+      <li><span class="check">8</span><div><strong>경로·파일명·env 키 날조 금지.</strong> 패턴으로 탐색하고 <code>파일:라인</code>으로 열거한다. 0건이면 새로 만든다고 적거나 묻는다. 값이 든 env 파일(<code>.env.local</code> · <code>.env.production</code> 등)은 열지 않는다 — 열면 비밀 값이 대화 기록에 남는다.</div></li>
+      <li><span class="check">9</span><div><strong>막는 요구는 세 칸으로.</strong> 실기기·유료 계정·출시 여부마다 출처, 실제로 막히는 작업, 확인된 우회를 적는다. 이 스킬이 「이 가이드는 지금 만들 수 없다」 고 결론 낼 때도 같다 — 먼저 <code>harness/docs/guides/skill-design-guide.md</code> §3.7 조항 3 의 네 칸(막는 것 · 시도한 우회 · 통제 불가 사유 · 재검증 명령)을 적는다.</div></li>
+      <li><span class="check">10</span><div><strong>서비스 계정 키를 기본 경로로 안내하지 마라 — 실행 환경부터 확인하고 이 차례로 고른다.</strong> Google Cloud · Firebase 서버 인증에서 사용자가 관리하는 서비스 계정 키(JSON 키 파일)를 먼저 안내하면 가장 덜 안전한 길이 기본값이 된다. 실행 환경을 먼저 확인하고 아래 차례로 고른다.<br>① Google Cloud 안(Cloud Run · Cloud Functions · Compute Engine 등) — <code>ADC</code>(Application Default Credentials, 실행 환경이 자격 증명을 찾아 주는 방식)와 연결된 서비스 계정<br>② GKE(Google Kubernetes Engine) — <code>Workload Identity Federation for GKE</code><br>③ 혼자 쓰는 개발 환경 — 사용자 자격 증명 또는 <code>서비스 계정 가장</code>(impersonation)<br>④ Google Cloud 밖에서 지원되는 외부 신원 제공자가 있을 때 — <code>Workload Identity Federation</code><br>⑤ 더 안전한 대안을 쓸 수 없을 때만 — <code>서비스 계정 키</code>. 그 사유와 키 보호 · 교체 · 폐기 절차를 함께 적는다<br>근거 (네 문서 모두 조회 2026-09-28 · Last updated 2026-09-24 UTC):<br>· <a href="https://docs.cloud.google.com/iam/docs/best-practices-service-accounts">Google Cloud — Best practices for using service accounts securely</a>: 「We recommend that you avoid using service account keys whenever possible.」<br>· <a href="https://docs.cloud.google.com/iam/docs/best-practices-for-using-workload-identity-federation">Google Cloud — Best practices for using Workload Identity Federation</a>: 「Use Workload Identity Federation whenever an application needs to access Google Cloud and has access to ambient credentials.」<br>· <a href="https://firebase.google.com/docs/admin/setup">Firebase — Add the Firebase Admin SDK to your server</a>: 「this way of initializing the SDK is strongly recommended for applications running in Google environments」 — ADC 로 SDK 를 초기화하는 방식을 가리킨다<br>· <a href="https://docs.cloud.google.com/iam/docs/best-practices-for-managing-service-account-keys">Google Cloud — Best practices for managing service account keys</a>: 「For client-side applications such as tools, desktop programs, or mobile apps, don't use service accounts.」 — 앱 · 데스크톱 프로그램 · 도구에는 서비스 계정을 넣지 않는다<br>「키 파일은 서버에만 둔다」 만 적으면 서버라면 키가 기본 경로인 것처럼 읽힌다. 서버에서도 ①~④ 를 먼저 고르고, 키는 예외로 적는다.</div></li>
     </ul>
   </section>
 
@@ -326,7 +455,7 @@ GATE_PASS</code></pre>
       <div class="card"><div class="num">2</div><h3>막히는 것</h3><p class="card-body">어떤 작업이 막히는지 좁혀 쓴다. FCM 시험 발송은 앱 출시 없이 개발 환경에서 가능하다.</p></div>
       <div class="card"><div class="num">3</div><h3>우회</h3><p class="card-body">출처에서 확인한 우회만 쓴다. 없으면 <code>우회 없음(출처 확인)</code>으로 기록한다.</p></div>
     </div>
-    <p class="caption">2026-09-24 F10 실측: 출시 전·실기기 없음만으로 작업 불가를 선언해 범위를 잘못 막은 사례</p>
+    <p class="caption">2026-09-24 F10 실측(<code>/insights</code>): 출시 전·실기기 없음만으로 작업 불가를 선언해 범위를 잘못 막은 사례 — 사용자가 「앱 올리면 되잖아?」 로 되받았다</p>
   </section>
 
   <!-- ## Process -->
@@ -342,10 +471,10 @@ GATE_PASS</code></pre>
         <li>특정 서비스 인자는 집중하고, 빈 인자는 탐지 목록을 제시한 뒤 선택받는다.</li>
         <li>같은 가이드가 이미 있으면 Regeneration Drift 검사를 실행한다.</li>
       </ol>
-      <pre><code>STACK=flutter   # Phase 1에서 확정. 비우면 G3 FAIL.
+      <pre><code>STACK=flutter   # Phase 1 에서 확정한 스택을 그대로 쓴다. 비워 두면 G3 가 FAIL 한다.
+                # 2026-09-08 까지는 이 변수가 어디에도 정의되지 않아 G3 가 항상 PASS 하는 no-op 이었다.
 find docs/setup -type f -name '*.md' 2&gt;/dev/null | while IFS= read -r f; do
-  printf '%s\n' "--- $f"
-  guide_gate "$f" "$STACK"
+  printf '%s\n' "--- $f"; guide_gate "$f" "$STACK"
 done</code></pre>
       <p><code>GATE_FAIL</code>이 나오면 그것이 첫 산출물이다. 새로 쓸지 기존 것을 고칠지 확인한다. zsh <code>nomatch</code>를 피하려 글로브 대신 <code>find</code>를 쓴다.</p>
     </div>
@@ -376,13 +505,15 @@ done</code></pre>
       <div class="step-where">Phase 4</div>
       <div class="step-title">검증 + 완료 안내</div>
       <ol>
-        <li>Guide Conformance Gate를 먼저 실행하고 5줄 출력을 그대로 보고한다.</li>
-        <li>프로젝트 경로와 env 키를 Glob/Grep 실측 근거와 대조한다.</li>
-        <li>외부 URL이 공식 도메인이며 현재 canonical host인지 확인한다.</li>
-        <li>11개 포맷 섹션 누락을 확인한다.</li>
-        <li>막는 요구마다 출처·막히는 것·우회 세 칸을 확인한다.</li>
-        <li>G2의 <code>bare</code>·<code>invalid</code>·<code>env</code> 숫자를 그대로 보고한다.</li>
-        <li>파일 경로, “막히는 부분 알려주세요”, 코드 지원, 콘솔 화면 차이를 안내한다.</li>
+        <li><strong>Guide Conformance Gate 실행 (E3 · 먼저 한다)</strong> — <code>guide_gate &lt;생성한 가이드&gt; &lt;스택&gt;</code> 을 돌리고 <strong>출력 6 줄을 보고에 그대로 붙인다.</strong> <code>GATE_FAIL</code> 이면 완료 보고를 하지 말고 고친 뒤 다시 돌린다. 이 게이트가 G1(출처 원장 완전성) · G2(마커 분류/임계) · G3(스택 혼용) · G4(deprecation 근거 결합) · G5(막는 요구 세 칸) 를 기계적으로 판정한다.</li>
+        <li><strong>레포 근거 대조</strong> — 가이드에 등장하는 프로젝트 내부 경로·env 키가 전부 Glob/Grep 실측 근거를 갖는지 확인 (Gotcha 8). 근거 없는 항목은 제거하거나 "새로 생성" 으로 고친다.</li>
+        <li>생성된 가이드의 모든 외부 URL이 공식 도메인인지 + <strong>그 시점 canonical host</strong> 인지 확인 (<code>references/search-strategy.md</code>)</li>
+        <li>11개 섹션 누락 확인</li>
+        <li><strong>막는 요구 세 칸 확인</strong> — 칸이 비었거나 출처 칸에 주소가 없는 행은 게이트 G5 가 잡는다. 사람은 그 출처가 그 요구를 실제로 말하는지 본다 (Gotcha 9). 출처가 요구하지 않는 요구는 지운다</li>
+        <li><strong>출처 줄 두 날짜 확인</strong> — Step 마다 출처 줄에 조회일(<code>조회 YYYY-MM-DD</code>)과 원문 갱신일(<code>Last updated YYYY-MM-DD UTC</code>, 원문이 표시할 때만)을 따로 적었는지 본다. 원문 갱신일만 새로 옮기고 본문을 다시 확인하지 않았으면 조회일을 바꾸지 않는다</li>
+        <li><strong>서비스 계정 키 안내 확인</strong> — 서버 인증에서 <code>서비스 계정 키</code>(JSON 키 파일)를 안내했으면, Gotcha 10 의 더 안전한 대안(①~④)을 쓸 수 없는 사유와 키 보호 · 교체 · 폐기 절차를 함께 적었는지 본다. 사유가 없으면 대안으로 바꾼다</li>
+        <li><strong>마커 집계 보고</strong> — 게이트 G2 가 낸 <code>bare</code> / <code>invalid</code> / <code>env</code> 세 숫자를 그대로 쓴다. <code>invalid</code> 에 대한 건수별 판정은 정본(<code>harness/docs/guides/qa-evaluation-guide.md</code> §카운팅 및 자동 REJECT 임계)을 그대로 적용하고 <strong>여기서 숫자를 재정의하지 않는다.</strong> <code>env</code> 는 임계에 합산하지 않고 검증 커버리지로 따로 보고한다.</li>
+        <li>사용자에게 파일 경로 + "막히는 부분 알려주세요" 안내. 사용자가 코드 변경에 도움 필요하면 직접 도와줄 수 있음 안내. <strong>콘솔 라벨은 공개 문서 기준이며 로그인 뒤 화면과 다를 수 있다</strong>는 점을 함께 알린다 (Gotcha 2).</li>
       </ol>
     </div>
   </section>
@@ -397,9 +528,9 @@ done</code></pre>
           <tr><td><strong>2~3년</strong></td><td>연도 없는 검색에서 오래된 결과가 상위 노출될 수 있는 범위</td><td>현재 연도 포함</td></tr>
           <tr><td><strong>4단계</strong></td><td>Fetch 실패 시 fallback 사다리</td><td>ENV 근거</td></tr>
           <tr><td><strong>4요건</strong></td><td>ENV 근거: 시도·fallback·출력·통제 밖 사유와 재검증</td><td>하나라도 없으면 INVALID</td></tr>
-          <tr><td><strong>4개</strong></td><td>G1~G4 결정론적 검사</td><td>나머지는 별도 검증</td></tr>
+          <tr><td><strong>5개</strong></td><td>G1~G5 결정론적 검사</td><td>나머지는 별도 검증</td></tr>
           <tr><td><strong>2건 이상</strong></td><td>현재 정본을 구현한 INVALID 실패 조건</td><td>이 킷에서 독립적으로 재정의하지 않음</td></tr>
-          <tr><td><strong>5줄</strong></td><td>G1~G4와 최종 판정 출력</td><td>보고에 원문 첨부</td></tr>
+          <tr><td><strong>6줄</strong></td><td>G1~G5와 최종 판정 출력</td><td>보고에 원문 첨부</td></tr>
           <tr><td><strong>6개 중 3개</strong></td><td>2026-08-13 쇼케이스 eval 위반 실측</td><td>소급 게이트 근거</td></tr>
           <tr><td><strong>3개월</strong></td><td>위반 상태가 배포된 기간</td><td>Drift 검사 필요</td></tr>
           <tr><td><strong>0/8</strong></td><td>문제가 된 쇼케이스의 Step 대비 출처 원장</td><td>Step별 출처</td></tr>
@@ -431,7 +562,7 @@ done</code></pre>
           <li>공개 문서의 상위 섹션만 확정하고 차이 고지</li>
           <li>주장 강도를 1차 출처와 정확히 맞춤</li>
           <li>스택 확정 후 해당 스택 코드만 제공</li>
-          <li>G1~G4와 GATE_PASS 5줄 첨부</li>
+          <li>G1~G5와 GATE_PASS 6줄 첨부</li>
           <li>기존 파일에 게이트부터 실행</li>
         </ul>
       </div>
@@ -463,7 +594,7 @@ done</code></pre>
     <p class="desc">완료 선언 직전에 확인한다. 하나라도 충족하지 못하면 완료가 아니다.</p>
     <ul class="checklist">
       <li><span class="check">✓</span><div>스택이 실제 의존성 파일로 확정되었고 멀티스택이면 사용자 선택을 받았다.</div></li>
-      <li><span class="check">✓</span><div>각 Step에 정확히 하나의 1차 출처 URL과 조회일이 있다.</div></li>
+      <li><span class="check">✓</span><div>각 Step에 정확히 하나의 1차 출처 URL과 조회일이 있고, 원문에 Last updated 가 있으면 조회일과 따로 적었다.</div></li>
       <li><span class="check">✓</span><div>접미 없는 미검증 마커가 없고 ENV에는 네 근거가 모두 있다.</div></li>
       <li><span class="check">✓</span><div>로그인 뒤 화면의 한계와 상위 섹션 검색어를 안내했다.</div></li>
       <li><span class="check">✓</span><div>Apple·Google Cloud·AWS의 사이트 역할을 작업 기준으로 구분했다.</div></li>
@@ -471,10 +602,11 @@ done</code></pre>
       <li><span class="check">✓</span><div>요청하지 않은 인접 서비스·CI/CD·모니터링·IaC로 확장하지 않았다.</div></li>
       <li><span class="check">✓</span><div>경로와 env 키는 실측 근거가 있고 비밀 파일을 열지 않았다.</div></li>
       <li><span class="check">✓</span><div>막는 요구마다 출처·막히는 작업·확인된 우회가 있다.</div></li>
+      <li><span class="check">✓</span><div>서버 인증은 실행 환경에 맞는 키 없는 방법을 먼저 골랐고, 서비스 계정 키는 대안이 없을 때만 사유와 함께 안내했다.</div></li>
       <li><span class="check">✓</span><div>기존 가이드가 있다면 drift 게이트를 먼저 실행했다.</div></li>
       <li><span class="check">✓</span><div>외부 URL이 공식 도메인과 최종 canonical host를 사용한다.</div></li>
       <li><span class="check">✓</span><div>11개 섹션을 확인했고 해당 없는 내용을 날조하지 않았다.</div></li>
-      <li><span class="check">✓</span><div>G1~G4와 최종 판정 5줄, <code>bare</code>·<code>invalid</code>·<code>env</code>를 보고한다.</div></li>
+      <li><span class="check">✓</span><div>G1~G5와 최종 판정 6줄, <code>bare</code>·<code>invalid</code>·<code>env</code>를 보고한다.</div></li>
     </ul>
   </section>
 
@@ -486,7 +618,7 @@ done</code></pre>
       <article class="card">
         <div class="rule-number">Stack</div>
         <h3>project-detection.md</h3>
-        <p class="card-body">스택과 외부 서비스 의존성을 찾는 패턴.</p>
+        <p class="card-body">스택과 외부 서비스 의존성을 찾는 패턴. 원본 스킬은 <code>references/project-detection.md</code> 로 가리킨다.</p>
         <a class="card-source" href="../../onboarding-kit/skills/setup-guide/references/project-detection.md">↗ 스택 탐지 패턴</a>
       </article>
       <article class="card">
@@ -504,5 +636,23 @@ done</code></pre>
     </div>
   </section>
 </main>
+<script>
+// 테마 — 저장 키 dk-theme. 저장값이 없으면 브라우저 색 설정을 따르고, 누를 때만 저장한다
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  var btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = t === 'dark' ? '라이트' : '다크';
+}
+function toggleTheme(){
+  var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  try { localStorage.setItem('dk-theme', next); } catch (e) {}
+  applyTheme(next);
+}
+(function(){
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (e) {}
+  applyTheme(saved || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+})();
+</script>
 </body>
 </html>

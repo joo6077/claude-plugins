@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 마이그레이션 원칙
 
 `sqlx migrate`는 SQL 파일 기반의 데이터베이스 마이그레이션 도구다. `sqlx::migrate!()` 매크로로 앱 시작 시 자동 실행하거나 `sqlx-cli`로 수동 관리한다.
@@ -14,7 +15,7 @@ last_updated: 2026-04-07
 
 ### 1. 마이그레이션 파일은 타임스탬프 접두사로 네이밍한다
 
-```
+```text
 migrations/
 ├── 20240101000000_create_users.sql
 ├── 20240102000000_create_posts.sql
@@ -87,7 +88,7 @@ cargo sqlx prepare --check
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | sqlx-cli 버전 | 0.8.x | `cargo install sqlx-cli --no-default-features --features native-tls,postgres` |
 | 타임스탬프 형식 | `YYYYMMDDHHmmss` | `sqlx migrate add`가 자동 생성 |
 | 마이그레이션 실행 순서 | 타임스탬프 오름차순 | 숫자 정렬 |

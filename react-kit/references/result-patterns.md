@@ -1,5 +1,7 @@
 # Result Patterns (neverthrow)
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 react-kit 의 모든 에러 경계는 `neverthrow` 의 `Result<T, E>` 를 사용. `throw` 금지.
 
 ## 기본 사용
@@ -38,7 +40,7 @@ export type UserFailure =
 ## 레이어별 사용 규칙
 
 | 레이어 | 사용 |
-|--------|------|
+| -------- | ------ |
 | domain/usecases | **시그니처** `Promise<Result<T, Failure>>` 로 선언만 |
 | data/datasources/remote | `ResultAsync.fromPromise(fetch(...), e => Failure)` 로 경계 변환 |
 | data/repositories | datasource 호출 + Zod parse → Result 체인 |

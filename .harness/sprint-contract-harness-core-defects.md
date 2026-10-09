@@ -13,7 +13,7 @@ locked_at: "2026-09-06 11:41"
 ## 배경
 
 **결함 B (근본 원인)** — QA 가 붙이는 결함 태그와 계약 작성 preflight 태그가 **서로 다른 어휘**다.
-평가자 집합 5 종(`qa-evaluator.md:812`): `측정-상태-모호` · `태그-산출물-불일치` · `측정-중복` ·
+평가자 집합 5 종(`qa-evaluator.md:824`): `측정-상태-모호` · `태그-산출물-불일치` · `측정-중복` ·
 `범위-미명시` · `증거-경로-부재`. 작성 집합 6 종(`contract-schema.md:693-702`): `측정-수단-부재` ·
 `측정-방식-불일치` · `측정-환경-오염` · `측정-산출물-부재` · `검증경로-미기재` · `측정-중복`.
 **교집합이 `측정-중복` 하나뿐**이라, QA 가 3 회 붙인 `측정-상태-모호` 가 작성 단계로 되먹여질
@@ -21,25 +21,25 @@ locked_at: "2026-09-06 11:41"
 
 관련해서 "계약에 리터럴 환경값을 박지 마라" 규칙은 레포에 **0 건**이고(grep 확인),
 `Given:` 은 diff-scope 와 상태의존 명령 두 경우에만 한정돼 있다
-(`contract-design-guide.md:566-600`).
+(`contract-design-guide.md:570-604`).
 
-**결함 A** — `RE-01`/`RE-02` 문구가 정본(`sprint-contract/SKILL.md:502-503`)과
+**결함 A** — `RE-01`/`RE-02` 문구가 정본(`sprint-contract/SKILL.md:508-509`)과
 `contract-schema.md:720-721` 에서 다르다.
 
-**결함 C** — `DG-01`~`DG-04` 문구가 정본(`sprint-contract/SKILL.md:505-508`)과
+**결함 C** — `DG-01`~`DG-04` 문구가 정본(`sprint-contract/SKILL.md:511-514`)과
 `contract-schema.md:729-733` 에서 다르다. 특히 `DG-02` 는 정본이 "IDE diagnostics" 인데
 스키마는 "analyze 에러" 로 **의미가 다르다.** 또 `commands.lint` 는 어떤 DG 조건과도 연결돼
 있지 않다(`README.md:94`). 그리고 "마커는 `[미검증]` 통일, N/A 금지"
-(`qa-evaluation-guide.md:1015`)와 "빈 카테고리 `XX-00: N/A` 허용"
-(`sprint-contract/SKILL.md:584`)이 충돌한다. 이식 가능한 선례는
-`qa-evaluation-guide.md:1497-1509` 의 `N/A (사유)` 표기다.
+(`qa-evaluation-guide.md:1024`)와 "빈 카테고리 `XX-00: N/A` 허용"
+(`sprint-contract/SKILL.md:590`)이 충돌한다. 이식 가능한 선례는
+`qa-evaluation-guide.md:1510-1522` 의 `N/A (사유)` 표기다.
 
 ## 범위 경계
 
 - 대상 6 파일. `harness/templates/project.yaml` 과 `.harness/project.yaml` 은 **제외** —
   `commands.lint` 는 이미 선택 필드로 존재하며 스키마 변경 없이 문서 연결만으로 해소된다.
 - 이탈 문구 전수 조사 결과 29 건 중 이탈 15 건이었으나, 문맥 확인 결과 **9 건은 정당**하다:
-  `contract-schema.md:450-451` 은 aggregation mode 예시, `contract-design-guide.md:526,535` 는
+  `contract-schema.md:450-451` 은 aggregation mode 예시, `contract-design-guide.md:530,535` 는
   금지/허용 대비 예시, `fixture-a~e` 의 `DG-01` 5 건은 `{commands.analyze}` 가 실제 값으로
   치환된 정상 인스턴스다. **이 9 건을 고치면 안 된다.**
 - 진짜 이탈은 `contract-schema.md` 의 자동 포함 블록 6 줄뿐이다.

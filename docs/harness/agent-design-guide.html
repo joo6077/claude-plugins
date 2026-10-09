@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>에이전트 설계 가이드 v1.7.0 — Harness</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -48,7 +49,7 @@ body{
 h3.sub{font-size:1rem;font-weight:700;margin:28px 0 12px;color:var(--text);letter-spacing:-0.01em}
 h3.sub::before{content:'▸ ';color:var(--accent)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;margin-bottom:16px}
-.card:hover{border-color:rgba(217,119,87,0.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
+.card:hover{border-color:rgba(217,119,87,0.45);transform:var(--dk-hover-move, translateY(-2px));box-shadow:0 8px 28px rgba(217,119,87,0.08)}
 .card-title{font-size:1.01rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.72}
@@ -134,7 +135,6 @@ code,.code-block{font-family:var(--mono);font-size:12.3px}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 
 /* ═══ 가로 오버플로 4 규칙 (docs-site Gotcha 10) — 자르지 말고 스크롤시킨다 ═══ */
 /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 라 긴 토큰의 최소폭이 트랙 폭으로 전파된다 */
@@ -182,6 +182,27 @@ td .cell{display:block;max-width:34rem;white-space:normal}
 <!-- kaizen-cycle: 2026-09-24 · source: harness/docs/guides/agent-design-guide.md -->
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <div class="topbar">
@@ -194,7 +215,7 @@ td .cell{display:block;max-width:34rem;white-space:normal}
   <p class="subtitle">공식 문서(2026-09-24 조회), Anthropic Research, 학술 논문, 커뮤니티 실전 경험 기반 서브에이전트 설계 원칙과 실전 팁. 새 에이전트를 만들거나 기존 에이전트를 고칠 때 참고하고, 이 프로젝트(<code>claude-plugins</code>)의 실제 에이전트를 적용 사례로 함께 다룬다.</p>
   <div class="meta">
     <span>version 1.7.0</span>
-    <span>last_updated 2026-09-24</span>
+    <span>last_updated 2026-09-28</span>
     <span>frontmatter 18 종</span>
     <span>중첩 기본 3 층</span>
     <span>Parity item 10 개</span>
@@ -203,10 +224,10 @@ td .cell{display:block;max-width:34rem;white-space:normal}
     <div class="note-title">지난 페이지 판(2026-08-13) 이후 원본에서 바뀐 것</div>
     <ul>
       <li>배치 위치 표 맨 위에 <strong>managed settings</strong> 가 들어와 다섯 자리가 됐다 (§2)</li>
-      <li>공식 frontmatter 가 <strong>18 종</strong>이다 — <code>initialPrompt</code> 는 공식 표에서 다시 확인했고, <code>omitClaudeMd</code> · <code>experimental</code> 은 이름만 확인했다 (§2)</li>
+      <li>공식 frontmatter 가 <strong>18 종</strong>이다 — <code>initialPrompt</code> 는 공식 표에서 다시 확인했고, <code>omitClaudeMd</code> · <code>experimental</code> 의 뜻은 2026-09-26 원문 대조로 채웠다 (§2)</li>
       <li>내장 Explore 는 v2.1.198 부터 부모 세션의 모델을 상속한다 (§4)</li>
       <li><code>Agent(agent_type)</code> 한계 두 가지 — 괄호 안 제한은 메인 스레드에서만 걸리고, 도구를 줘도 안 쓰고 썼다고 적는다 (§4)</li>
-      <li>플랫폼 하드 리밋은 두 가지뿐이다 — 세션 전체 스폰 수에는 상한이 없다 (§7)</li>
+      <li>플랫폼 기본 상한은 두 가지뿐이다 — 세션 전체 스폰 수에는 상한이 없다 (§7)</li>
       <li>미검증 마커가 <code>[미검증:ENV]</code> · <code>[미검증:INVALID]</code> 로 나뉘고, <code>ENV</code> 는 네 칸이 있어야 성립한다 (§10)</li>
       <li>Parity item 10 「Zero-Result Positive Control」 이 표에 올라왔다 (§12)</li>
     </ul>
@@ -284,7 +305,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
         <tr><td><code>description</code></td><td>예</td><td><span class="cell">언제 위임할지 Claude 가 판단하는 기준</span></td></tr>
         <tr><td><code>tools</code></td><td>아니오</td><td><span class="cell">허용 도구 목록. 생략 시 전체 상속. 목록의 어느 항목도 실제 도구로 해석되지 않으면 에이전트가 <strong>launch 자체에 실패</strong>한다. 스킬을 컨텍스트에 미리 넣으려면 여기에 <code>Skill</code> 을 적지 말고 <code>skills</code> 필드를 써라</span></td></tr>
         <tr><td><code>disallowedTools</code></td><td>아니오</td><td><span class="cell">차단 도구 목록 (상속·지정 목록에서 제거)</span></td></tr>
-        <tr><td><code>model</code></td><td>아니오</td><td><span class="cell"><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, <code>fable</code>, 풀 model ID(예: <code>claude-opus-5</code>), <code>inherit</code> (기본값)</span></td></tr>
+        <tr><td><code>model</code></td><td>아니오</td><td><span class="cell"><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, <code>fable</code>, 풀 model ID(예: <code>claude-opus-5</code>), <code>inherit</code>. 생략하면 호출별 <code>model</code> 인자 → frontmatter → 환경 변수 <code>CLAUDE_CODE_SUBAGENT_MODEL</code> → 메인 대화 모델 순으로 정한다 — 생략이 곧 <code>inherit</code> 은 아니다 (2026-09-26 원문 대조)</span></td></tr>
         <tr><td><code>permissionMode</code></td><td>아니오</td><td><span class="cell"><code>default</code>, <code>acceptEdits</code>, <code>auto</code>, <code>dontAsk</code>, <code>bypassPermissions</code>, <code>plan</code>, <code>manual</code>(= <code>default</code> 의 별칭)</span></td></tr>
         <tr><td><code>maxTurns</code></td><td>아니오</td><td><span class="cell">최대 에이전트 턴 수</span></td></tr>
         <tr><td><code>skills</code></td><td>아니오</td><td><span class="cell">시작 시 주입할 스킬 목록 (전체 내용이 context 에 inject 됨, 스킬 invoke 가능성만 주어지는 게 아님)</span></td></tr>
@@ -295,13 +316,13 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
         <tr><td><code>effort</code></td><td>아니오</td><td><span class="cell"><code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code> (모델별 가용 레벨 상이). 세션 effort 를 override</span></td></tr>
         <tr><td><code>isolation</code></td><td>아니오</td><td><span class="cell"><code>worktree</code> 면 격리된 git worktree 에서 실행 (변경이 없으면 자동 정리)</span></td></tr>
         <tr><td><code>color</code></td><td>아니오</td><td><span class="cell">터미널 UI 에 표시되는 에이전트 색상 (<code>red</code>, <code>blue</code>, <code>green</code>, <code>yellow</code>, <code>purple</code>, <code>orange</code>, <code>pink</code>, <code>cyan</code>)</span></td></tr>
-        <tr><td><code>omitClaudeMd</code></td><td>아니오</td><td><span class="cell"><span class="badge y">뜻 미확인</span> 공식 표에서 이름만 확인했다. 쓰기 전에 공식 표를 직접 읽는다</span></td></tr>
+        <tr><td><code>omitClaudeMd</code></td><td>아니오</td><td><span class="cell"><code>true</code> 면 사용자 · 프로젝트 · 로컬 <code>CLAUDE.md</code> 를 넣지 않는다. managed policy 는 그대로 들어간다(managed settings 에서 정의한 에이전트는 그것도 뺀다). 메인 세션 에이전트(<code>--agent</code> · <code>agent</code> 설정)로 뜨면 무시된다. Claude Code v2.1.271 이상</span></td></tr>
         <tr><td><code>initialPrompt</code></td><td>아니오</td><td><span class="cell">이 에이전트가 메인 세션 에이전트로 뜰 때(<code>--agent</code> 또는 <code>agent</code> 설정) 첫 사용자 턴으로 들어간다. 파일 frontmatter 와 <code>--agents</code> JSON 양쪽에서 쓴다. <strong>플러그인 서브에이전트에서는 무시된다.</strong> 2026-08 판에서 뺐다가 2026-09-24 공식 표에서 다시 확인했다</span></td></tr>
-        <tr><td><code>experimental</code></td><td>아니오</td><td><span class="cell"><span class="badge y">뜻 미확인</span> 공식 표에서 이름만 확인했다. 쓰기 전에 공식 표를 직접 읽는다</span></td></tr>
+        <tr><td><code>experimental</code></td><td>아니오</td><td><span class="cell">실험 옵션을 담는 맵이다. 지금 원문이 적은 키는 <code>cacheTtl</code>(<code>5m</code> · <code>1h</code>) 하나이고 다른 키는 무시된다. 서브에이전트 파일에서만 읽는다. Claude Code v2.1.248 이상. 에이전트 전체가 실험 단계라는 표시가 아니다</span></td></tr>
       </tbody>
     </table>
   </div>
-  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields">Create custom subagents — Supported frontmatter fields (2026-09-24 조회 · 2026-09-22 수정본)</a>
+  <a class="card-source" href="https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields">Create custom subagents — Supported frontmatter fields (2026-09-24 조회 · 2026-09-22 수정본 · 2026-09-28 다시 조회 — 필수는 name 과 description 둘뿐임을 재확인)</a>
 
   <div class="limits">
     <div class="correction">
@@ -467,7 +488,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
   <div class="correction">
     <div class="note-title">중요 정정 (2026-07)</div>
     <p>과거 이 가이드는 서브에이전트의 하위 위임을 금지된 것으로 적었으나, 현재 공식 동작은 다르다. <strong>서브에이전트는 기본적으로 자기 아래로 서브에이전트를 스폰할 수 있으며, 메인 대화 기준 3 층까지 중첩된다.</strong> 깊이 한계에 닿으면 Claude Code 가 해당 서브에이전트에서 <code>Agent</code> 도구를 회수하므로, 그 에이전트는 위임 없이 직접 일하고 요약 하나만 돌려준다.</p>
-    <a class="card-source" href="https://code.claude.com/docs/en/sub-agents">Create custom subagents — Let subagents spawn their own subagents (2026-07 확인)</a>
+    <a class="card-source" href="https://code.claude.com/docs/en/sub-agents">Create custom subagents — Let subagents spawn their own subagents (2026-07 확인 · 2026-09-28 다시 조회 — 3 층은 기본값이고 환경 변수로 바꾼다)</a>
   </div>
   <div class="depth">
     <div class="layer"><div class="layer-n">깊이 조정</div><h4><code>env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code></h4><p><code>settings.json</code> 에 둔다. <code>1</code> 로 두면 중첩 비활성</p></div>
@@ -724,22 +745,22 @@ tools: Agent(worker, researcher), Read, Bash
     <a class="card-source" href="https://www.cloudzero.com/blog/claude-code-agents/">Claude Code Agents 2026 — CloudZero</a>
   </div>
 
-  <h3 class="sub">플랫폼 하드 리밋 — 자체 예산과 구분하라</h3>
+  <h3 class="sub">플랫폼 기본 상한 — 자체 예산과 구분하라</h3>
   <div class="stat-row">
     <div class="stat"><div class="stat-num">20</div><div class="stat-label">동시 실행 상한<br><code>CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS</code><br>ultracode 에서는 이 상한도 적용되지 않는다</div></div>
     <div class="stat"><div class="stat-num">3</div><div class="stat-label">중첩 깊이<br><code>CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH</code></div></div>
     <div class="stat"><div class="stat-num">없음</div><div class="stat-label">세션 전체 스폰 수 상한<br>2026-09-24 조회한 공식 문서 기준</div></div>
-    <div class="stat"><div class="stat-num">5</div><div class="stat-label">자체 fan-out 예산 (기본)<br>하드 리밋보다 항상 작게</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">자체 fan-out 예산 (기본)<br>플랫폼 상한보다 항상 작게</div></div>
   </div>
-  <p class="section-desc">Claude Code 자체가 강제하는 상한은 <strong>2 종</strong>(동시 실행 20 개 · 중첩 깊이 3 층)이다. 세션 전체 스폰 수에는 상한이 없다 — 이전 판에 적었던 세션 누적 상한이 어느 릴리스에서 없어졌는지는 특정하지 못했다. 상한에 걸리면 <code>Agent</code> 도구가 실패한다.</p>
+  <p class="section-desc">Claude Code 가 기본으로 두는 상한은 <strong>2 종</strong>(동시 실행 20 개 · 중첩 깊이 3 층)이다. 둘 다 고정값이 아니라 기본값이고 위 환경 변수로 바꿀 수 있다 (2026-09-28 원문 재확인). 세션 전체 스폰 수에는 상한이 없다 — 이전 판에 적었던 세션 누적 상한이 어느 릴리스에서 없어졌는지는 특정하지 못했다.</p>
   <div class="grid-2">
     <div class="note warn">
       <div class="note-title">확인하지 못한 것</div>
-      <p>이전 판이 적은 오류 문구는 <code>Concurrent subagent limit reached</code> · <code>Subagent spawn limit reached</code> 인데, <strong>어느 문구가 어느 상한 것인지는 이번 조회에서 확인하지 못했다.</strong></p>
+      <p><code>Concurrent subagent limit reached</code> 는 이미 20 개가 동시에 도는 세션에서 하나를 더 띄울 때 나는 <strong>동시 실행 상한</strong> 오류다. 중첩 깊이 상한에 닿으면 보통 서브에이전트에는 <code>Agent</code> 도구가 아예 주어지지 않고, fork 는 도구가 남지만 부르면 오류가 난다 — 그 오류 글자는 원문에 없다. 이전 판이 적은 <code>Subagent spawn limit reached</code> 는 2026-09-26 원문 대조에서 찾지 못한 문구다.</p>
     </div>
     <div class="note">
-      <div class="note-title">"기본 5 개" 는 하드 리밋이 아니다</div>
-      <p>"기본 5 개" 는 이 하드 리밋과 별개인 <strong>자체 비용 예산</strong>이며 항상 하드 리밋보다 작게 잡는다 — 하드 리밋은 사고를 막는 최후 방어선이지 설계 목표가 아니다.</p>
+      <div class="note-title">"기본 5 개" 는 플랫폼 상한이 아니다</div>
+      <p>"기본 5 개" 는 이 플랫폼 상한과 별개인 <strong>자체 비용 예산</strong>이며 항상 플랫폼 상한보다 작게 잡는다 — 플랫폼 상한은 사고를 막는 최후 방어선이지 설계 목표가 아니다.</p>
     </div>
   </div>
 
@@ -1126,7 +1147,7 @@ src/lib/auth.ts의 auth 미들웨어 참조."</code>
         <tr><td>호출 품질</td><td><span class="cell">컨텍스트·범위·파일참조·성공기준 4 요소</span></td></tr>
         <tr><td>독립 컨텍스트</td><td><span class="cell">생성과 평가는 분리</span></td></tr>
         <tr><td><strong>중첩 3 층</strong></td><td><span class="cell">서브에이전트도 위임 가능하나 기본 3 층에서 끊김 · 깊이를 설계 가정으로 삼지 마라 (§4)</span></td></tr>
-        <tr><td><strong>하드 리밋</strong></td><td><span class="cell">동시 20 · 깊이 3 (세션 전체 스폰 수는 상한 없음 · ultracode 는 동시 상한 없음) — 자체 예산은 항상 이보다 작게 (§7)</span></td></tr>
+        <tr><td><strong>플랫폼 기본 상한</strong></td><td><span class="cell">동시 20 · 깊이 3 (둘 다 기본값 · 환경 변수로 바뀜 · 세션 전체 스폰 수는 상한 없음 · ultracode 는 동시 상한 없음) — 자체 예산은 항상 이보다 작게 (§7)</span></td></tr>
         <tr><td>영속 메모리</td><td><span class="cell">대화를 넘어서 학습시켜라</span></td></tr>
         <tr><td>디자인 패턴</td><td><span class="cell">체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행/훅 트리거 중 선택</span></td></tr>
         <tr><td><strong>Fan-out 상한 / Exploration Budget</strong></td><td><span class="cell">§7 — 병렬 spawn 기본 5 개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환</span></td></tr>

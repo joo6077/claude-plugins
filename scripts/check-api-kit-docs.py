@@ -9,6 +9,8 @@ QA 최다 반려 사유(출처 링크 누락)를 커밋 전에 잡는 것이 목
 단방향으로만 보면 소스에 근거가 없는 URL 이 페이지에 새로 들어와도 영원히 안 걸린다
 (2026-09-05 QA 지적). 초과분은 출처를 사람이 한 번 확인하라는 신호다.
 
+exit 0 = 전부 통과, 1 = 소스→HTML 누락이 하나라도 있다. 종료 코드 의미: harness/evals/gate-exit-codes.md
+
 Usage:
     python3 scripts/check-api-kit-docs.py            # 전체 검사
     python3 scripts/check-api-kit-docs.py --json     # 기계 판독용
@@ -17,6 +19,8 @@ import json
 import re
 import sys
 from pathlib import Path
+
+from plugin_utils import site_css_stylesheet_links
 
 REPO = Path(__file__).resolve().parent.parent
 SRC_DIR = REPO / "docs" / "api"
@@ -30,12 +34,18 @@ SOURCE_LINE = re.compile(r"^>\s*\*\*출처[^\n]*", re.MULTILINE)
 MD_URL = re.compile(r"\]\((https?://[^)\s]+)\)")
 HTML_HREF = re.compile(r'href="(https?://[^"]+)"')
 
-# 외부 리소스 — standalone 위반
-EXTERNAL = re.compile(r'<link\s|<script[^>]+src=|@import\s|url\(\s*[\'"]?https?://')
+# 외부 리소스 — standalone 위반. 같은 사이트 상대 경로 `<link>`(`../assets/site.css`)는 문서 사이트 공용 스타일이라
+# 세지 않는다 — 통째로 잡던 판은 12 쪽이 모두 그 한 줄로 떨어졌다. 주소 앞 `https:` · `//` · `\\` 가 있는 `<link>` 만 외부다.
+# 대소문자를 가리지 않고 따옴표 뒤 빈칸도 넘긴다 — `HTTPS://` · `href=" https://` · `<LINK` 가 외부인데 통과하던 구멍이었다
+# `<img src>` 는 `<link>` 와 같게 보되 `data:` 는 뺀다. `url(//…)` 와 빈칸 없는 `@import"…"` 도 브라우저가 밖에서 받아 온다
+EXTERNAL = re.compile(
+    r'<link\b[^>]*\bhref\s*=\s*["\']?\s*(?:[a-z][a-z0-9+.-]*:|//|\\\\)'
+    r'|<img\b[^>]*\bsrc\s*=\s*["\']?\s*(?:(?!data:)[a-z][a-z0-9+.-]*:|//|\\\\)'
+    r'|<script[^>]+src=|@import\b|url\(\s*[\'"]?\s*(?:https?:|//)',
+    re.IGNORECASE,
+)
 # 오버플로 억제 — 내용 손실이므로 금지 (overflow-x:auto 는 허용)
 SUPPRESS = re.compile(r"overflow\s*:\s*hidden|overflow-x\s*:\s*hidden")
-
-
 def sources_of(md: Path) -> set[str]:
     text = md.read_text(encoding="utf-8")
     urls: set[str] = set()
@@ -70,8 +80,9 @@ def check(md: Path, html: Path) -> dict:
         r["fail"].append("외부 리소스 참조")
     if SUPPRESS.search(body):
         r["fail"].append("overflow 억제")
-    if "prefers-reduced-motion" not in body:
-        r["fail"].append("prefers-reduced-motion 없음")
+    # 움직임 줄이기 규칙은 쪽마다 적지 않고 공통 CSS 가 맡는다
+    if not site_css_stylesheet_links(body):
+        r["fail"].append("공통 CSS assets/site.css 연결 없음")
     if "dk-theme" not in body:
         r["fail"].append("테마 키 dk-theme 없음")
     return r

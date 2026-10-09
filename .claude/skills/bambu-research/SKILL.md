@@ -14,18 +14,22 @@ user-invocable: true
 # Gotchas
 
 1. **출처 없는 갱신 금지** — 추가/변경한 모든 사실에 출처(URL + 접근 일자)를 명시한다. references는 Codex run 출처를 그대로 보존하고 있으므로 동일 포맷 유지.
-2. **MakerWorld는 Cloudflare 차단 빈번** — 갱신된 fallback (2026-05-16): **Playwright MCP** (`mcp__playwright__browser_navigate` + `browser_snapshot`) 1차 → `codex-rescue` 에이전트 위임 (Playwright 미설치 환경) → WebFetch (마지막 대안) → 사용자 수동. **WebFetch만 단독 시도 금지** — 무한 retry로 토큰 낭비. Cloudflare 차단을 만나면 즉시 다음 단계로 이동.
+2. **MakerWorld 는 킷의 「MakerWorld 읽는 순서」를 따른다** — 정본은 `bambu-kit/skills/bambu-print-profile/SKILL.md` 끝 절이다. JSON 주소를 셸 `curl` 로 먼저 부르고, 브라우저 도구는 JSON 에 없는 사진을 볼 때만 쓴다. 브라우저 서버 이름은 환경마다 다르므로 이름을 박지 말고 이 세션의 도구 목록에서 찾는다. 모델 페이지가 `Just a moment...` · HTTP 403 이면 기다렸다 다시 열지 말고 다음 단계로 간다 (2026-09-22 실측: 다시 열어도 같았다). **WebFetch만 단독 시도 금지** — 무한 retry로 토큰 낭비.
 3. **버전 명시 필수** — Bambu Studio 버전, 필라멘트 SKU, OrcaSlicer 버전을 언급할 때 검증한 버전을 `[product@version]` 형태로 적는다. 버전 없는 추천은 6개월 후 outdated 된다.
 4. **Reddit/YouTube는 보조 신호** — 공식 GitHub release / Bambu Blog / Discourse forum이 1순위. Reddit/YouTube는 "반복 출현 + 공식 소스 교차확인" 조건 시에만 references에 반영.
 5. **카테고리별 단일 갱신** — 한 번에 4개 references를 모두 갱신하지 마라. category 인자로 1개씩 처리해야 회귀 추적이 쉽다. 미지정 시 사용자에게 확인.
 6. **kaizen-sources.md 자체 변경은 보수적으로** — Top 10 우선순위는 가성비 trade-off가 들어간 결정이므로 새 소스를 추가하기 전에 폴링 안정성 (RSS/JSON 응답 200 + 스키마 stable) 검증 필수.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 대상 카테고리 결정
 
 | 인자 | 갱신 대상 references | 폴링 소스 (kaizen-sources.md 매핑) |
-|------|---------------------|--------------------------------|
+| ------ | --------------------- | -------------------------------- |
 | `studio` | bambu-fields-baseline.md | A. Bambu Studio 새 버전 릴리스 (GitHub releases, forum, blog) |
 | `materials` | materials.md | B. Bambu Lab 신소재 출시/단종 (Shopify collections, filament-guide PDF) |
 | `seam` | seam-recipes.md | E. Scarf seam / 신규 slicer 기능 (GitHub issues, OrcaSlicer wiki) |
@@ -39,11 +43,15 @@ user-invocable: true
 각 소스에 대해 fallback 체인 (소스 유형별 분기):
 
 **A. RSS/JSON/API 소스** (GitHub releases, Discourse forum, Reddit RSS, Bambu Blog RSS):
+
 1. WebFetch 1차 시도 (Cloudflare 차단 없는 정적 endpoint라 보통 성공)
 2. 실패 시 → `codex-rescue` 에이전트 위임 (research mode, `--read-only`, `MODE=research`)
 
-**B. MakerWorld / Bambu Studio Wiki / Bambu Store** (Cloudflare 또는 JS-rendered):
-1. **Playwright MCP** 1차 — `mcp__playwright__browser_navigate` + `mcp__playwright__browser_snapshot` 또는 `browser_take_screenshot`. Cloudflare bot challenge 우회 + JS 렌더 콘텐츠 추출.
+**B. MakerWorld** — 킷의 「MakerWorld 읽는 순서」(`bambu-kit/skills/bambu-print-profile/SKILL.md`)를 그대로 따른다: JSON 주소 `curl` → 브라우저 도구(이름은 도구 목록에서 찾는다) → Codex 에 주소를 적어 `curl` 위임 → 사용자 수동. 403 · `Just a moment...` 에서 기다리지 않는다.
+
+**C. Bambu Studio Wiki / Bambu Store** (JS 렌더 페이지):
+
+1. 이 세션의 도구 목록에 있는 브라우저 도구로 열어 렌더된 내용을 읽는다 (서버 이름은 박지 않는다)
 2. 실패 시 → `codex-rescue` 위임 (캐시 활용 가능)
 3. 둘 다 실패 시 → WebFetch (간헐적 성공) → 사용자 수동
 
@@ -54,6 +62,7 @@ GitHub API는 unauth 60/h 한도 내에서 ETag/`If-None-Match` 사용으로 변
 ## Step 3: 변경분 추출
 
 새 정보 vs 기존 references 비교:
+
 - **추가 항목**: 신규 SKU, 신규 Studio 필드, scarf 관련 새 GitHub issue
 - **변경 항목**: deprecated 필드, 단종 SKU, 이름 변경
 - **검증 항목**: 기존 권장사항이 여전히 유효한가 (예: PETG entire_loop stringing이 새 Studio 버전에서 해소됐는가)
@@ -61,6 +70,7 @@ GitHub API는 unauth 60/h 한도 내에서 ETag/`If-None-Match` 사용으로 변
 ## Step 4: references 갱신
 
 해당 .md 파일에 반영:
+
 - frontmatter나 상단 코멘트에 `Last updated: YYYY-MM-DD` + `Source: <폴링 출처>` 추가
 - 새 항목은 기존 표/섹션 스키마를 그대로 따른다
 - deprecated는 즉시 삭제하지 말고 "deprecated since vX.X (출처: ...)"로 표시 후 다음 사이클에 정리
@@ -78,7 +88,11 @@ GitHub API는 unauth 60/h 한도 내에서 ETag/`If-None-Match` 사용으로 변
 chore(bambu-research-<category>): [갱신 내용 요약 + 폴링 일자]
 ```
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `bambu-kit/skills/bambu-print-profile/references/kaizen-sources.md` — 폴링 소스 Top 10 + 카테고리별 매핑 (SSOT)
 - `bambu-kit/skills/bambu-print-profile/references/bambu-fields-baseline.md` — studio 카테고리 갱신 대상

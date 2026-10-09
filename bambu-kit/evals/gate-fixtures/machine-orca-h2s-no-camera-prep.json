@@ -1,0 +1,10 @@
+{
+  "_fixture": "NEG — 시작 명령을 넣지 않아 오르카 2.4.2 번들(2025/08/06)을 상속한다. 툴헤드 카메라 검사 M972 S31 앞뒤의 M1028 S1 · M1028 S0 가 없다. 이 파일에서 위반은 그것 하나뿐이다.",
+  "_expect": "TARGET_SLICER=orca 에서 FAIL 1 건: 카메라 준비 블록 없음 (M1028)",
+  "type": "machine",
+  "name": "machine-orca-h2s-no-camera-prep",
+  "printer_settings_id": "machine-orca-h2s-no-camera-prep",
+  "version": "2.6.0.2",
+  "from": "User",
+  "inherits": "Bambu Lab H2S 0.4 nozzle"
+}

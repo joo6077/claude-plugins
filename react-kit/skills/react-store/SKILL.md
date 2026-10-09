@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **Zustand = 클라이언트 상태 전용** — UI 토글, 편집 중 임시 데이터, WASM 진행 상태, 사용자 선호도가 Zustand 도메인. 서버 응답을 Zustand에 복사하면 두 개의 진실 공급원이 생겨 동기화 버그가 발생한다. 서버 상태는 TanStack Query(react-query)가 단일 진실 공급원.
 2. **`create<Store>()(...)` 이중 괄호 필수** — `create()` 안에 제네릭을 넣는 Zustand v5+ 권장 패턴. `create<Auth>(...)` 단일 괄호는 타입 추론이 깨진다.
 3. **selector 없이 전체 구독 금지** — `const store = useAuthStore()` 처럼 인자 없이 호출하면 모든 state 키에 구독되어 불필요한 리렌더가 폭증한다. 반드시 selector 경유: `useAuthStore((s) => s.user)`.
@@ -58,10 +60,14 @@ user-invocable: true
 
 13. **persist 미들웨어 v5.0.9 이하 상태 불일치 버그** — v5.0.9 이하에서 persist 미들웨어가 초기 상태를 자동으로 저장하지 않아 동적 초기값 설정 시 상태 불일치가 발생할 수 있다. **v5.0.10+ 즉시 업그레이드 권장**. 동적 초기값이 필요하면 `setState()` 를 명시적으로 호출한다.
 14. **Slices 패턴으로 대규모 스토어 분할** — 단일 스토어가 10+ 필드로 비대해지면 도메인별 슬라이스로 분할한다: `create((...a) => ({ ...createFishSlice(...a), ...createBearSlice(...a) }))`. 각 슬라이스는 독립 파일에 정의하고 `create()` 에서 합성한다.
-15. **Enumerate-before-Act (skill-design-guide §5.5)** — 스토어를 생성하기 전에 기존 `src/presentation/features/*/store.ts` 와 `src/presentation/shared/stores/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 스토어 명, (b) 이미 같은 클라이언트 상태를 담는 기존 스토어, (c) `scope: shared` 로 승격된 전역 스토어 존재 여부를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 동일 상태를 두 스토어에 분산하면 단일 진실 공급원이 깨진다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+15. **Enumerate-before-Act (skill-design-guide §5.5)** — 스토어를 생성하기 전에 기존 `src/presentation/features/*/store.ts` 와 `src/presentation/shared/stores/*` 를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 스토어 명, (b) 이미 같은 클라이언트 상태를 담는 기존 스토어, (c) `scope: shared` 로 승격된 전역 스토어 존재 여부를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 동일 상태를 두 스토어에 분산하면 단일 진실 공급원이 깨진다 (insights-report #2 wrong_approach 대응). 출처: <https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom>
 16. **요청한 상태만 — 서버 데이터 임의 흡수 금지** — 사용자가 요청한 클라이언트 UI 상태 필드만 정의한다. "스토어 만들어줘" 요청에 서버 데이터·폼 상태·persist·devtools 미들웨어를 요청 없이 임의로 끼워 넣지 마라. 서버 데이터가 필요해 보이면 그 사실을 **먼저 알리고** `/react-query` 분리를 안내한다 (insights-report #3 excessive_changes 대응 — 3-way 상태 분리 위반 차단).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 프로젝트 환경 감지
 
@@ -174,11 +180,16 @@ pnpm eslint src/presentation/features/<feature>/store.ts --max-warnings=0
 ## 6. 완료 후 안내
 
 생성 파일 목록 출력. 다음 단계:
+
 - 서버 데이터 페칭 훅: `/react-query`
 - 폼 상태 연동: `/react-form`
 - 화면 배치: `/react-screen`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 환경 감지
 - `references/clean-arch-layout.md` — 레이어 배치 규칙 및 금지 import 방향

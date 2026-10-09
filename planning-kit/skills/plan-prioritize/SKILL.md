@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **단일 프레임워크 강요 금지** — RICE 가 만능이 아니다. 기능 성격에 따라 Kano / WSJF / MoSCoW 가 더 적합할 수 있다. 선택 근거 명시.
 2. **Confidence 를 임의로 100% 두지 마라** — RICE 의 Confidence 가 50% 이하면 discovery/실험 먼저. 100% 로 셋팅하면 가중치가 사라진다.
 3. **Effort 추정을 엔지니어 없이 금지** — 기획자 혼자 추정한 Effort 는 편향된다. 최소 "엔지니어 리뷰 대기" 플래그 붙이기.
@@ -26,7 +28,11 @@ user-invocable: true
 13. **Opportunity Scoring 은 research quality 에 민감** — 정성 감으로만 점수화하면 ODI 장점 사라진다. 중요도↑+만족도↓ 구간에 집중. 출처: [Strategyn ODI](https://strategyn.com/lp/outcome-driven-innovation/).
 14. **주어진 항목만 스코어링 — 임의 항목·프레임워크 추가 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 준 후보 목록만 우선순위화한다. "백로그를 보강한다"는 이유로 요청하지 않은 신규 기능 후보를 임의로 만들어 끼워 넣지 마라. 사용자가 RICE 만 요청했으면 RICE 만 적용한다 — 묻지 않은 Kano/WSJF/MoSCoW 표를 추가로 붙이는 것도 scope 확장이다 (Gotcha 1 의 "프레임워크 선택은 근거와 함께" 와 짝). 다른 프레임워크가 더 맞아 보이면 **먼저 제안하고** 교체 여부를 확인한다 (insights-report #1 excessive_changes 대응). 출처: [Intercom — RICE](https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 리서치 문서 로드
 
@@ -37,7 +43,7 @@ user-invocable: true
 상황 → 추천:
 
 | 상황 | 프레임워크 | 이유 | 출처 |
-|------|-----------|------|------|
+| ------ | ----------- | ------ | ------ |
 | 기능 많고 유사한 성격 | RICE | 선형 비교에 강함 | [Intercom](https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/) |
 | Growth 실험 triage | ICE | 속도 우선 | [Workshop Weaver](https://workshopweaver.com/facilitation-methods/ice-scoring) |
 | 사용자 만족도 중심 | Kano | 기본/성능/매력 구분 | [Qualtrics](https://www.qualtrics.com/fr/articles/strategy-research/modele-kano/) |
@@ -52,7 +58,7 @@ user-invocable: true
 ### RICE
 
 | 항목 | 정의 | 단위 |
-|------|------|------|
+| ------ | ------ | ------ |
 | Reach | 분기당 영향받을 유저/이벤트 수 | 숫자 |
 | Impact | 0.25 / 0.5 / 1 / 2 / 3 중 선택 | 이산값 |
 | Confidence | 0-100% | 근거 링크 필수 |
@@ -63,6 +69,7 @@ user-invocable: true
 ### Kano
 
 각 항목에 Functional/Dysfunctional 질문 쌍으로 분류:
+
 - Must-be (Basic)
 - One-dimensional (Performance)
 - Attractive (Delighter)
@@ -97,6 +104,7 @@ Must 가 전체의 60% 넘으면 스코프 재검토.
 ```
 
 Top 3 에 대해:
+
 - 의존성 체크
 - 리스크(`/plan-risks` 연계) 점검
 - 엔지니어 Effort 검증 플래그
@@ -122,11 +130,16 @@ Top 3 에 대해:
 - GitHub Milestone 동기화 → `/plan-sync-github`
 - 완성도 감사 → `/plan-audit`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/prioritization.md` — RICE, ICE, Kano, WSJF, MoSCoW, Opportunity Scoring
 
 주요 1차 출처:
+
 - [Intercom — RICE](https://www.intercom.com/blog/rice-simple-prioritization-for-product-managers/)
 - [Workshop Weaver — ICE](https://workshopweaver.com/facilitation-methods/ice-scoring)
 - [Agile Business — DSDM/MoSCoW](https://www.agilebusiness.org/resource/the-dsdm-agile-project-framework/)

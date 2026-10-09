@@ -10,11 +10,19 @@ argument-hint: "<endpoint|group> [--env dev] [--query k=v] [--header 'K: V'] [--
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+설치본 플러그인에는 `docs/api/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
+<!-- markdownlint-enable MD041 -->
 
 - **Hurl `--secret` 은 stdout 을 가리지 않는다. 스냅샷 저장 전에 킷 자체 scrubber 를 반드시 거친다** — `--secret` 이 가린다고 확인된 곳은 stderr 로그 · JSON 리포트의 `report.json` · `--curl` 파일이다(실측 2026-09-05 · 2026-09-24). 기본 stdout, `--include`, `--output <file>`, `--json` stdout, JSON 리포트의 `store/*_response.json` 에는 토큰이 평문으로 남는다. Hurl 이 응답 stdout 을 "unaltered output" 으로 취급하기 때문이다. 응답을 파일로 남기는 **모든** 경로에 자체 redaction 을 걸어라. 같은 이유로 `--very-verbose` 를 무심코 켜지 마라 — request/response body 를 stderr 로 뱉는다. 등록한 시크릿 값은 `***` 로 바뀌지만 등록하지 않은 변형(base64 · 대소문자 · `Bearer` 접두)과 시크릿으로 등록하지 않은 개인정보는 CI 로그에 그대로 남는다. 진단으로 켤 때는 redaction 을 함께 걸고 그 출력을 artifact 로 흘리지 않는다. (`docs/api/execution/auth-secret-lifecycle.md` §6, `probe-synthesis-hurl-semantics.md` Gotchas)
 - **redaction 에 실패하면 스냅샷을 저장하지 않는다 (fail-closed)** — 부분 마스킹 결과를 "일단 저장하고 나중에 정리" 하지 마라. 리포트를 만든 뒤 마스킹하면 이미 파일과 CI 로그에 비밀이 남는다. redaction 은 저장 파이프라인의 마지막 보정이 아니라 **통과해야 하는 게이트**다. (`docs/api/verification/regression-diff-failure-policy.md` Gotchas)
+  <!-- markdownlint-disable MD038 -->
 - **`--secret` 은 exact value 매칭이다** — 값 하나당 등록 하나. base64 인코딩본, 대소문자 변환본, `Bearer ` 접두를 포함한 형태는 각각 별도 secret 으로 등록해야 한다. 하나라도 빠지면 그 형태로 로그에 노출된다. 자체 scrubber 의 deny 패턴에도 같은 변형을 넣어라. (`auth-secret-lifecycle.md` §5)
+  <!-- markdownlint-enable MD038 -->
 - **prod 는 기본 GET/HEAD/OPTIONS 만이고, 그 판정을 메서드 이름에만 맡기지 마라** — 쓰기 메서드는 env + host + path + method 4중 일치 allowlist 항목이 있을 때만 열린다. `PUT`/`DELETE` 가 idempotent 라는 사실은 재시도 판단 근거이지 실행 허용 근거가 아니고, "검증 목적" 은 상태 변경 면책이 되지 않는다. 반대 방향의 함정도 있다 — `GET /orders/{id}/refresh-cache` 처럼 메서드는 safe 인데 서버 동작이 mutation 인 엔드포인트가 실무에 존재한다. 인벤토리의 `sideEffect: true` 를 먼저 보고, 표시가 없어도 path 패턴이 의심스러우면 사용자에게 확인한다. `TRACE` 는 RFC 상 safe 로 분류되지만 요청을 loop-back 해 `Authorization` 헤더가 응답 본문에 실려 오므로 허용 0회다. prod read-only 의 정확한 범위는 아직 미확정이니 임의로 넓히지 마라. (`docs/api/execution/environment-safety-gates.md` §1~§4)
 - **URL 문자열 query 와 `[Query]` 섹션을 동시에 만들지 마라** — Hurl 은 둘 다 있으면 둘 다 전송한다. 같은 파라미터가 중복되어 서버가 뭘 받았는지 알 수 없게 된다. 기본은 `[Query]` 섹션 한 경로로 통일한다. (`docs/api/execution/probe-synthesis-hurl-semantics.md` §2)
 - **상태를 공유하는 흐름은 반드시 한 `.hurl` 파일 안에 둔다** — Hurl 은 같은 파일 안에서만 cookie store 를 공유하고, `--test` 는 파일 단위 **병렬** 실행이 기본이다. 로그인 → 조회 → 삭제를 파일 세 개로 쪼개면 실행 순서를 보장받지 못한다. 파일 경계가 곧 격리 경계다. (`probe-synthesis-hurl-semantics.md` §5)
@@ -52,7 +60,7 @@ git ls-files --error-unmatch .api/credentials.local.json 2>/dev/null && echo TRA
 `$ARGUMENTS` 를 인벤토리 키로 해석한다.
 
 | 입력 형태 | 해석 |
-|-----------|------|
+| ----------- | ------ |
 | `orders.list` | 그룹 `orders` 의 operation 별칭 |
 | `GET /orders` | canonical key 직접 지정 |
 | `orders` | 그룹 전체 — operation 목록을 보여주고 확인받는다 |
@@ -105,7 +113,9 @@ prod 에서 unsafe 메서드를 실행해야 하면, 실행 전에 대상 목록
 - 발급 실패는 리소스 접근 실패와 다른 축으로 분류한다. token endpoint 오류는 `invalid_client` / `invalid_grant` / `invalid_scope`, 리소스 접근 오류는 `invalid_token`(401) / `insufficient_scope`(403). 전부 "login failed" 로 합치면 재시도 판단이 불가능해진다.
 - 응답 scope 가 요청과 다르면 요청값이 아니라 **실제 granted scope** 를 기준으로 이후 판정을 한다.
 
+<!-- markdownlint-disable MD038 -->
 발급한 토큰과 그 변형(`Bearer ` 접두본, base64 본)을 전부 secret 등록 목록에 넣는다. 자격증명 파일의 id/password 값도 같이 넣는다.
+<!-- markdownlint-enable MD038 -->
 
 ---
 
@@ -160,7 +170,7 @@ echo "exit=$?"
 ## 6. 실패 분류
 
 | exit | 의미 | 분류 | 처리 |
-|------|------|------|------|
+| ------ | ------ | ------ | ------ |
 | `0` | 성공 | — | 스냅샷 저장 진행 |
 | `1` | CLI 옵션 파싱 오류 | 도구 사용 오류 | 실행 중단, 재시도 금지 |
 | `2` | 입력(.hurl) 파싱 오류 | probe 생성 버그 | 합성 로직 수정 |
@@ -180,8 +190,9 @@ echo "exit=$?"
 ```text
 1. scrub      키 이름 deny list + 값 형태 정규식(JWT·이메일·전화·카드번호) + 등록된 시크릿 값
               → 하나라도 처리 실패하면 여기서 중단. 저장하지 않는다
-2. I-JSON 검문 중복 키 · lone surrogate · NaN/Infinity · binary64 표현 불가 숫자 · -0
-              → 정규화 대상이 아니라 실패/fallback 대상
+2. I-JSON 검문 중복 키 · lone surrogate · noncharacter · NaN/Infinity · binary64 표현 불가 숫자, 이어서 -0 검사
+              → 정규화 대상이 아니라 실패/fallback 대상 (-0 은 JCS 가 0 으로 적어 부호가 사라진다)
+              binary64 표현 불가 숫자는 RFC 7493 §2.2 에서 SHOULD NOT(권고)이다 — 실패로 막는 것은 표준보다 엄격한 킷 정책
 3. raw 봉인    상태코드 · 원본 헤더 라인 · 바이트 digest · 시크릿만 마스킹한 본문
 4. normalized  타임스탬프·UUID·커서를 sentinel 로, 부동소수 정밀도 고정
               → RFC 8785 JCS canonical JSON 으로 직렬화 (비교 기준선)

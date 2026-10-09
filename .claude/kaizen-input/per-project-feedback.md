@@ -3,6 +3,7 @@
 ## apps
 
 ### sprint-contract.md (excerpt)
+
 ```markdown
 ---
 feature: "위젯 리팩토링 — 터치 효과 추출, 셀렉트 통합, 캐러셀 분리"
@@ -44,7 +45,8 @@ conditions: 14
 ```
 
 ### sprint-feedback.md (last 3000 chars)
-```markdown
+
+````markdown
 import 'package:freezed_annotation/freezed_annotation.dart';
 
     import 'package:app_kiosk/ui/admin/theme/styles/colors.dart';
@@ -118,6 +120,7 @@ import 'package:app_kiosk/ui/admin/theme/styles/sizes.dart';
 ```
 
 **round_rect_button_widget.dart:**
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -131,11 +134,13 @@ import 'package:app_kiosk/ui/widgets/pressable_widget.dart';
 
 (drop_down_list_button_widget, image_button_widget, date_range_field_widget도 동일 패턴 적용)
 
-```
+````
 
 ## claude-plugins
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### sprint-contract.md (excerpt)
+
 ```markdown
 ---
 feature: "reflect-kit v0.3.0 — Hybrid project_id (backward-compatible)"
@@ -160,7 +165,9 @@ conditions: 20
 - [ ] ER-02: `hooks/log-*.sh` 의 쓰기 경로가 `compute_project_id` 결과를 그대로 사용하므로, SC-02 충돌 감지 충족 시 기존 `<basename>/` 디렉토리를 덮어쓰지 않고 자동으로 `
 ```
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### sprint-feedback.md (last 3000 chars)
+
 ```markdown
 (3/3)
 - [x] ER-01: git 미설치/비-repo 환경에서 cwd basename 반환 + 기존 fallback 유지 — PASS
@@ -217,7 +224,9 @@ conditions: 20
 
 ## flutter_playwright
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### sprint-contract.md (excerpt)
+
 ```markdown
 ---
 feature: "V2 Phase D — find_widget Element-level selector 확장"
@@ -241,7 +250,9 @@ conditions: 24
   - `by=semantic`: `Semantics.p
 ```
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### sprint-feedback.md (last 3000 chars)
+
 ```markdown
 che`, `InspectorRpcClient`, `ScreenshotRegistry`, `ImageFileSaver`, `saveOrEmbedImage`, `formatTree`, `TreeFormat`, `parseTreeFormat` 모두 public 선언. (L2)
 
@@ -288,7 +299,9 @@ che`, `InspectorRpcClient`, `ScreenshotRegistry`, `ImageFileSaver`, `saveOrEmbed
 
 ## iyaki-zip-dev
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### sprint-contract.md (excerpt)
+
 ```markdown
 ---
 feature: "sprint5-relationship-view + positions-migration + snapshot-scaffold"
@@ -314,7 +327,9 @@ conditions: 38
 - [ ] UI-0
 ```
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### sprint-feedback.md (last 3000 chars)
+
 ```markdown
 te.ts`가 `canvas-engine/src/` 하위 존재, react/tanstack/zustand import 0건 — PASS
   - 근거: 파일 위치 확인 (`apps/web/packages/canvas-engine/src/smartGuides.ts`, `alignDistribute.ts`). Grep 결과: react/tanstack/zustand import 없음.

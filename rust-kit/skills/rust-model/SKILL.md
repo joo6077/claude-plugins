@@ -8,13 +8,19 @@ argument-hint: "<table_name> [field:type ...]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
 
-- **SQLx와 SeaORM 중 프로젝트가 이미 사용하는 ORM을 먼저 감지** — 둘을 한 프로젝트에 섞지 마라. `HAS_SEAORM`이면 SeaORM 경로, `HAS_SQLX` only면 SQLx 경로를 따른다. 둘 다 있는 "hybrid"는 fit-pal 같은 대형 프로젝트에서도 안티패턴이다.
+설치본 플러그인에는 `docs/backend/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
+<!-- markdownlint-enable MD041 -->
+
+- **SQLx와 SeaORM 중 프로젝트가 이미 사용하는 ORM을 먼저 감지** — 둘을 한 프로젝트에 섞지 마라. `HAS_SEAORM`이면 SeaORM 경로, `HAS_SQLX` only면 SQLx 경로를 따른다. 둘 다 있는 "hybrid"는 대형 실사용 프로젝트에서도 안티패턴이다.
 - **SQLx 매크로 컴파일 타임 검증** — `sqlx::query!`/`query_as!` 매크로는 컴파일 타임에 DB에 연결해 쿼리를 검증한다. `DATABASE_URL` 환경변수 또는 `.env` 파일이 없으면 컴파일 자체가 실패한다. 오프라인 CI를 위해서는 `cargo sqlx prepare`로 `.sqlx/` 디렉토리를 미리 생성해야 한다. (`sqlx-data.json`은 구버전 패턴이다 — 현재 0.8은 `.sqlx/` 디렉토리를 사용한다.)
 - **SQLx 0.8 오프라인 모드** — `SQLX_OFFLINE=true`는 `.sqlx/` 디렉토리가 존재하고 최신 상태일 때만 동작한다. 쿼리를 수정한 후에는 반드시 `cargo sqlx prepare`를 다시 실행해야 한다. runtime feature는 `runtime-tokio` + `tls-rustls` 조합을 권장 (`runtime-tokio-rustls`는 alias).
 - **SeaORM ActiveModel/Entity 분리** — SeaORM은 `Entity`(쿼리 진입점) + `Model`(read DTO) + `ActiveModel`(insert/update용 opt field wrapper)을 분리한다. 포트 trait에는 이 타입들을 노출하지 말고 순수 도메인 모델로 DTO를 주고받아라.
-- **SeaORM `ConnectionTrait` 제네릭** — 트랜잭션과 일반 커넥션을 동시에 지원하려면 내부 메서드 시그니처를 `<C: ConnectionTrait>(conn: &C, ...)` 형태로 받는다. 이렇게 해야 `&DatabaseConnection`과 `&DatabaseTransaction` 모두 전달 가능하다. 출처: fit-pal `server/CLAUDE.md` §테스트 가능성.
+- **SeaORM `ConnectionTrait` 제네릭** — 트랜잭션과 일반 커넥션을 동시에 지원하려면 내부 메서드 시그니처를 `<C: ConnectionTrait>(conn: &C, ...)` 형태로 받는다. 이렇게 해야 `&DatabaseConnection`과 `&DatabaseTransaction` 모두 전달 가능하다. 출처: 실사용 프로젝트의 서버 규칙 §테스트 가능성.
 - **SeaORM `LoaderTrait` batch loading** — `find_with_related` JOIN 결과의 중복 row 전송을 피하려면 `LoaderTrait`로 관련 엔티티를 배치 쿼리로 불러온다. one-to-many/many-to-many에서 상위 row duplication이 큰 경우 SQLx 수동 JOIN보다 유지보수성이 좋다.
 - **SeaORM nested partial model** — `DerivePartialModel` + nested select로 alias boilerplate 없이 복합 조회 결과를 중첩 struct로 매핑한다. SQLx `query_as!`는 flat row 중심이므로 3계층+ 조회(order + items + cakes)에서는 SeaORM이 모델링 편의성이 높다.
 - **SQLx `sql-check` 분리 크레이트** — SQLx에서 분리된 compile-time SQL validation 전용 레이어. `tokio-postgres` 등 custom driver를 쓰면서 SQL 문자열 검증만 필요한 경우에 적합하다 (2026-01 공개).
@@ -23,7 +29,7 @@ user-invocable: true
 - **마이그레이션 파일은 한 번 적용되면 수정 금지** — 이미 prod/staging에 적용된 마이그레이션을 수정하면 체크섬 불일치로 전체 마이그레이션이 실패한다. 수정이 필요하면 새 마이그레이션 파일을 추가하여 `ALTER TABLE`로 변경해라.
 - **인덱스 네이밍 컨벤션** — `idx_{table}_{columns}` 형식을 따라라(예: `idx_users_email`). 복합 인덱스는 `idx_orders_user_id_created_at`. 이름 없이 생성하면 DB가 자동 생성하는 이름이 DB 벤더마다 달라 마이그레이션 이식성이 깨진다.
 - **`DEFAULT` 값이 있는 컬럼 추가 시 `NOT NULL` 안전하게 적용** — 기존 테이블에 `NOT NULL` 컬럼을 추가하려면 반드시 `DEFAULT` 값을 함께 지정해라. `DEFAULT` 없이 `NOT NULL`을 추가하면 기존 행이 제약 위반으로 마이그레이션 자체가 실패한다.
-- **Enumerate-before-Act (skill-design-guide §5.5)** — 모델/마이그레이션을 생성하기 전에 기존 `migrations/` (또는 `migration/src/`) 와 entity/model 파일을 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 테이블이 이미 존재하는지, (b) 추가하려는 컬럼이 이미 있는지, (c) 같은 초(秒)에 충돌하는 마이그레이션 타임스탬프가 있는지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 SQL/모델을 생성한다. 선(先) 생성 후(後) 중복 발견은 이미 적용된 마이그레이션 수정 금지 규칙과 충돌하여 롤백이 불가능하다 (insights-report #1 wrong_approach·#3 excessive_changes 대응 — DB 스캐폴딩 임의 확장 차단). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+- **Enumerate-before-Act (skill-design-guide §5.5)** — 모델/마이그레이션을 생성하기 전에 기존 `migrations/` (또는 `migration/src/`) 와 entity/model 파일을 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 테이블이 이미 존재하는지, (b) 추가하려는 컬럼이 이미 있는지, (c) 같은 초(秒)에 충돌하는 마이그레이션 타임스탬프가 있는지를 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 SQL/모델을 생성한다. 선(先) 생성 후(後) 중복 발견은 이미 적용된 마이그레이션 수정 금지 규칙과 충돌하여 롤백이 불가능하다 (insights-report #1 wrong_approach·#3 excessive_changes 대응 — DB 스캐폴딩 임의 확장 차단). 출처: <https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom>
 - **Counterpart Enumeration (skill-design-guide §5.5) — 스키마 변경의 소비면을 열거하라** — 컬럼 rename · 타입 변경 · nullable 변경 · enum variant 추가/삭제 · 테이블 rename 은 모델 파일 하나로 끝나지 않는다. 편집 착수 **전에** 아래를 경로로 열거하고 체크리스트 아티팩트(E2)로 남긴다:
   - **producer**: 마이그레이션 SQL · entity/model 구조체 · repository 어댑터 쿼리
   - **consumer**: 해당 컬럼을 읽는 모든 쿼리(`grep` 컬럼명) · 포트 trait 시그니처와 DTO · 직렬화 필드명(`#[serde(rename)]` 포함) · OpenAPI 스키마 · `.sqlx/` 오프라인 캐시(쿼리 변경 시 `cargo sqlx prepare` 재실행 필요) · 픽스처/시드 데이터 · **클라이언트 앱 모델**
@@ -44,8 +50,8 @@ user-invocable: true
 ## 0a. ORM 경로 분기
 
 | 감지 | 경로 |
-|------|------|
-| `HAS_SEAORM` = true | **SeaORM 경로** (§5S: ActiveModel/Entity + sea-orm-migration) — fit-pal 실무 패턴은 1.1 계열 |
+| ------ | ------ |
+| `HAS_SEAORM` = true | **SeaORM 경로** (§5S: ActiveModel/Entity + sea-orm-migration) — 실사용 프로젝트 패턴은 1.1 계열 |
 | `HAS_SQLX` = true, `HAS_SEAORM` = false | **SQLx 경로** (§5X: query_as! + sqlx migrate) — 아래 예시는 0.8 계열 기준 |
 | 둘 다 false | 사용자에게 선택 요청 후 의존성 추가 안내 |
 | 둘 다 true | 사용자에게 단일화 권고 (hybrid는 관리 부담이 크다) |
@@ -74,7 +80,7 @@ cargo add sea-orm-migration --features sqlx-postgres,runtime-tokio-rustls
 `$ARGUMENTS`에서 파싱하거나 사용자에게 확인한다:
 
 | 항목 | 예시 |
-|------|------|
+| ------ | ------ |
 | 테이블 이름 | `users` |
 | 컬럼 목록 | `id: BIGSERIAL PK`, `name: TEXT NOT NULL`, `email: TEXT NOT NULL UNIQUE`, `created_at: TIMESTAMPTZ DEFAULT NOW()` |
 | 관계 | 외래키 여부, `ON DELETE` 정책 |
@@ -246,7 +252,7 @@ pub enum Relation {}
 impl ActiveModelBehavior for ActiveModel {}
 ```
 
-Repository adapter는 **`ConnectionTrait` 제네릭**으로 내부 메서드를 작성한다. 이렇게 해야 일반 커넥션과 트랜잭션을 모두 지원한다 (fit-pal 실무 패턴):
+Repository adapter는 **`ConnectionTrait` 제네릭**으로 내부 메서드를 작성한다. 이렇게 해야 일반 커넥션과 트랜잭션을 모두 지원한다 (실사용 프로젝트 패턴):
 
 ```rust
 // infra/adapters/user_repository_sea.rs
@@ -433,11 +439,13 @@ enum Users {
 생성 완료 후 다음을 안내한다:
 
 **마이그레이션 실행:**
+
 ```bash
 cargo sqlx migrate run
 ```
 
 **오프라인 모드용 메타데이터 생성 (CI 빌드용):**
+
 ```bash
 DATABASE_URL=postgres://... cargo sqlx prepare
 # 또는 workspace 전체:
@@ -450,7 +458,8 @@ DATABASE_URL=postgres://... cargo sqlx prepare --workspace
 
 SeaORM은 두 가지 실행 방식을 제공한다:
 
-**방식 1: CLI (개발 시)**
+#### 방식 1: CLI (개발 시)
+
 ```bash
 # sea-orm-cli 설치 (최초 1회)
 cargo install sea-orm-cli --locked
@@ -465,9 +474,10 @@ DATABASE_URL=postgres://... sea-orm-cli migrate up -d migration
 DATABASE_URL=postgres://... sea-orm-cli migrate down -d migration
 ```
 
-**방식 2: 런타임 마이그레이션 (실무 표준 — fit-pal 패턴)**
+#### 방식 2: 런타임 마이그레이션 (실무 표준 — 실사용 프로젝트 패턴)
+
 ```rust
-// apps/api/src/main.rs 또는 별도 fitpal-migration 바이너리
+// apps/api/src/main.rs 또는 별도 myapp-migration 바이너리
 use sea_orm_migration::MigratorTrait;
 use migration::Migrator;
 use sea_orm::Database;
@@ -490,3 +500,4 @@ Docker 이미지에 `cargo install sea-orm-cli`를 포함시키지 않고 앱 �
 
 - references/project-detection.md
 - templates/rust-model.rs.template — SQLx 모델 템플릿
+- 설치본 플러그인에는 `docs/rust/` 가 없다 — 이 파일의 `docs/rust/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 원칙을 지어내지 말고 못 읽었다고 적는다.

@@ -27,7 +27,7 @@ ABS 실효 `overhang_fan_threshold 25%` 에 안 걸려 `overhang_fan_speed 100` 
 
 그런데 그 보상 경로가 정책으로 막혀 있다. `SKILL.md:876` "fan/cooling 안 건드림 — base에 위임",
 `failure-recipes.md:158`, `user-preferences.md:17` 세 곳이 냉각을 자동 범위 밖으로 둔다. 한편
-`user-preferences.md:42-43` 은 *"속도를 낮추는 것이 품질에 기여한다는 근거가 그 소재·형상에 있을 때만
+`user-preferences.md:44-45` 은 *"속도를 낮추는 것이 품질에 기여한다는 근거가 그 소재·형상에 있을 때만
 낮춘다"* 고 선언한다 — **선언은 형상 의존인데 그것을 실행하는 절차·측정·게이트가 없다.** 이것이 결함이다.
 
 같은 세션에서 키 스코프도 두 번 틀렸다 (`overhang_fan_threshold` 를 process 에 넣으려 했고, enum 이름을

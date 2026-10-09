@@ -17,7 +17,7 @@ status: 미수정 — fit-pal 레포는 이번 카이젠 범위 밖. 이 문서�
 ## 측정 근거
 
 | 항목 | 값 | 측정 방법 |
-|---|---|---|
+| --- | --- | --- |
 | 훅/가드 실패 엔트리 | 351건 (전체의 40%) | reflections 로그 30일 집계 |
 | 파편화된 `mistake_tag` | 54종 | 전부 "가드 훅이 없다"는 동일 의미 |
 | cwd = `fit-pal` (루트) | 206건 | 로그 헤더 `- cwd:` 필드 |
@@ -30,7 +30,7 @@ status: 미수정 — fit-pal 레포는 이번 카이젠 범위 밖. 이 문서�
 `.claude/settings.json` 이 선언한 9개 훅 중 **3개가 없는 파일을 가리킨다.**
 
 | 훅 이벤트 | 참조 경로 | 상태 |
-|---|---|---|
+| --- | --- | --- |
 | SessionStart | `.claude/scripts/env-check.sh` | ❌ **없음** |
 | PreToolUse (Bash) | `.claude/scripts/fvm-guard.sh` | ❌ **없음** |
 | PreToolUse (Bash) | `.claude/scripts/flutter-run-guard.sh` | ❌ **없음** |
@@ -65,12 +65,16 @@ bash: .claude/scripts/env-check.sh: No such file or directory
 { "type": "command", "command": "bash .claude/scripts/ui-mcp-bash-guard.sh" }
 ```
 
-Claude Code 공식 문서 (https://code.claude.com/docs/en/hooks):
+Claude Code 공식 문서 (<https://code.claude.com/docs/en/hooks>):
+
+<!-- markdownlint-disable MD028 -->
 
 > Handlers run in the current directory with Claude Code's environment.
 
 > Use these placeholders to reference hook scripts relative to the project or plugin root,
 > **regardless of the working directory when the hook runs**: `${CLAUDE_PROJECT_DIR}` — the project root.
+
+<!-- markdownlint-enable MD028 -->
 
 fit-pal 은 모노레포라 세션이 `fit-pal/app` 이나 `fit-pal/server` 에서 시작되는 일이 흔하다.
 그때 `.claude/scripts/...` 는 `fit-pal/app/.claude/scripts/...` 로 해석되어 **존재하는 스크립트조차

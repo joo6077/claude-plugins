@@ -22,6 +22,7 @@ user-invocable: true
           → 나머지 3 개는 규약 없음 → 어느 쪽이 정식인지 알 수 없어짐
     Good: 관심사 = "렌더 증거 규약 전파" 1 개 → 해당되는 스킬 5 종 전수 적용 (파일 수 무관)
     ```
+
 5. **/react-audit 자체 검증 필수** — 개선 후 `/react-audit` 카테고리에 영향을 주는 변경이면 6 카테고리 체크리스트를 재확인한다.
 6. **Large Kit Priority Tiering (Phase 9 rust-kit 전수)** — react-kit 은 21 스킬 + 3 에이전트 = 24 surface 로 최대 규모다. 한 세션에 전수 감사하지 말고 3 계층으로 분할:
    - **Tier 1 (REJECT 직접 대응)**: REJECT reason 이 가리키는 파일만 집중 수정.
@@ -31,7 +32,11 @@ user-invocable: true
 8. **공식 문서 우선 리서치 — Context7 → WebFetch → codex-rescue (Phase 5 전수)** — React 19 / TanStack Query v5 / Tauri 2 / Tailwind v4 / Lingui v5 / Zustand v5 / RHF v7 / Vite / Vitest / Playwright 관련 내용은 학습 데이터 대신 현재 공식 문서를 조회 후 인용한다. 1순위는 Context7 `resolve-library-id` → `query-docs` 다. **Context7 MCP 가 OAuth 미인증이면 호출이 실패하고 비대화형 세션에서는 인증 플로우를 실행할 수 없으므로, 복구를 기다리지 말고 즉시 WebFetch 로 공식 문서 URL 을 직접 조회한다** (2026-07-27 실측). 그래도 1차 출처를 못 찾으면 `codex-rescue` 에 리서치를 위임한다. **조회하지 못한 항목은 버전·기본값을 단정하지 않는다.** 상세는 `react-kit/references/common-gotchas.md` G9.
 9. **I-02 예외 목록 (Phase 4 전수)** — Sprint Contract I-02 작성 시 react-kit 스킬 실행으로 생성되는 `package.json`, `tsconfig*.json`, `src-tauri/capabilities/*.json`, `src/locales/*`, `src/routeTree.gen.ts`, `src/wasm/core/*` 를 예외로 명시. 자세한 목록은 `react-kit/references/common-gotchas.md` G7.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 현황 분석
 
@@ -42,7 +47,7 @@ user-invocable: true
 `docs/react/kit-design/` 의 해당 그룹 문서 (g1~g6, g5b) 와 스킬의 Gotchas, Process, 코드 예시를 비교한다. 차이가 있는 부분을 목록화한다.
 
 | 스킬 그룹 | 소스 문서 |
-|-----------|----------|
+| ----------- | ---------- |
 | G1 스캐폴딩 (4) | docs/react/kit-design/g1-scaffolding.md |
 | G2 상태/데이터 (4) | docs/react/kit-design/g2-state-data.md |
 | G3 성능 (2) | docs/react/kit-design/g3-performance.md |
@@ -54,7 +59,7 @@ user-invocable: true
 ## Step 3: 개선 우선순위
 
 | 우선순위 | 기준 |
-|----------|------|
+| ---------- | ------ |
 | 높음 | 잘못된 정보, deprecated API, 안티패턴 포함, Library Policy 위반 우려 |
 | 중간 | 누락된 Gotchas, 불완전한 Process, 트리거 키워드 충돌 |
 | 낮음 | 코드 예시 개선, References 보강 |
@@ -62,6 +67,7 @@ user-invocable: true
 ## Step 4: 개선 실행
 
 상위 **관심사 1~2 개**를 개선한다 (Gotcha 4 — 파일 수 아닌 unit 수 기준). 한 관심사에 해당하는 스킬은 전수 적용한다. 각 개선마다:
+
 1. 변경 전 내용
 2. 변경 후 내용
 3. 변경 근거 (리서치 문서 출처 파일:라인)
@@ -86,7 +92,7 @@ user-invocable: true
 카이젠 세션 시작/종료 시 `python3 scripts/validate-plugin.py react-kit` 을 실행하여 **등록된 검사 전부** 상태를 확인하고 결과를 개선 우선순위에 반영한다.
 
 | 체크 | 대상 |
-|------|------|
+| ------ | ------ |
 | V1 frontmatter | SKILL.md / agents 의 YAML frontmatter |
 | V2 templates | `templates/` 파싱 가능 여부 |
 | V3 refs | References 링크 실존 |
@@ -94,7 +100,7 @@ user-invocable: true
 | V5 placeholders | 미완성 마커 잔존 (백틱으로 감싼 인용은 제외) |
 | V6 code-fence | 언어 힌트 없는 bare fence |
 | V7 plugin-json | plugin.json 과 marketplace.json 버전 일치 |
-| V8 hook-exec | hooks.json 이 직접 실행하는 `.sh` 의 실행 비트(0755) |
+| V8 hook-exec | hooks.json 명령 안 `${CLAUDE_PLUGIN_ROOT}` 가 큰따옴표 안에 있는지 + 직접 실행하는 `.sh` 의 실행 비트(0755) |
 | V9 arg-substitution | 스킬 본문 코드의 `$` + 숫자 — 호출 인자로 치환되어 스니펫이 깨짐 |
 
 **실행 패턴, 우선순위 매핑, 통합 규칙**은 `harness/docs/guides/plugin-validation-guide.md §7` 에서 정의한다 (SSOT) — 해당 섹션을 그대로 따른다.
@@ -103,7 +109,11 @@ user-invocable: true
 
 `react-animation`, `animation-architect-react`, `react-audit` 의 Library Policy 카테고리에 정의된 **라이브러리 0개 원칙** (Motion/framer-motion/dnd-kit/react-spring/react-transition-group 등 빌드 게이트급 금지 목록) 은 이 검증 단계에서도, 그 어떤 카이젠 세션에서도 **절대 완화하지 않는다**. Plugin Validation 결과와 무관하게 이 원칙은 고정이다. 신규 금지 라이브러리 추가만 허용한다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/react/kit-design/g1-scaffolding.md` — G1 스캐폴딩 그룹 설계 (react-init/react-screen/react-feature/react-widget)
 - `docs/react/kit-design/g2-state-data.md` — G2 상태/데이터 그룹 설계 (react-store/react-api/react-query/react-form)

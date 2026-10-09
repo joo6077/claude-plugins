@@ -132,7 +132,7 @@ reflect-kit `project_root` 규칙.
 | F1H-81 | `scripts/collect-kaizen-data.py:421` 워크트리 묶기 규칙과 reflect-kit `facets_unmatched` 규칙 | 지금 facets 18 개는 경로가 전부 살아 있어 영향 0 — 지워진 워크트리 세션이 생기면 맞춘다 |
 | F1H-82 | CI 에 넣은 러너의 첫 우분투 실행 확인 · 시간 상한 | 첫 CI 결과는 PR 뒤에만 볼 수 있다 — 다음 사이클 첫 확인 항목. zsh 설치 단계 시간과 howto 러너 8 ~ 9 초를 함께 본다 |
 | F1H-84 | Codex r1 2 — `silent-check` 픽스처와 `assertions.json` 을 읽는 실행기가 없음 | F1H-14 와 같은 것 — 새 기능이라 다음 사이클 Phase 3 · 4 첫 항목 |
-| F1H-91 | `.claude/skills/docs-site/SKILL.md:47-55` 매핑 표가 일곱 줄뿐 | `.claude/skills/docs-site/` 는 세 Final 계약 어느 범위에도 없다 — 다음 사이클. 이번에 고친 드리프트 매핑 · 오케스트레이터 F2 표와 맞춘다 |
+| F1H-91 | `.claude/skills/docs-site/SKILL.md:51-59` 매핑 표가 일곱 줄뿐 | `.claude/skills/docs-site/` 는 세 Final 계약 어느 범위에도 없다 — 다음 사이클. 이번에 고친 드리프트 매핑 · 오케스트레이터 F2 표와 맞춘다 |
 | F1H-92 | 오케스트레이터 F4 research-log 목록 · 체크리스트 「per-kit research-log 6개 파일」 에 design · tone · api 없음 | 「파일이 없으면 새로 만든다」 조문과 함께 정해야 하는 새 내용 — 다음 사이클 |
 | F1H-94 | validate-plugin V10 이 `docs/<킷>/` 원본을, V6 가 `skills/*/references/` 를 읽지 않음 | F1H-40 의 `V6 범위` 결정과 함께 — 다음 사이클 Phase 4 |
 

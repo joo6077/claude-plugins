@@ -1,0 +1,28 @@
+{
+  "manifest": {
+    "endpoint": "users.me",
+    "env": "dev",
+    "capturedAt": "2026-09-02T14:22:00+09:00",
+    "mediaType": "application/json",
+    "normalizedDigest": "sha-256:8b9866b585780dc942e2c739c021d7bcd27fb9dbca8d5cbbaf48d46027b3d797",
+    "lineage": {
+      "env": "dev",
+      "branch": "main"
+    }
+  },
+  "raw": {
+    "status": 200,
+    "headers": [
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ]
+    ],
+    "body": {
+      "userId": "usr_3a91",
+      "name": "김민준",
+      "tier": "platinum"
+    }
+  },
+  "normalized": "{\"name\":\"김민준\",\"tier\":\"platinum\",\"userId\":\"usr_3a91\"}"
+}

@@ -13,6 +13,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **단일 에이전트 판정에 의존 금지** — planning-reviewer 에이전트를 Agent 도구로 호출하여 **독립 평가** 수행. 본 스킬은 오케스트레이션만 담당.
 2. **산출물 없는 항목을 FAIL 로 처리** — 해당 파일이 없으면 "NOT_FOUND" 가 아니라 "FAIL (missing)" 로 기록. discovery 가 없는 PRD 는 기반이 없다.
 3. **주관 평가 금지** — 모든 항목은 docs/planning/ 원칙 문서 기준 객관 검증. "좋다/나쁘다" 금지, "포함됨/누락됨" 만.
@@ -22,9 +24,13 @@ user-invocable: true
 7. **원칙 위반 기록 시 출처 인용 필수** — FAIL 판정 시 `principle_violated` 필드에 docs/planning/*.md 섹션 + 1차 출처 URL 둘 다 명시. 예: "INVEST §Small (출처: [Agile Alliance](https://agilealliance.org/glossary/invest/))".
 8. **Enumerate-before-Act** — Step 2 에서 reviewer 호출 전, Step 1 에서 **존재하는 모든 .planning/ 파일을 인벤토리로 나열**하고 사용자에게 보여준다. 비인벤토리 상태에서 reviewer 를 spawn 하면 누락 파일이 FAIL 로 잡히지 않는다.
 9. **[미검증] 표기 의무** — reviewer 가 자체 검증 불가능한 항목(예: Mermaid 렌더 결과, 외부 URL 유효성, GitHub sync 실제 결과)은 FAIL 이 아니라 `[미검증]` 으로 표기하고 사용자에게 수동 확인 요청. 관측 못 한 것을 FAIL 처리하면 평가 의미 상실. **마커 의미·임계값·집계 형식의 SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 이며 `planning-reviewer` 가 이를 복제 보유한다 — 본 스킬에서 임계 숫자를 재정의하지 마라.**
-10. **산출물이 있어도 공허하면 PASS 금지** — 파일이 존재하는데 해당 섹션이 비어 있거나 템플릿 헤더만 남은 경우(항목 0개), 존재 자체를 충족으로 읽지 마라. canonical 조항 2 의 3 분기(FAIL / 도구 부재 / 증거 무효)를 적용한다. 빈 결과를 "문제 없음" 으로 읽는 것이 skill-design-guide §3.7 조항 4 가 지적한 실제 사고 형태다.
+10. **산출물이 있어도 공허하면 PASS 금지** — 파일이 존재하는데 해당 섹션이 비어 있거나 템플릿 헤더만 남은 경우(항목 0개), 존재 자체를 충족으로 읽지 마라. `planning-reviewer` 사본의 4 분기(FAIL / `[미검증:ENV]` / 4 요건 미충족 / 증거 무효)를 적용한다. 빈 결과를 "문제 없음" 으로 읽는 것이 skill-design-guide §3.7 조항 4 가 지적한 실제 사고 형태다.
+
+<!-- markdownlint-disable MD025 -->
 
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 자동 로드 (독립 단계)
 
@@ -57,6 +63,7 @@ user-invocable: true
 ## Step 2: planning-reviewer 에이전트 호출
 
 Agent 도구로 `planning-reviewer` 서브에이전트 spawn. 프롬프트에 다음 전달:
+
 - Step 1 인벤토리 (파일 경로 목록)
 - Step 0 에서 확인한 `docs/planning/` 원칙 문서 경로
 - 아래 **12 카테고리** 체크리스트 (0a Reference, 0b Ideation 은 선택 — 해당 산출물 없으면 N/A)
@@ -64,7 +71,7 @@ Agent 도구로 `planning-reviewer` 서브에이전트 spawn. 프롬프트에 �
 ## Step 3: 12 카테고리 평가 기준
 
 | # | 카테고리 | PASS 조건 | 참조 문서 | 1차 출처 |
-|---|---------|-----------|----------|----------|
+| --- | --------- | ----------- | ---------- | ---------- |
 | 0a | Reference | (선택) 레퍼런스 제품이 존재하면 Lightning Demo 5+ 제품 + Feature Matrix + Positioning Statement 존재. "X 같은 앱" 류 요청이 아니면 N/A | reference.md | [GV Sprint Lightning Demo](https://www.gv.com/sprint/), [Strategyzer VPC](https://www.strategyzer.com/library/the-value-proposition-canvas), [April Dunford](https://www.aprildunford.com/) |
 | 0b | Ideation | (선택) 발산(HMW/Crazy 8s 등) + 정리(Affinity/Mindmap) + 수렴(Dot/Impact-Effort) 흔적 존재. 단일 아이디어에서 바로 discovery 진입한 경우 N/A | ideation.md | [Stanford d.school](https://dschool.stanford.edu/resources), [GV Sprint](https://www.gv.com/sprint/), [Design Council Double Diamond](https://www.designcouncil.org.uk/our-resources/the-double-diamond/) |
 | 1 | Discovery | Problem/User/JTBD/Assumption/Metric 모두 존재 + switching moments 인터뷰 증거 | discovery.md §JTBD / §Continuous Discovery | [Klement](https://www.alanklement.com/), [Torres](https://www.producttalk.org/glossary-discovery-continuous-discovery/) |
@@ -92,7 +99,7 @@ Auditor: planning-reviewer agent
 - PASS: X / 12
 - FAIL: Y / 12
 - N/A: Z / 12
-- [미검증]: W 건
+- [미검증]: W 건 (`invalid_evidence` a · `env_gaps` b · `verified_coverage` c)
   - <카테고리 ID> — 사유: ... / 시도한 fallback: ...
 - Verdict: **READY_FOR_SPRINT_CONTRACT** | **NEEDS_REVISION** | **NEEDS_VERIFICATION** | **BLOCKED**
 
@@ -126,11 +133,12 @@ reviewer 가 FAIL 축과 `[미검증]` 축을 각각 판정해서 돌려준다. 
 - **NEEDS_REVISION**: 1-3 FAIL, 모두 수정 가능 범위. → 보완 후 재감사. (CONDITIONAL — 기획 기반 자체는 유효하지만 일부 산출물 품질 부족)
 - **BLOCKED**: 4+ FAIL 또는 discovery / prd 자체 누락. → plan-discover 부터 재시작
 
-**`[미검증]` 축** — 임계값을 여기서 다시 정의하지 않는다. SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 조항 3 (임계 2) 이고, `planning-reviewer` 가 그것을 복제 보유한다:
+**`[미검증]` 축** — 임계값을 여기서 다시 정의하지 않는다. SSOT 는 `harness/docs/guides/qa-evaluation-guide.md` §Canonical Unverified-Evidence Protocol 의 「임계값 2 는」 조항이고, `planning-reviewer` 가 그것을 복제 보유한다. 위에서 성립하는 첫 항에서 멈춘다:
 
-- 0 건 → FAIL 축 결과 그대로
-- 1 건 → FAIL 축 결과 유지 + 리포트 최상단 경고 명시 (FAIL 0 이면 READY 가능)
-- 2 건 이상 → **NEEDS_VERIFICATION** (READY 아님). FAIL 0 이어도 sprint-contract 진행 차단
+- `invalid_evidence` 2 건 이상 → **NEEDS_VERIFICATION** (READY 아님). FAIL 0 이어도 sprint-contract 진행 차단
+- FAIL 0 이고 `verified_coverage = (판정한 카테고리 수 − env_gaps) / 판정한 카테고리 수` < 0.60 → **BLOCKED** (`insufficient_verified_coverage`). FAIL 축의 BLOCKED 와 달리 원인이 환경이다 → 재검증 명령을 돌린 뒤 재감사. FAIL 이 1 개 이상이면 이 항을 건너뛰고 FAIL 축 결과를 쓴다(원문 판정 우선순위는 FAIL 을 먼저 본다)
+- `invalid_evidence` 1 건 → FAIL 축 결과 유지 + 리포트 최상단 경고 명시 (FAIL 0 이면 READY 가능)
+- 그 외 → FAIL 축 결과 그대로. `env_gaps`(4 요건을 다 채운 `[미검증:ENV]`)는 셈에 넣지 않고 수만 적는다
 
 [미검증] 항목은 FAIL 로 counting 하지 않되(두 축 별개), 조항 5 에 따라 `미검증 N 건` 을 반드시 집계하고 건별로 `[카테고리 ID, 사유, 시도한 fallback 단계]` 를 기록한다. Next Actions 에 "검증 후 재평가" 를 반드시 포함.
 
@@ -140,12 +148,17 @@ reviewer 가 FAIL 축과 `[미검증]` 축을 각각 판정해서 돌려준다. 
 
 Verdict 가 READY 가 아니면 **sprint-contract 진행 차단**하고 보완 항목 명시. 사용자가 "이번에는 READY 로 간주하고 진행" 요청해도 차단 — Gotcha 4 우회 금지.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `planning-reviewer` 에이전트 — 12 카테고리 독립 평가 (0a Reference, 0b Ideation, 1~10)
 - `docs/planning/` 전체 원칙 문서 (discovery, prd-patterns, stories, prioritization, flows, data-modeling, risks, cognitive-biases, github-integration, reference, ideation)
 
 주요 1차 출처 (12 카테고리 대응):
+
 - [Alan Klement — JTBD](https://www.alanklement.com/)
 - [Teresa Torres — Continuous Discovery](https://www.producttalk.org/glossary-discovery-continuous-discovery/)
 - [Amazon Working Backwards](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes)

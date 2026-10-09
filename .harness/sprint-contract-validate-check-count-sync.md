@@ -29,7 +29,7 @@ V9~ 로 추가" 라 하고, §8 "다음 갱신 예정" 이 이미 쓰인 V9 번�
 - `scripts/validate-plugin.py:765-773` — 실제 등록된 검사 9종과 그 키 이름
 - `scripts/validate-plugin.py:512-570` — V6 가 보는 파일 범위 (`skills/*/SKILL.md` ·
   `agents/*.md` · `references/*.md` · 킷 루트 `README.md`. **`docs/` 는 보지 않는다**)
-- `harness/docs/guides/plugin-validation-guide.md:64-423` — 카테고리 정의 9종
+- `harness/docs/guides/plugin-validation-guide.md:69-455` — 카테고리 정의 9종
 - 이 레포 관례: 브랜치 `feat/<slug>`, 머지 메시지 `Merge pull request #NN from joo6077/feat/<slug>`
 
 ## 범위 경계

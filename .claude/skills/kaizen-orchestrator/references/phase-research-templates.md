@@ -4,7 +4,11 @@ version: 1.2.0
 last_updated: 2026-09-05
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Phase Research Templates
+
+<!-- markdownlint-enable MD025 -->
 
 > kaizen-orchestrator 의 각 Phase 서브에이전트가 리서치 단계에서 **반드시 조회해야 하는 소스 목록**.
 > 이전에는 각 Phase subagent 가 자체 판단으로 리서치 소스를 결정했으나, 이로 인해 리서치 품질이 일관되지 않았다 (2026-04-11 세션에서 Context7 quota 소진 fallback 이 인용 없이 수행됨).
@@ -30,7 +34,11 @@ last_updated: 2026-09-05
 
 ## Phase 2 — Contract (contract-design-guide, sprint-contract, contract-schema)
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -55,7 +63,11 @@ last_updated: 2026-09-05
 
 ## Phase 4 — Harness 지원 스킬 (init, create-skill, create-agent, kaizen 스킬)
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -75,11 +87,15 @@ last_updated: 2026-09-05
 | 3 | Context7 `flutter_hooks` | 공식 | 최신 hooks 패턴 | WebFetch pub.dev/packages/flutter_hooks |
 | 4 | Context7 `go_router` 또는 `auto_route` | 공식 | 라우터 최신 패턴 | WebFetch pub.dev |
 | 5 | Context7 `freezed` (3.x) | 공식 | sealed/switch 마이그레이션 | WebFetch |
-| 6 | Hub `fit-pal/` + `apps/` sprint-feedback | ground truth | 실무 피드백 | 내부 파일 Read |
+| 6 | Hub 외부 프로젝트(Flutter 앱) sprint-feedback | ground truth | 실무 피드백 | 내부 파일 Read |
 
 ## Phase 6 — design-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -91,7 +107,11 @@ last_updated: 2026-09-05
 
 ## Phase 7 — backend-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -117,7 +137,11 @@ last_updated: 2026-09-05
 
 ## Phase 9 — rust-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (Context7 우선)
+
+<!-- markdownlint-enable MD024 -->
 
 | # | 소스 | 유형 | 조회 이유 | Fallback |
 | - | ---- | ---- | --------- | -------- |
@@ -127,7 +151,7 @@ last_updated: 2026-09-05
 | 4 | Context7 `tonic` (0.13+) | 공식 | gRPC 최신 | WebFetch hyperium/tonic |
 | 5 | [Rust Edition 2024 Guide](https://doc.rust-lang.org/edition-guide/) | 공식 | edition 전환 | WebFetch |
 | 6 | [Clippy lints index](https://rust-lang.github.io/rust-clippy/master/) | 공식 | 2026 새 lints | WebFetch |
-| 7 | fit-pal server ground truth | 내부 | 실무 패턴 | 파일 Read |
+| 7 | Hub 외부 프로젝트(Rust 서버) ground truth | 내부 | 실무 패턴 | 파일 Read |
 
 ## Phase 10 — react-kit
 
@@ -146,7 +170,11 @@ last_updated: 2026-09-05
 
 ## Phase 11 — planning-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks, Stories, Flows, Data Modeling, GitHub 동기화) 을 다루므로 소스는 `docs/planning/*.md` 에 이미 검증된 1차 URL 을 재사용한다.
 
@@ -167,7 +195,11 @@ planning-kit 은 제품 기획 방법론 (Discovery, PRD, Prioritization, Risks,
 
 ## Phase 12 — reflect-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 reflect-kit 은 대화 피드백 → 학습 → 재주입 파이프라인(Reflexion 방법론)을 다룬다. 훅 계약과
 라벨링 품질이 핵심이므로 공식 훅 문서 + 라벨 일관성 연구 + 이벤트 그룹핑 선행 사례를 조회한다.
@@ -184,7 +216,11 @@ reflect-kit 은 대화 피드백 → 학습 → 재주입 파이프라인(Reflex
 
 ## Phase 13 — bambu-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 bambu-kit 은 Bambu Studio 프로파일 JSON 을 생성하므로 **필드명·기본값·계산 의미를 추측하면
 import 가 조용히 실패하거나 실물 출력이 어긋난다.** 슬라이서 소스 코드가 1차 출처다.
@@ -201,7 +237,11 @@ import 가 조용히 실패하거나 실물 출력이 어긋난다.** 슬라이�
 
 ## Phase 14 — onboarding-kit
 
+<!-- markdownlint-disable MD024 -->
+
 ### 필수 소스 (3 건 이상)
+
+<!-- markdownlint-enable MD024 -->
 
 onboarding-kit 은 외부 서비스 셋업 가이드 자동 생성을 다루므로 소스는 `.claude/skills/onboarding-kaizen/references/research-sources.md` 에 등록된 1차 출처를 재사용한다.
 
@@ -230,6 +270,7 @@ tone-kit 은 코딩 톤·유지보수성 게이트를 다룬다. **규칙 강도
 | 7 | [국립국어원 보도자료 작성 길잡이](https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663) | 공식 | 한국어 축 문체 근거 — 실제 내용은 보도자료 구성 · 형식 안내라 코드 주석 문체 근거로는 약하다 | [LINE 테크니컬 라이팅](https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/) |
 | 8 | 디자인 시스템 컴포넌트 인덱스 (M3 · HIG · MUI · Fluent · Ant · Carbon) | 공식 | 접미사 taxonomy 어휘 원천. **권위가 아니라 어휘 대조용** | WebFetch |
 
+<!-- markdownlint-disable-next-line MD036 -->
 **주의 3건**
 
 - 자연어 텍스트 탐지 문헌(DetectGPT · Binoculars · 텍스트 스타일로메트리)은 `tone-kit/references/sources.md` 의 제외 목록에 있다. 되살리지 마라.
@@ -253,16 +294,40 @@ api-kit 은 **실제 응답을 SSOT 로 삼는** 블랙박스 계약 검증을 �
 | 7 | [Pact — Pending Pacts](https://docs.pact.io/pact_broker/advanced_topics/pending_pacts) | community(1차) | baseline 승격 거버넌스 선행 사례. 신규 계약을 곧바로 빌드 실패로 만들지 않는 구조 | WebFetch |
 | 8 | `docs/api/research-log.md` 미검증 항목 표 + `.api/` 실측 산출물 | 내부 | 문서 기재 ↔ 실측 대조. 어긋나면 **실측 채택** 후 로그 기록 | 파일 Read |
 
+<!-- markdownlint-disable-next-line MD036 -->
 **주의 3건**
 
 - **`pin` 의 의미를 되돌리지 마라.** 2026-09-04 리서치에서 '값 고정' → '경로별 명시 assertion'
   으로 재정의됐다. 외부 도구(버전 pin · snapshot pin)의 용례를 근거로 되돌리려면 설계문서 §9.2
   와 `/api-ui` 아이콘 어휘를 함께 고쳐야 한다.
-- **경로 간 불변식은 Hurl 로 표현할 수 없다.** `$.meta.total >= len($.data)` 류는 계약 YAML 에
-  기록하고 `/api-verify` 후처리에서 검사한다. Hurl assert 문법이 늘었다는 주장은 실측으로 확인한다.
+- **경로 간 불변식은 `.hurl` 에도 적을 수 있지만 판정 불가를 표현할 곳이 없다.** `$.meta.total >= len($.data)`
+  류에서 한쪽 경로가 없으면 Hurl 이 종료 코드 `3` 으로 끝나 실패와 판정 불가가 갈리지 않는다
+  (정본 `api-kit/skills/api-verify/SKILL.md`). 그래서 계약 YAML 에 기록하고 `/api-verify` 후처리에서 검사한다.
 - **확정 결정 5 건을 리서치로 뒤집지 마라** — `exact` 는 본문만 · enum 승격 3 샘플 이상 ·
   prod 기본 GET/HEAD/OPTIONS · 기준선 RFC 8785 JCS · 계약 실패와 환경 실패는 exit code 로 분리.
   근거는 설계문서 §12 의 사용자 확정이다.
+
+## Phase 17 — howto-kit
+
+howto-kit 은 사람이 손으로 하는 절차를 화면 → 메뉴 → 항목 → 값 → 확인까지 끊지 않고 안내한다. 출처는 `.claude/skills/howto-research/SKILL.md`
+Step 1 표의 1차 출처이고, 아래 URL 은 모두 `docs/howto/` 문서나 `howto-kit/references/provenance-notes.md` 에 이미 적힌 것이다.
+**새 출처를 찾기보다 적힌 출처가 지금도 같은 말을 하는지 다시 보는 것**이 이 Phase 리서치의 목적이다.
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [Google developer documentation style guide — Procedures](https://developers.google.com/style/procedures) | 공식 | 스텝 하나에 동작 하나 · 동작 먼저 결과 나중 (`docs/howto/procedure-standards.md` §1). 매 스텝 확인 규정이 없다는 기록이 그대로인지 | [Microsoft Writing Style Guide](https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions) |
+| 2 | [Microsoft Writing Style Guide — Writing step-by-step instructions](https://learn.microsoft.com/en-us/style-guide/procedures-instructions/writing-step-by-step-instructions) | 공식 | 번호 목록 · 명령형 동사 규정, UI 지목 어휘 (`docs/howto/ui-anchoring.md`) | WebFetch |
+| 3 | [Apple Style Guide](https://support.apple.com/guide/applestyleguide/welcome/web) | 공식 | 방향어 용법. 동등 조항은 확인 실패로 남아 있다 — 확정되면 `provenance-notes.md` 에서 옮긴다 | [PDF 판](https://help.apple.com/pdf/applestyleguide/en_US/apple-style-guide.pdf) |
+| 4 | DITA 1.3 언어 참조 `cmd` · `stepresult` · `taskbody` (docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/langRef/technicalContent/) | 사양 | Step Contract 뼈대. 한 문장 명령 · 결과를 매 스텝에 쓰지 않는다는 원문 | WebFetch |
+| 5 | 벤더 변경 기록 피드 — [AWS What's New](https://aws.amazon.com/about-aws/whats-new/recent/feed/) · [Google Cloud release notes](https://docs.cloud.google.com/feeds/gcp-release-notes.xml) · [Apple Developer News](https://developer.apple.com/news/rss/news.rss) · [GitHub Changelog](https://github.blog/changelog/feed/) | 공식 | `docs/howto/changelog-feeds.md` 의 피드 주소가 살아 있는지, RSS · Atom 형식이 바뀌었는지 | 확인 실패 기록(`howto-kit/references/provenance-notes.md`) |
+| 6 | 콘솔 딥링크가 박힌 벤더 문서 — [Azure Monitor Logs overview](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview) 등 `docs/howto/deep-links.md` 표의 출처 열 | 공식 | 문서 본문에 박힌 콘솔 URL 이 그대로인지. 바뀌면 `howto-kit/references/navigation-anchors.md` 도 같이 고친다 | WebFetch |
+| 7 | `docs/howto/` 리서치 문서 여섯 편의 `last_updated` + `howto-kit/references/provenance-notes.md` | 내부 | 지난 조회일과 확인 실패 항목을 먼저 읽고 바뀐 것만 다시 본다 | 파일 Read |
+
+주의할 점 세 가지:
+
+- **ISO/IEC/IEEE 26514 · 26515 를 근거로 인용하지 마라.** 세부 조항은 확인 실패다. `iso.org` 는 이 환경에서 짧은 빈 쪽만 돌려준다 — 접근이 막힌 것이지 문서가 없는 것이 아니다.
+- **매 스텝 `verify` 필수와 G5(마지막 동작까지 적었는지) · G6(스텝 하나의 크기) 검사는 표준 인용이 아니라 도메인 실패 기록에 근거한 강화다.** 스타일 가이드에 같은 규정이 없다는 이유로 되돌리지 마라.
+- **howto-kit 은 킷별 리서치 기록 파일이 없다.** 조회 결과는 각 `docs/howto/*.md` 의 `last_updated` 와 `provenance-notes.md` 에 남긴다 — 사용 규칙 1 번의 킷별 `research-log.md` 를 howto 에는 새로 만들지 않는다.
 
 ## 사용 규칙
 

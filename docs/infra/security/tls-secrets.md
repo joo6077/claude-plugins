@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # TLS & 시크릿 관리
 
 TLS 1.3, ACME 자동화(cert-manager), 시크릿 관리(Vault, AWS SM, GCP SM), 키 로테이션, 환경별 분리, sealed-secrets, external-secrets-operator를 다룬다.

@@ -17,13 +17,18 @@ user-invocable: true
 5. **frontmatter 갱신 누락 금지** — 문서 내용을 수정하면 `last_updated`와 `version`(patch bump)을 반드시 함께 갱신하라. 내용만 바꾸고 메타데이터를 그대로 두면 다음 카이젠에서 변경 시점을 추적할 수 없다.
 6. **Codex 리서치 결과를 검증 없이 복사 금지** — Codex가 반환한 URL은 실제 접근 가능한지 확인하라. 404 링크를 출처로 남기면 문서 신뢰도가 무너진다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 1: 리서치 범위 결정
 
 사용자가 카테고리를 지정하면 해당 문서만, 미지정이면 전체 docs/backend/ 갱신.
 
 현재 문서 목록:
+
 - fundamentals/: api-design, database, auth, error-handling, testing, security
 - patterns/: caching, event-driven
 - protocols/: api-lifecycle, graphql, grpc, realtime
@@ -35,6 +40,7 @@ user-invocable: true
 ## Step 3: 외부 리서치
 
 Codex(codex:rescue)에 리서치 태스크를 위임한다:
+
 - 공식 문서 업데이트 확인
 - 새 RFC/표준 발행 여부
 - 주요 엔지니어링 블로그 신규 사례

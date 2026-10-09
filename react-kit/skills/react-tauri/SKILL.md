@@ -11,6 +11,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **isTauri() gating 필수** — `infrastructure/tauri/` 의 모든 함수는 첫 줄에 `if (!isTauri())` 가드를 선언해야 한다. 브라우저 환경에서 `window.__TAURI_INTERNALS__` 가 없으면 `invoke`가 throw한다. 가드 없이 브라우저에서 실행하면 crash.
 2. **레이어 경계 엄수** — `@tauri-apps/api/*` import는 오직 `src/infrastructure/tauri/` 에서만 허용. `data/`, `domain/`, `presentation/` 에서 직접 import하면 레이어 경계 위반. `/react-audit` G6이 이 패턴을 grep으로 강제 검출한다.
 3. **capabilities 등록 누락** — Rust command를 추가하고 Builder에 등록해도 `src-tauri/capabilities/*.json` 에 권한이 없으면 런타임에 "not allowed" 에러 발생. 이 스킬은 capabilities 파일을 자동 수정한다.
@@ -27,10 +29,14 @@ user-invocable: true
 14. **Stronghold 보안 저장소 기본값** — 민감 데이터(토큰, API 키, 자격 증명) 저장은 `@tauri-apps/plugin-stronghold` 를 기본으로 사용한다. `tauri add stronghold` 로 설치하고 JS guest binding (`@tauri-apps/plugin-stronghold`) + Argon2 helper 를 활용한다. `localStorage` 에 민감 데이터 저장 금지.
 15. **Updater 플러그인 — 서명 아티팩트 자동 생성** — v2 updater plugin 은 `bundle.createUpdaterArtifacts` 설정 시 플랫폼별 서명 번들(AppImage/macOS archive/MSI/NSIS) 을 자동 생성한다. 배포 파이프라인에 서명/업데이트 아티팩트 단계를 포함시킨다.
 16. **Deep Link + Single Instance 조합 필수** — deep-link plugin 의 `onOpenUrl` 은 Windows/Linux 에서 single-instance plugin 없이 동작이 제한된다. OAuth callback 등 deep-link 활용 시 반드시 `single-instance` + `deep-link` 두 플러그인을 함께 설정한다. macOS/Android/iOS 는 런타임 동적 등록 불가 — config 기반 등록이 필요하다.
-17. **Enumerate-before-Act (skill-design-guide §5.5)** — Tauri command 를 생성하기 전에 기존 `src-tauri/src/` 의 `#[tauri::command]` 핸들러와 `src/infrastructure/tauri/*` 래퍼를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 command 명, (b) 이미 등록된 `invoke_handler` 항목, (c) capabilities 에 이미 허용된 permission 을 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 중복 command 등록은 `generate_handler!` 에서 빌드 에러를 내고, 과잉 permission 은 보안 표면을 넓힌다 (insights-report #2 wrong_approach 대응). 출처: https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom
+17. **Enumerate-before-Act (skill-design-guide §5.5)** — Tauri command 를 생성하기 전에 기존 `src-tauri/src/` 의 `#[tauri::command]` 핸들러와 `src/infrastructure/tauri/*` 래퍼를 `Glob`/`Grep` 으로 전수 스캔하여 (a) 동일/유사 command 명, (b) 이미 등록된 `invoke_handler` 항목, (c) capabilities 에 이미 허용된 permission 을 먼저 **모두 열거**한다. 열거 결과를 체크리스트로 사용자에게 보이고 합의한 뒤에만 파일을 생성한다. 중복 command 등록은 `generate_handler!` 에서 빌드 에러를 내고, 과잉 permission 은 보안 표면을 넓힌다 (insights-report #2 wrong_approach 대응). 출처: <https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#set-appropriate-degrees-of-freedom>
 18. **요청한 command·permission 만 — 임의 capability 확장 금지** — 사용자가 요청한 command 와 그에 필요한 최소 permission 만 capabilities 에 추가한다. "파일 읽기 command" 요청에 쓰기·삭제·shell·dialog permission 을 요청 없이 임의로 덧붙이지 마라. least-privilege 가 원칙이며, 추가 권한이 필요해 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #3 excessive_changes 대응).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## 1. 프로젝트 환경 감지
 
@@ -87,6 +93,7 @@ pub fn <command_name>(/* 파라미터 */) -> Result<<ResponseType>, String> {
 ```
 
 **규칙:**
+
 - 반환 타입은 `Result<T, String>` 관례 사용
 - `Serialize`, `Deserialize` derive 필수 — `serde_json` 직렬화 경로
 - 에러 메시지는 `format!("context: {e}")` 패턴으로 맥락 포함
@@ -136,7 +143,7 @@ pub fn run() {
 **권한 추론 규칙** (`command_name` 키워드 기반):
 
 | 키워드 | 추론 권한 |
-|--------|----------|
+| -------- | ---------- |
 | read, load, open (파일) | `fs:allow-read-text-file` |
 | write, save, create (파일) | `fs:allow-write-text-file` |
 | dialog, 다이얼로그 | `dialog:allow-open`, `dialog:allow-save` |
@@ -197,6 +204,7 @@ export async function <commandCamel>(
 ```
 
 **핵심 규칙:**
+
 - `isTauri()` 가드는 함수 첫 줄 — 브라우저 환경에서 invoke 호출 방지
 - `invoke<unknown>` + Zod safeParse — 런타임 타입 안전 보장
 - 3가지 실패 케이스를 모두 discriminated union으로 분류
@@ -296,11 +304,15 @@ pnpm tsc --noEmit
 - 화면에 Tauri 기능 추가: `/react-screen`
 - 감사 (capabilities 누락, isTauri 가드 누락, @tauri-apps 레이어 위반): `/react-audit`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `references/project-detection.md` — 프로젝트 환경 감지
 - `references/clean-arch-layout.md` — infrastructure/tauri/ 경계 규칙, 금지 import 방향
 - `docs/react/kit-design/g3-performance.md` §2 — 이 스킬 상세 설계 (3-tier 흐름, Gotchas, fallback 전략)
-- Tauri 2 Calling Rust from Frontend: https://v2.tauri.app/develop/calling-rust/
-- Tauri 2 Capabilities: https://v2.tauri.app/security/capabilities/
-- Tauri 2 isTauri API: https://v2.tauri.app/reference/javascript/api/namespacecore/
+- Tauri 2 Calling Rust from Frontend: <https://v2.tauri.app/develop/calling-rust/>
+- Tauri 2 Capabilities: <https://v2.tauri.app/security/capabilities/>
+- Tauri 2 isTauri API: <https://v2.tauri.app/reference/javascript/api/namespacecore/>

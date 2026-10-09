@@ -1,0 +1,40 @@
+schemaVersion: 1
+operations:
+  - key: "POST /v1/auth/token"
+    id: auth.token
+    group: auth
+    request: { mediaType: application/json }
+    response: { mediaType: application/json }
+    sideEffect: false
+  - key: "GET /v1/orders"
+    id: orders.list
+    group: orders
+    params:
+      - { in: query, name: status, required: false, type: enum, enum: [active, shipped, cancelled] }
+    response: { mediaType: application/json }
+    sideEffect: false
+  - key: "GET /v1/products"
+    id: products.list
+    group: products
+    params:
+      - { in: query, name: limit, required: false, type: integer }
+    response: { mediaType: application/json }
+    sideEffect: false
+  - key: "GET /v1/products/{sku}/inventory"
+    id: products.inventory
+    group: products
+    params:
+      - { in: path, name: sku, required: true, type: string }
+    response: { mediaType: application/json }
+    sideEffect: false
+  - key: "POST /v1/products"
+    id: products.create
+    group: products
+    request: { mediaType: application/json }
+    response: { mediaType: application/json }
+    sideEffect: true
+  - key: "GET /v1/users/me"
+    id: users.me
+    group: users
+    response: { mediaType: application/json }
+    sideEffect: false

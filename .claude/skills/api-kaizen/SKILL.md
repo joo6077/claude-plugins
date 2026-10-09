@@ -24,7 +24,11 @@ user-invocable: true
 5. **트리거 키워드 배타성** — 스킬 description 을 손대면 5 종 전체의 트리거 키워드를
    set intersection **과** substring containment 양쪽으로 재검사한다. 한쪽만 보면 놓친다.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 트리거 판정
 
@@ -53,7 +57,7 @@ done
 반대로 스킬에만 있고 문서에 근거가 없는 규칙도 찾는다 — 그건 근거 없는 규칙이다.
 
 | 축 | 확인 |
-|---|---|
+| --- | --- |
 | 누락 | 문서 원칙 중 스킬 Gotchas·Process 어디에도 없는 것 |
 | 무근거 | 스킬 규칙 중 `docs/api/` 에 대응 원칙이 없는 것 |
 | 드리프트 | 같은 규칙이 스킬마다 다른 표현·다른 임계값으로 적힌 것 |
@@ -78,7 +82,11 @@ Step 1 과 같은 명령을 다시 돌리고 차이를 표로 낸다.
 
 `harness:qa-evaluator` 를 spawn 해 판정받는다. 매번 새로 spawn 한다 — 기존 컨텍스트의 편향을 막는다.
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `../../../docs/api/` — 리서치 SSOT 12 종
 - `../../../docs/superpowers/specs/2026-09-02-api-kit-design.md` — 확정 결정

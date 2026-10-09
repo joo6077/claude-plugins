@@ -5,6 +5,7 @@ created: 2026-09-07
 purpose: 다른 세션이 이 문서만 읽고 킷을 만들 수 있게 하는 설계 정본
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # howto-kit 설계 브리프
 
 **한 줄**: 사람이 손으로 해야 하는 절차를 **어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인**까지 끊지 않고 알려주는 스택·도메인 무관 킷. 기본은 대화창 즉답, 요청 시 MD 문서화.
@@ -22,7 +23,7 @@ purpose: 다른 세션이 이 문서만 읽고 킷을 만들 수 있게 하는 �
 | **F1** | 같은 질문에 매번 다른 절차 | `qa-evaluation-guide.md:1009-1013` 킷별 임계 2/3/0 → 같은 상태가 다른 판정. fit-pal `docs/setup/` 4개 문서가 같은 Bundle ID 를 `com.fitpal.test`/`com.fitpal.app` 두 값으로 적음 |
 | **F2** | 입도 부족 — "설정에서 활성화하세요" | `memory/feedback_console_ui_verify.md:13` 사용자 원문 **"대충 알려주면 누가 못해"** / `reflections-2026-05.md:18826` **"자세하게 말해 대충말하지말고"** |
 | **F3** | 최신성 결여 | `reflections-2026-05.md:18733` "공식 docs에서 검증했다"고 주장했으나 `web_search_requests:0, web_fetch_requests:0` — **조회 없이 지어냄**. `:18780` 에서 교정 후 재발, `enforcement_need: hard_gate` 로 판정됨 |
-| **F4** | 네비게이션 경로 부재 | `reflections-2026-05.md:18705` **"고급 설정 아래에도 없음"** / `feedback_setup_guide_site_distinction.md:18` FCM 하려고 App Store Connect 로 진입 → 옵션 자체가 없음 / `format-checklist.md:115` `General` 한 단계 누락으로 경로 무효 |
+| **F4** | 네비게이션 경로 부재 | `reflections-2026-05.md:18705` **"고급 설정 아래에도 없음"** / `feedback_setup_guide_site_distinction.md:18` FCM 하려고 App Store Connect 로 진입 → 옵션 자체가 없음 / `format-checklist.md:133` `General` 한 단계 누락으로 경로 무효 |
 
 F2 와 F3 는 서로를 악화시킨다. `reflections-2026-05.md:18752-18753` 이 그 실물이다 — 사용자가 "자세하게"를 요구한 **직후에** 사이드바 메뉴 순서를 검증 없이 단정했다. **입도 요구를 날조로 메우는 것**이 이 킷이 막아야 할 최악의 실패다.
 
@@ -108,7 +109,7 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 
 ### P4. 중간 단계를 생략하지 않는다
 
-경로 표기는 `A > B > C` 로 전 구간을 쓴다. 한 단계라도 빠지면 사용자가 화면에서 못 찾는다 — `format-checklist.md:115` 의 실측(`General` 누락으로 경로 무효)이 근거다.
+경로 표기는 `A > B > C` 로 전 구간을 쓴다. 한 단계라도 빠지면 사용자가 화면에서 못 찾는다 — `format-checklist.md:133` 의 실측(`General` 누락으로 경로 무효)이 근거다.
 
 > *"Don't use bold on the greater-than symbol. Include a space before and after the symbol."* — Microsoft, [learn.microsoft.com/en-us/style-guide/procedures-instructions/describing-interactions-with-ui]
 
@@ -119,10 +120,12 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 > **2026-09-09 교정.** 이 항목은 원래 "방향어 **대신**" 이라고 적혀 근거보다 강했다. 실제 규칙은
 > **단독 사용 금지**이며 완화 조건의 출처는 Google 이 아니라 Microsoft 다. 확정 정본은
 > `docs/howto/ui-anchoring.md`.
+<!-- markdownlint-disable-next-line MD028 -->
 
 > *"Don't use directional terms as the only clue to location."* /
 > *"It's OK to use a directional term if another indication of location … is also included."*
 > — Microsoft, [learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities]
+<!-- markdownlint-disable-next-line MD028 -->
 
 > *"Don't use directional language to orient the reader"* — Google,
 > [developers.google.com/style/ui-elements] (완화 조건 없음)
@@ -147,6 +150,7 @@ URL 은 버튼 라벨보다 훨씬 덜 바뀐다. 안내는 잘 안 바뀌는 �
 > *"If you don't see a Campaigns tab or add button…"* — Apple
 > *"If you can't see the filter's sharing configuration, you'll need your Jira administrator to give you the Create Shared Object global permission."* — Atlassian
 > *"Organizations that you are a member of will not appear if the organization has blocked…"* — GitHub
+<!-- markdownlint-disable-next-line MD028 -->
 
 > **2026-09-10 교정.** 이 목록은 5 종을 주장했지만 인용이 있던 것은 권한 계열뿐이었고, Apple
 > 인용은 권한이 아니라 **기능 선행조건** 분기였다. 확정 정본은 `docs/howto/branch-catalog.md`.
@@ -235,6 +239,7 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 ```
 
 > *"before starting the current task"* — DITA `<prereq>` / 콘텐츠 모델은 `<prereq>?, <context>?, (<steps>|<steps-unordered>)?` 순서 — [docs.oasis-open.org/dita/dita/v1.3/os/part2-tech-content/contentmodels/cmtct.html]
+<!-- markdownlint-disable-next-line MD028 -->
 
 > **2026-09-10 보강.** 이 고정 순서는 DITA 의 **strict task model** 이다. DITA 1.2 부터 OASIS
 > 배포본에는 모델이 둘이고(*"two task models"*) general 모델은 순서가 자유롭다. 모델명을 밝히지
@@ -360,7 +365,7 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 4. **조회했다는 주장은 도구 호출 기록으로만 성립한다.** — `feedback_skill_invocation_evidence.md`, `reflections-2026-05.md:18733`
 5. **1차 출처가 deprecated 라고 말하지 않은 것을 deprecated 로 쓰지 마라.** 출처보다 강한 주장은 날조다. — `search-strategy.md:88`
 6. **사이트가 갈리는 서비스는 사전 요구사항 맨 위에 작업별 표를 박아라.** — `feedback_setup_guide_site_distinction.md`
-7. **한국어 라벨은 번역 추정이다. 영문을 정본으로, 한국어는 괄호.** — `format-checklist.md:117`
+7. **한국어 라벨은 번역 추정이다. 영문을 정본으로, 한국어는 괄호.** — `format-checklist.md:135`
 8. **각 단계에 관측 가능한 확인 지점을 붙여라.** 무증상 실패가 가장 위험하다. — `bambu_studio_json_import.md:23-24`, `bambu_ironing_type_enum.md:13`
 9. **같은 규칙을 여러 문서에 재서술하지 마라.** 정본 한 곳을 인용하라. 재서술은 반드시 갈라진다. — `qa-evaluation-guide.md:1004-1013`
 10. **추측 fallback 을 두지 마라.** 확정 실패 시 조용히 기본값으로 떨어지면 같은 입력이 환경마다 다른 답을 낸다. — `reflect-kit/hooks/_lib-tag-canon.sh:40-45`
@@ -382,7 +387,7 @@ postreq  뒤처리 · 되돌리기 · 파기해야 할 것
 | C2 | 스킬 3 개(`howto`, `howto-doc`, `howto-audit`) SKILL.md 존재, 각 frontmatter 에 `name`/`description`/`user-invocable` | `validate-plugin.py` V1 통과 |
 | C3 | 에이전트 `howto-reviewer.md` 존재, 도구가 읽기 전용으로 스코프됨 | frontmatter `tools` 에 Write/Edit 없음 |
 | C4 | Step Contract 스키마가 `references/step-contract.md` 에 정본으로 1 곳만 존재 | `grep -rn "step_id\|target_label" howto-kit/` 결과가 references 1 파일에 집중 |
-| C5 | G1~G6 게이트가 셸 함수로 구현되고 **zsh·bash 양쪽에서 실행**됨 | 두 셸에서 각각 실행한 출력 전문 첨부 |
+| C5 | G1~G6 게이트가 셸 함수로 구현되고 **zsh·bash·sh 세 셸에서 실행**됨 | 세 셸에서 각각 실행한 출력 전문 첨부 (`howto-kit/evals/run-evals.sh` 가 셋을 대조한다) |
 | C6 | G5(말단 액션)·G6(입도) 각각에 대해 **양성 케이스 1 건**(일부러 위반한 입력)이 FAIL 을 내는 것을 실행으로 증명 | 실패 출력 첨부 — 오탐 통과만으로는 게이트 생존 증명 안 됨 |
 | C7 | evals 에 **입도 assertion** 포함 — 종결 동사 검사, `verify` 필드 존재, 분기 존재 | `evals.json` 케이스 수 ≥ 6, 그중 입도 케이스 ≥ 2 |
 | C8 | `.claude-plugin/marketplace.json` 에 등록 | 파일 diff |

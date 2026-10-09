@@ -4,6 +4,7 @@ version: 0.1.1
 last_updated: 2026-09-24
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 회귀 diff 실패 분류 정책
 
 baseline 과 실제 응답의 차이를 어떤 실패로 부를지 결정하는 판단 규칙. 상태·스키마·값 drift 분류, 계약 실패와 환경 실패의 분리, exit code 계약, CI artifact 매핑을 다룬다.
@@ -73,7 +74,7 @@ diff 가 실패한 순간 baseline 을 자동 갱신하지 않는다. Jest snaps
 ### Hurl exit code 규약 (`/api-verify` 계약)
 
 | Exit code | 의미 | 분류 | CI 처리 |
-|-----------|------|------|---------|
+| ----------- | ------ | ------ | --------- |
 | `0` | 성공 | — | pass |
 | `1` | CLI 옵션 파싱 오류 | 도구 사용 오류 | 실행 중단, 재시도 금지 |
 | `2` | 입력(.hurl) 파싱 오류 | 계약 파일 오류 | 실행 중단, 계약 파일 수정 |
@@ -85,7 +86,7 @@ diff 가 실패한 순간 baseline 을 자동 갱신하지 않는다. Jest snaps
 ### 기타 임계값
 
 | 항목 | 값 | 근거 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | HTTP 상태 코드 유효 범위 | `100..599`, 클래스는 첫 자리로 결정 | [RFC 9110 Status Codes](https://www.rfc-editor.org/rfc/rfc9110.html#name-status-codes) |
 | Bearer auth 분류 | malformed `400` / invalid·expired token `401` / insufficient scope `403` | [RFC 6750 §3.1](https://www.rfc-editor.org/rfc/rfc6750.html#section-3.1) |
 | JUnit XML 결과 매핑 | 통과는 result child 없음, 실패는 `failure` / `error` / `skipped` 중 하나 | [JUnit XML 레퍼런스](https://github.com/testmoapp/junitxml) |
@@ -98,7 +99,7 @@ diff 가 실패한 순간 baseline 을 자동 갱신하지 않는다. Jest snaps
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 모든 차이를 `diff failed` 한 줄로 출력 | 상태·스키마·값 중 무엇이 깨졌는지 알 수 없어 대응 우선순위를 못 정한다 |
 | `401/403/404` 를 무조건 API regression 으로 처리 | 만료된 토큰이나 정상적인 데이터 부재가 계약 위반으로 둔갑해 게이트가 노이즈로 채워진다 |
 | retry 성공 시 실패 기록 삭제 | flaky 신호가 사라져 같은 불안정이 무한 반복된다 |

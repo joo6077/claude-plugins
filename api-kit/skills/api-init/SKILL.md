@@ -11,7 +11,13 @@ argument-hint: "[spec-path]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+설치본 플러그인에는 `docs/api/` 가 없다 — 이 파일의 `docs/...` 경로나 `../` 로 시작하는 상대 경로를 열 수 없으면 (상대 경로는 앞의 `../` 를 떼고) `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 `docs/...` 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
+<!-- markdownlint-enable MD041 -->
 
 - **operation 키는 `METHOD + 정규화된 path template` 이다. `operationId` 로 dedupe 하지 마라** — `operationId` 는 OpenAPI 선택 필드라 curl·Talend·md 출처에는 대부분 없다. 이걸 원시 키로 쓰면 외부 덤프와의 매칭이 통째로 실패하고 dedupe 가 동작하지 않는다. `operationId` 는 별칭 컬럼에만 저장하고, 별칭 매칭에서 case-fold 하지 마라 — `getUser` 와 `GetUser` 는 서로 다른 별칭이다. (`docs/api/discovery/api-inventory-normalization.md` §1, 안티패턴)
 - **path template 은 두 방향에서 틀린다 — 우선순위와 역템플릿화** — (1) concrete path 가 templated path 를 이긴다. `/users/me` 는 `/users/{id}` 보다 먼저 매칭한다. 반대로 같은 hierarchy 에서 변수명만 다른 `/users/{id}` 와 `/users/{name}` 은 동일 path 라 둘 다 살려두면 안 되고, 모호한 후보를 임의로 고르지 말고 conflict 로 남겨야 한다. (2) curl·HAR 의 관측 URL 을 역으로 템플릿화할 때는 **세그먼트 경계에서만** 변수화한다. `/files/a/b/c` 를 `/files/{path}` 로 접으면 실제로 존재하지 않는 operation 을 만든다 — path template 변수값에는 unescaped `/`, `?`, `#` 가 들어갈 수 없다. (`api-inventory-normalization.md` §3, Gotchas)
@@ -66,7 +72,7 @@ find . -maxdepth 4 \
 소스별로 후보를 뽑되 **출처별로 따로 유지한 채** 다음 단계로 넘긴다. 이 단계에서 합치지 않는다.
 
 | 소스 | 뽑는 것 | 주의 |
-|------|---------|------|
+| ------ | --------- | ------ |
 | OpenAPI | paths → method → parameters/requestBody/responses/security | `servers` 누락 시 기본 server URL 은 `/` |
 | curl 덤프 | method, URL, 헤더, body 인코딩 | shell tokenization 파서 필요 — 공백 split 금지 |
 | Talend export | project/service/scenario 계층, 환경변수 | 계층을 평탄화하지 말고 provenance 로 보존 |
@@ -133,7 +139,7 @@ operations:
 사용자와 환경별로 확정한다. 값을 추측해서 채우지 마라.
 
 | 항목 | 내용 |
-|------|------|
+| ------ | ------ |
 | `tier` | `dev` / `stg` / `prod` — 안전 게이트 판정의 입력 |
 | `baseUrl` | 환경별 절대 URL |
 | `allowHosts` | 화이트리스트. 목록 밖 호스트로 나가는 요청은 무조건 차단 |

@@ -51,7 +51,7 @@ Iteration: 2
     의미 확인: plugin.json:3 "슬라이서 판별(Bambu Studio / OrcaSlicer)",
     SKILL.md:3 "Bambu Studio 와 OrcaSlicer 를 모두 다루며", SKILL.md:9 "양쪽을 지원".
 - [x] SK-02 — PASS
-  - 근거 [L3]: `bambu-fields-baseline.md:350` §11 헤더 1 건. §11.2 오르카 전용 **7 행** ·
+  - 근거 [L3]: `bambu-fields-baseline.md:364` §11 헤더 1 건. §11.2 오르카 전용 **7 행** ·
     §11.3 뱀부 전용 **6 행** (기준 각 >=3).
   - **독립 재측정(평가자 직접 · 사용자 방법론 지시 준수 — 바이너리·프로파일 둘 다)**:
     `strings -a` 뱀부 770,832 줄 / 오르카 753,573 줄. 24 키 전수 대조 —
@@ -61,19 +61,19 @@ Iteration: 2
     대조군 2 종(`percise_outer_wall` 오타 · `jackson_totally_fake_key`) 양쪽 0/0
     → 이 측정이 아무 문자열이나 잡는 게 아님을 확인(공허한 0 아님).
 - [x] SK-03 — PASS
-  - 근거 [L3]: `grep -c 'seam_slope_conditional'` = **4** (>=1). §6.5.4(`seam-recipes.md:277-287`)
+  - 근거 [L3]: `grep -c 'seam_slope_conditional'` = **4** (>=1). §6.5.4(`seam-recipes.md:287-297`)
     안에 `0%` **2 건** — 실측표 `1 → 0%` / `0 → 98.2%` + "기본값이 1 이므로 명시적으로 0 을 쓰지
     않으면 경사 설정 전체가 무효" 서술.
 - [x] SK-04 — PASS
-  - 근거 [L3]: 클램프 서술 `min(설정값, 루프 둘레)` 1 건(`seam-recipes.md:253`, GCode.cpp v2.4.2 출처 병기),
+  - 근거 [L3]: 클램프 서술 `min(설정값, 루프 둘레)` 1 건(`seam-recipes.md:263`, GCode.cpp v2.4.2 출처 병기),
     규칙 문장 "**규칙: 경사 길이를 루프 둘레보다 작게 잡아라.**" 1 건(`:261`).
     실측 임계표(0.5/1.5/3/10 → 360% 비율) 동반.
 - [x] SK-05 — PASS
-  - 근거 [L3]: §6.5.2(`seam-recipes.md:237-249`) 근거 문단 1 건 + 출처 URL 1 건
+  - 근거 [L3]: §6.5.2(`seam-recipes.md:247-259`) 근거 문단 1 건 + 출처 URL 1 건
     (OrcaSlicer PR 3839 코멘트 "random is a disaster, blobs and strings galore").
     수치(78%→11%)를 먼저 제시한 뒤 그럼에도 기본 처방으로 쓰지 않는 이유를 댔다.
 - [x] SK-06 — PASS
-  - 근거 [L3]: `surface-recipes.md:145` 계산식 한 줄에 `outer_wall_line_width` ·
+  - 근거 [L3]: `surface-recipes.md:146` 계산식 한 줄에 `outer_wall_line_width` ·
     `inner_wall_line_width` · `wall_loops` 동시 사용(매치 1 건).
     `arachne` 전환 조건 `:158` ("< 벽 예산, >= 외벽 2겹(0.84 mm) → `wall_generator` 를 `arachne` 로").
     실측 대조표(classic 갭필 16,123 vs arachne 0) 동반.

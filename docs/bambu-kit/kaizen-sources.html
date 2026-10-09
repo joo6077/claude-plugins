@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kaizen Sources — Bambu Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -52,7 +53,7 @@ h3{font-size:clamp(15px,1.5vw,18px);font-weight:700;margin-bottom:8px}
 
 /* Cards & Grids */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:clamp(18px,2.5vw,28px);transition:border-color var(--transition),transform var(--transition)}
-.card:hover{border-color:rgba(20,184,166,0.25);transform:translateY(-2px)}
+.card:hover{border-color:rgba(20,184,166,0.25);transform:var(--dk-hover-move, translateY(-2px))}
 .grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px}
 .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}
 .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px}
@@ -98,7 +99,7 @@ tr:hover td{background:rgba(20,184,166,0.03)}
 /* Numbered (Top 10) */
 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:var(--accent-dim);color:var(--accent);font-size:14px;font-weight:800;flex-shrink:0;border:1px solid rgba(20,184,166,0.25)}
 .rank-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;display:flex;flex-direction:column;gap:10px;transition:border-color var(--transition),transform var(--transition)}
-.rank-card:hover{border-color:rgba(20,184,166,0.3);transform:translateY(-2px)}
+.rank-card:hover{border-color:rgba(20,184,166,0.3);transform:var(--dk-hover-move, translateY(-2px))}
 .rank-head{display:flex;align-items:center;gap:14px}
 .rank-title{font-size:14px;font-weight:700;color:var(--text);line-height:1.3}
 .rank-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
@@ -122,13 +123,30 @@ tr:hover td{background:rgba(20,184,166,0.03)}
 .dot.bad{background:var(--red)}
 
 /* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *,*::before,*::after { transition:none !important; animation:none !important; }
-  html { scroll-behavior:auto }
-}
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <a class="back-link" href="../index.html">← Bambu Kit</a>

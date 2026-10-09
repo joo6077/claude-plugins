@@ -1,5 +1,7 @@
 # Project Detection Rules
 
+설치본 플러그인에는 `docs/react/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 All react-kit skills read this file to determine the current project environment before generating code. Mirrors the `flutter-toolkit/references/project-detection.md` pattern.
 
 ## Detection Order
@@ -17,6 +19,14 @@ All react-kit skills read this file to determine the current project environment
 11. **strict TypeScript** — read `tsconfig.json` for `strict: true` and related options
 
 ## Detection Outputs
+
+Run the kit's detector from the project root instead of re-reading each file by hand. It prints the JSON object below, one key per detection step:
+
+```bash
+bash "$REACT_KIT/scripts/project-detect.sh"   # REACT_KIT = ${CLAUDE_PLUGIN_ROOT} when installed, react-kit/ in the plugin repo
+```
+
+`react-kit/evals/scripts/project-detect-test.sh` checks only the `tanstackRouter` value (three known inputs, jq and python3 paths). No test checks that the output keeps the other keys of the object below. If the script is unavailable, read the files in the order above and build the same object.
 
 A detection result is a JSON object shaped like:
 

@@ -71,7 +71,7 @@
 
 ### C1 — ER-08: V 줄 형식의 받는 쪽인 검증 가이드 출력 예시가 빠졌다
 
-`harness/docs/guides/plugin-validation-guide.md:488-520` §출력 포맷은 실패 V 줄을 `V3 refs 89 links, 2 BROKEN` · `V4 triggers 58 keywords, 1 duplicate` 처럼 판정 글자 없이 보여 준다.
+`harness/docs/guides/plugin-validation-guide.md:520-552` §출력 포맷은 실패 V 줄을 `V3 refs 89 links, 2 BROKEN` · `V4 triggers 58 keywords, 1 duplicate` 처럼 판정 글자 없이 보여 준다.
 ER-08 뒤에는 실제 출력과 달라진다. Counterpart 표의 「validate-plugin V 줄 글자」 행이 이 문서를 받는 쪽으로 적지 않았다. 또 ER-08 (a) 는 V3 · V5 · V6 · V9 넷만 재서,
 V4(경고) 같은 다른 줄이 판정 없이 남아도 통과한다.
 
@@ -189,7 +189,7 @@ SK-02 가 `:124` 줄의 `Phase 7~16` 은 고치면서 같은 줄 괄호 목록�
 | ID | 출처 | 항목 | 처리 |
 | -- | ---- | ---- | ---- |
 | F1H-90 | 리뷰 (입력 밖) | 오케스트레이터 F2 매핑 표에 reflect · bambu · onboarding · howto 행이 없고 planning 행이 없는 `planning-kit/references/` 를 적는다 — Final 러닝북이 문서 사이트 재생성에 이 표를 쓴다 | 조건 AR-01 (b) |
-| F1H-91 | 리뷰 (입력 밖) | `.claude/skills/docs-site/SKILL.md:47-55` 매핑 표가 harness · flutter · design · backend · infra · tone · process 일곱 줄뿐이다 | 고치지 않음 — `.claude/skills/docs-site/` 는 세 Final 계약 어느 범위에도 없다. 다음 사이클 |
+| F1H-91 | 리뷰 (입력 밖) | `.claude/skills/docs-site/SKILL.md:51-59` 매핑 표가 harness · flutter · design · backend · infra · tone · process 일곱 줄뿐이다 | 고치지 않음 — `.claude/skills/docs-site/` 는 세 Final 계약 어느 범위에도 없다. 다음 사이클 |
 | F1H-92 | 리뷰 (입력 밖) | 오케스트레이터 F4 research-log 목록(`:731-738`)과 체크리스트 「per-kit research-log 6개 파일」(`:765`)에 design · tone · api 연구 기록이 없다 | 고치지 않음 — 목록을 「`docs/*/research-log.md` 가 있는 킷 전부」 같은 규칙으로 바꾸려면 「파일이 없으면 새로 만든다」 조문(`:56`)과 함께 정해야 하는 새 내용이다. 이번 Final 은 러닝북이 `docs/*/research-log.md` 로 대신 정했다. 다음 사이클 |
 | F1H-93 | 리뷰 (받는 쪽 대조) | `harness/docs/guides/plugin-validation-guide.md` §출력 포맷 예시가 실패 V 줄을 판정 글자 없이 적는다 | 조건 ER-08 (c) |
 | F1H-94 | xdiag P10 (2) DG-05 (b) · P13 (2) AP-03 | validate-plugin V10 이 `docs/<킷>/` 원본을, V6 가 `skills/*/references/` 를 읽지 않는다 | 고치지 않음 — F1H-40 의 `V6 범위` 결정(다음 사이클 Phase 4)과 함께 정한다 |
@@ -270,7 +270,7 @@ ER-03 · DG-05 (d) 둘로 적었는데 (d) 가 셋째다. 작업 폴더에는 �
 
 ### 2 회차 권하는 것 (선택)
 
-- **R8** 개선안 ER-08 끝에 한 문장: 「검증 가이드의 머리 `version` 은 올리지 않고 변경 이력 표에 행을 더하지 않는다 — 그 표의 여섯 행이 모두 `x.y.z` 꼴(`plugin-validation-guide.md:655-660`, 머리 `version: 1.4.0`)이라 새 행이 AP-01 에 걸린다」.
+- **R8** 개선안 ER-08 끝에 한 문장: 「검증 가이드의 머리 `version` 은 올리지 않고 변경 이력 표에 행을 더하지 않는다 — 그 표의 여섯 행이 모두 `x.y.z` 꼴(`plugin-validation-guide.md:687-692`, 머리 `version: 1.4.0`)이라 새 행이 AP-01 에 걸린다」.
   SK-05 개선안의 「가이드 머리의 `version` 은 올리지 않는다」 는 SK-05 가 고치는 가이드를 두고 한 말이라 1 회차 C1 로 새로 든 이 파일에는 닿지 않는다. 이 가이드는 고칠 때마다 이력 행을 더해 온 파일이라,
   관례대로 행을 더하면 QA 에서 AP-01 로 되돌아온다
 

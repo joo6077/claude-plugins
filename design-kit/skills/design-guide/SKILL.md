@@ -29,6 +29,7 @@ user-invocable: true
 15. **승인된 시각 결과물이 토큰보다 우선한다 (Visual Source of Truth Precedence)** — "이 색이 토큰과 다르다" 를 무조건 일관성 위반으로 지적하지 마라. Gotcha #9(디자인 시스템 우회 지적)를 적용하기 전에 그 값이 **사용자가 승인한 시안이나 기존 앱에서 실제 사용 중인 값**인지 확인한다. 승인 기록(`.design/approvals/`)이나 기존 테마 파일에 근거가 있으면 그것이 토큰 명세보다 상위 근거이며, 이때 권장 방향은 "토큰에 맞춰 값을 바꿔라" 가 아니라 "이 값을 토큰으로 등록해 체계에 편입하라" 다. 우선순위 표: `../../references/visual-change-protocol.md` §1.
 16. **부분 변경 요청에는 그 축만 진단 — 나머지는 보존 대상으로 명시** — 사용자가 특정 시각 속성 하나를 지목해 물으면(보더만·색만·간격만) 진단도 그 축에 한정하고, 같은 요소의 나머지 시각 속성은 **"보존 대상"** 으로 명시하라. "이왕이면 배경도" 식 제안은 Gotcha #3(카테고리 과잉) 위반이며, 실제로 보더 요청에 배경까지 바뀐 재발 사례의 출발점이다. 부분 롤백 요청("색은 맞는데 그라디언트만 이전이 나았다")은 지목된 축만 되돌리도록 진단한다. 상세: `../../references/visual-change-protocol.md` §2.
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Process
 
 ## Step 1: 맥락 파악
@@ -36,7 +37,7 @@ user-invocable: true
 사용자가 제공한 코드/설명에서 관련 디자인 카테고리를 식별한다:
 
 | 카테고리 | 키워드 |
-|----------|--------|
+| ---------- | -------- |
 | typography | 글꼴, 크기, 행간, 텍스트, font |
 | color | 컬러, 색상, 팔레트, 다크모드 |
 | spacing | 간격, 패딩, 마진, 정렬 |
@@ -51,7 +52,7 @@ user-invocable: true
 
 코드를 받았으면 카테고리를 고르기 전에 그 코드가 쓰는 토큰과 기존 컴포넌트를 Grep/Read 로 찾아 `파일:줄` 목록으로
 남긴다 (Gotcha 13 의 탐색 단계). 배치·줄 모양·칩 모양을 묻는 질문이면 `../../references/visual-change-protocol.md`
-§0 관례 표 — 같은 역할의 서로 다른 기존 화면 2 개 이상 — 를 근거로 쓴다.
+§0 관례 표 — 같은 역할의 서로 다른 기존 화면, 개수는 §0 이 정한다(기준 원본 harness `skill-design-guide.md` §8.9) — 를 근거로 쓴다.
 
 ## Step 2: 원칙 참조
 
@@ -80,6 +81,7 @@ references/principle-index.md에서 해당 카테고리의 원칙 문서 경로�
 - 이번 리뷰 범위에서 다루지 않은 카테고리가 있으면 한 줄로 언급한다
 - 필요한 경우 다음 단계로 `design-audit`(전수 감사)를 제안한다
 
+<!-- markdownlint-disable-next-line MD025 -->
 # References
 
 - `references/principle-index.md` — 카테고리별 원칙 문서 인덱스

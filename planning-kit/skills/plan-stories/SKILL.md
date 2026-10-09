@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **스토리 포맷만 지키고 내용 무시 금지** — "As a user, I want X, so that Y" 는 껍데기다. Who/What/Why 가 구체적이지 않으면 가치 없다.
 2. **INVEST 없이 승인 금지** — 모든 스토리는 Independent/Negotiable/Valuable/Estimable/Small/Testable 6개 중 하나라도 실패하면 재작성.
 3. **기술 작업을 스토리로 포장 금지** — "As a developer, I want to refactor DB" 는 스토리가 아니라 기술 태스크다. 별도 섹션으로 분리.
@@ -26,7 +28,11 @@ user-invocable: true
 12. **요청한 스토리 범위만 — 임의 스토리·AC 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 특정 기능/에픽의 스토리만 요청하면 그 범위만 분해한다. "백로그를 채운다"는 이유로 요청하지 않은 인접 기능·후속 스토리·운영(감사/권한/알림) 스토리를 임의로 추가하지 마라. INVEST 의 Negotiable 은 "스토리는 고정 계약이 아니라 대화의 시작점" — 범위는 사용자와 협상하지 미리 확정해 부풀리지 않는다. Story Map 으로 인접 슬라이스가 보이면 그 사실을 **먼저 알리고** 추가 여부를 확인한다 (insights-report #1 excessive_changes 대응). 출처: [Agile Alliance — INVEST (Negotiable/Small)](https://agilealliance.org/glossary/invest/).
 13. **계약 경계를 넘는 스토리는 양면(two-sided) 으로 열거한다 (skill-design-guide §5.5 Counterpart Enumeration)** — 스토리가 API 응답 형태, 직렬화 포맷(날짜·타임존·enum·null), 공유 모델, 이벤트 페이로드, DB 스키마 중 하나라도 건드리면 **producer 면과 consumer 면을 둘 다** Step 6 산출물의 `## Surfaces` 섹션에 적는다. 한쪽만 적힌 스토리는 Independent 처럼 보이지만 실제로는 반쪽이며, 구현 스프린트에서 "서버만 바꾸고 클라 누락" 으로 재현된다 (insights-report Friction #4). Gherkin 의 `Then` 은 "system 밖으로 나오는 관찰 가능한 출력" 을 대상으로 하므로, 그 출력을 **누가 관측하는지**를 이름으로 적지 않으면 AC 자체가 검증면을 특정하지 못한다. 양면을 한 스토리에 담기 부담스러우면 소비면을 **별도 스토리로 분리**하되, 스토리를 실제로 추가하기 전에 Gotcha 12 에 따라 사용자에게 먼저 알리고 확인받는다 (열거는 의무, 스토리 추가는 합의 사항). 열거 자체를 조용히 빠뜨리지 마라. 소비자가 존재할 수 없는 순수 내부 변경이면 "소비면 없음" 을 근거와 함께 적는다 (추측으로 생략 금지). 출처: [Cucumber Gherkin Reference](https://cucumber.io/docs/gherkin/reference), skill-design-guide §5.5.
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 자동 로드 (독립 단계)
 
@@ -48,6 +54,7 @@ user-invocable: true
 ## Step 2: 초안 스토리 생성
 
 포맷:
+
 ```text
 US-###: <제목>
 As a <persona>,
@@ -70,6 +77,7 @@ And <추가 기대>
 ```
 
 필수 포함:
+
 - Happy path 1개
 - Edge case 2개 이상 (빈 상태, 에러, 동시성, 권한 없음, 네트워크 단절 등)
 
@@ -78,7 +86,7 @@ And <추가 기대>
 각 스토리 6개 항목 점검 — 출처: [Agile Alliance INVEST](https://agilealliance.org/glossary/invest/):
 
 | 항목 | 질문 | 실패 시 조치 |
-|------|------|-------------|
+| ------ | ------ | ------------- |
 | I | 다른 스토리에 의존하지 않고 배포 가능한가 | 의존 스토리를 선행으로 분리 |
 | N | 구현 방법은 협상 가능한가 | 기술 구현 디테일 제거 |
 | V | 사용자/비즈니스 가치가 명확한가 | so that 절 재작성 |
@@ -145,11 +153,16 @@ Jeff Patton — Backbone 을 가로로, 우선순위(slice) 를 세로로.
 - GitHub Issues 로 분해 → `/plan-sync-github`
 - 리스크 점검 → `/plan-risks`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/stories.md` — INVEST, Gherkin, Story Mapping, Acceptance Criteria
 
 주요 1차 출처:
+
 - [Agile Alliance — INVEST](https://agilealliance.org/glossary/invest/)
 - [Cucumber Gherkin Reference](https://cucumber.io/docs/gherkin/reference)
 - [Cucumber Docs](https://cucumber.io/docs)

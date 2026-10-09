@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 실시간 통신 원칙
 
 axum 0.8.x 내장 WebSocket(`ws::WebSocketUpgrade`)과 SSE(`Sse`)로 실시간 통신을 구현한다. 별도 외부 크레이트 없이 axum이 두 방식을 모두 제공한다.
@@ -122,7 +123,7 @@ async fn sse_handler(
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | WebSocket 라우트 메서드 | `any()` | GET 업그레이드 핸드셰이크 처리 |
 | SSE keepalive 간격 | 15~30초 | 프록시 타임아웃 방지 |
 | broadcast 채널 용량 | 100~1000 | 느린 구독자 버퍼 크기 |
@@ -165,4 +166,5 @@ nginx/ALB 같은 프록시는 60초 이상 응답이 없으면 연결을 끊는�
 ```toml
 tokio-stream = { version = "0.1", features = ["sync"] }
 ```
+
 `BroadcastStream`을 사용하려면 `sync` feature를 활성화해야 한다.

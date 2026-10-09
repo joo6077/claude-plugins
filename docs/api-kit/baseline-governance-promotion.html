@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>베이스라인 거버넌스와 승격</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -214,10 +215,6 @@
   @media(max-width:640px){
     .grid-2,.grid-3,.compare,.pair{grid-template-columns:1fr}
     .flow-step{flex:1 1 100%}
-  }
-  @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{transition:none !important;animation:none !important}
-    html{scroll-behavior:auto}
   }
   /* ════ 페이지 전용 — 승격 게이트 5 단계 ════
      베이스의 .flow-step 은 rank-1~3 만 색이 정의돼 있다.

@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-05
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 라우팅
 
 GoRouter vs auto_route vs Navigator 2.0 선택 기준, 중첩 라우트, 가드, 딥링크, URL 전략, 전환 애니메이션을 다룬다.
@@ -47,7 +48,7 @@ BottomNavigationBar 같은 탭별 독립 back stack이 필요할 때 이 구조�
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | go_router 최신 버전 | 17.2.0 |
 | auto_route 최신 버전 | 11.1.0 |
 | CustomTransitionPage 기본 전환 시간 | 300ms |
@@ -58,7 +59,7 @@ BottomNavigationBar 같은 탭별 독립 back stack이 필요할 때 이 구조�
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | auth 상태를 build 안에서 imperative push/pop | 상태-라우트 불일치, race condition |
 | 딥링크 필요한데 Navigator 1 named routes 사용 | URL 동기화/딥링크 불가 |
 | 탭별 독립 back stack 필요한데 단일 Navigator | 탭 전환 시 스택 공유로 UX 붕괴 |
@@ -81,24 +82,24 @@ final router = GoRouter(
     return null; // no redirect
   },
   routes: [
-    GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-    GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+    GoRoute(path: '/', builder: (_, _) => const HomeScreen()),
+    GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
     ShellRoute(
-      builder: (_, __, child) => MainShell(child: child),
+      builder: (_, _, child) => MainShell(child: child),
       routes: [ /* nested tabs */ ],
     ),
   ],
 );
 ```
 
-- 출처: https://pub.dev/documentation/go_router/latest/
+- 출처: <https://pub.dev/documentation/go_router/latest/>
 
 ### ShellRoute로 탭 네비게이션
 
 `ShellRoute`를 사용하면 탭 전환 시에도 shell(BottomNavigationBar)이 유지되고, 각 탭은 독립적 네비게이션 스택을 가질 수 있다.
 
 - `StatefulShellRoute.indexedStack` — 각 탭의 상태를 보존하면서 탭 전환
-- 출처: https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html
+- 출처: <https://pub.dev/documentation/go_router/latest/go_router/StatefulShellRoute-class.html>
 
 ### 딥링크 + 인증 가드 조합
 
@@ -116,7 +117,7 @@ GoRoute(
   pageBuilder: (context, state) => CustomTransitionPage(
     key: state.pageKey,
     child: DetailPage(id: state.pathParameters['id']!),
-    transitionsBuilder: (_, animation, __, child) =>
+    transitionsBuilder: (_, animation, _, child) =>
         FadeTransition(opacity: animation, child: child),
   ),
 )
@@ -126,7 +127,7 @@ GoRoute(
 
 - `GoRouter.of(context).go('/path')`를 widget test에서 검증하려면 `GoRouter`를 `MaterialApp.router`에 주입
 - `MockGoRouter`로 `go`/`push` 호출 여부 검증
-- 출처: https://pub.dev/packages/go_router#testing
+- 출처: <https://pub.dev/packages/go_router#testing>
 
 ## Gotchas
 

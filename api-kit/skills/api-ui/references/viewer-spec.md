@@ -1,6 +1,8 @@
 # 정적 뷰어 스펙 — `.api/ui.html`
 
-`/api-ui` 가 생성하는 단일 HTML 의 구조 정본. 확정 시안 `.mockups/api-ui-v7.html` 의 실측을 옮긴
+설치본 플러그인에는 `docs/api/` · `docs/superpowers/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
+`/api-ui` 가 생성하는 단일 HTML 의 구조 정본. 확정 시안 `.mockups/api-ui-v8.html` 의 실측을 옮긴
 것이며, 시안과 이 문서가 어긋나면 **시안이 정본**이다.
 
 ---
@@ -8,7 +10,7 @@
 ## 1. 하드 제약
 
 | 항목 | 값 | 위반 시 |
-|------|-----|---------|
+| ------ | ----- | --------- |
 | 외부 스크립트 `<script src` | 0 | `file://` · 에어갭에서 열리지 않음 |
 | 외부 스타일시트 `<link rel="stylesheet"` | 0 | 〃 |
 | `fetch(` · `XMLHttpRequest` · `WebSocket` · `EventSource` · `sendBeacon` | 0 | 리포트 열람이 관측 대상 시스템에 영향을 준다 |
@@ -16,7 +18,7 @@
 | 시크릿 원문 | 0건 | 리포트 공유가 곧 자격증명 유출 |
 | 단일 스냅샷 본문 | ≤ 256KB | 인라인 파싱·메모리 부담 |
 | HTML 전체 | 10MiB 초과 warning · 50MiB 초과 split | 〃 |
-| 누르는 자리 | 요소 상자 ≥ 24×24 CSS px (44 는 권장) | 24 미만이면 간격 예외를 따지기 전에 고친다 — 요소 상자만 재므로 WCAG 2.2 2.5.8 (AA) 보다 엄하다. 확정 시안 실측은 44 미만 39/56 · 24 미만 0 — `SKILL.md` §7 `under24` 로 잰다 |
+| 누르는 자리 | 요소 상자 ≥ 24×24 CSS px (44 는 권장) | 24 미만이면 간격 예외를 따지기 전에 고친다 — 요소 상자만 재므로 WCAG 2.2 2.5.8 (AA) 보다 엄하다. 확정 시안 실측은 44 미만 40/57 · 24 미만 0 — `SKILL.md` §7 `under24` 로 잰다 |
 | 텍스트 대비 | 일반 4.5:1 · large 3:1 · UI component 3:1 | WCAG 2.2 |
 | 테마 | 라이트·다크 양립 | 〃 |
 
@@ -70,11 +72,11 @@ id 는 충돌 방지용 3~4자 접미사를 붙인다(`#topbar-3f2`, `#endpoint-
 ### 3.1 상단바
 
 | 요소 | 동작 |
-|------|------|
+| ------ | ------ |
 | 사이드바 토글 | ≤880px 에서 드로어 열기. `aria-expanded` · `aria-controls` |
 | 환경 선택기 | `role=menu` 팝오버. 각 항목에 env dot · id · baseUrl · 설명 · read-only 여부. `↑↓ Home End` 지원 |
 | 토큰 만료 미터 | `role=progressbar` + `aria-valuenow`. 남은 시간 `mm:ss`. 프로파일 이름은 `title` 로. **토큰 값은 절대 표시하지 않는다** |
-| 요약 칩 | PASS / FAIL / 미실행 3개. 클릭하면 트리를 그 상태로 필터. 활성 칩 재클릭 시 해제 |
+| 요약 칩 | PASS / FAIL / 미실행 / 판정 불가 4개. 숫자는 데이터에서 센 엔드포인트 수이고, 0 이어도 칩을 남긴다. 클릭하면 트리를 그 상태로 필터. 활성 칩 재클릭 시 해제. 좁은 폭에서 칩 글자는 화면에서만 감추고 접근 이름에는 남긴다 |
 | 테마 토글 | `data-theme` 속성 전환. 라벨은 전환 대상(다크 모드로 전환)으로 쓴다 |
 
 ### 3.2 사이드바 — 엔드포인트 트리
@@ -83,7 +85,10 @@ id 는 충돌 방지용 3~4자 접미사를 붙인다(`#topbar-3f2`, `#endpoint-
 - 그룹 헤더: 이름 · 엔드포인트 수 · 접힘 chevron. 그룹 단위 `aria-expanded`.
 - 엔드포인트 행: 메서드 배지(`data-m="GET"`) · **경로 전문**(말줄임 금지, wrap 허용) · 상태 아이콘. 행 버튼에는 `data-ep="<엔드포인트 id>"` 를 단다 — `SKILL.md` §7 브라우저 확인이 이 속성으로 화면에 보이는 항목을 센다.
 - 첫 화면에서 그룹은 모두 펼친다(확정 시안 `openGroups` 초기값이 전부 `true`). 접힌 채 시작하면 `SKILL.md` §7 의 `shown` 이 `ep` 보다 작게 나와 항목이 빠진 것과 구별되지 않는다.
-- 상태 아이콘 3종: `pass` · `fail` · `pending(미실행)`. 아이콘만으로 구분하지 말고 `aria-label`/텍스트를 함께 준다.
+- 상태 아이콘 4종: `pass` · `fail` · `pending(미실행)` · `unjudged(판정 불가)`. 모양과 색이 넷 다 다르다. 아이콘만으로 구분하지 말고 `aria-label`/텍스트를 함께 준다.
+- 보류와 flaky 는 상태 값을 새로 만들지 않는다. `/api-verify` §7 · §8 이 둘 다 실패 기록을 남기라고 하므로 `state` 는 `'fail'` 이고, 요약 칩에서도 FAIL 로 센다. 초록 표시 뒤로 실패가 숨지 않게 하려는 것이다.
+  - 보류(baseline 이 `pending` 인 계약의 실패 — 게이트를 깨지 않는다): `state:'fail'` 에 `failMark:'보류'`. 행과 `실패 원인` 탭 제목 옆에 글자 표지 `보류` 를 달고 `aria-label="실패 · 보류 — 게이트를 깨지 않음"` 을 준다.
+  - flaky(재실행에서 결과가 뒤집힌 실패 — `flaky-confirmed`): `state:'fail'` 에 `failMark:'flaky'`. 같은 자리에 글자 표지 `flaky` 를 달고 `aria-label="실패 · flaky — 재실행에서 뒤집힘"` 을 준다.
 - 헤더에 `엔드포인트 N` 카운트와 `모두 접기` 버튼.
 - 필터(요약 칩 · 팔레트 스코프)로 결과가 0이면 빈 상태 + `필터 초기화` 버튼을 낸다.
 
@@ -92,15 +97,15 @@ id 는 충돌 방지용 3~4자 접미사를 붙인다(`#topbar-3f2`, `#endpoint-
 탭 3종 — `파라미터` · `헤더` · `인증`. `role=tablist` + roving tabindex + `←→ Home End`.
 
 | 탭 | 내용 |
-|----|------|
+| ---- | ------ |
 | 파라미터 | path 파라미터 → 쿼리 파라미터 순. 각 행에 이름 · 타입 · 값 입력 · 설명. `enum` 타입은 값 pill 로 빠른 선택 |
 | 헤더 | 인벤토리 헤더 + 사용자가 더한 헤더 |
 | 인증 | 프로파일 이름 · 방식 · 만료까지 남은 시간 · 주입 위치. **값은 마스킹된 채로만** |
 
-**행 추가(§11.11 필수)**
+#### 행 추가(§11.11 필수)
 
 | 추가 대상 | UI | 커맨드 반영 |
-|-----------|-----|-------------|
+| ----------- | ----- | ------------- |
 | 쿼리 파라미터 | `파라미터` 탭 하단 `+ 파라미터 추가` | `--query name=value` |
 | 헤더 | `헤더` 탭 하단 `+ 헤더 추가` | `--header 'Name: value'` |
 | JSON 본문 | 본문 없는 엔드포인트에 `+ 본문 추가` | `--body '{...}'` (+ `Content-Type: application/json` 자동) |
@@ -142,6 +147,10 @@ id 는 충돌 방지용 3~4자 접미사를 붙인다(`#topbar-3f2`, `#endpoint-
 `구조 diff` 탭은 **만들지 않는다**. `미실행` 상태면 탭 대신 `상태` 단일 탭 + 빈 상태(무엇을 실행하면
 채워지는지 안내 + 커맨드 복사 유도)를 보여준다.
 
+판정 불가 줄(`unjudged`)은 응답 pane 의 맨 앞 탭에 둔다. FAIL 이면 `실패 원인` 탭 안에 위반 카드와 함께 판정 불가 알림 상자로 두고,
+판정 불가 단독이면 `본문` 탭 맨 위 알림 상자(`.callout[data-t="unj"]`)에 둔다. 줄은 `/api-verify` 판정 줄에서 `<엔드포인트 id>:` 앞머리와 뒤 빈칸을 뗀 나머지를 글자 그대로 옮긴다 —
+`$.meta.total=(없음) · len($.data)=3 → 판정 불가`. 어느 경로가 없었는지가 그 줄에만 있으므로 요약하지 않는다.
+
 상단 스트립: 상태 코드 pill(4xx/5xx 는 danger) · 소요 ms · 응답 크기 · 기대값(실패 시 `expected`).
 
 #### 본문 탭 — 2블록 구조
@@ -176,6 +185,7 @@ id 는 충돌 방지용 3~4자 접미사를 붙인다(`#topbar-3f2`, `#endpoint-
 
 위반 항목을 카드로 나열한다. 각 카드는 `제목` · `기대값 / 실제값` 또는 `경로` · `설명` 을 갖는다.
 pin 이 깨졌으면 어떤 assertion 이 왜 실패했는지 문장으로 적는다. "실패했습니다" 만 적힌 카드는 만들지 마라.
+같은 엔드포인트에 판정 불가 줄이 있으면 위반 카드 뒤에 판정 불가 알림 상자를 함께 둔다 — FAIL 로 셌다고 줄을 버리지 않는다.
 
 ### 3.6 분할 리사이저
 
@@ -189,7 +199,7 @@ pin 이 깨졌으면 어떤 assertion 이 왜 실패했는지 문장으로 적�
 - 스코프 4종
 
   | id | 라벨 | 대상 |
-  |----|------|------|
+  | ---- | ------ | ------ |
   | `fail` | 실패한 엔드포인트만 | `state === 'fail'` |
   | `recent` | 최근 실행 | `RECENT` 순서 유지 |
   | `pin` | 추가 검사가 걸린 엔드포인트 | `pins.length > 0` |
@@ -222,7 +232,7 @@ const GROUPS = [
 const EP = {
   'orders.list': {
     method:'GET', path:'/v1/orders',
-    state:'pass',            // 'pass' | 'fail' | 'pending'
+    state:'pass',            // 'pass' | 'fail' | 'pending' | 'unjudged'
     contract:'partial',      // 'partial' | 'pin' | 'full'
     pins:[{ p:'$.meta.total', c:'≥ $.data 길이' }],
     resp:{ code:200, text:'OK', ms:340, size:'12.4KB', expected:'200 OK' },
@@ -232,6 +242,8 @@ const EP = {
     body:{ /* 마스킹·정규화된 응답 본문. sentinel 은 S(token, hint) 형태 */ },
     timing:[['DNS 조회',12,'var(--info)'], /* ... */],
     violations:[{ title:'상태 코드 불일치', exp:'200 OK', act:'503 Service Unavailable', note:'...' }],
+    failMark:null,           // state 가 'fail' 일 때만 '보류' | 'flaky'. null 이면 일반 실패 (§3.2)
+    unjudged:['$.meta.total=(없음) · len($.data)=3 → 판정 불가'],   // /api-verify 판정 줄 중 `→ 판정 불가` 인 것만, 앞머리를 떼고 글자 그대로
     diff:[
       { k:'add', path:'$.data[].items[].discountRate', note:'새 필드 · 타입 number' },
       { k:'rm',  path:'$.data[].items[].legacyCode',   note:'이전 스냅샷에 있던 string 필드가 사라졌습니다' },
@@ -282,7 +294,7 @@ const state = {
 ## 5. 인라인 diff 규격
 
 | 종류 | 거터 | 렌더 |
-|------|------|------|
+| --- | --- | --- |
 | 추가 (`add`) | `+` | 행 배경 틴트(성공 계열) |
 | 삭제 (`rm`) | `−` | **취소선 유령 행** — 실제 응답에는 없지만 계약에 남은 필드 |
 | 변경 (`chg`) | `~` | 행 배경 틴트(경고 계열) + 변경 요약(`string → number`) |
@@ -300,12 +312,13 @@ const state = {
 확정 시안 실측값. 값이 아니라 **역할**로 참조한다 — 하드코딩 색을 컴포넌트에 직접 쓰지 마라.
 
 | 축 | 값 |
-|----|-----|
+| ---- | ----- |
 | spacing | 4 · 8 · 12 · 16 · 20 · 24 · 28 · 32 · 40 · 48 |
 | radius | 6 · 8 · 10 · 14 · 999 |
 | type | 12 / 13 / 14 / 15 / 17 / 21 (line-height 1.3 · 1.6) |
 | accent | `#457335` (Forest Canopy primary-600) · hover `#375d2c` · lite `#74a85f` |
 | semantic | ok `#047857` · danger `#b91c1c` · warn `#92400e` · info `#0f766e` (각 soft/line 쌍) |
+| 판정 불가 | `--unj` `#1d4ed8` · soft `#dbeafe` · line `#bfdbfe` / 다크 `#93c5fd` · `#172554` · `#1e3a8a`. 초록 · 빨강 · 회색 · 호박색과 겹치지 않는 파랑 |
 | method | GET teal · POST green · PATCH amber · DELETE red (배경/전경 쌍) |
 | json | key(진한 그린) · string(teal) · number(amber) · bool(sage) · null/punc(회색) · sentinel(중립 배경) · pin(앰버 배경) |
 
@@ -322,11 +335,11 @@ const state = {
 ## 7. 반응형
 
 | 브레이크포인트 | 변화 |
-|----------------|------|
+| ---------------- | ------ |
 | ≤ 1180px | 상단바 부가 정보 축약 |
-| ≤ 1120px | 데이터 구조 표 열 폭 재배분 |
+| ≤ 1120px | 데이터 구조 표 열 폭 재배분 · 요약 칩 글자를 화면에서만 감춘다 |
 | ≤ 1024px | 요청/응답 분할 비율 조정 |
-| ≤ 880px | 좌우 2패널 → **상하 스택**, 사이드바는 드로어 + scrim |
+| ≤ 880px | 좌우 2패널 → **상하 스택**, 사이드바는 드로어 + scrim · 상단바 요약 칩 묶음을 둘째 줄로 내린다 |
 | ≤ 760px | 상단바 요약 칩 축약 |
 | ≤ 880px & ≤ 600px 높이 | 세로 여백 축소 |
 
@@ -337,7 +350,7 @@ const state = {
 ## 8. 접근성 체크리스트
 
 - 탭·메뉴·리스트박스에 `role` + roving tabindex + 방향키·Home·End
-- 모든 상태 아이콘에 텍스트 대응물(`PASS` · `FAIL` · `미실행`)
+- 모든 상태 아이콘에 텍스트 대응물(`PASS` · `FAIL` · `미실행` · `판정 불가`)
 - 복사·토글 결과는 `role=status` `aria-live=polite` 로 알린다. 긴 문자열 전문을 낭독시키지 않는다
 - 포커스 링을 지우지 않는다. 커스텀 포커스 색은 대비 3:1 이상
 - 드로어를 열면 scrim 을 깔고 `Esc` 로 닫는다
@@ -348,7 +361,7 @@ const state = {
 ## 9. 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | CDN 스크립트/스타일을 불러와야 열리는 리포트 | 오프라인·에어갭에서 안 열리고, CDN 변조가 리포트 내용을 바꾼다 |
 | `fetch('./data.json')` 사이드카 | `file://` opaque origin 때문에 빈 화면이 된다 |
 | raw body 를 `innerHTML` 로 렌더 | 대상 API 문자열이 열람자 브라우저에서 실행된다 |
@@ -364,7 +377,7 @@ const state = {
 
 ## References
 
-- `.mockups/api-ui-v7.html` — 확정 시안(정본)
+- `.mockups/api-ui-v8.html` — 확정 시안(정본)
 - `docs/api/verification/static-evidence-viewer-contract.md` — 뷰어 계약 원칙 10 · 수치 기준
 - `docs/superpowers/specs/2026-09-02-api-kit-design.md` §11.1~§11.11 — 설계 근거
 - `../../../references/api-layout.md` — 입력이 되는 `.api/` 레이아웃

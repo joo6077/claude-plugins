@@ -5,15 +5,15 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 ## Typography
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 스케일 일관성 | 정의된 타이포 스케일 외 임의 크기 미사용 | Material Design 3 Typography |
-| 행간 비율 | line-height가 font-size의 1.2~1.6배 | WCAG 1.4.12 |
+| 행간 비율 | 본문 line-height 가 문자 체계별 권장 범위 안이다 — 라틴 1.4~1.6, 한글 1.6~1.8. 제목 · 작은 글자 범위는 원칙 문서 표를 따른다 | `docs/design/foundations/typography.md` §줄 높이 · §한글 줄 높이 권장값 |
 | 최소 크기 | 본문 텍스트 14px(모바일) / 16px(웹) 이상 | Apple HIG Typography |
 
 ## Color
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 대비 비율 | 텍스트/배경 대비 WCAG 2.2 AA (4.5:1 이상) | [WCAG 2.2 SC 1.4.3](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) |
 | 시맨틱 사용 | 하드코딩된 컬러값 대신 시맨틱 토큰 사용 | [Material Design 3 Color](https://m3.material.io/styles/color/roles) |
 | 다크 모드 | 다크 모드에서도 대비 비율 유지 | [Apple HIG Dark Mode](https://developer.apple.com/design/human-interface-guidelines/dark-mode) |
@@ -22,7 +22,7 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 ## Spacing
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 스케일 일관성 | 정의된 스페이싱 스케일 외 임의 값 미사용 | EightShapes Space in DS |
 | 터치 타겟 AA | WCAG 2.2 SC 2.5.8 AA — 최소 24×24 CSS px (예외: sufficient spacing / inline / user-agent / essential) | [WCAG 2.2 SC 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) |
 | 터치 타겟 AAA | WCAG 2.2 SC 2.5.5 AAA — 최소 44×44 CSS px | [WCAG 2.2 SC 2.5.5](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) |
@@ -32,7 +32,7 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 ## Accessibility
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 색상 대비 AA | 일반 텍스트 4.5:1, 대형 텍스트 3:1 | [WCAG 2.2 SC 1.4.3](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) |
 | 터치 타겟 AA | WCAG 2.2 SC 2.5.8 — 24×24 CSS px 이상 | [WCAG 2.2 SC 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) |
 | 터치 타겟 AAA | WCAG 2.2 SC 2.5.5 — 44×44 CSS px 이상 | [WCAG 2.2 SC 2.5.5](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html) |
@@ -44,7 +44,7 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 > 출처: [W3C WCAG 2.2 What's New](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/), [W3C WCAG 2.2 TR](https://www.w3.org/TR/WCAG22/)
 
 | 기준 | 레벨 | PASS 조건 | 출처 |
-|------|------|-----------|------|
+| ------ | ------ | ----------- | ------ |
 | SC 2.4.11 Focus Not Obscured (Minimum) | AA | 키보드 포커스를 받은 요소가 author content(예: sticky header, toast)로 **완전히** 가려지지 않는다. 부분 가림은 허용. | [W3C SC 2.4.11](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html) |
 | SC 2.4.12 Focus Not Obscured (Enhanced) | AAA | 포커스 요소가 전혀 가려지지 않는다. | [W3C SC 2.4.12](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-enhanced.html) |
 | SC 2.4.13 Focus Appearance | AAA | 포커스 인디케이터 최소 크기/대비 기준 (경계선 2 CSS px + 대비 3:1 등). | [W3C SC 2.4.13](https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html) |
@@ -65,7 +65,7 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 ## Interaction
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 피드백 존재 | 사용자 액션에 시각적 피드백 존재 | NNGroup Feedback |
 | 로딩 상태 | 비동기 작업에 로딩 인디케이터 존재 | NNGroup Response Times |
 | 에러 표시 | 에러 상태가 명확히 표시됨 | NNGroup Error Messages |
@@ -73,7 +73,7 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 ## Motion
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 목적성 | 장식용 애니메이션이 아닌 기능적 목적 존재 | Material Design 3 Motion |
 | 듀레이션 | 200~500ms 범위 (너무 빠르거나 느리지 않음) | Apple HIG Motion |
 | reduced-motion | prefers-reduced-motion 대응 | WCAG 2.3.3 |
@@ -81,7 +81,7 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 ## Visual Hierarchy
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 크기 위계 | 제목/본문/캡션 간 크기 차이가 명확함 (최소 1.2배 이상 비율) | Material Design 3 Typography |
 | 대비 강조 | 핵심 콘텐츠가 주변보다 높은 대비를 가짐 | NNGroup Visual Hierarchy |
 | 여백 분리 | 그룹 간 여백이 그룹 내 여백보다 넓음 (Gestalt 근접성) | Gestalt 근접성 원칙 |
@@ -89,7 +89,7 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 ## Layout & Grid
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 그리드 일관성 | 정의된 그리드 시스템 내에서 요소가 정렬됨 | Material Design 3 Layout |
 | 거터 규칙성 | 열 간격(gutter)이 일관된 값을 사용함 | EightShapes Grid |
 | 반응형 전략 | 주요 breakpoint에서 레이아웃이 적절히 변환됨 | Apple HIG Layout |
@@ -102,7 +102,7 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 ## Ethical Design
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 다크 패턴 부재 | Confirmshaming, Roach Motel, Trick Questions 등 12가지 다크 패턴 미사용 | darkpatterns.org 분류 |
 | 동의 명시성 | 체크박스 기본 해제, 이중 부정 문구 미사용 | GDPR, 한국 전자상거래법 |
 | 탈퇴 대칭성 | 가입/구독 경로와 해지/탈퇴 경로의 단계 수가 동등함 | EU DSA |
@@ -110,10 +110,10 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 ## Authenticity
 
 | 기준 | PASS 조건 | 출처 |
-|------|-----------|------|
+| ------ | ----------- | ------ |
 | 레이아웃 변주 | 연속 섹션이 동일 구조(예: 3열 카드)로 3회 이상 반복하지 않음 | NNGroup State of UX 2026 |
 | 컬러 맥락 | 컬러 팔레트가 브랜드/프로젝트에서 도출됨 (제네릭 보라-파랑 기본값 아님) | 925 Studios AI Slop Guide |
 | 장식 목적성 | blur, gradient, shadow 등 장식 효과에 기능적 목적 존재 | BSWEN AI UI Anti-Patterns |
 | 카피 구체성 | 헤드라인/CTA가 이 제품에만 해당하는 구체적 내용 (범용 문구 아님) | Crea8ive Solution Anti-AI Trends 2026 |
 | 이미지 고유성 | 이미지/일러스트가 프로젝트 고유 스타일임 (제네릭 스톡 느낌 아님) | authentic-design.md |
-| 같은 역할 관례 일치 | 같은 역할의 기존 화면 2 개 이상과 줄 모양(카드/평평한 줄) · 칩·뱃지 모양 · 아이콘 뜻이 같다. 대조 화면은 `../../../references/visual-change-protocol.md` §0 관례 표가 있으면 그 화면, 없으면 감사자가 직접 찾은 2 개다. 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 2 개 미만이면 FAIL 로 적지 않고 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다 | [WCAG 2.2 SC 3.2.4](https://www.w3.org/TR/WCAG22/) |
+| 같은 역할 관례 일치 | 같은 역할의 기존 화면들과 줄 모양(카드/평평한 줄) · 칩·뱃지 모양 · 아이콘 뜻이 같다. 대조할 화면 개수는 `../../../references/visual-change-protocol.md` §0 이 정한다(기준 원본 harness `skill-design-guide.md` §8.9). 대조 화면은 §0 관례 표가 있으면 그 화면, 없으면 감사자가 직접 찾은 화면이다. 역할이 다른 화면은 대조하지 않는다. 같은 역할 기존 화면이 그 개수에 못 미치면 FAIL 로 적지 않고 `대상 코드에 해당 요소 부재 — 같은 역할 기존 화면 N 개` 로 이유를 적는다 | [WCAG 2.2 SC 3.2.4](https://www.w3.org/TR/WCAG22/) |

@@ -4,6 +4,7 @@ version: 0.2.1
 last_updated: 2026-09-24
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Probe 합성과 Hurl 실행 의미론
 
 인벤토리의 operation 에서 실행 가능한 `.hurl` probe 를 합성할 때의 값 생성 순서, 직렬화 규칙, 그리고 Hurl 8.0.1 실행 엔진의 의미론을 다룬다.
@@ -76,7 +77,7 @@ Hurl 종료 코드로 실패 종류를 나눈다. `4`(assert)만 계약 위반�
 `문서` 는 아직 실행으로 확인하지 않은 것이다.
 
 | 항목 | 값 | 확인 | 근거 |
-|------|-----|------|------|
+| ------ | ----- | ------ | ------ |
 | Hurl 엔진 버전 | `8.0.1` (release `2026-04-28`) | 실측 | `hurl --version` → `hurl 8.0.1 (x86_64-apple-darwin25.0) libcurl/8.7.1` |
 | 옵션 우선순위 랭크 | `1` env < `2` CLI < `3` per-entry `[Options]` | 실측 | `HURL_MAX_REDIRS=3` < `--max-redirs 5` < `[Options] max-redirs: 7` 을 `curl_cmd` 로 관측 |
 | 환경변수로 들어가는 변수 | `HURL_VARIABLE_<이름>` 만 (`HURL_<이름>` 은 안 된다). 명령줄 `--variable` 이 이긴다 | 실측 | `HURL_who=…` → `actual: none` · `HURL_VARIABLE_who=…` → 통과 · 둘을 겹치고 `--variable who=…` → 명령줄 값 (2026-09-24) |
@@ -93,7 +94,7 @@ Hurl 종료 코드로 실패 종류를 나눈다. `4`(assert)만 계약 위반�
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | URL query 와 `[Query]` 섹션을 동시에 생성 | Hurl 이 둘 다 전송해 같은 파라미터가 중복된다 |
 | dependent flow 를 여러 `.hurl` 파일로 분할 | `--test` 가 파일을 병렬 실행해 순서 보장이 깨진다 |
 | cli-only 옵션을 `[Options]` 에 기입 | 무시되어 파일에 적힌 실행 의미와 실제 실행이 달라진다 |

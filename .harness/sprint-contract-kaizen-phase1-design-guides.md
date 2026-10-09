@@ -69,8 +69,8 @@ owner_session: df1b3e15-30b3-4825-a3c4-4ac44c686e94
   섹션 신설 3 · 기존 표 보강 3 · parity 표 양면 2 · 요약 표 양면 2 · frontmatter 2.
 - `## 2. 스킬 9가지 유형 체크리스트` **헤더 문자열은 바꾸지 않는다.** 레포 밖 6 개 surface 가
   이 문구를 리터럴로 참조한다 (`CLAUDE.md:325`, `harness/skills/create-skill/SKILL.md:5,45,107`,
-  `harness/evals/evals.json:35`, `.claude/skills/create-kit/SKILL.md:44`,
-  `flutter-toolkit/skills/flutter-kaizen/SKILL.md:158`, `.claude/skills/kaizen-orchestrator/references/search-sources.md:78`).
+  `harness/evals/evals.json:35`, `.claude/skills/create-kit/SKILL.md:49`,
+  `flutter-toolkit/skills/flutter-kaizen/SKILL.md:170`, `.claude/skills/kaizen-orchestrator/references/search-sources.md:83`).
   표 아래 주석("1~9 는 공식, 10 은 레포 추가")만 갱신한다.
 
 ## 회귀 게이트

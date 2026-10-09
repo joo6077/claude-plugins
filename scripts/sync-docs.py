@@ -10,6 +10,9 @@ Usage:
     python scripts/sync-docs.py harness      # 특정 플러그인만
     python scripts/sync-docs.py --check-only # 변경 필요 여부만 확인
     python scripts/sync-docs.py --dry-run    # 변경 예정 내용 출력, 파일 미수정
+
+exit 0 동기화됨(쓰기 모드는 갱신 완료) · 1 --check-only 에서 변경 필요 ·
+2 짝 없거나 빈칸이 빠진 AUTO 표지가 있다 (그 표지 사이는 갱신하지 못한다).
 """
 from __future__ import annotations
 
@@ -21,7 +24,7 @@ import sys
 from pathlib import Path
 
 import plugin_utils
-from plugin_utils import read_text, load_marketplace, list_kits, parse_frontmatter_raw, REPO_ROOT
+from plugin_utils import read_text, load_marketplace, list_kits, parse_frontmatter, parse_frontmatter_raw, REPO_ROOT
 
 # Windows cp949 stdout 대응
 if sys.platform == "win32":
@@ -33,11 +36,15 @@ if sys.platform == "win32":
     )
 
 ROOT = REPO_ROOT
+unpaired_marker_files: list[str] = []
 
 MARKER_RE = re.compile(
-    r"(<!-- AUTO:(\w+) -->)\n(.*?)(<!-- /AUTO:\2 -->)",
+    r"(<!-- AUTO:([\w-]+) -->)\n(.*?)(<!-- /AUTO:\2 -->)",
     re.DOTALL,
 )
+# 줄 전체가 표지인 것만 센다 — 본문 줄 안 코드로 표지를 언급한 글은 표지가 아니다.
+# 빈칸이 빠진 꼴(`<!--AUTO:skills-->`)도 표지로 센다. MARKER_RE 가 그 꼴을 짝으로 못 읽어 짝 없는 표지로 알린다
+MARKER_LINE_RE = re.compile(r"^<!--\s*/?AUTO:[\w-]+\s*-->$", re.MULTILINE)
 
 
 # ── Task 1: 핵심 유틸리티 함수 ───────────────────────────────────────
@@ -45,8 +52,8 @@ MARKER_RE = re.compile(
 def _parse_frontmatter_file(path: Path) -> dict | None:
     """파일을 읽고 plugin_utils.parse_frontmatter_raw 로 frontmatter 를 파싱한다.
 
-    description block scalar(`>`) 는 첫 indent 줄만 추출된다 — README 테이블
-    한 줄 요약에 맞춘 동작. 경고 출력은 이 wrapper 가 담당한다.
+    description 만 YAML 로 다시 읽어 접힌 여러 줄 전체를 담는다 — 줄 단위 파서는 첫 줄만 주어
+    README 표 설명이 문장 중간에서 끊겼다. 경고 출력은 이 wrapper 가 담당한다.
     """
     text = read_text(path)
     if not text:
@@ -55,14 +62,18 @@ def _parse_frontmatter_file(path: Path) -> dict | None:
     data = parse_frontmatter_raw(text)
     if data is None:
         print(f"  [경고] 프론트매터 없음, 스킵: {path}", file=sys.stderr)
+        return None
+    full, _ = parse_frontmatter(text)
+    if full and full.get("description"):
+        data["description"] = str(full["description"])
     return data
 
 
-def first_line(text: str | None) -> str:
-    """멀티라인 설명에서 첫 줄을 추출한다."""
-    if not text:
-        return ""
-    return text.split("\n")[0].strip()
+def first_sentence(text: str | None) -> str:
+    """설명을 한 줄로 펴고(빈칸은 하나로) 처음 나오는 「마침표 뒤 빈칸 또는 글 끝」까지 자른다."""
+    flat = " ".join(str(text or "").split())
+    end = re.search(r"\.(\s|$)", flat)
+    return flat[: end.start() + 1] if end else flat
 
 
 def replace_markers(text: str, replacements: dict[str, str]) -> str:
@@ -75,6 +86,15 @@ def replace_markers(text: str, replacements: dict[str, str]) -> str:
             return f"{open_tag}\n{replacements[key]}{close_tag}"
         return m.group(0)
     return MARKER_RE.sub(_sub, text)
+
+
+def unpaired_marker_lines(text: str) -> list[int]:
+    """MARKER_RE 가 짝으로 읽지 못한 표지 줄 번호. 이 표지 사이는 아무도 갱신하지 않는다."""
+    paired = set()
+    for block in MARKER_RE.finditer(text):
+        paired.update((block.start(1), block.start(4)))
+    return [text.count("\n", 0, line.start()) + 1
+            for line in MARKER_LINE_RE.finditer(text) if line.start() not in paired]
 
 
 def has_marker(text: str, key: str) -> bool:
@@ -92,7 +112,7 @@ def collect_skills(plugin_dir: Path) -> list[dict]:
         if data:
             results.append({
                 "name": data.get("name", ""),
-                "description": first_line(data.get("description", "")),
+                "description": first_sentence(data.get("description", "")),
             })
     return results
 
@@ -105,7 +125,7 @@ def collect_agents(plugin_dir: Path) -> list[dict]:
         if data:
             results.append({
                 "name": data.get("name", ""),
-                "description": first_line(data.get("description", "")),
+                "description": first_sentence(data.get("description", "")),
                 "model": data.get("model", ""),
                 "tools": data.get("tools", ""),
             })
@@ -129,8 +149,8 @@ def collect_hooks(plugin_dir: Path) -> list[dict]:
         for entry in entries:
             matcher = entry.get("matcher", "")
             for hook in entry.get("hooks", []):
-                cmd = hook.get("command", "")
-                # 스크립트 이름만 추출
+                # 따옴표를 빼지 않으면 훅 표 이름에 `.sh"` 가 샌다
+                cmd = hook.get("command", "").replace('"', "")
                 cmd_name = cmd.split("/")[-1] if "/" in cmd else cmd
                 results.append({
                     "event": event,
@@ -218,48 +238,58 @@ def load_plugin_json(plugin_dir: Path) -> dict | None:
 
 # ── Task 3: 테이블 렌더러 ───────────────────────────────────────────
 
+# 칸 양옆 빈칸은 하나다. 구분 줄 `|------|` 과 빈 칸 `|  |` 은 markdownlint MD060(표 칸 모양)이 잡는다
+def table_row(*cells: str) -> str:
+    return "|" + "".join(f" {cell} |" if cell else " |" for cell in cells)
+
+
+def table_head(*titles: str) -> list[str]:
+    return [table_row(*titles), table_row(*["---"] * len(titles))]
+
+
 def render_skills_table(skills: list[dict]) -> str:
-    lines = ["| 스킬 | 설명 |", "|------|------|"]
+    lines = table_head("스킬", "설명")
     for s in skills:
-        lines.append(f"| `{s['name']}` | {s['description']} |")
+        lines.append(table_row(f"`{s['name']}`", s["description"]))
     return "\n".join(lines) + "\n"
 
 
 def render_agents_table(agents: list[dict]) -> str:
-    lines = ["| 에이전트 | 설명 |", "|----------|------|"]
+    lines = table_head("에이전트", "설명")
     for a in agents:
-        lines.append(f"| `{a['name']}` | {a['description']} |")
+        lines.append(table_row(f"`{a['name']}`", a["description"]))
     return "\n".join(lines) + "\n"
 
 
 def render_hooks_table(hooks: list[dict]) -> str:
-    lines = ["| 이벤트 | 실행 | 설명 |", "|--------|------|------|"]
+    lines = table_head("이벤트", "실행", "설명")
     for h in hooks:
-        matcher_info = f" (matcher: {h['matcher']})" if h["matcher"] else ""
+        # matcher 의 `Edit|Write` 를 그대로 두면 표 칸이 갈린다
+        matcher_info = f" (matcher: {h['matcher'].replace('|', chr(92) + '|')})" if h["matcher"] else ""
         desc = f"{h['event']}{matcher_info}"
-        lines.append(f"| `{h['event']}` | `{h['command']}` | {desc} |")
+        lines.append(table_row(f"`{h['event']}`", f"`{h['command']}`", desc))
     return "\n".join(lines) + "\n"
 
 
 def render_scripts_table(scripts: list[dict]) -> str:
-    lines = ["| 스크립트 | 설명 |", "|----------|------|"]
+    lines = table_head("스크립트", "설명")
     for s in scripts:
-        lines.append(f"| `{s['name']}` | {s['description']} |")
+        lines.append(table_row(f"`{s['name']}`", s["description"]))
     return "\n".join(lines) + "\n"
 
 
 def render_evals_table(evals: list[dict]) -> str:
-    lines = ["| 파일 | 설명 |", "|------|------|"]
+    lines = table_head("파일", "설명")
     for e in evals:
         kind = "디렉토리" if e["is_dir"] else "파일"
-        lines.append(f"| `{e['name']}` | {kind} |")
+        lines.append(table_row(f"`{e['name']}`", kind))
     return "\n".join(lines) + "\n"
 
 
 def render_references_table(refs: list[dict]) -> str:
-    lines = ["| 파일 | 설명 |", "|------|------|"]
+    lines = table_head("파일", "설명")
     for r in refs:
-        lines.append(f"| `{r['name']}` | {r['description']} |")
+        lines.append(table_row(f"`{r['name']}`", r["description"]))
     return "\n".join(lines) + "\n"
 
 
@@ -271,16 +301,14 @@ def render_plugins_table() -> str:
         mp_descs[p["name"]] = p.get("description", "")
 
     stacks = {"harness": "범용", "flutter-toolkit": "Flutter", "design-kit": "범용"}
-    lines = ["| 플러그인 | 버전 | 스택 | 설명 |", "|----------|------|------|------|"]
+    lines = table_head("플러그인", "버전", "스택", "설명")
     for kit_path in list_kits(mp):
         name = kit_path.name
         pj = load_plugin_json(kit_path)
         version = pj["version"] if pj else "?"
         desc = mp_descs.get(name, "") or (pj["description"] if pj else "")
         stack = stacks.get(name, "범용")
-        lines.append(
-            f"| [`{name}`](./{name}/) | v{version} | {stack} | {desc} |"
-        )
+        lines.append(table_row(f"[`{name}`](./{name}/)", f"v{version}", stack, desc))
     return "\n".join(lines) + "\n"
 
 
@@ -312,6 +340,16 @@ def render_release_commands() -> str:
         lines.append(f"bash scripts/release.sh {p['name']} patch")
     lines.append("```")
     return "\n".join(lines) + "\n"
+
+
+def render_kit_skill_line(kit_path: Path) -> str:
+    """루트 README 킷 절의 스킬 수 · 이름 한 줄. 에이전트가 없는 킷은 에이전트 칸을 뺀다."""
+    skills = sorted(skill["name"] for skill in collect_skills(kit_path))
+    agents = sorted(agent["name"] for agent in collect_agents(kit_path))
+    parts = [f"**스킬 {len(skills)}종** — " + ", ".join(f"`{name}`" for name in skills)]
+    if agents:
+        parts.append(f"**에이전트 {len(agents)}종** — " + ", ".join(f"`{name}`" for name in agents))
+    return " · ".join(parts) + "\n"
 
 
 def render_summary_list() -> str:
@@ -350,6 +388,14 @@ def process_readme(
         return False
 
     original = readme_path.read_text(encoding="utf-8")
+
+    unpaired = unpaired_marker_lines(original)
+    if unpaired:
+        rel = readme_path.relative_to(ROOT)
+        unpaired_marker_files.append(str(rel))
+        print(f"  [오류] {rel}: 짝 없는 AUTO 표지 (줄 {', '.join(map(str, unpaired))}) — 그 사이는 갱신하지 못한다. "
+              "표지는 `<!-- AUTO:키 -->` · `<!-- /AUTO:키 -->` 꼴이다",
+              file=sys.stderr)
 
     # 마커 존재 확인 — 없는 마커는 경고만 하고 스킵
     for key in replacements:
@@ -434,16 +480,23 @@ def sync_plugin(plugin_name: str, *, dry_run: bool, check_only: bool) -> bool:
 # ── Task 4: 루트 README + CLAUDE.md ─────────────────────────────────
 
 def sync_root(*, dry_run: bool, check_only: bool) -> bool:
-    """루트 README.md의 AUTO 마커들을 갱신한다 (plugins / update-cmd / uninstall-cmd / release-cmd)."""
+    """루트 README.md의 AUTO 마커들을 갱신한다 (plugins / update-cmd / uninstall-cmd / release-cmd / skills-<킷>)."""
     print("\n[root README]")
+    readme = ROOT / "README.md"
     replacements = {
         "plugins": render_plugins_table(),
         "update-cmd": render_update_commands(),
         "uninstall-cmd": render_uninstall_commands(),
         "release-cmd": render_release_commands(),
     }
+    # 킷 절 스킬 블록은 표지를 둔 킷만 채운다 — 없는 킷마다 「마커 없음」 경고를 내지 않게
+    readme_text = read_text(readme)
+    for kit_path in list_kits():
+        key = f"skills-{kit_path.name}"
+        if has_marker(readme_text, key):
+            replacements[key] = render_kit_skill_line(kit_path)
     return process_readme(
-        ROOT / "README.md", replacements, dry_run=dry_run, check_only=check_only
+        readme, replacements, dry_run=dry_run, check_only=check_only
     )
 
 
@@ -490,6 +543,10 @@ def main() -> None:
 
     changed = sync_claude_md(dry_run=args.dry_run, check_only=args.check_only)
     any_changed = any_changed or changed
+
+    if unpaired_marker_files:
+        print(f"\n짝 없는 AUTO 표지가 있어 갱신하지 못한 파일: {', '.join(unpaired_marker_files)}")
+        sys.exit(2)
 
     if args.check_only:
         if any_changed:

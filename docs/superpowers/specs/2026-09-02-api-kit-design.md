@@ -27,17 +27,17 @@ API 엔드포인트가 실제로 어떤 데이터를 돌려주는지 확인하�
 
 ## 3. 범위
 
-**In scope**
+### In scope
 
 - 실행 중인 HTTP(S) JSON API
 - 인증: OAuth2 client_credentials, 커스텀 로그인 엔드포인트(단순 id/pw → JSON 토큰)
 - 입력: OpenAPI/Swagger 스펙, 사람이 쓴 문서(md/노션/스크린샷), curl·Talend 컬렉션 덤프
 - 환경: dev / stg / prod (prod 허용, 단 기본 read-only)
 
-**Out of scope (v0.1)**
+### Out of scope (v0.1)
 
 | 제외 항목 | 이유 |
-|---|---|
+| --- | --- |
 | gRPC / GraphQL / WebSocket | 계약 모델이 다르다. 필요해지면 별도 어댑터로 |
 | 부하·성능 테스트 | k6 영역 |
 | consumer-driven contract | Pact 영역. 문제 정의가 다르다 (양쪽 코드를 통제할 때) |
@@ -58,7 +58,7 @@ API 엔드포인트가 실제로 어떤 데이터를 돌려주는지 확인하�
 ### 5.1 실행 엔진: Hurl
 
 | 후보 | 상태 (2026-09) | 판정 |
-|---|---|---|
+| --- | --- | --- |
 | **Hurl** | 8.0.1 (2026-04-28), Apache-2.0, 활발 | **채택** |
 | Bruno | v4.1.0 (2026-08-20), MIT + 상용 | 2순위 |
 | Karate | v2.0.9 (2026-05-13) | 탈락 — JVM 의존 |
@@ -85,7 +85,7 @@ Hurl 채택 근거:
 ### 5.2 보조 레일 (옵트인)
 
 | 도구 | 역할 | 조건 |
-|---|---|---|
+| --- | --- | --- |
 | Schemathesis 4.x | OpenAPI conformance / fuzz | OpenAPI 스펙이 있을 때만 |
 | oasdiff | OpenAPI breaking change 게이트 | OpenAPI 스펙이 있을 때만 |
 
@@ -100,7 +100,7 @@ Hurl 채택 근거:
 두 용도가 서로 다른 도구를 요구한다. 한 덩어리로 보면 틀린다.
 
 | 용도 | 도구 | 근거 |
-|---|---|---|
+| --- | --- | --- |
 | **비교 기준선** | RFC 8785 JCS canonical JSON | prettier는 **키를 정렬하지 않는다** — 공식 rationale이 "sorting object keys"를 범위 밖으로 명시한다. 서버가 키 순서를 바꾸면 회귀가 깨진다 |
 | **화면 표시 (JSON)** | prettier `json` parser | `JSON.stringify(obj, null, 2)`보다 읽기 좋다. print width와 object wrap 규칙으로 짧은 객체·배열을 한 줄에 둔다 (이 차이 때문에 prettier에 별도 `json-stringify` parser가 생겼다) |
 | **화면 표시 (비-JSON)** | prettier + `@prettier/plugin-xml` | HTML·CSS·YAML·GraphQL은 내장. XML만 공식 플러그인 |
@@ -136,7 +136,7 @@ prettier가 없는 환경에서는 `JSON.stringify(obj, null, 2)`로 폴백한�
 ## 7. 스킬 5종
 
 | 스킬 | 입력 | 출력 |
-|---|---|---|
+| --- | --- | --- |
 | `/api-init` | OpenAPI 스펙 / 사람 문서 / curl 덤프 | `project.yaml`, `auth.yaml`, `inventory.yaml` |
 | `/api-probe` | 엔드포인트 (또는 그룹) | 마크다운 리포트 + `snapshots/*.json` |
 | `/api-contract` | 스냅샷 | `cases/*.hurl`, `contracts/*.yaml`, `masks/*.yaml` |
@@ -231,7 +231,7 @@ prod 응답에는 실 고객 데이터가 들어온다. 한 번 git history에 �
 기본은 partial, 필요할 때 조인다.
 
 | 수준 | 검사 내용 | 지정 방법 |
-|---|---|---|
+| --- | --- | --- |
 | **partial** (기본) | 상태코드, content-type, 필수 필드 존재, 타입 일치, enum 값 | 기본값 |
 | **pin** | 위 + 지정 경로에 **명시 assertion** | `pin: [{path:"$.meta.total", assert:">= len($.data)"}]` |
 | **exact** | canonical JSON 전체 diff (정규화 후) | `exact: true` |
@@ -246,17 +246,24 @@ pin이 하는 일은 **타입이 멀쩡한 채 값만 망가진 회귀를 잡는
 값 고정(`= "Bearer"`)은 pin이 표현할 수 있는 assertion **한 종류**일 뿐이고, 안정 필드
 (discriminator·API 버전·통화 코드·고정 status)에만 쓴다. 변동 필드에는 범위·패턴·불변식을 건다.
 
-**경로 간 불변식은 Hurl assert 로 표현되지 않는다.** Hurl 의 assert 는 경로 1 개에 predicate 1 개다
+**경로 간 불변식은 Hurl assert 로 표현되지 않는다.** (정정 2026-09-26 — 이유가 틀렸다. 아래 정정 문단) Hurl 의 assert 는 경로 1 개에 predicate 1 개다
 (`jsonpath "$.meta.total" >= 0`). `$.meta.total >= len($.data)` 처럼 **두 경로를 비교하는 불변식**은
-Hurl 문법으로 쓸 수 없다. 상수로 근사하지 마라 — `>= 3` 으로 박으면 데이터가 늘어난 순간 무의미해진다.
+Hurl 문법으로 쓸 수 없다(정정: capture 로 쓸 수 있다). 상수로 근사하지 마라 — `>= 3` 으로 박으면 데이터가 늘어난 순간 무의미해진다.
 
 이런 assertion 은 `contracts/*.yaml` 의 `pin` 에만 기록하고, `/api-verify` 가 Hurl 실행 뒤
 **후처리 단계에서 검사**한다. 즉 pin assertion 은 두 부류다 — Hurl 이 직접 검사하는 것과
 킷이 후처리로 검사하는 것. 계약 파일은 둘을 구분해 표기한다.
 (2026-09-04 스킬 작성 중 발견. 설계문서 §5.1 "JSON Schema assert 가 네이티브가 아니다" 의 연장선)
 
+**정정 (2026-09-26).** 위 「표현되지 않는다」 · 「쓸 수 없다」 는 이유가 틀렸다 — 옛 문장은 기록으로 남긴다.
+한쪽 경로를 `capture` 해 판정식 값에 넣으면 Hurl 로도 적을 수 있다: `[Captures] total: jsonpath "$.meta.total"` 다음
+`jsonpath "$.data" count <= {{total}}` (hurl 8.0.1 실측 2026-09-24, `docs/api/research-log.md` 「경로 간 불변식을 Hurl 에
+적어 본 결과」). 후처리에 두는 결론은 그대로이고 이유만 바뀐다 — 한쪽 경로가 없으면 Hurl 은 종료 코드 `3`(킷 분류로
+환경 실패) 또는 `4`(계약 실패)만 내고, `판정 불가` 를 가를 자리가 후처리뿐이다. 지금 규칙은
+`api-kit/skills/api-verify/SKILL.md` 에 있다.
+
 | 필드 성격 | 적합한 assertion | 예 |
-|---|---|---|
+| --- | --- | --- |
 | 안정값 | 값 고정 | `$.token_type = "Bearer"` |
 | 열거형 | 집합 소속 | `$.data[].status ∈ active·shipped·cancelled` |
 | 변동 수치 | 범위·불변식 | `$.meta.total ≥ len($.data)` · `$.price > 0` |
@@ -436,7 +443,7 @@ Postman의 조직화와 편집감은 얻고, CORS·프록시·토큰 저장은 �
 ### 11.3 기존 렌더러를 기본 UI로 쓰지 않는다
 
 | 후보 | 상태 (2026-09) | 판정 |
-|---|---|---|
+| --- | --- | --- |
 | Redoc CE | 2.5.3 (2026-05-29), MIT | 보조 — `redocly build-docs` → 단일 `redoc-static.html`이 가장 깔끔. 단 Try it 없음, OpenAPI 전용 |
 | Scalar | `@scalar/api-reference` 1.67.0, MIT | 탈락 — UI 품질 최고지만 단일 HTML이 기본 산출물이 아니고 OpenAPI 전용, proxy 전제 |
 | Zudoku | 0.86.0 (2026-08-28) | 탈락 — nav는 가장 강하나 React/Vite 빌드 전제 |
@@ -473,7 +480,7 @@ Playwright HTML reporter와 k6 리포트의 확립된 패턴을 따른다.
 
 ### 11.5b 응답 뷰 — 본문과 스키마를 한 화면에, 단 같은 행에 넣지 않는다
 
-확정 시안(`.mockups/api-ui-v7.html`)에서 실측으로 확정한 구조다.
+확정 시안(`.mockups/api-ui-v8.html`)에서 실측으로 확정한 구조다.
 
 응답 `본문` 탭은 위아래 두 블록이다.
 
@@ -509,10 +516,10 @@ Hurl은 `--report-html DIR`로 리포트를 만든다. 하지만 폴더 트리, 
 
 2026 API 도구들이 Swagger UI 대비 제공하는 기능 중, **실제 요청 발사 없이 성립하는 것만** 골랐다.
 
-**P0 — v0.1에 넣는다**
+#### P0 — v0.1에 넣는다
 
 | 기능 | 구현 |
-|---|---|
+| --- | --- |
 | 스냅샷 컬렉션·히스토리 탐색 + 전역 검색 | 자체. 생성 시점 검색 인덱스 |
 | resolved request 표시 | 템플릿 원문과 실제 치환값을 나란히. 시크릿은 마스킹된 채로 |
 | JSON 트리 — 접기·구문강조·key/value/path 검색·JSON Pointer 복사 | 자체 구현 |
@@ -520,16 +527,16 @@ Hurl은 `--report-html DIR`로 리포트를 만든다. 하지만 폴더 트리, 
 
 구조적 diff가 이 뷰어를 Swagger UI와 갈라놓는 지점이다. 텍스트 diff가 아니라 **값·타입·경로 단위**로 "지난번 대비 이 필드가 사라졌다"를 보여준다. 계약 회귀 킷의 UI가 마땅히 해야 할 일이고, Swagger UI에는 아예 없는 축이다.
 
-**P1 — 여유 되면**
+#### P1 — 여유 되면
 
 - shape summary — 응답의 top-level 형태, nullable/타입 변화, 배열 item 수
 - 대형 JSON lazy rendering — 총 노드 10k 초과 또는 단일 배열 자식 500개 초과에서 pagination 전환
 
-**P2 — v0.1에서 뺀다**
+#### P2 — v0.1에서 뺀다
 
 코드 스니펫 생성(사용자 판단으로 P0에서 강등 — 안 쓸 기능이 화면을 잡아먹는다), JSONPath/JMESPath 쿼리 플레이그라운드, 테이블 뷰, 저장된 테스트 결과 타임라인. 가치는 있으나 단일 파일 복잡도가 급격히 올라간다.
 
-**애초에 못 가져오는 것**
+#### 애초에 못 가져오는 것
 
 mock server, 모니터링, 협업/RBAC/SSO, 실시간 테스트 러너. 요청 발사나 서버가 전제라 정적 뷰어의 범위 밖이다. 메타데이터 표시까지가 한계다.
 
@@ -538,7 +545,7 @@ mock server, 모니터링, 협업/RBAC/SSO, 실시간 테스트 러너. 요청 �
 기존 라이브러리를 검토했으나 단일 파일 제약과 맞지 않는다.
 
 | 후보 | 판정 |
-|---|---|
+| --- | --- |
 | `big-json-viewer` 0.2.2 | 의존성 0에 pagination·search·copy path가 있으나 번들 크기 미확인, 유지보수 정체 |
 | `vanilla-jsoneditor` 3.13.0 | 기능은 최고지만 **의존성 26개** — 단일 파일 목표와 충돌 |
 | JSON Bonsai | 라이브러리가 아니라 확장 프로그램. 100k+ 노드 virtualization 설계는 참고 |
@@ -562,7 +569,7 @@ P0 범위(접기·하이라이트·검색·경로 복사·배열 pagination)는 
 엔드포인트에도 본문을 붙일 수 있어야 한다.
 
 | 추가 | 커맨드 반영 |
-|---|---|
+| --- | --- |
 | 쿼리 파라미터 | `--query name=value` |
 | 헤더 | `--header 'Name: value'` |
 | JSON 본문 | `--body '{...}'` |
@@ -573,7 +580,7 @@ P0 범위(접기·하이라이트·검색·경로 복사·배열 pagination)는 
 ## 12. 확정된 결정
 
 | 항목 | 결정 | 근거 |
-|---|---|---|
+| --- | --- | --- |
 | 실행 엔진 | Hurl 8.0.1 | §5.1 리서치 |
 | prod 테스트 | 허용, 단 기본 read-only + 건별 확인 | 사용자 확인 2026-09-02 |
 | 로그인 방식 | 단순 id/pw. MFA·CSRF 없음 | 사용자 확인 2026-09-02 |
@@ -585,7 +592,7 @@ P0 범위(접기·하이라이트·검색·경로 복사·배열 pagination)는 
 | 검색 | **커맨드 팔레트** (`⌘K` · `/`). 사이드바 검색창 폐기 | §11.10 사용자 결정 2026-09-03 |
 | 응답 뷰 | JSON 본문(인라인 diff) + 데이터 구조 표 **분리**. 별도 `구조 diff` 탭 없음 | §11.5b 사용자 결정 2026-09-03 |
 | 요청 폼 | 파라미터·헤더·JSON 본문을 **행 추가**로 더할 수 있다 | §11.11 사용자 결정 2026-09-03 |
-| 확정 시안 | `.mockups/api-ui-v7.html` — v1 골격 + v2 팔레트·인라인 diff | 사용자 확정 2026-09-03 |
+| 확정 시안 | `.mockups/api-ui-v8.html` — v1 골격 + v2 팔레트·인라인 diff, 2026-09-26 에 네 번째 상태 「판정 불가」 칸을 더한 판 | 사용자 확정 2026-09-03 (v8 로 바뀜 2026-09-26) |
 | exact 모드 범위 | **본문만.** 헤더는 매 호출 변하는 값이 많아 제외하고, 필요한 헤더만 pin 으로 개별 지정 | 사용자 확정 2026-09-04 |
 | prod read-only 범위 | **미확정.** 기본 GET/HEAD/OPTIONS, allowlist 여지만 남긴다 | 사용자 판단 유보 2026-09-04 |
 | enum 승격 기준 | **1 샘플은 후보 표시만(경고), 3 샘플 이상에서 승격.** 수동 확정 경로 별도 | 사용자 확정 2026-09-04 |

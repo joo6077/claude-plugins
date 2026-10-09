@@ -11,7 +11,11 @@ argument-hint: "<file-or-module> [unit|integration|api|e2e]"
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 1. **스택 감지 없이 테스트 코드 생성 금지** — Step 1의 프로젝트 감지를 반드시 먼저 수행하라. Python 프로젝트에 Jest 테스트를 생성하거나 Node 프로젝트에 pytest를 생성하면 안 된다
 2. **DB 의존 테스트에 실제 DB 사용 원칙** — 가능하면 Testcontainers/Docker Compose로 실제 DB를 띄워라. Mock DB는 스키마 드리프트를 놓친다. 출처: backend-kit system-principles "Pact v4 + Testcontainers"
@@ -38,7 +42,7 @@ user-invocable: true
 프로젝트 루트에서 아래 파일들을 탐색하여 스택을 감지한다:
 
 | 감지 파일 | 스택 | 테스트 프레임워크 |
-|-----------|------|-----------------|
+| ----------- | ------ | ----------------- |
 | `requirements.txt` / `pyproject.toml` / `Pipfile` | Python | pytest (기본), unittest |
 | `package.json` | Node.js | jest / vitest / mocha |
 | `build.gradle` / `pom.xml` | Java/Kotlin | JUnit 5 / TestNG |
@@ -50,6 +54,7 @@ user-invocable: true
 **Rust/Dart 프로젝트는 전용 스킬이 있으므로 리다이렉트한다.**
 
 추가 감지 항목:
+
 - ORM: SQLAlchemy / TypeORM / Prisma / Django ORM / JPA / GORM / Ecto
 - API 프레임워크: FastAPI / Express / NestJS / Spring Boot / Gin / Echo / Phoenix
 - 기존 테스트 디렉토리: `tests/`, `test/`, `__tests__/`, `src/test/`
@@ -62,7 +67,7 @@ user-invocable: true
 **유형 미지정 시 자동 추론:**
 
 | 대상 특성 | 테스트 유형 |
-|-----------|-----------|
+| ----------- | ----------- |
 | 순수 함수, 유틸리티, 도메인 로직 | unit |
 | DB 모델, 리포지토리, 쿼리 | integration (실제 DB) |
 | API 핸들러, 라우터, 컨트롤러 | api (test client) |
@@ -73,6 +78,7 @@ user-invocable: true
 ### Step 2: 기존 패턴 탐색
 
 프로젝트의 기존 테스트를 분석한다:
+
 - 디렉토리 구조 (mirror vs flat)
 - import 스타일 및 assert 라이브러리
 - fixture/factory 패턴 (conftest, beforeAll, @BeforeEach)
@@ -84,6 +90,7 @@ user-invocable: true
 ### Step 3: 테스트 코드 생성
 
 **공통 규칙:**
+
 - Arrange-Act-Assert (AAA) 패턴 준수
 - 각 public 함수/메서드당 최소 1개 테스트
 - happy path + error path 모두 커버
@@ -223,6 +230,7 @@ func TestGetResource(t *testing.T) {
 ### Step 4: Integration/API 테스트 보강
 
 DB 의존 코드가 감지되면:
+
 1. Testcontainers 설정 안내 (Python: `testcontainers`, Node: `testcontainers`, Java: `org.testcontainers`, Go: `testcontainers-go`)
 2. 마이그레이션 자동 실행 포함
 3. 트랜잭션 롤백 또는 테이블 truncate 격리
@@ -230,11 +238,12 @@ DB 의존 코드가 감지되면:
 5. **핵심 guard 가 있으면 positive + negative 쌍으로 생성** (Gotcha 17)
 
 | # | 테스트 | 준비 | 기대 |
-|---|--------|------|------|
+| --- | --- | --- | --- |
 | P | positive | 기대 상태가 저장소 현재 값과 일치 | 1 행 영향 · 성공 |
 | N | negative (stale/충돌) | 읽은 뒤 다른 경로로 행을 변형해 기대값을 낡게 만든다 | 0 행 영향 · conflict 로 승격 · 상태 미변경 |
 
 API 핸들러가 감지되면:
+
 1. 프레임워크 test client 사용
 2. 요청/응답 스키마 검증 (OpenAPI spec이 있으면 대조)
 3. 인증 헤더 fixture 포함
@@ -244,7 +253,7 @@ API 핸들러가 감지되면:
 생성된 테스트를 실행하고 결과를 확인한다:
 
 | 스택 | 실행 명령 |
-|------|----------|
+| ------ | ---------- |
 | Python | `pytest {test_file} -v` |
 | Node.js | `npx vitest run {test_file}` 또는 `npx jest {test_file}` |
 | Java | `./gradlew test --tests {TestClass}` 또는 `mvn test -Dtest={TestClass}` |

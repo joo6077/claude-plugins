@@ -61,6 +61,13 @@ sprint-contract Step 6.7 의 가지 만들기는 이 워크트리 안에서 한�
 git log --oneline "$(git merge-base HEAD origin/main)..HEAD"   # 실제로 들어간 커밋
 git status --short                                              # 미커밋 잔여
 git diff --stat "$(git merge-base HEAD origin/main)..HEAD"      # 변경 파일 실체
+MAIN=$(git worktree list --porcelain | sed -n '1s/^worktree //p')   # 본 작업 폴더 — 추적 안 된 기록은 새 워크트리에 없다
+for root in "$(git rev-parse --show-toplevel)" "$MAIN"; do
+  for dir in .planning .design .harness; do [ -r "$root/$dir" ] || echo "못 읽음: $root/$dir"; done
+  find "$root/.planning" -maxdepth 1 -type f -name 'prd-*.md' 2>/dev/null               # 폐기한 결정 원문이 든 PRD
+  grep -rnE 'PRD 없음[[:space:]]*[|]?[[:space:]]*$' "$root/.design" "$root/.harness" 2>/dev/null   # 줄 끝에 PRD 없음 을 붙인 폐기 결정
+  grep -rnE '^[[:space:]]*([-*+][[:space:]]|[0-9]+[.)][[:space:]]|[|]).*PRD 없음(`[.]?|[.])[[:space:]]*[|]?[[:space:]]*$' "$root/.design" "$root/.harness" 2>/dev/null   # 안내 글의 `PRD 없음` 을 코드 표시 기호째 옮겨 적었거나 마침표로 끝낸 같은 기록 — 목록 항목 · 표 행만
+done | sort -u
 ```
 
 대조 결과를 아래 형식으로 **응답에 복사해 채운다** (E2 아티팩트 — skill-design-guide §3.7):
@@ -69,8 +76,11 @@ git diff --stat "$(git merge-base HEAD origin/main)..HEAD"      # 변경 파일 
 핸드오프 재검증
 - 문서 주장 잔여: <항목 나열>
 - git 실측: <이미 완료된 항목> / <실제 잔여 항목>
+- 폐기한 결정: <PRD 비범위 표 항목 · 줄 끝이 `PRD 없음` 인 줄 · `못 읽음` 폴더 — 모두 없으면 없음>
 - 불일치: N 건 → 문서 먼저 갱신 후 착수
 ```
+
+폐기한 결정의 원문은 기능 PRD 의 비범위 표 하나다 — planning-kit plan-prd Gotcha 14 의 `## Non-goals (폐기한 결정 포함)` · Shape Up `## No-gos`. 그 기능의 PRD 가 없으면 원문은 계약 `범위 경계` 한 곳에 네 칸으로 적고 줄 끝에 `PRD 없음` 을 붙인다 — 승인 기록은 그 계약 경로를 가리킨다. 그 기능의 계약도 없으면 원문은 디자인 승인 기록 폐기 칸 한 곳에 같은 네 칸으로 적고 줄 끝에 `PRD 없음` 을 붙인다 — 위 grep 이 `.design` 도 보므로 그 줄도 모인다. 위 두 grep 은 줄 끝의 `PRD 없음`(코드 표시 기호로 감쌌거나 마침표를 찍은 것 포함, 표 행이면 뒤따르는 빈칸 · `|` 까지)만 찾으므로 규칙을 설명하는 문장처럼 뒤에 글이 이어지는 줄은 걸리지 않는다. 둘째 grep 은 목록 항목 · 표 행(`-` · `*` · `+` · 번호 · `|` 로 시작하는 줄)만 본다 — 규칙을 요약한 문단이 「… · `PRD 없음`」 처럼 코드 표시 기호로 끝나도 결정으로 잡지 않는다. 본 작업 폴더(`git worktree list` 첫 줄)도 함께 본다 — 추적하지 않는 `.planning` · `.harness` 는 새 워크트리에 따라오지 않아, 한 폴더만 보면 빈 출력이 「기록 없음」 인지 「못 봄」 인지 가를 수 없다. 여기 든 항목은 사용자가 되살리라고 하지 않는 한 계약 · 구현에 다시 넣지 않는다 — 필요해 보이면 Step 1 전에 묻는다.
 
 불일치가 1 건이라도 있으면 **핸드오프 문서를 먼저 고친 뒤** Step 1 로 간다. 문서의 잔여 목록과 git 실측이 어긋난 채 진행하는 것은 스테일 상태를 한 사이클 더 전파하는 것이다.
 
@@ -110,9 +120,16 @@ done
 
 | 공용 작업 폴더 | `HEAD` 임시 | `FORK_BASE` 임시 | 판정 |
 | --- | --- | --- | --- |
-| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 내가 쓴 목록 밖이면 남의 미커밋이다 |
+| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 작업을 시작할 때 떠 둔 목록에도 있고 내가 쓴 목록 밖이면 남의 미커밋 후보다. 어느 하나라도 확인하지 못하면 귀속 불명이다 |
 | 실패 | 실패 | 실패 | 기준 커밋에서 이미 실패 — 내 변경 전부터다 |
 | 실패 | 실패 | 통과 | 이번 커밋 탓일 가능성이 크다 |
+
+**CI 에서만 실패하면 표 밖 두 경우를 본다.** 세 임시 폴더가 로컬에서 다 통과하는데 CI 만 실패하면 위 세 줄로 가르지 않는다.
+
+- **환경 · 비결정성** — 같은 커밋을 CI 에서 다시 돌렸는데 결과가 달라진다. 러너 이미지 · 도구 판 · 시간 · 외부 서비스가 원인 후보다
+- **미확정** — 기록도 재현 환경도 없어 가를 수 없다. 억지로 세 줄 가운데 하나에 넣지 말고 「미확정 — 같은 커밋 재실행이 필요하다」 로 적는다
+
+판정 표와 두 경우는 `flutter-toolkit/skills/flutter-preflight/SKILL.md` · `react-kit/skills/react-preflight/SKILL.md` 에 글자 그대로 사본이 있고, CI 가 `scripts/check-cause-table-copies.py` 로 대조한다 — 여기를 고치면 두 사본도 같은 작업에서 고친다.
 
 `FORK_BASE` 는 분기점이지 기준 가지의 지금 상태가 아니다 (<https://git-scm.com/docs/git-merge-base>).
 `origin/<기준 가지>` 줄은 분기 뒤 기준 가지가 깨졌는지를 본다 — 여기서 실패하면 합친 뒤에도 빨갈 수 있다.
@@ -125,6 +142,10 @@ done
 
 - APPROVE → Step 5
 - REJECT → 수정 후 Step 3 재실행 (Iteration +1)
+
+QA 를 다시 부르기 전에 앞 회차 리포트(`sprint-feedback-<slug>.md`)를 커밋해 둔다. 리포트는 회차마다 같은 경로에 덮어쓰므로,
+커밋 안 된 앞 회차 리포트를 평가자가 이번 판으로 잘못 읽을 수 있다. 지우지는 마라 — 아래 카운터와 평가자의 Iteration 은
+그 파일에서 센다. 실측(2026-09-26): 평가자가 앞 회차 내용이 든 낡은 리포트와 커밋 안 된 `status: done` 을 발견했다.
 
 **Iteration 카운터 (E2 — 매 라운드 응답에 복사해 채운다):**
 

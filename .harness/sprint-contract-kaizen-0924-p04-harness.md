@@ -136,7 +136,7 @@ YAML 펜스를 일괄 파싱하면 자리표시자 예시 때문에 오탐이 �
 - **`--pathspec-from-file`** — 경로 목록 파일을 훅이 읽지 않는다. `git ls-files` 가 그 옵션을 받지 않고(실측 `unknown option`) 드문 형태라
   통과시키고 README 에 적는다 (AR-04). 훅은 판단이 안 서는 입력을 통과시키는 설계다(`commit-guard.sh:6-7`)
 - **YAML 블록 검사를 더할지 (F18)** — **더하지 않는다.** 14 킷 마크다운의 `yaml` 펜스 60 개를 파싱하면 3 개가 실패하는데 셋 다 일부러 깨 놓은
-  예시거나 자리표시자다(`plugin-validation-guide.md:144` · `skill-design-guide.md:554` · `planning-kit/agents/planning-reviewer.md:66`) — 걸리는 것이 전부
+  예시거나 자리표시자다(`plugin-validation-guide.md:156` · `skill-design-guide.md:562` · `planning-kit/agents/planning-reviewer.md:75`) — 걸리는 것이 전부
   잘못 잡은 것이다. 실행되는 YAML 은 이미 V2(`templates/`)와 `validate-doc-contracts.py`(`# docs-contract` 블록)가 파싱한다
 - **범위 선언 자리** — 계약 `## 범위 경계` 절 안 `# sprint-scope` 블록 · 따로 파일 · frontmatter 배열 셋 가운데 **계약 안 블록**. 봉인 커밋이 계약
   파일 하나만 담으므로(sprint-contract Step 6.7 (c)) 따로 파일은 그 규칙을 바꿔야 하고, frontmatter 는 셸 읽기 함수가 한 줄 값만 읽는다(근거 파일 §5).
@@ -146,7 +146,7 @@ YAML 펜스를 일괄 파싱하면 자리표시자 예시 때문에 오탐이 �
   다음 사이클(ER-05)
 - **원인 가르기 규칙의 자리** — `/sprint` Step 3. 다른 킷은 플러그인이 따로 설치돼 이 파일을 경로로 가리킬 수 없으니 같은 판정 세 줄을 옮겨 적게 한다(ER-05)
 - **create-agent · create-skill 의 나머지 낡은 사실 (근거 파일 §3)** — create-agent `:25` · `:80` 의 「`model` 을 생략하면 `inherit`」 와 create-skill `:27` 의
-  「공식 필수는 `name` 과 `description`」 · 「다른 플랫폼에서는 무시된다」 는 **고치지 않는다.** 두 스킬이 기준 원본으로 가리키는 `agent-design-guide.md:79` ·
+  「공식 필수는 `name` 과 `description`」 · 「다른 플랫폼에서는 무시된다」 는 **고치지 않는다.** 두 스킬이 기준 원본으로 가리키는 `agent-design-guide.md:83` ·
   `skill-design-guide.md` §frontmatter 규칙이 Phase 1 파일이고, Phase 1 은 제 근거 파일에 없어 다음 사이클 메모로 남겼다(`phase1-notes.md` §다음 사이클 메모).
   스킬 쪽만 고치면 스킬과 가이드가 갈린다 — 가이드와 함께 고치도록 넘긴다(ER-05)
 
@@ -212,13 +212,13 @@ YAML 펜스를 일괄 파싱하면 자리표시자 예시 때문에 오탐이 �
   `sprint-contract Step 9` (다음 사이클 Phase 2 — 초안 필수 여섯으로 문구를 맞추고, 고정 이름 `.harness/feedback-draft.yaml` 을 여러 세션이 덮는 문제 · Phase 3 메모) ·
   `feedback-schema.yaml` (다음 사이클 Phase 2 · 3 — true 가 「문제가 있다」 인 뜻과 새 키 둘. harness-kaizen Gotcha 가 이 파일 수정을 막는다) ·
   `# sprint-scope` (쓰는 쪽은 다음 사이클 Phase 2 — contract-schema 절 · sprint-contract Step 6. 읽는 쪽은 다음 사이클 Phase 4 — 커밋 훅이 `owner_session` 으로 이번 세션의 계약을 찾는다) ·
-  `assertions.json 실행기` (Phase 3 넘김 — 이번에 만들지 않는다. 처리 배정표 밖) · `agent-design-guide.md:79` (다음 사이클 Phase 1 — model 을 생략했을 때의 동작, 근거 파일 §3) ·
+  `assertions.json 실행기` (Phase 3 넘김 — 이번에 만들지 않는다. 처리 배정표 밖) · `agent-design-guide.md:83` (다음 사이클 Phase 1 — model 을 생략했을 때의 동작, 근거 파일 §3) ·
   `sprint-contract Step 6.7 (a)` (다음 사이클 Phase 1 · 2 — 같은 작업 폴더에서 `checkout -b` 하지 않는다는 문장을 skill-design-guide §9 와 함께) ·
   `backend-family:P3` · `backend-family:P4` (Phase 8 · 9 — `/sprint` Step 3 의 판정 세 줄을 옮겨 적는다) · `flutter-preflight` · `react-preflight` (Phase 5 · 10 — 기준 커밋 비교 없음) ·
   `F20` (Phase 11 — 폐기 결정 기록 자리를 하나로 정한 뒤 `/sprint` 재검증 블록에 읽는 줄) · `V6 범위` (다음 사이클 — 언어 힌트 없는 펜스 8 개를 고친 뒤 넓힌다) ·
   `reflect-collector:P5` (다음 사이클 Phase 4 — `save-feedback.sh` 가 `project_name` 을 워크트리 폴더 이름으로 적는다. 규칙의 근거는 이번 사이클 `phase12.md` 에만 있다 — `배경` 표 행) ·
-  `create-agent/SKILL.md:25` (다음 사이클 Phase 1 · 4 — `model` 을 생략했을 때의 동작. `agent-design-guide.md:79` 와 함께 고친다) ·
-  `create-skill/SKILL.md:27` (다음 사이클 Phase 1 · 4 — 「공식 필수」 · 「다른 플랫폼에서는 무시된다」. skill-design-guide §frontmatter 규칙과 함께 고친다).
+  `create-agent/SKILL.md:25` (다음 사이클 Phase 1 · 4 — `model` 을 생략했을 때의 동작. `agent-design-guide.md:83` 와 함께 고친다) ·
+  `create-skill/SKILL.md:29` (다음 사이클 Phase 1 · 4 — 「공식 필수」 · 「다른 플랫폼에서는 무시된다」. skill-design-guide §frontmatter 규칙과 함께 고친다).
   처리 배정표 키 열(`F08` · `F09` · `F14` · `F18` · `F28` · `harness:P02` · `harness:P07` · `user-setup:P2` · `other-kits:P10` · `insights:scope-commit-block`)도 notes 에 적는다.
   러닝북이 적게 한 나머지(바꾼 파일 · changelog 한 단락 · 킷 로그 한 단락 · 다음 사이클 메모)도 notes 에. `.github/workflows/ci.yml` 에 넣을 줄은 없다 — 새 경우는 이미 CI 가 돌리는 시험 파일 안에 있다
 - QA(`harness:qa-evaluator`)는 설치본이다 — 이 Phase 가 고치는 파일에 qa-evaluator 는 없다. 설치본 커밋 훅은 이 가지의 새 판이 아니다
@@ -243,9 +243,9 @@ YAML 펜스를 일괄 파싱하면 자리표시자 예시 때문에 오탐이 �
 - 커버리지 해소: SK-01 · SK-03 · SK-04 · SK-05 · SK-06 · ER-01 · ER-02 · AR-01 · AR-02 · AR-03 — 산문의 파일 이름은 측정의 `"$SP"` · `"$RM"` ·
   `"$CA"` · `"$CS"` · `"$T/E/…"` 다. 공통 정의가 그 이름으로 `$END` 판을 꺼낸다. 도우미 이름(`ka-commit.sh` 등)은 측정의 `"$K/…"` 로 부른다
 - 커버리지 해소: SK-01 · SK-03 · SK-04 — `/sprint` 는 경로가 아니라 스킬 이름이다. 파일은 `"$SP"`
-- 커버리지 해소: SK-05 — `phase1-notes.md` · `create-skill/SKILL.md:29` 는 재는 대상이 아니라 넘김 출처다. URL 은 측정의 `grep -cF` 인자다
+- 커버리지 해소: SK-05 — `phase1-notes.md` · `create-skill/SKILL.md:31` 는 재는 대상이 아니라 넘김 출처다. URL 은 측정의 `grep -cF` 인자다
 - 커버리지 해소: ER-01 — `/bin/bash` 는 해석기다. 측정이 그 해석기로 시험을 돌린다
-- 커버리지 해소: ER-05 — notes 경로는 공통 정의의 `$NOTES`, `feedback-schema.yaml` · `create-agent/SKILL.md:25` · `create-skill/SKILL.md:27` 은 측정 `for t in …` 한 줄의 인자다
+- 커버리지 해소: ER-05 — notes 경로는 공통 정의의 `$NOTES`, `feedback-schema.yaml` · `create-agent/SKILL.md:25` · `create-skill/SKILL.md:29` 은 측정 `for t in …` 한 줄의 인자다
 - 커버리지 해소: AR-01 — 여섯 범위 글롭은 측정 `find` 인자로 하나씩 옮겼다(`-name SKILL.md` · `agents` · `references` · `docs` · `-path "$k/skills/*/references/*"` · `README.md`). `/skills/[^/]+/references/` 는 측정의 `grep -cE` 인자다
 - 커버리지 해소: AR-03 — 기대 출력 두 줄은 측정 끝의 한 문자열(공백으로 이은 두 경로)이다
 - 검출기는 공백 든 코드 조각 안의 인자를 읽지 못한다 — 위 해소 줄이 전부 그 경우다

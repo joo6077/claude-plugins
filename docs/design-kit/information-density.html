@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>정보 밀도 — Information Density</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -179,7 +180,7 @@ section:last-child { border-bottom: none; }
   display: inline-block;
   margin-top: 12px;
   font-size: 0.78rem;
-  color: var(--accent-dim);
+  --dk-ink:var(--accent-dim);color: var(--dk-ink-out, var(--accent-dim));
   text-decoration: none;
   border-bottom: 1px dotted var(--accent-dim);
 }
@@ -1265,7 +1266,7 @@ input[type="range"]::-moz-range-thumb {
   font-size: 0.82rem;
 }
 .references a {
-  color: var(--accent-dim);
+  --dk-ink:var(--accent-dim);color: var(--dk-ink-out, var(--accent-dim));
   text-decoration: none;
   border-bottom: 1px dotted var(--accent-dim);
 }
@@ -1280,6 +1281,7 @@ input[type="range"]::-moz-range-thumb {
   .content-type-grid { grid-template-columns: 1fr; }
   .platform-grid { grid-template-columns: 1fr; }
   .gmail-sender { width: 80px; }
+  .preview-title, .preview-subtitle, .gmail-subject { white-space: normal; }
 }
   /* 스타일 없는 <a> 는 브라우저 기본 #0000EE 로 떨어져 다크 배경에서 대비 2 미만이 된다 */
   a{color:var(--accent)}
@@ -1287,6 +1289,27 @@ input[type="range"]::-moz-range-thumb {
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 
 <!-- ═══════════ Hero ═══════════ -->
 <header class="hero">

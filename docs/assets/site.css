@@ -1,0 +1,63 @@
+/* 문서 사이트 모든 쪽이 같아야 하는 규칙만 둔다. 쪽마다 다른 스타일은 각 쪽 <style> 에 남긴다 */
+body{line-height:1.7}
+/* 320px 폭에서 긴 주소 · 코드 · 파일 이름이 상자 밖으로 나가지 않게 낱말 중간에서라도 줄을 바꾼다.
+   넓은 폭에서 켜면 표 칸이 글자 하나 폭까지 줄어 1280 에서도 영어 낱말이 쪼개진다 */
+@media (max-width: 600px){body{overflow-wrap:anywhere}}
+@media (prefers-reduced-motion: reduce){
+  /* 반복 1 회를 빼면 무한 반복 애니메이션이 꺼지지 않고 0.01ms 마다 깜빡인다 */
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+  /* 쪽은 가리킬 때 움직임을 transform:var(--dk-hover-move, 원래 값) 으로 준다.
+     모든 :hover 의 transform 을 덮으면 가리킨 요소의 조상까지 가만히 있을 때의 transform 을 잃는다.
+     가만히 있을 때도 transform 이 있는 요소는 그 값을 --dk-rest-transform 에 적어 둔다 */
+  *,*::before,*::after{--dk-hover-move:var(--dk-rest-transform,none)}
+  /* 0.01ms 전환도 한 번은 그려야 끝난다 — 테마 단추를 누른 직후 본문 배경이 옛 색으로 읽히지 않게 전환을 없앤다 */
+  html,body{transition-duration:0s !important}
+}
+
+/* 밝은 테마 — 어두운 색만 가진 쪽에 붙인 테마 단추(.dk-theme-btn)가 있는 쪽에만 건다.
+   자기 [data-theme="light"] 규칙을 가진 쪽은 같은 세기 선택자라 여기 규칙이 그 쪽 색을 덮으면 안 된다 */
+:root:has(.dk-theme-btn)[data-theme="light"]{
+  --bg:#faf9f7;--bg2:#f2f0ec;--surface:#ffffff;--surface2:#f5f3ef;--surface3:#ebe8e2;
+  --border:#e0dcd4;--border2:#cfc9bf;
+  --text:#1a1a24;--text2:#5a5248;--text3:#6b6259;
+  /* 강조색을 깐 칸 위 어두운 글자 — 밝은 테마에서는 칸이 어두워지므로 밝은 글자로 뒤집는다: color:var(--dk-on-color, 원래 값) */
+  --dk-on-color:#faf9f7;
+  /* 밝은 칸 · 그러데이션 위 흰 글자 — 검사기가 그러데이션 칸을 못 보고 쪽 바탕과 맞대므로 밝은 테마에서는 어두운 글자로: color:var(--dk-on-bright, 원래 값) */
+  --dk-on-bright:#1a1a24;
+  /* 킷마다 다른 강조색은 쪽이 준 어두운 테마 값을 받아 body 에서 어둡게 섞는다 — 같은 이름으로 자기 값을 부르면 순환이다 */
+  --dk-accent:var(--accent);--dk-accent2:var(--accent2);
+  --dk-success:var(--success);--dk-error:var(--error);--dk-warn:var(--warn);--dk-warning:var(--warning);
+  --dk-danger:var(--danger);--dk-info:var(--info);
+  --dk-green:var(--green);--dk-red:var(--red);--dk-yellow:var(--yellow);--dk-orange:var(--orange);
+  --dk-pink:var(--pink);--dk-cyan:var(--cyan);--dk-blue:var(--blue);--dk-purple:var(--purple);
+  --dk-teal:var(--teal);--dk-gold:var(--gold);--dk-lime:var(--lime);
+}
+:root:has(.dk-theme-btn)[data-theme="light"] body{
+  --accent:color-mix(in srgb,var(--dk-accent) 45%,#000);--accent2:color-mix(in srgb,var(--dk-accent2) 45%,#000);
+  --success:color-mix(in srgb,var(--dk-success) 45%,#000);--error:color-mix(in srgb,var(--dk-error) 45%,#000);
+  --warn:color-mix(in srgb,var(--dk-warn) 45%,#000);--warning:color-mix(in srgb,var(--dk-warning) 45%,#000);
+  --danger:color-mix(in srgb,var(--dk-danger) 45%,#000);--info:color-mix(in srgb,var(--dk-info) 45%,#000);
+  --green:color-mix(in srgb,var(--dk-green) 45%,#000);--red:color-mix(in srgb,var(--dk-red) 45%,#000);
+  --yellow:color-mix(in srgb,var(--dk-yellow) 45%,#000);--orange:color-mix(in srgb,var(--dk-orange) 45%,#000);
+  --pink:color-mix(in srgb,var(--dk-pink) 45%,#000);--cyan:color-mix(in srgb,var(--dk-cyan) 45%,#000);
+  --blue:color-mix(in srgb,var(--dk-blue) 45%,#000);--purple:color-mix(in srgb,var(--dk-purple) 45%,#000);
+  --teal:color-mix(in srgb,var(--dk-teal) 45%,#000);--gold:color-mix(in srgb,var(--dk-gold) 45%,#000);
+  --lime:color-mix(in srgb,var(--dk-lime) 45%,#000);
+}
+/* 쪽 <style> 에 박힌 색은 var(--dk-ink-out, 원래 값) · var(--dk-fill-out, 원래 값) 으로 쓰고 같은 규칙에 --dk-ink · --dk-fill 로
+   원래 값을 적는다. 어두운 테마에서는 원래 값 그대로다. 밝은 테마에서 글자색은 어둡게, 배경색은 밝은 바탕 쪽으로 옮긴다 */
+:root:has(.dk-theme-btn)[data-theme="light"] *{
+  --dk-ink-out:color-mix(in srgb,var(--dk-ink) 45%,#000);
+  --dk-fill-out:color-mix(in srgb,var(--dk-fill) 10%,#faf9f7);
+}
+.dk-theme-btn{
+  position:fixed;right:16px;bottom:16px;z-index:50;min-width:44px;min-height:44px;padding:0;
+  border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--text);
+  font-size:18px;line-height:1;cursor:pointer;
+}
+.dk-theme-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

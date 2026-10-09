@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 캐싱 원칙
 
 `moka 0.12.x`(인메모리 L1)와 `deadpool-redis 0.23.x`(분산 L2)를 계층적으로 조합한다. moka는 동일 프로세스 내 고속 캐시, Redis는 다중 인스턴스 공유 캐시로 사용한다.
@@ -130,7 +131,7 @@ impl TieredCache {
 ## 수치 기준
 
 | 항목 | 기준값 | 비고 |
-|------|--------|------|
+| ------ | -------- | ------ |
 | moka 버전 | 0.12.x | `future` feature 필요 |
 | deadpool-redis 버전 | 0.23.x | `rt_tokio_1` feature 필요 |
 | moka max_capacity | 엔티티당 1만~10만 | 메모리 사용량 모니터링 |

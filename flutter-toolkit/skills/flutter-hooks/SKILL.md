@@ -13,7 +13,11 @@ description: >
 user-invocable: true
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 ## Gotchas
+
+<!-- markdownlint-enable MD041 -->
 
 - StatefulWidget/ConsumerStatefulWidget 신규 작성 금지 — HookWidget/HookConsumerWidget만 사용. `hooks_riverpod` 패키지에서 import한다 (`flutter_riverpod` 아님)
 - PageController 등 컨트롤러를 build() 안에서 직접 생성하면 리빌드마다 메모리 누수 — `useMemoized(() => PageController())`로 감싸라
@@ -61,7 +65,7 @@ HAS_RIVERPOD = false
 ### 반드시 지켜야 하는 것
 
 | 기존 패턴 (StatefulWidget) | Hooks 패턴 |
-|---------------------------|-----------|
+| --------------------------- | ----------- |
 | `StatefulWidget` | `HookWidget` |
 | `ConsumerStatefulWidget` | `HookConsumerWidget` |
 | `AnimationController` + `SingleTickerProviderStateMixin` | `useAnimationController(duration: ...)` |
@@ -75,6 +79,7 @@ HAS_RIVERPOD = false
 | `CurvedAnimation` / `Tween` (재생성 불필요) | `useMemoized(() => CurvedAnimation(...), [controller])` |
 
 `HAS_RIVERPOD`인 프로젝트에서 `hooks_riverpod` 패키지를 사용 중이면:
+
 - `import 'package:hooks_riverpod/hooks_riverpod.dart'` 사용
 - `flutter_riverpod` import 금지
 
@@ -93,12 +98,14 @@ HAS_RIVERPOD = false
 이 단계를 거치지 않으면 이미 존재하는 Hook을 중복 구현하게 된다.
 
 탐색 위치:
+
 - `lib/core/hooks/`
 - `lib/shared/hooks/`
 - `lib/utils/hooks/`
 - `lib/` 내 `use_*.dart` 패턴 파일
 
 발견된 커스텀 Hook이 있으면:
+
 1. 각 Hook의 시그니처와 doc comment를 읽는다
 2. 현재 작업에 사용할 수 있는 Hook이 있으면 새로 만들지 않고 사용한다
 3. 비슷한 기능의 Hook이 있으면 확장을 제안한다
@@ -116,6 +123,7 @@ HAS_RIVERPOD = false
 3. **반환타입**: 단일 값이면 해당 타입, 복합 값이면 Record `({Type a, Type b})`
 4. **의존성**: 외부 값에 의존하면 파라미터로 받고, `useEffect`의 `keys`에 포함
 5. **이름 충돌 주의**: 커스텀 Hook 이름이 `flutter_hooks` 패키지의 표준 Hook과 겹칠 수 있다 (예: `useDebounced`). 이 경우 import 시 `hide`로 충돌을 해결해야 한다:
+   <!-- markdownlint-disable-next-line MD031 -->
    ```dart
    import 'package:flutter_hooks/flutter_hooks.dart' hide useDebounced;
    import 'package:my_app/core/hooks/use_debounced.dart';
@@ -168,7 +176,7 @@ T useMyHook<T>(T value, {Duration duration = const Duration(milliseconds: 400)})
 ### 흔한 커스텀 Hook 패턴
 
 | 패턴 | 시그니처 예시 | 용도 | 핵심 Hook 조합 |
-|------|-------------|------|---------------|
+| ------ | ------------- | ------ | --------------- |
 | useDebounced\<T\> | `T useDebounced<T>(T value, {Duration duration = const Duration(milliseconds: 400)})` | 검색 입력, 가용성 체크 디바운스 | `useState` + `useEffect` + `Timer` |
 | usePaginationScroll | `ScrollController usePaginationScroll({required VoidCallback onFetchMore, double threshold = 200})` | 무한 스크롤 (threshold 도달 시 다음 페이지 fetch) | `useScrollController` + `useEffect` (listener) |
 | useFocusState | `({FocusNode node, bool hasFocus}) useFocusState()` | 포커스 여부에 따른 UI 스타일 전환 | `useFocusNode` + `useState` + `useEffect` (listener) |
@@ -186,7 +194,7 @@ T useMyHook<T>(T value, {Duration duration = const Duration(milliseconds: 400)})
 ### 적용 기준
 
 | 위젯 유형 | Props | 이유 |
-|-----------|-------|------|
+| --- | --- | --- |
 | 디자인 시스템 위젯 (Named constructor variant 패턴) | **면제** | Named constructor variant가 추가될 수 있으므로 현행 유지 |
 | 그 외 모든 위젯 | **적용** | `@freezed Props` 번들링 |
 
@@ -289,6 +297,7 @@ class MyWidget extends HookWidget {
 ```
 
 **핵심 변경:**
+
 - `State` 클래스 제거 → `build`를 위젯 클래스로 이동
 - `initState` + `dispose` → `useAnimationController()` (자동 dispose)
 - `didUpdateWidget` → `useEffect([title])` (의존성 변경 시 실행)

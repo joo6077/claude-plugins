@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>비동기와 동시성 원칙 — Rust Kit</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -86,6 +87,27 @@
 </style>
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <a href="../index.html" class="nav-back">&#8592; Rust Kit</a>
@@ -109,19 +131,19 @@
       <div class="card-body">
         <p>Tokio 런타임은 적은 수의 OS 스레드(기본 CPU 코어 수)로 수만 개의 태스크를 처리한다. 하나의 태스크가 스레드를 블로킹하면 같은 스레드의 다른 태스크가 모두 지연된다.</p>
         <p style="margin-top:10px;font-size:12px;color:var(--yellow)">블로킹 기준: 100µs 이상 CPU 점유, 동기 I/O, std::thread::sleep</p>
-        <pre><span style="color:#f87171">// ❌ 금지 — async 내 블로킹 호출</span>
+        <pre><span style="color:var(--red)">// ❌ 금지 — async 내 블로킹 호출</span>
 async fn process(path: &amp;str) -&gt; Result&lt;String&gt; {
     std::fs::read_to_string(path)?  // 런타임 스레드 블로킹
 }
 
-<span style="color:#4ade80">// ✅ 블로킹 작업을 별도 스레드풀로 위임</span>
+<span style="color:var(--green)">// ✅ 블로킹 작업을 별도 스레드풀로 위임</span>
 async fn process(path: String) -&gt; Result&lt;String&gt; {
     tokio::task::spawn_blocking(move || {
         std::fs::read_to_string(&amp;path)
     }).await?
 }
 
-<span style="color:#4ade80">// ✅ 또는 Tokio async I/O 사용</span>
+<span style="color:var(--green)">// ✅ 또는 Tokio async I/O 사용</span>
 async fn process(path: &amp;str) -&gt; Result&lt;String&gt; {
     tokio::fs::read_to_string(path).await
 }</pre>
@@ -139,12 +161,12 @@ async fn process(path: &amp;str) -&gt; Result&lt;String&gt; {
       </div>
       <div class="card-body">
         <p><code>std::sync::Mutex::lock()</code>은 스레드를 블로킹한다. async 태스크 안에서 사용하면 런타임 스레드를 점유한다. <code>tokio::sync::Mutex</code>는 lock을 기다리는 동안 스레드를 양보한다.</p>
-        <pre><span style="color:#4ade80">// async 컨텍스트 — tokio::sync 사용</span>
+        <pre><span style="color:var(--green)">// async 컨텍스트 — tokio::sync 사용</span>
 use tokio::sync::{Mutex, RwLock};
 let shared = Arc::new(Mutex::new(HashMap::new()));
 let guard = shared.lock().await; // 스레드 블로킹 없이 대기
 
-<span style="color:#f08575">// 예외: lock 대기 시간이 매우 짧고
+<span style="color:var(--accent2)">// 예외: lock 대기 시간이 매우 짧고
 // await가 없는 경우 std::sync::Mutex가 더 빠름 (~10ns vs ~50ns)</span></pre>
         <p style="font-size:12px;color:var(--text3);margin-top:10px">lock 범위를 최소화하고, Mutex guard를 보유한 채로 <code>.await</code>를 호출하지 않는다.</p>
       </div>
@@ -172,7 +194,7 @@ let guard = shared.lock().await; // 스레드 블로킹 없이 대기
             </tbody>
           </table>
         </div>
-        <pre><span style="color:#f08575">// mpsc — 워커 풀 패턴</span>
+        <pre><span style="color:var(--accent2)">// mpsc — 워커 풀 패턴</span>
 let (tx, mut rx) = tokio::sync::mpsc::channel::&lt;Job&gt;(100);
 
 tokio::spawn(async move {
@@ -202,7 +224,7 @@ let result = timeout(
     fetch_data(url)
 ).await.map_err(|_| AppError::Timeout)?;
 
-<span style="color:#f08575">// JoinSet으로 여러 태스크 관리</span>
+<span style="color:var(--accent2)">// JoinSet으로 여러 태스크 관리</span>
 let mut set = tokio::task::JoinSet::new();
 for item in items {
     set.spawn(process(item));
@@ -307,11 +329,11 @@ tokio::spawn(async move {
         <div>
           <strong style="color:var(--text)">async Mutex guard를 <code>.await</code> 경계에서 보유하면 컴파일 에러</strong><br>
           <code>MutexGuard</code>를 들고 <code>.await</code>를 호출하면 "future is not Send" 에러가 발생한다. guard를 먼저 드롭하거나 별도 블록으로 분리한다.
-          <pre style="margin-top:8px"><span style="color:#f87171">// ❌ guard가 await를 가로지름</span>
+          <pre style="margin-top:8px"><span style="color:var(--red)">// ❌ guard가 await를 가로지름</span>
 let guard = mutex.lock().await;
 do_something_async().await; // guard가 아직 살아있음
 
-<span style="color:#4ade80">// ✅ guard 먼저 드롭</span>
+<span style="color:var(--green)">// ✅ guard 먼저 드롭</span>
 let value = { mutex.lock().await.clone() };
 do_something_async().await;</pre>
         </div>

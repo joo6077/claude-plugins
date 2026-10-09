@@ -4,6 +4,7 @@ version: 0.2.0
 last_updated: 2026-09-25
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # CI/CD
 
 GitHub Actions/GitLab CI 파이프라인 설계, OIDC 인증, 최소 권한 원칙, 캐싱 전략, 매트릭스 빌드, self-hosted runner 보안, 아티팩트 관리, 빨간 검사의 원인 가르기를 다룬다.
@@ -73,7 +74,7 @@ done
 
 | 공용 작업 폴더 | `HEAD` 임시 | `FORK_BASE` 임시 | 판정 |
 | --- | --- | --- | --- |
-| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 내가 쓴 목록 밖이면 남의 미커밋이다 |
+| 실패 | 통과 | — | 미커밋 변경 탓 — `git status --short` 의 파일이 작업을 시작할 때 떠 둔 목록에도 있고 내가 쓴 목록 밖이면 남의 미커밋 후보다. 어느 하나라도 확인하지 못하면 귀속 불명이다 |
 | 실패 | 실패 | 실패 | 기준 커밋에서 이미 실패 — 내 변경 전부터다 |
 | 실패 | 실패 | 통과 | 이번 커밋 탓일 가능성이 크다 |
 
@@ -91,7 +92,7 @@ done
 GitHub Actions 라면 기준 커밋의 실행 기록은 `gh run list --commit <sha>` 로 찾는다. 최근 성공 커밋에서 가지를 자를 때
 `gh run list --branch <가지> --status success --limit 1 --json headSha` 를 그대로 쓰지 마라 — `--workflow` 가 없어 문서 빌드처럼 필수가 아닌 workflow
 하나만 성공한 커밋도 나온다. 그 커밋에서 보호 가지의 필수 검사가 전부 성공 · skipped · neutral 인지 확인하고, 옛 커밋에서 잘랐으면
-`<고른 커밋>..origin/<기준 가지>` 로 빠지는 커밋 범위를 함께 보고한다. GitHub 밖 CI 의 같은 조회 명령은 이 문서의 근거에 없다.
+`<고른 커밋>..origin/<기준 가지>` 로 빠지는 커밋 범위를 함께 보고한다. GitHub 밖에서는 GitLab Pipelines API 의 `sha` 매개변수와 Buildkite Builds API 의 `commit` 매개변수(전체 SHA 만 받는다)로 특정 커밋의 실행을 찾는다 ([GitLab — Pipelines API](https://docs.gitlab.com/api/pipelines/) · [Buildkite — Builds API](https://buildkite.com/docs/apis/rest-api/builds), 2026-09-28 조회). 이 조회는 실행을 찾아 줄 뿐, 필수 검사 전체가 통과했는지나 실패 원인까지 혼자 증명하지는 않는다.
 
 > **출처:** [Git — git merge-base](https://git-scm.com/docs/git-merge-base) · [GitHub CLI — gh run list](https://cli.github.com/manual/gh_run_list) · [GitHub — Re-running workflows and jobs](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs) · [GitHub-hosted runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) · [GitHub — About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 
@@ -100,7 +101,7 @@ GitHub Actions 라면 기준 커밋의 실행 기록은 `gh run list --commit <s
 ## 수치/기준값
 
 | 항목 | 값 | 비고 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | GitHub Actions 매트릭스 최대 jobs | 256 | 워크플로우 실행당 |
 | 아티팩트 보존 기본 기간 | 90일 | 리포지토리 설정에서 변경 가능 |
 | GITHUB_TOKEN 최대 수명 | 24시간 | 작업 종료 시 자동 만료 |

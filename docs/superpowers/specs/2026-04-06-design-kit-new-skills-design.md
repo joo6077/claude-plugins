@@ -8,7 +8,7 @@ design-kit 플러그인에 3개 스킬을 추가한다. 기존 스킬(design-sys
 
 ## 전체 흐름
 
-```
+```text
 design-concept ──→ design-system(기존) ──→ design-mockup ──→ design-component
      ↑                                          ↑                    ↑
   단독 호출 가능                          단독 호출 가능        단독 호출 가능
@@ -64,11 +64,19 @@ design-concept ──→ design-system(기존) ──→ design-mockup ──→
 
 ## 2. design-mockup — 화면 시안 생성
 
+<!-- markdownlint-disable MD024 -->
+
 ### 목적
+
+<!-- markdownlint-enable MD024 -->
 
 특정 화면 요청 시 하이파이 HTML 시안 5개를 생성하여 제시한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 트리거 키워드
+
+<!-- markdownlint-enable MD024 -->
 
 "시안 만들어줘", "목업", "mockup", "화면 시안", "디자인 시안", "레이아웃 제안", "시안 보여줘"
 
@@ -78,7 +86,11 @@ design-concept ──→ design-system(기존) ──→ design-mockup ──→
 - 디자인 토큰 존재 시 → 토큰 적용
 - 둘 다 없으면 → 요구사항만으로 생성
 
+<!-- markdownlint-disable MD024 -->
+
 ### 프로세스
+
+<!-- markdownlint-enable MD024 -->
 
 1. 화면 요구사항 파악 (어떤 페이지, 주요 기능, 대상 사용자)
 2. 컨셉/토큰 자동 감지 및 로드
@@ -86,7 +98,11 @@ design-concept ──→ design-system(기존) ──→ design-mockup ──→
 4. 각 시안의 디자인 의도 설명 (레이아웃/구성 선택 이유)
 5. 사용자 선택 → 피드백 → 수정 → 확정
 
+<!-- markdownlint-disable MD024 -->
+
 ### 아웃풋
+
+<!-- markdownlint-enable MD024 -->
 
 - **HTML 시안 5개**: 브라우저에서 확인 가능한 하이파이 목업
 - **디자인 의도 설명**: 각 시안별 레이아웃, 정보 구조, 시각적 강조 선택의 근거
@@ -103,11 +119,19 @@ design-concept ──→ design-system(기존) ──→ design-mockup ──→
 
 **Figma 연동**: 사용자가 선택한 시안 또는 개별 컴포넌트를 Figma MCP로 전송 가능. HTML이 기본 출력, Figma는 선별 전송. Figma MCP가 미설정이면 HTML만 제공하고 "Figma 전송을 원하면 Figma MCP 설정이 필요합니다" 안내. 전송 실패 시 에러 메시지와 함께 HTML 파일 경로를 재안내한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### References
+
+<!-- markdownlint-enable MD024 -->
 
 - `references/mockup-guidelines.md` — 시안 생성 기준 (레이아웃 다양성 규칙, 하이파이 수준 정의, ID 부여 규칙, 디자인 원칙 체크리스트). `docs/design/` 리서치 문서 중 참조 대상: foundations/visual-hierarchy.md, foundations/spacing-layout.md, foundations/grid-alignment.md, interaction/*.md
 
+<!-- markdownlint-disable MD024 -->
+
 ### 원칙
+
+<!-- markdownlint-enable MD024 -->
 
 - 하이파이 수준 — 와이어프레임이 아닌 실제 컬러/타이포/간격이 반영된 완성형
 - 5개 시안은 서로 다른 레이아웃/구성 접근 (단순 컬러 변형이 아님)
@@ -118,20 +142,36 @@ design-concept ──→ design-system(기존) ──→ design-mockup ──→
 
 ## 3. design-component — 컴포넌트 정의
 
+<!-- markdownlint-disable MD024 -->
+
 ### 목적
+
+<!-- markdownlint-enable MD024 -->
 
 반복되는 UI 요소를 컴포넌트로 정의하고 카탈로그화한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 트리거 키워드
+
+<!-- markdownlint-enable MD024 -->
 
 "컴포넌트 정의", "컴포넌트 리스트", "design component", "UI 컴포넌트 정리", "컴포넌트 만들어줘", "컴포넌트 카탈로그"
 
+<!-- markdownlint-disable MD024 -->
+
 ### 자동 감지
+
+<!-- markdownlint-enable MD024 -->
 
 - 컨셉 문서, 디자인 토큰, 확정 시안이 있으면 로드
 - 없으면 사용자가 직접 정의
 
+<!-- markdownlint-disable MD024 -->
+
 ### 프로세스
+
+<!-- markdownlint-enable MD024 -->
 
 0. 자동 감지 및 로드 — 컨셉 문서(`.design/concept.md`), 디자인 토큰, 확정 시안(`.design/mockups/`)이 존재하면 자동 로드하여 반영. 없으면 사용자 직접 정의 모드로 진행.
 1. 대상 파악 (확정 시안에서 추출 / 사용자 직접 지정)
@@ -139,7 +179,11 @@ design-concept ──→ design-system(기존) ──→ design-mockup ──→
 3. 컴포넌트별 정의: 사이즈 variant, 상태(default/hover/active/disabled/loading), 간격, 토큰 매핑
 4. 사용자 피드백 → 수정 → 확정
 
+<!-- markdownlint-disable MD024 -->
+
 ### 아웃풋
+
+<!-- markdownlint-enable MD024 -->
 
 - **컴포넌트 카탈로그**: 이름, variant, 상태, 스펙
 - **토큰 매핑**: 각 컴포넌트가 사용하는 디자인 토큰
@@ -148,11 +192,19 @@ design-concept ──→ design-system(기존) ──→ design-mockup ──→
 
 기본: Markdown 스펙 문서 (`.design/components/catalog.md`). 추후 Figma 또는 HTML 카탈로그 출력 옵션을 추가할 수 있으나, 1차 구현은 Markdown 스펙만 생성한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### References
+
+<!-- markdownlint-enable MD024 -->
 
 - `references/component-spec-template.md` — 컴포넌트 정의 템플릿 (이름, variant, 상태, 토큰 매핑, 사용 가이드라인). `docs/design/` 리서치 문서 중 참조 대상: foundations/spacing-layout.md, foundations/color.md, foundations/typography.md, interaction/forms.md
 
+<!-- markdownlint-disable MD024 -->
+
 ### 원칙
+
+<!-- markdownlint-enable MD024 -->
 
 - 컴포넌트 정의는 구현이 아닌 디자인 스펙
 - 상태(state)와 variant를 빠짐없이 정의
@@ -167,6 +219,7 @@ design-concept ──→ design-system(기존) ──→ design-mockup ──→
 각 스킬은 단독 호출 가능. 이전 단계 산출물이 프로젝트에 존재하면 자동으로 로드하여 반영하되, 없어도 동작한다.
 
 감지 대상:
+
 - `.design/concept.md` — 컨셉 문서
 - 디자인 토큰 파일 (design-system 아웃풋)
 - `.design/mockups/` — 확정된 시안
@@ -181,7 +234,7 @@ design-kit의 기존 철학을 유지한다. 원칙과 스펙만 정의하고, �
 
 ### 산출물 저장 위치
 
-```
+```text
 .design/
 ├── concept.md          # design-concept 아웃풋
 ├── moodboard.html      # design-concept 비주얼 무드보드

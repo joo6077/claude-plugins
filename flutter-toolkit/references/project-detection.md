@@ -13,13 +13,14 @@
 > "Flutter 프로젝트가 아닙니다. pubspec.yaml이 있는 디렉토리에서 실행해주세요."
 
 pubspec.yaml에서 추출:
+
 - `name` → **패키지명** (import 경로에 사용: `package:{name}/...`)
 - `environment.sdk` → Dart SDK 버전
 
 ### Step 2. SDK 매니저 감지
 
 | 파일 | SDK 매니저 | 명령 prefix |
-|------|-----------|------------|
+| ------ | ----------- | ------------ |
 | `.fvmrc` 또는 `.fvm/fvm_config.json` | FVM | `fvm flutter`, `fvm dart` |
 | `.tool-versions` (asdf flutter 항목) | asdf | `flutter`, `dart` |
 | 없음 | 시스템 | `flutter`, `dart` |
@@ -31,7 +32,7 @@ pubspec.yaml에서 추출:
 
 ### Step 2b. Makefile 기반 monorepo 감지
 
-프로젝트 루트에 `Makefile` 이 존재하고 Flutter 관련 타겟 (`app-run`, `app-test`, `app-analyze`, `app-codegen`, `app-preflight` 등) 이 정의되어 있으면 `HAS_MAKEFILE = true`. 이 경우 flutter-preflight / flutter-run 스킬은 `$FLUTTER` 직접 호출 대신 `make <target>` 을 우선 사용한다.
+프로젝트 루트에 `Makefile` 이 존재하고 Flutter 관련 타겟 (`app-run`, `app-test`, `app-analyze`, `app-codegen`, `app-preflight` 등) 이 정의되어 있으면 `HAS_MAKEFILE = true`. 이 경우 flutter-preflight / flutter-run 스킬은 그 단계의 타겟이 실제로 있을 때만 `$FLUTTER` 직접 호출 대신 `make <target>` 을 우선 사용한다 (아래 4 번).
 
 이유: Makefile 기반 monorepo 는 `dart-define-from-file=.dart_defines.json`, `--observatory-port=8181`, launch.json/tasks.json 연동 설정을 Makefile 타겟 한 곳에 집중 관리한다. `fvm flutter run` 을 직접 호출하면 이 설정들이 누락되어 앱이 다른 환경으로 기동되거나 디버거가 연결되지 않는다 (실제 앱 프로젝트 sprint-feedback iter 2 AC-6 기반).
 
@@ -44,11 +45,19 @@ pubspec.yaml에서 추출:
    - `app-codegen`, `app-codegen-filter`
    - `app-build`, `app-preflight`
 3. `$MAKE = make` 변수를 제공 (Windows 에서는 `gmake` 또는 프로젝트 관습 우선)
+4. 아래 표의 행마다 그 행이 부르는 타겟(`app-codegen` · `app-analyze` · `app-fix` · `app-test`)을 하나씩 확인한다. `<타겟>` 자리에 타겟 이름을 넣어 돌린다
 
-`HAS_MAKEFILE = true` 일 때 주요 스킬 매핑:
+```bash
+grep -qE '^<타겟>[[:space:]]*:' Makefile
+```
+
+종료 코드가 0 이면 그 행은 Makefile 우선 동작을 쓰고, 그 타겟이 없으면 그 행은 기본 동작을 쓴다.
+`HAS_MAKEFILE = true` 는 타겟이 하나라도 있다는 뜻일 뿐이다 — 묶음 타겟(`app-preflight` · `app-build`)만 있는 Makefile 은 표의 모든 행이 기본 동작이 된다.
+
+`HAS_MAKEFILE = true` 일 때 주요 스킬 매핑 (Makefile 우선 동작은 4 번에서 타겟이 확인된 행만):
 
 | 스킬 | 기본 동작 | Makefile 우선 동작 |
-|------|----------|-------------------|
+| ------ | ---------- | ------------------- |
 | flutter-run codegen | `$DART run build_runner build --delete-conflicting-outputs` (필터 없이 · 전후 삭제 수를 센다) | `$MAKE app-codegen` — 전후 삭제 수는 그대로 센다. `app-codegen-filter` 는 사용자가 그 이름을 직접 부를 때만 쓴다 |
 | flutter-run analyze | `$FLUTTER analyze` | `$MAKE app-analyze` |
 | flutter-run fix | `$DART fix --apply lib/` 뒤 이번에 바뀐 .dart 파일만 `$DART format --` (`git diff --name-only` 목록 · 생성물 제외 · flutter-run fix 절) | `$MAKE app-fix` |
@@ -63,7 +72,7 @@ pubspec.yaml에서 추출:
 `pubspec.yaml`의 `dependencies` + `dev_dependencies`에서 감지:
 
 | 패키지 | 감지 키 | 영향받는 스킬 |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `flutter_riverpod` 또는 `hooks_riverpod` | `HAS_RIVERPOD` | flutter-provider |
 | `go_router` | `HAS_GO_ROUTER` | flutter-screen, flutter-transition |
 | `go_router_builder` | `HAS_GO_ROUTER_BUILDER` | flutter-screen (TypedGoRoute codegen) |
@@ -88,18 +97,20 @@ pubspec.yaml에서 추출:
 `lib/` 디렉토리 구조를 분석:
 
 | 패턴 | 감지 결과 |
-|------|----------|
+| ------ | ---------- |
 | `lib/features/*/data/`, `lib/features/*/domain/`, `lib/features/*/presentation/` | `ARCH = clean` (Clean Architecture) |
 | `lib/features/*/ui/`, `lib/features/*/view_models/` 또는 `lib/*/views/`, `lib/*/view_models/` | `ARCH = mvvm` (MVVM — Flutter 공식 권장) |
 | `lib/features/*/` (data/domain/presentation 없음) | `ARCH = feature_first` |
 | `lib/src/` 또는 flat 구조 | `ARCH = flat` |
 
 Clean Architecture 감지 시 레이어별 규칙 적용:
+
 - `domain/` → `data/`, `presentation/` import 금지
 - `data/` → `presentation/` import 금지
 - Repository: interface(domain) + impl(data) 분리
 
 MVVM 감지 시 레이어별 규칙 적용 ([Flutter 공식 아키텍처 가이드](https://docs.flutter.dev/app-architecture/guide)):
+
 - **View** ↔ **ViewModel** 1:1 관계
 - ViewModel: Repository에서 데이터를 받아 UI 상태로 변환, Command 패턴으로 액션 노출
 - **Repository**: 도메인 모델 제공, 캐싱/에러처리/재시도 담당
@@ -110,7 +121,7 @@ MVVM 감지 시 레이어별 규칙 적용 ([Flutter 공식 아키텍처 가이�
 기존 코드에서 패턴을 읽어 생성 코드에 적용:
 
 | 항목 | 감지 방법 | 기본값 |
-|------|----------|--------|
+| ------ | ---------- | -------- |
 | Import 스타일 | 기존 `.dart` 파일의 import 패턴 | `package:{name}/...` (절대경로) |
 | 위젯 베이스 | `HookWidget` vs `StatelessWidget` 사용 비율 | `StatelessWidget` |
 | State 관리 | `@riverpod` vs `StateNotifierProvider` 사용 | codegen(`@riverpod`) |
@@ -120,13 +131,14 @@ MVVM 감지 시 레이어별 규칙 적용 ([Flutter 공식 아키텍처 가이�
 ### Step 6. 분석 도구 감지
 
 `analysis_options.yaml`에서:
+
 - `include:` → 린트 패키지 (very_good_analysis, flutter_lints, 커스텀)
 - `analyzer.plugins:` → custom_lint 사용 여부
 
 ### Step 7. 디자인 시스템 감지
 
 | 패턴 | 감지 결과 |
-|------|----------|
+| ------ | ---------- |
 | `lib/*/design_system/` 또는 `lib/*/theme/` 또는 `lib/*/tokens/` | `HAS_DS = true`, 경로 기록 |
 | `context.colors.` 패턴이 기존 코드에 있음 | Semantic Token 사용 |
 | 없음 | `HAS_DS = false`, 디자인 시스템 규칙 스킵 |
@@ -138,7 +150,7 @@ UI 를 만들거나 고치는 스킬(`flutter-widget` · `flutter-screen` · `fl
 (`references/visual-evidence-protocol.md`). 사용 가능한 채널을 아래 순서로 감지한다.
 
 | 우선 | 채널 | 감지 방법 | 결과 |
-|------|------|----------|------|
+| ------ | ------ | ---------- | ------ |
 | 1 | golden test | `grep -rl "matchesGoldenFile" test/` 또는 `test/**/*golden*` 존재 | `VISUAL_CHANNEL = golden` |
 | 2 | integration_test 스크린샷 | `integration_test/` 디렉토리 존재 | `VISUAL_CHANNEL = integration_test` |
 | 3 | 프로젝트 등록 MCP | `.mcp.json` · `.claude/settings.json` · `.claude/settings.local.json` 의 `mcpServers` 키를 **읽어서** 서버명을 확인 | `VISUAL_CHANNEL = mcp:<서버명>` |
@@ -162,7 +174,7 @@ Package: {name}
 SDK Manager: {fvm|asdf|system}
 Flutter: {$FLUTTER}
 Dart: {$DART}
-Makefile: {true|false}  # HAS_MAKEFILE — true 면 $MAKE <target> 우선
+Makefile: {true|false}  # HAS_MAKEFILE — true 여도 Step 2b 4 번에서 타겟이 확인된 단계만 $MAKE <target> 우선
 Architecture: {clean|feature_first|flat|mvvm}
 Dependencies: {감지된 패키지 목록}
 Design System: {true|false}

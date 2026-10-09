@@ -6,6 +6,8 @@
      (레거시 project_name 은 명시 allowlist 로만 canonical 병합 — raw 분포도 함께 출력)
   2. Hub/10_Dev 내 .harness 보유 프로젝트(2단계 깊이)의 sprint-feedback + history
      plain `sprint-feedback.md` 와 접미형 `sprint-feedback-<slug>.md` 를 모두 수집
+     + 하네스 저장소(~/Hub/10_Dev/harness-store)에서 sprint-feedback 을 직접 가진 폴더 — 깊이 제한 없음.
+       Hub 에서 바로가기로 이미 읽은 곳은 한 번만 센다. `_from-worktrees` 보관 폴더는 뺀다
   3. docs/superpowers/followup-*.md 최근 파일
   4. 레포 자체의 .harness/history 최근 sprint-contract
   5. scripts/validate-plugin.py 최근 실행 결과 (옵션)
@@ -22,6 +24,7 @@ Usage:
   python3 scripts/collect-kaizen-data.py
   python3 scripts/collect-kaizen-data.py --output /tmp/kaizen-data.md
   python3 scripts/collect-kaizen-data.py --hub-dir ~/Hub/10_Dev
+  python3 scripts/collect-kaizen-data.py --harness-store ~/Hub/10_Dev/harness-store
   python3 scripts/collect-kaizen-data.py --insights .claude/kaizen-input/insights-report.md
   python3 scripts/collect-kaizen-data.py --usage-data <폴더>
 
@@ -36,6 +39,7 @@ from __future__ import annotations
 import argparse
 import datetime
 import json
+import os
 import re
 import subprocess
 import sys
@@ -52,6 +56,9 @@ except ImportError:
 REPO_ROOT = Path(__file__).parent.parent
 DEFAULT_OUTPUT = REPO_ROOT / ".harness" / ".meta" / "kaizen-data-pool.md"
 DEFAULT_HUB = Path.home() / "Hub" / "10_Dev"
+DEFAULT_HARNESS_STORE = Path.home() / "Hub" / "10_Dev" / "harness-store"
+# 작업 폴더를 지울 때 내용이 다른 옛 판을 모아 둔 곳 — 진행 중인 기록이 아니다
+STORE_ARCHIVE_DIR = "_from-worktrees"
 GLOBAL_FEEDBACK_DIR = Path.home() / ".harness" / "feedback" / "evaluator"
 
 DEFAULT_USAGE_DATA = Path.home() / ".claude" / "usage-data"
@@ -408,15 +415,18 @@ def project_group(project_path: str) -> str:
         return FACETS_TEMP_GROUP
     try:
         proc = subprocess.run(
-            ["git", "-C", project_path, "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            ["git", "-C", project_path, "rev-parse", "--path-format=absolute", "--git-common-dir", "--show-toplevel"],
             capture_output=True,
             text=True,
             timeout=10,
         )
     except (OSError, subprocess.TimeoutExpired):
         proc = None
-    if proc is not None and proc.returncode == 0 and proc.stdout.strip():
-        return Path(proc.stdout.strip()).parent.name
+    if proc is not None and proc.returncode == 0 and len(proc.stdout.split("\n")) >= 2:
+        common, toplevel = proc.stdout.split("\n")[:2]
+        # 공통 폴더가 `.git` 일 때만 그 부모가 본 레포다. bare 레포의 워크트리는 부모가 bare 폴더 옆 폴더라
+        # 엉뚱하게 묶인다 — 워크트리 자신으로 묶는다 (reflect-kit hooks/_lib-project-id.sh project_root 와 같은 규칙)
+        return Path(common).parent.name if Path(common).name == ".git" else Path(toplevel).name
     # 지운 워크트리는 git 이 못 연다. 워크트리 꼬리를 떼야 본 레포 묶음에 들어간다.
     return Path(project_path.split("/.claude/worktrees/")[0]).name or project_path
 
@@ -707,7 +717,55 @@ def collect_sprint_feedback(harness_dir: Path) -> list[dict]:
     return found
 
 
-def collect_hub_projects(hub_dir: Path) -> list[dict]:
+def has_sprint_feedback(folder: Path) -> bool:
+    if (folder / "sprint-feedback.md").is_file():
+        return True
+    return any(p.is_file() for p in folder.glob("sprint-feedback-*.md"))
+
+
+def store_feedback_dirs(store: Path) -> list[Path]:
+    """하네스 저장소에서 sprint-feedback 을 직접 가진 폴더를 깊이 제한 없이 찾는다.
+
+    바로가기는 따라가지 않는다 — 저장소 안 바로가기가 조상을 가리키면 끝없이 돈다.
+    읽을 수 없는 폴더는 건너뛰고 나머지를 계속 훑는다.
+    """
+    found: list[Path] = []
+    pending = [store]
+    while pending:
+        folder = pending.pop()
+        try:
+            entries = list(os.scandir(folder))
+        except OSError:
+            continue
+        if has_sprint_feedback(folder):
+            found.append(folder)
+        for entry in entries:
+            if entry.name in (".git", STORE_ARCHIVE_DIR):
+                continue
+            if entry.is_dir(follow_symlinks=False):
+                pending.append(Path(entry.path))
+    return sorted(found)
+
+
+def project_entry(name: str, path: Path, harness_dir: Path) -> dict:
+    entry = {"name": name, "path": str(path)}
+    feedbacks = collect_sprint_feedback(harness_dir)
+    entry["feedback_files"] = feedbacks
+    entry["feedback_count"] = len(feedbacks)
+    entry["feedback_slugs"] = [f["slug"] for f in feedbacks if f["slug"]]
+    entry["sprint_feedback_lines"] = sum(f["lines"] for f in feedbacks)
+
+    history = harness_dir / "history"
+    if history.exists():
+        contracts = sorted(history.glob("*-sprint-contract.md"))
+        entry["history_count"] = len(contracts)
+        entry["recent_contracts"] = [c.name for c in contracts[-5:]]
+    else:
+        entry["history_count"] = 0
+    return entry
+
+
+def collect_hub_projects(hub_dir: Path, harness_store: Path | None = None) -> list[dict]:
     """Hub/10_Dev 내 .harness 디렉토리 보유 프로젝트 정보를 수집한다.
 
     중첩 배포본(`fit-pal/app`, `fit-pal/server` 등)도 독립 CONTRACT_ROOT 이므로
@@ -716,13 +774,16 @@ def collect_hub_projects(hub_dir: Path) -> list[dict]:
     판정 기준은 `.harness/` 디렉토리 존재 자체다 — `project.yaml` 유무가 아니다.
     `project.yaml` 이 없는 배포본(실측: purchase-bot · flutter_playwright ·
     apps/apps/app_kiosk)도 계약·피드백을 갖고 있으므로 제외하면 집계에서 통째로 누락된다.
+
+    `harness_store` 를 주면 그 아래에서 sprint-feedback 을 직접 가진 폴더도 더한다. Hub 의 `.harness`
+    가 그 폴더로 가는 바로가기면 실제 경로가 같아 Hub 쪽 항목 하나만 남는다(이름도 Hub 기준).
     """
     projects: list[dict] = []
-    if not hub_dir.exists():
-        return projects
-
     seen: set[Path] = set()
-    candidates = sorted(set(hub_dir.glob("*/.harness")) | set(hub_dir.glob("*/*/.harness")))
+    seen_harness: set[Path] = set()
+    candidates: list[Path] = []
+    if hub_dir.exists():
+        candidates = sorted(set(hub_dir.glob("*/.harness")) | set(hub_dir.glob("*/*/.harness")))
     for harness_dir in candidates:
         if not harness_dir.is_dir():
             continue
@@ -731,6 +792,7 @@ def collect_hub_projects(hub_dir: Path) -> list[dict]:
         if resolved in seen:
             continue
         seen.add(resolved)
+        seen_harness.add(harness_dir.resolve())
         if resolved == REPO_ROOT.resolve() or project_path.name == REPO_ROOT.name:
             continue  # 현재 레포 자신은 별도 처리
 
@@ -739,23 +801,17 @@ def collect_hub_projects(hub_dir: Path) -> list[dict]:
         except ValueError:
             name = project_path.name
 
-        entry = {"name": name, "path": str(project_path)}
+        projects.append(project_entry(name, project_path, harness_dir))
 
-        feedbacks = collect_sprint_feedback(harness_dir)
-        entry["feedback_files"] = feedbacks
-        entry["feedback_count"] = len(feedbacks)
-        entry["feedback_slugs"] = [f["slug"] for f in feedbacks if f["slug"]]
-        entry["sprint_feedback_lines"] = sum(f["lines"] for f in feedbacks)
-
-        history = harness_dir / "history"
-        if history.exists():
-            contracts = sorted(history.glob("*-sprint-contract.md"))
-            entry["history_count"] = len(contracts)
-            entry["recent_contracts"] = [c.name for c in contracts[-5:]]
-        else:
-            entry["history_count"] = 0
-
-        projects.append(entry)
+    if harness_store is None or not harness_store.is_dir():
+        return projects
+    own = (REPO_ROOT / ".harness").resolve()
+    for folder in store_feedback_dirs(harness_store):
+        real = folder.resolve()
+        if real in seen_harness or real == own:
+            continue
+        seen_harness.add(real)
+        projects.append(project_entry(str(folder.relative_to(harness_store)), folder, folder))
     return projects
 
 
@@ -1593,6 +1649,7 @@ def render_data_pool(
         "## 2. 외부 프로젝트 (`Hub/10_Dev`) 피드백",
         "",
         f"- Hub 루트: `{DEFAULT_HUB}`",
+        f"- 하네스 저장소: `{DEFAULT_HARNESS_STORE}`",
         f"- 발견된 프로젝트: **{len(hub_projects)}**",
         "",
     ]
@@ -1701,14 +1758,19 @@ def render_data_pool(
         "| 2 Contract | contract-design-guide + sprint-contract | §0 + §1 Reject 사유 (계약 모호성) |",
         "| 3 Evaluator | qa-evaluation-guide + qa-evaluator | §0 + §1 Improvement (L3, set intersection) |",
         "| 4 Harness | harness/skills/* (sprint-contract, qa-evaluator 제외) | §0 + §5 validate-plugin 현재 상태 |",
-        "| 5 Flutter | flutter-toolkit/skills/* | §0 + §2 Hub 외부 프로젝트 (fit-pal, apps) |",
+        "| 5 Flutter | flutter-toolkit/skills/* | §0 + §2 Hub 외부 프로젝트 (Flutter 앱) |",
         "| 6 Design | design-kit/skills/* | §0 + §5 validate-plugin 현재 상태 |",
         "| 7 Backend | backend-kit/skills/* | §0 + §1 Backend 관련 feedback (있다면) |",
         "| 8 Infra | infra-kit/skills/* | §0 + §5 validate-plugin 현재 상태 |",
-        "| 9 Rust | rust-kit/skills/* | §0 + §2 Hub 외부 프로젝트 (fit-pal server) |",
+        "| 9 Rust | rust-kit/skills/* | §0 + §2 Hub 외부 프로젝트 (Rust 서버) |",
         "| 10 React | react-kit/skills/* | §0 + §3 followup-2026-04-11, §5 |",
         "| 11 Planning | planning-kit/skills/* | §0 + §1 planning 관련 feedback |",
         "| 12 Reflect | reflect-kit/skills/* | §0 + §1 Reflexion 패턴 피드백 |",
+        "| 13 Bambu | bambu-kit/skills/* | §0 + §2 실측 dogfood 결과, bambu-kit references SSOT |",
+        "| 14 Onboarding | onboarding-kit/skills/* | §0 + §5 validate-plugin 현재 상태 |",
+        "| 15 Tone | tone-kit/skills/* | §0 + §1 tone-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
+        "| 16 Api | api-kit/skills/* | §0 + §1 api-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
+        "| 17 Howto | howto-kit/skills/* | §0 + §1 howto-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
         "",
     ]
 
@@ -1730,6 +1792,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=Path,
         default=DEFAULT_HUB,
         help=f"Hub 루트 (default: {DEFAULT_HUB})",
+    )
+    parser.add_argument(
+        "--harness-store",
+        type=Path,
+        default=DEFAULT_HARNESS_STORE,
+        help=f"하네스 저장소 — 프로젝트별 하네스 기록 (default: {DEFAULT_HARNESS_STORE})",
     )
     parser.add_argument(
         "--skip-validate",
@@ -1795,7 +1863,7 @@ def main() -> int:
     memory = collect_memory_feedback()
 
     print("[5/8] Hub 외부 프로젝트 수집 중...", file=sys.stderr)
-    hub_projects = collect_hub_projects(args.hub_dir)
+    hub_projects = collect_hub_projects(args.hub_dir, args.harness_store)
 
     print("[6/8] followup 문서 수집 중...", file=sys.stderr)
     followups = collect_followup_docs()

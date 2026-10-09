@@ -1,0 +1,35 @@
+$ bash /private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/measure.sh 스크립트-12 --negative
+evidence=/private/tmp/claude-501/-Users-jackson-Hub-10-Dev-claude-plugins/fb4aefa8-0ee1-4711-9b22-7baf9c6b989f/scratchpad/draft-r1/out/measure/.runs/스크립트-12-amend-v5h77bpr
+OK known valid frozen record bundle actual=[]
+OK known once-per-id trace actual=true
+positive_control=1
+OK positive control catches known violation actual=1
+known_answer expected=2 actual=2
+OK two hand-counted records actual=2
+source_ref=d72a16639edd48efa02d166a203a0d581519bf94
+OK amend-approve: exit actual=0
+BAD amend-approve: exec_calls actual=0
+BAD amend-approve: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+BAD once per condition for whole audit
+BAD all required judgment stages observed
+BAD identical frozen input in judgment rejudgment review
+BAD amend-review: exit actual=0
+BAD amend-review: exec_calls actual=0
+BAD amend-review: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+BAD once per condition for whole audit
+BAD all required judgment stages observed
+BAD identical frozen input in judgment rejudgment review
+BAD amend-research-review: exit actual=0
+BAD amend-research-review: exec_calls actual=0
+BAD amend-research-review: report exists
+BAD frozen manifest produced
+BAD valid frozen premeasurement records actual=["missing or invalid frozen premeasurement bundle"]
+BAD once per condition for whole audit
+BAD all required judgment stages observed
+BAD identical frozen input in judgment rejudgment review
+FAIL 스크립트-12 checks=28 failures=23
+exit=1

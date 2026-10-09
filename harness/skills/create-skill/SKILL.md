@@ -17,6 +17,8 @@ user-invocable: true
 
 ## Gotchas
 
+<!-- markdownlint-disable MD038 -->
+
 - description 을 사람용 요약으로 쓰면 트리거 정확도가 떨어진다 — "언제 이 스킬을 켜라" + 트리거 키워드 + **negative trigger (비트리거 조건)** 까지 명시해라. negative trigger 는 "X 같은 요청에는 트리거하지 않는다" 형식으로 최소 1 개 이상 포함한다 (리서치 근거: skills-best-practices, mgechev — "React skill should specify: Don't use for Vue, Svelte, or vanilla CSS").
 - description 은 **3 인칭 일관성** 을 유지해라 — "이 스킬은 ~한다" 또는 명령형 ("~해라") 중 하나로 통일. 1 인칭 ("나는 ~할 수 있다") 이나 2 인칭 ("당신의 ~") 은 Anthropic 공식 best practice 위반이다. description 은 system prompt 에 injection 되므로 관점 불일치가 discovery 문제를 유발한다.
 - description 은 "무엇을 하는 스킬인가" + "언제 사용하는가" 양쪽을 모두 포함해야 한다 — Anthropic 공식 예시: "Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF files or when the user mentions PDFs, forms, or document extraction."
@@ -24,7 +26,7 @@ user-invocable: true
 - 메인 SKILL.md 에 모든 내용을 넣으면 컨텍스트 과부하 — 100 줄 넘으면 references/ 분리 검토. SKILL.md 본문은 500 줄 미만을 권고한다 (`../../docs/guides/skill-design-guide.md` §SKILL.md 본문 500 라인 미만 권고 — 강제 상한은 아니다).
 - 뻔한 내용(일반 코딩 지식)을 넣으면 가치 없다 — Claude 가 추론만으로 절대 알 수 없는 정보만 넣어라
 - 스킬 생성 직후 반드시 `python3 scripts/validate-plugin.py <plugin-name>` 으로 V1 frontmatter / V4 trigger 중복 / V5 placeholder / V6 bare code fence 검증을 돌려라. 생성만 하고 검증 안 하면 frontmatter drift 를 다음 사이클까지 못 잡는다.
-- **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** SKILL.md frontmatter 의 **공식 필수는 `name` 과 `description` 2 종**이다 (`../../docs/guides/skill-design-guide.md` §frontmatter 규칙). `argument-hint` · `user-invocable` 은 Claude Code 전용 선택 필드로 다른 플랫폼에서는 무시된다. 다만 **이 레포는 `user-invocable` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 skills 에 대해 `name`/`description`/`user-invocable` 3 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다.
+- **공식 스펙 필수 필드와 이 레포 정책을 섞지 마라.** `name` 과 `description` 2 종을 필수로 두는 것은 Agent Skills 표준이고, Claude Code 런타임에서는 frontmatter 필드가 모두 선택이다(`description` 은 권장, `name` 이 없으면 폴더 이름을 쓴다 — `../../docs/guides/skill-design-guide.md` §frontmatter 규칙). `argument-hint` · `user-invocable` 은 Claude Code 전용 선택 필드다. 다른 런타임이 이 필드를 무시한다는 보장은 없다 — claude.ai 업로드 같은 배포 경로는 표준 밖 필드를 검증 오류로 거부한다. 다만 **이 레포는 `user-invocable` 을 추가로 요구**한다 — `scripts/validate-plugin.py` 의 V1 이 skills 에 `name`/`description`/`user-invocable` 3 종을 강제하므로, 누락하면 공식 스펙이 아니라 **레포 게이트에서** FAIL 난다.
 - **아키타입 미선정 상태로 구조 작성 금지** — skill-design-guide의 아키타입 카탈로그(Generator, Guide, Runner 등) 중 하나를 먼저 확정하고 그에 맞는 Process 구조를 따라라. 아키타입 없이 자유 형식으로 쓰면 Process 단계 순서가 비논리적이 되고 QA Evaluator가 재현 불가 판정한다.
 - **`argument-hint` 는 자동 완성에 뜨는 인자 힌트다** — 스킬을 언제 쓸지 고르는 일은 `description` 이 맡고 이 필드는 그 일에 관여하지 않는다 (<https://code.claude.com/docs/en/skills>). 그래도 인자를 받는 user-invocable 스킬이면 사용자가 무엇을 넘길지 알 수 있게 이 레포 관례로 적는다.
 - **스킬 이름에 프레임워크/언어 접두사 필수** — 범용(harness, design-kit)이 아닌 스택 종속 스킬은 반드시 `flutter-`, `rust-`, `react-` 같은 접두사를 붙여라. 접두사 없으면 다른 킷의 동명 스킬과 충돌하거나 트리거 우선순위가 모호해진다.
@@ -37,12 +39,15 @@ user-invocable: true
 - **Trigger 키워드 substring 검사** — description 트리거 키워드는 기존 스킬과 (1) 정확 중복 금지, (2) substring containment 금지 (예: "API 연동" ⊂ "API 연동 화면" 위반). `python3 scripts/validate-plugin.py <plugin> --check=triggers` 로 검증되며 RE-02 (react-kit 2026-04) REJECT 재발 방지 (skill-design-guide §4).
 - **Rule-by-Rule Audit Before Completion** — 스킬 Process의 마지막 Step은 반드시 "완료 선언 전 규칙 전수 대조 패스" 를 포함해야 한다 (skill-design-guide §3.6). create-skill이 만드는 스킬도 이 패턴을 상속하도록 Gotchas 섹션에 "완료 전 rule-by-rule audit" 항목을 기본 포함시켜라.
 
+<!-- markdownlint-enable MD038 -->
+
 ## Process
 
 ### 1. 설계 가이드 읽기
 
 `../../docs/guides/skill-design-guide.md`를 읽어 최신 설계 원칙을 확인한다.
 특히 아래 섹션을 참조:
+
 - 섹션 2: 스킬 유형 체크리스트
 - 섹션 3: Gotchas 작성법
 - 섹션 3.5: 검증 가능한 성공 기준
@@ -53,6 +58,7 @@ user-invocable: true
 ### 2. 요구사항 분석
 
 사용자의 요청에서:
+
 - **스킬 이름** (snake_case, 하이픈)
 - **목적** — 무엇을 하는 스킬인가
 - **아키타입** — 카탈로그의 어느 유형에 속하는가 (복수 가능하면 주된 것 1개)
@@ -73,6 +79,7 @@ user-invocable: true
 ### 4. SKILL.md 작성
 
 **frontmatter:**
+
 ```yaml
 ---
 name: {스킬명}
@@ -86,7 +93,9 @@ user-invocable: true
 ```
 
 **본문 구조:**
+
 1. **Gotchas** — 최소 1개. 알려진 주의사항이 없으면 빈 섹션으로 남기되 주석 추가:
+
    ```markdown
    ## Gotchas
 

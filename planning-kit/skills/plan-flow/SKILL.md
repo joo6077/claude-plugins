@@ -12,6 +12,8 @@ user-invocable: true
 
 # Gotchas
 
+설치본 플러그인에는 `docs/planning/` 가 없다 — 이 파일의 `docs/...` 경로를 열 수 없으면 `https://raw.githubusercontent.com/joo6077/claude-plugins/main/` 뒤에 같은 경로를 붙여 읽고, 그래도 못 읽으면 내용을 지어내지 말고 못 읽었다고 적는다.
+
 1. **다이어그램 종류 혼동 금지** — User Flow(사용자 관점 화면 전환) ≠ Sequence(시스템 간 통신) ≠ State(단일 엔티티 상태) ≠ Journey(감정 포함). 목적에 맞는 것 선택.
 2. **Mermaid 문법 오류 방치 금지** — 작성 후 반드시 문법 검증. 노드 이름에 특수문자(괄호, 콜론) 쓸 때 따옴표 처리. 예: `A["로그인 (OAuth)"]`.
 3. **해피 패스만 그리기 금지** — 에러/취소/타임아웃 경로 최소 2개 포함. flow 의 50% 는 edge case 다.
@@ -24,7 +26,11 @@ user-invocable: true
 10. **Mermaid 예약어 충돌 방지** — `end` 같은 소문자 breaker 를 노드 ID 로 쓰지 마라, 노드 내용에 괄호/콜론 있으면 따옴표 필수. 출처: [Mermaid Flowchart Syntax](https://mermaid.js.org/syntax/flowchart.html).
 11. **요청한 다이어그램만 — 임의 다이어그램·플로우 확장 금지 (skill-design-guide §5.5 Scope-Bound)** — 사용자가 특정 플로우(예: 결제 user flow) 하나만 요청하면 그 하나만 그린다. "완결성"을 이유로 요청하지 않은 인접 플로우·sequence·state·journey 를 임의로 추가 생성하지 마라 (Gotcha 8 "셋을 섞지 마라" 의 확장 — 종류뿐 아니라 개수도 요청 범위 내). 에러/취소 경로는 같은 플로우의 일부이므로 추가하되(Gotcha 3), 별개 기능의 플로우로 번지면 그 사실을 **먼저 알리고** 확인한다 (insights-report #1 excessive_changes 대응). 출처: [NN/g — Journey Mapping 101](https://www.nngroup.com/articles/journey-mapping-101/).
 
+<!-- markdownlint-disable MD025 -->
+
 # Process
+
+<!-- markdownlint-enable MD025 -->
 
 ## Step 0: 리서치 문서 로드
 
@@ -35,7 +41,7 @@ user-invocable: true
 ## Step 1: 다이어그램 타입 선택
 
 | 의도 | Mermaid 타입 | 언제 | 출처 |
-|------|--------------|------|------|
+| ------ | -------------- | ------ | ------ |
 | 화면 전환, 결정 분기 | `flowchart TD/LR` | 일반 유저 플로우 | [Mermaid Flowchart](https://mermaid.js.org/syntax/flowchart.html) |
 | 클라이언트-서버 상호작용 | `sequenceDiagram` | API 호출 흐름 | [Mermaid Sequence](https://mermaid.js.org/syntax/sequenceDiagram.html) |
 | 엔티티의 상태 전이 | `stateDiagram-v2` | 주문/구독/문서 상태 | [Mermaid State](https://mermaid.js.org/syntax/stateDiagram) |
@@ -106,6 +112,7 @@ journey
 ## Step 3: Edge Case 보강
 
 체크리스트 — 다이어그램에 포함되었는가:
+
 - [ ] 에러 경로 (네트워크/서버/입력 오류)
 - [ ] 취소 경로 (사용자 이탈)
 - [ ] 권한 없음 분기
@@ -130,11 +137,16 @@ journey
 - 스토리 분해 → `/plan-stories`
 - 완성도 감사 → `/plan-audit`
 
+<!-- markdownlint-disable MD025 -->
+
 # References
+
+<!-- markdownlint-enable MD025 -->
 
 - `docs/planning/flows.md` — User Flow / Journey Map / Service Blueprint / IA / Mermaid 공식 문법
 
 주요 1차 출처:
+
 - [NN/g — Journey Mapping 101](https://www.nngroup.com/articles/journey-mapping-101/)
 - [NN/g — Service Blueprints](https://www.nngroup.com/articles/service-blueprints-definition/)
 - [Rosenfeld/Morville — Information Architecture (4th)](https://www.oreilly.com/library/view/information-architecture-4th/9781491913529/)

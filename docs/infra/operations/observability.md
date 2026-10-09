@@ -4,6 +4,7 @@ version: 0.2.0
 last_updated: 2026-08-13
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 관측성
 
 메트릭·로그·트레이스 상호연결, Prometheus 타입 선택, 대시보드 설계, 구조화 로깅, SLI/SLO, 알림 전략, 카디널리티 관리, 성능 조사 시 환경 요인 선배제(USE × RED)를 다룬다.

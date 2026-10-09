@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-07
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 성능 원칙
 
 Rust는 기본적으로 빠르지만 잘못된 패턴은 불필요한 힙 할당과 복사를 유발한다. 최적화는 측정 후 수행한다 — 추측 기반 최적화는 코드 복잡도를 높이고 실제 병목과 다를 수 있다. `cargo flamegraph`와 `criterion` 벤치마크로 병목을 확인한 뒤 수정한다.
@@ -142,7 +143,7 @@ codegen-units = 1   # 병렬 코드 생성 비활성화 (빌드 느림, 최적�
 ## 수치 기준
 
 | 작업 | 비용 | 비고 |
-|------|------|------|
+| ------ | ------ | ------ |
 | 힙 할당 (`malloc`) | ~50ns | OS/할당자에 따라 다름 |
 | `Vec` 재할당 | O(n) 복사 | `with_capacity`로 방지 |
 | Iterator `map/filter` (지연) | ~0ns 추가 | collect 시점에만 실행 |

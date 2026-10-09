@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-09-02
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 주석 경제성
 
 언제 주석을 쓰고 언제 지우는가. 스택·언어에 무관한 코어 원칙과 판정 기준을 정리한다.
@@ -229,12 +230,12 @@ String _cacheKey(String id) => 'item:$id';
 ```
 
 doc이 다루는 것은 계약이다 — 파라미터 의미, 반환값, 오용을 유발하는 규칙(옵션 A를 넘기면 옵션 B가 무시됨 등).
-공개 API에 문서 주석을 다는 것은 공식 강제 항목(`DO use /// for public APIs` 계열)이다.
+원문 강도는 Effective Dart 의 PREFER 다 — `PREFER writing doc comments for public APIs`, 모든 멤버가 아니라 대부분을 문서화하라고 한다. 린트 `public_member_api_docs` 는 재정의하지 않은 공개 멤버를 모두 문서화하라고 DO 로 적지만, 그것은 켜고 끄는 린트의 설명이라 이 원칙의 강도는 `SHOULD` 로 둔다 (2026-09-28 조회).
 반대로 로컬 구현 세부를 문서 주석으로 감싸지 않는 쪽은 `관측 컨벤션`이라 프로젝트별로 완화할 수 있다.
 
-**강도:** MUST
+**강도:** SHOULD
 
-> **출처:** [Effective Dart: Documentation](https://dart.dev/effective-dart/documentation)
+> **출처:** [Effective Dart: Documentation](https://dart.dev/effective-dart/documentation) · [Effective Dart — 강도 정의](https://dart.dev/effective-dart) · [린트 public_member_api_docs](https://dart.dev/tools/linter-rules/public_member_api_docs) (2026-09-28 조회)
 
 ### 7. 주석으로 복잡도를 덮지 않는다 `[코어]`
 
@@ -326,7 +327,7 @@ const double cardHeight = 400;
 ## 수치 기준
 
 | 항목 | 값 | 출처 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | 주석 안티패턴 밀도 | 57파일 / 약 275건 (파일당 약 4.8건) | 코어 실측 |
 | 보존 대상 비율 | 약 30건 (전체의 약 11%) | 코어 실측 |
 | 최다 유형 1 — 템플릿 마커 | 약 90건 / 48파일 | 코어 실측 |
@@ -342,7 +343,7 @@ const double cardHeight = 400;
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 이름 번역 주석 | 이름이 약하다는 신호를 주석이 가려 이름 개선 기회를 없앤다 |
 | 템플릿 마커 (`// 상태`, `// 구현부`) | 파일마다 반복되어 정보량 0, 생성기 흔적으로 읽힌다 |
 | 구분선 블록 (`// ----`) | 스크롤 비용만 늘린다. 구조는 함수·파일 분리로 표현할 일 |
@@ -359,7 +360,7 @@ const double cardHeight = 400;
 ## 강도·축 라벨
 
 | 라벨 | 뜻 |
-|------|-----|
+| ------ | ----- |
 | `MUST` | 공식 스타일 가이드가 강제하는 항목. 프로젝트 재량으로 끄지 않는다 |
 | `SHOULD` | 공개 출처의 권고. 근거를 남기면 예외를 둘 수 있다 |
 | `관측 컨벤션` | 공개 출처 없이 프로젝트 실측만 근거인 규칙. 준수 강도가 낮다는 뜻이 아니라 근거의 출처가 실측이라는 뜻이다 |

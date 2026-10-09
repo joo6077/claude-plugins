@@ -13,31 +13,31 @@ commands:
 # ── 계약 카테고리 ──
 contract_categories:
   - id: Skill
-    prefix: "SK"
+    prefix: "스킬"
     description: "스킬 파일 구조, frontmatter, 트리거 조건, 인자 처리"
   - id: Script
-    prefix: "SC"
+    prefix: "스크립트"
     description: "release.sh 연동, 버전 bump, marketplace.json 업데이트"
   - id: Error
-    prefix: "ER"
+    prefix: "오류"
     description: "에러 처리, 사용자 안내, edge case 대응"
   - id: Architecture
-    prefix: "AR"
+    prefix: "구조"
     description: "파일 위치, 네이밍, 모노레포 구조 규칙"
 
 # ── 안티패턴 ──
 anti_patterns:
-  - id: AP-01
+  - id: 금지-01
     pattern: "hardcoded.*version"
     message: "버전을 하드코딩하지 않는다 — plugin.json에서 읽어야 한다"
-  - id: AP-02
+  - id: 금지-02
     pattern: "git push.*--force"
     message: "force push 금지"
-  - id: AP-03
+  - id: 금지-03
     command: "python3 scripts/validate-plugin.py --check=code-fence"
     message: "bare code fence 금지 — 여는 fence 에 언어 힌트 필수 (```text, ```bash, ```yaml 등). 판정 권위는 validate-plugin V6 상태기계다 — 여는/닫는 fence 가 동형이라 줄 단위 정규식으로는 판정 불가"
-  - id: AP-04
-    pattern: "^---\\s*\\n(?![^-]*name:)"
+  - id: 금지-04
+    command: "python3 scripts/validate-plugin.py --check=frontmatter"
     message: "SKILL.md / agents/*.md frontmatter 에서 name 필드 누락 — validate-plugin V1 FAIL"
 
 # ── 재사용성 ──
@@ -69,3 +69,15 @@ verification:
 
 # ── 변명 차단 ──
 rationalization_overrides: []
+
+# ── Codex 감독 ──
+# Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). Codex 가 없는 환경이면 mode: off.
+codex_audit:
+  mode: off            # codex | off
+  codex_home: ""         # 비우면 ~/.codex-qa → $CODEX_HOME → ~/.codex 차례로 찾는다
+  model: ""              # 비우면 그 폴더 config.toml 의 model. 둘 다 없으면 BLOCKED
+  effort_draft: medium
+  effort_impl: medium
+  max_rounds: 2          # 첫 판정 뒤 고쳐서 다시 받는 횟수
+  # 이 계약(codex-supervisor)의 측정 묶음. 판정 격리 안에서 ps · 겹친 격리가 막혀 격리 밖 사전 측정이 필요하다
+  premeasure: "bash .harness/.meta/codex-judge-isolation/measure/measure.sh {id}"

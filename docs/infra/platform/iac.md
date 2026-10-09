@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Infrastructure as Code
 
 Terraform 모듈 구조, 상태 관리, drift 감지, plan/apply 워크플로우, 모듈 버저닝, Pulumi/CDK 비교, Policy as Code(OPA, Sentinel), import를 다룬다.
@@ -60,7 +61,7 @@ plan 시점에 정책을 검사하여 위반 리소스가 생성되기 전에 �
 ## 수치/기준값
 
 | 항목 | 값 | 비고 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | plan -detailed-exitcode: 변경 없음 | 0 | |
 | plan -detailed-exitcode: 에러 | 1 | |
 | plan -detailed-exitcode: 변경 있음 | 2 | CI에서 분기 조건으로 활용 |

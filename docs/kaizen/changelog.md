@@ -150,11 +150,13 @@ Phase · followups 계약 열아홉의 상태와 QA 리포트를 실었고, 처�
 
 ## [2026-09-19] — evaluator-kaizen (수동) — 0 건 측정의 양성 대조 · 7단계 교차 진단
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 트리거
 
 사용자 요청("qa 카이젠 함 돌리자"). 같은 날 qa-evaluator 가 기록 형식에 없는 문자열을 세는 0 건 검사를 통과시킨 실측 결함과,
 글로벌 피드백 60건 중 34건의 "교차 진단 못 함" 보고.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 변경
 
 - `harness/agents/qa-evaluator.md` — 규칙 10 에 0 이 기대값인 측정의 양성 대조 절차(명령 성공 · 대상 수 · 알려진 나쁜 예,
@@ -166,6 +168,7 @@ Phase · followups 계약 열아홉의 상태와 QA 리포트를 실었고, 처�
 - `harness/references/feedback-schema.yaml` — `cross_diagnosis_by` 에 `none`
 - `harness/evals/kaizen/evaluator-kaizen/` — `vacuous-zero` 준비물 · 검사 2개
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 검증
 
 - 적용 전 초안을 옛 평가자로 검토 — 1차 보류(괄호 허용 목록 오해 · 불안정한 인용), 2차 적용 권고
@@ -173,6 +176,7 @@ Phase · followups 계약 열아홉의 상태와 QA 리포트를 실었고, 처�
 
 ## [2026-08-13] — 사실 정정 사이클 (14/14 CHANGED)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 트리거
 
 사용자가 `/insights` 재실행 후 카이젠 오케스트레이션 요청. 리포트(2026-08-13, 62일 · 81 세션 중
@@ -327,6 +331,7 @@ bambu-kit 0.6.0 · onboarding-kit 0.3.0
 
 ## [2026-07-28] — 병렬 스프린트 안전성 (harness v0.6.0, 카이젠 후속 스프린트)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 트리거
 
 사용자 지적 — "스프린트를 병렬로 처리가 안 되는 거 같은데? 세션을 병렬로 돌리면 같은 플젝 내에서
@@ -397,10 +402,12 @@ Evidence Validity Gate 가 막으려던 함정에 계약 자신이 빠진 것이
 
 ## [2026-07-27] — enforcement 등급화 전면 도입 + 크로스 Phase 회귀 4건 수정 (14/14 CHANGED)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 트리거
 
 사용자가 "인사이트 돌려서 카이젠 진행" 요청. `/insights` 재실행(2026-07-27, 51세션·187커밋·53일)
-+ `/reflect-digest` 30일 집계(760 엔트리) 를 §0 으로 주입. Step 0.6 선별에서 low-signal 4킷
+
+- `/reflect-digest` 30일 집계(760 엔트리) 를 §0 으로 주입. Step 0.6 선별에서 low-signal 4킷
 (infra/react/planning/onboarding) 제외를 제안했으나 사용자가 **전체 14 Phase** 를 선택.
 
 ### 이번 사이클의 핵심 판단
@@ -409,6 +416,7 @@ Evidence Validity Gate 가 막으려던 함정에 계약 자신이 빠진 것이
 세션당 발생 비율이 줄지 않았다. 따라서 "규칙 문장을 또 추가"가 아니라 **enforcement 방식 전환**을
 사이클 전체의 프레이밍으로 잡았다 — soft reminder → 구조적 게이트.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### Phase 결과 (14/14 CHANGED)
 
 - **Phase 1 설계 가이드** — **Enforcement 3등급(E1 문장 / E2 아티팩트 / E3 결정론적 게이트)** 신설.
@@ -472,6 +480,7 @@ Evidence Validity Gate 가 막으려던 함정에 계약 자신이 빠진 것이
 4. **Phase 번호 자기모순** — AUTO 블록은 Step 13=bambu/14=onboarding 인데 수기 본문은
    "Phase 13 — onboarding". 템플릿에는 **Phase 12·13 섹션이 아예 없었다** → 신설 + 번호 정정.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 버전
 
 11킷 전부 minor bump (14/14 CHANGED). harness 0.5.0 · flutter-toolkit 0.6.0 · design-kit 0.3.0 ·
@@ -486,6 +495,7 @@ fit-pal 레포에서 실측 진단(리포트만, 해당 레포 무수정). 원�
 
 ## [2026-06-11] — hook permission-denied 근본원인 + validate-plugin V8 가드 (인사이트 주도 부분 카이젠)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 트리거
 
 사용자가 "전체 인사이트 + 카이젠" 요청. reflect-digest `project=all` 30일 cross-project 집계(27 프로젝트 / 2,586 엔트리)에서 **hook permission-denied 계열이 24개 프로젝트 957건(전체 friction의 38%)으로 단일 최대 마찰원**임을 발견. 근본원인은 harness/design-kit 플러그인의 `hooks.json`이 직접 실행하는 `.sh` 4종이 git mode 100644(비실행)로 커밋된 것 — 모든 SessionStart·PreToolUse:Bash hook이 "Permission denied"로 실패하고 있었다 (오늘까지 진행 중).
@@ -510,6 +520,7 @@ fit-pal 레포에서 실측 진단(리포트만, 해당 레포 무수정). 원�
 
 ## [2026-06-05] — /insights 2026-06-04 마찰 패턴 카이젠 (13 Phase)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 트리거
 
 사용자가 `/insights` 리포트(2026-06-04, 168 세션) 기반 오케스트레이션 요청. §0 fresh 주입 후 13 Phase 전수 실행. 선행으로 인사이트 마찰 패턴을 1차 승격(글로벌 가드레일 + flutter-extract/provider Gotcha + 프로젝트 memory, QA APPROVE 11/11).
@@ -534,7 +545,7 @@ fit-pal 레포에서 실측 진단(리포트만, 해당 레포 무수정). 원�
 
 프로젝트-특정 금지(no ValueNotifier/useState)는 글로벌 가드레일에만, kit에는 stack-agnostic 일반화분만 반영. 1차 승격분 중복 금지 전 Phase 준수.
 
-
+<!-- markdownlint-disable-next-line MD024 -->
 ### 트리거
 
 사용자 지적: 첫 번째 PR (PR #8) 은 13일 전 stale 추출본 (`.claude/kaizen-input/insights-report.md`, 2026-04-24자) 기반이었다. 진짜 fresh `/insights` 산출물은 `~/.claude/usage-data/report-ko.html` (2026-05-07 23:00, 0.0h ago, VERY FRESH ✓) 였다. fresh 와 stale 의 차이로 인해 **6 개의 신규 항목이 누락**되었다 — 이를 followup 사이클로 흡수.
@@ -601,6 +612,7 @@ fit-pal 레포에서 실측 진단(리포트만, 해당 레포 무수정). 원�
 - **Phase 4 (kaizen-orchestrator SKILL.md)**: Phase 12 reflect-kit 전수 누락 보정 + failure-count.yaml phase_12.
 - **Phase 5~12 (각 kit)**: cross-kit-principles 매트릭스 SSOT 도입. 각 kit README cross-reference. 8 kit 일괄. react-kit Library Policy 보존.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 버전 업데이트
 
 | 플러그인 | 이전 → 이후 |
@@ -627,6 +639,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 
 ## [2026-04-24] — kaizen cycle (Phase 1~11)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 요약
 
 11-Phase 카이젠 전 사이클 완료. 30일치 `/insights` 리포트 + 138 evaluator 피드백 + 1798 reflections + 5개 외부 프로젝트 QA 데이터를 기반으로 전수 개선.
@@ -645,6 +658,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 - **Phase 10 (react-kit 21 skills + 3 agents)**: 4 REJECT 해소 (TODO 템플릿 정책, Zustand/Query/Hook Form 3-way 상태 분리, Trigger substring 제거), Library Policy 원칙 보존
 - **Phase 11 (planning-kit 10 skills + reviewer)**: Phase 1~10 누적 원칙 흡수 (예방적 감사), 12-카테고리 통일, 4-way verdict + CONDITIONAL + NEEDS_VERIFICATION
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 버전 업데이트
 
 | 플러그인 | 이전 → 이후 |
@@ -673,6 +687,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 - ✅ per-kit research-log 필요 시 생성 (해당 없음)
 - ✅ flutter-changelog 갱신 (해당 없음, Phase 5 변경만)
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Kaizen Changelog
 
 > harness-kaizen 스킬이 적용한 모든 변경의 이력.
@@ -713,6 +728,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 
 ### 변경 유형: minor (2026 최신 생태계 반영 전면 카이젠)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 변경 범위
 
 7개 플러그인 전체를 2026-04-11 기준 공식 문서/릴리스 노트/학술 논문 리서치 기반으로 갱신. Phase 1~10 각 단계별 독립 qa-evaluator 서브에이전트 평가로 197/199 조건 PASS.
@@ -741,6 +757,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 
 ### 변경 유형: patch (code-fence, gotchas, guides, disambiguation)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 변경 범위
 
 - **Phase 1** (a925a31): kaizen-orchestrator Step 0 pre-flight 데이터 수집
@@ -802,6 +819,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
   - After: "코드가 이렇게 동작하니까 맞다" 변명 차단 + Red Flag 항목 추가
 
 ### 버전 판단 근거
+>
 > 편향 테이블 확장, 분해 프로토콜 체계화, 확신도 체계 추가는 기존 판정 로직의 구조를 변경하지 않고 가이드라인을 보강한 것이므로 patch bump
 
 ---
@@ -810,6 +828,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 
 ### 변경 유형: patch (guide, skill-prompt)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 연구 기반
 
 - [Spec-driven development](https://www.thoughtworks.com/en-us/insights/blog/agile-engineering-practices/spec-driven-development-unpacking-2025-new-engineering-practices) `[blog]` — semi-structured specs가 LLM 할루시네이션 감소
@@ -817,6 +836,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 - [ATDD for Claude Code](https://github.com/swingerman/atdd) `[community]` — External Observables Only 원칙 (구현 누수 방지)
 - [Given-When-Then Acceptance Criteria Guide](https://www.parallelhq.com/blog/given-when-then-acceptance-criteria) `[blog]` — NFR 누락이 일반적 안티패턴
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 변경 내역
 
 - **docs/guides/contract-design-guide.md**: "외부 관찰 가능성" 섹션 신규 추가
@@ -836,7 +856,9 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 - **harness/skills/sprint-contract/SKILL.md**: Gotchas 3개 추가 (구현 누수, GWT 필수화, NFR)
 - **harness/skills/sprint-contract/SKILL.md**: 자기진단 체크리스트에 2개 항목 추가
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 버전 판단 근거
+>
 > Gotchas 추가와 설계 가이드 보완은 기존 동작을 변경하지 않으므로 patch bump
 
 ---
@@ -845,12 +867,14 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
 
 ### 변경 유형: patch (guide, skill-prompt, agent-logic)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 연구 기반
 
 - [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices) — "Give Claude a way to verify its work"가 단일 최고 레버리지 행동
 - [Agentic AI Coding: Best Practice Patterns](https://codescene.com/blog/agentic-ai-coding-best-practice-patterns-for-speed-with-quality) — Multi-Level Code Safeguards (3단계 검증)
 - [agentic-code](https://github.com/shinpr/agentic-code) — "LLMs cannot reliably review their own outputs within the same context"
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 변경 내역
 
 - **docs/guides/skill-design-guide.md**: Section 3.5 "검증 가능한 성공 기준을 제공하라" 추가
@@ -866,5 +890,7 @@ DG-01~07 7건 전수 PASS. Phase 1 신규 5 건 cross-reference 검증 완료.
   - After: "Generator가 자가 검증했으니 PASS" 변명 차단 항목 추가
   - 근거: [agentic-code](https://github.com/shinpr/agentic-code)
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### 버전 판단 근거
+>
 > Gotchas 추가와 설계 가이드 보완은 기존 동작을 변경하지 않으므로 patch bump

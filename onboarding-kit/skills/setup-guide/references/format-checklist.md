@@ -37,12 +37,14 @@
 | 유료 개발자 계정 | [Apple 지원 기능 표](https://developer.apple.com/help/account/reference/supported-capabilities-ios) — Push notifications 가 무료 계정 열에 없다 · [멤버십 개요](https://developer.apple.com/help/account/membership/programs-overview) — 일반 개발과 개인 기기 시험은 멤버십 없이 된다 | Push Notifications 기능 · APNs 키 구성 | 비영리 단체 · 공인 교육기관 · 정부 기관은 [가입 비용 면제](https://developer.apple.com/programs/enroll/) 경로가 있다. 그 밖의 우회는 확인하지 못했다 |
 | 앱 출시 | 막는 요구가 아니다 — [Push Notification Console](https://developer.apple.com/documentation/usernotifications/testing-notifications-using-the-push-notification-console) 이 개발 환경에서 기기 토큰으로 시험 발송을 지원한다 | 없음 | 해당 없음 |
 
+표 머리는 위 네 칸 그대로 쓴다. `guide_gate` G5 가 이 머리를 찾아 빈 칸과 주소 없는 출처 칸을 잡는다.
+
 ### 3. 설정 단계 (Step 1~N)
 
-각 Step은 4단 구조. 맨 위 `**출처:**` 가 출처 원장(SKILL.md §출처 원장)의 아티팩트다 — **이 줄을 채울 수 없으면 그 Step 은 아직 쓸 준비가 안 된 것이다.**
+각 Step은 4단 구조. 맨 위 `**출처:**` 가 출처 원장(SKILL.md §출처 원장)의 아티팩트다 — **이 줄을 채울 수 없으면 그 Step 은 아직 쓸 준비가 안 된 것이다.** 두 날짜의 뜻은 SKILL.md §출처 원장을 따른다.
 
 ```text
-**출처:** <이 Step 의 근거 1차 출처 URL — 조회 YYYY-MM-DD>
+**출처:** <이 Step 의 근거 1차 출처 URL — 조회 YYYY-MM-DD · Last updated YYYY-MM-DD UTC (원문에 표시가 있을 때만)>
 
 **어디서:** <URL 또는 터미널 위치>
 

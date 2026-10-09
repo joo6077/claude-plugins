@@ -10,13 +10,13 @@
 강도 3단계: `MUST` 위반 시 REJECT · `SHOULD` 위반 시 근거 요구 · `관측 컨벤션` 프로젝트가 완화 가능.
 
 | ID | 규칙 | 강도 | 축 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | C-01 | what 이 아니라 why 만 남긴다. 동작 설명은 코드가 이미 한다 | SHOULD | 중복제거 |
 | C-02 | 타입·이름·시그니처가 말하는 것을 문장으로 반복하지 않는다 | SHOULD | 중복제거 |
 | C-03 | 주석을 달아야 이해되는 이름은 주석 대신 이름을 고친다 | SHOULD | 이름이동 |
 | C-04 | 템플릿 마커(`// 상태`, `// 구현부`)와 구분선 블록은 0개 | 관측 컨벤션 | 구조 |
 | C-05 | 보존 대상은 §2 의 세 범주뿐. 사전 카테고리를 미리 늘리지 않는다 | SHOULD | 보존 |
-| C-06 | 공개 API 는 doc 주석으로 계약을 쓴다. 구현 이유는 라인 주석 | MUST | 계약 |
+| C-06 | 공개 API 는 대부분 doc 주석으로 계약을 쓴다. 구현 이유는 라인 주석 | SHOULD | 계약 |
 | C-07 | 주석으로 복잡도를 덮지 않는다. 해설 3줄 초과는 구조 문제 | SHOULD | 구조 |
 | C-08 | 같은 디렉토리·같은 역할 파일은 같은 주석 밀도를 갖는다 | 관측 컨벤션 | 일관성 |
 | C-09 | 섹션 라벨은 항목 2개 이상을 묶을 때만 유효 | 관측 컨벤션 | 라벨 |
@@ -36,7 +36,7 @@
 주석 1건마다 아래를 순서대로 돌린다. 먼저 걸리는 곳에서 멈춘다.
 
 | 단계 | 질문 | YES | NO |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | S1 | 보존 3범주(아래 표) 중 하나에 해당하는가 | **보존** | S2 |
 | S2 | 이름·타입·시그니처가 이미 같은 말을 하는가 | **삭제** | S3 |
 | S3 | 정보는 필요한데 위치가 틀린 것인가 | **이동** (§S3 목적지) | S4 |
@@ -45,7 +45,7 @@
 ### 보존 3범주 (이것만 보존한다)
 
 | 범주 | 판정 질문 | 보존 형태 |
-|---|---|---|
+| --- | --- | --- |
 | 프레임워크 함정 | 이 코드를 지우거나 순서를 바꾸면, 문서를 읽은 사람도 예측 못 할 동작이 나오는가 | 비직관적 기본 동작 1줄 |
 | 제약·trade-off | 외부 API·스펙이 강제해서 다른 선택지가 없었는가 (변경 불가 옵션, 내부 하드코딩) | 버린 대안 + 이유 1줄 |
 | 실패 모드 | 이 구조를 되돌리면 재현된 버그가 되살아나는가 | 되살아나는 증상 1줄 |
@@ -70,7 +70,7 @@
 강도 `MUST` (C-10). 코드는 디자인 소스의 참조가 아니라 구현물이다. 의미로 읽혀야 한다.
 
 | 형태 | 예 | 조치 |
-|---|---|---|
+| --- | --- | --- |
 | 노드 ID | `(14644:26672)`, `(12159:8715)` | 삭제 |
 | 변수 경로 | `Color/Display Field/display-label-default` | 삭제 후 역할명으로 |
 | 파생 표시 | `(bg-card 파생)`, `(디자인 변수)` | 삭제 |
@@ -115,7 +115,7 @@ After:  static const darkCardSubText = ...;
 **결과는 삭제 대상이 아니라 판정 후보다.** 각 히트에 §2 절차를 돌린 뒤 처리한다.
 
 | ID | 대상 규칙 | 목표 |
-|---|---|---|
+| --- | --- | --- |
 | G1 | C-04 구분선 블록 | 0건 |
 | G2 | C-10 노드 ID | 0건 |
 | G3 | C-10 변수 경로 | 0건 |
@@ -165,11 +165,11 @@ G1~G5 가 0건이고, G6~G9 후보에 §2 절차를 전부 돌렸으면 통과�
 
 ## 7. 출처
 
-- Google Engineering Practices — https://google.github.io/eng-practices/review/reviewer/looking-for.html
-- Effective Dart: Documentation — https://dart.dev/effective-dart/documentation
-- Effective Dart: Style — https://dart.dev/effective-dart/style
-- Microsoft Code with Engineering Playbook — https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/
-- Kent Beck, Tidy First? — Comments — https://www.oreilly.com/library/view/tidy-first/9781098151232/ch14.html
-- Cognitive Complexity (SonarSource) — https://www.sonarsource.com/resources/cognitive-complexity/
-- ESLint no-nested-ternary — https://archive.eslint.org/docs/rules/no-nested-ternary
-- Software Engineering at Google, Knowledge Sharing — https://abseil.io/resources/swe-book/html/ch03.html
+- Google Engineering Practices — <https://google.github.io/eng-practices/review/reviewer/looking-for.html>
+- Effective Dart: Documentation — <https://dart.dev/effective-dart/documentation>
+- Effective Dart: Style — <https://dart.dev/effective-dart/style>
+- Microsoft Code with Engineering Playbook — <https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/>
+- Kent Beck, Tidy First? — Comments — <https://www.oreilly.com/library/view/tidy-first/9781098151232/ch14.html>
+- Cognitive Complexity (SonarSource) — <https://www.sonarsource.com/resources/cognitive-complexity/>
+- ESLint no-nested-ternary — <https://archive.eslint.org/docs/rules/no-nested-ternary>
+- Software Engineering at Google, Knowledge Sharing — <https://abseil.io/resources/swe-book/html/ch03.html>

@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const path = require('path');
+const fs = require('fs');
 
 const VISUALS_DIR = path.resolve(__dirname, '../../docs/design-kit');
 
@@ -51,6 +52,9 @@ test.describe('typography-scale.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -130,6 +134,9 @@ test.describe('color-palette.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -207,6 +214,9 @@ test.describe('spacing-system.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -285,6 +295,9 @@ test.describe('ratio-proportion.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -365,6 +378,9 @@ test.describe('grid-alignment.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -442,6 +458,9 @@ test.describe('visual-hierarchy.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -521,6 +540,9 @@ test.describe('motion.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -592,6 +614,9 @@ test.describe('microinteraction.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -668,6 +693,9 @@ test.describe('iconography.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -741,6 +769,9 @@ test.describe('information-density.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -822,6 +853,9 @@ test.describe('image-illustration.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -901,6 +935,9 @@ test.describe('ethical-design.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -981,6 +1018,9 @@ test.describe('animation.html', () => {
   });
 
   test.describe('Mobile Responsiveness', () => {
+    test('no horizontal overflow at 320px', async ({ page }) => {
+      await expectNoOverflow(page, url, 320);
+    });
     test('no horizontal overflow at 375px', async ({ page }) => {
       await expectNoOverflow(page, url, 375);
     });
@@ -1045,5 +1085,148 @@ test.describe('animation.html', () => {
       const body = await page.locator('body').textContent();
       expect(body).not.toContain('이 문서는 design-research');
     });
+  });
+});
+
+// ============================================================
+// templates/mockup.html — 여섯째 시안을 받는지
+// ============================================================
+// 시안 개수에 위 제한이 없으므로 틀은 칸 묶음 하나를 더하면 여섯째 시안을 받아야 한다.
+// 실행할 때마다 지금 틀을 읽어 e 칸 묶음을 f, g … 로 복제한 쪽을 띄운다.
+const MOCKUP_TEMPLATE = path.resolve(__dirname, '../templates/mockup.html');
+
+function replaceOnce(html, pattern, build) {
+  const match = html.match(pattern);
+  if (!match) throw new Error(`틀에서 칸 묶음을 못 찾음: ${pattern}`);
+  return html.replace(match[0], build(match[0]));
+}
+
+function toVariant(block, letter) {
+  const upper = letter.toUpperCase();
+  return block
+    .replace(/^(\s*)e: \{/m, `$1${letter}: {`)
+    .replace(/'e'/g, `'${letter}'`)
+    .replace(/-e\b/g, `-${letter}`)
+    .replace(/"e"/g, `"${letter}"`)
+    .replace(/tab\.e/g, `tab.${letter}`)
+    .replace(/_E\b/g, `_${upper}`)
+    .replace(/시안 E/g, `시안 ${upper}`)
+    .replace(/>E</g, `>${upper}<`);
+}
+
+// e 칸 묶음을 f, g … 로 복제해 시안 count 개짜리 틀을 만든다 (SKILL.md 의 여섯째 시안 안내와 같은 순서).
+function buildMockupWithVariants(count) {
+  let html = fs.readFileSync(MOCKUP_TEMPLATE, 'utf8');
+  const letters = 'fghijk'.slice(0, count - 5).split('');
+  const blocks = [
+    /<button class="mockup-tab"[^>]*\n\s*data-tab="e"[\s\S]*?<\/button>/,
+    /<div class="mockup-panel" id="panel-e">[\s\S]*?<\/div>\n\s*<\/div>/,
+    /<div class="mockup-vote-card" onclick="castVote\('e'\)"[\s\S]*?<\/div>\n\s*<\/div>/,
+    /<div class="mockup-note-field">\s*<label class="mockup-note-label" for="note-e">[\s\S]*?<\/div>/,
+    /\n(\s*)e: \{\n[\s\S]*?\n\s*\},/,
+  ];
+  for (const pattern of blocks) {
+    html = replaceOnce(html, pattern, (block) =>
+      [block, ...letters.map((letter) => toVariant(block, letter).replace(/^\n/, ''))].join('\n'));
+  }
+  for (const side of ['compare-left', 'compare-right']) {
+    html = replaceOnce(
+      html,
+      new RegExp(`id="${side}"[\\s\\S]*?<option value="e"[^\\n]*`),
+      (block) => [block, ...letters.map((letter) =>
+        `<option value="${letter}" data-i18n="tab.${letter}">시안 ${letter.toUpperCase()}</option>`)].join('\n'),
+    );
+  }
+  const koTabs = letters.map((letter) => `, ${letter}: '시안 ${letter.toUpperCase()}'`).join('');
+  const enTabs = letters.map((letter) => `, ${letter}: 'Variant ${letter.toUpperCase()}'`).join('');
+  html = replaceOnce(html, /e: '시안 E' \}/, () => `e: '시안 E'${koTabs} }`);
+  html = replaceOnce(html, /e: 'Variant E' \}/, () => `e: 'Variant E'${enTabs} }`);
+  html = html.replace(/\{\{TAGS_[A-Z]\}\}/g, '[]');
+  return html;
+}
+
+function writeMockup(name, count) {
+  const out = test.info().outputPath(name);
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, buildMockupWithVariants(count));
+  return 'file:///' + out.replace(/\\/g, '/');
+}
+
+test.describe('templates/mockup.html 시안 6 개', () => {
+  let url;
+
+  test.beforeAll(async () => {
+    url = writeMockup('mockup-six-variants.html', 6);
+  });
+
+  async function openMockup(page) {
+    const errors = [];
+    page.on('pageerror', (err) => errors.push(err.message));
+    await page.route(/^https?:/, (route) => route.abort());
+    await page.goto(url);
+    await page.waitForLoadState('domcontentloaded');
+    return errors;
+  }
+
+  test('f 탭을 누르면 f 패널이 열린다', async ({ page }) => {
+    const errors = await openMockup(page);
+    await page.locator('.mockup-tab[data-tab="f"]').click();
+    await expect(page.locator('#panel-f')).toHaveClass(/active/);
+    await expect(page.locator('.mockup-tab[data-tab="f"]')).toHaveAttribute('aria-selected', 'true');
+    expect(errors).toEqual([]);
+  });
+
+  test('e 탭에서 오른쪽 화살표를 누르면 f 탭으로 간다', async ({ page }) => {
+    const errors = await openMockup(page);
+    await page.locator('.mockup-tab[data-tab="e"]').click();
+    await page.locator('.mockup-tab[data-tab="e"]').focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.locator('.mockup-tab[data-tab="f"]')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#panel-f')).toHaveClass(/active/);
+    expect(errors).toEqual([]);
+  });
+
+  test('f 투표 카드를 누르면 눌린 상태가 된다', async ({ page }) => {
+    const errors = await openMockup(page);
+    await page.locator('#vote-f').click();
+    await expect(page.locator('#vote-f')).toHaveAttribute('aria-pressed', 'true');
+    expect(errors).toEqual([]);
+  });
+
+  test('f 메모는 저장 뒤 다시 열어도 남고 초기화하면 빈다', async ({ page }) => {
+    const errors = await openMockup(page);
+    await page.locator('#note-f').fill('여섯째 시안 메모');
+    await page.locator('button[onclick="saveFeedback()"]').click();
+    await page.reload();
+    await page.waitForLoadState('domcontentloaded');
+    await expect(page.locator('#note-f')).toHaveValue('여섯째 시안 메모');
+    await page.locator('button[onclick="clearFeedback()"]').click();
+    await expect(page.locator('#note-f')).toHaveValue('');
+    expect(errors).toEqual([]);
+  });
+
+  test('비교 화면 왼쪽에 f 를 고르면 이름표가 시안 F 가 된다', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const errors = await openMockup(page);
+    await page.locator('#compare-btn').click();
+    await page.locator('#compare-left').selectOption('f');
+    await expect(page.locator('#compare-left-label')).toHaveText('시안 F');
+    await expect(page.locator('#compare-clone-left')).not.toBeEmpty();
+    expect(errors).toEqual([]);
+  });
+});
+
+// 칸 수를 5 로 박아 두면 여섯째부터 둘째 줄로 떨어진다. 넓은 화면에서는 시안 수만큼 한 줄이어야 한다.
+test.describe('templates/mockup.html 시안 8 개', () => {
+  test('1280 폭에서 투표 카드와 메모 칸이 각각 한 줄에 놓인다', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.route(/^https?:/, (route) => route.abort());
+    await page.goto(writeMockup('mockup-eight-variants.html', 8));
+    for (const selector of ['.mockup-vote-card', '.mockup-note-field']) {
+      const tops = await page.locator(selector).evaluateAll((els) =>
+        els.map((el) => Math.round(el.getBoundingClientRect().top)));
+      expect(tops).toHaveLength(8);
+      expect(new Set(tops).size).toBe(1);
+    }
   });
 });

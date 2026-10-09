@@ -29,7 +29,7 @@ except ImportError:
     print("ERROR: pyyaml 이 설치되지 않았습니다. pip install pyyaml 로 설치하세요.", file=sys.stderr)
     sys.exit(2)
 
-from plugin_utils import load_marketplace, list_kits, read_text, parse_frontmatter, REPO_ROOT
+from plugin_utils import load_marketplace, list_kits, read_text, parse_frontmatter, REPO_ROOT, KIT_RESEARCH_DOCS
 
 # ---------------------------------------------------------------------------
 # 상수
@@ -61,6 +61,9 @@ LINK_PATTERN = re.compile(r'\[(?:[^\]]*)\]\(([^)#][^)]*)\)')
 
 # V7 마켓플레이스 버전 태그 패턴
 MARKETPLACE_VERSION_PATTERN = re.compile(r'\[v(\d+\.\d+\.\d+)\s*[·•]\s*\d{4}-\d{2}-\d{2}\]')
+
+# V3 · V6 · V10 코드 블록 여닫는 줄 — 같은 문자(백틱 또는 ~) 3 개 이상과 그 뒤 글
+CODE_FENCE_PATTERN = re.compile(r'^(`{3,}|~{3,})(.*)$')
 
 # V4 kit-specific context tokens — description 에 해당 kit 의 고유 단어가 포함되면
 # exact-match cross-kit 중복은 disambiguation 성공으로 간주하여 WARN 제거.
@@ -233,7 +236,7 @@ def check_v2_templates(ctx: CheckContext) -> CheckResult:
 
     if not tmpl_dir.exists():
         result.status = "OK"
-        result.summary = "0 files — SKIP (no templates/)"
+        result.summary = "no templates/ — OK"
         return result
 
     all_files = sorted(tmpl_dir.iterdir())
@@ -306,25 +309,6 @@ def check_v2_templates(ctx: CheckContext) -> CheckResult:
 # V3 — see harness/docs/guides/plugin-validation-guide.md §3.3
 # ---------------------------------------------------------------------------
 
-def _body_without_code_blocks(body: str) -> str:
-    """마크다운 본문에서 코드 블록(``` ... ```) 내용을 공백으로 제거한다.
-    코드 블록 안의 grep 패턴 등이 링크로 오인되는 false-positive를 방지한다.
-    """
-    lines = body.splitlines(keepends=True)
-    result_lines: list[str] = []
-    in_block = False
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith("```"):
-            in_block = not in_block
-            result_lines.append("\n")  # fence 줄 자체도 제거
-        elif in_block:
-            result_lines.append("\n")  # 블록 내용 공백으로 대체
-        else:
-            result_lines.append(line)
-    return "".join(result_lines)
-
-
 def check_v3_refs(ctx: CheckContext) -> CheckResult:
     """SKILL.md 본문의 상대 경로 링크가 실제로 존재하는지 검증한다."""
     result = CheckResult("V3", "refs")
@@ -335,8 +319,11 @@ def check_v3_refs(ctx: CheckContext) -> CheckResult:
     for skill_path in skill_files:
         text = ctx.read(skill_path)
         _, body = parse_frontmatter(text)
-        # 코드 블록 내부는 링크 검사 제외 (정규식 패턴 등 false-positive 방지)
-        search_body = _body_without_code_blocks(body)
+        # 코드 블록 안(여닫는 줄 포함)은 빈 줄로 바꿔 링크 검사에서 뺀다 — 줄 번호는 그대로 둔다
+        body_lines = body.splitlines()
+        outside, _ = _split_code_blocks(body_lines)
+        kept = dict(outside)
+        search_body = "\n".join(kept.get(lineno, "") for lineno in range(1, len(body_lines) + 1))
         for match in LINK_PATTERN.finditer(search_body):
             raw_path = match.group(1).strip()
             # 절대 URL 제외
@@ -516,6 +503,7 @@ def check_v6_code_fence(ctx: CheckContext) -> CheckResult:
     md_files.extend(ctx.kit_path.glob("skills/*/SKILL.md"))
     md_files.extend(ctx.kit_path.glob("agents/*.md"))
     md_files.extend(ctx.kit_path.glob("references/*.md"))
+    md_files.extend(ctx.kit_path.glob("skills/*/references/**/*.md"))
     if (ctx.kit_path / "README.md").exists():
         md_files.append(ctx.kit_path / "README.md")
 
@@ -524,19 +512,9 @@ def check_v6_code_fence(ctx: CheckContext) -> CheckResult:
     for path in sorted(set(md_files)):
         text = ctx.read(path)
         lines = text.splitlines()
-        in_block = False
-        file_hits: list[int] = []
-
-        for lineno, line in enumerate(lines, start=1):
-            stripped = line.strip()
-            if stripped.startswith("```"):
-                if not in_block:
-                    hint = stripped[3:].strip()
-                    if not hint:
-                        file_hits.append(lineno)
-                    in_block = True
-                else:
-                    in_block = False
+        # `~~~` 로 여는 블록은 보지 않는다 — 언어 힌트 규칙은 백틱 블록에만 건다
+        _, openers = _split_code_blocks(lines)
+        file_hits = [lineno for lineno, fence, info in openers if fence[0] == "`" and not info.strip()]
 
         if file_hits:
             rel = path.relative_to(REPO_ROOT)
@@ -545,7 +523,8 @@ def check_v6_code_fence(ctx: CheckContext) -> CheckResult:
                 for lineno in file_hits:
                     idx = lineno - 1
                     indent = len(new_lines[idx]) - len(new_lines[idx].lstrip())
-                    new_lines[idx] = " " * indent + "```text"
+                    fence = CODE_FENCE_PATTERN.match(new_lines[idx].strip()).group(1)
+                    new_lines[idx] = " " * indent + fence + "text"
                 path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
                 ctx.invalidate(path)
                 failures.append(f"FIXED {rel}: {len(file_hits)} bare fence(s) → ```text")
@@ -624,38 +603,55 @@ def check_v7_plugin_json(ctx: CheckContext) -> CheckResult:
 
 
 # ---------------------------------------------------------------------------
-# V8 Hook 스크립트 실행 비트 — hooks.json 이 직접 실행하는 .sh 는 mode 0755 여야 한다
+# V8 Hook 스크립트 실행 비트 · 따옴표 — hooks.json 이 직접 실행하는 .sh 는 mode 0755,
+#    명령 안 ${CLAUDE_PLUGIN_ROOT} 는 큰따옴표 안이어야 한다
 # V8 — see harness/docs/guides/plugin-validation-guide.md §3.8
 # ---------------------------------------------------------------------------
 
-# ${CLAUDE_PLUGIN_ROOT}/<relative>.sh 추출용. 인터프리터(bash/sh/source) 접두 여부도 함께 판정.
-HOOK_SCRIPT_PATTERN = re.compile(r'\$\{CLAUDE_PLUGIN_ROOT\}/(\S+?\.sh)')
+PLUGIN_ROOT_VAR = "${CLAUDE_PLUGIN_ROOT}"
+# 중괄호 없는 `$CLAUDE_PLUGIN_ROOT` 도 셸이 같은 변수로 펼친다. 이름이 더 긴 `$CLAUDE_PLUGIN_ROOT_DIR` 은 다른 변수다
+PLUGIN_ROOT_REF = re.compile(r'\$(?:\{CLAUDE_PLUGIN_ROOT\}|CLAUDE_PLUGIN_ROOT(?![A-Za-z0-9_]))')
+# <변수>/<relative>.sh 추출용. `"${…}/x.sh"` · `"${…}"/x.sh` 꼴도 읽는다.
+HOOK_SCRIPT_PATTERN = re.compile(PLUGIN_ROOT_REF.pattern + r'"?/([^\s"]+?\.sh)')
 
 
-def _is_direct_exec(command: str, script_ref: str) -> bool:
-    """command 가 스크립트를 인터프리터 없이 직접 실행하는지 판정.
+def _is_direct_exec(command_before_path: str) -> bool:
+    """스크립트 경로 앞 글자로 인터프리터 없이 직접 실행하는지 판정.
 
-    `${CLAUDE_PLUGIN_ROOT}/x.sh` 가 명령의 첫 토큰(또는 ;/&&/| 직후 첫 토큰)이면
-    직접 실행 → exec 비트 필수. `bash ${...}/x.sh` 처럼 인터프리터가 앞서면 불필요.
+    경로가 명령의 첫 토큰(또는 ;/&&/| 직후 첫 토큰)이면 직접 실행 → exec 비트 필수.
+    `bash "${...}/x.sh"` 처럼 인터프리터가 앞서면 불필요. 경로를 여는 큰따옴표는 토큰으로 치지 않는다.
     """
-    marker = "${CLAUDE_PLUGIN_ROOT}/" + script_ref
-    idx = command.find(marker)
-    if idx < 0:
-        return False
-    prefix = command[:idx]
+    prefix = command_before_path
     # 직전 토큰 경계 추출 (마지막 셸 구분자 이후)
     for sep in (";", "&&", "||", "|", "\n"):
         prefix = prefix.rsplit(sep, 1)[-1]
-    return prefix.strip() == ""
+    return prefix.replace('"', "").strip() == ""
+
+
+def _plugin_root_outside_double_quotes(command: str) -> bool:
+    """하나라도 큰따옴표 밖이면 True. 셸에서 역슬래시로 막은 따옴표는 따옴표로 세지 않는다."""
+    in_double = False
+    pos = 0
+    while pos < len(command):
+        if command[pos] == "\\":
+            pos += 2
+            continue
+        if command[pos] == '"':
+            in_double = not in_double
+        elif not in_double and PLUGIN_ROOT_REF.match(command, pos):
+            return True
+        pos += 1
+    return False
 
 
 def check_v8_hook_exec(ctx: CheckContext) -> CheckResult:
-    """hooks.json 이 직접 실행하는 .sh 스크립트의 실행 비트(0755)를 검증한다.
+    """hooks.json 명령의 따옴표와, 직접 실행하는 .sh 스크립트의 실행 비트(0755)를 검증한다.
 
-    근거: hooks.json 의 `${CLAUDE_PLUGIN_ROOT}/scripts/x.sh` 직접 실행 명령은
+    근거: hooks.json 의 `"${CLAUDE_PLUGIN_ROOT}/scripts/x.sh"` 직접 실행 명령은
     스크립트가 git mode 100644(비실행)로 커밋되면 모든 설치본에서 SessionStart·
     PreToolUse hook 이 'Permission denied' 로 실패한다. 2026-06 reflect 집계상
     24개 프로젝트 957건(전체 friction 38%)의 단일 근본원인이었다.
+    따옴표 밖 ${CLAUDE_PLUGIN_ROOT} 는 설치 경로에 빈칸이 있으면 셸이 둘로 쪼개 hook 이 아예 안 돈다.
     """
     result = CheckResult("V8", "hook-exec")
     hooks_json = ctx.kit_path / "hooks" / "hooks.json"
@@ -683,12 +679,20 @@ def check_v8_hook_exec(ctx: CheckContext) -> CheckResult:
                 if cmd:
                     commands.append(cmd)
 
+    rel_hooks_json = hooks_json.relative_to(REPO_ROOT)
     checked = 0
+    quote_failures: list[str] = []
     failures: list[str] = []
     for cmd in commands:
-        for script_ref in HOOK_SCRIPT_PATTERN.findall(cmd):
-            if not _is_direct_exec(cmd, script_ref):
+        if _plugin_root_outside_double_quotes(cmd):
+            quote_failures.append(
+                f"FAIL {rel_hooks_json}: {PLUGIN_ROOT_VAR} 가 큰따옴표 밖 — "
+                f"설치 경로에 빈칸이 있으면 실행이 깨진다 ({cmd})"
+            )
+        for match in HOOK_SCRIPT_PATTERN.finditer(cmd):
+            if not _is_direct_exec(cmd[:match.start()]):
                 continue  # 인터프리터 경유 — exec 비트 불필요
+            script_ref = match.group(1)
             checked += 1
             script_path = ctx.kit_path / script_ref
             rel = script_path.relative_to(REPO_ROOT)
@@ -701,10 +705,15 @@ def check_v8_hook_exec(ctx: CheckContext) -> CheckResult:
                     f"FAIL {rel}: 직접 실행 hook 스크립트가 비실행 (mode {oct(mode & 0o777)} — chmod +x 필요)"
                 )
 
-    if failures:
+    if quote_failures or failures:
+        problems = []
+        if quote_failures:
+            problems.append(f"{len(quote_failures)}개 hook 명령 따옴표 없음")
+        if failures:
+            problems.append(f"{len(failures)}개 hook 스크립트 실행 비트 누락")
         result.status = "FAIL"
-        result.summary = f"{len(failures)}개 hook 스크립트 실행 비트 누락"
-        result.details = failures
+        result.summary = " · ".join(problems)
+        result.details = quote_failures + failures
         return result
 
     result.status = "OK"
@@ -757,6 +766,40 @@ def check_v9_arg_substitution(ctx: CheckContext) -> CheckResult:
     return result
 
 
+def _split_code_blocks(lines: list[str]) -> tuple[list[tuple[int, str]], list[tuple[int, str, str]]]:
+    """코드 블록 밖 줄 (줄 번호, 줄) 과 블록 여는 줄 (줄 번호, 여는 기호, 뒤 글) 을 돌려준다.
+
+    V3 · V6 · V10 이 함께 쓰는 판정이다. 여닫는 줄은 CommonMark 0.31.2 §4.5 를 따른다.
+
+    닫는 줄은 여는 줄과 같은 문자이면서 길이가 같거나 길고 뒤에 공백만 온다. 백틱으로 여는 줄의 뒤쪽 글에
+    백틱이 있으면 줄 안 코드라 블록이 아니고, 닫는 줄이 없으면 문서 끝까지가 블록이다. 여닫는 줄의 들여쓰기
+    칸 수와 목록 · 인용 · HTML 블록 경계는 보지 않는다 — 레포 문서의 끊긴 표 판정은 규격과 같다 (2026-09-26 대조).
+    """
+    kept: list[tuple[int, str]] = []
+    openers: list[tuple[int, str, str]] = []
+    open_fence: tuple[str, int] | None = None
+    for lineno, line in enumerate(lines, start=1):
+        # 목록 안에서 들여쓴 블록도 알아보도록 왼쪽 공백을 벗긴다. 4 칸 들여쓴 코드 블록은 판정하지 않는다 —
+        # 목록 안 표와 가르려면 목록 문맥을 따라가야 한다
+        fence = CODE_FENCE_PATTERN.match(line.strip())
+        if open_fence is None:
+            if fence and not (fence.group(1)[0] == "`" and "`" in fence.group(2)):
+                open_fence = (fence.group(1)[0], len(fence.group(1)))
+                openers.append((lineno, fence.group(1), fence.group(2)))
+                continue
+            kept.append((lineno, line))
+        elif (fence and fence.group(1)[0] == open_fence[0]
+              and len(fence.group(1)) >= open_fence[1] and not fence.group(2).strip()):
+            open_fence = None
+    return kept, openers
+
+
+def _is_table_row(line: str) -> bool:
+    """목록 안에서 `|` 로 시작하는 보통 문장을 표 행으로 잡지 않으려고 `|` 를 둘 이상 요구한다."""
+    stripped = line.lstrip()
+    return stripped.startswith("|") and stripped.count("|") >= 2
+
+
 def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
     """마크다운 표가 헤더 없이 끊긴 자리를 잡는다.
 
@@ -777,8 +820,16 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
     스킬 폴더 안 references/ 문서도 더한다. 킷 최상위 references/*.md 만 보면 스킬마다 둔 참조 문서가
     빠진다 — 2026-09-25 실측 14 킷에 41 개(표가 있는 파일 40 개)가 검사 밖이었고 끊긴 표는 0 개였다.
 
+    킷 폴더 밖 저장소 원본(plugin_utils.KIT_RESEARCH_DOCS — 예 rust-kit → docs/rust/)도 그 킷 결과로 더한다.
+    그 킷 카이젠이 고치는 문서인데 킷 폴더만 보면 거기서 끊긴 표를 못 잡는다. 짝이 없는 폴더(docs/superpowers 등)는 보지 않는다.
+
     표행 판정은 왼쪽 공백을 벗겨서 한다. 표는 목록·인용 안에서 들여쓰여 쓰이고,
     왼쪽 끝만 보면 그것이 전부 검사에서 빠진다.
+
+    코드 블록 판정은 CommonMark 0.31.2 §4.5 를 따른다 (_split_code_blocks). 백틱 3 개로 시작하는 줄마다
+    켜고 끄기만 뒤집던 판은 백틱 4 개 블록 안의 백틱 3 개 블록 · `~~~` 블록 · 줄 안 코드로 시작하는 줄에서
+    끊긴 표를 잘못 잡거나 놓쳤다 (교차 진단 합성 재현 2026-09-24). 그 결과 카이젠 스킬 넷의 pr-template.md 가
+    `~~~markdown` 블록에 담은 PR 본문 틀의 표 24 행은 코드라 검사 밖이다.
 
     --fix 는 제공하지 않는다. 끊긴 표를 어디로 되돌려야 하는지는 의미 판단이다.
     """
@@ -793,31 +844,26 @@ def check_v10_table_integrity(ctx: CheckContext) -> CheckResult:
         md_files.append(ctx.kit_path / "README.md")
 
     failures: list[str] = []
+    research_dir = KIT_RESEARCH_DOCS.get(ctx.kit_path.name)
+    if research_dir:
+        research_path = REPO_ROOT / research_dir
+        if research_path.is_dir():
+            md_files.extend(research_path.glob("**/*.md"))
+        else:
+            # 짝은 있는데 폴더가 없으면 조용히 건너뛰지 않는다 — 원본 표가 검사에서 통째로 빠진다
+            failures.append(f"FAIL {research_dir}: 킷 원본 폴더 없음 (plugin_utils.KIT_RESEARCH_DOCS)")
 
     for path in sorted(set(md_files)):
-        lines = ctx.read(path).splitlines()
-        # 코드 블록 밖 줄만 남기되 원래 줄 번호를 유지한다
-        kept: list[tuple[int, str]] = []
-        in_fence = False
-        for lineno, line in enumerate(lines, start=1):
-            # 들여쓴 코드 블록도 코드 블록이다. V6 와 같은 기준을 쓴다 —
-            # startswith 만 쓰면 들여쓴 블록을 못 알아보고 그 안의 줄을 검사한다
-            if line.strip().startswith("```"):
-                in_fence = not in_fence
-                continue
-            if in_fence:
-                continue
-            kept.append((lineno, line))
+        kept, _ = _split_code_blocks(ctx.read(path).splitlines())
 
         for idx, (lineno, line) in enumerate(kept):
             # 표는 목록·인용 안에서 들여쓰여 쓰인다. 왼쪽 끝만 보면 그것이 전부 빠진다 —
             # 실측(2026-09-24): 대상 210 파일에 들여쓴 표행이 84 줄(9 파일) 있었고, 그 안에
             # 실제로 끊긴 표가 숨어 있었다 (reflect-promote/SKILL.md 의 8 행 표 한가운데에
             # 산문 한 문단이 들어가 행 4~7 이 고립). 교차 진단이 찾았다
-            stripped = line.lstrip()
-            if not stripped.startswith("|"):
+            if not _is_table_row(line):
                 continue
-            prev_is_row = idx > 0 and kept[idx - 1][1].lstrip().startswith("|")
+            prev_is_row = idx > 0 and _is_table_row(kept[idx - 1][1])
             nxt = kept[idx + 1][1].lstrip() if idx + 1 < len(kept) else ""
             next_is_sep = nxt.startswith("|") and set(nxt) <= set("|-: ")
             if not prev_is_row and not next_is_sep:
@@ -868,7 +914,7 @@ def validate_kit(ctx: CheckContext, enabled_checks: set[str]) -> PluginResult:
 # 출력
 # ---------------------------------------------------------------------------
 
-# V 줄은 판정 글자로 끝난다(판정 뒤 괄호 한 덩이는 허용 — 「— SKIP (no templates/)」).
+# V 줄은 판정 글자로 끝난다(판정 뒤 괄호 한 덩이는 허용).
 # 요약이 개수만 적은 실패(「2 BROKEN」 등)는 끝에 판정을 붙인다 — 안 붙이면 V 줄 글자로 FAIL 을 세는 쪽이 실패를 0 으로 읽는다
 VERDICT_TAIL = re.compile(r"— (OK|WARN|FAIL|SKIP)( \(.*\))?$")
 

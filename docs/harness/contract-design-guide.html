@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>계약 설계 가이드 v5.1 — Harness</title>
+<link rel="stylesheet" href="../assets/site.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -48,7 +49,7 @@ body{
 h3.sub{font-size:1rem;font-weight:700;margin:28px 0 12px;color:var(--text);letter-spacing:-0.01em}
 h3.sub::before{content:'▸ ';color:var(--accent)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:var(--transition);position:relative;margin-bottom:16px}
-.card:hover{border-color:rgba(217,119,87,0.45);transform:translateY(-2px);box-shadow:0 8px 28px rgba(217,119,87,0.08)}
+.card:hover{border-color:rgba(217,119,87,0.45);transform:var(--dk-hover-move, translateY(-2px));box-shadow:0 8px 28px rgba(217,119,87,0.08)}
 .card-title{font-size:1.01rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;flex-wrap:wrap}
 .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
 .card p{font-size:13.5px;color:var(--text2);line-height:1.72}
@@ -135,7 +136,6 @@ code,.code-block{font-family:var(--mono);font-size:12.3px}
 .footer a{color:var(--accent);text-decoration:none;border-bottom:1px dotted var(--accent)}
 .footer a:hover{color:var(--accent2)}
 .footer a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-@media(prefers-reduced-motion:reduce){*{transition:none !important;scroll-behavior:auto !important}}
 
 /* ═══ 가로 오버플로 4 규칙 (docs-site Gotcha 10) — 자르지 말고 스크롤시킨다 ═══ */
 /* (1) grid/flex 자식의 기본 min-width 는 auto(=min-content) 라 긴 토큰의 최소폭이 트랙 폭으로 전파된다 */
@@ -202,6 +202,27 @@ pre code{white-space:pre}
 <!-- kaizen-cycle: 2026-09-24 · source: harness/docs/guides/contract-design-guide.md -->
 </head>
 <body>
+<button id="theme-btn" class="dk-theme-btn" type="button" aria-label="밝은 테마와 어두운 테마 바꾸기">◐</button>
+<script>
+// 저장 키는 dk-theme — 저장값이 없으면 브라우저 색 설정을 따른다 (docs-site Gotcha 13)
+(function () {
+  var root = document.documentElement;
+  var button = document.getElementById('theme-btn');
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    button.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('dk-theme'); } catch (err) { /* 저장소를 막은 브라우저 */ }
+  applyTheme(saved === 'light' || saved === 'dark' ? saved
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  button.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    try { localStorage.setItem('dk-theme', next); } catch (err) { /* 저장소를 막은 브라우저 */ }
+    applyTheme(next);
+  });
+})();
+</script>
 <div class="page">
 
 <div class="topbar">
@@ -215,7 +236,7 @@ pre code{white-space:pre}
   <div class="meta">
     <span>version v5.1</span>
     <span>last_updated 2026-09-24</span>
-    <span>Schema v5.5</span>
+    <span>Schema v5.7</span>
     <span>Parity with skill 1.6.0 · agent 1.7.0</span>
   </div>
   <nav class="toc" aria-label="절 목차">
@@ -249,7 +270,7 @@ pre code{white-space:pre}
     <div class="stat"><div class="stat-num">4 → 5</div><div class="stat-label">Diff-Scope Oracle 표준형 요소 — 다섯째 <strong>상한 ref</strong> 가 들어왔다</div></div>
     <div class="stat"><div class="stat-num">19 → 21</div><div class="stat-label">구조화 진단 항목 — <code>measure_premise_unrun</code> · <code>known_answer_missing</code></div></div>
     <div class="stat"><div class="stat-num">7 → 9</div><div class="stat-label">계약 설계에 전수된 parity items — 15 양성 대조 · 16 알려진 답 대조</div></div>
-    <div class="stat"><div class="stat-num">v5.5</div><div class="stat-label">Schema version (옛 판 기록 v5.3). Parity with skill 1.6.0 · agent 1.7.0</div></div>
+    <div class="stat"><div class="stat-num">v5.7</div><div class="stat-label">Schema version (옛 판 기록 v5.3). Parity with skill 1.6.0 · agent 1.7.0</div></div>
   </div>
   <h3 class="sub">원본 본문의 날짜 표시로 본 v5.0 판 이후 흐름</h3>
   <ul class="tl">
@@ -749,6 +770,20 @@ Good: - [ ] UI-07: 설정 화면에서 차단 목록 화면으로 이동한다 [
     </ul>
     <p><strong>실제 발생 사례 (SK-02 REJECT):</strong> "Neubrutalism 모달의 .ms-card-action box-shadow offset 3px, .ms-badge box-shadow offset 2px" 로 구현되었으나 계약이 "주요 interactive element" 로만 서술되어 badge/decoration 이 범위에 포함되는지 해석이 갈려 REJECT. "버튼·카드·입력" 처럼 인라인 enumerate 했다면 사전에 해소 가능했던 케이스.</p>
   </div>
+  <h3 class="sub">범위 목록과 CI 전용 단계 맞대기 <span class="badge y">2026-09-29 추가</span></h3>
+  <p class="section-desc">계약의 <code># sprint-scope</code> 목록은 구현이 고쳐도 되는 파일을 정한다. 진단 조건이 CI 단계 통과를 요구하면, 그 단계가 부르는 검사 스크립트가 이 목록 안에 있는지 <strong>봉인 전에</strong> 맞대라. 로컬 CI 도구는 돌리지 않고 <code>.github/workflows/ci.yml</code> 에만 있는 단계가 특히 빠진다.</p>
+  <p class="section-desc"><strong>봉인 전 점검:</strong></p>
+  <ul class="checklist">
+    <li><span class="check" aria-hidden="true">1</span><code>.github/workflows/ci.yml</code> 의 <code>run:</code> 줄 가운데 로컬 CI 도구가 돌리지 않는 단계를 뽑아 진단 조건에 명령으로 적는다</li>
+    <li><span class="check" aria-hidden="true">2</span>그 단계마다 부르는 검사 스크립트와 그 스크립트가 읽는 파일 · 글자를 적는다</li>
+    <li><span class="check" aria-hidden="true">3</span>이번 구현이 그 파일이나 글자를 바꿔 검사가 떨어질 수 있는데 스크립트가 <code># sprint-scope</code> 밖이면, 봉인 전에 범위에 넣거나 「하지 않는 것」 에 이유와 함께 적는다</li>
+    <li><span class="check" aria-hidden="true">4</span>교차 진단에 이 대조 결과를 같이 넘긴다</li>
+  </ul>
+  <p class="section-desc">범위 밖 스크립트가 떨어지면 두 조건(CI 통과 · 바뀐 파일이 범위 안)을 원 문구대로 함께 만족하는 구현이 없다. 그때 고칠 길은 조건을 느슨하게 하는 개정뿐이고, 그 개정은 사용자 동의가 따로 있어야 한다.</p>
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>실측(2026-09-29) — 범위 밖 검사 하나가 REJECT 를 냈다</div>
+    <p>한 문서 묶음 계약이 CI 에만 있는 단계 13 개를 서술 절에만 적고 범위 목록과 맞대지 않았다. 구현이 움직임 줄이기 규칙을 공통 CSS 한 곳으로 모으자 범위 밖 <code>scripts/check-api-kit-docs.py</code> 가 api-kit 12 쪽을 모두 떨어뜨렸고(<code>0/12 PASS</code>), QA 2 회차가 REJECT 했다. 조건을 느슨하게 하는 개정과 사용자 동의를 거쳐서야 3 회차에 통과했다. 평가자는 2 · 3 회차 리포트에 같은 개선 제안을 적었다 — 같은 제안이 두 번 나오면 <code>contract_ambiguity_notes</code> 로 올리는 규칙(<code>qa-evaluation-guide.md</code> §Recurring Improvement Escalation)에 따라, 작성 단계에서 막도록 이 점검을 여기 둔다.</p>
+  </div>
 </div>
 
 <!-- ═══ 검증 수단 · 측정 타당성 ═══ -->
@@ -1009,7 +1044,7 @@ Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approv
   <div class="note good">
     <div class="note-title">따라서 0 기대 조건에는 <code>양성 대조:</code> 절을 쓰고 봉인 전에 실측한다</div>
     <p>포맷 정의는 <a href="contract-schema.html"><code>harness/references/contract-schema.md</code> §양성 대조</a> 가 SSOT 이며 여기서 재정의하지 않는다. 평가자 쪽 대응 규칙은 <a href="qa-evaluation-guide.html"><code>qa-evaluation-guide.md</code> §0 매치 판정 규칙</a> 이다.</p>
-    <p><strong>기계 자동 경보는 두지 않았다.</strong> 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(<code>grep -c</code> 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 5 종)과 평가자 규칙으로 막는다.</p>
+    <p><strong>기계 자동 경보는 두지 않았다.</strong> 0 기대 조건을 자동 검출하는 3 변종을 이 레포 계약 56 개에 실측한 결과 54/56 · 53/56 · 29/56 으로, 앞 둘은 사실상 전건 경보였고 셋째(<code>grep -c</code> 한정형)는 정작 동기가 된 조건을 놓쳤다. 검출기 대신 작성 시점 패턴(조건 패턴 8 종)과 평가자 규칙으로 막는다.</p>
   </div>
 
   <div class="grid-2">
@@ -1074,7 +1109,7 @@ Good: - [ ] UI-06: 채택 시안 ID 와 승인 일시가 `.harness/design-approv
     <div class="card">
       <div class="card-title"><span class="dot"></span>규칙</div>
       <ul>
-        <li>사용자 승인 직후 계약을 <strong>봉인</strong>한다: 조건 체크박스 줄만 정규화 해시해 frontmatter <code>conditions_digest</code> 와 <code>locked_at</code> 에 기록한다 (계산식은 스키마 §계약 봉인)</li>
+        <li>사용자 승인 직후 계약을 <strong>봉인</strong>한다: 조건 체크박스 줄만 정규화 해시해 frontmatter <code>conditions_digest</code> 와 <code>locked_at</code> 에 기록한다 (계산식은 스키마 §계약 봉인). 조건 아래 들여쓴 측정 · 음성 대조 · 픽스처 줄은 <code>measurement_digest</code> 로 함께 잠근다 (v5.6) — 측정 줄은 들여써 적어야 잠긴다.</li>
         <li><strong>봉인 이후 조건 줄을 편집하지 마라.</strong> 자신이 만든 산출물을 사후에 허용하려고 조건 문구를 넓히는 것이 실측된 위반 형태다</li>
         <li>체크박스 토글과 서술 섹션 보강은 봉인을 깨지 않는다 — <strong>일부러 그렇게 설계했다.</strong> 정상 작업을 막는 게이트는 우회되고, 우회된 게이트는 통과 기록으로 안전을 오해하게 만든다</li>
         <li><code>SEAL_BROKEN</code> 을 만나면 <strong>조용히 다시 봉인하지 마라.</strong> 그것은 위반을 지우는 행위다. <code>recorded</code> / <code>actual</code> 두 값과 함께 보고하고, 변경 의도가 정당하면 사이드카로 기록한다</li>
@@ -1315,7 +1350,7 @@ Good: - [ ] ER-02: 낙관적 동시성 가드가 conflict 경로를 실제로 �
         <tr><td>모호한 조건</td><td>"적절히 처리한다" → 해석이 여러 개</td><td>구체적 행동과 결과로 재작성</td></tr>
         <tr><td>단일 카테고리 편중</td><td>모든 조건이 UI 에만 집중</td><td>GQM 으로 카테고리 균형 확인</td></tr>
         <tr><td>복합 조건</td><td>"A 이고 B 이며 C 이다"</td><td>각각 독립 조건으로 분리</td></tr>
-        <tr><td>과소 안티패턴</td><td>걸릴 수 있는 패턴이 있는데 0-1개만 넣음</td><td>걸리는 패턴은 최소 2개 · 하나도 없으면 <code>AP-00: N/A (사유)</code> 한 줄</td></tr>
+        <tr><td>과소 안티패턴</td><td>걸릴 수 있는 패턴이 있는데 0-1개만 넣음</td><td>걸리는 패턴은 최소 2개 · 하나도 없으면 <code>금지-00: N/A (사유)</code> 한 줄</td></tr>
         <tr><td>테스트 불가 조건</td><td>"사용자 경험이 좋다"</td><td>측정 가능한 지표로 변환</td></tr>
         <tr><td>복잡도 과소평가</td><td>파일 수로만 판단</td><td>영향 범위(레이어, 공개 API)로 판단</td></tr>
         <tr><td>구현 누수</td><td>조건에 클래스명/메서드명/DB명 포함</td><td>외부 관찰 가능한 행동으로 재작성</td></tr>
@@ -1533,7 +1568,7 @@ Good: - [ ] ER-02: 낙관적 동시성 가드가 conflict 경로를 실제로 �
       <thead><tr><th>항목</th><th>값</th><th>원본</th></tr></thead>
       <tbody>
         <tr><td>Guide version</td><td>2026-09-24 (Phase 2 kaizen · v5.1)</td><td>이 파일 YAML frontmatter 의 <code>version</code>(= <code>v5.1</code>)이 SSOT — 날짜·사유만 이 행에 적는다. 상위 surface(<code>qa-evaluation-guide.md</code> §버전 정보 Parity)가 그 필드를 추출하므로 <strong>둘을 같이 올린다</strong></td></tr>
-        <tr><td>Schema version</td><td>v5.5</td><td><code>harness/references/contract-schema.md</code> §스키마 버전 &gt; <code>현재:</code></td></tr>
+        <tr><td>Schema version</td><td>v5.7</td><td><code>harness/references/contract-schema.md</code> §스키마 버전 &gt; <code>현재:</code></td></tr>
         <tr><td>Parity with</td><td>skill-design-guide 1.6.0 · agent-design-guide 1.7.0</td><td>두 가이드 frontmatter <code>version</code></td></tr>
       </tbody>
     </table>

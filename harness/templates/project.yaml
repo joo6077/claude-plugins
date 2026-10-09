@@ -29,13 +29,13 @@ contract_categories:
 
 # ── 안티패턴 (필수, 최소 2개 권장) ──
 anti_patterns: []
-  # - id: AP-01
+  # - id: 금지-01
   #   pattern: "regex"          # ripgrep 정규식 (command 가 없으면 필수)
   #   message: "설명"
   #
   # 줄 단위 정규식으로 판정할 수 없는 검사는 command 로 도구에 위임한다.
   # (여는/닫는 fence 가 동형인 코드펜스 검사 등 — 자세한 기준은 harness/README.md)
-  # - id: AP-02
+  # - id: 금지-02
   #   command: "python3 scripts/validate-plugin.py --check=code-fence"
   #   message: "설명"           # exit 0 = 위반 없음, non-zero = FAIL
 
@@ -77,3 +77,20 @@ rationalization_overrides:
     reality: "가드 조건을 충족시키거나 사용자에게 보고하라. 우회로 얻은 통과는 미검증이다"
   # - excuse: "변명"
   #   reality: "현실"
+
+# ── Codex 감독 ──
+# Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). ChatGPT 구독 로그인으로만 돈다 — 구독 사용량을 쓰니 쓰는 프로젝트만 켠다.
+# 칸이 없어도 꺼짐이다.
+codex_audit:
+  mode: off              # codex | judge | off — judge 는 계약은 Claude 가 쓰고 구현 판정만 Codex
+  codex_home: ""         # 비우면 ~/.codex-qa → $CODEX_HOME → ~/.codex 차례로 찾는다
+  model: ""              # 비우면 그 폴더 config.toml 의 model. 둘 다 없으면 BLOCKED
+  model_draft: ""        # 계약 작성 · 수정(draft · revise) 차례만 쓸 모델. 비우면 model
+  model_impl: ""         # 판정 · 재심 · 조사 차례만 쓸 모델. 비우면 model
+  effort_draft: medium
+  effort_impl: medium
+  max_rounds: 2          # 첫 판정 뒤 고쳐서 다시 받는 횟수
+  usage_limit_percent: ""  # 최근 구독 사용량(5시간 · 주간 창)이 이 % 이상이면 Codex 를 부르지 않는다. 비우면 70
+  # 판정 격리 안에서 못 돌리는 측정(프로세스 관측 · 실제 서비스 호출)을 판정 전에 격리 밖에서 조건마다 돌릴 명령.
+  # {id} 자리에 조건 번호가 들어간다. 예: bash .harness/.meta/<slug>/measure.sh {id}. 비우면 사전 측정을 하지 않는다
+  premeasure: ""

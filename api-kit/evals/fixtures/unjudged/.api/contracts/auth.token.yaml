@@ -1,0 +1,15 @@
+version: 1
+id: auth.token
+env: dev
+mode: pin
+request: { method: POST, path: /v1/auth/token }
+response: { status: 200, statusPolicy: exact }
+schema:
+  additionalProperties: open
+  paths:
+    "$.access_token": { type: string,  required: true, description: 이후 모든 프로브가 Authorization 헤더에 실어 보낸다 }
+    "$.token_type":   { type: string,  required: true, description: 항상 Bearer. 계약에 pin 되어 있다 }
+    "$.expires_in":   { type: integer, required: true, description: 만료까지 남은 초 }
+pin:
+  - { path: "$.token_type", assert: "== Bearer" }
+  - { path: "$.expires_in", assert: ">= 60" }

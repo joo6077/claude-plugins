@@ -4,6 +4,7 @@ version: 0.1.0
 last_updated: 2026-04-04
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 실시간 통신
 
 WebSocket, SSE, long polling 선택 기준, 연결 수명 관리, 인증/인가, 수평 확장, 메시지 순서, 백프레셔를 다룬다.
@@ -69,7 +70,7 @@ Long polling은 매 요청이 다른 서버에 갈 수 있어 sticky session이 
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | WS control opcode | Close 0x8, Ping 0x9, Pong 0xA |
 | Control frame payload 상한 | 125 bytes |
 | SSE readyState | 0=CONNECTING, 1=OPEN, 2=CLOSED |
@@ -83,7 +84,7 @@ Long polling은 매 요청이 다른 서버에 갈 수 있어 sticky session이 
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 모든 실시간을 무조건 WebSocket | SSE로 충분한 단방향 피드에 불필요한 복잡도 추가. |
 | Connection 인증만 하고 message authz 생략 | 권한 변경 후에도 민감 데이터를 계속 수신. |
 | Long polling + 멀티노드에 sticky 없음 | 매 요청마다 세션 상태를 찾지 못해 연결 실패. |

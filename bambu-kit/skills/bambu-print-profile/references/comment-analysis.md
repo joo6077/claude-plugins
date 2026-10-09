@@ -21,11 +21,13 @@
 디자이너 본인(@<creator_handle>)이 작성한 댓글 또는 답변. 권장사항/금지사항이 가장 중요.
 
 **추출 패턴:**
+
 - 작성자 handle이 모델 페이지의 author와 일치
 - "designer", "author", "creator", "OP", "제작자" 같은 메타 라벨이 댓글에 붙어 있음
 - "The designer has replied" 같은 UI 표식
 
 **추출 항목:**
+
 - 제약 사항 (do/don't, must/must not)
 - 권장 소재 명시
 - 권장 print profile (layer, wall, infill, support 등) 명시
@@ -37,11 +39,13 @@
 사용자가 출력 성공을 보고한 댓글. 사진/이미지가 첨부된 경우가 많음.
 
 **추출 패턴:**
+
 - "Print Profile" 또는 "프로파일" 키워드 + 평점/이미지
 - 출력 사진 첨부 + 별점 4-5점
 - "이것으로 출력했더니" 같은 후기 표현
 
 **추출 항목:**
+
 - 사용한 소재 (PLA/PETG/ABS 등)
 - 사용한 print profile (layer/walls/infill)
 - 사용자 변형 (다른 색상, 다른 노즐, 다른 슬라이서)
@@ -52,11 +56,13 @@
 출력 실패/문제 보고 댓글. 자주 1-3점 평점.
 
 **추출 패턴:**
+
 - "doesn't work", "failed", "fail", "안 됨", "실패", "warping", "stringing", "broke", "crack"
 - 별점 1-3점 + 본문이 문제 보고
 - "Removing the support is hard", "Mechanism doesn't lock" 같은 사용성 보고
 
 **추출 항목:**
+
 - 실패 증상 (stringing, warping, dimensional fit, mechanism failure)
 - 사용 환경 (프린터, 소재, 슬라이서)
 - 디자이너 답변 유무
@@ -67,11 +73,13 @@
 사용자가 디자인을 변형/응용한 보고.
 
 **추출 패턴:**
+
 - "I modified", "I changed", "remix", "변형", "수정해서", "scaled to"
 - 다른 사이즈, 다른 소재로 재해석한 사례
 - 다른 부품과의 조합 보고
 
 **추출 항목:**
+
 - 변형 내용 (사이즈/소재/구조)
 - 변형 결과 (잘 됨/안 됨)
 - 원본 대비 개선/악화
@@ -83,7 +91,7 @@ MakerWorld는 다국어(영/중/한 등) 환경이므로 댓글 원문 언어에
 ### 영어 (English)
 
 | 카테고리 | 키워드 / 패턴 |
-|---------|--------------|
+| --------- | -------------- |
 | 금지 (강) | "no supports", "no support needed", "do not modify", "do not use", "must not", "never" |
 | 권장 (강) | "must", "required", "always use", "highly recommend" |
 | 권장 (약) | "recommend", "suggested", "preferred", "should" |
@@ -92,7 +100,7 @@ MakerWorld는 다국어(영/중/한 등) 환경이므로 댓글 원문 언어에
 ### 한국어
 
 | 카테고리 | 키워드 / 패턴 |
-|---------|--------------|
+| --------- | -------------- |
 | 금지 (강) | "금지", "사용하지 마", "절대 안 됨", "쓰면 안 돼" |
 | 권장 (강) | "필수", "반드시", "꼭" |
 | 권장 (약) | "권장", "추천", "좋아" |
@@ -103,7 +111,7 @@ MakerWorld는 다국어(영/중/한 등) 환경이므로 댓글 원문 언어에
 MakerWorld 중국발 모델 비율이 높음 — 디자이너 원문이 중국어인 경우 많음.
 
 | 카테고리 | 키워드 / 패턴 |
-|---------|--------------|
+| --------- | -------------- |
 | 금지 (강) | "请不要" (please don't), "禁止" (forbidden), "不要修改" (do not modify), "不可" (must not) |
 | 권장 (강) | "必须" (must), "需要" (need/required), "一定要" (must) |
 | 권장 (약) | "建议" (recommend), "推荐" (recommend), "可以" (can) |
@@ -142,9 +150,11 @@ MakerWorld 댓글은 JSON 주소(SKILL.md 「MakerWorld 읽는 순서」)로 **�
 **JSON 을 못 받았을 때만 — 브라우저 스냅샷 경로.** 페이지 댓글은 lazy loading + "Newest First / Most Likes / Most Replies" 정렬 옵션이 있다.
 
 1. **첫 스냅샷**: 브라우저 도구로 스냅샷을 찍고 댓글 카운트 헤딩 확인
+   <!-- markdownlint-disable-next-line MD031 -->
    ```yaml
    - heading "Comment & Rating (N)"
    ```
+   <!-- markdownlint-disable-next-line MD031 -->
 2. **N ≤ 20**: 단일 스냅샷으로 충분.
 3. **20 < N ≤ 50**: `window.scrollBy(0, 2000)` 3-5회 실행 후 재스냅샷.
 4. **N > 50**:
@@ -159,11 +169,13 @@ MakerWorld 댓글은 JSON 주소(SKILL.md 「MakerWorld 읽는 순서」)로 **�
 댓글 본문에 외부 URL이 포함된 경우 (예: GitHub fork, Thingiverse 변형, 사용자 블로그 후기) → "Further Research" 분기.
 
 **자동 follow 조건:**
+
 - 같은 모델의 다른 호스팅 (printables/thingiverse): 매뉴얼/추가 STL 가능성 → fetch
 - GitHub repo: README/CHANGELOG fetch (raw.githubusercontent.com)
 - YouTube/Bilibili: Codex 위임 (transcript), fail-soft
 
 **skip 조건:**
+
 - SNS 링크 (Twitter/Instagram): cosmetic, skip
 - 짧은 URL shortener (bit.ly/tinyurl): 위험, skip
 - Affiliate (amazon/aliexpress affiliate ID): 부품 BOM 아닌 한 skip
@@ -192,17 +204,20 @@ MakerWorld 댓글은 JSON 주소(SKILL.md 「MakerWorld 읽는 순서」)로 **�
 특정 필드와 값이 명시된 강 제약. JSON 키로 즉시 강제.
 
 **패턴:**
+
 - "No supports needed" → `enable_support: "0"` (값 명시: support OFF)
 - "Use only PETG" → Phase 2 후보를 PETG로 좁힘 (값 명시: 특정 소재)
 - "Layer must be 0.2mm" → `layer_height: "0.2"` (값 명시: 0.2mm)
 - "0.1mm layer / 2 walls / 15% infill" (Creator profile 라벨) → 3개 필드 모두 강제
 
 **처리:**
+
 - 항상 process JSON 명시 키로 freeze
 - inherits 위임 금지
 - 다른 자동화 모드와 충돌 시 디자이너 권장이 이김
 
 **예시 (9mm Craft Knife):**
+
 - `enable_support: "0"` ← "No supports needed / 并不需要支撑"
 - `layer_height: "0.1"`, `wall_loops: "2"`, `sparse_infill_density: "15%"` ← Creator profile 라벨 "0.1mm layer, 2 walls, 15% infill"
 
@@ -211,21 +226,25 @@ MakerWorld 댓글은 JSON 주소(SKILL.md 「MakerWorld 읽는 순서」)로 **�
 수정/사용 행위 자체를 금지하나, 어떤 필드인지 명시 안 함. **Creator가 같은 페이지/댓글에서 명시한 필드에만 적용**. Creator 미명시 영역은 자동 결정에 위임.
 
 **패턴:**
+
 - "do not modify the print profile" / "请不要修改打印配置" — profile 수정 행위 금지
 - "Don't change settings" — 설정 변경 금지
 - "Stick with defaults" — default 유지 요청
 
 **처리:**
+
 - Creator가 같은 페이지의 Print Profile 라벨이나 댓글에서 명시한 필드 (예: layer/walls/infill) → freeze
 - Creator가 명시 안 한 영역 (예: ironing / scarf / outer_wall_speed / wall_sequence / seam_position) → 자동 결정 가능 (surface-first 등)
 - Phase 1.6.5 옵션 [C] (병행)이 이 케이스의 default 처리. Creator 명시 필드 freeze + 미명시 영역 surface-first 적용.
 
 **예시 (9mm Craft Knife):**
+
 - "please do not modify the print profile" (directive)
 - Creator 명시 필드 = layer 0.1 / walls 2 / infill 15 → freeze
 - 미명시 영역 = ironing / scarf / outer_speed / wall_sequence → [C] 옵션에서 surface-first 자동 적용 OK
 
 **예외:**
+
 - 사용자가 Phase 1.6.5에서 "이 directive는 전체 profile 수정 X 의미"라고 명시하면 [A] 옵션으로 전환. 그때만 ironing/scarf 등 미명시 영역도 freeze.
 
 ### 5.3 intent / info
@@ -233,16 +252,19 @@ MakerWorld 댓글은 JSON 주소(SKILL.md 「MakerWorld 읽는 순서」)로 **�
 JSON 동작 변경 의도가 없는 사용성/안전 정보. JSON에 직접 반영 안 함.
 
 **패턴:**
+
 - "Push-lock means it must be held down" / "按压锁定的意思是必须要按住" — 사용성 정보
 - "Hold for 5 seconds before releasing" — 사용 절차
 - "Designed for left-handed use" — 디자인 의도
 
 **처리:**
+
 - process/filament JSON 무관
 - notes.md §3.2 (사용성/안전) 섹션에 raw quote 인용
 - 사용자에게 출력 후 사용 절차로 안내
 
 **예시 (9mm Craft Knife):**
+
 - "Push-lock means it must be held down / 按压锁定的意思是必须要按住" → notes.md §3.2에 quote, JSON 변경 X
 
 ### 5.4 분류 결정 트리
@@ -331,6 +353,7 @@ JSON 동작 변경 의도가 없는 사용성/안전 정보. JSON에 직접 반�
 ## 9. v0.4.0 / v0.4.1 도입 동기 (dogfood)
 
 2026-05-23 9mm Craft Knife Elite 케이스에서 발견된 회귀:
+
 - 디자이너 댓글에 "No supports needed, please do not modify the print profile" 명시
 - v0.3.0은 댓글에서 이 권장을 추출하지 못함
 - surface-first 모드가 자동 적용되어 layer 0.1→0.12 / walls 2→3 / ironing 추가 / infill 15→18 등 profile을 대폭 수정

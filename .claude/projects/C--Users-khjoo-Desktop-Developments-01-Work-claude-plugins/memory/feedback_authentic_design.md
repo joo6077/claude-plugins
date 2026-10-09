@@ -4,7 +4,11 @@ description: design-kaizen 리서치 범위에 "AI스러운 디자인 안티패�
 type: feedback
 ---
 
+<!-- markdownlint-disable MD041 -->
+
 design-kaizen 진행 시 "AI스럽지 않은 디자인" 가이드라인을 리서치 범위에 포함할 것.
+
+<!-- markdownlint-enable MD041 -->
 
 **Why:** AI가 생성하는 UI/UX는 과도한 균일성, 제네릭 컬러, 추상적 카피, 맥락 무시 등 특유의 패턴이 있는데 현재 design-kit/docs/design/에 이를 다루는 문서가 없음. 사용자가 직접 요청한 개선 방향.
 

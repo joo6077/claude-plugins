@@ -1,4 +1,4 @@
-"""케이스 폴더의 record.json 을 모아 시나리오 테스트 보고서 index.html 을 만든다.
+"""케이스 폴더의 record.json 을 읽어 케이스마다 보고서 index.html 을, 결과 폴더에 케이스 목록 index.html 을 만든다.
 
 사용: python3 build_report.py <test-evidence 폴더> [--check]
   --check  검사만 하고 파일을 쓰지 않는다
@@ -7,6 +7,7 @@
 import argparse
 import html
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -15,6 +16,8 @@ from urllib.parse import quote
 KEYWORDS = ("먼저", "조건", "만일", "만약", "그러면", "그리고", "하지만", "단")
 # 그리고 · 하지만 · 단 은 첫 그러면 뒤에서만 확인 단계다. 앞에 오면 행동 단계라 판정을 붙이지 않는다
 SETUP_KEYWORDS = ("먼저", "조건", "만일", "만약")
+# 상태를 적는 단계라 조작 순서가 없어도 된다
+STATE_KEYWORDS = ("먼저", "조건")
 RESULTS = ("pass", "fail")
 ICON = {"pass": "✅", "fail": "❌"}
 WORD = {"pass": "통과", "fail": "실패", "skip": "미실행"}
@@ -24,11 +27,22 @@ PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 # 키 → (필수 여부, 형식). 여기 없는 키는 오타로 보고 막는다
 CASE_FIELDS = {"id": (True, str), "title": (True, str), "summary": (True, str), "meta": (True, dict),
-               "background": (False, list), "scenarios": (True, list), "run": (False, list)}
+               "fix": (False, dict), "background": (False, list), "scenarios": (True, list), "run": (False, list)}
 META_FIELDS = {"date": (True, str), "device": (True, str), "commit": (False, str)}
+FIX_FIELDS = {"note": (True, str), "commit": (False, str)}
 SCENARIO_FIELDS = {"name": (True, str), "steps": (True, list), "shots": (False, list), "skipped": (False, str)}
-STEP_FIELDS = {"kw": (True, str), "text": (True, str), "result": (False, str), "seen": (False, str), "zoom": (False, dict)}
+STEP_FIELDS = {"kw": (True, str), "text": (True, str), "do": (False, list), "result": (False, str), "seen": (False, str),
+               "zoom": (False, dict)}
 IMAGE_FIELDS = {"file": (True, str), "caption": (True, str)}
+# shot 은 건너뛴 시나리오에서만 뺄 수 있어 필수 여부를 load_case 가 따로 본다
+ACTION_FIELDS = {"act": (True, str), "shot": (False, str), "at": (False, list)}
+FOLD_AFTER = 3
+# 폭이 높이의 이 배수를 넘는 캡처(잘라 낸 가로 조각)는 사진 줄에서 두 칸을 쓴다
+WIDE_RATIO = 1.2
+SHOT_COUNT_AFTER = 4
+MANY_ACTIONS = 8
+# 누른 곳이 있는 조작 칸 — 화면 폭을 칸 폭에 맞추고 위아래만 누른 곳 주변으로 자른다. 넓은 화면 크기는 틀이 키운다
+OP_THUMB = 72
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "templates" / "report.html"
 SLOT = "<!-- cases -->"
@@ -62,7 +76,7 @@ def png_size(path):
 
 def load_case(folder):
     """record.json 하나를 읽어 검사하고, 시나리오 판정을 계산한 케이스를 돌려준다."""
-    errors, used_images = [], set()
+    errors, notes, used_images = [], [], set()
     where = f"{folder.name}/record.json"
     try:
         record = json.loads((folder / "record.json").read_text(encoding="utf-8"))
@@ -71,6 +85,8 @@ def load_case(folder):
     if not check_fields(record, CASE_FIELDS, where, errors) or errors:
         return None, errors, []
     check_fields(record["meta"], META_FIELDS, f"{where} meta", errors)
+    if "fix" in record:
+        check_fields(record["fix"], FIX_FIELDS, f"{where} fix", errors)
     for index, item in enumerate(record.get("background", []), 1):
         if not isinstance(item, str) or not item.strip():
             errors.append(f"{where} background[{index}]: 비어 있지 않은 문자열이어야 한다")
@@ -123,8 +139,42 @@ def load_case(folder):
                 checked.append(result)
             elif "seen" in step or "zoom" in step:
                 errors.append(f"{step_label}: 판정이 없는 단계에 seen · zoom 을 붙일 수 없다")
+            actions = step.get("do")
+            done = []
+            if actions is not None:
+                if not actions:
+                    errors.append(f"{step_label}.do: 조작 1 개 이상의 목록이어야 한다")
+                for action_number, action in enumerate(actions, 1):
+                    action_label = f"{step_label}.do[{action_number}]"
+                    if not check_fields(action, ACTION_FIELDS, action_label, errors):
+                        continue
+                    if "shot" in action:
+                        shot = check_image({"file": action["shot"], "caption": action["act"]}, f"{action_label}.shot")
+                    elif "skipped" in scenario:
+                        shot = None
+                    else:
+                        errors.append(f"{action_label}.shot: 조작마다 누르기 직전 캡처 파일 이름을 적어야 한다 — 건너뛴 시나리오만 뺄 수 있다")
+                        continue
+                    point = action.get("at")
+                    if point is not None:
+                        # bool 은 int 의 하위 형식이고 json 은 NaN · Infinity 를 받아들여 따로 막는다
+                        if not (len(point) == 2 and all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                                                        and math.isfinite(value) for value in point)):
+                            errors.append(f"{action_label}.at: [x, y] 숫자 두 개여야 한다")
+                        elif "shot" not in action:
+                            errors.append(f"{action_label}.at: shot 사진 위의 좌표라 shot 이 있어야 한다")
+                        elif shot and not (0 <= point[0] < shot["size"][0] and 0 <= point[1] < shot["size"][1]):
+                            errors.append(f"{action_label}.at: {point} 가 사진 {shot['size'][0]}×{shot['size'][1]} 밖이다")
+                    done.append({"act": action["act"], "shot": shot, "at": point})
+                if len(actions) > MANY_ACTIONS:
+                    notes.append(f"{step_label}.do: 조작 {len(actions)}개 — 5 개를 넘으면 앞부분을 먼저로 옮기거나 단계를 나눈다")
+                if result is not None:
+                    errors.append(f"{step_label}.do: 판정한 단계에는 조작 순서를 붙이지 않는다 — 본 것은 seen 에 쓴다")
+            elif not then_seen and keyword not in STATE_KEYWORDS:
+                errors.append(f"{step_label}.do: 행동 단계는 실제 조작 순서를 do 목록으로 적어야 한다")
             zoom = check_image(step["zoom"], f"{step_label}.zoom") if "zoom" in step else None
-            steps.append({"kw": keyword, "text": step["text"], "result": result, "seen": step.get("seen"), "zoom": zoom})
+            steps.append({"kw": keyword, "text": step["text"], "do": done, "result": result, "seen": step.get("seen"),
+                          "zoom": zoom})
         if not scenario["steps"]:
             errors.append(f"{label}.steps: 단계가 하나 이상 있어야 한다")
         if "skipped" in scenario:
@@ -140,8 +190,8 @@ def load_case(folder):
         scenarios.append({"name": scenario["name"], "status": status, "steps": steps,
                           "shots": [shot for shot in shots if shot], "skipped": scenario.get("skipped")})
 
-    warnings = [f"{folder.name}/{png.name}: 기록이 가리키지 않는 캡처다"
-                for png in sorted(folder.glob("*.png")) if png.name not in used_images]
+    warnings = notes + [f"{folder.name}/{png.name}: 기록이 가리키지 않는 캡처다"
+                        for png in sorted(folder.glob("*.png")) if png.name not in used_images]
     if errors:
         return None, errors, warnings
     statuses = [scenario["status"] for scenario in scenarios]
@@ -149,12 +199,47 @@ def load_case(folder):
     meta = record["meta"]
     case = {"folder": folder.name, "id": record["id"], "title": record["title"], "summary": record["summary"],
             "meta": " · ".join([record["id"], meta["date"], meta["device"]] + ([f"커밋 {meta['commit']}"] if "commit" in meta else [])),
+            "fix": record.get("fix"),
             "background": record.get("background", []), "run": record.get("run", []),
             "scenarios": scenarios, "result": result}
     return case, [], warnings
 
 
-def steps_html(case, scenario):
+def round_half_up(value):
+    return math.floor(value + 0.5)
+
+
+def op_thumb_html(number, act, shot, point):
+    """누를 곳이 칸 세로 가운데 오도록 줄인 화면을 올리되, 화면 위아래 끝 너머의 빈 곳은 보이지 않게 막는다."""
+    (width, height), (x, y) = shot["size"], point
+    scale = OP_THUMB / width
+    top = round_half_up(min(0, max(OP_THUMB - height * scale, OP_THUMB / 2 - y * scale)))
+    return (f'<button type="button" class="op-thumb" data-x="{json.dumps(x)}" data-y="{json.dumps(y)}" '
+            f'aria-label="조작 {number}: {act} — 크게 보기"><img src="{shot["file"]}" width="{width}" height="{height}" alt="" '
+            f'style="left:0px;top:{top}px"><i class="tap" style="left:{round_half_up(x * scale)}px;'
+            f'top:{round_half_up(y * scale) + top}px"></i></button>')
+
+
+def actions_html(actions):
+    rows = []
+    for number, action in enumerate(actions, 1):
+        shot, act = action["shot"], html.escape(action["act"])
+        if shot and action["at"]:
+            image = op_thumb_html(number, act, shot, action["at"])
+        elif shot:
+            image = f'<img src="{shot["file"]}" width="{shot["size"][0]}" height="{shot["size"][1]}" alt="{act}">'
+        else:
+            image = '<span class="noshot"></span>'
+        rows.append(f'<li><span class="n">{number}</span>{image}<span class="act">{act}</span></li>')
+    shown = f'<ol class="do">{"".join(rows[:FOLD_AFTER])}</ol>'
+    if len(rows) <= FOLD_AFTER:
+        return shown
+    return (f'{shown}<details class="more"><summary><span class="more-open">조작 {len(rows) - FOLD_AFTER}개 더 보기 '
+            f'(모두 {len(rows)}개)</span><span class="more-close">접기</span></summary>'
+            f'<ol class="do">{"".join(rows[FOLD_AFTER:])}</ol></details>')
+
+
+def steps_html(scenario):
     rows, checking = [], False
     for step in scenario["steps"]:
         start = ""
@@ -162,10 +247,12 @@ def steps_html(case, scenario):
             checking = True
             start = " check-start" if rows else ""
         result = step["result"]
-        extra = f'<div class="obs">{html.escape(step["seen"])}</div>' if step["seen"] else ""
+        extra = actions_html(step["do"]) if step["do"] else ""
+        if step["seen"]:
+            extra += f'<div class="obs">{html.escape(step["seen"])}</div>'
         if step["zoom"]:
             zoom = step["zoom"]
-            extra += (f'<figure class="zoom"><img src="{quote(case["folder"])}/{zoom["file"]}" '
+            extra += (f'<figure class="zoom"><img src="{zoom["file"]}" '
                       f'width="{zoom["size"][0]}" height="{zoom["size"][1]}" alt="{html.escape(zoom["caption"])}"></figure>')
         rows.append(f'<li class="step{start}{" " + result if result else ""}"><span class="kw">{html.escape(step["kw"])}</span>'
                     f'<span class="tx">{html.escape(step["text"])}</span><span class="mk">{ICON.get(result, "")}</span>{extra}</li>')
@@ -178,9 +265,12 @@ def case_html(case):
     tally = f'시나리오 {len(case["scenarios"])}개 · ' + " · ".join(
         f"{WORD[status]} {counts[status]}" for status in ("pass", "fail", "skip") if counts[status])
     pill = f'{ICON[case["result"]]} {WORD[case["result"]]}' if case["result"] in ICON else WORD[case["result"]]
+    fix = case["fix"]
+    rerun = (f'<p class="fix">고친 뒤 다시 돌린 결과 — {html.escape(fix["note"])}'
+             f'{html.escape(" · 커밋 " + fix["commit"]) if "commit" in fix else ""}</p>' if fix else "")
     head = (f'<p class="meta">{html.escape(case["meta"])}</p><h1>{html.escape(case["title"])}</h1>'
             f'<div class="verdict"><span class="pill {case["result"]}">{pill}</span><span class="tally">{tally}</span></div>'
-            f'<p class="reason">{html.escape(case["summary"])}</p>')
+            f'<p class="reason">{html.escape(case["summary"])}</p>{rerun}')
 
     rail_items, sections = [], []
     for number, scenario in enumerate(case["scenarios"], 1):
@@ -188,16 +278,20 @@ def case_html(case):
         tag = f'<span class="tag">{WORD[status]}</span>' if status not in ICON else ""
         rail_items.append(f'<li><a class="{status}" href="#{section_id}"><span class="m">{ICON.get(status, "–")}</span>'
                           f'<span class="n">{number}</span><span class="t">{html.escape(scenario["name"])}{tag}</span></a></li>')
-        shots = "".join(f'<figure><img src="{quote(case["folder"])}/{shot["file"]}" width="{shot["size"][0]}" '
-                        f'height="{shot["size"][1]}" alt="{html.escape(shot["caption"])}"><figcaption>{html.escape(shot["caption"])}</figcaption></figure>'
-                        for shot in scenario["shots"])
-        left = f'<div class="shots">{shots}</div>' if shots else ""
+        figures = "".join(
+            f'<figure{" class=\"wide\"" if shot["size"][0] > shot["size"][1] * WIDE_RATIO else ""}><div class="shot-frame">'
+            f'<img src="{shot["file"]}" width="{shot["size"][0]}" height="{shot["size"][1]}" alt="{html.escape(shot["caption"])}">'
+            f'</div><figcaption>{html.escape(shot["caption"])}</figcaption></figure>' for shot in scenario["shots"])
+        count = (f'<p class="shot-count">사진 {len(scenario["shots"])}장</p>'
+                 if len(scenario["shots"]) > SHOT_COUNT_AFTER else "")
+        strip = (f'<div class="shot-strip">{count}<button class="shot-next" type="button" aria-label="다음 사진">›</button>'
+                 f'<div class="shots">{figures}</div></div>' if figures else "")
         skipped = f'<p class="skipped">{html.escape(scenario["skipped"])}</p>' if scenario["skipped"] else ""
         state = f'{ICON[status]} {WORD[status]}' if status in ICON else WORD[status]
         sections.append(f'<section class="scn {status}" id="{section_id}">'
                         f'<div class="scn-h"><div><div class="no">시나리오 {number}</div><h2>{html.escape(scenario["name"])}</h2></div>'
                         f'<span class="state {status}">{state}</span></div>'
-                        f'<div class="{"body" if shots else "body noshot"}">{left}<div>{steps_html(case, scenario)}{skipped}</div></div></section>')
+                        f'<div class="{"body" if strip else "body noshot"}">{strip}<div>{steps_html(scenario)}{skipped}</div></div></section>')
 
     background = ("<h3>테스트 전 상태</h3><ul>" + "".join(f"<li>{html.escape(item)}</li>" for item in case["background"]) + "</ul>"
                   if case["background"] else "")
@@ -209,6 +303,14 @@ def case_html(case):
            if case["run"] else "")
     return (f'<article class="case" id="{anchor}">{head}<div class="case-body">{rail}<div class="scns">{"".join(sections)}</div></div>'
             f'{run}</article>')
+
+
+def list_html(cases, summary):
+    rows = "".join(f'<li class="{case["result"]}"><a href="{quote(case["folder"])}/index.html">'
+                   f'<span class="pill {case["result"]}">{ICON.get(case["result"], "")} {WORD[case["result"]]}</span>'
+                   f'<span class="id">{html.escape(case["id"])}</span><span class="t">{html.escape(case["title"])}</span></a></li>'
+                   for case in cases)
+    return f'<section class="list"><h1>테스트 기록</h1><p class="meta">{html.escape(summary)}</p><ol class="cases">{rows}</ol></section>'
 
 
 def load_template():
@@ -264,9 +366,12 @@ def main(argv=None):
     if args.check:
         print(f"검사 통과: {summary}")
         return 0
-    output = args.root / "index.html"
-    output.write_text(template.replace(SLOT, "".join(case_html(case) for case in cases)), encoding="utf-8")
-    print(f"보고서: {output} — {summary}")
+    # 쓰기 전에 모든 페이지를 만들어 둔다 — 도중에 멈춰 새 페이지와 옛 페이지가 섞이지 않게
+    pages = [(args.root / case["folder"] / "index.html", case_html(case)) for case in cases]
+    pages.append((args.root / "index.html", list_html(cases, summary)))
+    for output, body in pages:
+        output.write_text(template.replace(SLOT, body), encoding="utf-8")
+    print(f"보고서: {args.root / 'index.html'} — {summary} · 케이스 페이지 {len(cases)}개")
     return 0
 
 

@@ -74,7 +74,7 @@ Phase 가 끝나면 그 Phase 행의 대상 계약 칸에 계약 슬러그를, Q
 | F17 | 측정 스크립트 자체 버그 — 호 길이 누락, zsh 배열 첨자, 따옴표 없는 변수 | Phase 2 | kaizen-0924-p02-contract | APPROVE | harness:P05 (알려진 답 대조). zsh 배열 줄은 user-setup:P5 와 같은 줄이라 하나만 넣는다. 뱀부 쪽은 bambu:P5 · bambu:P6 |
 | F18 | YAML 블록 깨짐, 절을 끼워 넣다 마크다운 표가 갈라짐 | Phase 4 | kaizen-0924-p04-harness | APPROVE | other-kits:P10 (V10 검사 범위 넓히기). YAML 깨짐은 맡은 제안이 없다(검토자 지적) — Phase 4 에서 검사를 더할지 정한다 · 미반영 — YAML 블록 검사 — 걸리는 것이 전부 일부러 깬 예시 · 자리표시자라 더하지 않음 (phase4-notes.md §미반영 키와 사유) |
 | F19 | 사용자가 모르는 한국어 말을 지어냄 | Phase 15 | kaizen-0924-p15-tone-kit | APPROVE | reflect-collector:P6 (K-11). 사용자 설정 쪽 장치는 사고 뒤에 생겨 효과가 확인되지 않았다(검토자 지적) |
-| F20 | 이미 폐기한 시간대·국가 항목을 되살림, 한 나라 우선으로 거듭 판단 | Phase 11 | kaizen-0924-p11-planning-kit | APPROVE | backend-family:P1. 폐기 결정 기록 자리가 design:P5 · backend-family:P1 · user-setup:P2 · user-setup:P6 네 곳이다 — 카이젠에서 하나로 정한다. 시간대를 설정값으로 다루는 것은 backend-family:P2(Phase 7) · 미반영 — 한 나라 우선 판단은 user-setup:P10(킷 밖)으로, 이 Phase 는 폐기 결정 기록 자리만 맡음 (phase11-notes.md §미반영 키와 사유) |
+| F20 | 이미 폐기한 시간대·국가 항목을 되살림, 한 나라 우선으로 거듭 판단 | Phase 11 | kaizen-0924-p11-planning-kit | APPROVE | backend-family:P1. 폐기 결정 기록 자리가 design:P5 · backend-family:P1 · user-setup:P2 · user-setup:P6 네 곳이다 — 카이젠에서 하나로 정한다. 시간대를 설정값으로 다루는 것은 backend-family:P2(Phase 7) · 미반영 — 한 나라 우선 판단은 user-setup:P10(킷 밖)으로, 이 Phase 는 폐기 결정 기록 자리만 맡음 (phase11-notes.md §미반영 키와 사유) · 처리(2026-09-26 `after-0924-discard-decisions`) — 사용자가 원문 자리를 기능 PRD 비범위 표 하나로 확정했다. design-mockup 승인 기록 · sprint-contract 범위 경계 · /sprint Step 0.5 가 그 표를 가리키고, PRD 가 없으면 네 칸으로 적고 `PRD 없음` 을 붙인다 |
 | F21 | 필요한 도구가 없는 세션에서 계약 스킬이 0 단계에서 멈춤 | Phase 2 | kaizen-0924-p02-contract | APPROVE | 맡은 제안이 0 개다(검토자 지적). sprint-contract 0 단계에 「도구가 없으면 첫 줄에 알리고 멈춘다」 한 줄을 넣을지 본다 |
 | F22 | 파일 이름 변경과 겹친 ProviderScope 가 카탈로그를 깨 스크롤이 멈춘 듯 보임 | Phase 5 | kaizen-0924-p05-flutter-toolkit | APPROVE | flutter:P-CATALOG-tile-height. 이름 변경 뒤 재시작 실패는 이번 스프린트 규약 Step 2 가 맡는다 · 미반영 — 겹친 ProviderScope 부분은 근거 파일에 없음 (phase5-notes.md §미반영 키와 사유) |
 | F23 | 디버그 겹침을 칩 렌더링 결함으로 오진 | 이번 스프린트 | insights-0924-hooks-skill-collector | APPROVE | flutter:P-VEP-shot-checklist 의 디버그 겹침 줄. 남은 제안 없음 |
@@ -91,7 +91,7 @@ Phase 가 끝나면 그 Phase 행의 대상 계약 칸에 계약 슬러그를, Q
 | design:P2 | 시안 개수 규칙을 파일마다 맞춤 (미지정 3 · 지정 N · 승인 시 최대 5) | Phase 6 | kaizen-0924-p06-design-kit | APPROVE | 한 프로젝트 기억과 방향이 반대라 사용자 확인 필요 · 미반영 — 개수 규칙 방향은 사용자 확인 목록으로 넘김 (phase6-notes.md §미반영 키와 사유) |
 | design:P3 | design-mockup Step 1 에 대상 화면 경로와 한 문장 되말하기, 요소 하나 지목 요청까지 §2 를 넓힘 | Phase 6 | kaizen-0924-p06-design-kit | APPROVE | |
 | design:P4 | 렌더 산출물 캡처 점검 목록 4 줄과 가장 큰 글자 크기로 한 번 더 찍기 | Phase 6 | kaizen-0924-p06-design-kit | APPROVE | 같은 점검 항목이 규약·audit-criteria·design-reviewer 세 자리에 있다 |
-| design:P5 | 승인 기록에 확정 구성과 폐기 항목 칸 | Phase 6 | kaizen-0924-p06-design-kit | APPROVE | 폐기 결정 기록 자리가 design:P5 · backend-family:P1 · user-setup:P2 · user-setup:P6 네 곳 — 카이젠에서 하나로 정한다 |
+| design:P5 | 승인 기록에 확정 구성과 폐기 항목 칸 | Phase 6 | kaizen-0924-p06-design-kit | APPROVE | 폐기 결정 기록 자리가 design:P5 · backend-family:P1 · user-setup:P2 · user-setup:P6 네 곳 — 카이젠에서 하나로 정한다 · 처리(2026-09-26 `after-0924-discard-decisions`) — 원문 자리는 기능 PRD 비범위 표 하나(사용자 결정). design-mockup 승인 기록 폐기 칸이 그 표 경로를 가리키고, PRD 가 없으면 네 칸 · `PRD 없음` |
 | design:P6 | 비교 반복 순서와 새로 그려졌는지 확인, 스스로 고치기 최대 5 회 | Phase 6 | kaizen-0924-p06-design-kit | APPROVE | 되풀이 상한이 플러터 규약 3 회 대 이 제안 5 회 — 카이젠에서 하나로 정한다 |
 | design:P7 | 감사 기준에 기존 화면 관례 일치 행 | Phase 6 | kaizen-0924-p06-design-kit | APPROVE | 기존 화면 2 개(이 제안) 대 3 개(design:P1) — 카이젠에서 하나로 정한다 |
 | bambu:P1 | MakerWorld 읽는 순서를 JSON 주소 먼저로 다시 적음 | Phase 13 | kaizen-0924-p13-bambu-kit | APPROVE | |
@@ -120,7 +120,7 @@ Phase 가 끝나면 그 Phase 행의 대상 계약 칸에 계약 슬러그를, Q
 | harness:P07 | /sprint 에 내 경로만 커밋, 워크트리 권고, 기준 커밋 비교 | Phase 4 | kaizen-0924-p04-harness | APPROVE | 기준 커밋 가르기 규칙이 harness:P07 · backend-family:P3 · backend-family:P4 세 곳 — 카이젠에서 하나로 정한다. user-setup:P2 와 겹친다 |
 | harness:P08 | 계약 created·평가 Evaluated 시각을 date 출력으로 채움 | Phase 2 | kaizen-0924-p02-contract | APPROVE | qa-evaluator 쪽 Evaluated 는 Phase 3 과 맞춘다 |
 | harness:P09 | 검증 불가 문장을 「막는 것 · 시도한 우회 · 다시 돌릴 명령」으로 | Phase 1 | kaizen-0924-p01-guides | APPROVE | sprint/SKILL.md 3 단계 부분은 Phase 4 와 맞춘다 |
-| backend-family:P1 | plan-prd 에 폐기 결정 Non-goals 세 칸 (무엇 · 왜 · 남은 흔적) | Phase 11 | kaizen-0924-p11-planning-kit | APPROVE | 폐기 결정 기록 자리 네 곳 — 카이젠에서 하나로 정한다 |
+| backend-family:P1 | plan-prd 에 폐기 결정 Non-goals 세 칸 (무엇 · 왜 · 남은 흔적) | Phase 11 | kaizen-0924-p11-planning-kit | APPROVE | 폐기 결정 기록 자리 네 곳 — 카이젠에서 하나로 정한다 · 처리(2026-09-26 `after-0924-discard-decisions`) — plan-prd 의 기능 PRD 비범위 표가 원문 자리로 확정됐다(사용자 결정). 표는 바꾸지 않았다 |
 | backend-family:P2 | 시각 종류(한 순간 대 벽시계)를 가르고 나라·시간대는 설정값으로 | Phase 7 | kaizen-0924-p07-backend-kit | APPROVE | rust-model 부분은 Phase 9 와 맞춘다 |
 | backend-family:P3 | infra-guide — 자동 검사가 빨갛다고 내 변경 탓으로 단정하지 않기 | Phase 8 | kaizen-0924-p08-infra-kit | APPROVE | 기준 커밋 가르기 규칙 세 곳 — 카이젠에서 하나로 정한다 |
 | backend-family:P4 | rust-preflight 실패를 내 변경 · 남의 미커밋 · 기준 커밋에서 이미 실패로 가름 | Phase 9 | kaizen-0924-p09-rust-kit | APPROVE | 기준 커밋 가르기 규칙 세 곳 — 카이젠에서 하나로 정한다 |
@@ -131,11 +131,11 @@ Phase 가 끝나면 그 Phase 행의 대상 계약 칸에 계약 슬러그를, Q
 | reflect-collector:P5 | 프로젝트 이름을 워크트리 폴더가 아니라 본 레포 이름으로 | Phase 12 | kaizen-0924-p12-reflect-kit | APPROVE | harness/scripts/save-feedback.sh 도 같이 바뀐다 — harness:P02 와 함께 시험한다 |
 | reflect-collector:P6 | tone-kit K-11 — 사전에 없는 한국어 합성어를 새로 만들지 않음 | Phase 15 | kaizen-0924-p15-tone-kit | APPROVE | |
 | user-setup:P1 | codegen 의 build-filter 줄을 전부 없앰 | Phase 5 | kaizen-0924-p05-flutter-toolkit | APPROVE | flutter:P-F06-codegen-delete-count 와 방향이 두 갈래 — 카이젠에서 하나로 정한다 |
-| user-setup:P2 | /sprint 에 워크트리 권고, 폐기 결정 줄, 커밋 전 삭제 보고 | Phase 4 | kaizen-0924-p04-harness | APPROVE | harness:P07 과 겹친다. 커밋 전 삭제 멈춤은 이번 스프린트 훅과 같은 일이다. 폐기 결정 기록 자리 네 곳 · 기준 커밋 가르기 세 곳 — 카이젠에서 하나로 정한다 · 미반영 — 폐기 결정 줄은 기록 자리를 하나로 정하는 F20(Phase 11) 몫 (phase4-notes.md §미반영 키와 사유) |
+| user-setup:P2 | /sprint 에 워크트리 권고, 폐기 결정 줄, 커밋 전 삭제 보고 | Phase 4 | kaizen-0924-p04-harness | APPROVE | harness:P07 과 겹친다. 커밋 전 삭제 멈춤은 이번 스프린트 훅과 같은 일이다. 폐기 결정 기록 자리 네 곳 · 기준 커밋 가르기 세 곳 — 카이젠에서 하나로 정한다 · 미반영 — 폐기 결정 줄은 기록 자리를 하나로 정하는 F20(Phase 11) 몫 (phase4-notes.md §미반영 키와 사유) · 처리(2026-09-26 `after-0924-discard-decisions`) — /sprint Step 0.5 재검증 블록에 폐기한 결정 줄 — 기능 PRD 비범위 표와 `PRD 없음` 줄을 읽는다 |
 | user-setup:P3 | 화면 규약 Step 0·2·3·4 보강 | 이번 스프린트 | insights-0924-hooks-skill-collector | APPROVE | flutter:P-VEP-* 제안과 같은 것이라 한 번만 넣었다 |
 | user-setup:P4 | qa-evaluator 규칙 10 뒤 네 줄 (첫 칸만 · 안 돌아가는 시험 · 전체 꺼짐 · 삭제 열거) | Phase 3 | kaizen-0924-p03-evaluator | APPROVE | harness:P04 와 같다 — 한쪽만 남긴다. 변경분 삭제 파일 열거는 harness:P04 에 없다 |
 | user-setup:P5 | contract-schema 셸 이식성 절에 zsh 배열 한 줄 | Phase 2 | kaizen-0924-p02-contract | APPROVE | harness:P05 와 같은 줄 |
-| user-setup:P6 | 핸드오프 템플릿에 폐기·거절한 결정 절 | 해당 없음 | | | 킷 밖 — 카이젠 뒤 사용자 설정 처리 목록 |
+| user-setup:P6 | 핸드오프 템플릿에 폐기·거절한 결정 절 | 해당 없음 | | | 킷 밖 — 카이젠 뒤 사용자 설정 처리 목록 · 처리(2026-09-26 `after-0924-discard-decisions`) — 핸드오프 틀의 폐기 절은 세션 인계용이라 따로 둔다 — 결정 원문 자리가 아니다(원문은 기능 PRD 비범위 표). 틀 수정은 킷 밖 사용자 설정 몫 |
 | user-setup:P7 | parallel-session-guard.sh 구멍 두 개와 커밋 직후 삭제 수 알림 | 해당 없음 | | | 킷 밖 — 카이젠 뒤 사용자 설정 처리 목록. 킷 훅은 50 개를 넘을 때만 알리므로 두 번 울리는지 그때 확인한다 |
 | user-setup:P8 | 플러터 검증 규칙에 「표식이 안 바뀌면 앱을 새로 띄운다」 반 문장 | 해당 없음 | | | 킷 밖 — 카이젠 뒤 사용자 설정 처리 목록 |
 | user-setup:P9 | 전역 CLAUDE.md 두 줄 — 못 한다고 할 때 막는 것과 우회, 작은 수정 예외 | 해당 없음 | | | 킷 밖 — 카이젠 뒤 사용자 설정 처리 목록. 사용자 확인 필요 |

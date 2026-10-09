@@ -8,12 +8,12 @@
 
 <!-- AUTO:skills -->
 | 스킬 | 설명 |
-|------|------|
+| --- | --- |
 | `contract-kaizen` | sprint-contract 스킬을 학술 논문·공식 문서·커뮤니티 리서치·글로벌 피드백 기반으로 점진적으로 개선하는 카이젠 스킬. |
 | `create-agent` | 설계 가이드 기반으로 새 에이전트를 생성한다. |
 | `create-skill` | 설계 가이드 기반으로 새 스킬을 생성한다. |
 | `evaluator-kaizen` | qa-evaluator 에이전트를 학술 논문·공식 문서·커뮤니티 리서치·글로벌 피드백 기반으로 점진적으로 개선하는 카이젠 스킬. |
-| `harness-kaizen` | 하네스 엔지니어링을 학술 논문·공식 문서·커뮤니티 리서치 기반으로 |
+| `harness-kaizen` | 하네스 엔지니어링을 학술 논문·공식 문서·커뮤니티 리서치 기반으로 점진적으로 개선하는 카이젠 스킬. |
 | `init` | 현재 프로젝트에 .harness/ 디렉토리를 생성하고 초기 설정 파일을 세팅한다. |
 | `refactor-checklist` | 리팩터링 시작 전, 대상 파일에 적용할 모든 규칙 위반을 enumerate 한 체크리스트를 산출하고 사용자 승인을 받는다. |
 | `sprint` | Contract → 구현 → QA → Commit → Push 의 단일 sprint 루프를 한 호출로 실행한다. |
@@ -22,7 +22,7 @@
 
 <!-- AUTO:agents -->
 | 에이전트 | 설명 |
-|----------|------|
+| --- | --- |
 | `qa-evaluator` | Sprint Contract 기반으로 구현 결과를 독립 평가하는 QA 에이전트. |
 <!-- /AUTO:agents -->
 
@@ -41,17 +41,55 @@
 └── history/                   ← 아카이브 (자동)
 ```
 
+## 하네스 저장소
+
+계약 · 판정 기록 · 개정 · 시나리오 결과를 프로젝트 저장소에 커밋하지 않고 따로 모을 수 있다. PC 하나에 하네스 저장소(깃)를
+두고 프로젝트마다 폴더를 나눈 뒤, 프로젝트의 `.harness` 를 그 폴더로 가는 심볼릭 링크(바로가기)로 잇는다.
+
+- 만들기 — 환경변수 `HARNESS_STORE` 에 하네스 저장소 폴더를 주고 init 한다. 기록은 `<HARNESS_STORE>/<프로젝트 최상위 폴더 이름>/<최상위에서 대상까지 경로>` 에 생기고,
+  init 이 프로젝트 `.gitignore` 에 `.harness` 를 더한다. 끝에 `/` 를 붙인 `.harness/` 는 바로가기에 걸리지 않는다 — 깃에게 바로가기는 파일이다.
+  그 폴더에 이미 `project.yaml` 이 있으면(같은 프로젝트의 다른 작업 폴더) 템플릿을 덮지 않고 잇기만 한다.
+- 봉인 커밋 — sprint-contract Step 6.7 은 계약 폴더로 들어가 파일 이름으로 커밋하므로 봉인 커밋이 하네스 저장소에 남는다.
+  하네스 저장소에는 가지를 만들지 않는다. qa-evaluator 의 봉인 대조도 같은 방법으로 그 저장소에서 찾는다.
+- 감독 — codex-audit 의 판정 사본은 프로젝트 저장소를 복제하므로 계약 폴더가 들어 있지 않다. 판정 격리가 사본 밖을 못 읽어 바로가기 대신
+  계약 폴더를 사본 안 같은 자리에 복사해 넣는다(그림과 감독 기록은 뺀다).
+- 계약 찾기 — 맥의 `find` 는 끝에 `/` 없는 바로가기 폴더를 열지 않는다. 계약 폴더를 뒤지는 명령은 `find -H` 로 쓴다.
+- `HARNESS_STORE` 없이 init 하면 지금처럼 프로젝트 안 실제 폴더다. 시험은 `bash harness/evals/store/harness-store-test.sh` 다.
+
+## 플러그인 훅
+
+플러그인을 켜면 `hooks/hooks.json` 의 훅이 모든 프로젝트에서 돈다. 표는 `scripts/sync-docs.py` 가 채운다.
+
+<!-- AUTO:hooks -->
+| 이벤트 | 실행 | 설명 |
+| --- | --- | --- |
+| `SessionStart` | `env-check.sh` | SessionStart |
+| `PreToolUse` | `sdk-guard.sh` | PreToolUse (matcher: Bash) |
+| `PreToolUse` | `run-guard.sh` | PreToolUse (matcher: Bash) |
+| `PreToolUse` | `commit-guard.sh pre` | PreToolUse (matcher: Bash) |
+| `PostToolUse` | `commit-guard.sh post` | PostToolUse (matcher: Bash) |
+| `PostToolUse` | `lint-contract-oracle.sh` | PostToolUse (matcher: Edit\|Write) |
+| `Stop` | `qa-pending-check.sh` | Stop |
+<!-- /AUTO:hooks -->
+
+**QA 대기 안내** — `scripts/qa-pending-check.sh` 는 답을 끝내려는 순간(Stop) 이 세션이 연 활성 계약의 QA 결과가 없거나, 봉인보다 오래됐거나, 판정이 REJECT · BLOCKED 면 `harness:qa-evaluator` 를 띄우라는 안내를 모델에 넣는다. 이 세션 계약이 없는데 코드 파일을 2 개 이상 고쳤으면 세션당 한 번 계약을 권한다. 막지는 않는다.
+
+**계약 측정 경고** — `scripts/lint-contract-oracle.sh` 는 Edit · Write 로 `.harness/sprint-contract*.md` 를 고친 뒤 측정이 문서 속 문장을 grep 하는 데 그친 조건을 짚어 경고만 넣는다.
+
+두 훅은 같은 폴더의 `scripts/_lib-hook-payload.sh` 를 불러 쓴다(환경변수 `CLAUDE_HOOK_LIB` 를 주면 그 파일). jq 가 없거나 입력이 깨지면 조용히 통과한다. 예전에 `~/.claude/settings.json` 에 같은 훅을 등록해 두었다면 두 번 돈다. 그 파일의 `hooks` 에서 `qa-pending-check.sh` · `lint-contract-oracle.sh` 를 부르는 줄을 지우면 된다. 이 검사 도구는 플러그인에 들어 있지 않고 레포 맨 위 `scripts/` 에 있다 — 레포를 받아 두었다면 맨 위 폴더에서 `python3 scripts/check-user-hook-overlap.py` 로 남은 겹침을 확인한다. 시험은 `bash harness/evals/hooks/plugin-hooks-test.sh` · `lint-contract-oracle-test.sh` · `qa-pending-check-test.sh` 다.
+
 ## 커밋 안전 훅
 
 `scripts/commit-guard.sh` 가 `hooks/hooks.json` 에 Bash PreToolUse · PostToolUse 로 등록돼 있다. 플러그인을 켜면 모든 프로젝트의 `git commit` 에 걸린다.
 
-커밋 직전(`commit-guard.sh pre`)에 아래 세 가지를 exit 2 로 막는다. 기준은 삭제 50 개 초과다 — 50 개까지는 통과하고 51 개부터 막는다.
+커밋 직전(`commit-guard.sh pre`)에 아래 네 가지를 exit 2 로 막는다. 기준은 삭제 50 개 초과다 — 50 개까지는 통과하고 51 개부터 막는다.
 
 | 막는 것 | 판정 |
 | ------- | ---- |
-| 대량 삭제 | 커밋에 실릴 삭제가 50 개를 넘는다. 이름 바꾸기는 세지 않는다. 같은 명령의 `git add -A` · `git add .` · `git add -u` 나 `git commit -a` 가 올릴 작업 폴더 삭제도 더해 센다 |
+| 대량 삭제 | 커밋에 실릴 삭제가 50 개를 넘는다. 이름 바꾸기는 세지 않는다. 같은 명령의 `git add` 나 `git commit -a` 가 올릴 작업 폴더 삭제도 더해 센다 — `git add <경로>` 는 그 경로 안, `git add -A` · `git add -u` · `git commit -a` 는 하위 폴더에서 불러도 저장소 전체, 하위 폴더의 `git add .` 는 그 폴더 안 |
 | 남의 커밋 되돌림 | 공용 목록(`git add` 로 올려 둔 목록)의 내용이 HEAD 와도 작업 폴더와도 다르고, 작업 폴더는 HEAD 와 같은 파일이 있다. 다른 세션이 커밋한 뒤 옛 내용이 목록에 남은 경우다 |
 | 빈 개인 목록 | `GIT_INDEX_FILE=<경로>` 로 커밋하는데 그 파일이 없거나 비어 있고, 같은 명령에 `git read-tree` 가 없다 |
+| 계약 범위 밖 경로 | 이 세션의 활성 계약(`status: active` · `owner_session` 이 훅 입력의 `session_id`)이 범위 목록 블록을 적었는데, 커밋이 그 목록과 계약 폴더 `.harness/` 밖 경로를 싣는다 |
 
 경로를 지정한 커밋(`-o`, `-- <경로>`)은 공용 목록을 쓰지 않고 HEAD 위에 그 경로의 작업 폴더 상태를 얹는다. 그래서 그 경로 안에서 작업 폴더에 없는 추적 파일만 삭제로 센다 — 목록에만 올라 있는 다른 삭제는 커밋에 실리지 않으므로 세지 않는다. 희소 체크아웃(`git sparse-checkout`)으로 꺼내지 않은 파일은 작업 폴더에 없어도 git 이 싣지 않으므로 세지 않는다. `-i` 는 목록 전체에 그 경로의 작업 폴더 삭제를 더해 센다. 이름 바꾸기는 여기서도 삭제로 세지 않는다 — `git mv d1 d2` 뒤 `git commit -o -- d1 d2` 처럼 옛 경로와 새 경로가 같이 실리면 git 이 이름 바꾸기로 잇는다. 새 경로가 지정한 경로 밖이면 옛 경로가 삭제로 실리므로 센다. 2026-09-25 전에는 경로를 지정한 커밋을 통째로 건너뛰어 그 경로 안의 대량 삭제가 그대로 실렸다.
 
@@ -64,7 +102,7 @@
 
 jq 가 없으면 검사를 못 했다는 알림만 내고 통과시킨다. 시험은 `bash harness/evals/hooks/commit-guard-test.sh` 다.
 
-**계약이 선언한 범위 밖 경로는 아직 막지 않는다.** 막을 때 훅이 읽을 자리는 정했다 — 계약(`sprint-contract-<slug>.md`)의 `## 범위 경계` 절 안, 첫 줄이 `# sprint-scope` 인 `text` 코드 블록이다. 한 줄에 git pathspec 하나를 레포 루트 기준으로 적는다. 계약 봉인 커밋(sprint-contract Step 6.7)이 그 원문을 git 에 남기므로 봉인 뒤에 목록을 넓히면 드러난다. 따로 파일을 두지 않은 것은 봉인 커밋이 계약 파일 하나만 담기 때문이고, frontmatter 에 두지 않은 것은 frontmatter 를 읽는 셸 함수(`read_fm` · `fm_get`)가 한 줄 값만 읽기 때문이다. 계약에 이 블록을 쓰는 절차와 훅이 읽는 절차는 아직 없다.
+**계약 범위 밖 경로** — 훅은 커밋 폴더에서 위로 처음 만나는 `.harness/` 의 계약 가운데 `status: active` 이고 `owner_session` 이 훅 입력의 `session_id`(없으면 `CLAUDE_CODE_SESSION_ID`)와 같은 것을 고른다. 그 계약의 `## 범위 경계` 절 안, 첫 줄이 `# sprint-scope` 인 `text` 코드 블록이 범위 목록이다(여럿이면 합친다). 한 줄에 경로 하나를 레포 루트 기준으로 적는다 — 끝이 `/` 면 폴더, `*` 가 들면 글롭 패턴이다. 커밋이 싣는 경로는 이름 바꾸기를 풀어 옛 경로와 새 경로를 따로 대조하고, 계약 폴더의 `.harness/` 아래는 늘 허용한다. 세션을 모르거나 해당 계약 · 블록이 없거나 계약을 못 읽으면 조용히 통과한다. 계약 봉인 커밋(sprint-contract Step 6.7)이 그 원문을 git 에 남기므로 봉인 뒤에 목록을 넓히면 드러난다. 따로 파일을 두지 않은 것은 봉인 커밋이 계약 파일 하나만 담기 때문이고, frontmatter 에 두지 않은 것은 frontmatter 를 읽는 셸 함수(`read_fm` · `fm_get`)가 한 줄 값만 읽기 때문이다. 쓰는 형식은 `references/contract-schema.md` §범위 목록 블록이다.
 
 ```text
 # sprint-scope
@@ -80,16 +118,23 @@ harness/evals/hooks/
 ### 스크립트
 
 | 스크립트 | 역할 |
-|---------|------|
+| --------- | ------ |
 | `harness/scripts/feedback-path.sh` | OS별 글로벌 피드백 경로 출력 |
 | `harness/scripts/save-feedback.sh <contract\|evaluator> <draft-yaml>` | 스키마 검증 후 글로벌 경로에 저장 |
 | `harness/scripts/verify-feedback.sh <saved-yaml>` | 저장된 피드백 유효성 검증 (PASS/FAIL) |
 | `harness/scripts/trigger-check-common.sh <skill-type> ...` | 카이젠 이벤트 트리거 감지 (공통 로직) |
+| `harness/scripts/codex-audit.sh draft\|revise\|impl … [--detach]` · `wait <감독 폴더> [초]` · `usage` | Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). 결과 파일은 스크립트가 쓴다. 종료 코드 0 APPROVE · 1 REJECT · 2 BLOCKED · 3 SKIPPED · 64 쓰는 법 · 75 아직 도는 중 |
+| `harness/scripts/codex-audit.sh follow <감독 폴더\|계약> [--idle-seconds N] [--wait-seconds N] [--summary-seconds N] [--relay]` | 감독 진행을 시각 붙은 줄로 따라간다. `--relay` 는 채팅으로 옮길 줄만, 잇단 줄은 ` ‖ ` 로 이은 한 줄로 낸다(Monitor 용). 부모 세션이 감독 시작과 함께 백그라운드로 띄운다. 큰 단계 · 오류 · 조용함 경고는 바로, Codex 활동은 요약 간격(기본 60초)마다 한 줄. 마지막 줄 `감독 판정:` 과 그 종료 코드로 끝난다. 새 감독이 기다림 상한(기본 540초) 안에 없으면 BLOCKED · 2 |
+| `harness/scripts/codex-audit.sh models` | 설치된 Codex 와 npm 최신 판을 견줘 지난 확인 뒤 새 판이 나왔으면 알린다. 감독 모델은 바꾸지 않는다. 확인 실패는 `모델 확인 못 함: 사유` 와 종료 2. 감독 시작 때도 자동으로 돈다 |
+
+**Codex 감독 설정** — `.harness/project.yaml` 의 `codex_audit` 칸(`mode` · `codex_home` · `model` · `model_draft` · `model_impl` · `effort_draft` · `effort_impl` · `max_rounds` · `usage_limit_percent`)을 따른다. `model_draft` 는 계약 작성 · 수정 차례, `model_impl` 은 판정 · 재심 · 조사 차례의 모델이고 비우면 `model` 을 쓴다. 감독용 Codex 폴더는 로그인을 파일(`auth.json`, 권한 600)로 저장해야 판정 격리 공간 안에서도 읽힌다. 스크립트는 호출마다 그 파일과 `config.toml` 을 임시 폴더로 복사해 쓰고 끝나면 지운다 — Codex 가 남기는 대화 기록 · 기억 파일이 감독 폴더에 쌓여 다음 판정에 섞이지 않게 하려는 것이다. 감독은 ChatGPT 구독 로그인(`auth_mode: chatgpt`)으로만 돈다 — API 키 로그인이거나 로그인 파일이 없으면 모든 감독이 모델 확인과 Codex 호출 전에 BLOCKED(`로그인-없음`)로 끝난다. 구독 로그인은 쓰는 도중 갱신되므로, 차례가 끝날 때 사본의 로그인 파일이 바뀌었으면 감독 폴더에 되돌려 쓴다. 한 번 로그인하면 Codex 가 알아서 갱신한다. 되돌려 쓰기는 감독 폴더의 잠금 파일 `codex-audit-auth.lock` 을 잡고, 감독 폴더 로그인 파일이 사본을 뜰 때와 같을 때만 한다 — 그사이 다른 감독이나 사용자가 바꿨으면 덮지 않는다. 구독인지는 감독을 시작할 때 한 번만 판정한다. 판정 격리는 `/tmp` 읽기를 막으므로, 판정할 저장소가 `/tmp` 아래면 impl 은 Codex 를 부르기 전에 BLOCKED(`설정-오류`)로 끝난다 — 저장소를 `/tmp` 밖으로 옮긴다. `premeasure` 에 조건 번호 자리 `{id}` 가 든 명령을 적으면, 판정 전에 구현 커밋 사본에서 조건마다 그 명령을 격리 밖에서 한 번 돌려(사전 측정) 출력과 종료 코드를 판정 입력에 넣는다 — 판정 격리 안에서는 `ps` 와 겹친 격리가 막힌다. 계약 개정 파일(`sprint-amendments-<slug>.md`)도 판정 입력에 들어간다. 시험할 때는 환경 변수 `CODEX_BIN` 으로 부를 codex 를 바꾸고, `CODEX_AUDIT_LIMIT` 으로 Codex 호출 한 번의 상한 초를 정한다(기본 600). 모델 확인은 `CODEX_AUDIT_CHECK_TIMEOUT` 으로 조회 하나의 상한 초(기본 10)를 바꾼다. 지난 확인 결과는 감독용 Codex 폴더의 `codex-audit-models.json` 에 남는다. 칸이 없으면 꺼짐(`mode: off`)이고, 쓰는 프로젝트만 `mode: codex`(계약 작성 · 판정 모두) 나 `mode: judge`(계약은 Claude, 구현 판정만 Codex)로 켠다. 판정 · 재심 차례는 권한 프로필 `codex-audit-judge` 로 돈다 — 읽기는 얼린 입력 · 판정 사본 · 도구 설치 경로만, 쓰기는 판정 사본 · 그 차례 전용 임시 폴더만 열고 홈 폴더 · `/tmp` · 다른 감독의 폴더와 인터넷은 막는다. 설치된 codex 가 권한 프로필을 지원하지 않으면 옛 방식으로 돌지 않고 BLOCKED(`설정-오류`)다. 계약 작성 · 조사 차례는 그대로 `-s workspace-write` 다. 감독이 만드는 임시 폴더(판정 사본 · Codex 폴더 사본 · 차례와 사전 측정의 전용 `TMPDIR`)는 한 뿌리 아래 두고 끝나면(성공 · 실패 · 시간 초과 · 중단 신호) 지운다. 보관하는 세션 기록은 `.jsonl.gz` 로 압축한다. 판정은 사전 측정 기록이 있는 조건의 명령을 다시 돌리지 않는다. 계약 작성 · 수정 차례의 상한은 `CODEX_AUDIT_DRAFT_LIMIT`(기본 1500초)로 따로 정하고, 시간 초과는 다시 부르지 않는다(빈 응답만 한 번 더). `CODEX_AUDIT_MODEL` 로 그 실행만 모델을 바꾼다(모델 비교용). 차례마다 토큰과 그 차례 뒤 구독 사용량(5시간 창 · 주간 창 %, Codex 가 세션 기록에 싣는 값)을 `report.md` 의 `## 사용량` 과 `follow` 차례 끝 줄에 적고, 감독용 Codex 폴더의 `codex-audit-usage.jsonl` 에 한 줄씩 남긴다. 감독을 시작할 때 가장 최근 기록에서 아직 안 풀린 창의 사용량이 `usage_limit_percent`(비우면 70) 이상이면 Codex 를 부르지 않고 BLOCKED(`한도-사용량`)로 끝나며 풀리는 시각을 알린다 — 사용량은 계정 전체 값이라 리서치용 `~/.codex` 가 같은 계정이면 그 사용량도 들어간다. `codex-audit.sh usage` 가 오늘 차례 수와 최근 창별 사용량을 보인다.
+
+**Codex 진행 상황 표시줄** — `harness/vscode-status/` 는 의존성 없는 VS Code 확장이다. Codex 감독(`codex-audit.sh`)과 리서치 실행기(`~/.claude/bin/codex-research`)가 도는 동안만 상태 폴더 `~/.codex-status/`(`CODEX_STATUS_DIR` 로 바꾼다)에 작업 파일을 두고 끝나면(성공 · 실패 · 신호 · 막힘) 지운다 — 내용은 종류(감독 · 리서치) · 그 작업을 띄운 Claude 세션(`CLAUDE_CODE_SESSION_ID`) · 폴더(실제 경로) · 단계 · 리서치 주제(프롬프트의 `Goal:` 줄) · 시각 · pid 다. 확장은 그 창의 작업 폴더에서 도는 작업을 항목 하나로 짧게 `$(sync~spin) 감독 1 · 리서치 1` 처럼 띄우고, 마우스를 올리면 작업마다 한 줄(`a1b2 리서치 · <주제> · 시도 1/3 · 30초 · 5시간 12% · 주간 3%`)이 보인다. 도는 작업이 없으면 아무것도 띄우지 않는다. 세션별 자세한 진행은 그 세션 채팅 창의 작업 카드로 본다 — 리서치 실행기는 30초마다(`CODEX_PROGRESS_SECONDS`) 진행 줄을 stderr 에 내고, Claude 는 실행기를 Bash `run_in_background: true` 로 돌린다. 상태 파일을 못 써도 감독은 멈추지 않는다. 설치는 `bash harness/vscode-status/install.sh`(VSIX 로 묶어 VS Code CLI 로 설치) 뒤 창 다시 불러오기.
 
 ### 참조 파일
 
 | 파일 | 내용 |
-|------|------|
+| --- | --- |
 | `harness/references/feedback-schema.yaml` | 피드백 YAML 스키마 v1 — `save-feedback.sh`가 이 스키마로 검증 |
 | `harness/references/contract-schema.md` | Sprint Contract 포맷 정의 — contract-kaizen + evaluator-kaizen 공유 |
 
@@ -114,18 +159,18 @@ qa-evaluator 완료
 ### 필수 필드
 
 | 필드 | 타입 | 설명 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `stack` | string | 프로젝트 스택. 자유 텍스트 (flutter, rust, react, python 등) |
-| `commands.analyze` | string | 정적 분석 명령. DG-01 검증에 사용 |
-| `commands.test` | string | 테스트 명령. DG-03 검증에 사용 |
+| `commands.analyze` | string | 정적 분석 명령. 진단-01 검증에 사용 |
+| `commands.test` | string | 테스트 명령. 진단-03 검증에 사용 |
 | `contract_categories` | list | 계약 카테고리 목록 (최소 1개) |
 | `anti_patterns` | list | 안티패턴 Grep 패턴 목록 (최소 2개 권장) |
 
 ### 선택 필드
 
 | 필드 | 타입 | 기본값 | 설명 |
-|------|------|--------|------|
-| `commands.lint` | string\|null | null | 린트 명령. **`commands.analyze` 가 없는 스택(markdown 전용 킷 등)에서 `DG-01` 의 대체 오라클로 쓴다.** 둘 다 null 이면 `DG-01` 은 `N/A (사유)` 로 기록한다 |
+| ------ | ------ | -------- | ------ |
+| `commands.lint` | string\|null | null | 린트 명령. **`commands.analyze` 가 없는 스택(markdown 전용 킷 등)에서 `진단-01` 의 대체 오라클로 쓴다.** 둘 다 null 이면 `진단-01` 은 `N/A (사유)` 로 기록한다 |
 | `commands.format` | string\|null | null | 포맷 명령 |
 | `commands.codegen` | string\|null | null | 코드 생성 명령 |
 | `reusability.shared_path` | string | "" | 공유 컴포넌트 경로 |
@@ -149,6 +194,7 @@ contract_categories:
 ```
 
 **제약:**
+
 - `id`는 영문, 공백/특수문자 없음 (파싱에 사용)
 - `prefix`는 고유, 하이픈 미포함 (ID 형식: `{prefix}-{번호}`)
 - 최소 1개 카테고리 필수
@@ -166,13 +212,14 @@ anti_patterns:
 ```
 
 | 필드 | 필수 | 설명 |
-|------|------|------|
+| ------ | ------ | ------ |
 | `id` | 예 | 고유 ID |
 | `message` | 예 | FAIL 시 표시할 메시지 |
 | `pattern` | 조건부 | ripgrep 호환 정규식. `command` 가 없으면 **필수** |
 | `command` | 조건부 | 판정을 수행하는 셸 명령. exit 0 = 위반 없음, non-zero = 위반 |
 
 **`pattern` 과 `command` 의 관계:**
+
 - 둘 중 **최소 하나**는 있어야 한다. 둘 다 없으면 **설정 오류**이며 그 항목은 판정 불가다 —
   평가자는 이것을 PASS 로 넘기지 말고 계약 결함으로 보고한다.
 - 둘 다 있으면 **`command` 가 판정 권위**다. `pattern` 은 사람이 읽는 힌트로만 남는다.
@@ -190,6 +237,7 @@ anti_patterns:
 - 같은 계열: 괄호/들여쓰기 균형, 중복 정의, 참조 무결성, 파일 간 정합성.
 
 **패턴 규칙 (`pattern` 을 쓸 때):**
+
 - ripgrep regex 문법 사용
 - 변경/생성 파일에서만 검색 (전체 프로젝트 아님)
 - 패턴 테스트: `rg "{pattern}" --type-not binary` 로 사전 확인 권장
@@ -275,6 +323,7 @@ runtime_inspection:
 ### 절차 파일이 없으면?
 
 해당 카테고리는 **범용 검증**으로 폴백:
+
 - Glob으로 관련 파일 검색
 - Read로 내용 확인
 - 조건에 명시된 요소가 코드에 존재하는지 확인
@@ -401,7 +450,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 카이젠 스킬 구성
 
 | 스킬 | 역할 | 오케스트레이터 |
-|------|------|---------------|
+| ------ | ------ | --------------- |
 | `/harness-kaizen` | 하네스 전체 (설정·스킬·에이전트·eval·아키텍처) | Phase 1 |
 | `/contract-kaizen` | sprint-contract + contract-schema | Phase 2 |
 | `/evaluator-kaizen` | qa-evaluator + 평가 방법론 가이드 | Phase 3 |
@@ -427,7 +476,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 자동 실행
 
 | 트리거 | 조건 |
-|--------|------|
+| -------- | ------ |
 | **주기적** | `kaizen-orchestrator` 스킬이 매주 월요일 cron으로 Phase 순서대로 호출 |
 | **REJECT 연속** | QA Evaluator REJECT 2회 연속 시 |
 | **피드백 임계치** | 같은 진단 항목이 최근 피드백 10건 중 3회 이상 반복 시 |
@@ -450,7 +499,7 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 ### 개선 대상
 
 | 영역 | 대상 |
-|------|------|
+| ------ | ------ |
 | 하네스 설정 | `project.yaml`, `procedures/`, anti-patterns |
 | 스킬 프롬프트 | `skills/*/SKILL.md` |
 | 에이전트 로직 | `agents/qa-evaluator.md` |
@@ -463,14 +512,14 @@ QA Evaluator 판정 결과는 **APPROVE** 또는 **REJECT** 두 가지만 사용
 카이젠 PR은 영향도에 따라 semver bump:
 
 | 변경 영역 | bump |
-|-----------|------|
+| ----------- | ------ |
 | docs, config 튜닝, Gotchas 추가 | **patch** |
 | 스킬 프롬프트, eval 기준, procedure 추가 | **minor** |
 | 아키텍처, 에이전트 로직 대폭 수정 | **major** |
 
 ### 추적 규칙
 
-- 커밋: `kaizen:` prefix — `kaizen: sprint-contract few-shot 판단 로직 추가`
+- 커밋: 바꾼 종류 머리 + 본문 끝 서명 줄 `Kaizen-Phase: <phase 이름>` — `docs(harness): 설계 가이드 — 못 한다 전 네 칸 · 알려진 답 대조 … (카이젠 2026-09-24 Phase 1)` 에 서명 줄 `Kaizen-Phase: kaizen-0924-p01-guides`. 카이젠 커밋을 가리는 것은 머리가 아니라 서명 줄이다 (`harness/skills/harness-kaizen/SKILL.md` 추적 규칙 표)
 - 브랜치: `kaizen/{버전}-{날짜}` — `kaizen/0.4.0-2026-04-07`
 - PR 제목: `[bump유형]` prefix — `[minor] sprint-contract 복잡도 판단 개선`
 

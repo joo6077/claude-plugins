@@ -50,7 +50,7 @@ user-invocable: true
    **예외:** 무드보드 HTML(`.design/moodboard.html`)은 시각화 목적상 hex placeholder를 채울 수 있으나 **반드시 상단에 "방향 시각화용 참조값" disclaimer 배너가 렌더링되어야 한다**. 템플릿(`design-kit/templates/moodboard.html`)은 `.mb-disclaimer` 섹션과 `data-i18n="disclaimer.color"` 문구를 포함하며 생성 시 삭제 금지. 이 배너가 없으면 무드보드 hex가 "확정값"으로 오독된다 (Phase B 드라이런에서 실제 REJECT 근거였다).
 4. **기존 컨셉 무시 금지** — `.design/concept.md`가 이미 존재하면 반드시 로드하여 수정/확장 모드로 진입하라. 기존 내용을 무시하고 새로 만들면 이전 합의가 사라진다.
 5. **무드 키워드를 시각 속성으로 번역하지 않으면 의미 없음** — "미니멀", "따뜻함" 같은 키워드는 반드시 `color / type / image / shape / layout / motion` 각각에 대한 구체적 방향으로 번역해야 한다. 키워드만 나열하고 시각 규칙이 없으면 팀마다 다르게 해석되어 무드보드가 장식으로 끝난다.
-6. **컨셉 시안은 컬러 교체가 아니라 레이아웃 차별화 — 구별성은 계산해서 확인한다** — 여러 컨셉 안을 제시할 때 색상만 바꾸는 것은 "스타일 옵션"이지 "컨셉 옵션"이 아니다. 축 후보는 hero 구조 · 그리드 · 콘텐츠 밀도 · 타이포 위계 · 이미지 비중이며, 색상·카피는 축으로 세지 않는다. 안을 내기 전에 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 를 채우고 pairwise 게이트를 통과시켜라 — 지정 축 3 개 이상이면 모든 쌍의 Hamming distance ≥ 2, 2 개 이하면 ≥ 1. 개수 상한과 부대 산출물 금지의 정본은 `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이다.
+6. **컨셉 시안은 컬러 교체가 아니라 레이아웃 차별화 — 구별성은 계산해서 확인한다** — 여러 컨셉 안을 제시할 때 색상만 바꾸는 것은 "스타일 옵션"이지 "컨셉 옵션"이 아니다. 축 후보는 hero 구조 · 그리드 · 콘텐츠 밀도 · 타이포 위계 · 이미지 비중이며, 색상·카피는 축으로 세지 않는다. 안을 내기 전에 `../../references/visual-change-protocol.md` §5 Variant Contract Matrix 를 채우고 pairwise 게이트를 통과시켜라 — 지정 축 3 개 이상이면 모든 쌍의 Hamming distance ≥ 2, 2 개 이하면 ≥ 1. 개수 규칙과 부대 산출물 금지의 기준 원본은 `harness/docs/guides/skill-design-guide.md` §5.6 Variant Budget 이다.
 7. **컬러 방향은 역할 기반으로 정의** — "예쁜 5색" 조합이 아니라 Primary/Secondary/Accent/Neutral/Semantic 역할로 나눠야 한다. 컨셉 단계에서도 "어떤 역할의 컬러가 어떤 톤인지"를 명시해야 design-system 단계에서 토큰 체계로 이어진다.
 8. **접근성 대비율을 컬러 방향 단계에서 언급** — 컨셉 단계에서 "고대비/저대비 무드"를 결정할 때 WCAG AA 기준(일반 텍스트 4.5:1, 큰 텍스트 3:1)을 제약으로 고려하라. 나중에 토큰 단계에서 브랜드색이 접근성을 통과 못해 방향을 바꾸는 일이 생긴다. 추가로 APCA Lc 임계값(본문 Lc 75~90, 비본문 Lc 60)도 참고하면 폰트 크기+굵기별 대비 가이드가 더 정밀해진다.
 9. **OKLCH 색상 공간 인식** — 컬러 방향 서술 시, OKLCH(Lightness-Chroma-Hue) 축으로 사고하면 지각적으로 균일한 팔레트 방향을 잡기 쉽다. "밝기 L=0.6~0.7 범위, 낮은 채도 C<0.1" 같은 서술이 "파스텔 톤"보다 design-system 단계로 이어질 때 정밀하다. hex 값은 여전히 concept 단계에서 기재 금지이며 서술형만 허용. 출처: research-log §D.
@@ -59,16 +59,17 @@ user-invocable: true
    **필수 섹션 ↔ 템플릿 매핑** (`design-kit/templates/moodboard.html` 기준):
 
    | # | SKILL.md 요구 섹션 | 템플릿 섹션명 (`data-i18n="section.*"`) | 한글 라벨 |
-   |---|---------------------|-----------------------------------------|-----------|
-   | 1 | Mood Keywords       | `section.keywords`                      | 무드 키워드 |
-   | 2 | Color Palette       | `section.palette`                       | 컬러 팔레트 |
-   | 3 | Typography          | `section.typography`                    | 타이포그래피 |
-   | 4 | Imagery Direction   | `section.references`                    | 레퍼런스 (inspiration 이미지 그리드) |
-   | 5 | Texture / Material  | `section.texture`                       | 질감 & 소재 |
-   | 6 | Layout Cues         | `section.layout`                        | 레이아웃 큐 |
-   | 7 | Do / Don't          | `section.dodont`                        | Do / Don't |
+   | --- | --------------------- | ----------------------------------------- | ----------- |
+   | 1 | Mood Keywords | `section.keywords` | 무드 키워드 |
+   | 2 | Color Palette | `section.palette` | 컬러 팔레트 |
+   | 3 | Typography | `section.typography` | 타이포그래피 |
+   | 4 | Imagery Direction | `section.references` | 레퍼런스 (inspiration 이미지 그리드) |
+   | 5 | Texture / Material | `section.texture` | 질감 & 소재 |
+   | 6 | Layout Cues | `section.layout` | 레이아웃 큐 |
+   | 7 | Do / Don't | `section.dodont` | Do / Don't |
 
    **검증 체크리스트** (Step 5 완료 직후 반드시 실행):
+
    ```bash
    # 1) 미치환 placeholder 없어야 함
    grep -c '{{' .design/moodboard.html   # → 0
@@ -79,12 +80,15 @@ user-invocable: true
    # 3) color disclaimer 배너 존재 (Gotcha #3)
    grep -c 'data-i18n="disclaimer.color"' .design/moodboard.html   # → 1
    ```
+
    하나라도 어긋나면 즉시 템플릿 치환을 재실행하고 누락 placeholder를 채워라.
 
    **주의:** 과거 템플릿에 Tone & Manner 섹션(`section.tone`)이 있었고 Texture/Layout/DoDont가 없었다. Phase B 드라이런에서 이 불일치 때문에 REJECT를 받았다. 7개 필수 섹션과 Tone & Manner(선택)는 별개다.
 
+<!-- markdownlint-disable-next-line MD029 -->
 11. **컨셉 확정 = 승인 기록 파일 생성** — 사용자가 컨셉을 확정하면 Step 7 에서 `.design/approvals/{YYYYMMDD}-concept.md` 를 생성한다. 대화에서만 승인받고 파일을 남기지 않으면 이후 QA 에서 "goal 조건의 측정 근거(승인 기록) 확인 불가" 로 REJECT 된다 (2026-07-13 글로벌 REJECT `UI-06`). **자율 모드로 승인을 대행한 경우에도 기록을 남기고 승인 주체를 "자율 모드" 로 명시**하라. 컨셉 단계에서는 hex 확정값이 없으므로 "확정된 시각 값" 필드에는 **확정된 방향 서술**(무드 키워드, 역할별 톤 계열, 레이아웃 방향)을 적는다 — Gotcha #3 의 hex 금지 규칙은 승인 기록에도 그대로 적용된다. 규격: `../../references/visual-change-protocol.md` §4.
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Process
 
 ## Step 0: 자동 감지 및 로드
@@ -108,11 +112,13 @@ user-invocable: true
 ## Step 1: 사용자 입력 분석
 
 사용자의 입력을 3가지 경로로 분류한다:
+
 - **키워드/분위기 설명**: "미니멀하고 따뜻한 SaaS 대시보드"
 - **레퍼런스 URL**: WebFetch로 사이트를 분석하여 시각적 특징 추출
 - **둘 다**: 키워드 + URL을 조합
 
 입력이 불명확하면 사용자에게 다음을 확인한다:
+
 - 프로젝트 성격 (앱 유형, 대상 사용자)
 - 원하는 분위기 키워드 2-3개
 - 참고할 사이트/앱이 있는지
@@ -120,6 +126,7 @@ user-invocable: true
 ## Step 2: 웹 리서치
 
 references/concept-criteria.md를 참조하여 관련 디자인 레퍼런스를 조사한다:
+
 - WebSearch 또는 Codex로 관련 디자인 트렌드/사례 검색
 - 유사한 성격의 프로덕트 디자인 분석
 - 검색 결과에서 컬러 방향, 타이포 트렌드, UI 패턴 추출
@@ -128,6 +135,7 @@ references/concept-criteria.md를 참조하여 관련 디자인 레퍼런스를 
 ## Step 3: 컨셉 요소 도출
 
 references/concept-criteria.md의 카테고리별로 컨셉 요소를 정리한다:
+
 - **무드 키워드**: 3-5개 핵심 형용사 (예: minimal, warm, professional)
 - **키워드→시각 번역**: 각 키워드를 color / type / image / shape / layout / motion으로 매핑한다
   - 예: `Calm` → 저채도 컬러, 넓은 여백, 부드러운 코너, 느린 모션
@@ -232,6 +240,7 @@ grep -c '^- 폐기한 대안·이유:' .design/approvals/{YYYYMMDD}-concept.md  
 
 > "컨셉이 확정되었습니다. 다음 단계로 `/design-system`을 사용하여 이 컨셉 기반의 디자인 토큰을 정의할 수 있습니다."
 
+<!-- markdownlint-disable-next-line MD025 -->
 # References
 
 - `references/concept-criteria.md` — 컨셉 도출 기준 상세

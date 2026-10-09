@@ -38,14 +38,14 @@ ER-01 이 그 보존을 잰다.
    낮추고 비인용 내부 운영 팁으로 강등한다. HBR 로 인용 가능한 것은 기법 자체 (Gary Klein · 2007-09) 다.
 4. **부수 — Betting Table 정본 URL.** evidence: `https://basecamp.com/shapeup/2.2-chapter-08`.
    현재 킷 안에 Betting Table 을 **URL 과 함께 인용하는 곳은 0 건**이므로 (`grep -rni betting`
-   → `docs/planning/research-log.md:80` 1 행, URL 없음) 스킬 본문은 건드리지 않고 정본 URL 을
+   → `docs/planning/research-log.md:97` 1 행, URL 없음) 스킬 본문은 건드리지 않고 정본 URL 을
    research-log 신규 엔트리에 선제 기록만 한다.
 5. **부수 — Mermaid 버전 고정 표기.** evidence: `v10` 같은 버전 고정은 원 문서에서 확인되지 않는다.
    근거 없는 버전 핀 2 건을 제거한다.
 
 **Phase 1 서브에이전트 스펙 정정과의 교차 없음** — planning-kit 전체에서 중첩 깊이·frontmatter
 필드 수를 서술하는 곳이 0 건이다 (`grep -rni '서브에이전트\|subagent\|중첩\|frontmatter' planning-kit`
-→ 1 행, `plan-audit/SKILL.md:59` 의 "planning-reviewer 서브에이전트 spawn" 뿐이며 스펙 주장이 아니다).
+→ 1 행, `plan-audit/SKILL.md:63` 의 "planning-reviewer 서브에이전트 spawn" 뿐이며 스펙 주장이 아니다).
 
 ## 리서치 소스 (evidence 파일 한정 — 외부 조회 0 회)
 
@@ -68,8 +68,8 @@ ER-01 이 그 보존을 잰다.
 | F1 | `plan-sync-github` Gotcha 4 의 GraphQL-only 단정 | 옛 문자열 매치 **1** | SK-01 |
 | F2 | 같은 스킬에서 REST 를 병기하지 않는 GraphQL 줄 | **2** (`:18`, `:90`) | SK-02 |
 | F3 | `plan-stories` Gotcha 5 의 내부규칙 라벨 | `내부 원자성 규칙` **0** 건 | SK-03 |
-| F4 | premortem "개별 기록 → 공유" 절차 중 `[미확인]` 미표기 | **3** (`plan-risks:22`, `plan-risks:40`, `risks.md:25`) | SK-04 |
-| F5 | 근거 없는 Mermaid 버전 핀 | **2** (`reference.md:550`, `research-log.md:86`) | ER-02 |
+| F4 | premortem "개별 기록 → 공유" 절차 중 `[미확인]` 미표기 | **3** (`plan-risks:22`, `plan-risks:40`, `risks.md:28`) | SK-04 |
+| F5 | 근거 없는 Mermaid 버전 핀 | **2** (`reference.md:754`, `research-log.md:86`) | ER-02 |
 | F6 | research-log 구 엔트리의 GraphQL-only 판단 (정정 포인터 없음) | **4** (`:24`, `:31`, `:57`, `:101`) | AR-03 |
 | — | 감사 기준 표면 (`plan-audit` 카테고리 6·10 · `planning-reviewer`) | 정정 대상 아님 — 무변경 | ER-01 (보존 조건) |
 

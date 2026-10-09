@@ -24,7 +24,7 @@ user-invocable: true
 9. **스택별 코드 생성 금지** — 이 스킬은 원칙과 토큰 명세만 출력한다. Flutter/React/CSS 코드를 직접 생성하지 마라. 해당 toolkit 플러그인에 위임하라.
 10. **DTCG `$extends` 그룹 상속 활용** — DTCG 2025.10에서 추가된 `$extends` 키워드로 그룹 간 deep merge 상속이 가능하다. 동일한 primitive 값을 여러 semantic 그룹에서 반복 정의하지 말고, 공통 그룹을 만들어 `$extends`로 참조하라. 순환 참조는 금지되며 파서가 감지해야 한다. 출처: research-log §A.
 11. **HTML 예시 `:root` CSS 변수는 design-kit 기존 파일과 정합해야 한다** — Step 4에서 토큰 명세 예시로 HTML 스니펫을 포함할 경우, `:root { --color-*: ...; }` 값이 `design-kit/docs/` 또는 `design-kit/templates/` 내 기존 HTML 파일의 CSS 변수 값과 일치해야 한다. 값 불일치는 시스템 분열의 시작이며 실제 REJECT 사유였다 (AR-06). 새 변수를 추가할 때는 기존 파일에도 동시에 반영하거나 불일치 이유를 명시하라.
-12. **컬러 primitive는 OKLCH 권장** — Tailwind CSS v4(2025-01-22 발표 · 최신 안정판 v4.3.3, 2026-07-16)가 기본 팔레트를 `rgb` 에서 `oklch` 로 바꿨고, shadcn/ui v4도 HSL→`oklch()` 전환을 완료했다. OKLCH는 지각적 lightness(L)·chroma(C)·hue(H) 축으로 램프가 균일하고 P3 wide gamut을 활용해 sRGB 제약을 풀 수 있다. primitive 정의 시 `oklch(L% C H)` 표기를 우선하고, 레거시 브라우저 fallback이 필요하면 sRGB hex를 병기하라. **브라우저 지원:** Safari 16.4+ / Chrome 111+ / Firefox 128+ (Tailwind v4 지원 범위와 동일). **Figma 주의:** Figma Variables는 OKLCH 미지원이라 hex 근사치를 병기하는 것이 관행(Obra shadcn kit 등). 출처: [Tailwind v4 blog](https://tailwindcss.com/blog/tailwindcss-v4), [Tailwind v4.3.3](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.3), [shadcn Tailwind v4](https://ui.shadcn.com/docs/tailwind-v4), [Evil Martians OKLCH](https://evilmartians.com/chronicles/better-dynamic-themes-in-tailwind-with-oklch-color-magic), [MDN oklch()](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch).
+12. **컬러 primitive는 OKLCH 권장** — Tailwind CSS v4(2025-01-22 발표 · 최신 안정판 v4.3.3, 2026-07-16)가 기본 팔레트를 `rgb` 에서 `oklch` 로 바꿨고, shadcn/ui v4도 HSL→`oklch()` 전환을 완료했다. OKLCH는 지각적 lightness(L)·chroma(C)·hue(H) 축으로 램프가 균일하고 P3 wide gamut을 활용해 sRGB 제약을 풀 수 있다. primitive 정의 시 `oklch(L% C H)` 표기를 우선하고, 레거시 브라우저 fallback이 필요하면 sRGB hex를 병기하라. **브라우저 지원:** Safari 16.4+ / Chrome 111+ / Firefox 128+ (Tailwind v4 지원 범위와 동일). **Figma 주의:** Figma 도움말은 색 모델을 Hex · HSB · HSL · CSS · RGB 다섯으로 열거하고 OKLCH 는 목록에 없다([About color models](https://help.figma.com/hc/en-us/articles/360043042113-About-color-models)). Variables 가 OKLCH 를 못 받는다고 직접 적은 문장은 없으니 그렇게 단정하지 말고, Figma 로 옮길 때는 hex 근사치를 병기하는 것이 관행이다(Obra shadcn kit 등). 출처: [Tailwind v4 blog](https://tailwindcss.com/blog/tailwindcss-v4), [Tailwind v4.3.3](https://github.com/tailwindlabs/tailwindcss/releases/tag/v4.3.3), [shadcn Tailwind v4](https://ui.shadcn.com/docs/tailwind-v4), [Evil Martians OKLCH](https://evilmartians.com/chronicles/better-dynamic-themes-in-tailwind-with-oklch-color-magic), [MDN oklch()](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch).
 13. **Enumerate-before-Act — 토큰 수정 전 전수 나열 필수** — 기존 디자인 시스템 개선 요청(예: "다크모드 대응해줘", "semantic 토큰 정리해줘") 시 편집 전에 반드시 아래 순서로 enumerate 한다. (1) 기존 token 파일 전체 목록 + 카테고리별 개수, (2) Tier 1 primitive / Tier 2 semantic / Tier 3 component 분포, (3) 누락 카테고리 · 네이밍 위반 · 다크모드 미대응 항목을 **위반 리스트** 로 제시, (4) 사용자 승인 후 편집. 일부만 수정하고 "이후는 따라 하면 됩니다" 로 넘기는 안티패턴을 방지한다 (insights-report #1 "Proactive quality gaps" 대응 · skill-design-guide §5.5 Enumerate-before-Act 원칙).
 14. **DTCG v1 스키마 준수 — alias 는 중괄호 참조다** — Design Tokens Community Group이 2025-10-28에 **Design Tokens Format Module 2025.10**을 첫 stable "Final Community Group Report"로 공개했다 (DTCG v1). JSON 포맷은 `$value`, `$type`, `$description` prefix를 사용하며, 그룹 객체(`$value` 없음)는 그룹 단위 `$type` 기본값을 설정할 수 있다. `$extensions`는 툴 벤더 메타데이터다. `$schema` 는 2025.10 Final Report 의 그룹 속성 목록에 없다 — 도구가 쓰는 확장이면 DTCG 규격과 구분해 적는다.
 
@@ -53,8 +53,9 @@ user-invocable: true
 
 16. **부분 변경 요청은 그 토큰만 — 주변 값 동시 조정 금지** — "이 보더 색만 진하게", "surface 만 한 단계 어둡게" 같은 요청에서 지목되지 않은 토큰(배경, fill, 텍스트, radius, elevation)을 함께 조정하지 마라. 램프 일관성을 이유로 인접 스텝까지 재계산하는 것도 요청 범위 밖이다. 편집 전에 `변경 / 보존` 목록을 남기고, 편집 후 보존 목록의 값이 그대로인지 확인한다. 의도 외 토큰이 변했으면 되돌리고 지목된 것만 다시 적용한다. "색은 지금이 맞는데 그라디언트만 이전으로" 같은 부분 롤백은 지목된 축만 되돌린다. 상세: `../../references/visual-change-protocol.md` §2.
 
-17. **요청한 토큰 카테고리만 정의 — 풀 시스템 스캐폴딩 임의 확장 금지** (insights-report #1 스코프 오독 · #3 과잉설계 대응) — "컬러 팔레트만 만들어줘", "spacing scale 잡아줘" 처럼 **특정 카테고리** 만 요청받으면 그 카테고리만 정의하라. 요청하지 않은 typography·radius·elevation·motion 토큰까지 전체 체계를 한꺼번에 스캐폴딩하지 마라. "완전한 토큰 체계" 요구(다른 Gotcha의 3계층·semantic 강제)는 **요청된 카테고리 내부의 완전성**을 의미하지, 카테고리 자체의 임의 확장을 의미하지 않는다. 범위가 모호하면 추측해서 확장하지 말고 "컬러만 정의할지, 전체 토큰 체계를 세팅할지" 한 줄로 확인하라. 확장 제안이 가치 있다고 판단되면 산출물에 박지 말고 "추가로 typography/spacing 토큰도 세팅을 권장합니다 — 진행할까요?" 형태의 **별도 제안**으로 분리하라. 3계층(primitive→semantic→component) 풀 빌드도 마찬가지다 — 2026 리서치 기준 대부분의 팀은 primitive+semantic 2계층으로 충분하며 component 토큰 계층은 엔터프라이즈 규모에서만 필요하다. 요청·규모 근거 없이 3계층을 기본 출력하지 마라. 출처: [zeroheight Design Systems Report 2026](https://report.zeroheight.com/) (two-tier가 실무 표준, full three-tier는 절반 정도 팀만), material-design.md:273 (점진적 도입).
+17. **요청한 토큰 카테고리만 정의 — 풀 시스템 스캐폴딩 임의 확장 금지** (insights-report #1 스코프 오독 · #3 과잉설계 대응) — "컬러 팔레트만 만들어줘", "spacing scale 잡아줘" 처럼 **특정 카테고리** 만 요청받으면 그 카테고리만 정의하라. 요청하지 않은 typography·radius·elevation·motion 토큰까지 전체 체계를 한꺼번에 스캐폴딩하지 마라. "완전한 토큰 체계" 요구(다른 Gotcha의 3계층·semantic 강제)는 **요청된 카테고리 내부의 완전성**을 의미하지, 카테고리 자체의 임의 확장을 의미하지 않는다. 범위가 모호하면 추측해서 확장하지 말고 "컬러만 정의할지, 전체 토큰 체계를 세팅할지" 한 줄로 확인하라. 확장 제안이 가치 있다고 판단되면 산출물에 박지 말고 "추가로 typography/spacing 토큰도 세팅을 권장합니다 — 진행할까요?" 형태의 **별도 제안**으로 분리하라. 3계층(primitive→semantic→component) 풀 빌드도 마찬가지다 — 2026 리서치 기준 대부분의 팀은 primitive+semantic 2계층으로 충분하며 component 토큰 계층은 엔터프라이즈 규모에서만 필요하다. 요청·규모 근거 없이 3계층을 기본 출력하지 마라. 출처: [zeroheight Design Systems Report 2026](https://report.zeroheight.com/) (two-tier가 실무 표준, full three-tier는 절반 정도 팀만), material-design.md:281 (점진적 도입).
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Process
 
 ## Step 1: 프로젝트 디자인 시스템 감지
@@ -97,7 +98,7 @@ Tier 3 — Component (컴포넌트 예외 오버라이드)
 카테고리별 필수/선택 및 semantic 네이밍 기준:
 
 | 카테고리 | 필수 여부 | Semantic 예시 | Scale 기준 |
-|----------|-----------|---------------|------------|
+| ---------- | ----------- | --------------- | ------------ |
 | Color | 필수 | text.primary, text.secondary, text.disabled, background.surface, background.brand, border.default, border.subtle | — |
 | Typography | 필수 | font.display.lg, font.heading.md, font.body.sm, font.label.xs (size+weight+line-height 묶음) | Modular Scale 비율 권장 (1.125 Major Second ~ 1.618 Golden Ratio). Fluid: `clamp(min, preferred, max)` |
 | Spacing | 필수 | space.xs(4), space.sm(8), space.md(16), space.lg(24), space.xl(32), space.2xl(48) | 4px base. Fluid spacing: `clamp()` 기반 연속 간격도 고려 |
@@ -105,7 +106,7 @@ Tier 3 — Component (컴포넌트 예외 오버라이드)
 | Elevation | 선택 | elevation.level-0 ~ level-4 (shadow값) | — |
 | Motion | 선택 | motion.duration.fast(100ms), motion.duration.normal(200ms), motion.easing.standard | — |
 
-**참고 — Material 3 Expressive (2025-05 발표, Android 16):** MD3 Expressive는 HCT(Hue-Chroma-Tone) 기반 **tonal palette 정교화**로 primary/secondary/tertiary 분리를 강화했고, 46개 연구/18,000명 참가를 근거로 더 풍부한 컬러 토큰 세트와 동적 컬러 개인화를 유지한다. 타이포는 variable font axes(예: Roboto Flex)로 weight/width를 시스템화하고, 모션은 springy 애니메이션으로 표현력을 강화했다. MD3 tonal 구조를 채택할 때는 HCT 톤 스텝을 semantic alias에 매핑하여 primitive로 저장한다. 출처: [Supercharge MD3 Expressive](https://supercharge.design/blog/material-3-expressive), [Dezeen Google Expressive](https://www.dezeen.com/2025/05/28/google-ushers-in-age-of-expressive-interfaces-with-material-design-update/).
+**참고 — Material 3 Expressive (2025-05 발표):** 공식 Material 문서는 M3 Expressive 가 46 개 연구 · 18,000명 넘는 참가자를 근거로 더 넓은 색 범위 · 동적 색 · 개인화 · spring 기반 motion physics system 을 준다고 적는다. HCT 로 색마다 tonal palette 를 만들고 그 톤을 color role 에 배정하는 것은 Expressive 고유 기능이 아니라 M3 색 시스템 전체의 설명이다. Roboto Flex 같은 variable font 는 표현을 위한 선택지이고 M3 type scale 에 포함되지 않는다. tonal palette 의 톤을 primitive 로, color role 을 semantic alias 로 대응시키는 것은 공식 규칙이 아니라 이 저장소 3 계층 토큰 구조의 저장소 관례다. 출처: [Start building with Material 3 Expressive](https://m3.material.io/blog/building-with-m3-expressive), [Color system](https://m3.material.io/styles/color/system/overview), [Typography](https://m3.material.io/styles/typography/overview), [Motion](https://m3.material.io/styles/motion/overview) (2026-09-28 조회).
 
 ## Step 3: HAS_DS=true → 기존 시스템 분석
 
@@ -142,6 +143,7 @@ templates/design-tokens.md 포맷으로 토큰 명세를 생성한다.
 - **Fluid Typography 가이드** — typography 토큰 정의 시, 고정 크기 외에 `clamp(min, preferred, max)` 기반 fluid scale 옵션을 제시한다. Modular Scale 비율(1.125 Major Second ~ 1.618 Golden Ratio) 중 프로젝트 성격에 맞는 비율을 추천하고, Utopia 접근법(소형/대형 화면 두 스케일 보간)을 참조한다. 출처: research-log §E.
 - **Fluid Spacing 가이드** — spacing 토큰에 Fixed(고정) 외에 Fluid(`clamp()`) 및 Adaptive(breakpoint별 전환) 옵션을 제시한다. Internal ≤ External 규칙(요소 내부 여백 ≤ 외부 여백)을 명시한다. 출처: research-log §F.
 
+<!-- markdownlint-disable-next-line MD025 -->
 # References
 
 - `references/token-principles.md` — 토큰 설계 원칙 상세

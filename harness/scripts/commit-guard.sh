@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 커밋 안전 훅. Claude Code 의 Bash PreToolUse · PostToolUse 에서 부른다.
-#   commit-guard.sh pre   커밋 직전. 삭제 50 개 초과 · 남의 커밋 되돌림 · 빈 개인 목록이면 exit 2
+#   commit-guard.sh pre   커밋 직전. 삭제 50 개 초과 · 남의 커밋 되돌림 · 빈 개인 목록 · 계약 범위 목록 밖 경로면 exit 2
 #   commit-guard.sh post  커밋 직후. 방금 커밋의 삭제가 50 개를 넘으면 알리기만 한다
 #
 # 훅이 죽어서 정상 커밋을 막는 것이 훅이 없는 것보다 나쁘다. 그래서 set -e 를 쓰지 않고,
@@ -159,15 +159,25 @@ parse_commit_args() {
 }
 
 # overlay_deletes <목록 파일> <이름 목록> — 목록 파일에 그 이름들의 작업 폴더 상태를 얹고, git 처럼 이름 바꾸기(-M)를
-# 가려 남는 삭제 이름을 낸다. 파일 수로 세면 git mv 로 옮긴 폴더가 통째로 삭제로 보인다. 얹지 못하면 빈 값(통과)이다.
+# 가려 남는 삭제 이름을 낸다. 파일 수로 세면 git mv 로 옮긴 폴더가 통째로 삭제로 보인다.
 # 희소 체크아웃으로 꺼내지 않은 파일(ls-files -t 의 S)은 작업 폴더에 없어도 git 이 싣지 않으므로 얹지 않는다
 overlay_deletes() {
-  local idx=$1 top
+  local idx=$1 top names name
   top=$(g rev-parse --show-toplevel) || return 0
-  comm -23 <(printf '%s\n' "$2" | grep . | sort -u) \
-    <(g ls-files -t --full-name -- "${c_pathv[@]}" | sed -n 's/^S //p' | sort) \
-    | GIT_INDEX_FILE=$idx git -C "$top" update-index --add --remove --stdin 2>/dev/null || return 0
-  GIT_INDEX_FILE=$idx git -C "$top" -c core.quotePath=false diff --cached -M --diff-filter=D --name-only HEAD 2>/dev/null
+  names=$(comm -23 <(printf '%s\n' "$2" | grep . | sort -u) \
+    <(g ls-files -t --full-name -- "${c_pathv[@]}" | sed -n 's/^S //p' | sort))
+  # 파일 자리가 폴더로(또는 그 반대로) 바뀐 이름은 --replace 가 없으면 update-index 가 통째로 실패한다 — git add 처럼 바꿔 넣는다
+  if printf '%s\n' "$names" | grep . | GIT_INDEX_FILE=$idx git -C "$top" update-index --add --remove --replace --stdin 2>/dev/null; then
+    GIT_INDEX_FILE=$idx git -C "$top" -c core.quotePath=false diff --cached -M --diff-filter=D --name-only HEAD 2>/dev/null
+    return 0
+  fi
+  # 그래도 못 얹으면(읽을 수 없는 새 파일 등) 이름 바꾸기를 가리지 않고 작업 폴더에 없는 이름을 삭제로 더한다 — 빈 값을 내면 목록의 삭제까지 빠진다
+  {
+    GIT_INDEX_FILE=$idx git -C "$top" -c core.quotePath=false diff --cached -M --diff-filter=D --name-only HEAD 2>/dev/null
+    printf '%s\n' "$names" | while IFS= read -r name; do
+      [ -z "$name" ] || [ -e "$top/$name" ] || [ -L "$top/$name" ] || printf '%s\n' "$name"
+    done
+  } | sort -u
 }
 
 # 경로 지정 커밋은 공용 목록이 아니라 HEAD 위에 그 경로의 작업 폴더 상태를 얹는다. 목록으로 세면
@@ -183,14 +193,98 @@ check_path_commit() {  # check_path_commit <저장소 폴더>
       g ls-files --full-name -- "${c_pathv[@]}")")
   rm -rf "$t"
   n=$(printf '%s\n' "$names" | grep -c .)
-  [ "$n" -gt "$limit" ] || return 0
-  block "삭제 $n 개가 실린 커밋을 막았다 (기준 $limit 개 초과 · 지정한 경로 안에서 작업 폴더에 없는 추적 파일)." "상위 폴더:
+  [ "$n" -gt "$limit" ] && block "삭제 $n 개가 실린 커밋을 막았다 (기준 $limit 개 초과 · 지정한 경로 안에서 작업 폴더에 없는 추적 파일)." "상위 폴더:
 $(top_dirs "$names")
 확인: git status --short -- <지정한 경로>"
+  check_scope "$d" "$(carried_paths "" "$(g ls-tree -r --full-name --name-only HEAD -- "${c_pathv[@]}"
+    g ls-files --full-name -- "${c_pathv[@]}")")"
+}
+
+# carried_paths <목록 파일 | 빈 값> <얹을 이름 목록> — 이 커밋이 싣는 경로를 이름 바꾸기 없이 낸다.
+# 목록 파일이 빈 값이면 HEAD 에서 시작한다(경로 지정 커밋). 이름 바꾸기로 묶으면 범위 밖으로 옮긴 새 경로가 옛 경로 뒤에 숨는다
+carried_paths() {
+  local top t
+  g rev-parse -q --verify HEAD >/dev/null || return 0
+  top=$(g rev-parse --show-toplevel) || return 0
+  t=$(mktemp -d "${TMPDIR:-/tmp}/commit-guard.XXXXXX") || return 0
+  if [ -n "$1" ]; then
+    cp "$1" "$t/index" 2>/dev/null || { rm -rf "$t"; return 0; }
+  else
+    GIT_INDEX_FILE=$t/index git -C "$top" read-tree HEAD 2>/dev/null || { rm -rf "$t"; return 0; }
+  fi
+  printf '%s\n' "$2" | grep . | sort -u | GIT_INDEX_FILE=$t/index git -C "$top" update-index --add --remove --replace --stdin 2>/dev/null
+  GIT_INDEX_FILE=$t/index git -C "$top" -c core.quotePath=false diff --cached --no-renames --name-only HEAD 2>/dev/null
+  rm -rf "$t"
+}
+
+# scope_blocks <계약 폴더> <세션> — 그 폴더 .harness/ 의 계약 가운데 status: active 이고 owner_session 이 세션과 같은 것의
+# 「## 범위 경계」 절 안 # sprint-scope 블록 줄을 낸다. 규약: harness/references/contract-schema.md §범위 목록 블록
+# find -H — .harness 가 하네스 저장소로 가는 바로가기면 -H 없이는 맥 find 가 안을 열지 않아 범위 검사가 조용히 빠진다
+scope_blocks() {
+  local f
+  find -H "$1/.harness" -maxdepth 1 -type f -name 'sprint-contract*.md' 2>/dev/null | while IFS= read -r f; do
+    [ -r "$f" ] || continue
+    awk -v s="$2" '
+      # 계약 형식 문서 §값 따옴표 규약의 fm_get 과 같게 읽는다 — 따옴표 벗기기 · 빈칸이나 탭 뒤 # 부터는 주석
+      function val(l,  c, e) {
+        sub(/^[^:]*:[[:space:]]*/, "", l); c = substr(l, 1, 1); e = index(substr(l, 2), c)
+        if ((c == "\"" || c == SQ) && e > 0) return substr(l, 2, e - 1)
+        if (c == "#") return ""
+        if (match(l, /[ \t]#/)) l = substr(l, 1, RSTART - 1)
+        sub(/[[:space:]]+$/, "", l); return l
+      }
+      BEGIN { SQ = sprintf("%c", 39) }
+      NR == 1 { if ($0 ~ /^---[[:space:]]*$/) { fm = 1; next } exit }
+      fm && /^---[[:space:]]*$/ { fm = 0; if (st != "active" || ow != s) exit; next }
+      fm && /^status:/ { st = val($0); next }
+      fm && /^owner_session:/ { ow = val($0); next }
+      fm { next }
+      /^[[:space:]]*(```|~~~)/ { if (fence) { fence = 0; blk = 0 } else { fence = 1; first = 1; blk = (sect && $0 ~ /^```text[[:space:]]*$/) } next }
+      fence && first { first = 0; if ($0 != "# sprint-scope") blk = 0; next }
+      fence && blk && NF && $0 !~ /^#/ { sub(/[[:space:]]+$/, ""); print; next }
+      fence { next }
+      /^## / { sect = (index($0, "## 범위 경계") == 1) }
+    ' "$f" 2>/dev/null
+  done
+}
+
+# check_scope <저장소 폴더> <실린 경로 목록> — 이 세션의 활성 계약이 범위 목록을 적었으면 그 밖 경로를 싣는 커밋을 막는다.
+# 판단이 안 서면(세션 없음 · 해당 계약 없음 · 블록 없음 · 못 읽음) 통과시킨다
+check_scope() {
+  local d=$1 sess root top rel pats out p pat hit
+  sess=$(printf '%s' "$payload" | jq -r '.session_id // empty' 2>/dev/null)
+  [ -n "$sess" ] || sess=${CLAUDE_CODE_SESSION_ID:-}
+  [ -n "$sess" ] || return 0
+  root=$d
+  while [ ! -d "$root/.harness" ]; do
+    [ "$root" = / ] && return 0
+    root=$(dirname "$root")
+  done
+  root=$(cd "$root" 2>/dev/null && pwd -P) || return 0
+  pats=$(scope_blocks "$root" "$sess" | sort -u)
+  [ -n "$pats" ] || return 0
+  top=$(g rev-parse --show-toplevel) || return 0
+  case $root in "$top") rel="" ;; "$top"/*) rel=${root#"$top"/}/ ;; *) return 0 ;; esac
+  out=$(printf '%s\n' "$2" | grep . | while IFS= read -r p; do
+    case $p in "${rel}.harness/"*) continue ;; esac
+    hit=0
+    while IFS= read -r pat; do
+      # shellcheck disable=SC2254  # 범위 목록 줄은 글롭 패턴이라 따옴표 없이 맞춘다
+      case $pat in
+        */) case $p in "$pat"*) hit=1 ;; esac ;;
+        *) case $p in $pat | "$pat"/*) hit=1 ;; esac ;;
+      esac
+      [ "$hit" = 1 ] && break
+    done <<<"$pats"
+    [ "$hit" = 1 ] || printf '%s\n' "$p"
+  done)
+  [ -n "$out" ] || return 0
+  block "계약 범위 목록 밖 경로 $(printf '%s\n' "$out" | grep -c .) 개를 싣는 커밋을 막았다 (이 세션의 활성 계약 # sprint-scope 블록 기준)." "$(printf '%s\n' "$out" | head -20 | sed 's/^/  /')
+범위를 넓혀야 하면 계약 본문이 아니라 개정 파일에 적고 사용자 동의를 받는다."
 }
 
 check_commit_pre() {  # check_commit_pre <저장소 폴더> <GIT_INDEX_FILE 값> <commit 인자…>
-  local d=$1 idx=$2 gd f staged extra names del_count reverted shown more t src
+  local d=$1 idx=$2 gd f staged extra worktree_deleted names del_count reverted shown more t src incl modified
   shift 2
   parse_commit_args "$@"
   [ "$c_dry" = 1 ] && return 0
@@ -218,21 +312,35 @@ check_commit_pre() {  # check_commit_pre <저장소 폴더> <GIT_INDEX_FILE 값>
   fi
 
   staged=$(g diff --cached -M --diff-filter=D --name-only)
-  # -i 는 지정한 경로의 작업 폴더 삭제를 목록에 더해 싣는다. 목록 사본에 얹어 세야
-  # 옮긴 파일(새 경로만 git add)의 옛 경로가 삭제가 아니라 이름 바꾸기로 잡힌다
-  if [ "$c_incl" = 1 ] && [ "${#c_pathv[@]}" -gt 0 ]; then
-    t=$(mktemp -d "${TMPDIR:-/tmp}/commit-guard.XXXXXX") || return 0
-    src=${g_index:-$(g rev-parse --git-path index)}
-    case $src in /*) ;; *) src=$d/$src ;; esac
-    cp "$src" "$t/index" 2>/dev/null &&
-      staged=$(overlay_deletes "$t/index" "$(g ls-files --full-name -- "${c_pathv[@]}")")
-    rm -rf "$t"
-  fi
   extra=""
-  if [ "$c_all" = 1 ] || [ "$add_all" = 1 ]; then extra=$(g ls-files --deleted); fi
-  names=$(printf '%s\n%s\n' "$staged" "$extra" | grep -v '^$' | sort -u)
+  src=${g_index:-$(g rev-parse --git-path index)}
+  case $src in /*) ;; *) src=$d/$src ;; esac
+  incl=""
+  if [ "$c_incl" = 1 ] && [ "${#c_pathv[@]}" -gt 0 ]; then incl=$(g ls-files --full-name -- "${c_pathv[@]}"); fi
+  # -a 와 같은 명령의 git add 는 작업 폴더 상태를, -i 는 지정한 경로의 작업 폴더 상태를 목록에 더해 싣는다.
+  # 목록 사본에 얹어 세야 옮긴 폴더의 옛 경로가 삭제가 아니라 이름 바꾸기로 잡힌다
+  if [ "$c_all" = 1 ] || [ "$add_all" = 1 ] || [ -n "$add_deleted" ] || [ -n "$incl" ]; then
+    # -a 는 하위 폴더에서 불러도 저장소 전체 삭제를 싣는다 — 셸 위치 아래만 세면 폴더 밖 삭제를 놓친다
+    worktree_deleted=$add_deleted
+    [ "$c_all" = 1 ] && worktree_deleted="$worktree_deleted
+$(g ls-files --full-name --deleted -- :/)"
+    [ -n "$incl" ] && worktree_deleted="$worktree_deleted
+$(g ls-files --full-name --deleted -- "${c_pathv[@]}")"
+    t=$(mktemp -d "${TMPDIR:-/tmp}/commit-guard.XXXXXX") || return 0
+    if cp "$src" "$t/index" 2>/dev/null; then
+      # add -A · add . 는 새 파일도 올린다 — 새 경로가 사본에 없으면 이름 바꾸기로 잡히지 않는다
+      staged=$(overlay_deletes "$t/index" "$(printf '%s\n%s\n%s\n' "$worktree_deleted" "$add_untracked" "$incl")")
+    fi
+    rm -rf "$t"
+    # 목록에서 이미 지운 삭제만으로 막을 때는 막힘 설명에 작업 폴더 삭제를 적지 않는다
+    extra=$(comm -12 <(printf '%s\n' "$staged" | sort) <(printf '%s\n' "$worktree_deleted" | sort) | grep .)
+  fi
+  names=$(printf '%s\n' "$staged" | grep -v '^$' | sort -u)
   del_count=$(printf '%s\n' "$names" | grep -c .)
   [ "$del_count" -gt "$limit" ] && block_deleted "$del_count" "$names" "$extra"
+  modified=""
+  [ "$c_all" = 1 ] && modified=$(g ls-files --full-name -m -d -- :/)
+  check_scope "$d" "$(carried_paths "$src" "$(printf '%s\n%s\n%s\n%s\n' "$modified" "$add_changed" "$add_untracked" "$incl")")"
 
   # 다른 세션이 HEAD 를 옮긴 뒤 공용 목록에 남은 옛 내용 — 목록 ≠ HEAD, 목록 ≠ 작업 폴더, 작업 폴더 = HEAD
   [ "$c_all" = 1 ] || [ "$add_all" = 1 ] && return 0
@@ -264,7 +372,8 @@ check_commit_post() {  # check_commit_post <저장소 폴더>
 }
 
 handle_git() {  # handle_git <off> <GIT_INDEX_FILE 값> <git 인자…>
-  local off=$1 idx=$2 gdir=$dir glost=$lost sub a
+  local off=$1 idx=$2 gdir=$dir glost=$lost sub a take=0 after_dd=0 flag_all=0 flag_update=0 no_new=0 no_rm=0 spec_file=0
+  local -a specs=()
   shift 2
   while [ $# -gt 0 ]; do
     case $1 in
@@ -283,12 +392,60 @@ handle_git() {  # handle_git <off> <GIT_INDEX_FILE 값> <git 인자…>
   case $sub in
     add)
       for a in "$@"; do
+        if [ "$take" = 1 ]; then take=0; continue; fi
+        if [ "$after_dd" = 1 ]; then specs+=("$a"); continue; fi
         case $a in
-          -A | --all | . | -u | --update | :/ | --no-ignore-removal) add_all=1 ;;
+          --) after_dd=1 ;;
+          --update) flag_update=1 ;;
+          --all | --no-ignore-removal) flag_all=1 ;;
+          --dry-run | --interactive | --patch | --edit | --intent-to-add) no_new=1 ;;
+          --ignore-removal | --no-all) no_rm=1 ;;
+          --pathspec-from-file) spec_file=1; take=1 ;;
+          --pathspec-from-file=*) spec_file=1 ;;
           --*) ;;
-          -*[Au]*) add_all=1 ;;
+          -*)
+            case $a in *A*) flag_all=1 ;; *u*) flag_update=1 ;; esac
+            case $a in *[nipeN]*) no_new=1 ;; esac
+            ;;
+          [0-9]*'>'* | [0-9]*'<'* | '>'* | '<'*)
+            case $a in *[!0-9\<\>]*) ;; *) take=1 ;; esac
+            ;;
+          *) specs+=("$a") ;;
         esac
       done
+      { [ "$flag_all" = 1 ] || [ "$flag_update" = 1 ]; } && add_all=1
+      for a in "${specs[@]}"; do case $a in . | :/) add_all=1 ;; esac; done
+      # 같은 명령의 커밋이 실을 작업 폴더 상태. 경로를 준 add 는 그 경로 안만, -A · -u 만 주면 저장소 전체다.
+      # 경로를 준 add 는 add_all 을 켜지 않는다 — 켜면 공용 목록 되돌림 검사가 꺼진다
+      # -n · -p 같은 add 는 목록을 바꾸지 않고, --ignore-removal 은 삭제를 싣지 않는다
+      if [ "$no_new" = 0 ] && [ "$spec_file" = 0 ] && [ "$glost" = 0 ]; then
+        g_dir=$gdir g_index=$idx
+        if [ "$no_rm" = 1 ] && [ "$flag_update" = 0 ]; then
+          set -- "${specs[@]}"
+          [ $# -gt 0 ] || [ "$flag_all" = 0 ] || set -- :/
+          [ $# -gt 0 ] && add_changed="$add_changed
+$(comm -23 <(g ls-files --full-name -m -- "$@" | sort) <(g ls-files --full-name --deleted -- "$@" | sort))"
+        elif [ "${#specs[@]}" -gt 0 ]; then
+          add_deleted="$add_deleted
+$(g ls-files --full-name --deleted -- "${specs[@]}")"
+          add_changed="$add_changed
+$(g ls-files --full-name -m -d -- "${specs[@]}")"
+        elif [ "$flag_all" = 1 ] || [ "$flag_update" = 1 ]; then
+          add_deleted="$add_deleted
+$(g ls-files --full-name --deleted -- :/)"
+          add_changed="$add_changed
+$(g ls-files --full-name -m -d -- :/)"
+        fi
+      fi
+      # 새 파일은 -A, 또는 -u 없이 경로를 준 add 만 올리고 그 경로 안의 것뿐이다. 경로 밖 추적 안 된 사본까지 얹으면
+      # git 이 싣지 않는 새 파일이 진짜 삭제와 이름 바꾸기로 짝지어져 삭제가 빠진다
+      if [ "$no_new" = 0 ] && [ "$spec_file" = 0 ] && [ "$glost" = 0 ] &&
+        { [ "$flag_all" = 1 ] || { [ "$flag_update" = 0 ] && [ "${#specs[@]}" -gt 0 ]; }; }; then
+        [ "${#specs[@]}" -gt 0 ] || specs=(:/)
+        g_dir=$gdir g_index=$idx
+        add_untracked="$add_untracked
+$(g ls-files --full-name --others --exclude-standard -- "${specs[@]}")"
+      fi
       ;;
     read-tree) read_trees="$read_trees$idx|" ;;
     commit)
@@ -355,7 +512,7 @@ handle_segment() {
   esac
 }
 
-dir=$cwd lost=0 add_all=0 x_off=0 x_index="" read_trees="|"
+dir=$cwd lost=0 add_all=0 add_untracked="" add_deleted="" add_changed="" x_off=0 x_index="" read_trees="|"
 while IFS= read -r seg; do
   IFS=$'\037' read -r -a words <<<"$seg"
   handle_segment "${words[@]}"

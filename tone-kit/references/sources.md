@@ -15,7 +15,7 @@
 ## 검증 상태 표기
 
 | 표기 | 뜻 |
-|---|---|
+| --- | --- |
 | 확인됨 | 2026-08-28 에 접근성과 인용 문구를 확인. 괄호에 날짜가 있으면 그날 확인 |
 | 승계 | 원본 코퍼스의 인용을 그대로 옮김. 개별 재확인 미실시 |
 | 주의 | 이동·리다이렉트 이력이 있어 인용 전 재확인 필요 |
@@ -27,7 +27,7 @@
 이 축의 출처는 **"무엇을 목표로 삼지 않는가"** 를 설명할 때만 쓴다. 스타일 규칙의 정당화 근거로 쓰지 않는다.
 
 | 출처 | URL | 상태 |
-|---|---|---|
+| --- | --- | --- |
 | Droid: A Resource Suite for AI-Generated Code Detection (EMNLP 2025) | <https://aclanthology.org/2025.emnlp-main.1593/> | 확인됨 |
 | Droid 프리프린트 | <https://arxiv.org/abs/2507.10583> | 확인됨 |
 | SemEval-2026 Task 13 공식 task page | <https://github.com/mbzuai-nlp/SemEval-2026-Task13> | 확인됨 |
@@ -41,7 +41,7 @@ SANER 2025 논문의 OpenReview 항목(<https://openreview.net/forum?id=uO8ix6tn
 ## 코어 — 주석과 가독성
 
 | 출처 | URL | 상태 |
-|---|---|---|
+| --- | --- | --- |
 | Google Engineering Practices — 리뷰어 관점 | <https://google.github.io/eng-practices/review/reviewer/looking-for.html> | 승계 |
 | Software Engineering at Google — 지식 공유 | <https://abseil.io/resources/swe-book/html/ch03.html> | 승계 |
 | Microsoft Code with Engineering Playbook | <https://microsoft.github.io/code-with-engineering-playbook/documentation/guidance/code/> | 승계 |
@@ -62,7 +62,7 @@ SANER 2025 논문의 OpenReview 항목(<https://openreview.net/forum?id=uO8ix6tn
 ## 코어 — 리팩토링과 구조
 
 | 출처 | URL | 상태 |
-|---|---|---|
+| --- | --- | --- |
 | Fowler — Extract Method | <https://refactoring.com/catalog/extractMethod.html> | 승계 |
 | Fowler — Extract Class | <https://refactoring.com/catalog/extractClass.html> | 승계 |
 | Fowler — Inline Function | <https://refactoring.com/catalog/inlineFunction.html> | 승계 |
@@ -80,8 +80,8 @@ SANER 2025 논문의 OpenReview 항목(<https://openreview.net/forum?id=uO8ix6tn
 ## 로케일 — 한국어 기술 문체
 
 | 출처 | URL | 상태 |
-|---|---|---|
-| 국립국어원 공공언어 자료 | <https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663> | 승계 |
+| --- | --- | --- |
+| 국립국어원 「유형별로 알아보는 보도자료 작성 길잡이」 | <https://korean.go.kr/front/etcData/etcDataView.do?etc_seq=663> | 확인됨 (2026-09-28) — 첨부 PDF 본문 확인. 보도자료의 `-다` 종결 권고(55쪽)와 한글 우선 · 어렵거나 불필요한 외래어 다듬기(63 · 64쪽)만 있다. K-02 · K-03 번역투 규칙과 K-05 의 API 이름 · 음역 세칙은 이 자료에 없고 이 킷의 컨벤션이다 |
 | 한국어 번역투 연구 (KCI) | <https://www.kci.go.kr/kciportal/landing/article.kci?arti_id=ART002178732> | 승계 |
 | LINE — 엔지니어의 글쓰기 | <https://engineering.linecorp.com/ko/blog/why-are-engineers-so-bad-at-writing/> | 승계 |
 | LY 엔지니어링 블로그 | <https://techblog.lycorp.co.jp/ko/> | 승계 |
@@ -94,14 +94,14 @@ SANER 2025 논문의 OpenReview 항목(<https://openreview.net/forum?id=uO8ix6tn
 
 기업 기술 블로그는 개별 글이 아니라 **문서 구조 관행** 의 참고 사례다. 특정 규칙의 단독 근거로 쓰지 않는다.
 
-K-11(새 이름을 만들지 않는다)의 근거는 위 표의 마지막 세 행이다. Microsoft · Google 가이드는 영어 문서용이고, 한글 맞춤법은 새 말 만들기를 금하지 않고 사전에 없는 전문 용어도 정당한 말로 다룬다 — 그래서 K-11 은 관측 컨벤션이고 판정 기준이 사전 등재가 아니다. Microsoft 항목은 공개 저장소 판(파일 날짜 2018)을 읽었고, Learn 페이지 본문과 같은지는 확인하지 않았다.
+K-11(새 이름을 만들지 않는다)의 근거는 위 표의 Microsoft Style Guide · Google 개발자 문서 스타일 가이드 · 한글 맞춤법 세 행이다. Microsoft · Google 가이드는 영어 문서용이고, 한글 맞춤법은 새 말 만들기를 금하지 않고 사전에 없는 전문 용어도 정당한 말로 다룬다 — 그래서 K-11 은 관측 컨벤션이고 판정 기준이 사전 등재가 아니다. Microsoft 항목은 공개 저장소 판(파일 날짜 2018)을 읽었고, Learn 페이지 본문과 같은지는 확인하지 않았다.
 
 ## 어댑터 — Dart / Flutter
 
 ### 공식 문서 — 확인됨
 
 | 출처 | URL |
-|---|---|
+| --- | --- |
 | Flutter 성능 모범 사례 | <https://docs.flutter.dev/perf/best-practices> |
 | Flutter 아키텍처 개요 | <https://docs.flutter.dev/resources/architectural-overview> |
 | `StatelessWidget` | <https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html> |
@@ -115,7 +115,7 @@ K-11(새 이름을 만들지 않는다)의 근거는 위 표의 마지막 세 �
 ### 언어 · 스타일 — 승계
 
 | 출처 | URL |
-|---|---|
+| --- | --- |
 | Effective Dart — Style | <https://dart.dev/effective-dart/style> |
 | Effective Dart — Documentation | <https://dart.dev/effective-dart/documentation> |
 | Effective Dart — Design | <https://dart.dev/effective-dart/design> |
@@ -132,7 +132,7 @@ K-11(새 이름을 만들지 않는다)의 근거는 위 표의 마지막 세 �
 ### 프레임워크 API · 패키지 — 승계
 
 | 출처 | URL |
-|---|---|
+| --- | --- |
 | `Material.surfaceTintColor` | <https://api.flutter.dev/flutter/material/Material/surfaceTintColor.html> |
 | `Border.all` | <https://api.flutter.dev/flutter/painting/Border/Border.all.html> |
 | `Divider.build` | <https://api.flutter.dev/flutter/material/Divider/build.html> |
@@ -140,28 +140,28 @@ K-11(새 이름을 만들지 않는다)의 근거는 위 표의 마지막 세 �
 | `Tab` | <https://api.flutter.dev/flutter/material/Tab/Tab.html> |
 | `CupertinoActionSheet` | <https://api.flutter.dev/flutter/cupertino/CupertinoActionSheet/CupertinoActionSheet.html> |
 | freezed | <https://pub.dev/packages/freezed> |
-| go_router 예제 | <https://pub.dev/packages/go_router/versions/16.3.0/example> |
+| go_router 예제 | <https://pub.dev/packages/go_router/versions/16.3.0/example> — 16.3.0 예제다. 최신은 18.0.1(2026-09-02 게시, 2026-09-26 확인)이고 그 사이 17.0.0 은 깨지는 변경, 18.0.0 은 `material_ui` · `cupertino_ui` 로 옮겼다 — 예제를 옮겨 쓰기 전에 판을 맞춘다 |
 | Riverpod — 코드 생성 | <https://riverpod.dev/ko/docs/concepts/about_code_generation> |
 | Riverpod — 변경 이력 | <https://riverpod.dev/docs/whats_new> |
 
 ### 프레임워크 소스 — 실제 패턴 참조
 
 | 출처 | URL |
-|---|---|
+| --- | --- |
 | Flutter — checkbox | <https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/checkbox.dart> |
 | Flutter — switch | <https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/switch.dart> |
 | Flutter — radio | <https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/radio.dart> |
 | Flutter — dropdown | <https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/dropdown.dart> |
 | Flutter — tabs | <https://github.com/flutter/flutter/blob/master/packages/flutter/lib/src/material/tabs.dart> |
 | Flutter 샘플 | <https://github.com/flutter/samples> |
-| Flutter 레포 스타일 가이드 | <https://github.com/flutter/flutter/wiki/Style-guide-for-Flutter-repo> — 주의 (위키 이전 이력 있음) |
+| Flutter 레포 스타일 가이드 | <https://github.com/flutter/flutter/blob/main/docs/contributing/Style-guide-for-Flutter-repo.md> — 위키에서 저장소 `docs/contributing/` 으로 옮겼다 (2026-09-26 확인) |
 
 ## 제외된 출처
 
 원본 코퍼스에 있었으나 이 킷이 인용하지 않는 것들. **되살리지 마라.**
 
 | 출처 | 제외 사유 |
-|---|---|
+| --- | --- |
 | DetectGPT (ICML 2023) <https://proceedings.mlr.press/v202/mitchell23a.html> | 자연어 텍스트 탐지기. 코드 스타일 규칙의 근거로는 범위를 벗어난다 |
 | Binoculars (ICML 2024) <https://icml.cc/virtual/2024/poster/33662> | 자연어 텍스트 탐지기. 위와 같음 |
 | LLM 텍스트 스타일로메트리 <https://www.sciencedirect.com/science/article/pii/S0957417425026181> | 대상이 텍스트다. 코드 결론으로 옮길 수 없다 |

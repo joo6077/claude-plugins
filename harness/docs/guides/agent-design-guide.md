@@ -1,10 +1,14 @@
 ---
 title: Claude Code 에이전트 설계 가이드
 version: 1.7.0
-last_updated: 2026-09-24
+last_updated: 2026-09-28
 ---
 
+<!-- markdownlint-disable MD025 -->
+
 # Claude Code 에이전트 설계 가이드
+
+<!-- markdownlint-enable MD025 -->
 
 > 공식 문서(2026-09-24 조회), Anthropic Research, 학술 논문, 커뮤니티 실전 경험 기반 서브에이전트 설계 원칙과 실전 팁
 
@@ -66,7 +70,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 
 ### frontmatter 전체 필드
 
-> **출처:** [Create custom subagents — Supported frontmatter fields](https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields) (2026-09-24 조회 · 2026-09-22 수정본)
+> **출처:** [Create custom subagents — Supported frontmatter fields](https://code.claude.com/docs/en/sub-agents#supported-frontmatter-fields) (2026-09-24 조회 · 2026-09-22 수정본 · 2026-09-28 다시 조회 — 필수는 `name` 과 `description` 둘뿐임을 재확인)
 
 공식 frontmatter 는 **18 종**이고, 그중 **필수는 `name` 과 `description` 둘뿐**이다. 아래 표가 그
 18 종 전부이며, 여기에 없는 이름을 frontmatter 필드로 소개하지 마라 (표 아래 "표에 없는 이름들" 참조).
@@ -77,7 +81,7 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 | `description` | 예 | 언제 위임할지 Claude가 판단하는 기준 |
 | `tools` | 아니오 | 허용 도구 목록. 생략 시 전체 상속. 목록의 어느 항목도 실제 도구로 해석되지 않으면 에이전트가 **launch 자체에 실패**한다. 스킬을 컨텍스트에 미리 넣으려면 여기에 `Skill` 을 적지 말고 `skills` 필드를 써라 |
 | `disallowedTools` | 아니오 | 차단 도구 목록 (상속·지정 목록에서 제거) |
-| `model` | 아니오 | `sonnet`, `opus`, `haiku`, `fable`, 풀 model ID(예: `claude-opus-5`), `inherit` (기본값) |
+| `model` | 아니오 | `sonnet`, `opus`, `haiku`, `fable`, 풀 model ID(예: `claude-opus-5`), `inherit`. 생략하면 호출별 `model` 인자 → frontmatter → 환경 변수 `CLAUDE_CODE_SUBAGENT_MODEL` → 메인 대화 모델 순으로 정한다 — 생략이 곧 `inherit` 은 아니다 (2026-09-26 원문 대조) |
 | `permissionMode` | 아니오 | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, `plan`, `manual`(= `default` 의 별칭) |
 | `maxTurns` | 아니오 | 최대 에이전트 턴 수 |
 | `skills` | 아니오 | 시작 시 주입할 스킬 목록 (전체 내용이 context 에 inject 됨, 스킬 invoke 가능성만 주어지는 게 아님) |
@@ -88,9 +92,9 @@ model: sonnet               # 선택. sonnet/opus/haiku/inherit
 | `effort` | 아니오 | `low`, `medium`, `high`, `xhigh`, `max` (모델별 가용 레벨 상이). 세션 effort 를 override |
 | `isolation` | 아니오 | `worktree`면 격리된 git worktree에서 실행 (변경이 없으면 자동 정리) |
 | `color` | 아니오 | 터미널 UI 에 표시되는 에이전트 색상 (`red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`) |
-| `omitClaudeMd` | 아니오 | 공식 표에서 이름만 확인했다 — 뜻 미확인. 쓰기 전에 공식 표를 직접 읽는다 |
+| `omitClaudeMd` | 아니오 | `true` 면 사용자 · 프로젝트 · 로컬 `CLAUDE.md` 를 넣지 않는다. managed policy 는 그대로 들어간다(managed settings 에서 정의한 에이전트는 그것도 뺀다). 메인 세션 에이전트(`--agent` · `agent` 설정)로 뜨면 무시된다. Claude Code v2.1.271 이상 |
 | `initialPrompt` | 아니오 | 이 에이전트가 메인 세션 에이전트로 뜰 때(`--agent` 또는 `agent` 설정) 첫 사용자 턴으로 들어간다. 파일 frontmatter 와 `--agents` JSON 양쪽에서 쓴다. **플러그인 서브에이전트에서는 무시된다.** 2026-08 판에서 뺐다가 2026-09-24 공식 표에서 다시 확인했다 |
-| `experimental` | 아니오 | 공식 표에서 이름만 확인했다 — 뜻 미확인. 쓰기 전에 공식 표를 직접 읽는다 |
+| `experimental` | 아니오 | 실험 옵션을 담는 맵이다. 지금 원문이 적은 키는 `cacheTtl`(`5m` · `1h`) 하나이고 다른 키는 무시된다. 서브에이전트 파일에서만 읽는다. Claude Code v2.1.248 이상. 에이전트 전체가 실험 단계라는 표시가 아니다 |
 
 **표에 없는 이름들 (혼동 방지 · 2026-08 정정):**
 
@@ -234,7 +238,7 @@ hooks:
 
 ### 서브에이전트 중첩 (nesting) — 기본 3 층까지 허용된다
 
-> **출처:** [Create custom subagents — Let subagents spawn their own subagents](https://code.claude.com/docs/en/sub-agents) (2026-07 확인)
+> **출처:** [Create custom subagents — Let subagents spawn their own subagents](https://code.claude.com/docs/en/sub-agents) (2026-07 확인 · 2026-09-28 다시 조회 — 3 층은 기본값이고 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` 로 바꾼다)
 
 **중요 정정 (2026-07):** 과거 이 가이드는 서브에이전트의 하위 위임을 금지된 것으로 기술했으나, 현재 공식 동작은 다르다. **서브에이전트는 기본적으로 자기 아래로 서브에이전트를 스폰할 수 있으며, 메인 대화 기준 3 층까지 중첩된다.** 깊이 한계에 도달하면 Claude Code 가 해당 서브에이전트에서 `Agent` 도구를 회수하므로, 그 에이전트는 위임 없이 직접 일하고 요약 하나만 반환한다.
 
@@ -462,7 +466,7 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 
 §10 Gotcha "과도한 병렬화는 토큰 낭비" 를 정량 규칙으로 승격한다. 비용·시간이 폭주하는 두 축은 **fan-out 폭(병렬 spawn 수)** 과 **exploration 깊이(구현 전 탐색 turn 수)** 다. 2026 사례: 단일 슬래시 커맨드가 49 서브에이전트를 2.5시간 병렬 spawn 하여 $8K~15K 추정 (CloudZero). `/insights` 에서는 같은 사용자가 Figma 노드 과탐색·웹 크롤링으로 구현 전 세션이 stall 되어 직접 중단하는 패턴이 반복됐다.
 
-**플랫폼 하드 리밋 (자체 예산과 구분하라):** Claude Code 자체가 강제하는 상한이 2 종 있다 — **동시 실행 20 개**(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` · ultracode 에서는 동시 실행 20 개 상한도 적용되지 않는다), **중첩 깊이 3 층**(`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`). 세션 전체 스폰 수에는 상한이 없다 (2026-09-24 조회한 공식 문서 기준 — 이전 판에 적었던 세션 누적 상한이 어느 릴리스에서 없어졌는지는 특정하지 못했다). 상한에 걸리면 `Agent` 도구가 실패한다. 이전 판이 적은 오류 문구는 `Concurrent subagent limit reached` · `Subagent spawn limit reached` 인데, 어느 문구가 어느 상한 것인지는 이번 조회에서 확인하지 못했다. 아래 "기본 5 개" 는 이 하드 리밋과 별개인 **자체 비용 예산**이며 항상 하드 리밋보다 작게 잡는다 — 하드 리밋은 사고를 막는 최후 방어선이지 설계 목표가 아니다.
+**플랫폼 기본 상한 (자체 예산과 구분하라):** Claude Code 가 기본으로 두는 상한이 2 종 있다 — **동시 실행 20 개**(`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` · ultracode 에서는 동시 실행 20 개 상한도 적용되지 않는다), **중첩 깊이 3 층**(`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`). 둘 다 고정값이 아니라 기본값이고 괄호 안 환경 변수로 바꿀 수 있다 (2026-09-28 원문 재확인). 세션 전체 스폰 수에는 상한이 없다 (2026-09-24 조회한 공식 문서 기준 — 이전 판에 적었던 세션 누적 상한이 어느 릴리스에서 없어졌는지는 특정하지 못했다). `Concurrent subagent limit reached` 는 이미 20 개가 동시에 도는 세션에서 하나를 더 띄울 때 나는 동시 실행 상한 오류다. 중첩 깊이 상한에 닿으면 보통 서브에이전트에는 `Agent` 도구가 아예 주어지지 않고, fork 는 도구가 남지만 부르면 오류가 난다 — 그 오류 글자는 원문에 없다. 이전 판이 적은 `Subagent spawn limit reached` 는 2026-09-26 원문 대조에서 찾지 못한 문구다. 아래 "기본 5 개" 는 이 플랫폼 상한과 별개인 **자체 비용 예산**이며 항상 플랫폼 상한보다 작게 잡는다 — 플랫폼 상한은 사고를 막는 최후 방어선이지 설계 목표가 아니다.
 
 **원칙:**
 
@@ -497,13 +501,21 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 
 에이전트 실패의 대부분은 **실행이 아니라 호출 품질** 문제다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### Bad
+
+<!-- markdownlint-enable MD024 -->
 
 ```text
 "인증 고쳐줘"
 ```
 
+<!-- markdownlint-disable MD024 -->
+
 ### Good
+
+<!-- markdownlint-enable MD024 -->
 
 ```text
 "OAuth 리다이렉트 루프를 수정해라. 로그인 성공 후 /dashboard 대신
@@ -511,6 +523,7 @@ PostToolUse 가 *편집 후* 의 quality gate 라면 PreToolUse 는 *편집 전*
 ```
 
 **좋은 호출의 4요소:**
+
 1. **컨텍스트 밀도** — 관련 배경 정보
 2. **구체적 범위** — 어떤 파일, 어떤 기능
 3. **파일 참조** — 정확한 경로
@@ -637,7 +650,11 @@ harness/agents/
 
 > **배경 (meta-issue):** skill-design-guide §3.5 "계약 모호성 방지 원칙" 이 이 가이드에 전수되지 않아 design-kit PH-01 REJECT 가 발생했다. 이 가이드 레벨의 변경이 파생 산출물(qa-evaluation-guide, qa-evaluator 에이전트, 하위 리뷰어 에이전트)로 자동 전파되지 않는 구조적 공백을 보완한다.
 
+<!-- markdownlint-disable MD024 -->
+
 ### 원칙
+
+<!-- markdownlint-enable MD024 -->
 
 에이전트 설계 가이드가 개정되면, **스킬 설계 가이드 · contract-design-guide · qa-evaluation-guide · 하위 에이전트(.md)** 에 대응 원칙이 존재하는지 자동 체크한다. 전파 필요성 판정 → 즉시 복제.
 
@@ -701,7 +718,7 @@ agent-design-guide.md 를 편집할 때:
 | 호출 품질 | 컨텍스트·범위·파일참조·성공기준 4요소 |
 | 독립 컨텍스트 | 생성과 평가는 분리 |
 | **중첩 3 층** | 서브에이전트도 위임 가능하나 기본 3 층에서 끊김 · 깊이를 설계 가정으로 삼지 마라 (§4) |
-| **하드 리밋** | 동시 20 · 깊이 3 (세션 전체 스폰 수는 상한 없음 · ultracode 는 동시 상한 없음) — 자체 예산은 항상 이보다 작게 (§7) |
+| **플랫폼 기본 상한** | 동시 20 · 깊이 3 (둘 다 기본값 · 환경 변수로 바뀜 · 세션 전체 스폰 수는 상한 없음 · ultracode 는 동시 상한 없음) — 자체 예산은 항상 이보다 작게 (§7) |
 | 영속 메모리 | 대화를 넘어서 학습시켜라 |
 | 디자인 패턴 | 체이닝/라우팅/병렬화/오케스트레이터/평가자/계획-실행/훅 트리거 중 선택 |
 | **Fan-out 상한 / Exploration Budget** | §7 — 병렬 spawn 기본 5개 이하 · 토큰vs시간 trade-off 명시 · summary-only 반환 |

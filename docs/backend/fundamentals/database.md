@@ -1,9 +1,10 @@
 ---
 title: 데이터베이스
 version: 0.3.0
-last_updated: 2026-09-25
+last_updated: 2026-09-28
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # 데이터베이스
 
 스키마 설계, 정규화와 반정규화, 인덱스 전략, 쿼리 최적화, N+1 문제, connection pooling, 마이그레이션 전략, 파티셔닝, 쓰기 경로 경합(동시성 가드), 시각 종류별 저장을 다룬다.
@@ -21,7 +22,7 @@ last_updated: 2026-09-25
 ### 2. 인덱스는 쿼리 패턴 기반으로 선택한다
 
 | 인덱스 타입 | 용도 | 적합한 쿼리 |
-|------------|------|------------|
+| ------------ | ------ | ------------ |
 | **B-tree** | 범위 검색, 정렬, 등치 비교 | `WHERE created_at > ?`, `ORDER BY id` |
 | **Hash** | 등치 비교 전용 | `WHERE email = ?` (PostgreSQL에서는 B-tree가 대부분 더 나음) |
 | **GIN** | 전문 검색, 배열, JSONB | `WHERE tags @> '{python}'`, `to_tsvector() @@ to_tsquery()` |
@@ -53,6 +54,7 @@ SELECT * FROM orders WHERE user_id = 42 AND status = 'pending';
 N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발생하는 패턴이다. 100개의 주문을 조회하면 101번의 쿼리가 실행된다.
 
 해결 방법:
+
 - **Eager loading**: `joinedload()` (SQLAlchemy), `include()` (Prisma), `prefetch_related()` (Django).
 - **DataLoader 패턴**: 같은 이벤트 루프 내 중복 요청을 배치로 묶는다 (GraphQL에서 필수).
 - **SQL 직접 작성**: ORM이 비효율적인 쿼리를 생성하면 JOIN을 직접 작성한다.
@@ -84,7 +86,7 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 ### 7. 파티셔닝은 TB급 테이블에서 range/list/hash 중 선택한다
 
 | 전략 | 적합한 케이스 | 예시 |
-|------|-------------|------|
+| ------ | ------------- | ------ |
 | **Range** | 시계열, 날짜 기반 | 월별 로그 테이블 |
 | **List** | 이산적 카테고리 | 국가별, 상태별 |
 | **Hash** | 균등 분산 | 사용자 ID 기반 샤딩 |
@@ -100,7 +102,7 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 지켜야 하는지부터 분류하고 담당 primitive 를 고른다.
 
 | invariant 유형 | 담당 primitive | 예시 |
-|---------------|---------------|------|
+| --------------- | --------------- | ------ |
 | 같은 row 의 상태 전이 | 조건부 `UPDATE ... WHERE <기대 상태/버전>` (compare-and-swap) | `UPDATE orders SET status='paid' WHERE id=$1 AND status='pending'` |
 | 존재 · 권한 · 가시성 predicate | 쓰기 SQL 자체의 `WHERE EXISTS (...)` / 조인 술어 | 차단 관계·공개 범위를 사전 `SELECT` 가 아니라 `INSERT ... SELECT ... WHERE EXISTS` 로 |
 | cross-row · absence · aggregate | unique / partial unique / exclusion 제약, 명시적 lock, `Serializable` + 직렬화 실패 재시도 | 구간 겹침 금지 → exclusion 제약 |
@@ -156,15 +158,23 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 - 시간대와 나라를 코드 상수나 한 나라 기본값으로 박지 않는다. 시간대를 요청·기기·사용자 설정·레코드 칸 중 어디서 받는지, 저장할지 요청마다 받을지를
   계약에 정한다. 나라 코드로 시간대를 정하지 않는다 — 한 나라에 시간대가 여럿일 수 있고, 나라와 무관하게 사용자가 고른 시간대도 있다.
   이 항목은 RFC 요구가 아니라 이 킷의 규칙이다. RFC 5545 는 시간대를 어디서 받을지 정하지 않는다.
+- 벽시계를 API 로 보낼 때 `format: date-time` 을 붙이지 않는다. OpenAPI 의 `date-time` 은 RFC 3339 를 따르고, RFC 3339 의 `full-time` 은
+  `partial-time time-offset` 이라 `time-offset`(UTC 와의 차이)이 반드시 있다. 오프셋 없는 `2026-09-28T09:30:00` 은 `date-time` 이 아니다.
+- 벽시계 날짜시각은 `YYYY-MM-DDTHH:mm:ss[.fraction]` 모양 하나로 보내고, OpenAPI 에는 `type: string` · `pattern` · `example` 로 적는다.
+  RFC 3339 는 「All times expressed have a stated relationship (offset) to Coordinated Universal Time (UTC).」 라고 적어 오프셋 없는 값을 다루지 않는다.
+  ISO 공개 설명의 예는 「September 27, 2022 at 6 p.m. is represented as 2022-09-27 18:00:00.000.」 처럼 날짜와 시각 사이가 빈칸이다.
+  그래서 `T` 구분과 소수초 자리는 ISO 8601 의 유일한 권고가 아니라 이 킷이 고른 형식이다.
+- 특정 지역에 묶인 벽시계에 IANA 시간대 이름 칸을 두는 것과 벽시계를 순간 하나로만 저장하지 않는 것은 RFC · IANA 의 직접 요구가 아니라
+  이 킷 규칙이다. IANA 는 시간대마다 이름을 주고 그 규칙이 바뀔 수 있다고 적을 뿐, 어느 칸에 저장하라고 하지 않는다.
 
-> **출처:** [RFC 5545 §3.3.5 — DATE-TIME](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5), [PostgreSQL — Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html)
+> **출처:** [RFC 5545 §3.3.5 — DATE-TIME](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.3.5), [PostgreSQL — Date/Time Types](https://www.postgresql.org/docs/current/datatype-datetime.html), [RFC 3339](https://www.rfc-editor.org/rfc/rfc3339), [OpenAPI Format Registry — date-time](https://spec.openapis.org/registry/format/date-time), [IANA — Theory and pragmatics of the tz code and data](https://www.iana.org/time-zones/theory), [ISO — ISO 8601 date and time format](https://www.iso.org/iso-8601-date-and-time-format.html) (뒤 넷은 2026-09-28 조회)
 
 ---
 
 ## 수치 기준
 
 | 항목 | 값 |
-|------|-----|
+| ------ | ----- |
 | HikariCP `maximumPoolSize` 기본값 | 10 |
 | HikariCP `connectionTimeout` 기본값 | 30초 |
 | HikariCP `idleTimeout` 기본값 | 10분 |
@@ -179,7 +189,7 @@ N+1은 1번의 목록 조회 후 각 항목마다 1번씩 추가 쿼리가 발�
 ## 안티패턴
 
 | 안티패턴 | 문제 |
-|----------|------|
+| ---------- | ------ |
 | 모든 컬럼에 인덱스 | 쓰기 성능 저하, 디스크 낭비, 옵티마이저 혼란. |
 | `SELECT *` | 불필요한 데이터 전송, covering index 활용 불가. |
 | ORM 기본 lazy loading 방치 | N+1 문제로 쿼리 수가 데이터 크기에 비례하여 폭증. |

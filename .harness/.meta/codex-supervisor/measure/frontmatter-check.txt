@@ -1,0 +1,5 @@
+complexity: "복잡"
+owner_session: fb4aefa8-0ee1-4711-9b22-7baf9c6b989f
+condition_lines_before=86a05d29f1cc08c6dbb2c81e96d7764590831f2b45bceea1f58866637fe1e3d4
+condition_lines_after=86a05d29f1cc08c6dbb2c81e96d7764590831f2b45bceea1f58866637fe1e3d4
+condition_lines_unchanged=true

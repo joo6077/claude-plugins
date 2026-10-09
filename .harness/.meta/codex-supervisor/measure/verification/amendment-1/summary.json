@@ -1,0 +1,181 @@
+{
+  "summary": "verification=PASS new_conditions=8 controls=8/8 expected_baseline_failures=8/8 negative_failures=8/8 legacy_unchanged=True sealed_unchanged=True model_calls=0",
+  "controls": [
+    {
+      "condition": "스크립트-12",
+      "kind": "controls",
+      "rc": 0,
+      "result": "PASS 스크립트-12 checks=4 failures=0",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-13",
+      "kind": "controls",
+      "rc": 0,
+      "result": "PASS 스크립트-13 checks=4 failures=0",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-14",
+      "kind": "controls",
+      "rc": 0,
+      "result": "PASS 스크립트-14 checks=10 failures=0",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-15",
+      "kind": "controls",
+      "rc": 0,
+      "result": "PASS 스크립트-15 checks=4 failures=0",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-16",
+      "kind": "controls",
+      "rc": 0,
+      "result": "PASS 스크립트-16 checks=4 failures=0",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-17",
+      "kind": "controls",
+      "rc": 0,
+      "result": "PASS 스크립트-17 checks=3 failures=0",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-18",
+      "kind": "controls",
+      "rc": 0,
+      "result": "PASS 스크립트-18 checks=4 failures=0",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-19",
+      "kind": "controls",
+      "rc": 0,
+      "result": "PASS 스크립트-19 checks=3 failures=0",
+      "ok": true
+    }
+  ],
+  "baselines": [
+    {
+      "condition": "스크립트-12",
+      "kind": "baseline",
+      "rc": 1,
+      "result": "FAIL 스크립트-12 checks=52 failures=12",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-13",
+      "kind": "baseline",
+      "rc": 1,
+      "result": "FAIL 스크립트-13 checks=31 failures=2",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-14",
+      "kind": "baseline",
+      "rc": 1,
+      "result": "FAIL 스크립트-14 checks=26 failures=7",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-15",
+      "kind": "baseline",
+      "rc": 1,
+      "result": "FAIL 스크립트-15 checks=14 failures=2",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-16",
+      "kind": "baseline",
+      "rc": 1,
+      "result": "FAIL 스크립트-16 checks=19 failures=2",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-17",
+      "kind": "baseline",
+      "rc": 1,
+      "result": "FAIL 스크립트-17 checks=39 failures=4",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-18",
+      "kind": "baseline",
+      "rc": 1,
+      "result": "FAIL 스크립트-18 checks=10 failures=6",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-19",
+      "kind": "baseline",
+      "rc": 1,
+      "result": "FAIL 스크립트-19 checks=26 failures=9",
+      "ok": true
+    }
+  ],
+  "negatives": [
+    {
+      "condition": "스크립트-12",
+      "kind": "negative",
+      "rc": 1,
+      "result": "FAIL 스크립트-12 checks=28 failures=23",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-13",
+      "kind": "negative",
+      "rc": 1,
+      "result": "FAIL 스크립트-13 checks=22 failures=11",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-14",
+      "kind": "negative",
+      "rc": 1,
+      "result": "FAIL 스크립트-14 checks=22 failures=9",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-15",
+      "kind": "negative",
+      "rc": 1,
+      "result": "FAIL 스크립트-15 checks=11 failures=5",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-16",
+      "kind": "negative",
+      "rc": 1,
+      "result": "FAIL 스크립트-16 checks=14 failures=5",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-17",
+      "kind": "negative",
+      "rc": 1,
+      "result": "FAIL 스크립트-17 checks=27 failures=18",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-18",
+      "kind": "negative",
+      "rc": 1,
+      "result": "FAIL 스크립트-18 checks=10 failures=6",
+      "ok": true
+    },
+    {
+      "condition": "스크립트-19",
+      "kind": "negative",
+      "rc": 1,
+      "result": "FAIL 스크립트-19 checks=18 failures=12",
+      "ok": true
+    }
+  ],
+  "legacy_pass": true,
+  "changed": [
+    "measure.sh"
+  ]
+}
