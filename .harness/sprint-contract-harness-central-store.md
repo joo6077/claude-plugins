@@ -4,7 +4,7 @@ slug: harness-central-store
 created: "2026-10-09 13:31"
 complexity: "복잡"
 conditions: 21
-status: active
+status: done
 owner_session: c0c0aae7-8201-45fd-b1e1-338ea412ed57
 conditions_digest: sha256:74af334948b909c0
 measurement_digest: sha256:b971576adfe7e1b2
