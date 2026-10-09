@@ -446,12 +446,12 @@ def script_03():
     check(len(e) == 2 and len({item['key'] for item in e}) == 2, '(e) 두 세션이 따로 나와야 한다: %s' % e)
     check(any(re.fullmatch(r'\$\(sync~spin\) e5f6 리서치 시도 1/3 · 30초 · 5시간 12% · 주간 3%', item['text']) for item in e), '(e) %s' % e)
     f = cases['f']
-    check(len(f) == 1 and '%' not in f[0]['text'], '(f) 사용량 없으면 % 없이: %s' % f)
+    check(len(f) == 1 and '%' not in f[0]['text'], '(f) 사용량 없으면 %% 없이: %s' % f)
     h = cases['h']
     check(len(h) == 1 and h[0]['text'].startswith('$(sync~spin) ---- 감독'), '(h) 세션 없음 표시: %s' % h)
     check(cases['i'] == [], '(i) updated 가 10 분 전이면 항목이 없어야 한다: %s' % cases['i'])
     j = cases['j']
-    check(len(j) == 1 and '5시간' not in j[0]['text'] and '주간 3%' in j[0]['text'], '(j) 풀린 창은 % 를 빼야 한다: %s' % j)
+    check(len(j) == 1 and '5시간' not in j[0]['text'] and '주간 3%' in j[0]['text'], '(j) 풀린 창은 %% 를 빼야 한다: %s' % j)
     check(len(cases['k']) == 1, '(k) 살아 있음 판단을 안 넘기면 기본 판단(살아 있는 pid)으로 1 개: %s' % cases['k'])
 
 
