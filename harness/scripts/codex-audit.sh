@@ -195,12 +195,15 @@ class Audit:
         self.rows = []
         self.sections = []
         self.turns = []
+        self.board = None
         self.repo = ''
         self.slug = ''
 
     def note(self, kind, **fields):
         # follow 가 읽는 진행 기록. 사람이 여는 파일이 아니다.
         fields.update(kind=kind, at=time.time())
+        if kind == 'turn-start' and self.board:
+            self.board.write(step=fields.get('name', ''))
         with (self.folder / 'progress.jsonl').open('a', encoding='utf-8') as out:
             out.write(scrub(json.dumps(fields, ensure_ascii=False)) + '\n')
 
@@ -527,8 +530,52 @@ def record_usage(audit, source, name, model, tokens, limits):
                model=model, input=tokens[0], cached=tokens[1], output=tokens[2])
     if limits:
         row['limits'] = limits
+        write_json(status_dir() / 'usage.json', dict(limits=limits, at=int(time.time())))
     with (source / USAGE_LOG).open('a', encoding='utf-8') as out:
         out.write(json.dumps(row, ensure_ascii=False) + '\n')
+
+
+def status_dir():
+    # VS Code 상태 표시줄 확장이 이 폴더를 읽는다 (harness/vscode-status).
+    return Path(os.environ.get('CODEX_STATUS_DIR') or Path.home() / '.codex-status')
+
+
+def write_json(path, data):
+    # 확장이 반쯤 쓴 파일을 읽지 않게 같은 폴더 임시 파일에 쓰고 이름을 바꾼다.
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_name('.' + path.name + '.' + str(os.getpid()) + '.tmp')
+    temp.write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
+    temp.replace(path)
+
+
+class Board:
+    # 이 감독이 도는 동안만 있는 상태 파일. 확장은 updated 가 2분 넘게 멈추면 죽은 것으로 본다.
+    def __init__(self, folder):
+        self.path = status_dir() / '감독-{}.json'.format(os.getpid())
+        now = int(time.time())
+        self.data = dict(kind='감독', session=os.environ.get('CLAUDE_CODE_SESSION_ID', ''), folder=str(folder), step='시작',
+                         started=now, updated=now, pid=os.getpid())
+        self.lock = threading.Lock()
+        self.closed = False
+        self.write()
+        threading.Thread(target=self.beat, daemon=True).start()
+
+    def write(self, **fields):
+        with self.lock:
+            if self.closed:
+                return
+            self.data.update(fields, updated=int(time.time()))
+            write_json(self.path, self.data)
+
+    def beat(self):
+        while not self.closed:
+            time.sleep(30)
+            self.write()
+
+    def close(self):
+        with self.lock:
+            self.closed = True
+            self.path.unlink(missing_ok=True)
 
 
 def check_usage(conf, source):
@@ -1099,6 +1146,14 @@ def run(verb, folder, number, args):
     remember_key(home)
     audit = Audit(folder, verb, conf)
     audit.repo, audit.slug = str(meta.parent), slug
+    audit.board = Board(meta.parent)
+    try:
+        return supervise(audit, verb, folder, number, args, contract, meta, slug, feedback, conf, categories, home)
+    finally:
+        audit.board.close()
+
+
+def supervise(audit, verb, folder, number, args, contract, meta, slug, feedback, conf, categories, home):
     audit.note('start', verb=verb, folder=folder.name, conditions=condition_count(contract, feedback))
     lines = []
     try:
