@@ -1,0 +1,29 @@
+# 사전 측정 스크립트 음성 대조 — 2026-10-09 11:31 · 명령: bash neg_follow.sh <이름> <옛글> <새글>
+
+## 1. 동그라미 위치를 절반으로 (dot.style.left … *100 → *50)
+ok   칸 108×108 · 그림 폭 108 — {"width":108,"height":108,"image":108}
+ok   큰 화면 보임 — "block"
+ok   처음 글줄 — "PGA 브라보를 골라 확인 창을 연다 — 조작 1/3 · ⋯ 버튼 탭"
+ok   단계 목록 오른쪽에 놓임 — {"display":"block","label":"PGA 브라보를 골라 확인 창을 연다 — 조작 1/3 · ⋯ 버튼 탭","dotHidden":false,"big":{"left":949.671875,"top":1045.265625,"width":258.640625,"height":560},"dot":{"x":1066.109375,"y":1097.15625},"panel":{"left":939,"top":1045.265625},"steps":{"top":1045.265625,"right":907,"bottom":1757.046875}}
+ok   세 번째에 마우스 → 3/3 — "PGA 브라보를 골라 확인 창을 연다 — 조작 3/3 · \"PGA 브라보\" 탭"
+FAIL 동그라미 위치 2px 안 — {"dx":-44.08119558457702,"dy":-0.010869565217490162}
+ok   빈 곳 · 스크롤 300 뒤 그대로 3/3 — true
+ok   키보드 초점 → 1/3 — true
+ok   누르면 확대 창 1/3 — {"open":true,"info":"조작 1/3 · ⋯ 버튼 탭"}
+ok   콘솔 오류 0 — []
+FAIL 구조-02 검사 10개 · 실패 1개 · 작업 폴더 /var/folders/_v/fx4zh4rd3pvfqkw696tkc6jh0000gn/T//op-follow-measure-XoT6qG
+종료 코드 1
+
+## 2. 마우스 올리기 처리 지움 (row.addEventListener("mouseenter",…) 삭제)
+ok   칸 108×108 · 그림 폭 108 — {"width":108,"height":108,"image":108}
+ok   큰 화면 보임 — "block"
+ok   처음 글줄 — "PGA 브라보를 골라 확인 창을 연다 — 조작 1/3 · ⋯ 버튼 탭"
+ok   단계 목록 오른쪽에 놓임 — {"display":"block","label":"PGA 브라보를 골라 확인 창을 연다 — 조작 1/3 · ⋯ 버튼 탭","dotHidden":false,"big":{"left":949.671875,"top":1045.265625,"width":258.640625,"height":560},"dot":{"x":1182.5625,"y":1097.15625},"panel":{"left":939,"top":1045.265625},"steps":{"top":1045.265625,"right":907,"bottom":1757.046875}}
+FAIL 세 번째에 마우스 → 3/3 — "PGA 브라보를 골라 확인 창을 연다 — 조작 1/3 · ⋯ 버튼 탭"
+FAIL 동그라미 위치 2px 안 — {"dx":144.74692941542298,"dy":-386.3702445652175}
+FAIL 빈 곳 · 스크롤 300 뒤 그대로 3/3 — false
+ok   키보드 초점 → 1/3 — true
+ok   누르면 확대 창 1/3 — {"open":true,"info":"조작 1/3 · ⋯ 버튼 탭"}
+ok   콘솔 오류 0 — []
+FAIL 구조-02 검사 10개 · 실패 3개 · 작업 폴더 /var/folders/_v/fx4zh4rd3pvfqkw696tkc6jh0000gn/T//op-follow-measure-8kYqYa
+종료 코드 1
