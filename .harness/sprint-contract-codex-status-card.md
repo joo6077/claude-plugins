@@ -4,7 +4,7 @@ slug: codex-status-card
 created: "2026-10-09 12:21"
 complexity: "중간"
 conditions: 18
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:d1c630e9e40b2763
 measurement_digest: sha256:ea8144966084fb1a
