@@ -1,0 +1,16 @@
+{
+    "type": "process",
+    "name": "fixture - wall budget classic high frag",
+    "version": "2.6.0.2",
+    "from": "User",
+    "inherits": "0.12mm High Quality @BBL H2S",
+    "print_settings_id": "fixture - wall budget classic high frag",
+    "compatible_printers": [
+        "Bambu Lab H2S 0.4 nozzle"
+    ],
+    "_wall_budget_mm": "3.36",
+    "_wall_budget_short_share": "0.93",
+    "_wall_outer_block_ratio": "1.850",
+    "wall_loops": "4",
+    "wall_generator": "classic"
+}
