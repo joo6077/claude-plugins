@@ -542,10 +542,14 @@ def status_dir():
 
 def write_json(path, data):
     # 확장이 반쯤 쓴 파일을 읽지 않게 같은 폴더 임시 파일에 쓰고 이름을 바꾼다.
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temp = path.with_name('.' + path.name + '.' + str(os.getpid()) + '.tmp')
-    temp.write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
-    temp.replace(path)
+    # 표시용이라 못 쓰면(상태 폴더 없음 · 디스크) 넘어간다 — 감독을 멈추지 않는다.
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temp = path.with_name('.' + path.name + '.' + str(os.getpid()) + '.tmp')
+        temp.write_text(json.dumps(data, ensure_ascii=False), encoding='utf-8')
+        temp.replace(path)
+    except OSError:
+        pass
 
 
 class Board:
@@ -568,14 +572,19 @@ class Board:
             write_json(self.path, self.data)
 
     def beat(self):
+        raw = os.environ.get('CODEX_STATUS_BEAT', '')
+        every = min(int(raw), 60) if raw.isdigit() and int(raw) > 0 else 30
         while not self.closed:
-            time.sleep(30)
+            time.sleep(every)
             self.write()
 
     def close(self):
         with self.lock:
             self.closed = True
-            self.path.unlink(missing_ok=True)
+            try:
+                self.path.unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 def check_usage(conf, source):

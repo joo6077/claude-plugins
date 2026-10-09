@@ -56,12 +56,25 @@ function jobsToItems(jobs, usage, folders, now, alive = pidAlive) {
       && alive(job.pid) && now - (job.updated || 0) <= STALE_SECONDS)
     .map((job) => {
       const short = (job.session || '').slice(0, 4) || '----';
+      const topic = job.topic ? `${job.topic} · ` : '';
       return {
         key: `${job.session || ''}|${job.kind}|${job.pid}`,
-        text: `$(sync~spin) ${short} ${job.kind} ${job.step} · ${elapsed(now - (job.started || now))}${shown}`,
-        tooltip: `세션 ${job.session || '없음'} · ${job.kind} ${job.step}\n폴더 ${job.folder}`,
+        kind: job.kind,
+        text: `${short} ${job.kind} · ${topic}${job.step} · ${elapsed(now - (job.started || now))}${shown}`,
       };
     });
+}
+
+// 창마다 항목 하나 — 종류별 개수만 짧게 보이고, 작업별 줄은 풀이에 한 줄씩.
+const KINDS = ['감독', '리서치'];
+
+function summarize(items) {
+  if (!items.length) return null;
+  const counts = KINDS.map((kind) => [kind, items.filter((item) => item.kind === kind).length]).filter(([, count]) => count);
+  return {
+    text: `$(sync~spin) ${counts.map(([kind, count]) => `${kind} ${count}`).join(' · ')}`,
+    tooltip: items.map((item) => item.text).join('\n'),
+  };
 }
 
 function readStatus(dir = statusDir()) {
@@ -87,4 +100,4 @@ function readStatus(dir = statusDir()) {
   return { jobs, usage };
 }
 
-module.exports = { statusDir, pidAlive, rootsOf, jobsToItems, readStatus };
+module.exports = { statusDir, pidAlive, rootsOf, jobsToItems, summarize, readStatus };
