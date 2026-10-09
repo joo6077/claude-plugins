@@ -208,6 +208,8 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 
 모든 Phase 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈·개인 메모리(`~/.claude/projects/*/memory/`)·`/insights` 30 일 분석을 근거로 개선하도록 보장한다.
 
+외부 프로젝트 기록(§2)은 `~/Hub/10_Dev` 아래 `.harness` 와 함께 **하네스 저장소 `~/Hub/10_Dev/harness-store`** 를 원천으로 읽는다 — PC 의 모든 프로젝트 하네스 기록이 프로젝트별 폴더로 모이는 곳이다(깊이 제한 없음, 바로가기로 이어진 같은 기록은 한 번만 센다, `_from-worktrees` 보관 폴더는 뺀다).
+
 데이터 풀의 섹션 구성은 **§0 · §0.5 · §1 · §2 · §3 · §4 · §5 · §6** 이다. **§0.5 (개인 메모리) 는 §0 과 §1 _사이_ 에 렌더된다** — 순서가 어긋나 있으면 산문을 고치지 말고 수집 로직(`scripts/collect-kaizen-data.py`)의 결함으로 다뤄라.
 
 **실행:**
@@ -230,7 +232,7 @@ python3 scripts/collect-kaizen-data.py
 ```yaml
 # docs-contract
 script: scripts/collect-kaizen-data.py
-options: ["--hub-dir", "--insights", "--output", "--skip-validate", "--usage-data"]
+options: ["--harness-store", "--hub-dir", "--insights", "--output", "--skip-validate", "--usage-data"]
 input_candidates:
   - .claude/kaizen-input/insights-report.md
   - ~/.claude/kaizen-input/insights-report.md
