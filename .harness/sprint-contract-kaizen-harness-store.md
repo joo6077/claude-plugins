@@ -4,7 +4,7 @@ slug: kaizen-harness-store
 created: "2026-10-09 17:54"
 complexity: "중간"
 conditions: 18
-status: active
+status: done
 owner_session: c0c0aae7-8201-45fd-b1e1-338ea412ed57
 conditions_digest: sha256:22af0e632a16600c
 measurement_digest: sha256:2d6bcbb58b8c9574
