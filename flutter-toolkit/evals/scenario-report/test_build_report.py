@@ -489,20 +489,17 @@ class BuildReportTest(unittest.TestCase):
         self.run_script()
         self.assertIn('<li><span class="n">1</span><button type="button" class="op-thumb" data-x="355" data-y="97" '
                       'aria-label="조작 1: PGA 브라보 탭 — 크게 보기"><img src="02-confirm.png" width="402" height="874" alt="" '
-                      'style="left:-128px;top:-12px"><i class="tap" style="left:49px;top:36px"></i></button>'
+                      'style="left:0px;top:0px"><i class="tap" style="left:64px;top:17px"></i></button>'
                       '<span class="act">PGA 브라보 탭</span></li>', self.case_page())
-        self.with_point([10, 10])
+        self.with_point([137, 684])
         self.run_script()
-        self.assertIn('style="left:0px;top:0px"><i class="tap" style="left:5px;top:5px">', self.case_page())
+        self.assertIn('style="left:0px;top:-85px"><i class="tap" style="left:25px;top:38px">', self.case_page())
         self.with_point([355.5, 97])
         self.run_script()
         self.assertIn('data-x="355.5" data-y="97"', self.case_page())
-        self.with_point([1, 1], size=(400, 800))
+        self.with_point([1, 147], size=(144, 800))
         self.run_script()
-        self.assertIn('style="left:0px;top:0px"><i class="tap" style="left:1px;top:1px">', self.case_page())
-        self.with_point([147, 1], size=(400, 800))
-        self.run_script()
-        self.assertIn('style="left:-37px;top:0px"><i class="tap" style="left:37px;top:1px">', self.case_page())
+        self.assertIn('style="left:0px;top:-37px"><i class="tap" style="left:1px;top:37px">', self.case_page())
 
     def template_text(self):
         return TEMPLATE.read_text(encoding="utf-8")
@@ -535,11 +532,26 @@ class BuildReportTest(unittest.TestCase):
         thumb = re.search(r"\.op-thumb\{[^}]*\}", text).group(0)
         for part in ("width:72px", "height:72px", "overflow:hidden"):
             self.assertIn(part, thumb)
+        for part in ("border:0", "box-shadow"):
+            self.assertIn(part, thumb)
         image = re.search(r"\.op-thumb img\{[^}]*\}", text).group(0)
-        for part in ("position:absolute", "max-width:none", "width:200px"):
+        for part in ("position:absolute", "max-width:none", "width:72px"):
             self.assertIn(part, image)
+        wide = next(line for line in text.splitlines() if line.startswith("@media (min-width:901px){"))
+        self.assertIn("22px 108px", wide)
+        self.assertIn(".op-thumb{zoom:1.5", wide)
         self.assertIn("border-radius:50%", re.search(r"\.op-thumb \.tap\{[^}]*\}", text).group(0))
         self.assertIn("outline", re.search(r"\.op-thumb:focus-visible\{[^}]*\}", text).group(0))
+
+    def test_template_follow_rules(self):
+        text = self.template_text()
+        self.assertIn(".follow{display:none}", text)
+        follow = next(line for line in text.splitlines() if line.startswith("@media (min-width:1100px){"))
+        self.assertIn(".follow{display:block", follow)
+        script = text[text.rindex("<script>"):]
+        for part in ('"mouseenter"', '"focusin"', "aria-hidden"):
+            self.assertIn(part, script)
+        self.assertEqual(text.count('addEventListener("scroll"'), 2)
 
     def test_template_viewer_markup(self):
         self.assertEqual(self.template_text().count(

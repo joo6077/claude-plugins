@@ -41,9 +41,8 @@ FOLD_AFTER = 3
 WIDE_RATIO = 1.2
 SHOT_COUNT_AFTER = 4
 MANY_ACTIONS = 8
-# 누른 곳이 있는 조작 칸은 화면 전체를 이 폭으로 줄여 놓고 칸 크기만큼만 보인다
+# 누른 곳이 있는 조작 칸 — 화면 폭을 칸 폭에 맞추고 위아래만 누른 곳 주변으로 자른다. 넓은 화면 크기는 틀이 키운다
 OP_THUMB = 72
-OP_THUMB_SCREEN = 200
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "templates" / "report.html"
 SLOT = "<!-- cases -->"
@@ -211,14 +210,13 @@ def round_half_up(value):
 
 
 def op_thumb_html(number, act, shot, point):
-    """누를 곳이 칸 가운데 오도록 줄인 화면을 옮기되, 화면 가장자리 너머의 빈 곳은 보이지 않게 막는다."""
+    """누를 곳이 칸 세로 가운데 오도록 줄인 화면을 올리되, 화면 위아래 끝 너머의 빈 곳은 보이지 않게 막는다."""
     (width, height), (x, y) = shot["size"], point
-    scale = OP_THUMB_SCREEN / width
-    left = round_half_up(min(0, max(OP_THUMB - OP_THUMB_SCREEN, OP_THUMB / 2 - x * scale)))
+    scale = OP_THUMB / width
     top = round_half_up(min(0, max(OP_THUMB - height * scale, OP_THUMB / 2 - y * scale)))
     return (f'<button type="button" class="op-thumb" data-x="{json.dumps(x)}" data-y="{json.dumps(y)}" '
             f'aria-label="조작 {number}: {act} — 크게 보기"><img src="{shot["file"]}" width="{width}" height="{height}" alt="" '
-            f'style="left:{left}px;top:{top}px"><i class="tap" style="left:{round_half_up(x * scale) + left}px;'
+            f'style="left:0px;top:{top}px"><i class="tap" style="left:{round_half_up(x * scale)}px;'
             f'top:{round_half_up(y * scale) + top}px"></i></button>')
 
 
