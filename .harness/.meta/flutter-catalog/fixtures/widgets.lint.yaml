@@ -1,0 +1,43 @@
+shared_dir: lib/shared/presentation/widgets
+theme_dir: lib/core/theme
+# 핏팰 복사본 측정용 목록 — 공용 위젯 다섯 개
+spacing_tokens: [0, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 32, 48]
+widgets:
+  - class: IFButton
+    file: lib/shared/presentation/widgets/buttons/if_button.dart
+    sizing: hug
+    min_padding: 16
+    view: phone
+    state_keys: [held]
+    labels: {new: primary}
+    ranges: {width: [0, 400], radius: [0, 40]}
+  - class: IFMiniButton
+    file: lib/shared/presentation/widgets/buttons/if_mini_button.dart
+    sizing: hug
+    min_padding: 8
+    view: content
+    state_keys: [held]
+  - class: IFBadge
+    file: lib/shared/presentation/widgets/badges/if_badge.dart
+    sizing: hug
+    min_padding: 4
+    view: content
+    samples:
+      countGradient: "const LinearGradient(colors: [Color(0xFFFF2D55), Color(0xFFFF6B3D)])"
+  - class: IFToggle
+    file: lib/shared/presentation/widgets/toggles/if_toggle.dart
+    sizing: hug
+    min_padding: 0
+    view: content
+    state_keys: [value]
+  - class: AppErrorWidget
+    file: lib/shared/presentation/widgets/app_error.dart
+    sizing: fill
+    min_padding: 0
+    view: phone
+  - {class: OverflowProbe, file: lib/catalog_probe/probes.dart, sizing: hug, min_padding: 0, view: content}
+  - {class: IconProbeBad, file: lib/catalog_probe/probes.dart, sizing: hug, min_padding: 0, view: content}
+  - {class: IconProbeGood, file: lib/catalog_probe/probes.dart, sizing: hug, min_padding: 0, view: content}
+  - {class: StateProbe, file: lib/catalog_probe/probes.dart, sizing: hug, min_padding: 0, view: content, state_keys: [active]}
+  - {class: TapSmallProbe, file: lib/catalog_probe/probes.dart, sizing: hug, min_padding: 0, view: content}
+  - {class: TapBigProbe, file: lib/catalog_probe/probes.dart, sizing: hug, min_padding: 0, view: content}
