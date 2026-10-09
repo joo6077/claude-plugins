@@ -4,7 +4,7 @@ slug: flutter-catalog
 created: "2026-10-09 13:38"
 complexity: "복잡"
 conditions: 31
-status: active
+status: done
 owner_session: 85aff6fc-39c9-4668-852b-7307fe63e954
 conditions_digest: sha256:c3c81b07c9108d77
 measurement_digest: sha256:433e47f4c1d51cf6
