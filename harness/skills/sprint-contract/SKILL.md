@@ -114,7 +114,7 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
 
 ## Codex 작성 모드 (`codex_audit.mode`)
 
-`codex_audit.mode` 가 `codex` 이거나 칸이 없으면(기본값) 계약의 조건은 Codex 가 쓰고 Claude 는 검토만 한다.
+`codex_audit.mode` 가 `codex` 면 계약의 조건은 Codex 가 쓰고 Claude 는 검토만 한다. 칸이 없으면 꺼짐(`mode: off`)이다 — 감독은 구독 사용량을 써서, 쓰는 프로젝트만 직접 켠다. 최근 사용량이 `usage_limit_percent`(비우면 70) 이상이면 감독은 BLOCKED(`한도-사용량`)로 끝난다.
 쓰는 쪽과 검토하는 쪽을 나눠 자기 글을 후하게 보는 편향을 막는다.
 
 - `mode: codex` — Claude 는 조건 줄과 그 아래 측정 줄을 직접 쓰거나 손으로 고치지 않는다. 서술 절(배경 · 범위 경계 등) 보강만 한다. 순서는 이렇다.
@@ -126,6 +126,8 @@ cwd 에서 위로 올라가며 **처음 만나는 `.harness/` 디렉토리**에�
   6. qa-evaluator 계약 검토가 APPROVE 를 내면 사용자 승인(Step 5)을 받고 6.6 봉인 · 6.7 봉인 커밋으로 간다.
   - 측정 묶음에 판정 격리 안에서 못 도는 측정(프로세스 관측 · 실제 서비스 호출)이 있으면 `codex_audit.premeasure` 에 `bash .harness/.meta/<slug>/measure.sh {id}` 꼴 명령을 적는다. 구현 감독 때 판정 전에 격리 밖 사전 측정으로 돈다.
   - `draft` · `revise` 가 BLOCKED 면 감독 폴더 `report.md` 의 `갈래:` 를 보고 원인(로그인 · 설정 · 한도)을 고친 뒤 다시 부른다. 사용자가 건너뛰라고 할 때만 `mode: off` 절차로 넘어가고 그 사실과 시각을 `## 배경` 에 적는다.
+- `mode: judge` — 계약은 `mode: off` 절차대로 Claude 가 쓰고, 구현 판정만 Codex 가 한다. `draft` · `revise` 를 부르면 SKIPPED(종료 3)로 끝나니 부르지 않는다. 계약 작성이 판정보다 차례가 많고 오래 걸려 비용을 줄이려는 모드다.
+- 계약 작성과 판정에 다른 모델을 쓰려면 `codex_audit.model_draft`(draft · revise) · `model_impl`(판정)을 적는다. 비우면 둘 다 `model` 이다.
 - `mode: off` — Codex 를 부르지 않는다. 이 문서의 기존 절차대로 Claude 가 조건을 쓴다. Codex 가 없는 환경은 이 값으로 둔다.
 
 **진행 표시 (`follow`)** — `draft` · `revise` · `impl` 감독이 시작되면 부모 세션(사용자와 대화하는 Claude)이 사용자가 요청하지 않아도 항상 같은 때 `bash "$HS/codex-audit.sh" follow <계약 경로>` 를 백그라운드 명령(Bash `run_in_background`)으로 띄운다. 감독을 직접 부르든 평가자에게 맡기든 같다 — 서브에이전트 안에서 띄운 명령은 사용자 화면의 작업 카드에 뜨지 않는다. 계약 경로를 주면 그 계약의 실행 중 감독을 찾고, 아직 없으면 새 감독이 시작될 때까지 기다린다(`--wait-seconds`, 기본 540).
