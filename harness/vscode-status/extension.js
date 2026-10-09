@@ -1,35 +1,29 @@
 'use strict';
-// 상태 폴더를 1초마다 읽어(폴더 감시는 거들기만) 이 창의 작업 폴더에서 도는 Codex 작업을 작업마다 하나씩 띄운다.
+// 상태 폴더를 1초마다 읽어(폴더 감시는 거들기만) 이 창의 작업 폴더에서 도는 Codex 작업을 항목 하나로 짧게 띄운다.
+// 세션별 자세한 진행은 그 세션 채팅 창의 작업 카드가 보인다.
 const fs = require('fs');
 const vscode = require('vscode');
 const status = require('./status');
 
-const items = new Map();
+let item = null;
 let timer = null;
 let watcher = null;
 
 function refresh() {
   const { jobs, usage } = status.readStatus();
   const roots = status.rootsOf((vscode.workspace.workspaceFolders || []).map((folder) => folder.uri.fsPath));
-  const wanted = status.jobsToItems(jobs, usage, roots, Math.floor(Date.now() / 1000));
-  const keep = new Set(wanted.map((want) => want.key));
-  for (const [key, item] of items) {
-    if (!keep.has(key)) {
-      item.dispose();
-      items.delete(key);
-    }
+  const summary = status.summarize(status.jobsToItems(jobs, usage, roots, Math.floor(Date.now() / 1000)));
+  if (!summary) {
+    if (item) item.hide();
+    return;
   }
-  wanted.forEach((want, order) => {
-    let item = items.get(want.key);
-    if (!item) {
-      item = vscode.window.createStatusBarItem(`joo6077.codex-status.${want.key}`, vscode.StatusBarAlignment.Left, 100 - order);
-      item.name = 'Codex 진행 상황';
-      items.set(want.key, item);
-    }
-    item.text = want.text;
-    item.tooltip = want.tooltip;
-    item.show();
-  });
+  if (!item) {
+    item = vscode.window.createStatusBarItem('joo6077.codex-status', vscode.StatusBarAlignment.Left, 100);
+    item.name = 'Codex 진행 상황';
+  }
+  item.text = summary.text;
+  item.tooltip = summary.tooltip;
+  item.show();
 }
 
 function watch() {
@@ -37,7 +31,7 @@ function watch() {
   try {
     watcher = fs.watch(status.statusDir(), () => refresh());
     watcher.on('error', () => {
-      watcher.close();
+      if (watcher) watcher.close();
       watcher = null;
     });
   } catch (error) {
@@ -60,8 +54,8 @@ function deactivate() {
   timer = null;
   if (watcher) watcher.close();
   watcher = null;
-  for (const item of items.values()) item.dispose();
-  items.clear();
+  if (item) item.dispose();
+  item = null;
 }
 
 module.exports = { activate, deactivate };
