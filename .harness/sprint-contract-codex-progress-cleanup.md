@@ -4,7 +4,7 @@ slug: codex-progress-cleanup
 created: "2026-10-09 18:25"
 complexity: "중간"
 conditions: 17
-status: active
+status: done
 owner_session: 35b5945f-4957-4359-9b18-2d22b3bafeb0
 conditions_digest: sha256:349ecc1a78930b5d
 measurement_digest: sha256:baf5e2a7ca2fd1be
