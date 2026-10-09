@@ -222,7 +222,7 @@ printf 'CONTRACT_ROOT=%s contract_root_unconfigured=%s\n' \
 `find` 형태를 쓴다 — 그 선례를 따른다.
 
 ```bash
-EXISTING=$(find "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
+EXISTING=$(find -H "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
   -name 'sprint-contract-*.md' 2>/dev/null \
   | sed -E 's#.*/sprint-contract-(.+)\.md$#\1#' | sort)
 printf 'EXISTING_SLUGS: %s\n' "$(printf '%s' "$EXISTING" | tr '\n' ' ')"
@@ -561,7 +561,7 @@ superseded_by: <새 슬러그>
 
 ```bash
 # 이어작업 슬러그의 사이드카 확인 — 글로빙 금지 (§셸 이식성)
-find "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
+find -H "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
   \( -name 'sprint-amendments.md' -o -name "sprint-amendments-$SLUG.md" \) 2>/dev/null
 ```
 
@@ -836,18 +836,32 @@ verify_measurement "$CF"
 > 길이 없었다. 계약 68 여 개 중 12 개는 추적조차 되지 않았다.
 
 ```bash
-# (a) 전용 가지로 옮긴다 — main 은 보호돼 직접 밀어 넣을 수 없다
-git rev-parse --abbrev-ref HEAD | grep -qx main && git checkout -b "feat/$SLUG"
+# 계약을 담는 저장소는 계약 폴더에서 찾는다. .harness 가 하네스 저장소로 가는 바로가기면 프로젝트가
+# 아니라 그 저장소다. 바로가기 안 파일은 그 폴더로 들어가 이름만 줘야 한다 — 절대경로를 주면
+# "outside repository", 프로젝트에서 부르면 "beyond a symbolic link" 로 죽는다 (실측 2026-10-09)
+SEAL_DIR=$(dirname "$CF"); SEAL_NAME=$(basename "$CF")
+SEAL_TOP=$(git -C "$SEAL_DIR" rev-parse --show-toplevel)
+PROJECT_TOP=$(git -C "$(dirname "$SEAL_DIR")" rev-parse --show-toplevel 2>/dev/null)
+
+# (a) 프로젝트 안 실제 폴더면 전용 가지로 옮긴다 — main 은 보호돼 직접 밀어 넣을 수 없다.
+#     하네스 저장소는 여러 프로젝트가 같이 쓰는 기록이라 가지를 만들지 않는다
+[ "$SEAL_TOP" = "$PROJECT_TOP" ] && git -C "$SEAL_TOP" rev-parse --abbrev-ref HEAD | grep -qx main \
+  && git -C "$SEAL_TOP" checkout -b "feat/$SLUG"
 
 # (b) 계약만 커밋한다. 새 파일은 add 가 먼저 필요하다 —
 #     git commit -o 만 쓰면 "did not match any file(s) known to git" 으로 죽는다 (실측)
-git add "$CF"
-git commit -o "$CF" -m "contract: $SLUG 봉인 ($N 조건)"
-
-# (c) 확인: 이 커밋에 파일이 정확히 1 개인가
-N=$(git show --name-only --format='' HEAD | grep -c .)
-[ "$N" = 1 ] && echo "OK seal_commit files=1" \
-  || echo "BLOCKED 봉인 커밋에 파일 $N 개 — 구현 편집으로 넘어가지 마라"
+SEAL_BEFORE=$(git -C "$SEAL_DIR" rev-parse -q --verify HEAD)
+if git -C "$SEAL_DIR" add -- "$SEAL_NAME" \
+  && git -C "$SEAL_DIR" commit -q -o -m "contract: $SLUG 봉인 ($N 조건)" -- "$SEAL_NAME" \
+  && [ "$(git -C "$SEAL_DIR" rev-parse -q --verify HEAD)" != "$SEAL_BEFORE" ]; then
+  # (c) 확인: 이 커밋에 파일이 정확히 1 개인가
+  SEAL_FILES=$(git -C "$SEAL_DIR" show --name-only --format='' HEAD | grep -c .)
+  [ "$SEAL_FILES" = 1 ] && echo "OK seal_commit files=1" \
+    || echo "BLOCKED 봉인 커밋에 파일 $SEAL_FILES 개 — 구현 편집으로 넘어가지 마라"
+else
+  # 커밋이 안 됐는데 HEAD 를 세면 직전 커밋을 보고 거짓 OK 가 난다
+  echo "BLOCKED 봉인 커밋 실패 — $SEAL_TOP 의 상태(index.lock 등)를 고친 뒤 다시 실행하라"
+fi
 ```
 
 **`BLOCKED` 가 뜨면 구현 편집으로 진행하지 않는다.** Step 6.5 와 같은 틀이다 — 이 확인을
@@ -856,6 +870,9 @@ N=$(git show --name-only --format='' HEAD | grep -c .)
 안 됐다 — 교차 진단이 이 구멍을 짚었다). 섞였으면 `git reset --soft HEAD~1` 로 되돌리고
 계약 경로만 다시 커밋한다.
 
+- **하네스 저장소 모양** — 프로젝트의 `.harness` 가 하네스 저장소(`HARNESS_STORE`)의 프로젝트 폴더로 가는
+  심볼릭 링크면 봉인 커밋은 그 저장소에 남는다. 프로젝트 저장소에는 `.harness` 가 무시돼 있어 아무것도 안 남는다.
+  가지를 만들지 않고, 병합 방식 규칙(아래)도 프로젝트 쪽에만 해당한다. 모양 설명은 `harness/README.md` §하네스 저장소
 - **다른 세션과 같은 작업 폴더를 쓰면 (a) 의 `checkout -b` 로 가지를 바꾸지 마라.** 가지만 바꾸면 남의 미커밋 변경이
   새 가지로 따라온다. 대신 `git worktree add <새 폴더> -b "feat/$SLUG" <기준 커밋>` 으로 폴더를 따로 만들고 거기서
   계약을 쓰고 커밋한다 — `/sprint` 의 워크트리 규칙과 같다 (<https://git-scm.com/docs/git-worktree>)

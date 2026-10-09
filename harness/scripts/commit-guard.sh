@@ -219,9 +219,10 @@ carried_paths() {
 
 # scope_blocks <계약 폴더> <세션> — 그 폴더 .harness/ 의 계약 가운데 status: active 이고 owner_session 이 세션과 같은 것의
 # 「## 범위 경계」 절 안 # sprint-scope 블록 줄을 낸다. 규약: harness/references/contract-schema.md §범위 목록 블록
+# find -H — .harness 가 하네스 저장소로 가는 바로가기면 -H 없이는 맥 find 가 안을 열지 않아 범위 검사가 조용히 빠진다
 scope_blocks() {
   local f
-  find "$1/.harness" -maxdepth 1 -type f -name 'sprint-contract*.md' 2>/dev/null | while IFS= read -r f; do
+  find -H "$1/.harness" -maxdepth 1 -type f -name 'sprint-contract*.md' 2>/dev/null | while IFS= read -r f; do
     [ -r "$f" ] || continue
     awk -v s="$2" '
       # 계약 형식 문서 §값 따옴표 규약의 fm_get 과 같게 읽는다 — 따옴표 벗기기 · 빈칸이나 탭 뒤 # 부터는 주석
