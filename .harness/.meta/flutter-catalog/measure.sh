@@ -108,6 +108,16 @@ PY
     echo "exit=$rc NoSuchWidget=$c"; [ "$rc" = 1 ] && [ "$c" -ge 1 ]; verdict $? "exit=$rc"
     ;;
 
+  gen-unreadable)   # 스크립트-03 보강 (개정 A-03) — 공용 폴더의 파일을 못 읽거나 문법이 깨지면 경로를 알리고 1
+    f="$APP/lib/shared/presentation/widgets/buttons/split_pill.dart"; cp "$f" "$M/split_pill.bak"
+    chmod 000 "$f"; o1=$(gen widgets.missing.yaml 2>&1); r1=$?; chmod 644 "$f"
+    echo 'class {{{' >> "$f"; o2=$(gen widgets.missing.yaml 2>&1); r2=$?; cp "$M/split_pill.bak" "$f"
+    rs=$(diff "$M/split_pill.bak" "$f" | grep -cE '^[<>]')
+    p1=$(echo "$o1" | grep -c '읽지 못한 파일: .*split_pill.dart'); p2=$(echo "$o2" | grep -c '문법이 깨진 파일: .*split_pill.dart')
+    echo "unreadable_exit=$r1 unreadable_path=$p1 broken_exit=$r2 broken_path=$p2 restored_diff=$rs"
+    [ "$r1" = 1 ] && [ "$p1" = 1 ] && [ "$r2" = 1 ] && [ "$p2" = 1 ] && [ "$rs" = 0 ]; verdict $? "조건 불충족"
+    ;;
+
   analyze)   # 스크립트-08
     gen widgets.ok.yaml >/dev/null 2>&1
     T="lib/catalog_kit lib/main_catalog_kit.dart lib/catalog_probe test/catalog_kit tool"
@@ -311,5 +321,5 @@ PY
     ;;
 
   *)
-    echo "cases: setup tmpl-hosts gen-ok gen-unsupported gen-missing gen-unknown analyze analyze-pos fund-run sizing overflow icon-touch font wrapper lint install web"; exit 2;;
+    echo "cases: setup tmpl-hosts gen-ok gen-unsupported gen-missing gen-unknown gen-unreadable analyze analyze-pos fund-run sizing overflow icon-touch font wrapper lint install web"; exit 2;;
 esac
