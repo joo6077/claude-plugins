@@ -5,6 +5,7 @@
 # ㉛~㊴ (after-0924-harness-orch -a · 같은 명령 git add 이름 바꾸기와 -i 막힘 설명) ·
 # ㊵~㊿ (같은 계약 교차 진단 — 파일 ↔ 폴더 바뀜 · 경로를 좁힌 git add · 목록 사본에 못 얹음) 을 따른다.
 # HS3-* 는 SC-05, SCOPE-s01~s23 은 SC-06 · ER-02 (after-0926-harness-scripts) 를 따른다. NOADD-* 는 같은 계약 독립 검토 결함 1 이다.
+# SCOPE-link-* 는 harness-central-store 스크립트-03 — .harness 가 하네스 저장소로 가는 바로가기인 모양이다.
 # COMMIT_GUARD_HOOK 으로 훅 경로를 바꿀 수 있다 — 판정 줄을 지운 사본으로 음성 대조를 돌릴 때 쓴다.
 
 here=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -404,6 +405,19 @@ nr; echo z >>"$r/d1/f001"; git -C "$r" add d1/f001; echo z >>"$r/a.txt"
 run_s 'git add -n a.txt && git commit -m x' "$r" S; expect NOADD-s1-dry-run 0 empty
 nr; echo z >>"$r/a.txt"; run_s 'git add --ignore-removal a.txt && git commit -m x' "$r" S
 expect NOADD-s2-ignore-removal-out 2 '' 'a.txt'
+
+mk_link_scope() {  # 계약 폴더가 저장소 밖 폴더로 가는 바로가기이고 프로젝트는 그것을 무시한다
+  local r=$1
+  mkdir -p "$r/src" "$r/docs" "$r-store"; git -C "$r" init -q -b main
+  echo a >"$r/src/a.txt"; echo b >"$r/docs/b.txt"; echo .harness >"$r/.gitignore"
+  ln -s "$r-store" "$r/.harness"
+  contract "$r/.harness/sprint-contract-s.md" active S src/
+  git -C "$r" add -A && git -C "$r" commit -qm init
+}
+r=$work/link-in; mk_link_scope "$r"; echo z >>"$r/src/a.txt"; git -C "$r" add src/a.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-link-in 0 empty
+r=$work/link-out; mk_link_scope "$r"; echo z >>"$r/docs/b.txt"; git -C "$r" add docs/b.txt
+run_s 'git commit -m x' "$r" S; expect SCOPE-link-out 2 '' 'docs/b.txt'
 
 echo "실패 $fails 건"
 [ "$fails" = 0 ]

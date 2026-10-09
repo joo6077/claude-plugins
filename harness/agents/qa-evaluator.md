@@ -280,8 +280,8 @@ fm_get() {   # 사용법: fm_get <파일> <키>
     }' "$1"
 }
 
-# 셸 무관 후보 열거 (zsh nomatch 안전).
-CANDIDATES=$(find "$HDIR" -maxdepth 1 -type f \
+# 셸 무관 후보 열거 (zsh nomatch 안전). -H — .harness 가 하네스 저장소로 가는 바로가기여도 안을 연다
+CANDIDATES=$(find -H "$HDIR" -maxdepth 1 -type f \
   \( -name 'sprint-contract.md' -o -name 'sprint-contract-*.md' \) 2>/dev/null | sort)
 
 while IFS= read -r f; do
@@ -532,21 +532,25 @@ SCHEMA="${CLAUDE_PLUGIN_ROOT}/references/contract-schema.md"
 지금 판과 비교한다.
 
 ```bash
+# 깃은 계약 폴더로 들어가 파일 이름으로 부른다. .harness 가 하네스 저장소로 가는 바로가기면 봉인 커밋은
+# 그 저장소에 있고, 프로젝트에서 절대경로로 부르면 "outside repository" 로 못 찾는다 (실측 2026-10-09)
+SEAL_DIR=$(dirname "$CONTRACT"); SEAL_NAME=$(basename "$CONTRACT")
 # 봉인 커밋(계약이 git 에 처음 들어온 커밋)을 찾는다
-SEAL_COMMIT=$(git log --diff-filter=A --format='%h' -- "$CONTRACT" | tail -1)
+SEAL_COMMIT=$(git -C "$SEAL_DIR" log --diff-filter=A --format='%h' -- "$SEAL_NAME" 2>/dev/null | tail -1)
 if [ -z "$SEAL_COMMIT" ]; then
   echo "SEAL_COMMIT_ABSENT $CONTRACT"      # 추적 안 된 계약 — 경고이지 실패가 아니다
 else
   # 그 커밋에 계약 하나만 담겼는지 (섞였으면 '봉인 시점 원문' 성질이 없다)
-  N=$(git show --name-only --format='' "$SEAL_COMMIT" | grep -c .)
+  N=$(git -C "$SEAL_DIR" show --name-only --format='' "$SEAL_COMMIT" | grep -c .)
   echo "seal_commit=$SEAL_COMMIT files=$N"
   # 조건 줄 밖(산문)에 무엇이 바뀌었는지 본다.
-  # frontmatter 의 status 전환은 빼야 한다 — 평가자 자신이 Step 5.5 에서 하는 일이다
-  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-]' \
-    | grep -vE '^[+-][+-]' | grep -vE '^[+-]- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' \
+  # frontmatter 의 status 전환은 빼야 한다 — 평가자 자신이 Step 5.5 에서 하는 일이다.
+  # 차이 머리 줄은 '--- ' · '+++ ' 로만 뺀다 — 둘째 글자로 거르면 더한 목록 줄(+- …)까지 사라진다
+  git -C "$SEAL_DIR" diff "$SEAL_COMMIT" -- "$SEAL_NAME" | grep -E '^[+-]' \
+    | grep -vE '^(\+\+\+|---) ' | grep -vE '^[+-]- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}' \
     | grep -vE '^[+-]status: (active|done)$'
   # 두 지문 가운데 하나라도 바뀌었으면 재봉인이다 (measurement_digest 는 v5.6)
-  git diff "$SEAL_COMMIT" -- "$CONTRACT" | grep -E '^[+-](conditions|measurement)_digest:'
+  git -C "$SEAL_DIR" diff "$SEAL_COMMIT" -- "$SEAL_NAME" | grep -E '^[+-](conditions|measurement)_digest:'
   # 그 교체가 계약에 기록돼 있는가 (1-e-2 의 화해 경로와 같은 급)
   grep -cE '^supersedes_digest:|^supersedes_commit:' "$CONTRACT"
 fi

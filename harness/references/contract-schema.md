@@ -113,7 +113,7 @@ bash 는 패턴 문자열을 그대로 넘기므로 같은 코드가 bash 에서
 ```bash
 # 계약 후보 열거 (plain + 접미형) — 매치 0 이어도 두 셸에서 동일하게 빈 출력 + exit 0
 list_contracts() { # list_contracts <CONTRACT_ROOT>
-  find "$1/.harness" -maxdepth 1 -type f \
+  find -H "$1/.harness" -maxdepth 1 -type f \
     \( -name 'sprint-contract.md' -o -name 'sprint-contract-*.md' \) 2>/dev/null | LC_ALL=C sort
 }
 ```
@@ -319,6 +319,12 @@ fm_get() { # fm_get <file> <key>
   사라져, 자기 가지에서는 통과하는데 `main` 에는 대조할 원문이 없어진다
 - **옛 계약에 소급으로 만들어 넣지 마라.** 봉인 커밋이 없는 계약은 `SEAL_ABSENT` 와 같은 급으로
   다룬다 — 경고이지 실패가 아니다. 없던 원문을 있는 것처럼 만드는 행위다
+- **두 모양 — 프로젝트 안 실제 폴더 · 하네스 저장소 바로가기 (v5.8).** `HARNESS_STORE` 로 init 하면 `.harness` 는 하네스
+  저장소의 프로젝트 폴더로 가는 심볼릭 링크이고 봉인 커밋은 그 저장소에 남는다. 그래서 봉인 커밋 · 봉인 대조의 깃 명령은
+  **계약 폴더로 들어가(`git -C "$(dirname "$CF")"`) 파일 이름으로** 부른다. 실측(2026-10-09) 두 오류가 근거다 —
+  바로가기 안 계약을 절대경로로 주면 `fatal: ... is outside repository`, 프로젝트 저장소에서 `git add .harness/...` 하면
+  `fatal: pathspec ... is beyond a symbolic link`. 이 방법은 실제 폴더 모양에서도 같은 결과다. 하네스 저장소에는 전용 가지를
+  만들지 않는다. 계약 폴더를 뒤지는 `find` 는 `find -H` 로 쓴다 — 맥의 `find` 는 끝에 `/` 없는 바로가기 폴더를 열지 않는다
 
 ```bash
 # 봉인 계산·검증 — zsh · bash 동일. 해시 백엔드 4 종은 같은 값을 낸다
@@ -415,7 +421,7 @@ amendment** 로 기록한다 (§Amendment 사이드카).
 # 글로빙 금지 (§셸 이식성 규약): 매치 0 이면 zsh 가 명령을 죽인다.
 # 따옴표 유무를 모두 잡는다 (§값 따옴표 규약): writer 는 무따옴표로 쓰지만 손으로 적은
 # `status: "active"` 가 실재하며, 그걸 놓치면 active 를 0 개로 세어 없던 BLOCKED 를 만든다.
-find "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
+find -H "$CONTRACT_ROOT/.harness" -maxdepth 1 -type f \
   \( -name 'sprint-contract.md' -o -name 'sprint-contract-*.md' \) \
   -exec grep -lE "^status:[[:space:]]*[\"']?active" {} + 2>/dev/null
 # grep 은 매치 0 이면 exit 1 이다 — `set -e` 아래에서 쓸 때는 `|| true` 를 붙여라
@@ -691,7 +697,7 @@ ladder 3(유일 active)이 무너지고 곧바로 BLOCKED 로 떨어진다. 종�
 # -maxdepth 를 걸지 않는다 — history/ 로 옮긴 계약이 조용히 검사에서 빠진다 (실측 1 건)
 # 네 함수 가운데 하나라도 없는 셸에서 세면 모든 계약이 SEAL_ABSENT(fm_get 없음)나 SEAL_BROKEN(contract_digest · sha256_16 없음)으로 잘못 나온다 — 정의부터 확인하고 없으면 멈춘다
 type verify_seal fm_get contract_digest sha256_16 >/dev/null 2>&1 || { echo "STOP verify_seal · fm_get · contract_digest · sha256_16 정의 없음 — §계약 봉인 · §값 따옴표 규약 블록을 먼저 읽는다" >&2; exit 2; }
-find .harness -type f -name 'sprint-contract*.md' -print0 \
+find -H .harness -type f -name 'sprint-contract*.md' -print0 \
 | while IFS= read -r -d '' f; do verify_seal "$f"; done \
 | awk '{print $1}' | sort | uniq -c
 ```
@@ -1521,10 +1527,14 @@ awk '/^## /{s=$(0)} /^- \[[ x]\] ([A-Z]{2,}|[^ -~]+)-[0-9]{2}/{ if (s=="## Anti-
 
 ## 스키마 버전
 
-현재: **v5.7** (2026-09-26)
+현재: **v5.8** (2026-10-09)
 
 변경 이력:
 
+- **v5.8 (2026-10-09)** — **하네스 저장소 모양.** `.harness` 가 하네스 저장소(`HARNESS_STORE`)의 프로젝트 폴더로 가는
+  심볼릭 링크여도 봉인 커밋 · 봉인 대조가 돈다 — 깃 명령은 계약 폴더로 들어가 파일 이름으로 부르고(절대경로는
+  `outside repository`, 프로젝트에서는 `beyond a symbolic link`), 커밋이 실패하면 직전 커밋을 세지 않고 `BLOCKED`.
+  계약 폴더를 뒤지는 `find` 는 `-H`. 봉인 대조의 산문 변경 거르기가 더한 목록 줄(`+- …`)까지 버리던 결함을 고쳤다.
 - **v5.7 (2026-09-26)** — **§측정 관례** 새 절(두 판 풀기 `with_two` · 줄 번호 `line_of` · 넘김 목록 `경로:줄` · 측정
   묶음 넘기기 · 검사기가 돌았다는 줄 · 「바꾸지 않는다」 구간의 더한 줄 · 풀어 둔 판의 `validate-doc-contracts.py`).
   조건 패턴 셋 — 산출물이 검사인 조건(평가 가이드 ①~④ 의 계약 측 짝) · 기존 동작 유지 조건 · 페이지 맞추기 계약.

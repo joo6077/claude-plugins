@@ -109,7 +109,8 @@ def git(repo, *args):
 
 
 def layout(contract):
-    contract = Path(contract).resolve()
+    # 바로가기를 풀지 않는다. .harness 가 하네스 저장소로 가는 바로가기면 푼 경로의 부모가 프로젝트가 아니다
+    contract = Path(os.path.abspath(contract))
     meta = contract.parent
     if meta.name != '.harness':
         raise ValueError('계약이 .harness 폴더 안에 있지 않다: ' + str(contract))
@@ -119,6 +120,34 @@ def layout(contract):
     slug = match.group(1) or 'plain'
     feedback = meta / ('sprint-feedback' + ('-' + match.group(1) if match.group(1) else '') + '.md')
     return contract, meta, slug, feedback
+
+
+def project_root(meta):
+    """계약 폴더(.harness)가 딸린 프로젝트 저장소의 최상위. git 밖이면 빈 문자열."""
+    return git(meta.parent, 'rev-parse', '--show-toplevel').stdout.strip()
+
+
+def tracked_meta(meta, repo_root):
+    """계약 폴더가 프로젝트 저장소 안 실제 폴더면 저장소 기준 상대 경로, 하네스 저장소로 가는 바로가기면 None."""
+    real, root = os.path.realpath(meta), os.path.realpath(repo_root)
+    return os.path.relpath(real, root) if real.startswith(root + os.sep) else None
+
+
+def judge_copy(repo_root, head, meta):
+    """구현 커밋 사본을 만든다. 하네스 저장소 모양이면 계약 폴더를 사본 안 같은 자리에 복사해 넣는다."""
+    copy = scratch()
+    cloned = subprocess.run(['git', 'clone', '-q', '--shared', '--no-checkout', repo_root, str(copy)],
+                            capture_output=True, text=True, stdin=subprocess.DEVNULL,
+                            env=dict(os.environ, GIT_OPTIONAL_LOCKS='0'))
+    if cloned.returncode or git(copy, 'checkout', '-q', '--detach', head).returncode:
+        shutil.rmtree(copy, ignore_errors=True)
+        raise Stop('설정-오류', '구현 커밋 사본을 만들지 못했다: ' + cloned.stderr)
+    if tracked_meta(meta, repo_root) is None:
+        # 프로젝트가 .harness 를 추적하지 않아 사본에 없다. 판정 격리는 사본 밖을 못 읽으니 바로가기 대신 복사한다.
+        # 그림과 감독 기록(진행 중인 이번 감독 폴더 포함)은 판정 자료가 아니라 뺀다
+        place = copy / os.path.relpath(os.path.realpath(meta.parent), os.path.realpath(repo_root)) / '.harness'
+        shutil.copytree(meta, place, ignore=shutil.ignore_patterns('*.png', '*.jpg', '*.jpeg', 'codex-audit'))
+    return copy
 
 
 def settings(meta):
@@ -911,7 +940,7 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
     if any(folder.is_relative_to(root) for root in (Path('/tmp'), Path(os.path.realpath('/tmp')))):
         raise Stop('설정-오류', '판정할 저장소가 /tmp 아래라 판정 격리가 입력을 읽지 못한다: ' + str(folder)
                    + ' — 저장소를 /tmp 밖으로 옮긴다')
-    repo_root = git(meta.parent, 'rev-parse', '--show-toplevel').stdout.strip()
+    repo_root = project_root(meta)
     if not repo_root:
         raise Stop('설정-오류', '계약 폴더가 git 저장소 안에 있지 않다')
     head = git(repo_root, 'rev-parse', 'HEAD').stdout.strip()
@@ -936,9 +965,11 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
         shutil.copyfile(amendments, frozen / 'AMENDMENTS.md')
     # 계약 폴더(.harness)의 증거 · 대화 기록이 판정 자료를 수 MB 로 키워 판정 한 번이 120만 토큰을 읽었다.
     # 그 폴더는 바뀐 파일 목록만 싣고, 내용은 판정 사본에서 열게 한다.
-    harness_dir = os.path.relpath(meta, repo_root)
-    body = git(repo_root, 'diff', base + '..' + head, '--', '.', ':(exclude)' + harness_dir).stdout
-    listed = git(repo_root, 'diff', '--stat=200', base + '..' + head, '--', harness_dir).stdout
+    # 하네스 저장소 모양이면 계약 폴더는 프로젝트 차이에 애초에 없다
+    harness_dir = tracked_meta(meta, repo_root)
+    excluded = [':(exclude)' + harness_dir] if harness_dir else []
+    body = git(repo_root, 'diff', base + '..' + head, '--', '.', *excluded).stdout
+    listed = git(repo_root, 'diff', '--stat=200', base + '..' + head, '--', harness_dir).stdout if harness_dir else ''
     if listed.strip():
         body += '\n# ' + harness_dir + '/ 아래 변경은 목록만 싣는다. 내용은 판정 사본의 같은 경로에서 연다.\n' + listed
     (frozen / 'DIFF.patch').write_text(body, encoding='utf-8')
@@ -952,14 +983,7 @@ def impl(audit, conf, contract, meta, slug, feedback, base, number):
     effort = conf.get('effort_impl') or 'medium'
 
     def working_copy():
-        copy = scratch()
-        cloned = subprocess.run(['git', 'clone', '-q', '--shared', '--no-checkout', repo_root, str(copy)],
-                                capture_output=True, text=True, stdin=subprocess.DEVNULL,
-                                env=dict(os.environ, GIT_OPTIONAL_LOCKS='0'))
-        if cloned.returncode or git(copy, 'checkout', '-q', '--detach', head).returncode:
-            shutil.rmtree(copy, ignore_errors=True)
-            raise Stop('설정-오류', '구현 커밋 사본을 만들지 못했다: ' + cloned.stderr)
-        return copy
+        return judge_copy(repo_root, head, meta)
 
     measured = premeasure(audit, conf['premeasure'], ids, frozen, working_copy) if conf.get('premeasure') else None
     (frozen / 'MANIFEST.json').write_text(json.dumps(dict(
