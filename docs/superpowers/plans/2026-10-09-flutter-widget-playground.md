@@ -35,9 +35,11 @@
 ### Task 1: 위젯 기본 규칙 문서
 
 **Files:**
+
 - Create: `flutter-toolkit/references/widget-fundamentals.md`
 
 **Interfaces:**
+
 - Produces: 규칙 번호 1~15 (설계 3.1 표와 같은 번호). 다른 스킬·검사가 「규칙 N」으로 가리킨다.
 
 - [ ] **Step 1:** 설계 3.1 표를 옮기고 규칙마다 「왜(핏팰 실측 한 줄)」「지키는 방법(Flutter 코드 한두 줄)」「검사 이름」을 붙인다. 출처 URL 은 규칙 끝 한 줄.
@@ -48,11 +50,13 @@
 ### Task 2: 생성기와 목록 파일 틀
 
 **Files:**
+
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/catalog/widgets.yaml`
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/tool/catalog_gen.dart`
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/lib/catalog_kit/catalog_kit_models.dart`
 
 **Interfaces:**
+
 - Produces (`catalog_kit_models.dart`):
   - `sealed class PlaygroundControl { String key; String label; Object? defaultValue; String typeLabel; String defaultLabel; String doc; }`
   - `ToggleControl`, `TextControl`, `NumberControl(min, max, step, nullable)`, `DropdownControl(options: List<({String label, Object value})>)`, `FixedControl(display)`
@@ -71,11 +75,13 @@
 ### Task 3: 놀이터 화면 틀
 
 **Files:**
+
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/lib/catalog_kit/widget_playground.dart`
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/lib/catalog_kit/property_panel.dart`
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/lib/catalog_kit/measured_box.dart`
 
 **Interfaces:**
+
 - Consumes: `PlaygroundEntry`, `catalogEntries`.
 - Produces: `class CatalogPlayground extends HookWidget { const CatalogPlayground({required List<PlaygroundEntry> entries}); }` — 왼쪽 목록(위젯 단위로 묶음, 작은 미리보기), 가운데 무대(보기 전환·폭·배경·초기화·영역 선), 오른쪽 종류 드롭다운 + 속성.
 
@@ -87,14 +93,17 @@
 ### Task 4: 기본기 검사 틀
 
 **Files:**
+
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/test/catalog_kit/widget_fundamentals_test.dart`
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/test/catalog_kit/catalog_kit_host.dart`
 
 **Interfaces:**
+
 - Consumes: `catalogEntries`, `WidgetSpec`.
 - Produces: `Widget wrap(Widget child, {required double width, required double textScale, required Locale locale})`, `Future<void> loadAppFonts()` (pubspec 의 `fonts:` 를 읽어 `FontLoader` 로 등록, 하나라도 못 읽으면 예외), 결과 표 `build/widget_fundamentals.csv`.
 
 검사 (경우마다 `testWidgets` 하나):
+
 - 넘침: 폭 320/360/393 × 배율 1.0/1.3/1.6/2.0 × 글자 표본 3가지(짧게 「확인」, 길게 「결제 수단 변경 및 알림 수신 환경 설정」, 띄어쓰기 없이 「AVeryLongUnbrokenLabelWithoutSpaces」). 글자 속성(TextControl)에 표본을 넣는다. `tester.takeException()` 이 null 이어야 함.
 - 여백: 배율 1.0, 표본 「가나다 ABC」. 위젯 루트 상자와 그 안 첫 `RichText` 상자의 좌우 거리 ≥ `minPadding`.
 - 크기 동작: 폭 한계 390 의 느슨한 자리. `hug` 면 폭 < 389, `fill` 이면 ≥ 389.
@@ -110,9 +119,11 @@
 ### Task 5: 코드 검사 스크립트
 
 **Files:**
+
 - Create: `flutter-toolkit/skills/flutter-catalog/templates/tool/catalog_lint.dart`
 
 **Interfaces:**
+
 - Produces: `fvm dart run tool/catalog_lint.dart` — `shared_dir` 안에서 (규칙 9) `fontFamily:` 직접 사용(테마 폴더 제외), (규칙 13) `EdgeInsets`·`SizedBox` 의 숫자 중 `widgets.yaml` 의 `spacing_tokens` 에 없는 값. 파일:줄 출력, 있으면 종료 1. `--report` 면 종료 0 으로 표만.
 
 - [ ] **Step 1:** 작성(정규식, 주석 줄 제외).
@@ -122,6 +133,7 @@
 ### Task 6: `flutter-catalog` 스킬과 기존 스킬 연결
 
 **Files:**
+
 - Create: `flutter-toolkit/skills/flutter-catalog/SKILL.md`
 - Modify: `flutter-toolkit/skills/flutter-widget/SKILL.md` (7절 등록 단계), `flutter-extract/SKILL.md`, `flutter-preflight/SKILL.md`, `flutter-audit/SKILL.md`
 - Modify: `CLAUDE.md` (flutter-toolkit 표), `flutter-toolkit/README.md` (sync-docs), `flutter-toolkit/evals/evals.json` (케이스 1개)
@@ -134,6 +146,7 @@
 ### Task 7: 아이콘·글자 정렬 기준 측정
 
 **Files:**
+
 - Create (복사본만): `test/catalog_kit/icon_align_probe_test.dart`
 
 - [ ] **Step 1:** KIMM·WantedSans 로 「가」「A」「1」의 줄 상자와 글자 모양 상자(`getBoxesForSelection(boxHeightStyle: tight)`)를 재서 표로.

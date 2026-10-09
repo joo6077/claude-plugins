@@ -28,6 +28,7 @@ user-invocable: true
 - **Rule-by-Rule Audit — 완료 선언 전 전수 대조 (skill-design-guide §3.6 대응)** — 감사 리포트 제출 직전, 본 Gotchas + Architecture/State/Widget/Design System/i18n 체크리스트를 다시 한 번 읽고 각 규칙에 대해 "확인했는가 / 근거는 파일:라인 으로 가능한가" 를 1:1 대조한 뒤 보고. "그 외에도 혹시 놓친 규칙이 있는가?" 메타 질문을 스스로 1 회 더 수행 (insights-report #1 Proactive quality gaps 대응). 사용자가 첫 피드백 루프가 되면 안 된다
 - **L3 Honesty — 정적 Grep 만으로 PASS 금지 (qa-evaluation-guide 대응)** — 파일 존재·키워드 포함은 L1/L2. PASS 를 주려면 `Read` 로 실제 내용을 읽거나 `Bash` 로 analyze/test 명령을 실행해 결과를 확인(L3). L3 수행이 불가능한 항목은 §Unverified-Evidence Protocol 의 `UNVERIFIED_ENV` 남용 방지 4 요건을 채워 `[미검증:ENV]` 로, 못 채우면 `[미검증:INVALID]` 로 붙이고 사유(예: "dart test 환경 미구성") 를 기재
 - **감사 범위 Scope Range 선언 (contract-design-guide 대응)** — 리포트 서두에 "감사 대상: <glob 패턴 or 파일 목록>" 을 명시하여 평가자·사용자가 범위를 재해석하지 않도록 한다. `quick` 모드는 `git diff --name-only` 결과, `deep` 모드는 `lib/` 전체 (또는 `$ARGUMENTS` 의 path) 가 기본 Scope Range
+- **공용 위젯 감사는 놀이터 기본기 검사 결과를 근거로 써라.** 프로젝트에 `/flutter-catalog` 가 깔려 있으면(`skills/flutter-catalog/SKILL.md`) `build/widget_fundamentals.csv` 의 `FAIL` 줄과 `tool/catalog_lint.dart` 출력이 여백 · 크기 동작 · 넘침 · 아이콘 정렬 판정의 증거다. 코드만 읽고 「여백이 있어 보인다」 고 쓰지 마라 — 규칙과 기준은 `references/widget-fundamentals.md`
 
 Flutter 프로젝트의 코드 품질 감사. 프로젝트 환경을 자동 감지하여 적합한 규칙으로 검사한다.
 

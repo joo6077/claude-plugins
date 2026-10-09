@@ -20,6 +20,7 @@ user-invocable: true
 - FVM 미설치 환경에서 preflight 실행하면 모든 단계가 실패한다 — 먼저 FVM 존재를 확인해라
 - test 단계에서 콘솔 에러 패턴 4개를 체크한다: "EXCEPTION CAUGHT BY", "RenderFlex overflowed", "setState() called after dispose", "Null check operator" — 테스트 통과해도 이 패턴 있으면 FAIL
 - Makefile 기반 프로젝트에서는 단계마다 그 타겟(`app-fix` · `app-codegen` · `app-analyze` · `app-test`)이 Makefile 에 있을 때만 `make` 로 돌린다 — `references/project-detection.md` Step 2b 4 번의 타겟별 확인으로 한 타겟씩 보고, 타겟이 없는 단계는 기본 명령을 쓴다. `Makefile` 이 있다는 것만 보고 `make app-test` 를 부르면 `app-preflight` 묶음 타겟만 있는 Makefile 에서 없는 타겟을 불러 멈춘다. 타겟이 있으면 `make` 를 먼저 쓰는 까닭은 dart-define · observatory-port 설정이 그 타겟에 모여 있어서다
+- **놀이터가 깔린 프로젝트면 커밋 전에 생성기와 기본기 검사를 같이 돌려라.** `tool/catalog_gen.dart` 가 있으면 `fvm dart run tool/catalog_gen.dart` 다음 `fvm flutter test test/catalog_kit/widget_fundamentals_test.dart` 를 test 단계에 넣는다 (`/flutter-catalog`, `skills/flutter-catalog/SKILL.md`). 실패 줄은 `build/widget_fundamentals.csv` 에서 `result` 가 `FAIL` 인 줄이고, 규칙 번호는 `references/widget-fundamentals.md` 에서 찾는다
 
 # Preflight (Pre-commit Quality Gate)
 

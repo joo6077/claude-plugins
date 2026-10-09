@@ -1,0 +1,339 @@
+// 공용 위젯 생성자를 읽어 놀이터 항목을 만든다.
+//
+// 실행: fvm dart run tool/catalog_gen.dart
+// 하나라도 걸리면 무엇이 걸렸는지 찍고 1 로 끝나며 생성물을 쓰지 않는다.
+import 'dart:io';
+
+import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
+import 'package:analyzer/dart/analysis/results.dart';
+import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/nullability_suffix.dart';
+import 'package:analyzer/dart/element/type.dart';
+import 'package:yaml/yaml.dart';
+
+const _listPath = 'catalog/widgets.yaml';
+const _outPath = 'lib/catalog_kit/generated/catalog_entries.g.dart';
+
+Future<void> main() async {
+  final root = Directory.current.absolute.path;
+  final config = loadYaml(File('$root/$_listPath').readAsStringSync()) as Map;
+  final package = RegExp(
+    r'^name:\s*(\S+)',
+    multiLine: true,
+  ).firstMatch(File('$root/pubspec.yaml').readAsStringSync())!.group(1)!;
+  final widgets = [
+    for (final item in config['widgets'] as List) item as Map,
+  ];
+  final collection = AnalysisContextCollection(includedPaths: ['$root/lib']);
+  final problems = <String>[];
+  final imports = <String>{
+    'package:flutter/material.dart',
+    'package:$package/catalog_kit/catalog_kit_models.dart',
+  };
+  final entries = <String>[];
+
+  for (final spec in widgets) {
+    final name = spec['class'] as String;
+    final library = await _library(collection, '$root/${spec['file']}');
+    final cls = library?.element.classes.where(
+      (candidate) => candidate.name == name,
+    );
+    if (cls == null || cls.isEmpty) {
+      problems.add('목록에 있는데 코드에 없는 위젯: $name (${spec['file']})');
+      continue;
+    }
+    imports.add(library!.element.uri.toString());
+    for (final ctor in cls.first.constructors) {
+      if (!ctor.isPublic) continue;
+      entries.add(_entry(cls.first, ctor, spec, imports, problems));
+    }
+  }
+
+  final sharedDir = config['shared_dir'] as String?;
+  if (sharedDir != null) {
+    final listed = {for (final spec in widgets) spec['class']};
+    for (final missing in await _sharedWidgets(
+      collection,
+      '$root/$sharedDir',
+    )) {
+      if (!listed.contains(missing)) {
+        problems.add('목록에 없는 공용 위젯: $missing ($sharedDir)');
+      }
+    }
+  }
+
+  if (problems.isNotEmpty) {
+    stderr
+      ..writeln('생성하지 않았다 — 걸린 것 ${problems.length}개:')
+      ..writeAll(problems.map((problem) => '  $problem\n'));
+    exit(1);
+  }
+
+  final out = StringBuffer()
+    ..writeln('// 손으로 고치지 마라. fvm dart run tool/catalog_gen.dart 로 다시 만든다.')
+    ..writeln('// ignore_for_file: type=lint')
+    ..writeln();
+  for (final uri in imports.toList()..sort()) {
+    out.writeln("import '$uri';");
+  }
+  out
+    ..writeln()
+    ..writeln('/// `catalog/widgets.yaml` 의 위젯 생성자마다 하나.')
+    ..writeln('final catalogEntries = <PlaygroundEntry>[')
+    ..writeAll(entries)
+    ..writeln('];');
+  File('$root/$_outPath')
+    ..createSync(recursive: true)
+    ..writeAsStringSync(out.toString());
+  stdout.writeln('$_outPath: 항목 ${entries.length}개');
+}
+
+Future<ResolvedLibraryResult?> _library(
+  AnalysisContextCollection collection,
+  String path,
+) async {
+  if (!File(path).existsSync()) return null;
+  final result = await collection
+      .contextFor(path)
+      .currentSession
+      .getResolvedLibrary(path);
+  return result is ResolvedLibraryResult ? result : null;
+}
+
+/// 폴더 안 공개 화면 위젯 이름. `InheritedWidget` 같은 전달용 위젯은 뺀다.
+Future<List<String>> _sharedWidgets(
+  AnalysisContextCollection collection,
+  String dir,
+) async {
+  final names = <String>[];
+  final files = Directory(dir)
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where(
+        (file) => file.path.endsWith('.dart') && !file.path.endsWith('.g.dart'),
+      );
+  for (final file in files) {
+    final library = await _library(collection, file.absolute.path);
+    if (library == null) continue;
+    for (final cls in library.element.classes) {
+      final supers = cls.allSupertypes
+          .map((supertype) => supertype.element.name)
+          .toSet();
+      final isScreenWidget =
+          supers.contains('StatelessWidget') ||
+          supers.contains('StatefulWidget');
+      if (cls.isPublic && !cls.isAbstract && isScreenWidget) {
+        names.add(cls.name!);
+      }
+    }
+  }
+  return names..sort();
+}
+
+String _entry(
+  ClassElement cls,
+  ConstructorElement ctor,
+  Map<dynamic, dynamic> spec,
+  Set<String> imports,
+  List<String> problems,
+) {
+  final variant = ctor.name == 'new' ? 'new' : ctor.name!;
+  final call = variant == 'new' ? cls.name! : '${cls.name}.$variant';
+  final labels = (spec['labels'] as Map?) ?? const {};
+  final ranges = (spec['ranges'] as Map?) ?? const {};
+  final samples = (spec['samples'] as Map?) ?? const {};
+  final stateKeys = [
+    for (final key in (spec['state_keys'] as List?) ?? []) '$key',
+  ];
+  final controls = <String>[];
+  final args = <String>[];
+  final boolKeys = <String>{};
+
+  for (final param in ctor.formalParameters) {
+    final key = param.name!;
+    if (key == 'key') continue;
+    final type = param.type;
+    final typeText = type.getDisplayString();
+    final nullable = type.nullabilitySuffix == NullabilitySuffix.question;
+    final defaultLabel =
+        param.defaultValueCode ?? (param.isRequired ? '필수' : 'null');
+    final meta =
+        'key: ${_q(key)}, type: ${_q(typeText)}, '
+        'defaultLabel: ${_q(defaultLabel)}, doc: ${_q(_doc(param))}';
+    final value = "values['$key']";
+    final constant = param.computeConstantValue();
+    final sample = samples[key];
+    final pass = param.isNamed ? '$key: ' : '';
+
+    if (sample != null) {
+      controls.add('FixedControl($meta, display: ${_q('$sample')})');
+      args.add('$pass$sample');
+    } else if (type.isDartCoreBool) {
+      boolKeys.add(key);
+      final initial = constant?.toBoolValue() ?? false;
+      controls.add('ToggleControl($meta, initial: $initial)');
+      args.add('$pass$value! as bool');
+    } else if (type.isDartCoreString) {
+      final initial = constant?.toStringValue() ?? '라벨';
+      controls.add('TextControl($meta, initial: ${_q(initial)})');
+      args.add(
+        nullable
+            ? '$pass($value! as String).isEmpty ? null : $value! as String'
+            : '$pass$value! as String',
+      );
+    } else if (_isSubtypeOf(type, 'Widget')) {
+      controls.add("TextControl($meta, initial: '버튼')");
+      args.add('${pass}Text($value! as String)');
+    } else if (type.isDartCoreDouble || type.isDartCoreInt) {
+      final isInt = type.isDartCoreInt;
+      final initial =
+          constant?.toDoubleValue() ??
+          constant?.toIntValue()?.toDouble() ??
+          (nullable ? null : 0.0);
+      final range = ranges[key] as List?;
+      final max = (range?[1] as num?)?.toDouble() ?? _guessMax(key, initial);
+      final min = (range?[0] as num?)?.toDouble() ?? 0;
+      final step = isInt || _isLength(key) ? 1 : 0;
+      controls.add(
+        'NumberControl($meta, initial: $initial, min: $min, max: $max, '
+        'step: $step, nullable: $nullable)',
+      );
+      final cast = isInt ? 'toInt()' : 'toDouble()';
+      args.add(
+        nullable
+            ? '$pass($value as num?)?.$cast'
+            : '$pass($value! as num).$cast',
+      );
+    } else if (type is InterfaceType && type.element is EnumElement) {
+      final enumElement = type.element as EnumElement;
+      imports.add(enumElement.library.uri.toString());
+      final names = [
+        for (final constant in enumElement.constants)
+          '${enumElement.name}.${constant.name}',
+      ];
+      controls.add(_choice(meta, names, nullable, defaultLabel));
+      args.add('$pass$value${nullable ? '' : '!'} as $typeText');
+    } else if (_isSubtypeOf(type, 'Color')) {
+      controls.add(_choice(meta, _colors, nullable, defaultLabel));
+      args.add('$pass$value${nullable ? '' : '!'} as $typeText');
+    } else if (_isSubtypeOf(type, 'IconData')) {
+      controls.add(_choice(meta, _icons, nullable, defaultLabel));
+      args.add('$pass$value${nullable ? '' : '!'} as $typeText');
+    } else if (type is FunctionType && _isVoidLike(type.returnType)) {
+      final params = [
+        for (var i = 0; i < type.formalParameters.length; i++) '_${'_' * i}',
+      ].join(', ');
+      final body = type.returnType.isDartAsyncFuture ? 'async {}' : '{}';
+      final callback = '($params) $body';
+      controls.add('FixedControl($meta, display: ${_q(callback)})');
+      args.add('$pass$callback');
+    } else {
+      problems.add(
+        '${cls.name}.$variant.$key — 타입 $typeText 를 조절할 방법이 없다. '
+        '$_listPath 의 samples.$key 에 예시 값을 적어라',
+      );
+    }
+  }
+
+  final label = labels[variant] as String? ?? variant;
+  final docLine = (cls.documentationComment ?? '')
+      .split('\n')
+      .first
+      .replaceFirst(RegExp(r'^///\s?'), '')
+      .replaceAll('`', '');
+  final view = spec['view'] == 'content' ? 'content' : 'phone';
+  final sizing = spec['sizing'] == 'fill' ? 'fill' : 'hug';
+  final states = stateKeys.where(boolKeys.contains).map(_q).join(', ');
+  return '''
+  PlaygroundEntry(
+    widget: ${_q(cls.name!)},
+    variant: ${_q(variant)},
+    label: ${_q(label)},
+    doc: ${_q(docLine)},
+    sizing: Sizing.$sizing,
+    minPadding: ${(spec['min_padding'] as num? ?? 0).toDouble()},
+    view: PreviewView.$view,
+    stateKeys: const [$states],
+    controls: [
+${controls.map((control) => '      $control,\n').join()}    ],
+    build: (values) => $call(
+${args.map((arg) => '      $arg,\n').join()}    ),
+  ),
+''';
+}
+
+const _colors = [
+  'Colors.white',
+  'Colors.black',
+  'Colors.red',
+  'Colors.blue',
+  'Colors.green',
+  'Colors.amber',
+];
+
+const _icons = [
+  'Icons.star',
+  'Icons.add',
+  'Icons.check',
+  'Icons.close',
+  'Icons.favorite',
+];
+
+/// 값 이름 목록으로 고르는 칸을 만든다. 기본값이 목록에 있으면 그것을 처음 값으로 둔다.
+String _choice(
+  String meta,
+  List<String> names,
+  bool nullable,
+  String defaultLabel,
+) {
+  final all = [if (nullable) 'null', ...names];
+  final initial = all.indexOf(defaultLabel);
+  final options = all
+      .map((name) => '(label: ${_q(name.split('.').last)}, value: $name)')
+      .join(', ');
+  return 'ChoiceControl($meta, options: [$options], '
+      'initialIndex: ${initial < 0 ? 0 : initial})';
+}
+
+bool _isSubtypeOf(DartType type, String name) =>
+    type is InterfaceType &&
+    (type.element.name == name ||
+        type.allSupertypes.any((supertype) => supertype.element.name == name));
+
+bool _isVoidLike(DartType type) =>
+    type is VoidType ||
+    (type.isDartAsyncFuture &&
+        type is InterfaceType &&
+        type.typeArguments.every((argument) => argument is VoidType));
+
+bool _isLength(String key) =>
+    RegExp('width|height|radius|size', caseSensitive: false).hasMatch(key);
+
+double _guessMax(String key, double? initial) {
+  final lower = key.toLowerCase();
+  if (lower.contains('width')) return 400;
+  if (lower.contains('height')) return 120;
+  if (lower.contains('radius')) return 40;
+  if (initial != null && initial > 0) return (initial * 3).ceilToDouble();
+  return 100;
+}
+
+String _doc(FormalParameterElement param) {
+  var raw = param.documentationComment;
+  if (raw == null && param is FieldFormalParameterElement) {
+    raw = param.field?.documentationComment;
+  }
+  return (raw ?? '')
+      .split('\n')
+      .first
+      .replaceFirst(RegExp(r'^///\s?'), '')
+      .replaceAll('`', '');
+}
+
+String _q(String text) {
+  final escaped = text
+      .replaceAll(r'\', r'\\')
+      .replaceAll("'", r"\'")
+      .replaceAll(r'$', r'\$');
+  return "'$escaped'";
+}
