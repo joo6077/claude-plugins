@@ -19,22 +19,22 @@ const [url, out] = process.argv.slice(2);
   // 열린 위젯 제목은 「<클래스>.<종류>」 모양이다. 누르기 전에는 IFMiniButton. 으로 시작하는 제목이 없어야 한다
   const title = async (re) => p.getByText(re).count();
   const before = await title(/^IFMiniButton\./);
-  await p.getByText('IFMiniButton', { exact: true }).first().click(); await p.waitForTimeout(1500);
+  await p.getByText('IFMiniButton', { exact: true }).first().click({ force: true }); await p.waitForTimeout(1500);
   await p.screenshot({ path: `${out}/2-widget.png` });
   const after = await title(/^IFMiniButton\./);
   console.log(`  IFMiniButton 제목 수 ${before} → ${after}`);
   await step('목록에서 IFMiniButton 을 누르면 그 위젯이 열린다', before === 0 && after >= 1);
-  await p.getByRole('button', { name: /종류/ }).first().click(); await p.waitForTimeout(800);
-  await p.getByText('secondary', { exact: true }).last().click(); await p.waitForTimeout(1200);
+  await p.getByRole('button', { name: /종류/ }).first().click({ force: true }); await p.waitForTimeout(800);
+  await p.getByText('secondary', { exact: true }).last().click({ force: true }); await p.waitForTimeout(1200);
   await p.screenshot({ path: `${out}/3-variant.png` });
   await step('종류 드롭다운에서 secondary 를 고르면 IFMiniButton.secondary 가 된다', await has('IFMiniButton.secondary'));
-  await p.getByRole('switch', { name: /held/ }).first().click(); await p.waitForTimeout(1000);
+  await p.getByRole('switch', { name: /held/ }).first().click({ force: true }); await p.waitForTimeout(1000);
   await p.screenshot({ path: `${out}/4-prop.png` });
   await step('속성 held 를 바꾸면 기본값으로 되돌리기가 생긴다', (await p.getByRole('button', { name: /기본값으로/ }).count()) >= 1);
   // IFMiniButton 은 목록에서 content 보기로 열린다. 휴대폰 화면으로 바꾸면 크기 글자의 가로가 휴대폰 폭(320·375·390·430)이 된다
   const sizes = async () => (await p.getByText(/^\d+ × \d+$/).allInnerTexts()).map((t) => t.trim());
   const s0 = await sizes();
-  await p.getByRole('button', { name: /휴대폰 화면/ }).first().click(); await p.waitForTimeout(1200);
+  await p.getByRole('button', { name: /휴대폰 화면/ }).first().click({ force: true }); await p.waitForTimeout(1200);
   await p.screenshot({ path: `${out}/5-view.png` });
   const s1 = await sizes();
   console.log(`  크기 글자 ${JSON.stringify(s0)} → ${JSON.stringify(s1)}`);

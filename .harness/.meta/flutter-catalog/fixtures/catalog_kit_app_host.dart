@@ -7,7 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// 놀이터 화면 전체를 앱과 같은 환경으로 감싼다.
 Widget appWrap(Widget child) {
-  LocaleSettings.setLocaleRawSync('ko');
   return ProviderScope(
     overrides: catalogSessionOverrides(),
     child: TranslationProvider(

@@ -10,7 +10,7 @@ const hostLocales = [Locale('ko'), Locale('en')];
 
 /// 언어마다 검사 전에 한 번 부른다.
 Future<void> setUpHost(Locale locale) async {
-  LocaleSettings.setLocaleRawSync(locale.languageCode);
+  await LocaleSettings.setLocaleRaw(locale.languageCode);
 }
 
 /// 위젯 하나를 앱과 같은 환경으로 감싼다.
