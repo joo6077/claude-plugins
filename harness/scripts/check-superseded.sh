@@ -24,7 +24,8 @@ script_dir=$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)
 
 checked=0; violations=0; unreadable=0
 unread_contracts=""; reported_targets=""
-contracts=$(find "$contract_dir" -maxdepth 1 -type f -name 'sprint-contract-*.md' | LC_ALL=C sort)
+# -H — 계약 폴더가 하네스 저장소로 가는 바로가기면 -H 없이는 맥 find 가 안을 열지 않아 0 건으로 통과한다
+contracts=$(find -H "$contract_dir" -maxdepth 1 -type f -name 'sprint-contract-*.md' | LC_ALL=C sort)
 while IFS= read -r contract; do
   [ -n "$contract" ] || continue
   # 명령 치환은 fm_get 의 실패 코드를 버리므로 따로 받는다 — 못 읽은 계약이 빈 값으로 OK 가 되지 않게

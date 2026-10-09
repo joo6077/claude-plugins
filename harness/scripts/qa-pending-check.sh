@@ -49,7 +49,8 @@ harness="$dir/.harness"
 # 첫 머리말 블록만 읽는다. 본문에 실린 머리말 예시를 값으로 읽으면 남의 계약을 내 것으로 센다.
 # 옛 계약은 값에 따옴표가 붙어 있어 벗기지 않으면 세션 번호가 영영 일치하지 않는다.
 # 이 기계의 find 는 -exec 인자에 {} 글자가 둘 이상이면 명령을 거부하므로 awk 코드에 그 글자를 쓰지 않는다.
-owned="$(find "$harness" -maxdepth 1 -type f -name 'sprint-contract*.md' -exec awk -v session="$session" '
+# -H 는 .harness 가 하네스 저장소로 가는 바로가기여도 안을 열게 한다.
+owned="$(find -H "$harness" -maxdepth 1 -type f -name 'sprint-contract*.md' -exec awk -v session="$session" '
   function value(line,  first, closing) {
     sub(/^[^:]*:[[:space:]]*/, "", line)
     first = substr(line, 1, 1); closing = index(substr(line, 2), first)

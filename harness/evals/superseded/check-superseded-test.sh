@@ -91,6 +91,13 @@ chmod 644 "$dir_f/sprint-contract-b.md"
 check F-끝빗금한번 "$(printf '%s\n' "UNREADABLE $dir_f/sprint-contract-a.md -> b" "checked=1 violations=0 unreadable=1" "rc=2")" "$out
 rc=$rc"
 
+# 하네스 저장소 모양 — .harness 가 저장소 밖 폴더로 가는 바로가기여도 안의 계약을 잰다 (harness-central-store 개정 A-01)
+mkdir -p "$work/store-l" "$work/l"; ln -s "$work/store-l" "$work/l/.harness"
+contract "$work/l/.harness" a 'status: superseded'
+out=$(bash "$target" "$work/l/.harness" 2>&1); rc=$?
+check L-바로가기 "$(printf '%s\n' "MISSING_BY $work/l/.harness/sprint-contract-a.md" "checked=1 violations=1 unreadable=0" "rc=1")" "$out
+rc=$rc"
+
 # 없는 폴더 — 위반 0 으로 통과시키면 안 된다
 bash "$target" "$work/no-such/.harness" >/dev/null 2>&1; rc=$?
 check 없는폴더 "rc=2" "rc=$rc"
