@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 import 'package:analyzer/dart/analysis/results.dart';
+import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/nullability_suffix.dart';
 import 'package:analyzer/dart/element/type.dart';
@@ -55,6 +56,8 @@ Future<void> main() async {
     for (final missing in await _sharedWidgets(
       collection,
       '$root/$sharedDir',
+      root,
+      problems,
     )) {
       if (!listed.contains(missing)) {
         problems.add('목록에 없는 공용 위젯: $missing ($sharedDir)');
@@ -101,9 +104,13 @@ Future<ResolvedLibraryResult?> _library(
 }
 
 /// 폴더 안 공개 화면 위젯 이름. `InheritedWidget` 같은 전달용 위젯은 뺀다.
+/// 읽지 못하거나 문법이 깨진 파일은 [problems] 에 넣는다 — 건너뛰면 그 파일의
+/// 위젯이 목록에서 빠져도 생성이 통과한다.
 Future<List<String>> _sharedWidgets(
   AnalysisContextCollection collection,
   String dir,
+  String root,
+  List<String> problems,
 ) async {
   final names = <String>[];
   final files = Directory(dir)
@@ -113,8 +120,24 @@ Future<List<String>> _sharedWidgets(
         (file) => file.path.endsWith('.dart') && !file.path.endsWith('.g.dart'),
       );
   for (final file in files) {
+    final relative = file.absolute.path.substring(root.length + 1);
+    final String source;
+    try {
+      source = file.readAsStringSync();
+    } on FileSystemException catch (error) {
+      problems.add('읽지 못한 파일: $relative (${error.osError?.message})');
+      continue;
+    }
+    final syntax = parseString(content: source, throwIfDiagnostics: false);
+    if (syntax.errors.isNotEmpty) {
+      problems.add('문법이 깨진 파일: $relative (${syntax.errors.first.message})');
+      continue;
+    }
     final library = await _library(collection, file.absolute.path);
-    if (library == null) continue;
+    if (library == null) {
+      problems.add('분석하지 못한 파일: $relative');
+      continue;
+    }
     for (final cls in library.element.classes) {
       final supers = cls.allSupertypes
           .map((supertype) => supertype.element.name)
