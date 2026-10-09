@@ -1,0 +1,107 @@
+// 공용 위젯 코드에서 토큰 밖 여백 숫자와 직접 쓴 글꼴 이름을 찾는다.
+//
+// 실행: fvm dart run tool/catalog_lint.dart [--report]
+// 위반이 있으면 1 로 끝난다. --report 는 찍기만 하고 0 으로 끝난다.
+import 'dart:io';
+
+import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:analyzer/source/line_info.dart';
+import 'package:yaml/yaml.dart';
+
+void main(List<String> args) {
+  final root = Directory.current.absolute.path;
+  final config =
+      loadYaml(File('$root/catalog/widgets.yaml').readAsStringSync()) as Map;
+  final sharedDir = config['shared_dir'] as String?;
+  if (sharedDir == null) {
+    stderr.writeln('catalog/widgets.yaml 에 shared_dir 이 없다');
+    exit(2);
+  }
+  final themeDir = config['theme_dir'] as String?;
+  final tokens = {
+    for (final token in (config['spacing_tokens'] as List?) ?? [])
+      (token as num) * 1.0,
+  };
+  final findings = <String>[];
+  final files =
+      Directory('$root/$sharedDir')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where(
+            (file) =>
+                file.path.endsWith('.dart') && !file.path.endsWith('.g.dart'),
+          )
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
+  for (final file in files) {
+    final relative = file.absolute.path.substring(root.length + 1);
+    if (themeDir != null && relative.startsWith(themeDir)) continue;
+    final parsed = parseString(
+      content: file.readAsStringSync(),
+      path: file.path,
+      throwIfDiagnostics: false,
+    );
+    parsed.unit.accept(
+      _Finder(relative, parsed.lineInfo, tokens, findings.add),
+    );
+  }
+  findings.forEach(stdout.writeln);
+  stdout.writeln('위반 ${findings.length}건');
+  exit(findings.isEmpty || args.contains('--report') ? 0 : 1);
+}
+
+class _Finder extends RecursiveAstVisitor<void> {
+  _Finder(this.path, this.lines, this.tokens, this.report);
+
+  final String path;
+  final LineInfo lines;
+  final Set<double> tokens;
+  final void Function(String) report;
+
+  void _add(AstNode node, String rule, String value) {
+    final line = lines.getLocation(node.offset).lineNumber;
+    report('$path:$line: $rule $value');
+  }
+
+  void _checkNumber(Literal literal) {
+    final value = switch (literal) {
+      IntegerLiteral(:final value?) => value.toDouble(),
+      DoubleLiteral(:final value) => value,
+      _ => null,
+    };
+    if (value != null && !tokens.contains(value)) {
+      _add(literal, '여백 토큰', literal.toSource());
+    }
+  }
+
+  /// 숫자가 `EdgeInsets…(…)` 의 인자이거나 `spacing:` 값이면 토큰과 대조한다.
+  void _visitNumber(Literal literal) {
+    final parent = literal.parent;
+    if (parent is NamedExpression && parent.name.label.name == 'spacing') {
+      _checkNumber(literal);
+      return;
+    }
+    final list = parent is NamedExpression ? parent.parent : parent;
+    final call = list is ArgumentList ? list.parent : null;
+    final callee = call?.toSource() ?? '';
+    if (callee.startsWith(RegExp('(const )?EdgeInsets'))) {
+      _checkNumber(literal);
+    }
+  }
+
+  @override
+  void visitIntegerLiteral(IntegerLiteral node) => _visitNumber(node);
+
+  @override
+  void visitDoubleLiteral(DoubleLiteral node) => _visitNumber(node);
+
+  @override
+  void visitNamedExpression(NamedExpression node) {
+    if (node.name.label.name == 'fontFamily') {
+      _add(node, '글꼴 이름', 'fontFamily');
+    }
+    super.visitNamedExpression(node);
+  }
+}

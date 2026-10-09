@@ -7,6 +7,11 @@
 사용법:
     python3 scripts/test-collect-kaizen-data.py
     python3 scripts/test-collect-kaizen-data.py --script <수집기 사본>   # 음성 대조
+
+`하네스 저장소 —` 사례의 음성 대조 지점(수집기 scripts/collect-kaizen-data.py):
+  - 같은 곳 판정: collect_hub_projects 의 `if real in seen_harness or real == own:` 에서 `real in seen_harness or `
+    를 지우면 「바로가기와 같은 곳은 한 번」 이 FAIL 한다
+  - 읽기 오류: store_feedback_dirs 의 `except OSError: continue` 를 지우면 「못 읽는 폴더는 건너뜀」 이 FAIL 한다
 """
 from __future__ import annotations
 
@@ -295,6 +300,99 @@ def folder_name_case(module, root: Path, tally: Tally) -> None:
                 ["~/.claude/usage-data/facets-x", "~/.claude/usage-data/meta-x"], inputs)
 
 
+def feedback(folder: Path, *slugs: str) -> None:
+    folder.mkdir(parents=True, exist_ok=True)
+    for slug in slugs:
+        (folder / f"sprint-feedback-{slug}.md").write_text("# Sprint Feedback\nVerdict: APPROVE\n", encoding="utf-8")
+
+
+def store_case(tally: Tally, case: str, expected: object, measure) -> None:
+    """원본 수집기에는 harness_store 인자가 없어 예외가 난다 — 시험을 멈추지 않고 그 사례만 FAIL 로 적는다."""
+    try:
+        actual = measure()
+    except Exception as error:  # noqa: BLE001 — 어떤 예외든 그 사례의 실패다
+        actual = f"예외 {type(error).__name__}: {error}"
+    tally.check(case, expected, actual)
+
+
+def store_cases(module, root: Path, tally: Tally) -> None:
+    def names(hub: Path, store: Path) -> list[str]:
+        return sorted(p["name"] for p in module.collect_hub_projects(hub, harness_store=store))
+
+    base = root / "store-depth"
+    hub, store = base / "hub", base / "store"
+    hub.mkdir(parents=True)
+    feedback(store / "p1", "a")
+    feedback(store / "p1" / "app", "a")
+    feedback(store / "x" / "y" / "z", "a")
+    (store / "p1" / "history").mkdir()
+    (store / "p1" / "history" / "20261009-0000-sprint-contract.md").write_text("x", encoding="utf-8")
+    store_case(tally, "하네스 저장소 — 깊이 제한 없이 세 곳", [("p1", 1), ("p1/app", 1), ("x/y/z", 1)],
+               lambda: sorted((p["name"], p["feedback_count"])
+                              for p in module.collect_hub_projects(hub, harness_store=store)))
+    store_case(tally, "하네스 저장소 — 피드백 없는 폴더 빼기", ["p1", "p1/app", "x/y/z"], lambda: names(hub, store))
+
+    base = root / "store-link"
+    hub, store = base / "hub", base / "store"
+    feedback(store / "proj", "a", "b")
+    (hub / "_x" / "proj").mkdir(parents=True)
+    (hub / "_x" / "proj" / ".harness").symlink_to(store / "proj")
+    store_case(tally, "하네스 저장소 — 바로가기와 같은 곳은 한 번", [("_x/proj", 2)],
+               lambda: sorted((p["name"], p["feedback_count"])
+                              for p in module.collect_hub_projects(hub, harness_store=store)))
+
+    base = root / "store-archive"
+    hub, store = base / "hub", base / "store"
+    hub.mkdir(parents=True)
+    feedback(store / "p1", "a")
+    feedback(store / "p1" / "_from-worktrees" / "w1", "a")
+    feedback(store / "p1" / "_from-worktrees" / "w1" / "app", "a")
+    store_case(tally, "하네스 저장소 — 보관 폴더 빼기", ["p1"], lambda: names(hub, store))
+
+    base = root / "store-own"
+    hub, store, repo = base / "hub", base / "store", base / "repo"
+    hub.mkdir(parents=True)
+    feedback(store / "mine", "a")
+    feedback(store / "other", "a")
+    repo.mkdir()
+    (repo / ".harness").symlink_to(store / "mine")
+    saved = module.REPO_ROOT
+    module.REPO_ROOT = repo
+    try:
+        store_case(tally, "하네스 저장소 — 이 레포 자신 빼기", ["other"], lambda: names(hub, store))
+    finally:
+        module.REPO_ROOT = saved
+
+    base = root / "store-missing"
+    hub = base / "hub"
+    feedback(hub / "a" / ".harness", "a")
+    feedback(hub / "b" / "c" / ".harness", "a")
+    store_case(tally, "하네스 저장소 — 없으면 Hub 만", ["a", "b/c"], lambda: names(hub, base / "no-such-store"))
+    store_case(tally, "하네스 저장소 — 기본 위치", Path.home() / "Hub" / "10_Dev" / "harness-store",
+               lambda: module.build_arg_parser().get_default("harness_store"))
+
+    base = root / "store-unreadable"
+    hub, store = base / "hub", base / "store"
+    hub.mkdir(parents=True)
+    feedback(store / "ok", "a")
+    feedback(store / "locked" / "inner", "a")
+    if os.geteuid() == 0:
+        print("SKIP 하네스 저장소 — 못 읽는 폴더는 건너뜀 — 관리자로 돌면 권한 000 폴더도 읽힌다")
+    else:
+        (store / "locked").chmod(0)
+        try:
+            store_case(tally, "하네스 저장소 — 못 읽는 폴더는 건너뜀", ["ok"], lambda: names(hub, store))
+        finally:
+            (store / "locked").chmod(0o755)
+
+    base = root / "store-loop"
+    hub, store = base / "hub", base / "store"
+    hub.mkdir(parents=True)
+    feedback(store / "p1" / "deep", "a")
+    (store / "p1" / "deep" / "back").symlink_to(store / "p1")
+    store_case(tally, "하네스 저장소 — 링크 순환에 안 빠짐", ["p1/deep"], lambda: names(hub, store))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--script", type=Path, default=REPO_ROOT / "scripts" / "collect-kaizen-data.py",
@@ -312,6 +410,7 @@ def main() -> int:
         default_prefix_cases(module, tally)
         facets_cases(module, script, root, tally)
         folder_name_case(module, root, tally)
+        store_cases(module, root, tally)
     print(f"결과: {tally.passed} 통과 · {tally.failed} 실패")
     return 0 if tally.failed == 0 else 1
 

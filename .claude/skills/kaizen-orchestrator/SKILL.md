@@ -208,6 +208,8 @@ Phase 완료 후 `.harness/.meta/kaizen-failure-count.yaml`을 업데이트한�
 
 모든 Phase 서브에이전트가 공유할 **통합 데이터 풀**을 먼저 생성한다. 이는 각 Phase 가 단절된 리서치에 매몰되지 않고 글로벌 피드백·외부 프로젝트·followup 이슈·개인 메모리(`~/.claude/projects/*/memory/`)·`/insights` 30 일 분석을 근거로 개선하도록 보장한다.
 
+외부 프로젝트 기록(§2)은 `~/Hub/10_Dev` 아래 `.harness` 와 함께 **하네스 저장소 `~/Hub/10_Dev/harness-store`** 를 원천으로 읽는다 — PC 의 모든 프로젝트 하네스 기록이 프로젝트별 폴더로 모이는 곳이다(깊이 제한 없음, 바로가기로 이어진 같은 기록은 한 번만 센다, `_from-worktrees` 보관 폴더는 뺀다).
+
 데이터 풀의 섹션 구성은 **§0 · §0.5 · §1 · §2 · §3 · §4 · §5 · §6** 이다. **§0.5 (개인 메모리) 는 §0 과 §1 _사이_ 에 렌더된다** — 순서가 어긋나 있으면 산문을 고치지 말고 수집 로직(`scripts/collect-kaizen-data.py`)의 결함으로 다뤄라.
 
 **실행:**
@@ -230,7 +232,7 @@ python3 scripts/collect-kaizen-data.py
 ```yaml
 # docs-contract
 script: scripts/collect-kaizen-data.py
-options: ["--hub-dir", "--insights", "--output", "--skip-validate", "--usage-data"]
+options: ["--harness-store", "--hub-dir", "--insights", "--output", "--skip-validate", "--usage-data"]
 input_candidates:
   - .claude/kaizen-input/insights-report.md
   - ~/.claude/kaizen-input/insights-report.md
@@ -422,7 +424,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/flutter-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 flutter-toolkit 전 스킬을 전수 감사한다. flutter-toolkit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.13.0 · 2026-10-09] Flutter 개발 워크플로우 스킬 모음 (flutter-scenario-report — 케이스별 보고서 · 조작마다 캡처 · 사진 한 줄 넘김)
+> 플러그인 설명: [v0.14.0 · 2026-10-09] Flutter 개발 워크플로우 스킬 모음 (flutter-scenario-report — 케이스별 보고서 · 조작마다 캡처 · 사진 한 줄 넘김)
 
 ### Step 6: Phase 6 — design-kit 카이젠
 

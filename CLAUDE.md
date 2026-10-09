@@ -8,7 +8,7 @@ Claude Code 플러그인 모노레포. 세 개의 플러그인을 포함한다:
 
 <!-- AUTO:summary -->
 - **harness** — 스택 무관 범용 QA 프레임워크 (Sprint Contract + QA Evaluator)
-- **flutter-toolkit** — Flutter 전용 개발 워크플로우 스킬 20종
+- **flutter-toolkit** — Flutter 전용 개발 워크플로우 스킬 21종
 - **design-kit** — 스택 무관 UI/UX 디자인 플러그인 (디자인 시스템 세팅 + 실시간 가이드 + 감사)
 - **backend-kit** — 스택 무관 백엔드 개발 가이드, 감사, 아키텍처 세팅 플러그인
 - **infra-kit** — 스택 무관 인프라/DevOps 가이드, 감사, 초기 세팅 플러그인
@@ -139,7 +139,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/evaluator-kaizen` | qa-evaluator 에이전트 + 평가 방법론 가이드 개선 |
 | `/harness-kaizen` | harness 스킬 전체 개선 |
 
-#### flutter-toolkit — Flutter 개발 워크플로우 (20종)
+#### flutter-toolkit — Flutter 개발 워크플로우 (21종)
 
 | 스킬/에이전트 | 용도 |
 | --------------- | ------ |
@@ -163,6 +163,7 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | `/flutter-kaizen` | flutter-toolkit 스킬 개선 |
 | `/flutter-ui-verify` | 화면을 실제로 띄워 편집 전·후 캡처 대조, 의도와 다르면 스스로 고쳐 다시 찍기 (최대 3 회) |
 | `/flutter-scenario-report` | 시나리오(만일/그러면)대로 MCP 로 실행하며 단계마다 캡처하고, 판정과 캡처를 모아 HTML 테스트 기록 보고서로 만들기 |
+| `/flutter-catalog` | 공용 위젯 생성자를 읽어 놀이터 화면(진짜 위젯 · 속성 바꿔 보기)과 기본기 검사(넘침 · 여백 · 크기 동작 · 아이콘 정렬 · 터치 크기 · 글꼴)를 만들기. 목록에 빠진 위젯이 있으면 실패 |
 | `widget-inspector` (에이전트) | 프로젝트 코드에서 재사용 가능한 위젯 패턴 감지·리포팅 |
 
 #### design-kit — UI/UX 디자인

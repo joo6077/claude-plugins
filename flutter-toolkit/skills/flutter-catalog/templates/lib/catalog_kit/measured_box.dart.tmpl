@@ -1,0 +1,77 @@
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+
+/// 자식이 차지한 영역을 선으로 두르고 그 아래 `가로 × 세로` 를 보인다.
+class MeasuredBox extends HookWidget {
+  /// [outline] 은 영역 선 색.
+  const MeasuredBox({
+    required this.child,
+    this.outline = const Color(0xFF4FC3F7),
+    super.key,
+  });
+
+  /// 잴 위젯.
+  final Widget child;
+
+  /// 영역 선 색.
+  final Color outline;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = useState<Size?>(null);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 6,
+      children: [
+        DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(border: Border.all(color: outline)),
+          child: _SizeReporter(
+            onSize: (measured) => size.value = measured,
+            child: child,
+          ),
+        ),
+        if (size.value case final measured?)
+          Text(
+            '${measured.width.round()} × ${measured.height.round()}',
+            style: TextStyle(color: outline, fontSize: 12),
+          ),
+      ],
+    );
+  }
+}
+
+class _SizeReporter extends SingleChildRenderObjectWidget {
+  const _SizeReporter({required this.onSize, super.child});
+
+  final ValueChanged<Size> onSize;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSizeReporter(onSize);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderSizeReporter renderObject,
+  ) => renderObject.onSize = onSize;
+}
+
+class _RenderSizeReporter extends RenderProxyBox {
+  _RenderSizeReporter(this.onSize);
+
+  ValueChanged<Size> onSize;
+  Size? _reported;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size == _reported) return;
+    _reported = size;
+    final measured = size;
+    // 레이아웃 도중에는 상태를 바꿀 수 없어 다음 프레임으로 넘긴다.
+    SchedulerBinding.instance.addPostFrameCallback((_) => onSize(measured));
+  }
+}

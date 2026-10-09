@@ -72,8 +72,9 @@ rationalization_overrides: []
 
 # ── Codex 감독 ──
 # Codex 가 계약을 쓰고(draft · revise) 구현을 판정한다(impl). Codex 가 없는 환경이면 mode: off.
+# 2026-10-08 사용자 지시: 감독 계정이 ChatGPT Plus 라 한도가 작다 — 당분간 Claude 가 계약 · 판정 모두 한다. 다시 켤 때 judge
 codex_audit:
-  mode: off            # codex | off
+  mode: off              # codex | judge | off
   codex_home: ""         # 비우면 ~/.codex-qa → $CODEX_HOME → ~/.codex 차례로 찾는다
   model: ""              # 비우면 그 폴더 config.toml 의 model. 둘 다 없으면 BLOCKED
   effort_draft: medium

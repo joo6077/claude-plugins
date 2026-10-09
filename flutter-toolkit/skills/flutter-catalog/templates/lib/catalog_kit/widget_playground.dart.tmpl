@@ -1,0 +1,400 @@
+import 'package:{{package}}/catalog_kit/catalog_kit_models.dart';
+import 'package:{{package}}/catalog_kit/measured_box.dart';
+import 'package:{{package}}/catalog_kit/property_panel.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+
+const _phoneWidths = [320.0, 375.0, 390.0, 430.0];
+const _phoneHeight = 844.0;
+
+/// 공용 위젯 놀이터. 왼쪽 위젯 목록 · 가운데 진짜 위젯 · 오른쪽 종류와 속성.
+class CatalogPlayground extends HookWidget {
+  /// [entries] 는 생성기가 만든 `catalogEntries`.
+  const CatalogPlayground({required this.entries, super.key});
+
+  /// 생성자마다 하나.
+  final List<PlaygroundEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    final groups = useMemoized(() {
+      final byWidget = <String, List<PlaygroundEntry>>{};
+      for (final entry in entries) {
+        byWidget.putIfAbsent(entry.widget, () => []).add(entry);
+      }
+      return byWidget;
+    }, [entries]);
+    final selected = useState(groups.keys.firstOrNull);
+    final variants = groups[selected.value] ?? const <PlaygroundEntry>[];
+    final appTheme = Theme.of(context);
+    return Theme(
+      data: _toolTheme(appTheme),
+      child: Scaffold(
+        body: Row(
+          children: [
+            SizedBox(
+              width: 240,
+              child: WidgetListPanel(
+                appTheme: appTheme,
+                groups: groups,
+                selected: selected.value,
+                onSelect: (name) => selected.value = name,
+              ),
+            ),
+            const VerticalDivider(width: 1),
+            Expanded(
+              child: variants.isEmpty
+                  ? const Center(child: Text('catalog/widgets.yaml 이 비어 있다'))
+                  : WidgetStage(
+                      key: ValueKey(selected.value),
+                      appTheme: appTheme,
+                      variants: variants,
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 놀이터 도구(목록 · 버튼 · 속성 칸)를 그리는 테마. 앱 테마의 색과 글꼴만 빌린다 —
+/// 앱의 버튼 모양(최소 폭 무한 등)까지 따라가면 도구 버튼이 끝까지 늘어난다.
+ThemeData _toolTheme(ThemeData app) => ThemeData(
+  colorScheme: app.colorScheme,
+  fontFamily: app.textTheme.bodyMedium?.fontFamily,
+);
+
+/// 왼쪽 위젯 목록. 항목마다 첫 생성자를 작게 그려 보인다.
+class WidgetListPanel extends StatelessWidget {
+  /// [onSelect] 는 위젯 이름을 받는다.
+  const WidgetListPanel({
+    required this.appTheme,
+    required this.groups,
+    required this.selected,
+    required this.onSelect,
+    super.key,
+  });
+
+  /// 작은 그림 안의 위젯을 그리는 앱 테마.
+  final ThemeData appTheme;
+
+  /// 위젯 이름별 생성자 목록.
+  final Map<String, List<PlaygroundEntry>> groups;
+
+  /// 고른 위젯 이름.
+  final String? selected;
+
+  /// 위젯을 고를 때.
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final names = groups.keys.toList();
+    return ListView.builder(
+      itemCount: names.length,
+      itemBuilder: (context, index) {
+        final name = names[index];
+        final first = groups[name]!.first;
+        final theme = Theme.of(context);
+        return InkWell(
+          onTap: () => onSelect(name),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 4,
+              children: [
+                // 위젯 이름을 「종류 N」 과 합치지 않고 따로 읽고 누를 수 있게 둔다.
+                Semantics(
+                  container: true,
+                  button: true,
+                  selected: name == selected,
+                  onTap: () => onSelect(name),
+                  child: Text(
+                    name,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: name == selected
+                          ? theme.colorScheme.primary
+                          : null,
+                    ),
+                  ),
+                ),
+                Text(
+                  '종류 ${groups[name]!.length}',
+                  style: theme.textTheme.bodySmall,
+                ),
+                ExcludeSemantics(
+                  child: IgnorePointer(
+                    child: SizedBox(
+                      height: 48,
+                      child: FittedBox(
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          width: 390,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Theme(
+                              data: appTheme,
+                              child: first.build(first.initialValues),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// 위젯 하나의 무대. 종류 · 값 · 보기를 들고 있다가 위젯을 고르면 처음으로 돌아간다.
+class WidgetStage extends HookWidget {
+  /// [variants] 는 같은 위젯의 생성자들.
+  const WidgetStage({
+    required this.appTheme,
+    required this.variants,
+    super.key,
+  });
+
+  /// 미리보기 안의 위젯을 그리는 앱 테마.
+  final ThemeData appTheme;
+
+  /// 같은 위젯의 생성자들.
+  final List<PlaygroundEntry> variants;
+
+  @override
+  Widget build(BuildContext context) {
+    final variantIndex = useState(0);
+    final entry = variants[variantIndex.value];
+    final values = useState(entry.initialValues);
+    final view = useState(entry.view);
+    final phoneWidth = useState<double>(390);
+    final theme = Theme.of(context);
+
+    void pickVariant(int index) {
+      variantIndex.value = index;
+      values.value = variants[index].initialValues;
+    }
+
+    final preview = entry.build(values.value);
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    Text(
+                      '${entry.widget}.${entry.label}',
+                      style: theme.textTheme.titleLarge,
+                    ),
+                    if (entry.doc.isNotEmpty) Text(entry.doc),
+                    Text(
+                      '크기 동작 ${entry.sizing.name} · '
+                      '최소 안쪽 여백 ${entry.minPadding}',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    for (final option in PreviewView.values)
+                      ViewButton(
+                        label: option == PreviewView.phone ? '휴대폰 화면' : '내용 크기',
+                        selected: view.value == option,
+                        onPressed: () => view.value = option,
+                      ),
+                    if (view.value == PreviewView.phone)
+                      for (final width in _phoneWidths)
+                        ChoiceChip(
+                          label: Text('${width.round()}'),
+                          selected: phoneWidth.value == width,
+                          onSelected: (_) => phoneWidth.value = width,
+                        ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ColoredBox(
+                  color: theme.colorScheme.surfaceContainerLowest,
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.all(24),
+                        sliver: SliverToBoxAdapter(
+                          child: Center(
+                            child: Theme(
+                              data: appTheme,
+                              child: switch (view.value) {
+                                PreviewView.phone => PhoneFrame(
+                                  width: phoneWidth.value,
+                                  child: MeasuredBox(child: preview),
+                                ),
+                                PreviewView.content => ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 600,
+                                  ),
+                                  child: MeasuredBox(child: preview),
+                                ),
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const VerticalDivider(width: 1),
+        SizedBox(
+          width: 360,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: VariantMenu(
+                  variants: variants,
+                  selected: variantIndex.value,
+                  onSelect: pickVariant,
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: PropertyPanel(
+                  key: ValueKey(entry),
+                  entry: entry,
+                  values: values.value,
+                  onChanged: (key, value) =>
+                      values.value = {...values.value, key: value},
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 보기 바꾸기 버튼. 고른 쪽은 채워 보인다.
+class ViewButton extends StatelessWidget {
+  /// [selected] 면 채운 버튼으로 그린다.
+  const ViewButton({
+    required this.label,
+    required this.selected,
+    required this.onPressed,
+    super.key,
+  });
+
+  /// 버튼 글자.
+  final String label;
+
+  /// 지금 고른 보기인지.
+  final bool selected;
+
+  /// 누를 때.
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    selected: selected,
+    child: selected
+        ? FilledButton.tonal(onPressed: onPressed, child: Text(label))
+        : OutlinedButton(onPressed: onPressed, child: Text(label)),
+  );
+}
+
+/// 생성자 고르기. 펼치면 종류 이름이 줄줄이 나온다.
+class VariantMenu extends StatelessWidget {
+  /// [onSelect] 는 생성자 순번을 받는다.
+  const VariantMenu({
+    required this.variants,
+    required this.selected,
+    required this.onSelect,
+    super.key,
+  });
+
+  /// 같은 위젯의 생성자들.
+  final List<PlaygroundEntry> variants;
+
+  /// 고른 생성자 순번.
+  final int selected;
+
+  /// 생성자를 고를 때.
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) => MenuAnchor(
+    menuChildren: [
+      for (final (index, entry) in variants.indexed)
+        MenuItemButton(
+          onPressed: () => onSelect(index),
+          child: Text(entry.label),
+        ),
+    ],
+    builder: (context, menu, _) => OutlinedButton.icon(
+      onPressed: () => menu.isOpen ? menu.close() : menu.open(),
+      icon: const Icon(Icons.arrow_drop_down),
+      label: Text('종류: ${variants[selected].label}'),
+    ),
+  );
+}
+
+/// 휴대폰 화면 틀. 좌우 여백 16 안에 위젯을 놓고 틀 크기를 보인다.
+class PhoneFrame extends StatelessWidget {
+  /// [width] 는 휴대폰 화면 폭.
+  const PhoneFrame({required this.width, required this.child, super.key});
+
+  /// 휴대폰 화면 폭.
+  final double width;
+
+  /// 틀 안에 놓을 위젯.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        Text(
+          '${width.round()} × ${_phoneHeight.round()}',
+          style: theme.textTheme.bodySmall,
+        ),
+        Container(
+          width: width,
+          height: _phoneHeight,
+          decoration: BoxDecoration(
+            color: theme.scaffoldBackgroundColor,
+            border: Border.all(color: theme.dividerColor),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          alignment: Alignment.topCenter,
+          child: child,
+        ),
+      ],
+    );
+  }
+}
