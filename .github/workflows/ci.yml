@@ -266,12 +266,10 @@ jobs:
       - name: Measure helpers test (도우미 떼기 · 공용 측정 파일)
         run: bash harness/evals/measure/measure-helpers-test.sh
 
-      # superseded 계약이 살아 있는 새 판을 가리키는지 기계로 보는 곳이 없었다(2026-09-28). 도구 시험과 레포 계약 둘을 잰다
+      # superseded 계약이 살아 있는 새 판을 가리키는지 기계로 보는 곳이 없었다(2026-09-28). 레포 계약은 2026-10-09 부터
+      # 하네스 저장소(~/Hub/10_Dev/harness-store)에 있어 여기서는 검사기 자체 시험만 돈다
       - name: Superseded check test (가리킴 없음 · 없는 계약 · 사슬)
         run: bash harness/evals/superseded/check-superseded-test.sh
-
-      - name: Superseded contracts check (레포 .harness)
-        run: bash harness/scripts/check-superseded.sh .harness
 
       - name: Dart format-on-edit hook test (편집한 파일 하나만)
         run: bash flutter-toolkit/evals/hooks/format-edited-dart-test.sh

@@ -1,8 +1,0 @@
-api-kit/skills/api-ui/SKILL.md
-bambu-kit/skills/bambu-print-profile/SKILL.md
-design-kit/references/visual-change-protocol.md
-harness/references/contract-schema.md
-howto-kit/README.md
-howto-kit/skills/howto-audit/SKILL.md
-howto-kit/skills/howto-doc/SKILL.md
-onboarding-kit/skills/setup-guide/SKILL.md

@@ -11,3 +11,6 @@ __pycache__/
 
 # Bambu Studio CLI 산출물 (bambu-kit 프로파일 검증 시 레포 루트에 떨어진다)
 result.json
+
+# 하네스 기록은 하네스 저장소(~/Hub/10_Dev/harness-store)에 둔다 — 맨 위 .harness 는 그 폴더로 가는 바로가기다(2026-10-09)
+/.harness
