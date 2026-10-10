@@ -455,7 +455,7 @@ exit_codes: [0, 2]
 
 ### Step 9: Phase 9 — rust-kit 카이젠
 
-**범위:** `rust-kit/skills/*/SKILL.md`, `rust-kit/references/`, `rust-kit/skills/*/references/`, `rust-kit/agents/`, `rust-kit/evals/`, `rust-kit/templates/`
+**범위:** `rust-kit/skills/*/SKILL.md`, `rust-kit/references/`, `rust-kit/skills/*/references/`, `rust-kit/agents/`, `rust-kit/hooks/`, `rust-kit/evals/`, `rust-kit/scripts/`, `rust-kit/templates/`
 , `docs/rust/` 리서치 문서
 
 공통 실행 패턴에 따라 `/rust-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 rust-kit 전 스킬을 전수 감사한다. rust-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
