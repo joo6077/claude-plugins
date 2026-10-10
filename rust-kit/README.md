@@ -39,12 +39,18 @@ Axum + Tokio + SQLx 기반 Rust 백엔드 프로젝트의 스캐폴딩, API 생�
 
 ## 훅
 
-`lint-edited-rust` (`scripts/lint-edited-rust.sh`) — 두 훅이 한 스크립트를 쓴다. `PostToolUse`(Edit · Write · MultiEdit) 는 고친 `.rs` 파일 경로를 세션별 기록에 적기만 하고, `Stop` 은 답을 끝내기 직전에 워크스페이스마다 `cargo clippy` 를 한 번 돌려 기록한 파일의 줄만 고른다.
+`lint-edited-rust` (`scripts/lint-edited-rust.sh`) — 두 훅이 한 스크립트를 쓴다.
+`PostToolUse`(Edit · Write · MultiEdit) 는 고친 `.rs` 파일 경로를 세션별 기록에
+적기만 하고, `Stop` 은 답을 끝내기 직전에 워크스페이스마다 `cargo clippy` 를
+한 번 돌려 기록한 파일의 줄만 고른다.
 
-- 경고·오류가 있으면 종료 코드 2 로 끝내 Claude 가 그 줄을 받아 고치게 한다. clippy 는 경고만 있으면 0 으로 끝나므로 종료 코드가 아니라 출력 줄로 판정한다
+- 경고·오류가 있으면 종료 코드 2 로 끝내 Claude 가 그 줄을 받아 고치게 한다.
+  clippy 는 경고만 있으면 0 으로 끝나므로 종료 코드가 아니라 출력 줄로 판정한다
 - 편집마다 돌리지 않는 이유: 파일 하나 바꾼 뒤 clippy 가 10 초 넘게 걸렸다
-- 다른 세션이 고친 파일은 섞이지 않는다. 같은 세션에서 이미 한 번 막혔으면(`stop_hook_active`) 그다음은 통과시키고 기록은 남겨 다음 끝내기 때 다시 잰다
-- `cargo` 를 못 찾거나, cargo 가 비정상 종료하거나, 다른 파일의 컴파일 오류로 기록한 파일까지 검사가 닿지 못하면 막지 않고 「검사 못 함」 알림을 띄운다
+- 다른 세션이 고친 파일은 섞이지 않는다. 같은 세션에서 이미 한 번
+  막혔으면(`stop_hook_active`) 그다음은 통과시키고 기록은 남겨 다음 끝내기 때 다시 잰다
+- `cargo` 를 못 찾거나, cargo 가 비정상 종료하거나, 다른 파일의 컴파일 오류로
+  기록한 파일까지 검사가 닿지 못하면 막지 않고 「검사 못 함」 알림을 띄운다
 - 끄는 법: 환경 변수 `RUST_KIT_LINT_ON_STOP=off`. 기록 위치는 `CLAUDE_LINT_STATE_DIR` (기본 `$TMPDIR/claude-lint-edited`)
 
 ## 리서치 문서
