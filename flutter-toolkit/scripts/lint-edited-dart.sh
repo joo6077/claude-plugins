@@ -60,7 +60,7 @@ unchecked=""
 while IFS= read -r project; do
   [ -n "$project" ] || continue
   files=()
-  while IFS= read -r file; do files+=("$file"); done < <(printf '%s\n' "$pairs" | awk -F'\t' -v p="$project" '$1 == p { print $2 }')
+  while IFS= read -r file; do files+=("$file"); done < <(printf '%s\n' "$pairs" | awk -F'\t' -v root="$project" '$1 == root { print $2 }')
 
   # fvm 은 현재 폴더의 .fvmrc 로 버전을 고르므로 프로젝트 폴더에서 부른다
   if [ -f "$project/.fvmrc" ] || [ -d "$project/.fvm" ]; then

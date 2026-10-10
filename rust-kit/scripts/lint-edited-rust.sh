@@ -70,7 +70,7 @@ while IFS= read -r workspace; do
     unchecked="$unchecked $workspace(cargo clippy 종료 코드 $status)"
     continue
   fi
-  lines=$(printf '%s\n' "$pairs" | awk -F'\t' -v w="$workspace" '$1 == w { print $2 }' | while IFS= read -r relative; do
+  lines=$(printf '%s\n' "$pairs" | awk -F'\t' -v root="$workspace" '$1 == root { print $2 }' | while IFS= read -r relative; do
     printf '%s\n' "$output" | grep -F "$relative:" | grep -E ':[0-9]+:[0-9]+: (warning|error)'
   done)
   if [ -n "$lines" ]; then
