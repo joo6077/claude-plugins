@@ -1,5 +1,0 @@
-design-kit/skills/design-mockup/SKILL.md 0
-design-kit/skills/design-concept/SKILL.md 0
-design-kit/references/visual-change-protocol.md 2
-design-kit/README.md 0
-harness/docs/guides/skill-design-guide.md 0
