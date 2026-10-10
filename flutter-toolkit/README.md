@@ -48,6 +48,19 @@ Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 
 - 끄는 법: 환경 변수 `FLUTTER_TOOLKIT_FORMAT_ON_EDIT=off`
 - 포맷이 실패해도 편집을 막지 않는다 (항상 exit 0)
 
+`lint-edited-dart` (`scripts/lint-edited-dart.sh`) — 두 훅이 한 스크립트를 쓴다.
+`PostToolUse`(Edit · Write · MultiEdit) 는 고친 `.dart` 파일 경로를 세션별 기록에
+적기만 하고, `Stop` 은 답을 끝내기 직전에 그 기록의 파일만 `dart analyze` 한다.
+
+- 오류·경고가 있으면 종료 코드 2 로 끝내 Claude 가 그 줄을 받아 고치게 한다.
+  정보 항목은 돌려보내지 않는다
+- 편집마다 분석하지 않는 이유: 큰 프로젝트는 파일 하나 분석에 40 초 넘게 걸렸다
+- 다른 세션이 고친 파일은 섞이지 않는다. 같은 세션에서 이미 한 번
+  막혔으면(`stop_hook_active`) 그다음은 통과시키고 기록은 남겨 다음 끝내기 때 다시 잰다
+- `fvm` · `dart` 를 못 찾거나 분석기가 비정상 종료하면 막지 않고 「검사 못 함」 알림을 띄운다
+- 끄는 법: 환경 변수 `FLUTTER_TOOLKIT_LINT_ON_STOP=off`.
+  기록 위치는 `CLAUDE_LINT_STATE_DIR` (기본 `$TMPDIR/claude-lint-edited`)
+
 ## 화면 확인
 
 `flutter-ui-verify` 는 UI 스킬을 거치지 않고 화면 코드를 직접 고친 뒤나 사용자가 화면 확인을 요청할 때, 편집 전·후 캡처를 대조하고 의도와 다르면 스스로 고쳐 다시 찍는다(최대 3 회). 절차는 `references/visual-evidence-protocol.md` 를 번호로 따른다.
