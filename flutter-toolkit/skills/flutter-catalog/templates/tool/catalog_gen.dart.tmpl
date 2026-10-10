@@ -142,9 +142,11 @@ Future<List<String>> _sharedWidgets(
       final supers = cls.allSupertypes
           .map((supertype) => supertype.element.name)
           .toSet();
+      // Widget 의 직계 갈래 넷 중 화면을 그리는 둘만 남긴다 — 물려주기 · 렌더 객체 위젯은 뺀다.
       final isScreenWidget =
-          supers.contains('StatelessWidget') ||
-          supers.contains('StatefulWidget');
+          supers.contains('Widget') &&
+          !supers.contains('ProxyWidget') &&
+          !supers.contains('RenderObjectWidget');
       if (cls.isPublic && !cls.isAbstract && isScreenWidget) {
         names.add(cls.name!);
       }

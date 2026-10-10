@@ -45,7 +45,7 @@ user-invocable: true
 
 1. 프로젝트가 `flutter_hooks` 를 직접 의존하는지 본다. 놀이터 화면이 쓴다.
 2. `bash <이 스킬 폴더>/scripts/install.sh --add-deps <프로젝트>` 를 돌린다. 깔 파일이 하나라도 이미 있으면 아무것도 쓰지 않고 1 로 끝난다 — 지우거나 옮긴 뒤 다시 돌린다. `--add-deps` 는 `analyzer` · `yaml` 이 직접 의존성에 없을 때만 잠긴 판 그대로 개발 의존성에 넣는다.
-3. 두 감싸개를 앱에 맞게 고친다 — `test/catalog_kit/catalog_kit_host.dart` (`hostLocales` · `setUpHost` · `wrap`), `lib/catalog_kit/catalog_kit_app_host.dart` (`appWrap`). 앱 테마 · 상태 저장소 · 번역을 붙인다.
+3. 두 감싸개를 앱에 맞게 고친다 — `test/catalog_kit/catalog_kit_host.dart` (`hostLocales` · `setUpHost` · `wrap`), `lib/catalog_kit/catalog_kit_app_host.dart` (`appWrap`). 앱 테마 · 상태 저장소 · 번역을 붙인다. 프로젝트가 누름 위젯을 따로 정해 두었으면(예: `InkWell` 을 금하고 자체 `Pressable` 을 쓰는 프로젝트) `lib/catalog_kit/widget_playground.dart` 의 위젯 목록 `InkWell` 도 그것으로 바꾼다 — 틀은 어느 프로젝트에나 있는 `InkWell` 로 깔린다.
 4. `catalog/widgets.yaml` 에 `shared_dir` 와 위젯을 적는다. 칸 설명은 그 파일 주석에 있다.
 
 ### `gen` — 항목 만들기
@@ -53,7 +53,7 @@ user-invocable: true
 `fvm dart run tool/catalog_gen.dart`. 생성자를 읽어 매개변수마다 조절 칸을 붙인다 — 참거짓은 스위치, 글자와 `Widget` 은 글 입력(`Widget` 은 `Text` 로 감싼다), 숫자는 미끄럼 막대, enum · 색 · 아이콘은 고르기, 함수는 빈 함수로 고정. 아래면 무엇이 걸렸는지 찍고 1 로 끝나며 생성물을 쓰지 않는다.
 
 - 조절할 방법이 없는 타입 (`EdgeInsetsGeometry` 등) — `samples.<속성>` 에 Dart 식 예시 값을 적는다
-- `shared_dir` 안 화면 위젯(`StatelessWidget` · `StatefulWidget` 후손, `InheritedWidget` 제외)이 목록에 없음
+- `shared_dir` 안 화면 위젯(`Widget` 후손 중 `ProxyWidget` · `RenderObjectWidget` 이 아닌 것)이 목록에 없음
 - 목록에 있는데 코드에 없는 클래스
 
 공용 위젯을 새로 만들거나 생성자를 바꾸면 매번 다시 돌린다. 생성물은 손으로 고치지 않는다.
