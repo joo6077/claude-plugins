@@ -15,7 +15,7 @@
 
 그래서 이 스크립트는 **먼저 검사 범위를 출력한다.** 파일 0 개면 그 자체로 실패다.
 
-등록부: `.harness/stale-values.yaml` — 값마다 `old`/`new`/`note`, 그리고 고치면 안 되는
+등록부: `scripts/stale-values.yaml` — 값마다 `old`/`new`/`note`, 그리고 고치면 안 되는
 자리는 `allow` 에 경로와 사유를 적는다 (날짜 박힌 기록 · 개명 이력 설명 · 다른 뜻의 동형 문자열).
 
 **검사 범위 — docs-site 소스 디렉토리(`SOURCE_DIRS`)와 `.claude-plugin/marketplace.json` 에 등록된 킷 폴더 전부.**
@@ -38,7 +38,7 @@ from pathlib import Path
 import yaml
 
 REPO = Path(__file__).resolve().parent.parent
-REGISTRY = REPO / ".harness" / "stale-values.yaml"
+REGISTRY = REPO / "scripts" / "stale-values.yaml"
 MARKETPLACE = REPO / ".claude-plugin" / "marketplace.json"
 
 # 킷 이름 → 빼는 이유. 이유는 출력에 그대로 나간다
@@ -113,7 +113,7 @@ def main() -> int:
         print(f"\n되살아난 옛 값 {len(findings)} 건:")
         for x in findings:
             print(f"  {x['file']}:{x['line']}  {x['old']!r} -> {x['new']!r}")
-        print("\n예외로 둘 자리면 .harness/stale-values.yaml 의 allow 에 사유와 함께 등록하라.")
+        print("\n예외로 둘 자리면 scripts/stale-values.yaml 의 allow 에 사유와 함께 등록하라.")
     else:
         print("\n되살아난 옛 값 없음")
     return 1 if findings else 0

@@ -366,8 +366,8 @@ def store_cases(module, root: Path, tally: Tally) -> None:
     base = root / "store-missing"
     hub = base / "hub"
     feedback(hub / "a" / ".harness", "a")
-    feedback(hub / "b" / "c" / ".harness", "a")
-    store_case(tally, "하네스 저장소 — 없으면 Hub 만", ["a", "b/c"], lambda: names(hub, base / "no-such-store"))
+    feedback(hub / "b" / "deep" / ".harness", "a")
+    store_case(tally, "하네스 저장소 — 없으면 Hub 만", ["a", "b/deep"], lambda: names(hub, base / "no-such-store"))
     store_case(tally, "하네스 저장소 — 기본 위치", Path.home() / "Hub" / "10_Dev" / "harness-store",
                lambda: module.build_arg_parser().get_default("harness_store"))
 
