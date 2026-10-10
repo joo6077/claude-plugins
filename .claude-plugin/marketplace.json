@@ -33,7 +33,7 @@
     {
       "name": "rust-kit",
       "source": "./rust-kit",
-      "description": "[v0.5.2 · 2026-09-30] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT)"
+      "description": "[v0.6.0 · 2026-10-10] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT)"
     },
     {
       "name": "react-kit",
