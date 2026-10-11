@@ -1839,14 +1839,27 @@ for p in sys.argv[1:]:
         # 벽 예산 검사 (2026-09-19 신규 · 2026-09-26 파편화 갈래 추가 · surface-recipes.md §2.8)
         # classic 이 틈을 갭필로 메우는 것 자체가 겉에 드러나는 게 아니다 — 드러나는 것은 그때 외벽까지 조각날 때다.
         # 그래서 벽 예산만 보고 막지 않고 외벽 파편화 배수를 요구한다. 안 재고 넘기는 길은 두지 않는다.
+        # 배수만 적으면 손으로 쓴 값도 통과한다 — 센 값 둘을 받아 나눗셈을 여기서 다시 한다. 실제로 셌는지는 Phase 4.4 가 G-code 로 잰다.
         short_share = num(d.get("_wall_budget_short_share"))
         generator = eff.get("wall_generator") or "classic"
         frag = num(d.get("_wall_outer_block_ratio"))
+        count_keys = ("_wall_outer_block_classic", "_wall_outer_block_arachne")
         if short_share is None:
             unverified.append(f"{f}: _wall_budget_short_share 미기록 — 벽 예산 미검증 (Phase 1.0 형상 측정을 WALL_LOOPS 와 함께 돌려라)")
         elif short_share >= 0.10 and generator == "classic":   # 10 % 는 추정 — 결함 실측 22~90 %, 결함 없던 부품 0 %
+            missing_counts = [key for key in count_keys if key not in d]
+            bad_counts = [f"{key}={d[key]!r}" for key in count_keys
+                          if key in d and not re.fullmatch(r"[1-9][0-9]*", str(d[key]).strip())]
             if frag is None:
                 errs.append(f"벽 예산 미달 비율 {short_share:.0%} 인데 wall_generator=classic 이고 _wall_outer_block_ratio 미기록 — 두 생성기로 잘라 외벽 파편화를 재라 (surface-recipes.md §2.8)")
+            elif missing_counts:
+                errs.append(f"파편화 센 값 미기록 {' · '.join(missing_counts)} — 배수와 함께 두 생성기 쪽 외벽 블록 수를 정수로 적어라 (surface-recipes.md §2.8)")
+            elif bad_counts:
+                # 0 을 받으면 배수 0.000 이 산수도 맞고 임계도 통과한다
+                errs.append(f"파편화 센 값 오류 {' · '.join(bad_counts)} — 외벽 블록 수는 양의 정수다 (surface-recipes.md §2.8)")
+            # 0.001 — 소수 3 자리 반올림만 허용한다. 실측 1202/1211 = 0.992568 (기록 0.993) · 18267/9875 = 1.849823 (기록 1.850)
+            elif abs(frag - (counted := int(d[count_keys[0]]) / int(d[count_keys[1]]))) > 0.001:
+                errs.append(f"파편화 배수 불일치 {frag:.3f} — 센 값으로 나누면 {counted:.6f} 이다. 배수를 센 값에서 다시 계산하라 (surface-recipes.md §2.8)")
             elif frag >= 1.3:   # 1.3 은 추정 — 조각난 실측 1.850 (래티스 통), 안 조각난 실측 0.993 (H2 배기관)
                 errs.append(f"외벽 파편화 {frag:.3f} 배 (_wall_outer_block_ratio) · 벽 예산 미달 {short_share:.0%} — classic 이 외벽까지 조각낸다. arachne 로 (surface-recipes.md §2.8)")
         # 허공 위 속도 검사 (2026-09-22 신규 · 2026-09-23 범위 확대 · surface-recipes.md §4)
@@ -1950,7 +1963,10 @@ scarf 길이 비율(`seam_slope_min_length` ÷ `_scarf_loop_circumference_mm`) �
 | `evals/gate-fixtures/process-thin-speed-lowered.json` | bambu | thin 라우팅 **FAIL 1 건** (슬롯 1) | `_geometry_class=thin` 줄을 `pass` 로 | thin 인데 외벽을 낮춘 설정이 통과한다 |
 | `evals/gate-fixtures/process-wall-budget-classic.json` | bambu | 벽 예산 **FAIL 1 건** (72 % · 파편화 미기록) | `벽 예산 미달 비율` 줄을 `pass` 로 | 벽이 못 들어가는 틈을 갭필로 메우는 설정이 통과한다 |
 | `evals/gate-fixtures/process-wall-budget-classic-high-frag.json` | bambu | 외벽 파편화 **FAIL 1 건** (1.850) | `외벽 파편화` 줄을 `pass` 로 | classic 이 외벽까지 조각내는 형상이 통과한다 |
-| `evals/gate-fixtures/process-wall-budget-classic-low-frag.json` | bambu | **PASS** (93 % · 파편화 0.993) | — (PASS 기대라 변이 없음) | — |
+| `evals/gate-fixtures/process-wall-budget-classic-low-frag.json` | bambu | **PASS** (93 % · 파편화 0.993 = 1202 / 1211) | — (PASS 기대라 변이 없음) | — |
+| `evals/gate-fixtures/process-wall-budget-classic-counts-missing.json` | bambu | 파편화 센 값 미기록 **FAIL 1 건** (배수만 있음) | `파편화 센 값 미기록` 줄을 `pass` 로 | 손으로 쓴 배수가 센 값 없이 통과한다 |
+| `evals/gate-fixtures/process-wall-budget-classic-zero-count.json` | bambu | 파편화 센 값 오류 **FAIL 1 건** (classic 0 · 배수 0.000) | `파편화 센 값 오류` 줄을 `pass` 로 | 분자 0 으로 산수를 맞춘 배수가 임계 아래로 통과한다 |
+| `evals/gate-fixtures/process-wall-budget-classic-ratio-mismatch.json` | bambu | 파편화 배수 불일치 **FAIL 1 건** (0.950 · 센 값으로는 0.992568) | `파편화 배수 불일치` 줄을 `pass` 로 | 센 값과 따로 적은 배수가 통과한다 |
 | `evals/gate-fixtures/process-flow-ratio-over.json` | bambu | 유량비 **FAIL 1 건** (`sparse_infill_speed` 7.1x) | `유량비` 줄을 `pass` 로 | 인접 속도가 외벽의 5 배를 넘어도 통과한다 |
 | `evals/gate-fixtures/process-scarf-ratio-over.json` | bambu | scarf 길이 비율 **FAIL 1 건** (20 %) | `scarf 길이 .L.mm 가 루프` 줄을 `pass` 로 | scarf 가 루프 둘레의 15 % 를 넘어도 통과한다 |
 | `evals/gate-fixtures/filament-retraction-over-parent.json` | bambu | 소재 부모값 **FAIL 1 건** (`filament_retraction_length` 슬롯 1) | `.k. 슬롯` 줄을 `pass` 로 | 소재 부모값의 1.5 배를 넘긴 되감기가 통과한다 |
@@ -2033,6 +2049,9 @@ TARGET_SLICER=bambu python3 "$GATE" $FX/process-thin-speed-lowered.json; echo "e
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic-high-frag.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic-low-frag.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic-counts-missing.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic-zero-count.json; echo "exit=$?"
+TARGET_SLICER=bambu python3 "$GATE" $FX/process-wall-budget-classic-ratio-mismatch.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-flow-ratio-over.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/process-scarf-ratio-over.json; echo "exit=$?"
 TARGET_SLICER=bambu python3 "$GATE" $FX/filament-retraction-over-parent.json; echo "exit=$?"
@@ -2075,6 +2094,12 @@ drop "벽 예산 미달 비율" budget
 TARGET_SLICER=bambu python3 "$GATE.budget" $FX/process-wall-budget-classic.json; echo "exit=$?"
 drop "외벽 파편화" frag                            # 「벽 예산 미달 비율」 은 미기록 갈래만 잡는다 — 파편화 갈래는 따로 지운다
 TARGET_SLICER=bambu python3 "$GATE.frag" $FX/process-wall-budget-classic-high-frag.json; echo "exit=$?"
+drop "파편화 센 값 미기록" counts
+TARGET_SLICER=bambu python3 "$GATE.counts" $FX/process-wall-budget-classic-counts-missing.json; echo "exit=$?"
+drop "파편화 센 값 오류" countvalue
+TARGET_SLICER=bambu python3 "$GATE.countvalue" $FX/process-wall-budget-classic-zero-count.json; echo "exit=$?"
+drop "파편화 배수 불일치" ratio
+TARGET_SLICER=bambu python3 "$GATE.ratio" $FX/process-wall-budget-classic-ratio-mismatch.json; echo "exit=$?"
 drop "유량비" flow
 TARGET_SLICER=bambu python3 "$GATE.flow" $FX/process-flow-ratio-over.json; echo "exit=$?"
 drop "scarf 길이 .L.mm 가 루프" scarf              # 하한 3mm 줄도 「scarf 길이」 로 시작한다
@@ -2283,6 +2308,8 @@ PY
 (2) **보낸 뒤 G-code 로 대조한다.** 스튜디오가 자른 G-code 는
 `$(getconf DARWIN_USER_TEMP_DIR)/bamboo_model/<날짜>/<세션>/Metadata/.<번호>.0.gcode` 에 남는다. 세션마다 폴더가 따로 생기고
 스튜디오를 닫아도 지워지지 않는다(실측 2026-09-19). `latest` 를 주면 가장 최근에 자른 것을 읽는다. `MISMATCH` 가 1 개라도 나오면 출력을 멈추고 값을 박은 3mf 부터 다시 연다.
+설정에 외벽 블록 수(`_wall_outer_block_classic` · `_wall_outer_block_arachne`)가 있으면 이 G-code 의 외벽 블록 줄도 세어
+그 G-code 를 만든 생성기 쪽 값과 맞춘다. 다른 생성기 쪽 값과 뱀부 스튜디오가 만들지 않은 G-code 는 `미검증` 줄로 알린다.
 
 ```bash
 python3 - latest "<process.json>" ["<filament.json>"] <<'PY'
@@ -2303,13 +2330,17 @@ if gcode_path == "latest":
         sys.exit("FAIL: 스튜디오가 자른 G-code 가 임시 폴더에 없다 — 슬라이스한 뒤 스튜디오를 닫기 전에 돌려라")
     gcode_path = max(found, key=os.path.getmtime)
 
-recorded, in_block = {}, False
+recorded, in_block, from_bambu, outer_walls = {}, False, False, 0
 with open(gcode_path, errors="replace") as gcode:
     for line in gcode:
-        if line.startswith("; CONFIG_BLOCK_START"):
+        if line.startswith("; BambuStudio "):
+            from_bambu = True
+        elif line.rstrip() == "; FEATURE: Outer wall":   # 뱀부는 콜론 뒤에 공백을 둔다 — 공백 없이 세면 0 이다
+            outer_walls += 1
+        elif line.startswith("; CONFIG_BLOCK_START"):
             in_block = True
         elif line.startswith("; CONFIG_BLOCK_END"):
-            break
+            in_block = False
         elif in_block:
             match = re.match(r"^; (\w+) = (.*)$", line.rstrip("\n"))
             if match:
@@ -2341,6 +2372,18 @@ for preset_path in preset_paths:
         if len(expected) != len(got):
             extra = range(min(len(expected), len(got)) + 1, max(len(expected), len(got)) + 1)
             print(f"WARN {key}: 칸 수가 다르다 — 설정 {len(expected)} · 보낸 값 {len(got)}. 슬롯 {', '.join(map(str, extra))} 은 비교하지 않았다")
+    # 외벽 블록 수는 Phase 4.3 이 산수만 본다 — 손으로 쓴 숫자는 여기서 이 G-code 를 다시 세어야 잡힌다
+    generator = recorded.get("wall_generator")
+    for count_generator in ("classic", "arachne"):
+        count_key = f"_wall_outer_block_{count_generator}"
+        if count_key not in preset:
+            continue
+        if not from_bambu:
+            print(f"미검증 {count_key}: 뱀부 스튜디오 G-code 가 아니다 — 기록한 수는 뱀부로 잰 값이라 대조하지 않는다")
+        elif count_generator != generator:
+            print(f"미검증 {count_key}: 이 G-code 의 wall_generator 는 {generator} 다 — 그 생성기로 자른 G-code 로 따로 대조하라")
+        elif str(preset[count_key]).strip() != str(outer_walls):
+            mismatches.append(f"MISMATCH {count_key}: 기록 {preset[count_key]!r} · G-code 에서 센 값 {outer_walls}")
 
 print(f"G-code: {gcode_path}")
 for line in mismatches:
@@ -2592,7 +2635,7 @@ STL 생성은 OpenSCAD/CadQuery 같은 외부 도구 필요. 그 dependency 도�
   Phase 4.3 게이트가 옵션 목록의 enum 줄로 모든 enum 키를 검사해 `받지 않는 값` 으로 잡고, 슬라이서가 옛 값을
   바꿔 읽는 경우(오르카 `top_surface_pattern: zig-zag` → `rectilinear`)는 `옛 값` 경고로 알린다.
 - ☐ **(2026-09-08 신규) `_geometry_class` 를 측정으로 정해 process JSON 에 기록했는지** — Phase 1.0 probe 출력의 `planar` | `thin`. `thin` 인데 `outer_wall_speed` 를 낮췄으면 정책 위반이고 Phase 4.3 게이트가 FAIL 한다 (`surface-recipes.md` §2.7).
-- ☐ **(2026-09-26 신규) 벽 예산이 부족한데 `classic` 을 쓴다면 `_wall_outer_block_ratio` 를 재서 기록했는지** — 같은 3mf 를 두 생성기로 잘라 `; FEATURE:Outer wall` 블록 수를 나눈 값이다. 안 기록하면 Phase 4.3 게이트가 `classic` 을 통과시키지 않는다. 1.3 이상이면 `arachne` 로 (`surface-recipes.md` §2.8 「측정」).
+- ☐ **(2026-09-26 신규 · 2026-10-11 센 값 추가) 벽 예산이 부족한데 `classic` 을 쓴다면 `_wall_outer_block_ratio` 와 센 값 `_wall_outer_block_classic` · `_wall_outer_block_arachne` 를 기록했는지** — 같은 3mf 를 두 생성기로 잘라 `; FEATURE: Outer wall` 줄을 센 두 정수와 그 나눗셈이다. 안 기록하면 Phase 4.3 게이트가 `classic` 을 통과시키지 않는다. 1.3 이상이면 `arachne` 로 (`surface-recipes.md` §2.8 「측정」).
 - ☐ **(2026-09-08 신규) 키를 넣기 전에 설치본 스코프(process / filament)를 확인했는지** — 냉각 키(`overhang_fan_threshold` 등)는 filament 스코프라 process 에 넣으면 조용히 무시된다. 게이트가 옵션 목록의 프리셋 종류 줄로 검사한다 (`bambu-fields-baseline.md` §10.5 · §11.1).
 - ☐ **(2026-08-13 신규) 사용자 실측 실패 보고에 반박하지 않았는지** — `skill-design-guide.md` §3.8. 상태를 `REOPENED` 로 두고 재현 6 축(`failure-recipes.md` §0)을 먼저 대조했는지.
 - ☐ **(2026-09-19 신규) 오르카 + H2S 면 프린터 설정 JSON 을 함께 만들고 시작 명령에 `M1028` 카메라 준비 블록이
