@@ -273,3 +273,9 @@ jobs:
 
       - name: Dart format-on-edit hook test (편집한 파일 하나만)
         run: bash flutter-toolkit/evals/hooks/format-edited-dart-test.sh
+
+      - name: Flutter-toolkit upgrade-playwright-toolkit hook test
+        run: bash flutter-toolkit/evals/hooks/upgrade-playwright-toolkit-test.sh
+
+      - name: Flutter-toolkit upgrade-playwright-toolkit mutations (망가뜨린 사본이 전부 잡히는지)
+        run: bash flutter-toolkit/evals/hooks/upgrade-playwright-toolkit-test.sh --mutations
