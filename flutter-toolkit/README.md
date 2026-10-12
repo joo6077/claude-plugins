@@ -61,6 +61,22 @@ Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 
 - 끄는 법: 환경 변수 `FLUTTER_TOOLKIT_LINT_ON_STOP=off`.
   기록 위치는 `CLAUDE_LINT_STATE_DIR` (기본 `$TMPDIR/claude-lint-edited`)
 
+`upgrade-playwright-toolkit` (`scripts/upgrade-playwright-toolkit.sh`) — `SessionStart` 훅.
+세션 폴더의 `flutter_playwright_toolkit` 이 최신 `toolkit-v*` 태그보다 낡았으면
+뒤에서 `pub upgrade flutter_playwright_toolkit` 를 돌린다. 툴킷을 쓰는 프로젝트가 PC 와 상관없이
+항상 최신 판을 쓰게 하려는 훅이다.
+
+- 대상은 `pubspec.yaml` 의 툴킷 의존에 `git:` 과 `tag_pattern:` 이 있을 때뿐이다. 경로 의존 · `ref:` 고정은 건드리지 않는다
+- 세션 폴더와 그 아래 두 단계까지의 `pubspec.yaml` 을 본다(`app/` 아래 앱도 잡는다). `build` · `.dart_tool` 같은 폴더는 들어가지 않는다
+- 원격 태그는 `pubspec.yaml` 에 적힌 git 주소로 `git ls-remote` 해서 읽는다. 버전 범위(`version:`) 밖 태그와 `-dev` 같은 미리보기 태그는 고르지 않는다
+- `pub upgrade` 는 1~2 분 걸려 세션 시작에서 기다리지 않는다. 지금 세션에는 「올리는 중」 한 줄, 결과는 다음 세션 시작 때 한 줄로 알린다
+- 잠금 파일(`pubspec.lock`)이 바뀌어도 커밋은 하지 않는다. 다른 작업 커밋에 섞이지 않게 따로 커밋한다
+- 프로젝트에 `.fvmrc` 가 있으면 `fvm flutter pub upgrade` 를, 없으면 `flutter pub upgrade` 를 쓴다
+- 끄는 법: 환경 변수 `FLUTTER_TOOLKIT_PLAYWRIGHT_UPGRADE=off`.
+  확인 주기(초)는 `FLUTTER_TOOLKIT_PLAYWRIGHT_UPGRADE_TTL` (기본 3600), 상태 폴더는
+  `FLUTTER_TOOLKIT_PLAYWRIGHT_UPGRADE_STATE` (기본 `~/.local/state/flutter-toolkit/playwright-upgrade`)
+- 원격 조회는 10 초가 넘으면 끊고, 어떤 경우에도 세션 시작을 막지 않는다 (항상 exit 0)
+
 ## 화면 확인
 
 `flutter-ui-verify` 는 UI 스킬을 거치지 않고 화면 코드를 직접 고친 뒤나 사용자가 화면 확인을 요청할 때, 편집 전·후 캡처를 대조하고 의도와 다르면 스스로 고쳐 다시 찍는다(최대 3 회). 절차는 `references/visual-evidence-protocol.md` 를 번호로 따른다.
