@@ -164,17 +164,24 @@ ABS 실효 `overhang_fan_threshold 25%` 에 걸리지 않아 `overhang_fan_speed
 
 **외벽 파편화 배수 `_wall_outer_block_ratio` 도 같이 잰다 (2026-09-26 신규).** 벽 예산이 부족해도 `classic` 이 외벽을
 조각내지 않는 형상이 있고, 그때는 `classic` 이 더 낫다. 같은 3mf 를 **두 생성기로 각각 잘라** G-code 의
-`; FEATURE:Outer wall` 블록 수를 세고 `classic` 쪽을 `arachne` 쪽으로 나눈다.
+`; FEATURE: Outer wall` 줄 수를 세고 `classic` 쪽을 `arachne` 쪽으로 나눈다. 뱀부는 콜론 뒤에 공백을 둔다 —
+공백 없이 세면 0 이 나온다 (2026-10-11 실측: H2 배기관 공백 없이 0 · 0, 공백 있이 1202 · 1211).
 
 ```bash
 # 사본 3mf 의 Metadata/project_settings.config 에서 wall_generator 만 그 값으로 바꿔 자른다.
 # 나머지 값은 건드리지 않는다 — 한 축만 바꿔야 배수가 그 축의 효과가 된다.
 for V in classic arachne; do
   /Applications/BambuStudio.app/Contents/MacOS/BambuStudio --slice 1 --outputdir "out-$V" "copy-$V.3mf"
-  printf '%s %s\n' "$V" "$(grep -c '^; FEATURE:Outer wall' "out-$V/plate_1.gcode")"
+  printf '%s %s\n' "$V" "$(grep -c '^; FEATURE: Outer wall$' "out-$V/plate_1.gcode")"
 done
-# _wall_outer_block_ratio = classic 블록 수 나누기 arachne 블록 수 → process JSON 에 소수 3 자리로 기록
+# 두 수를 _wall_outer_block_classic · _wall_outer_block_arachne 에 정수로,
+# 그 나눗셈을 _wall_outer_block_ratio 에 소수 3 자리로 process JSON 에 기록한다
 ```
+
+**배수만 적으면 안 된다 — 센 값 둘을 같이 적는다.** 배수 하나는 손으로 그럴듯하게 써 넣어도 실제로 잰 값과 구분되지 않는다.
+센 값 둘이 있으면 Phase 4.3 게이트가 나눗셈을 직접 계산해 배수와 맞춰 보고(허용 오차 0.001), 0 이하나 소수 같은 말이 안 되는
+값을 막는다. 그래도 서로 맞춘 가짜 세 값은 산수로 못 잡으므로, Phase 4.4 대조가 보낸 G-code 의 외벽 블록 줄을 다시 세어
+기록값과 맞춘다.
 
 1.3 이상이면 `arachne` 로, 그 미만이면 `classic` 을 그대로 둔다. **1.3 은 추정이다** — 조각난 실측이 1.850 (래티스 통),
 안 조각난 실측이 0.993 (H2 배기관) 이다. Phase 4.3 게이트는 이 값이 없으면 `classic` 을 통과시키지 않는다 — 안 재고
