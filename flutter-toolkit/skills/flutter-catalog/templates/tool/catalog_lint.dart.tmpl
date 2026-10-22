@@ -105,22 +105,24 @@ class _Finder extends RecursiveAstVisitor<void> {
     report('$path:$line: $rule $value');
   }
 
-  double? _value(Literal literal) => switch (literal) {
-    IntegerLiteral(:final value?) => value.toDouble(),
-    DoubleLiteral(:final value) => value,
-    _ => null,
-  };
+  /// 숫자 [literal] 이 [tokens] 에 없으면 [rule] 로 보고한다.
+  void _checkNumber(Literal literal, Set<double> tokens, String rule) {
+    final value = switch (literal) {
+      IntegerLiteral(:final value?) => value.toDouble(),
+      DoubleLiteral(:final value) => value,
+      _ => null,
+    };
+    if (value != null && !tokens.contains(value)) {
+      _add(literal, rule, literal.toSource());
+    }
+  }
 
   /// 숫자가 `EdgeInsets…(…)` 의 인자이거나 `spacing:` 값이면 여백 토큰과,
   /// `Radius…(…)` · `BorderRadius…(…)` 의 인자면 반경 토큰과 대조한다.
   void _visitNumber(Literal literal) {
-    final value = _value(literal);
-    if (value == null) return;
     final parent = literal.parent;
     if (parent is NamedExpression && parent.name.label.name == 'spacing') {
-      if (!spacingTokens.contains(value)) {
-        _add(literal, '여백 토큰', literal.toSource());
-      }
+      _checkNumber(literal, spacingTokens, '여백 토큰');
       return;
     }
     final list = parent is NamedExpression ? parent.parent : parent;
@@ -134,16 +136,12 @@ class _Finder extends RecursiveAstVisitor<void> {
       _ => '',
     };
     if (callee.startsWith(RegExp('(const )?EdgeInsets'))) {
-      if (!spacingTokens.contains(value)) {
-        _add(literal, '여백 토큰', literal.toSource());
-      }
+      _checkNumber(literal, spacingTokens, '여백 토큰');
       return;
     }
     final tokens = radiusTokens;
-    if (tokens != null &&
-        _radiusCall.hasMatch(callee) &&
-        !tokens.contains(value)) {
-      _add(literal, '반경 리터럴', literal.toSource());
+    if (tokens != null && _radiusCall.hasMatch(callee)) {
+      _checkNumber(literal, tokens, '반경 리터럴');
     }
   }
 
