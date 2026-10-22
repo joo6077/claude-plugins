@@ -158,6 +158,7 @@ class PlaygroundEntry {
     required this.stateKeys,
     required this.controls,
     required this.build,
+    this.stateCases = const {},
   });
 
   /// 클래스 이름.
@@ -183,6 +184,9 @@ class PlaygroundEntry {
 
   /// 바꿔도 크기가 같아야 하는 참거짓 매개변수.
   final List<String> stateKeys;
+
+  /// 참거짓이 아닌 상태 매개변수 — 키마다 두 값. 두 값으로 띄운 크기가 같아야 한다.
+  final Map<String, List<Object?>> stateCases;
 
   /// 매개변수마다 하나.
   final List<PropertyControl> controls;

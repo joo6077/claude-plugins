@@ -4,7 +4,7 @@ description: >
   앱의 진짜 공용 위젯을 생성자에서 자동으로 읽어 놀이터 화면과 기본기 검사를 만든다.
   위젯 목록 파일(catalog/widgets.yaml)이 기준이고, 목록에 빠진 위젯 · 조절 못 하는 속성이 있으면 생성이 실패한다.
   놀이터는 왼쪽 위젯 목록 · 가운데 실제 위젯(휴대폰 화면 / 내용 크기 보기, 영역 선과 크기 숫자) · 오른쪽 종류 고르기와 속성 한 줄씩.
-  기본기 검사는 넘침 · 안쪽 여백 · 크기 동작 · 상태 불변 · 아이콘 정렬 · 터치 크기 · 글꼴 등록을 실제로 띄워 잰다.
+  기본기 검사는 넘침 · 안쪽 여백 · 크기 동작 · 상태 불변 · 화면 폭 · 아이콘 정렬 · 터치 크기 · 글꼴 등록을 실제로 띄워 잰다.
   "공용 위젯 카탈로그", "위젯 놀이터", "위젯 목록 화면", "속성 바꿔 보기", "위젯북 대신",
   "위젯 기본기 검사", "넘침 검사", "여백 검사", "catalog", "playground" 같은 요청 시 트리거.
 argument-hint: "[init | gen | check | open]"
@@ -32,7 +32,7 @@ user-invocable: true
 | --- | --- |
 | `catalog/widgets.yaml` | 올릴 위젯 목록과 위젯마다 크기 동작 · 최소 안쪽 여백 · 첫 보기 · 상태 속성 · 예시 값 |
 | `tool/catalog_gen.dart` | `analyzer` 로 목록 위젯의 생성자를 읽어 `lib/catalog_kit/generated/catalog_entries.g.dart` 를 만든다 |
-| `tool/catalog_lint.dart` | 토큰 밖 여백 숫자와 직접 쓴 글꼴 이름을 찾는다 |
+| `tool/catalog_lint.dart` | 코드 검사 여섯 가지 — 여백 토큰 · 글꼴 이름 · 반경 리터럴 · 화면 폭 · 상태별 테두리 · 페인터 크기 |
 | `lib/catalog_kit/` | 놀이터 화면(`CatalogPlayground`) · 속성 칸 · 크기 재는 틀 · 항목 모델(`PlaygroundEntry`) · 놀이터 감싸개 |
 | `lib/main_catalog_kit.dart` | 놀이터 진입 파일 |
 | `test/catalog_kit/` | 기본기 검사와 시험 감싸개 |
@@ -55,12 +55,13 @@ user-invocable: true
 - 조절할 방법이 없는 타입 (`EdgeInsetsGeometry` 등) — `samples.<속성>` 에 Dart 식 예시 값을 적는다
 - `shared_dir` 안 화면 위젯(`Widget` 후손 중 `ProxyWidget` · `RenderObjectWidget` 이 아닌 것)이 목록에 없음
 - 목록에 있는데 코드에 없는 클래스
+- 생성자의 참거짓 매개변수가 그 위젯의 `state_keys` 에도 `state_ignore` 에도 없음 — `상태 미등록: <클래스>.<생성자>.<키>`. 크기가 같아야 하면 `state_keys`, 크기를 바꾸는 배치 옵션이면 `state_ignore`. 참거짓이 아닌 상태(선택 글자 · 번호)는 `state_cases: {키: ['Dart 식', 'Dart 식']}` 로 두 값을 적는다. enum 은 적지 않아도 처음 두 상수로 잰다
 
 공용 위젯을 새로 만들거나 생성자를 바꾸면 매번 다시 돌린다. 생성물은 손으로 고치지 않는다.
 
 ### `check` — 기본기 검사와 코드 검사
 
-1. `fvm flutter test test/catalog_kit/widget_fundamentals_test.dart` — 결과 표는 `build/widget_fundamentals.csv` (머리말 `widget,variant,check,case,result,measured`). 실패한 경우만 보려면 `result` 가 `FAIL` 인 줄을 거른다.
+1. `fvm flutter test test/catalog_kit/widget_fundamentals_test.dart` — 결과 표는 `build/widget_fundamentals.csv` (머리말 `widget,variant,check,case,result,measured`). 실패한 경우만 보려면 `result` 가 `FAIL` 인 줄을 거른다. 검사는 넘침 · 크기 동작 · 여백 · 상태 불변 · 화면 폭 · 아이콘 정렬 · 터치 크기 · 글꼴이다.
 2. `fvm dart run tool/catalog_lint.dart` — 위반 한 건에 한 줄 `<경로>:<줄>: <규칙> <값>`. 기존 위반을 한 번에 다 못 고치면 `--report` 로 찍기만 한다.
 3. 실패를 보고할 때 결과 표 줄을 그대로 인용하고, 규칙 번호를 `widget-fundamentals.md` 표에서 찾아 붙인다.
 
@@ -79,6 +80,6 @@ user-invocable: true
 
 ## References
 
-- `../../references/widget-fundamentals.md` — 규칙 15 개 · 검사 기준 · 코드 검사
+- `../../references/widget-fundamentals.md` — 규칙 21 개 · 검사 기준 · 코드 검사
 - `templates/catalog/widgets.yaml` — 목록 파일 칸 설명
 - `scripts/install.sh` — 깔기

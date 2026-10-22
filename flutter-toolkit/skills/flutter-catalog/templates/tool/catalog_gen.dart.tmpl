@@ -170,6 +170,14 @@ String _entry(
   final stateKeys = [
     for (final key in (spec['state_keys'] as List?) ?? []) '$key',
   ];
+  final stateIgnore = {
+    for (final key in (spec['state_ignore'] as List?) ?? []) '$key',
+  };
+  final stateCases = <String, List<String>>{
+    for (final MapEntry(:key, :value)
+        in ((spec['state_cases'] as Map?) ?? const {}).entries)
+      '$key': [for (final item in value as List) '$item'],
+  };
   final controls = <String>[];
   final args = <String>[];
   final boolKeys = <String>{};
@@ -195,6 +203,13 @@ String _entry(
       args.add('$pass$sample');
     } else if (type.isDartCoreBool) {
       boolKeys.add(key);
+      // 참거짓은 전부 상태다. 적지 않은 키는 검사에서 조용히 빠지므로 생성을 막는다.
+      if (!stateKeys.contains(key) && !stateIgnore.contains(key)) {
+        problems.add(
+          '상태 미등록: ${cls.name}.$variant.$key — $_listPath 의 state_keys '
+          '(크기가 같아야 함) 또는 state_ignore (뺌) 에 적어라',
+        );
+      }
       final initial = constant?.toBoolValue() ?? false;
       controls.add('ToggleControl($meta, initial: $initial)');
       args.add('$pass$value! as bool');
@@ -238,6 +253,12 @@ String _entry(
       ];
       controls.add(_choice(meta, names, nullable, defaultLabel));
       args.add('$pass$value${nullable ? '' : '!'} as $typeText');
+      // enum 은 처음 두 상수를 상태 쌍으로 잰다 — 적지 않아도 검사에 든다.
+      if (!stateCases.containsKey(key) &&
+          !stateIgnore.contains(key) &&
+          names.length >= 2) {
+        stateCases[key] = names.take(2).toList();
+      }
     } else if (_isSubtypeOf(type, 'Color')) {
       controls.add(_choice(meta, _colors, nullable, defaultLabel));
       args.add('$pass$value${nullable ? '' : '!'} as $typeText');
@@ -269,6 +290,9 @@ String _entry(
   final view = spec['view'] == 'content' ? 'content' : 'phone';
   final sizing = spec['sizing'] == 'fill' ? 'fill' : 'hug';
   final states = stateKeys.where(boolKeys.contains).map(_q).join(', ');
+  final cases = stateCases.entries
+      .map((entry) => '${_q(entry.key)}: [${entry.value.join(', ')}]')
+      .join(', ');
   return '''
   PlaygroundEntry(
     widget: ${_q(cls.name!)},
@@ -279,6 +303,7 @@ String _entry(
     minPadding: ${(spec['min_padding'] as num? ?? 0).toDouble()},
     view: PreviewView.$view,
     stateKeys: const [$states],
+    stateCases: {$cases},
     controls: [
 ${controls.map((control) => '      $control,\n').join()}    ],
     build: (values) => $call(

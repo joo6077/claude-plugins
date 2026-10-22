@@ -32,6 +32,12 @@
 | 13 | 여백 · 간격은 토큰 값만 쓴다 | SHOULD | 예 | 코드 검사 |
 | 14 | 화면 바깥 여백(안전 영역 · 화면 좌우 여백)은 화면이, 안쪽 여백은 위젯이 맡는다 | SHOULD | 아니오 | - |
 | 15 | 누를 곳에는 읽어 줄 이름을 달고, 글자는 대비 기준을 지킨다 | SHOULD | 아니오 | - |
+| 16 | 겹층(포커스 링 · 선택 테두리 · 눌림 칠 · 글로우)은 판과 같은 크기 · 반경 값을 한 곳에서 공유한다. 같은 숫자를 두 파일에 적지 않는다 | MUST | 아니오 | - |
+| 17 | 안쪽 면의 모서리 반경은 바깥 반경에서 여백 · 테두리 두께를 뺀 값이다 — 바깥 `RRect` 를 `deflate` 해 얻고 따로 적지 않는다 | MUST | 아니오 | - |
+| 18 | 상태(포커스 · 선택 · 호버 · 눌림)가 바뀌어도 테두리 두께를 바꾸지 않는다. 같은 두께를 예약하고 색만 바꾸거나 `DecoratedBox` · `foregroundDecoration` · `Ink` 의 모양에 그린다 | MUST | 예 | 상태별 테두리 · 상태 불변 |
+| 19 | 알약 반경은 높이의 절반, 원은 짧은 변의 절반 또는 토큰에서 파생한다. 반경에 숫자 리터럴을 적지 않고 지름과 반경을 따로 적지 않는다 | MUST | 예 | 반경 리터럴 |
+| 20 | 재사용 위젯의 칸 · 열 폭은 부모 제약(`LayoutBuilder`)으로 계산한다. 화면 폭(`MediaQuery.sizeOf`)은 전체 창이 필요한 판단에만 쓴다 | MUST | 예 | 화면 폭 |
+| 21 | `CustomPainter.paint` 의 좌표 · 반경 · 영역은 전달된 `size` 에서 파생한다. 상수 좌표로 그리지 않는다 | MUST | 예 | 페인터 크기 |
 
 앱 테마가 쓰는 글꼴이 pubspec 에 등록됐는지는 따로 `글꼴` 검사가 한 번 잰다. 등록이 안 되면 시험 글꼴로
 글자 폭을 재게 돼 넘침 결과 전체가 실제와 달라진다.
@@ -40,11 +46,14 @@
 
 - 4 · 7 — 「같은 역할」 과 「크기 단계」 를 코드에서 기계로 묶을 기준이 프로젝트마다 다르다. 크기 단계 토큰이 없는 프로젝트도 있다. 리뷰에서 본다.
 - 14 — 화면과 위젯의 경계는 위젯 하나만 띄워서는 보이지 않는다. 화면 단위 검사가 필요하다.
+- 16 · 17 — 「같은 판」 이 무엇인지 코드만으로는 모른다. 판 · 안쪽 · 겹층을 Key 로 등록하는 `geometry` 칸이 생기면 띄워서 잰다(2차). 그 전에는 리뷰에서 본다.
 - 15 — Flutter 내장 검사(`labeledTapTargetGuideline` · `textContrastGuideline`)가 있지만 앱 배경 위에서 재야 뜻이 있어 위젯 단독 검사에 넣지 않았다.
 
 ## 검사가 재는 방법
 
-검사는 `catalog/widgets.yaml` 의 위젯마다, 생성자마다 기본 속성으로 띄운다. 경우 하나에 시험 하나다
+검사는 `catalog/widgets.yaml` 의 위젯마다, 생성자마다 기본 속성으로 띄운다. 생성자의 참거짓 매개변수는 전부
+`state_keys` 또는 `state_ignore` 에 있어야 한다 — 없으면 생성기가 실패한다. 적지 않은 상태가 검사에서 조용히
+빠지는 것을 막기 위해서다(핏팰 2026-10-21: 128 위젯 중 35 개만 상태 검사를 받고 있었다). 경우 하나에 시험 하나다
 (한 시험에서 여러 번 띄우면 넘침 예외가 겹쳐 결과가 흔들린다). 결과는 `build/widget_fundamentals.csv`
 에 한 줄씩 남는다.
 
@@ -53,7 +62,8 @@
 | 넘침 | 폭 320 · 360 · 393 안, 글자 배율 1.0 · 1.3 · 1.6 · 2.0, 언어마다, 글자 속성이 있으면 짧은 글 · 긴 한국어 · 긴 영어 | 넘침 예외 없음 | `넘침 없음` 또는 첫 줄 |
 | 여백 | 내용 폭(`IntrinsicWidth`) | 글자 · 아이콘 둘레 좌우가 `min_padding` 이상 | `left=0.0 right=0.0` |
 | 크기 동작 | 느슨한 폭 390 | `hug` 면 폭이 389 미만, `fill` 이면 389 이상 | `w=390.0 h=54.0` |
-| 상태 불변 | 느슨한 폭 390, `state_keys` 를 끄고 켜며 | 두 크기 차이 0.5 미만 | `52.0x28.0 → 52.0x28.0` |
+| 상태 불변 | 느슨한 폭 390, `state_keys` 를 끄고 켜며, `state_cases` 의 두 값으로, enum 은 처음 두 상수로 | 두 크기 차이 0.5 미만 | `52.0x28.0 → 52.0x28.0` |
+| 화면 폭 | 부모 폭 240 고정, 뷰포트 1000 과 500 | 무대 크기와 글자 상자 크기들이 같음 | `240.0x44.0 → 240.0x44.0` |
 | 아이콘 정렬 | 느슨한 폭 390, 아이콘과 글자가 함께 있을 때만 | 두 상자 세로 가운데 차이 1 이하 | `dy=4.0` |
 | 터치 크기 | 느슨한 폭 390, 누를 곳이 있을 때만 | `iOSTapTargetGuideline` 통과(44 × 44) | `가장 작은 칸 20.0x20.0` |
 | 글꼴 | 시험 감싸개의 테마 | 모든 글자 단계의 글꼴이 pubspec 에 있음 | `KIMM WantedSans 등록됨` |
@@ -63,10 +73,19 @@
 
 ## 코드 검사
 
-`fvm dart run tool/catalog_lint.dart` 가 `shared_dir` 아래 코드에서 두 가지를 찾는다 (`theme_dir` 은 뺀다).
+`fvm dart run tool/catalog_lint.dart` 가 `shared_dir` 아래 코드에서 여섯 가지를 찾는다 (`theme_dir` 은 뺀다).
 
 - `여백 토큰` — `EdgeInsets…(…)` 인자와 `spacing:` 값 중 `spacing_tokens` 에 없는 숫자 (규칙 13)
 - `글꼴 이름` — `fontFamily:` 를 직접 쓴 자리 (규칙 9)
+- `반경 리터럴` — `Radius…(…)` · `BorderRadius…(…)` 인자 중 `radius_tokens` 에 없는 숫자 (규칙 19). `radius_tokens` 가 없거나 비면 이 검사는 건너뛴다
+- `화면 폭` — `MediaQuery.sizeOf(…).width` · `MediaQuery.of(…).size.width` · `MediaQuery.widthOf(…)` (규칙 20)
+- `상태별 테두리` — `? :` · `if` · `switch` 가지 중 하나라도 `Border.all` · `BorderSide` 를 적었는데 두께가 서로 다르거나 다른 가지에 테두리가 없음 (규칙 18). `foregroundDecoration:` 안은 뺀다
+- `페인터 크기` — `CustomPainter` 를 잇는 클래스의 `paint(Canvas, Size size)` 가 `size` 를 한 번도 안 읽음 (규칙 21)
+
+판단이 맞는 자리(전경에만 쓰는 장식 · 전체 창 기준이 맞는 자리)는 그 줄이나 바로 윗줄에 `// catalog_lint: ignore` 를 적어 뺀다.
+
+편집기 플러그인 규칙(예: `avoid_raw_border_radius`)이 따로 있어도 이 검사를 CI 에 둔다 — 그 규칙은 편집기에만 보이고
+명령줄 `dart analyze` 에서는 안 돈다(핏팰 2026-10-21 실측).
 
 출력은 위반 한 건에 한 줄 `<경로>:<줄>: <규칙> <값>` 이다. 위반이 있으면 1 로 끝나고, `--report` 를 붙이면
 찍기만 하고 0 으로 끝난다.
@@ -76,3 +95,7 @@
 - Flutter 기본 버튼은 좌우 안쪽 여백 24 · 최소 64 × 40 이다 (`ElevatedButton.defaultStyleOf`, 글자 배율이 커지면 여백이 줄어든다).
 - 누를 영역 하한은 iOS 44 · Android 48 이다 (`iOSTapTargetGuideline` · `androidTapTargetGuideline`).
 - 큰 글자는 iOS 가 200% 까지 올린다 — 검사 배율 상한 2.0 의 근거다.
+- `Container(decoration:)` 만 테두리 두께를 안쪽 여백으로 더한다(`widgets/container.dart` 의 `padding.add(decoration.padding)`). `DecoratedBox` · `foregroundDecoration` · `Ink`/`Material` 의 모양은 더하지 않는다. Material 칩 · 버튼은 `shape.copyWith(side:)` 로 상태별 테두리를 같은 모양 위에 그려 크기가 안 변한다 — 규칙 18 의 근거.
+- `RRect.deflate(d)` 는 변을 d 만큼 안으로 옮기며 모서리 반경도 d 만큼 줄인다(0 아래로는 안 내려간다). 안쪽 반경을 따로 적지 않는 이유다 — 규칙 17 의 근거.
+- Material 칩 높이는 `max(32, 잰 글자 높이 + 여백)` 이고 가로 여백은 글자 배율에 따라 24 → 12 → 6 으로 줄인다 — 규칙 12 의 근거.
+- `MediaQuery.sizeOf` 는 앱 창 전체 크기다. 위젯에 주어진 공간은 `LayoutBuilder` 로 잰다(docs.flutter.dev/ui/adaptive-responsive/general) — 규칙 20 의 근거.

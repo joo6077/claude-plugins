@@ -23,6 +23,7 @@ const _texts = {
   'long_en': 'A considerably longer English label to see how the widget copes',
 };
 const _looseWidth = 390.0;
+const _narrowWidth = 240.0;
 const _tapMin = 44.0;
 const _centerTolerance = 1.0;
 const ValueKey<String> _stageKey = ValueKey('catalog_kit_stage');
@@ -155,23 +156,40 @@ void main() {
 
     for (final key in entry.stateKeys) {
       testWidgets('$id | 상태 불변 | $key', (tester) async {
-        final sizes = <Size>[];
-        for (final on in [false, true]) {
-          final error = await _place(tester, entry, {
-            ...entry.initialValues,
-            key: on,
-          });
-          if (error != null) return _failHost(entry, '상태 불변', key, error);
-          sizes.add(tester.getSize(find.byKey(_stageKey)));
-        }
-        final ok =
-            (sizes[0].width - sizes[1].width).abs() < 0.5 &&
-            (sizes[0].height - sizes[1].height).abs() < 0.5;
-        final measured = '${_size(sizes[0])} → ${_size(sizes[1])}';
-        _record(entry.widget, entry.variant, '상태 불변', key, ok, measured);
-        expect(ok, isTrue, reason: measured);
+        await _expectSameSize(tester, entry, key, const [false, true]);
       });
     }
+
+    for (final MapEntry(:key, value: pair) in entry.stateCases.entries) {
+      testWidgets('$id | 상태 불변 | $key', (tester) async {
+        await _expectSameSize(tester, entry, key, pair);
+      });
+    }
+
+    testWidgets('$id | 화면 폭 | 뷰포트 1000→500', (tester) async {
+      // 부모 폭은 그대로 두고 화면만 좁힌다. 화면 폭으로 칸을 나누는 위젯만 크기가 변한다.
+      final shapes = <String>[];
+      final sizes = <Size>[];
+      for (final viewport in const [1000.0, 500.0]) {
+        final error = await _place(
+          tester,
+          entry,
+          entry.initialValues,
+          width: _narrowWidth,
+          viewport: viewport,
+        );
+        if (error != null) {
+          return _failHost(entry, '화면 폭', '뷰포트 1000→500', error);
+        }
+        sizes.add(tester.getSize(find.byKey(_stageKey)));
+        shapes.add(_paragraphShape(tester));
+      }
+      final ok = _sameSize(sizes[0], sizes[1]) && shapes[0] == shapes[1];
+      final measured = '${_size(sizes[0])} → ${_size(sizes[1])}'
+          '${shapes[0] == shapes[1] ? '' : ' · 글자 상자 다름'}';
+      _record(entry.widget, entry.variant, '화면 폭', '뷰포트 1000→500', ok, measured);
+      expect(ok, isTrue, reason: measured);
+    });
 
     testWidgets('$id | 아이콘 정렬 | 줄 가운데', (tester) async {
       final error = await _place(tester, entry, entry.initialValues);
@@ -231,6 +249,7 @@ Future<Object?> _place(
   double scale = 1,
   Locale? locale,
   bool intrinsic = false,
+  double viewport = 1000,
 }) async {
   final target = locale ?? hostLocales.first;
   // 번역 파일처럼 실제 시간이 걸리는 준비는 가짜 시간 밖에서 기다린다.
@@ -257,18 +276,51 @@ Future<Object?> _place(
     ),
     scale: scale,
     locale: target,
+    viewport: viewport,
   );
   return tester.takeException();
 }
+
+/// 상태 [key] 를 [pair] 의 두 값으로 띄워 무대 크기가 같은지 잰다.
+Future<void> _expectSameSize(
+  WidgetTester tester,
+  PlaygroundEntry entry,
+  String key,
+  List<Object?> pair,
+) async {
+  final sizes = <Size>[];
+  for (final value in pair) {
+    final error = await _place(tester, entry, {
+      ...entry.initialValues,
+      key: value,
+    });
+    if (error != null) return _failHost(entry, '상태 불변', key, error);
+    sizes.add(tester.getSize(find.byKey(_stageKey)));
+  }
+  final ok = _sameSize(sizes[0], sizes[1]);
+  final measured = '${_size(sizes[0])} → ${_size(sizes[1])}';
+  _record(entry.widget, entry.variant, '상태 불변', key, ok, measured);
+  expect(ok, isTrue, reason: measured);
+}
+
+bool _sameSize(Size a, Size b) =>
+    (a.width - b.width).abs() < 0.5 && (a.height - b.height).abs() < 0.5;
+
+/// 무대 안 글자 상자 크기들을 한 줄로 — 화면 폭 검사에서 두 뷰포트를 맞댈 때 쓴다.
+String _paragraphShape(WidgetTester tester) => [
+  for (final rect in _paragraphs(tester, insideIcon: false))
+    '${_n(rect.width)}x${_n(rect.height)}',
+].join(' ');
 
 Future<void> _pump(
   WidgetTester tester,
   Widget child, {
   double scale = 1,
   Locale? locale,
+  double viewport = 1000,
 }) async {
   tester.view
-    ..physicalSize = const Size(1000, 1000)
+    ..physicalSize = Size(viewport, 1000)
     ..devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
