@@ -287,6 +287,7 @@ Flutter 위젯 모범 사례를 지키지 않으면 오버플로, 인터랙션 �
 - [ ] overflow 가능 레이아웃: 스크롤 컨테이너 사용
 - [ ] const constructor 가능한 위젯에 const 사용
 - [ ] 불필요한 StatefulWidget 사용 금지
+- [ ] 상대 크기 — 규칙 16~21 (`references/widget-fundamentals.md`): 상태(선택 · 포커스 · 호버)에 따라 `Border` 두께나 유무가 바뀌는 `Container(decoration:)` 없음 · 안쪽 면 반경이 바깥 반경 − 여백으로 파생됨 · 겹층(포커스 링 · 눌림 칠 · 글로우)이 판과 같은 크기 · 반경 값을 씀 · 반경 숫자 리터럴 없음 · 재사용 위젯에서 `MediaQuery…width` 로 칸을 나누지 않음 · `CustomPainter.paint` 가 `size` 를 읽음. 증거는 `tool/catalog_lint.dart` 출력(반경 리터럴 · 화면 폭 · 상태별 테두리 · 페인터 크기)과 결과 표의 상태 불변 · 화면 폭 `FAIL` 줄이다. 카탈로그 밖 feature 위젯은 `grep` 으로 전수 열거해 같은 기준으로 본다 — 목록에 없다고 PASS 로 두지 않는다
 
 ### Reusability
 

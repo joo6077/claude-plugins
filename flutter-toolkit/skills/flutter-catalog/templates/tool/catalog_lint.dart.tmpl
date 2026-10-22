@@ -1,4 +1,5 @@
-// 공용 위젯 코드에서 토큰 밖 여백 숫자와 직접 쓴 글꼴 이름을 찾는다.
+// 공용 위젯 코드에서 규칙 밖 숫자와 모양을 찾는다 — 여백 토큰 · 글꼴 이름 · 반경 리터럴 ·
+// 화면 폭 · 상태별 테두리 · 페인터 크기.
 //
 // 실행: fvm dart run tool/catalog_lint.dart [--report]
 // 위반이 있으면 1 로 끝난다. --report 는 찍기만 하고 0 으로 끝난다.
@@ -20,10 +21,9 @@ void main(List<String> args) {
     exit(2);
   }
   final themeDir = config['theme_dir'] as String?;
-  final tokens = {
-    for (final token in (config['spacing_tokens'] as List?) ?? [])
-      (token as num) * 1.0,
-  };
+  final spacingTokens = _tokens(config['spacing_tokens']);
+  // 반경 토큰이 없거나 비면 반경 리터럴 검사를 건너뛴다 — 토큰 없는 프로젝트가 있다.
+  final radiusTokens = _tokens(config['radius_tokens']);
   final findings = <String>[];
   final files =
       Directory('$root/$sharedDir')
@@ -38,13 +38,21 @@ void main(List<String> args) {
   for (final file in files) {
     final relative = file.absolute.path.substring(root.length + 1);
     if (themeDir != null && relative.startsWith(themeDir)) continue;
+    final content = file.readAsStringSync();
     final parsed = parseString(
-      content: file.readAsStringSync(),
+      content: content,
       path: file.path,
       throwIfDiagnostics: false,
     );
     parsed.unit.accept(
-      _Finder(relative, parsed.lineInfo, tokens, findings.add),
+      _Finder(
+        relative,
+        parsed.lineInfo,
+        content.split('\n'),
+        spacingTokens: spacingTokens,
+        radiusTokens: radiusTokens.isEmpty ? null : radiusTokens,
+        report: findings.add,
+      ),
     );
   }
   findings.forEach(stdout.writeln);
@@ -52,42 +60,88 @@ void main(List<String> args) {
   exit(findings.isEmpty || args.contains('--report') ? 0 : 1);
 }
 
+Set<double> _tokens(Object? list) => {
+  for (final token in (list as List?) ?? const []) (token as num) * 1.0,
+};
+
+final _radiusCall = RegExp(
+  r'^(const )?(BorderRadius|Radius)\.(circular|elliptical|all|vertical|horizontal|only)$',
+);
+final _screenWidth = RegExp(
+  r'^MediaQuery\.(sizeOf\(.*\)\.width|of\(.*\)\.size\.width|widthOf\(.*\))$',
+);
+final _borderWidth = RegExp(r'width:\s*([0-9]+(\.[0-9]+)?)');
+
 class _Finder extends RecursiveAstVisitor<void> {
-  _Finder(this.path, this.lines, this.tokens, this.report);
+  _Finder(
+    this.path,
+    this.lines,
+    this.sourceLines, {
+    required this.spacingTokens,
+    required this.radiusTokens,
+    required this.report,
+  });
 
   final String path;
   final LineInfo lines;
-  final Set<double> tokens;
+
+  /// 원문 줄들 — 그 줄이나 바로 윗줄에 `catalog_lint: ignore` 가 있으면 보고하지 않는다.
+  final List<String> sourceLines;
+  final Set<double> spacingTokens;
+
+  /// null 이면 반경 리터럴 검사를 하지 않는다.
+  final Set<double>? radiusTokens;
   final void Function(String) report;
 
   void _add(AstNode node, String rule, String value) {
     final line = lines.getLocation(node.offset).lineNumber;
+    for (final index in [line - 1, line - 2]) {
+      if (index >= 0 &&
+          index < sourceLines.length &&
+          sourceLines[index].contains('catalog_lint: ignore')) {
+        return;
+      }
+    }
     report('$path:$line: $rule $value');
   }
 
-  void _checkNumber(Literal literal) {
+  /// 숫자 [literal] 이 [tokens] 에 없으면 [rule] 로 보고한다.
+  void _checkNumber(Literal literal, Set<double> tokens, String rule) {
     final value = switch (literal) {
       IntegerLiteral(:final value?) => value.toDouble(),
       DoubleLiteral(:final value) => value,
       _ => null,
     };
     if (value != null && !tokens.contains(value)) {
-      _add(literal, '여백 토큰', literal.toSource());
+      _add(literal, rule, literal.toSource());
     }
   }
 
-  /// 숫자가 `EdgeInsets…(…)` 의 인자이거나 `spacing:` 값이면 토큰과 대조한다.
+  /// 숫자가 `EdgeInsets…(…)` 의 인자이거나 `spacing:` 값이면 여백 토큰과,
+  /// `Radius…(…)` · `BorderRadius…(…)` 의 인자면 반경 토큰과 대조한다.
   void _visitNumber(Literal literal) {
     final parent = literal.parent;
     if (parent is NamedExpression && parent.name.label.name == 'spacing') {
-      _checkNumber(literal);
+      _checkNumber(literal, spacingTokens, '여백 토큰');
       return;
     }
     final list = parent is NamedExpression ? parent.parent : parent;
     final call = list is ArgumentList ? list.parent : null;
-    final callee = call?.toSource() ?? '';
+    final callee = switch (call) {
+      MethodInvocation(:final target?, :final methodName) =>
+        '${target.toSource()}.${methodName.name}',
+      // 풀지 않은 트리라 `const X.y(…)` 는 X 가 가져오기 접두사로 읽힐 수 있다 — 원문으로 본다.
+      InstanceCreationExpression(:final constructorName) =>
+        constructorName.toSource(),
+      _ => '',
+    };
     if (callee.startsWith(RegExp('(const )?EdgeInsets'))) {
-      _checkNumber(literal);
+      _checkNumber(literal, spacingTokens, '여백 토큰');
+      return;
+    }
+    final tokens = radiusTokens;
+    if (tokens != null && _radiusCall.hasMatch(callee)) {
+      _checkNumber(literal, tokens, '반경 리터럴');
     }
   }
 
@@ -103,5 +157,113 @@ class _Finder extends RecursiveAstVisitor<void> {
       _add(node, '글꼴 이름', 'fontFamily');
     }
     super.visitNamedExpression(node);
+  }
+
+  /// `MediaQuery.sizeOf(context).width` 처럼 화면 폭을 읽는 자리. 재사용 위젯은
+  /// 부모 제약(`LayoutBuilder`)으로 칸을 나눠야 한다 — 화면 폭은 전체 창 판단에만.
+  @override
+  void visitMethodInvocation(MethodInvocation node) {
+    final head = node.target?.toSource();
+    if (head == 'MediaQuery') {
+      Expression outer = node;
+      while (true) {
+        final up = outer.parent;
+        if (up is! PropertyAccess || up.target != outer) break;
+        outer = up;
+      }
+      if (_screenWidth.hasMatch(outer.toSource())) {
+        _add(node, '화면 폭', outer.toSource());
+      }
+    }
+    super.visitMethodInvocation(node);
+  }
+
+  @override
+  void visitConditionalExpression(ConditionalExpression node) {
+    _compareBorders(node, [node.thenExpression, node.elseExpression]);
+    super.visitConditionalExpression(node);
+  }
+
+  @override
+  void visitIfElement(IfElement node) {
+    final elseElement = node.elseElement;
+    if (elseElement != null) {
+      _compareBorders(node, [node.thenElement, elseElement]);
+    }
+    super.visitIfElement(node);
+  }
+
+  @override
+  void visitSwitchExpression(SwitchExpression node) {
+    _compareBorders(node, [for (final c in node.cases) c.expression]);
+    super.visitSwitchExpression(node);
+  }
+
+  @override
+  void visitIfStatement(IfStatement node) {
+    final elseStatement = node.elseStatement;
+    if (elseStatement != null) {
+      _compareBorders(node, [node.thenStatement, elseStatement]);
+    }
+    super.visitIfStatement(node);
+  }
+
+  /// 상태에 따라 갈리는 가지 중 하나라도 테두리를 적었는데 두께가 서로 다르거나
+  /// 다른 가지에 테두리가 없으면 보고한다. `Container` 는 테두리 두께를 안쪽 여백으로
+  /// 치므로 두께가 바뀌면 칸 크기가 바뀐다. 전경 장식(`foregroundDecoration:`)은
+  /// 크기에 안 닿으므로 뺀다.
+  void _compareBorders(AstNode node, List<AstNode> branches) {
+    if (_insideForeground(node)) return;
+    final widths = <String>{};
+    var bordered = 0;
+    for (final branch in branches) {
+      final source = branch.toSource();
+      final hasBorder =
+          source.contains('Border.all(') || source.contains('BorderSide(');
+      if (hasBorder) bordered++;
+      widths.add(
+        hasBorder ? (_borderWidth.firstMatch(source)?[1] ?? '1') : '없음',
+      );
+    }
+    if (bordered > 0 && widths.length > 1) {
+      _add(node, '상태별 테두리', '두께 ${widths.join(' ↔ ')}');
+    }
+  }
+
+  bool _insideForeground(AstNode node) {
+    for (var up = node.parent; up != null; up = up.parent) {
+      if (up is NamedExpression &&
+          up.name.label.name == 'foregroundDecoration') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// `CustomPainter.paint(Canvas, Size)` 가 `size` 를 한 번도 안 읽으면 상수 좌표로
+  /// 그리는 것이다 — 상자가 커져도 그림이 안 따라간다.
+  @override
+  void visitClassDeclaration(ClassDeclaration node) {
+    final parent = node.extendsClause?.superclass.name.lexeme;
+    if (parent == 'CustomPainter') {
+      for (final member in node.members) {
+        if (member is! MethodDeclaration || member.name.lexeme != 'paint') {
+          continue;
+        }
+        final params = member.parameters?.parameters;
+        if (params == null || params.length != 2) continue;
+        final sizeName = params[1].name?.lexeme;
+        final body = member.body.toSource();
+        if (sizeName != null &&
+            !RegExp('\\b$sizeName\\b').hasMatch(body)) {
+          _add(
+            member,
+            '페인터 크기',
+            '${node.name.lexeme}.paint 가 $sizeName 를 안 읽음',
+          );
+        }
+      }
+    }
+    super.visitClassDeclaration(node);
   }
 }
