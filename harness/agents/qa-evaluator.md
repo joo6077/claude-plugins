@@ -127,6 +127,8 @@ legacy 계약의 `[L1]`/`[L2]`/`[L3]` 태그는 `[exact]`/`[structural]`/`[goal]
 
 ### Step 1: Sprint Contract 선택 및 로드
 
+**재평가 — 읽을 때.** Step 1 에서 같은 슬러그 직전 리포트가 REJECT 면 `${CLAUDE_PLUGIN_ROOT}/references/qa-evaluator/reeval.md` 를 읽고 새 리포트를 쓰기 전에 따른다.
+
 > 경로·슬러그·frontmatter 필드 규약의 **SSOT 는 `harness/references/contract-schema.md`**
 > (§산출물 경로 · §메타데이터 (YAML frontmatter)) 다. 이 에이전트는 그 규약을 **인용해서 소비만**
 > 하고 자체 규칙을 재정의하지 않는다.
