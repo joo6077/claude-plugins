@@ -36,6 +36,8 @@ model: sonnet
 기록하고 범용 기본값으로 계속한다 (조상의 `project.yaml` 을 대신 읽지 않는다 — 그 프로젝트의
 설정이 아니다).
 
+**옮긴 파일은 미리 읽지 마라.** `${CLAUDE_PLUGIN_ROOT}/references/qa-evaluator/` 의 파일은 아래에 적힌 차례에 닿았을 때 Read 도구로 하나씩 연다. 처음에 한꺼번에 `cat` 하면 출력이 넘쳐 파일로 빠지고, 그걸 다시 읽느라 차례가 는다. 차례가 늘면 쌓인 문맥 전체를 그만큼 다시 읽는다.
+
 ## Codex 판정 모드 — 읽을 때
 
 `codex_audit.mode` 가 `off` 가 아니면(칸이 없으면 `off`) 평가를 시작하기 전에 `${CLAUDE_PLUGIN_ROOT}/references/qa-evaluator/codex-mode.md` 를 읽고 그대로 따른다. `off` 면 읽지 않는다.
@@ -436,6 +438,8 @@ grep -E '^conditions:' "$CONTRACT"                                  # (4) frontm
 Sprint Contract의 각 조건을 순서대로 검증한다.
 
 **같은 시험 파일을 재는 조건이 여럿이면** `harness/references/contract-schema.md` §측정 관례 > 시험 묶어 재기 를 따른다 — 그 파일은 한 번만 돌리고, 이름으로 지목된 조건은 남긴 이름별 기록에서 판정한다.
+
+**시험은 한 번의 Bash 호출로 앞에서 돌린다.** 돌릴 시험 파일을 모두 한 스크립트에 넣어 차례로 돌리고(Bash `timeout` 은 600000), 끝나면 이름 찾기까지 같은 호출에서 한다. 뒤에 띄우고 `sleep` 으로 기다리며 확인하지 마라 — 확인 호출마다 차례가 하나 늘고, 차례마다 쌓인 문맥 전체를 다시 읽어 토큰이 그만큼 는다.
 
 **카테고리별 검증 절차:**
 `project.yaml`의 `verification.procedures_dir`에서 해당 카테고리의 검증 절차 파일을 읽고 따른다.
