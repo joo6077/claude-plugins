@@ -148,6 +148,8 @@ Feature: {이름}
 Evaluated: {YYYY-MM-DD HH:mm}   # 저장하는 순간 date '+%Y-%m-%d %H:%M' 출력을 옮긴다 — 짐작해 적지 않는다
 Verdict: {APPROVE | REJECT}
 Iteration: {N}
+Evaluated-Head: {구현 저장소 커밋}   # git -C <구현 저장소> rev-parse HEAD — 다음 회차 재평가가 이 커밋 이후 바뀐 파일을 잰다 (reeval.md)
+Amendments-Sha256: {개정 파일 sha256 | none}   # shasum -a 256 <개정 파일>, 개정 파일이 없으면 none
 
 ## Contract Fingerprint
 - path: {선택된 계약 절대경로}
