@@ -38,7 +38,7 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/qa-reeval-scope.sh" <직전 리포트> <구�
 리포트 표기:
 
 - 조건 판정 줄은 조건마다 한 줄이다. 번호를 쉼표로 묶지 않는다
-- 꼴은 `- [x] <번호> <PASS|FAIL|N/A> — …` — 번호 바로 뒤에 판정을 적는다
+- 꼴은 `- [x] <번호> <PASS|FAIL|N/A> — …` — 번호 바로 뒤에 판정을 적는다. N/A 도 같다: `- N/A 재사용-01` 처럼 판정을 번호 앞에 쓰지 않는다
 - 재사용한 조건의 줄에는 `재사용: Iteration <N> · <커밋 앞 8 자리> 이후 대상 경로 변경 0` 을 적는다. `<N>` 은 직전 리포트의 `Iteration` 값, 커밋은 직전 `Evaluated-Head` 다
 - FAIL 줄에는 재사용 표기를 쓰지 않는다 — FAIL 은 이번 회차에 새로 잰 증거로만 낸다
 
@@ -47,5 +47,6 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/qa-reeval-scope.sh" <직전 리포트> <구�
 ```markdown
 - [x] AR-02 PASS — 재사용: Iteration 1 · dae2d487 이후 대상 경로 변경 0 (설계 문서 grep 0 · 1)
 - [x] UI-01 PASS — 시험 새로 실행 `NAME … PASS`. 본문 검토는 재사용: Iteration 1 · dae2d487 이후 대상 경로 변경 0
+- [x] 재사용-01 N/A — 사유: 새 공용 위젯 없음. 재사용: Iteration 1 · dae2d487 이후 대상 경로 변경 0
 - [ ] UI-02 FAIL — 시험 새로 실행 `NAME … FAIL` (feed_pending_failed.dart 가 CHANGED)
 ```
