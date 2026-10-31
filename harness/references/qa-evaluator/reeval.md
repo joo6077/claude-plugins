@@ -45,8 +45,8 @@ bash "${CLAUDE_PLUGIN_ROOT}/scripts/qa-reeval-scope.sh" <직전 리포트> <구�
 예:
 
 ```markdown
-- [x] AR-02 PASS — 재사용: Iteration 1 · dae2d487 이후 대상 경로 변경 0 (설계 문서 grep 0 · 1)
-- [x] UI-01 PASS — 시험 새로 실행 `NAME … PASS`. 본문 검토는 재사용: Iteration 1 · dae2d487 이후 대상 경로 변경 0
-- [x] 재사용-01 N/A — 사유: 새 공용 위젯 없음. 재사용: Iteration 1 · dae2d487 이후 대상 경로 변경 0
+- [x] AR-02 PASS — 재사용: Iteration <N> · <직전 커밋 8 자리> 이후 대상 경로 변경 0 (설계 문서 grep 0 · 1)
+- [x] UI-01 PASS — 시험 새로 실행 `NAME … PASS`. 본문 검토는 재사용: Iteration <N> · <직전 커밋 8 자리> 이후 대상 경로 변경 0
+- [x] 재사용-01 N/A — 사유: 새 공용 위젯 없음. 재사용: Iteration <N> · <직전 커밋 8 자리> 이후 대상 경로 변경 0
 - [ ] UI-02 FAIL — 시험 새로 실행 `NAME … FAIL` (feed_pending_failed.dart 가 CHANGED)
 ```
