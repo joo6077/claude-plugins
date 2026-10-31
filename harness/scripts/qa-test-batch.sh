@@ -6,7 +6,7 @@
 #   --cmd        파일 하나를 붙여 돌릴 명령. 기본: pubspec.yaml 이 있고 fvm 이 있으면 `fvm flutter test --reporter expanded`,
 #                fvm 이 없으면 `flutter test --reporter expanded`. 그 밖의 실행기는 이름별 결과를 찍는 형식으로 직접 준다
 #   --fail-mark  실패한 시험 줄에 붙는 글자. 기본 `[E]` (Flutter expanded 형식)
-#   -n           판정할 시험 이름 (글자 그대로 찾는다). 여러 번 준다
+#   -n           판정할 시험 이름 (글자 그대로 찾되, 바로 뒤가 글자 · 숫자 · _ 인 자리는 다른 이름으로 본다). 여러 번 준다
 #
 # 출력 (화면에는 이것만):
 #   FILE <파일> rc=<종료 코드> last=<마지막 진행 줄> log=<기록 경로>
@@ -54,7 +54,9 @@ done
 
 pass=0; fail=0; missing=0
 for n in ${NAMES[@]+"${NAMES[@]}"}; do
-  hits=$(cat "$OUT"/*.log | LC_ALL=C grep -a -F -- "$n" | LC_ALL=C grep -a -E '^[0-9]+:[0-9]+ \+[0-9]+')
+  # 이름 바로 뒤가 글자 · 숫자 · _ 면 다른 이름이다 — UI-01 을 찾을 때 UI-010 줄을 세지 않는다
+  hits=$(cat "$OUT"/*.log | LC_ALL=C grep -a -E '^[0-9]+:[0-9]+ \+[0-9]+' | LC_ALL=C awk -v n="$n" '
+    { s = $0; while ((i = index(s, n)) > 0) { c = substr(s, i + length(n), 1); if (c !~ /[A-Za-z0-9_]/) { print; next } s = substr(s, i + 1) } }')
   lines=$(printf '%s' "$hits" | grep -c .)
   if [ "$lines" -eq 0 ]; then missing=$((missing + 1)); echo "NAME $n MISSING"; continue; fi
   bad=$(printf '%s\n' "$hits" | LC_ALL=C grep -a -c -F -- "$MARK")
