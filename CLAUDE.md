@@ -262,8 +262,9 @@ flutter-toolkit 스킬들은 `references/project-detection.md`를 통해 프로�
 | 스킬 | 용도 |
 | --- | --- |
 | `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 JSON 생성 → import용 zip 번들 출력. references 9종 SSOT (bambu-fields-baseline / materials / seam-recipes / surface-recipes / failure-recipes / tolerance / comment-analysis / user-preferences / kaizen-sources) |
+| `/bambu-model` | 새 부품은 CadQuery 코드로 그리고 그림으로 확인, 원본 f3d 는 퓨전 360 추가 기능으로 매개변수를 바꿔 STL · 구멍 보고 출력 → `/bambu-print-profile` 로 넘김. 확인 · 설치는 `ensure-cadquery.sh` |
 
-도구형 1스킬 킷 (guide/audit/system 3종 패턴 비적용). H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 한정.
+도구형 킷 (guide/audit/system 3종 패턴 비적용). H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 한정.
 
 #### onboarding-kit — 외부 서비스 셋업 가이드
 
