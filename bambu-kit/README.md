@@ -8,15 +8,16 @@ H2S + AMS HT + AMS 2 Pro 환경 가정. 슬라이서는 **Bambu Studio v2.6.0+ �
 
 두 슬라이서는 키 이름·유효값·스코프가 갈라져 있다(뱀부 519 키 / 오르카 887 키, 실측 2026-09-14). 한쪽 프로파일을 다른 쪽에 넣으면 없는 키가 오류 없이 버려지므로, Phase 1.95 가 대상 슬라이서를 먼저 확정한다. 차이 정본은 `references/bambu-fields-baseline.md` §11.
 
-다른 플러그인(rust-kit, react-kit 등)과 달리 도구형 1스킬 킷이다. guide/audit/system 3종 패턴 대신 `bambu-print-profile` 단일 스킬이 references 9종을 토대로 풀 워크플로우(Phase 1~5)를 수행한다.
+다른 플러그인(rust-kit, react-kit 등)과 달리 도구형 킷이다. guide/audit/system 3종 패턴 대신 `bambu-print-profile` 이 references 9종을 토대로 풀 워크플로우(Phase 1~5)를 수행하고, `bambu-model` 이 출력할 부품의 STL 을 만든다.
 
 ## 스킬
 
 | 스킬 | 용도 |
 | --- | --- |
 | `/bambu-print-profile` | MakerWorld URL/모델 분석 → 소재 추천 → 슬라이서 판별 → seam 전략 → 해당 슬라이서용 JSON 생성 → zip 번들 출력 |
+| `/bambu-model` | 새 부품은 CadQuery 코드로 그리고 그림으로 확인, 원본 f3d 는 퓨전 360 추가 기능으로 매개변수를 바꿔 STL · 구멍 보고 출력 → `/bambu-print-profile` 로 넘김 |
 
-트리거 키워드: "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력".
+트리거 키워드: "삼프 설정", "Bambu 프로파일 만들어줘", "출력 셋팅 추천", "프린트 프로파일", "MakerWorld 출력". `/bambu-model` 은 "부품 모델링", "STL 만들어줘", "부품 새로 그려줘", "f3d 치수 바꿔줘", "퓨전 원본 수정", "CadQuery".
 
 ## 리서치 문서 (스킬 내부 references)
 

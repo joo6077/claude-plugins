@@ -268,7 +268,7 @@ React + Vite + Tauri 2 + Rust WASM 개발 워크플로우.
 
 ### bambu-kit
 
-Bambu Lab H2S 자동 process+filament JSON 생성. 도구형 1스킬 킷 (guide/audit/system 3종 패턴 비적용).
+Bambu Lab H2S 자동 process+filament JSON 생성 + 출력할 부품 모델링(`bambu-model`). 도구형 킷 (guide/audit/system 3종 패턴 비적용).
 
 - H2S + AMS HT + AMS 2 Pro + Bambu Studio v2.6.0+ 환경 가정
 - MakerWorld URL/로컬 모델 → 모델 분석 → 소재 추천 → seam 전략 → Bambu Studio용 zip 번들
@@ -276,14 +276,14 @@ Bambu Lab H2S 자동 process+filament JSON 생성. 도구형 1스킬 킷 (guide/
 - 카이젠 스킬 (`bambu-research`, `bambu-kaizen`)은 `.claude/skills/`에 분리 (plugin 외부)
 
 <!-- AUTO:skills-bambu-kit -->
-**스킬 1종** — `bambu-print-profile`
+**스킬 2종** — `bambu-model`, `bambu-print-profile`
 <!-- /AUTO:skills-bambu-kit -->
 
 > 자세한 내용은 [bambu-kit/README.md](./bambu-kit/README.md) 참조.
 
 ### onboarding-kit
 
-스택 무관 외부 서비스 셋업 가이드 자동 생성. bambu-kit 과 같은 도구형 1스킬 킷.
+스택 무관 외부 서비스 셋업 가이드 자동 생성. 도구형 1스킬 킷.
 
 - Firebase · GCP · AWS · FCM · OAuth · Stripe 등 외부 서비스 셋업을 단계별 MD 로 만든다
 - 호출할 때마다 공식 문서를 새로 받아 옛 정보로 헤매지 않게 한다
