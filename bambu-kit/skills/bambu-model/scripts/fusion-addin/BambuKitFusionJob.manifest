@@ -1,0 +1,11 @@
+{
+  "autodeskProduct": "Fusion",
+  "type": "addin",
+  "id": "22032760-56c6-4004-b75c-0b4f72b94a16",
+  "author": "bambu-kit",
+  "description": {"": "bambu-kit fusion-job.sh 가 깔고 걷어 내는 일회용 작업 실행기"},
+  "version": "1.0.0",
+  "runOnStartup": true,
+  "supportedOS": "windows|mac",
+  "editEnabled": true
+}
