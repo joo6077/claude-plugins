@@ -289,6 +289,25 @@ Flutter 위젯 모범 사례를 지키지 않으면 오버플로, 인터랙션 �
 - [ ] 불필요한 StatefulWidget 사용 금지
 - [ ] 상대 크기 — 규칙 16~21 (`references/widget-fundamentals.md`): 상태(선택 · 포커스 · 호버)에 따라 `Border` 두께나 유무가 바뀌는 `Container(decoration:)` 없음 · 안쪽 면 반경이 바깥 반경 − 여백으로 파생됨 · 겹층(포커스 링 · 눌림 칠 · 글로우)이 판과 같은 크기 · 반경 값을 씀 · 반경 숫자 리터럴 없음 · 재사용 위젯에서 `MediaQuery…width` 로 칸을 나누지 않음 · `CustomPainter.paint` 가 `size` 를 읽음. 증거는 `tool/catalog_lint.dart` 출력(반경 리터럴 · 화면 폭 · 상태별 테두리 · 페인터 크기)과 결과 표의 상태 불변 · 화면 폭 `FAIL` 줄이다. 카탈로그 밖 feature 위젯은 `grep` 으로 전수 열거해 같은 기준으로 본다 — 목록에 없다고 PASS 로 두지 않는다
 
+### Shadow · Blur
+
+그림자 · 흐림은 진하기만 봐서는 못 잡는다 — 크기 비례 · 반복 겹침 · 잘림까지 같이 본다. 수치와 잘림 유형은 `references/widget-fundamentals.md` §그림자 · 흐림 판정 기준 에만 있다. 여기서는 사용처를 열거하고 그 절에 대어 판정한다.
+
+먼저 감사 범위에서 사용처를 전수 열거하고 수를 리포트에 적는다 (0 건이면 대상 파일 수와 함께 적는다 — 공허한 0 을 막는다).
+
+```bash
+grep -rnE "BoxShadow\(|Shadow\(|BackdropFilter|ImageFilter.blur|MaskFilter.blur|elevation:" <감사 범위>
+```
+
+사용처마다 아래를 판정한다. 값이 상수 · 토큰을 거치면 그 정의까지 따라가서 실제 알파 · 흐림 · 오프셋 · 퍼짐을 적는다.
+
+- [ ] 규칙 22 테마 분기 · 라이트 진하기 — 라이트에서 쓰이는 값의 알파가 기준 미만인가. 라이트 · 다크 분기 없이 같은 값이면 경고
+- [ ] 규칙 23 크기 비례 — 번짐 ÷ 그 그림자를 단 위젯의 짧은 변이 기준 미만인가 (위젯 크기는 `SizedBox` · 크기 토큰 · 높이 상수에서 읽는다. 못 읽으면 `[미검증]` 이고 PASS 가 아니다)
+- [ ] 규칙 24 반복 겹침 — 목록 · 말풍선 · 칩 줄처럼 반복되면 이웃 간격(구분 `SizedBox` · `spacing` · 안쪽 여백)이 번짐 이상인가
+- [ ] 규칙 25 잘림 — 부모 체인에 높이가 딱 맞는 가로 스크롤 줄 · 같은 모양 클립 · 번짐보다 작은 여유의 클립 · 여유 없이 미리 굽는 판이 없는가
+
+화면에서 확인할 수 있으면(`/flutter-ui-verify`) 라이트 · 다크 캡처를 근거로 붙인다. 코드 판정과 캡처가 다르면 캡처가 이긴다.
+
 ### Reusability
 
 재사용 가능한 위젯이 feature에 갇혀 있으면 코드 중복이 누적된다.
@@ -341,6 +360,8 @@ git diff --name-only --cached
 ```
 
 presentation 파일만 필터링하여 Design Review / i18n 에이전트에 전달한다.
+
+`Shadow · Blur` 축은 에이전트에 맡기지 않는다 — 메인이 Quick 모드의 `### Shadow · Blur` 절을 같은 presentation 파일 목록에 그대로 돌려 리포트에 넣는다 (`HAS_DS` 와 무관하게 항상).
 
 Agent 도구를 사용하여 아래 에이전트를 **동시에** 실행한다 (조건부 에이전트 제외 시 최소 2개).
 
@@ -449,6 +470,10 @@ Design System                    <-- HAS_DS = true일 때만
 i18n                             <-- i18n 감지 시에만 (deep 모드)
   errors: N | warnings: N
   [주요 이슈 목록]
+
+Shadow · Blur
+  사용처: N | errors: N | warnings: N
+  [파일:라인 — 규칙 22~25 중 무엇 — 실제 값(알파 · 번짐 · 짧은 변 · 간격)]
 
 Reusability
   candidates: N

@@ -17,6 +17,7 @@ design-reviewer 에이전트가 참조하는 카테고리별 체크리스트.
 | 대비 비율 | 텍스트/배경 대비 WCAG 2.2 AA (4.5:1 이상) | [WCAG 2.2 SC 1.4.3](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) |
 | 시맨틱 사용 | 하드코딩된 컬러값 대신 시맨틱 토큰 사용 | [Material Design 3 Color](https://m3.material.io/styles/color/roles) |
 | 다크 모드 | 다크 모드에서도 대비 비율 유지 | [Apple HIG Dark Mode](https://developer.apple.com/design/human-interface-guidelines/dark-mode) |
+| 테마별 그림자 | 그림자 · 글로우가 라이트 · 다크 값을 따로 갖고, 세 판정 — 라이트 진하기 · 번짐 ÷ 위젯 짧은 변 · 반복 배치의 이웃 겹침 — 을 모두 통과한다. 진하기만 보고 PASS 를 주지 않는다. 판정 수치 · 예외는 스택과 무관하게 `flutter-toolkit/references/widget-fundamentals.md` §그림자 · 흐림 판정 기준 한 곳을 따른다 | `docs/design/foundations/dark-mode.md` §shadow 토큰, `flutter-toolkit/references/widget-fundamentals.md` 규칙 22~24 |
 | OKLCH primitive | OKLCH 표기 권장 (Tailwind v4/shadcn v4 기본), P3 wide gamut 사용 시 sRGB fallback 명시 | [Tailwind v4 blog](https://tailwindcss.com/blog/tailwindcss-v4), [MDN oklch()](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/color_value/oklch) |
 
 ## Spacing
@@ -97,6 +98,7 @@ APCA(Advanced Perceptual Contrast Algorithm)는 WCAG 3 후보 대비 알고리�
 | 가로 오버플로 | 최소 지원 뷰포트(375px)에서 `document.documentElement.scrollWidth - clientWidth <= 2`. 문서 본체가 가로로 스크롤되면 FAIL. 375px 와 2px 허용치는 이 킷의 판정값이다 — WCAG 2.2 SC 1.4.10 의 기준은 320 CSS px 폭에서 내용·기능 손실과 양방향 스크롤이 없는 것이므로, 375px 통과로 SC 1.4.10 충족을 말하지 않는다 | [WCAG 2.2 SC 1.4.10 Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) |
 | grid/flex 자식 min-width | grid·flex 컨테이너의 자식에 `min-width: 0` 이 적용됨. 기본값 `auto`(= min-content)는 긴 코드·표·안 끊기는 토큰의 최소폭을 트랙 폭으로 전파시켜 문서를 밀어낸다 | [MDN minimum size auto](https://developer.mozilla.org/en-US/docs/Web/CSS/min-width#values), [CSS Grid Sizing §6.6](https://www.w3.org/TR/css-grid-1/#min-size-auto) |
 | 넓은 콘텐츠 스크롤 | 표·코드블록 등 축소 불가 콘텐츠는 `overflow-x: auto` 컨테이너로 감싸 **끝까지 스크롤 도달 가능**해야 함. `overflow: hidden`/`display: none` 으로 잘라서 오버플로를 없애면 FAIL (내용 손실) | [WCAG 2.2 SC 1.4.10 Reflow](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) |
+| 그림자 · 흐림 잘림 | 그림자 · 흐림을 가진 요소가 잘리지 않는다 — 높이가 딱 맞는 가로 스크롤 줄 · 같은 모양의 클립 · 번짐보다 작은 여유의 부모 클립 · 여유 없이 미리 굽는 판, 네 자리에서 위아래 · 첫/끝 아이템 · 활성 탭 그림자를 본다. 유형과 막는 법은 `flutter-toolkit/references/widget-fundamentals.md` §그림자 · 흐림 판정 기준 | `flutter-toolkit/references/widget-fundamentals.md` 규칙 25 |
 | 테마 영속화 | 테마 토글을 제공하면 선택이 `localStorage` 에 저장되고 로드 시 복원됨. 저장값이 없으면 `prefers-color-scheme` 을 따름 | [MDN prefers-color-scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) |
 
 ## Ethical Design
