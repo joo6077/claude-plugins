@@ -18,7 +18,7 @@
     {
       "name": "design-kit",
       "source": "./design-kit",
-      "description": "[v0.8.0 · 2026-09-30] 스택 무관 UI/UX 디자인 가이드 + 감사 (Variant Distinctiveness Gate + Decision Propagation Manifest + 증거 채널 + WCAG 24×24 정정)"
+      "description": "[v0.8.1 · 2026-11-02] 스택 무관 UI/UX 디자인 가이드 + 감사 (Variant Distinctiveness Gate + Decision Propagation Manifest + 증거 채널 + WCAG 24×24 정정)"
     },
     {
       "name": "backend-kit",
