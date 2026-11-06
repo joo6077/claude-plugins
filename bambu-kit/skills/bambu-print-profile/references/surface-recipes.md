@@ -302,7 +302,7 @@ H2S 0.4 hardened nozzle 기준. 모든 단위 명시.
 | `default_acceleration` | `2500-4000` mm/s² (유량비 5x 초과 시 2500-3000) | H2S `4000` | 동일 |
 | `wall_sequence` | `inner-outer-inner wall` 기본; 박스 sharp 치수 우선만 `inner wall/outer wall` | `inner wall/outer wall` | fdm_process_common.json:58 (enum). ⚠️ **`inner-outer-inner wall` 은 `wall_loops >= 3` 을 전제한다** — 2 겹 이하에서는 의도대로 동작하지 않으므로 쓰지 마라. Creator 가 `wall_loops` 를 2 로 고정한 모델에 이 값을 넣은 사례가 있다 (2026-08 superlube) |
 | `reduce_crossing_wall` | `1` | `0` | fdm_process_common.json:100 |
-| `enable_arc_fitting` | `1` (**기본값 유지 — 표면 품질 카드가 아니다**) | `1` | fdm_process_common.json:29. ⚠️ 이것은 품질 개선 기능이 아니라 **G-code encoding 변경**(직선 세그먼트 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 해결책으로 제시하지 마라 — `failure-recipes.md` §1.2 |
+| `enable_arc_fitting` | 키를 쓰지 않는다(부모값 유지) (**표면 품질 카드가 아니다**) | `02.08.x` `1` · `02.09.01.70` `0` | `fdm_process_common.json` 이 H2S 상속 체인에서 이 키를 적은 유일한 파일이고, 두 태그 사이에 `1` → `0` 으로 바뀌었다 (`git diff v02.08.02.61 v02.09.01.70 -- resources/profiles/BBL/process/fdm_process_common.json`, 2026-11-06). ⚠️ 이것은 품질 개선 기능이 아니라 **G-code encoding 변경**(직선 세그먼트 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 해결책으로 제시하지 마라 — `failure-recipes.md` §1.2 |
 | `resolution` | **기본값 `0.012` 유지** | `0.012` mm | fdm_process_common.json:103. ⚠️ XY 세그먼트 해상도 전용이고 Z 계단 해결책이 아니다. 2026-09-05 실측(opus-xero)에서 `0.008` 은 이득 근거가 없어 철회됐다 — 표면 품질 카드로 제시하지 마라 |
 | flow ratio | 소재/색상별 calibration 후 적용 (PLA Basic 기본 `0.98`) | 동일 | Bambu PLA Basic @BBL H2S.json:29-42 |
 | Pressure Advance (PA) | 소재/노즐/건조 후 PA profile 저장 필수 (Bambu Studio Calibration → PA test) | — | Bambu 공식 calibration 가이드 |

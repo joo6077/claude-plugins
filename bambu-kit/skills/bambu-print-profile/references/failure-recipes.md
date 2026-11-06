@@ -80,7 +80,8 @@ process+filament JSON 범위 밖이다.
 
 ⚠️ **`enable_arc_fitting` 을 계단 해결책으로 쓰지 마라.** 이것은 표면 품질 기능이 아니라 **G-code
 encoding 변경**(직선 세그먼트 → arc 명령)이며, firmware arc segmentation 리스크가 따라온다. 기본값을
-유지하고 계단 대응 카드로 제시하지 않는다.
+유지하고(키를 쓰지 않는다) 계단 대응 카드로 제시하지 않는다. H2S 부모값은 `02.08.x` `1` · `02.09.01.70` `0` 이다 —
+2.9.1 에서 곡선이 직선 조각으로 나오는 것은 계단과 무관하다.
 
 ### 1.3 부작용 — 반드시 사전 고지
 
@@ -180,7 +181,11 @@ PC 0.25 %, PA 계열은 한 자릿수 높다. **PLA 와 ABS 를 습기 1 순위�
 **예외 — 판에서 바로 시작하는 바닥 필렛이 있으면 테두리를 켜지 않는다.** 2층 벽이 테두리에 붙어 솟은 선이 된다 (§3.5).
 
 첫 레이어 보강 (조건부 — 사용자가 바닥면 품질을 포기할 수 있을 때만):
-`initial_layer_print_height` 상향 · `initial_layer_line_width` 상향 · `initial_layer_speed` 하향.
+`initial_layer_print_height` 상향 · `initial_layer_line_width` 상향 · `initial_layer_infill_line_width` 상향 · `initial_layer_speed` 하향.
+뱀부 2.9.1(2.8.3 베타부터)은 `initial_layer_line_width` 를 첫 층 채움에서 떼어 냈다 — 이 키는 이제 첫 층 벽 같은 채움 밖 선에만 걸리고,
+채움 선폭은 `initial_layer_infill_line_width`(공통 기본 `0.5`)가 맡는다. 접착은 채움 면적이 대부분이라 둘째 키를 같이 올린다.
+릴리스 노트는 0.4 노즐에 채움 `0.55` 를 예로 들고, 벽 선폭은 크게 올리면 첫 층의 작은 형상이 뭉개진다고 경고한다
+(<https://github.com/bambulab/BambuStudio/releases/tag/v02.08.03.66>). `02.08.02.61` 이하 판은 첫째 키 하나가 둘 다 맡는다.
 두꺼운 첫 레이어가 adhesion 을 개선할 수 있다는 것은 source tooltip 근거가 있다 (§10.3).
 단 H2S standard 의 `initial_layer_speed` 는 source/common 보다 **높게** 잡혀 있으므로 (§10.3)
 "기본값보다 낮춘다" 를 계산 없이 말하지 마라 — 상속 체인의 실효값을 먼저 확인한다.

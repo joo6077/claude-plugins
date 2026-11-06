@@ -14,6 +14,19 @@
 
 ## 1. Bambu Studio 안정 버전
 
+- **2.9.1 / v02.09.01.70** — Public Release, 2026-11-03 (2.8.3 · 2.8.4 Public Beta 기능 포함). 이 맥 설치본 (2026-11-06 확인).
+  출처: <https://github.com/bambulab/BambuStudio/releases/tag/v02.09.01.70>
+  - 2.8.2 와 견준 옵션 차이 — 태그 소스로 뽑은 두 옵션 목록(§11.1)을 맞대었다. 새 키 54 개 중 이 킷에 닿는 것:
+    `initial_layer_infill_line_width`(첫 층 채움 선폭 — 이제 `initial_layer_line_width` 는 채움에 안 걸린다, §10.3),
+    `sub_top_surface_pattern`(윗면 바로 아래 꽉 찬 층 무늬, 툴팁 기준 단방향 무늬가 윗면을 가장 매끈하게 한다),
+    `tree_support_tip_diameter`(나무 지지대 끝 지름 — 개발자 모드), `conformal_infill`(형상 따라 채우기 — 신발 갑피 같은 곡면용),
+    `periodic_modifier`(모디파이어를 N 층 적용 · M 층 건너뛰기). 처방은 아직 없다 — 실측 전이다.
+  - 다림질 무늬 `ironing_pattern` 에 `ironingarchimedeanspiral`(화면 이름 Archimedean spiral — 가운데서 바깥으로 도는 나선) 값이 생겼다.
+    같은 값이 다른 무늬 키 enum 에도 들어갔지만 릴리스 노트가 말하는 쓰임은 다림질이다. 실측 전이라 기본 추천은 그대로다.
+  - 없어진 키: `nozzle_type` 은 2.9.1 옵션 목록에서 사라졌다(H2S 프린터 프로파일에서도 빠졌다). 이 킷은 쓰지 않는다.
+  - 기본값이 바뀐 키: `enable_arc_fitting` `1` → `0` (`fdm_process_common.json`). H2S 상속 체인에서 이 키를 적은 파일이 그것뿐이라
+    H2S 실효값도 `0` 이다 — 2.9.1 에서는 곡선이 호 없이 직선 조각으로 나간다. 킷은 이 키를 쓰지 않는다(`surface-recipes.md` 표).
+    근거: `git diff v02.08.02.61 v02.09.01.70 -- resources/profiles/BBL/process/fdm_process_common.json` (2026-11-06)
 - **2.6.0 / v02.06.00.51** — Public Release Hotfix, 2026-04-17 13:02
 - 2.6.1 / v02.06.01.55는 Public Beta (pre-release)
 - 출처: <https://github.com/bambulab/BambuStudio/releases/tag/v02.06.00.51>, <https://github.com/bambulab/BambuStudio/releases>
@@ -257,7 +270,7 @@
 - Ironing 정책 신규 추가: PLA Basic/Matte/PLA Silk + flat top 한정. PETG/PC/TPU/CF류는 비추.
 - 외벽 매끈함 공통값: `layer_height` **`0.12` 1 차 권장**, `wall_loops 3-4`, `wall_sequence inner-outer-inner` (⚠️ `wall_loops >= 3` 전제), `reduce_crossing_wall 1`.
   **속도는 단일 값이 아니라 유량비로 결정한다** — `surface-recipes.md` §3 표가 정본이고 `SKILL.md` §유량비 게이트가 임계를 갖는다. 여기에 수치를 복제하지 마라.
-  ⚠️ `resolution` 하향과 `enable_arc_fitting` 끄기는 **공통값이 아니다** — 2026-09-05 실측에서 이득 근거 없음으로 철회됐다 (`surface-recipes.md` §3).
+  ⚠️ `resolution` 하향과 `enable_arc_fitting` 값 바꾸기는 **공통값이 아니다** — 2026-09-05 실측에서 이득 근거 없음으로 철회됐다 (`surface-recipes.md` §3). `enable_arc_fitting` 부모값은 `02.08.x` `1` · `02.09.01.70` `0` 이고 킷은 키를 쓰지 않는다 (§1).
 - **형상 클래스 축 (2026-09-08)**: `_geometry_class` `planar` | `thin`. `thin` 은 속도 하향 없음 + 확인 후 filament 냉각 키 1 종. 정책은 `surface-recipes.md` §2.7, 키 정본은 §10.5.
 - **외벽 파편화 축 (2026-09-26 · 센 값 2026-10-11)**: `_wall_outer_block_ratio` 와 그 근거 센 값 `_wall_outer_block_classic` · `_wall_outer_block_arachne`. 벽 예산이 부족해도 `classic` 이 외벽을 조각내지 않는 형상이 있어, 비율만으로 `classic` 을 막지 않는다. 정책은 `surface-recipes.md` §2.8, 키 정본은 §10.5.
 
@@ -314,7 +327,8 @@
 | `raft_layers` | layers | source · common `0` — 툴팁이 ABS warping 회피 용도를 명시 | src/libslic3r/PrintConfig.cpp |
 | `raft_first_layer_expansion` | `mm` | `-1` = auto | src/libslic3r/PrintConfig.cpp |
 | `initial_layer_print_height` | `mm` | source `0.2` — 툴팁: 두꺼운 첫 레이어가 adhesion 개선 가능 | src/libslic3r/PrintConfig.cpp |
-| `initial_layer_line_width` | `mm` | source `0.4`; fdm_process_common `0.5` | fdm_process_common.json |
+| `initial_layer_line_width` | `mm` | source `0.4`; fdm_process_common `0.5`. **2.9.1(2.8.3 베타부터) 이 키는 첫 층 채움에 안 걸린다** — 벽 같은 채움 밖 선만 맡는다 | fdm_process_common.json; <https://github.com/bambulab/BambuStudio/releases/tag/v02.08.03.66> |
+| `initial_layer_infill_line_width` | `mm` | fdm_process_common `0.5` — 2.9.1 신설(2.8.3 베타부터), 첫 층 채움 선폭. 릴리스 노트 예: 0.4 노즐 `0.55` 로 접착 개선. `02.08.02.61` 이하에는 없는 키다 | `git diff v02.08.02.61 v02.09.01.70 -- resources/profiles/BBL/process/fdm_process_common.json`; <https://github.com/bambulab/BambuStudio/releases/tag/v02.09.01.70> |
 | `initial_layer_speed` | `mm/s` | source `30`; common `20`; **H2S standard `50`** | src/libslic3r/PrintConfig.cpp; fdm_process_common.json |
 | `hot_plate_temp_initial_layer` | `°C` | 소재 profile 별 | src/libslic3r/PrintConfig.cpp |
 | `textured_plate_temp_initial_layer` | `°C` | 소재 profile 별 | src/libslic3r/PrintConfig.cpp |
@@ -374,23 +388,28 @@
 ### 11.1 키가 어느 슬라이서에 있는가 — 옵션 목록이 1 순위다 (2026-09-15 갱신)
 
 **1 순위 근거는 `references/option-keys/` 의 슬라이서 버전별 목록이다** (`orca-2.4.2.tsv` ·
-`bambu-02.08.02.61.tsv`). 두 슬라이서의 태그 소스에서 옵션 등록부 · 옛 이름 처리 함수 · 프리셋 기본값을
+`bambu-02.08.02.61.tsv` · `bambu-02.09.01.70.tsv`). 두 슬라이서의 태그 소스에서 옵션 등록부 · 옛 이름 처리 함수 · 프리셋 기본값을
 부분 빌드한 판정 프로그램(`bambu-kit/scripts/option-key-probe/`)이 **슬라이서 자신의 함수로** 뽑았다.
 Phase 4.3 게이트가 이 목록으로 키 존재 · 프리셋 종류 · enum 값을 판정한다. 설치본 버전이 바뀌면
 `bash bambu-kit/scripts/option-key-probe/build-option-list.sh <orca|bambu>` 로 새 목록을 만든다 —
 목록이 없는 버전은 게이트가 `[미검증]` 으로 보고하고, 다른 버전 목록으로 대신 검사하지 않는다.
 
-| 줄 종류 | 뜻 | 오르카 2.4.2 | 뱀부 02.08.02.61 |
-| --- | --- | --- | --- |
-| `canonical` | JSON 을 불러올 때 그대로 받아들여지는 키 | 749 | 679 |
-| `renamed` | 불러올 때 새 이름으로 바뀌는 옛 키 | 42 | 23 |
-| `process` · `filament` · `machine` | 그 종류 프리셋이 받는 키. 설정 가져오기는 여기 없는 키를 지운다 | 356 · 127 · 161 | 277 · 143 · 136 |
-| `enum` | enum 키가 받는 값 (`nil` 은 소재별 덮어쓰기의 "값 없음") | 384 | 385 |
-| `renamed-value` | 불러올 때 새 값으로 바뀌는 옛 값 (예: 오르카 `top_surface_pattern` `zig-zag` → `rectilinear`) | 32 | 19 |
-| `header` | 옵션이 아니라 불러오기가 따로 읽는 파일 머리 키 (`name` · `version` · `filament_id` · `url` …) | 36 | 42 |
+| 줄 종류 | 뜻 | 오르카 2.4.2 | 뱀부 02.08.02.61 | 뱀부 02.09.01.70 |
+| --- | --- | --- | --- | --- |
+| `canonical` | JSON 을 불러올 때 그대로 받아들여지는 키 | 749 | 679 | 733 |
+| `renamed` | 불러올 때 새 이름으로 바뀌는 옛 키 | 42 | 23 | 23 |
+| `process` · `filament` · `machine` | 그 종류 프리셋이 받는 키. 설정 가져오기는 여기 없는 키를 지운다 | 356 · 127 · 161 | 277 · 143 · 136 | 309 · 154 · 144 |
+| `enum` | enum 키가 받는 값 (`nil` 은 소재별 덮어쓰기의 "값 없음") | 384 | 385 | 437 |
+| `renamed-value` | 불러올 때 새 값으로 바뀌는 옛 값 (예: 오르카 `top_surface_pattern` `zig-zag` → `rectilinear`) | 32 | 19 | 19 |
+| `header` | 옵션이 아니라 불러오기가 따로 읽는 파일 머리 키 (`name` · `version` · `filament_id` · `url` …) | 36 | 42 | 42 |
 
-목록 기준으로 받는 키는 오르카에만 229 · 뱀부에만 159 · 양쪽 520 이다. 목록이 맞는지는 세 가지로
-확인했다 (2026-09-15): 설치본 명령줄 자르기에 가짜 키 · 슬라이서 전용 키 · 옛 키 · 옛 값 · 별칭 · 무시
+목록 기준으로(canonical 줄을 맞대어) 받는 키는 오르카에만 229 · 뱀부에만 159 · 양쪽 520 이다 (뱀부 02.08.02.61).
+뱀부 02.09.01.70 과 맞대면 오르카에만 229 · 뱀부에만 213 · 양쪽 520 이다 — 2.9.1 새 키 54 개는 전부 오르카 2.4.2 가 모르는 키다 (2026-11-06).
+02.09.01.70 목록은 같은 도구로 만들었고, 그 판 소스에 맞춰 도구를 두 군데 고쳤다 — 빌드 소스에 `NozzleInventory` 추가
+(`build-option-list.sh`), 새 로그 헤더를 먼저 넣고 로그 호출 비우기(`stub/nolog.hpp`). 2.9.1 목록의 확인은 음성 대조
+33 경우 불일치 0 이다 (`bambu-kit/evals/run-gate-fixtures.sh`, 설치본 `02.09.01.70`, 2026-11-06). 아래 세 가지 확인은 앞 두 목록 기준이다.
+
+02.08.02.61 · 오르카 목록이 맞는지는 세 가지로 확인했다 (2026-09-15): 설치본 명령줄 자르기에 가짜 키 · 슬라이서 전용 키 · 옛 키 · 옛 값 · 별칭 · 무시
 목록 · 받지 않는 enum 값 14 사례를 넣은 결과와 전부 일치, 자르기 결과 3mf 의 설정 키가 전부 목록 안,
 제조사 프로파일 전체(오르카 11,554 · 뱀부 3,390)에서 받지 않는 값 0 건.
 

@@ -8,6 +8,8 @@
 # 슬라이서 전체를 빌드하지 않는다. 옵션 등록부(PrintConfig·Config)와 프리셋 기본값(Preset·PresetBundle 생성자)만
 # 컴파일하고, 실행 중 부르지 않는 기호는 링크 시점에 비워 둔다 (-undefined dynamic_lookup).
 # 새 슬라이서 버전에서 실행이 "symbol not found" 로 죽으면 그 기호를 정의한 소스를 SOURCES 에 더한다.
+# 비운 기호는 빈 주소로 남아 종료 코드 139 로 죽기도 한다 — lldb 로 멈춘 자리의 호출 대상을 보고 같은 식으로 더한다
+# (뱀부 2.9.1: NozzleInventory · 2026-11-06).
 set -euo pipefail
 
 SLICER=${1:?usage: build-option-list.sh <orca|bambu> [출력 .tsv]}
@@ -27,10 +29,10 @@ case "$SLICER" in
                     "SoftFever_VERSION=$VERSION" SLIC3R_BUILD_ID=probe BBL_INTERNAL_TESTING=0
                     ORCA_CHECK_GCODE_PLACEHOLDERS=0) ;;
   bambu)
-    REPO=bambulab/BambuStudio; TAG=v02.08.02.61; VERSION=02.08.02.61
+    REPO=bambulab/BambuStudio; TAG=v02.09.01.70; VERSION=02.09.01.70
     SPARSE=(cmake deps src/boost src/cereal src/clipper src/eigen src/fast_float src/libslic3r src/miniz
             src/nlohmann src/semver)
-    SOURCES=(PrintConfig Config Polygon clipper Polyline Preset AppConfig)
+    SOURCES=(PrintConfig Config Polygon clipper Polyline Preset AppConfig NozzleInventory)
     C_SOURCES=(src/semver/semver.c)
     VERSION_VALUES=(SLIC3R_APP_NAME=BambuStudio SLIC3R_APP_KEY=BambuStudio "SLIC3R_VERSION=$VERSION"
                     SLIC3R_BUILD_ID=probe SLIC3R_BUILD_TIME=probe SLIC3R_COMPILE_VERSION=probe

@@ -1164,9 +1164,9 @@ Phase 1.7 fit-critical 분석 결과를 process JSON 공차 보정 키로 반영
 - ✅ **허공 위 속도 — `_geometry_class` 를 재서 기록한 설정이면 `bridge_speed` 를 `20-30` 으로 쓴다** (외벽을 낮췄으면 더더욱): H2S 부모 프리셋은 `50` 이라 이 키를 안 쓰면 허공 위 구간만 그대로 남는다. 실측 2026-09-22: 외벽 `30` 인데 허공 위 7.0~7.8 m 가 전부 `50` mm/s 로 나갔다 (`surface-recipes.md` §4)
 - ✅ 멀티컬러: `enable_prime_tower`, `prime_tower_width/brim_width/flat_ironing`, `flush_into_*`
 - ✅ `enable_support`
-- ✅ **(2026-08-13) L3 감지 시**: `brim_type`, `brim_width`, `brim_object_gap` · 조건부 `initial_layer_print_height`, `initial_layer_line_width`, `initial_layer_speed` (`failure-recipes.md` §3.1)
+- ✅ **(2026-08-13) L3 감지 시**: `brim_type`, `brim_width`, `brim_object_gap` · 조건부 `initial_layer_print_height`, `initial_layer_line_width`, `initial_layer_infill_line_width`, `initial_layer_speed` (`failure-recipes.md` §3.1 — 2.9.1 부터 첫 층 채움 선폭은 `initial_layer_infill_line_width` 가 따로 맡는다)
 - ⚠️ `raft_layers` — **일반 튜닝 대상이 아니다. L3 최후 수단 게이트 전용** (`1-3`). `raft_layers > 0` 이면 `elefant_foot_compensation` 이 조용히 무효화되므로 fit-critical 부품이 있는 모델에는 켜지 마라 (`tolerance.md` §1.2 · `failure-recipes.md` §3.3)
-- ⚠️ `enable_arc_fitting` — **기본값 유지. 표면 품질 튜닝 대상이 아니다.** 품질 개선 기능이 아니라 G-code encoding 변경(직선 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 대응 카드로 제시하지 마라 (`failure-recipes.md` §1.2)
+- ⚠️ `enable_arc_fitting` — **기본값 유지(키를 쓰지 않는다). 표면 품질 튜닝 대상이 아니다.** H2S 부모값은 판마다 다르다 — `02.08.x` `1`, `02.09.01.70` `0` (`surface-recipes.md` 표). 품질 개선 기능이 아니라 G-code encoding 변경(직선 → arc 명령)이며 firmware arc segmentation 리스크가 있다. 곡면 계단(Z) 대응 카드로 제시하지 마라 (`failure-recipes.md` §1.2)
 - ❌ `adaptive_layer_height` — **넣지 마라.** option 정의 주석 처리 + legacy ignore set (`bambu-fields-baseline.md` §10.1). Phase 4.3 게이트가 잔존을 FAIL 처리한다
 - ❌ `bed_temperature`, `bed_temperature_initial_layer` — obsolete/금지. plate 온도가 필요하면 plate-specific 키만 쓰고 **사용자 확인 후에만** (`bambu-fields-baseline.md` §10.3)
 
@@ -1450,7 +1450,7 @@ random 이 아니라 **vase** 였다. 소재별 분기는 `seam-recipes.md` §4.
 `layer_height` `0.12` 1 차 / `wall_loops` 3-4 / `wall_sequence` `inner-outer-inner wall` / `reduce_crossing_wall: 1` / PA · flow calibration 전제.
 속도는 단일 값이 아니라 **유량비로 결정한다** — outer 만 적는 것은 이 회귀의 원인이었다. §유량비 게이트 + surface-recipes.md §3 표 참조.
 
-⚠️ `resolution` 하향과 `enable_arc_fitting` 끄기는 **surface-first 공통값이 아니다.** 2026-09-05 실측(opus-xero)에서 `resolution 0.008` 은 이득 근거가 없어 baseline 으로 되돌렸고, `enable_arc_fitting` 은 §튜닝 정책이 기본값 유지로 못박고 있다.
+⚠️ `resolution` 하향과 `enable_arc_fitting` 값 바꾸기는 **surface-first 공통값이 아니다.** 2026-09-05 실측(opus-xero)에서 `resolution 0.008` 은 이득 근거가 없어 baseline 으로 되돌렸고, `enable_arc_fitting` 은 §튜닝 정책이 기본값 유지(키를 쓰지 않는다)로 못박고 있다 — 부모값은 `02.08.x` `1` · `02.09.01.70` `0` 이다.
 
 ⚠️ **PETG HF 안전 경고 — surface-first 모드 적용 시 PETG HF는 AMS HT 65°C 8h 사전 건조 + continuous drying 필수**. 건조 부족 + 낮은 outer speed 조합은 stringing/blob 폭발. seam-recipes.md Finding 4 + surface-recipes.md §6.5 참조.
 
@@ -2423,7 +2423,9 @@ rm -rf "$T"
 
 **G-code 로 길이 재기 (2026-09-25 신규)** — 갭필 · 허공 위 · 다림질 길이처럼 G-code 에서 잰 수치를 근거로 쓸 때는 이 블록으로 잰다.
 세션마다 새로 짠 스크립트가 호(`G2` · `G3`)를 빠뜨렸다 — 호 길이가 빠지고, 호에서 좌표를 안 옮기면 다음 직선이 부풀어 총합이
-그럴듯하게 틀린다 (2026-09-22). 이 킷은 `enable_arc_fitting` 을 끄지 않으므로(§튜닝 정책) 곡선은 호 명령으로 나온다.
+그럴듯하게 틀린다 (2026-09-22). 이 킷은 `enable_arc_fitting` 을 쓰지 않고 부모값을 따른다(§튜닝 정책). 부모값이 `1` 인
+`02.08.x` 에서는 곡선이 호 명령으로 나오고, `0` 인 `02.09.01.70` 에서는 직선으로 나온다 — 제작자 3mf 나 사용자가 켠 설정에는
+호가 다시 섞이므로 판과 상관없이 이 블록으로 잰다.
 맨 앞의 자기 검사가 알려진 답과 다르면 실제 G-code 는 재지 않고 멈춘다.
 이 블록은 `G91` 을 XY 에만 적용하고 E 모드는 `M82` · `M83` 으로만 바꾼다. 펌웨어가 `G91` 을 E 에도 적용하는지는 확인하지 못했지만, 설치본 H2S 시작 G-code(뱀부 `02.08.02.61` · 오르카 `2.4.2`, 2026-09-26 실측)는 `G91` 이 뱀부 6 번 · 오르카 5 번 나오고 그 구간 안 E 이동이 0 이며 E 모드는 `M83` 뿐(`M82` 0 번)이라 어느 쪽으로 읽어도 재는 길이가 같다. 다른 시작 G-code 를 쓰면 다시 잰다.
 
@@ -2751,14 +2753,15 @@ defaults read /Applications/BambuStudio.app/Contents/Info.plist CFBundleShortVer
 
 | 결과 | 처리 |
 | --- | --- |
-| `02.08.02.xx` (references 확인 판 — 2026-09-05 에 앱 `02.08.02.61` 로 다시 확인. 옵션 목록 `references/option-keys/bambu-02.08.02.61.tsv`) | references 그대로 사용. 정상. |
-| 그 밖의 `02.08.x.xx` (같은 2.8 줄, `02.08.04.57` Public Beta 포함) | references 그대로 — 패치 차이는 호환 가능성 높음. 단, 쓰려는 키가 옵션 목록에 없거나 import 에서 버려지면 cross-check. |
-| `02.06.x.xx` / `02.07.x.xx` (옛 판) | ⚠️ 옵션 목록은 `02.08.02.61` 판에서 뽑았다 — 옛 판에 없는 키가 들어갈 수 있다. 사용자에게 보고하고 업그레이드를 권장한다. 이 판으로 만들면 import 검증에서 버려진 키를 확인한다. |
-| `02.09.x.xx` 이상 (미확인 신버전) | ⚠️ **`/bambu-research` 먼저** — 스키마 변경 가능성. 확인 없이 생성 금지. |
+| `02.09.01.xx` (references 확인 판 — 2026-11-06 에 앱 `02.09.01.70` 으로 확인. 옵션 목록 `references/option-keys/bambu-02.09.01.70.tsv`) | references 그대로 사용. 정상. 2.8 에서 바뀐 것: 첫 층 채움 선폭 키 분리(`failure-recipes.md` §3.1), `enable_arc_fitting` 부모값 `0`(`surface-recipes.md` 표) — `bambu-fields-baseline.md` §1 |
+| `02.08.02.xx` (앞 확인 판 — 옵션 목록 `references/option-keys/bambu-02.08.02.61.tsv` 를 남겨 둔다) | references 그대로 사용. 사용자에게 2.9.1 업그레이드를 권한다. |
+| 그 밖의 `02.08.x.xx` (같은 2.8 줄, `02.08.03.66` · `02.08.04.57` Public Beta 포함) | references 그대로 — 단 옵션 목록이 없는 판이라 Phase 4.3 키 검사가 `[미검증]` 으로 나온다. 쓰려는 키가 import 에서 버려지는지 cross-check. |
+| `02.06.x.xx` / `02.07.x.xx` (옛 판) | ⚠️ 옵션 목록은 `02.08.02.61` · `02.09.01.70` 판에서 뽑았다 — 옛 판에 없는 키가 들어갈 수 있다. 사용자에게 보고하고 업그레이드를 권장한다. 이 판으로 만들면 import 검증에서 버려진 키를 확인한다. |
+| 그 밖의 `02.09.x.xx` · `02.10.x.xx` 이상 (미확인 신버전) | ⚠️ **`/bambu-research` 먼저** — 스키마 변경 가능성. 옵션 목록을 `build-option-list.sh` 로 새로 만들기 전에는 확인 없이 생성 금지. |
 | `02.05.x.xx` 이하 (구버전) | ⚠️ JSON `"version": "2.6.0.2"`이 reject될 수 있음. 사용자에게 업그레이드 권장. |
 | 명령 실패 (`not installed`) | Studio 미설치. JSON은 만들되 import 검증 셸 명령 부분 skip. |
 
-> **릴리스 현황 (2026-09-27 조회):** 최신은 **2.8.4** (`v02.08.04.57`, 2026-09-22 · Public Beta), 최신 정식 릴리스는 **2.8.2** (`v02.08.02.61`, 2026-08-21). 이 맥 설치본은 `02.08.02.61` 이다. 출처: <https://api.github.com/repos/bambulab/BambuStudio/releases>. references 를 새 판 기준으로 올리는 것은 `/bambu-research` 소관이다.
+> **릴리스 현황 (2026-11-06 조회):** 최신 정식 릴리스는 **2.9.1** (`v02.09.01.70`, 2026-11-03 · 2.8.3 · 2.8.4 Public Beta 기능 포함). 이 맥 설치본은 `02.09.01.70` 이다. 출처: <https://github.com/bambulab/BambuStudio/releases/tag/v02.09.01.70>, <https://api.github.com/repos/bambulab/BambuStudio/releases>. references 를 새 판 기준으로 올리는 것은 `/bambu-research` 소관이다.
 
 ### 2. Memory 자동 로드
 
