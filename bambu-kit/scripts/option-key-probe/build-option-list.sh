@@ -9,7 +9,7 @@
 # 컴파일하고, 실행 중 부르지 않는 기호는 링크 시점에 비워 둔다 (-undefined dynamic_lookup).
 # 새 슬라이서 버전에서 실행이 "symbol not found" 로 죽으면 그 기호를 정의한 소스를 SOURCES 에 더한다.
 # 비운 기호는 빈 주소로 남아 종료 코드 139 로 죽기도 한다 — lldb 로 멈춘 자리의 호출 대상을 보고 같은 식으로 더한다
-# (뱀부 2.9.1: NozzleInventory · 2026-11-06).
+# (뱀부 2.9.1: PresetBundle 의 새 멤버 — 노즐 목록 소스 · 2026-11-06).
 set -euo pipefail
 
 SLICER=${1:?usage: build-option-list.sh <orca|bambu> [출력 .tsv]}
