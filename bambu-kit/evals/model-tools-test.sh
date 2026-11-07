@@ -111,7 +111,7 @@ check fillet-installs "$([ "$code" = 0 ] && [ "$seen" = 3 ] && [ ! -e "$fillet_i
 
 rm -f "$work/fillet-calls.log"
 printf '{"out_dir": "%s/out-fillet-missing", "parts": [{"name": "nope", "step": "%s/없는-부품.step"}]}\n' "$work" "$work" > "$work/job-fillet-missing.json"
-PATH="$fillet_fakes:$PATH" BAMBU_FUSION_ADDINS="$fillet_addins" bash "$fillet/fillet-job.sh" "$work/job-fillet-missing.json" > /dev/null 2> "$work/fillet-missing.err"
+PATH="$fillet_fakes:$PATH" BAMBU_FUSION_ADDINS="$fillet_addins" BAMBU_FUSION_TIMEOUT=3 bash "$fillet/fillet-job.sh" "$work/job-fillet-missing.json" > /dev/null 2> "$work/fillet-missing.err"
 code=$?
 check fillet-missing-step "$([ "$code" != 0 ] && [ ! -s "$work/fillet-calls.log" ] && grep -qF "$work/없는-부품.step" "$work/fillet-missing.err" && echo 1)" \
   "종료 $code, 가짜 명령 기록 $(cat "$work/fillet-calls.log" 2>/dev/null | wc -l | tr -d ' ') 줄"
