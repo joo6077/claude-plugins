@@ -1,0 +1,11 @@
+{
+  "autodeskProduct": "Fusion",
+  "type": "addin",
+  "id": "e8f6f4e6-80d5-4b0c-9542-8f7a77e651f4",
+  "author": "bambu-kit",
+  "description": {"": "bambu-kit fillet-job.sh 가 깔고 걷어 내는 일회용 작업 실행기 — STEP 을 열어 모서리를 둥글리고 STL · 그림을 낸다"},
+  "version": "1.0.0",
+  "runOnStartup": true,
+  "supportedOS": "windows|mac",
+  "editEnabled": true
+}
