@@ -26,6 +26,13 @@ user-invocable: true
    지원 운영체제 값은 `windows|mac` 이다. 다른 값을 쓰면 퓨전이 추가 기능을 조용히 건너뛴다.
 7. **원본 부품의 구멍 · 결합부를 새 부품에 맞출 땐 원본에서 재라.** 짐작한 나사 지름을 쓰지 마라 —
    `report.txt` 의 `HOLE` 줄이 원본의 실제 구멍 지름이다.
+8. **CadQuery 의 모서리 둥글리기 · 윤곽 굵히기가 깨지면 STEP 으로 내보내 퓨전에서 마감한다.** 복잡한 모양에서 `fillet` 이
+   `BRep_API: command not done` 으로 죽거나 고체가 깨진다(실측 2026-11-07, 옷 거는 부속 4 종). 모양만 CadQuery 로 정하고
+   `cq.exporters.export(part, "<이름>.step")` 으로 낸 뒤 `scripts/fusion-fillet/fillet-job.sh` 가 둥글리기 · STL · 그림을 맡게 한다.
+9. **부품 끝에 공을 붙이지 마라.** 끝 공은 고체를 자주 깨뜨리고 사용자가 「끝 공은 앞으로 하지마」 라고 했다.
+   끝은 둥근 마감(굵기 그대로 반원)이나 살짝 들린 갈고리로 끝낸다.
+10. **확인 그림에 부품 이름을 넣는다.** 비슷한 걸이를 여러 개 보이면 사용자가 「어떤게 헤드셋이고 어떤게 가방임?」 하고 묻는다.
+    그림 파일 이름과 그림 제목에 부품 이름을 넣고, 여러 장을 한 판에 모으면 칸마다 이름을 적는다.
 
 ## Process
 
@@ -39,7 +46,8 @@ bash "<이 스킬 폴더>/scripts/ensure-cadquery.sh"
 
 ### 2. 새 부품 그리기 (CadQuery)
 
-1. 결합 치수(막대 지름 · 구멍 · 벽 두께)를 먼저 확정한다. 원본과 맞물리면 3 단계 보고에서 잰 값을 쓴다.
+0. `references/design-language.md` 와 `references/charlie-design.md` 를 읽는다. 사용자가 다른 스타일을 말하지 않으면 「공통 결정 10가지」(색 하나 · 부품마다 기본 도형 하나 · 긴 직선 + 꺾임 하나 · 또렷한 이음 · 작은 모서리 · 줄 맞춤)로 그린다.
+1. 결합 치수(막대 지름 · 구멍 · 벽 두께)를 먼저 확정한다. 원본과 맞물리면 4 단계 보고에서 잰 값을 쓴다.
 2. 부품 코드를 `.py` 하나로 쓰고, 바뀔 치수는 인자로 받는다. 결과는 `cq.exporters.export(part, "<이름>.stl")`.
 3. 그림으로 모양을 확인한다. 각도를 바꿔 두세 장 찍는다.
 
@@ -50,7 +58,36 @@ bash "<이 스킬 폴더>/scripts/ensure-cadquery.sh"
 
 4. 그림과 크기(그림 제목에 나온다)를 사용자에게 보이고 고칠 점을 받는다. 코드와 STL 은 사용자 작업 폴더에 둔다.
 
-### 3. 원본 f3d 치수 바꾸기 (퓨전 360)
+### 3. 마감 — 퓨전 둥글리기 · 그림
+
+CadQuery 로 모양이 정해졌는데 둥글리기가 깨지거나 그림이 거칠면, STEP 으로 내보내 퓨전 추가 기능이 마감하게 한다.
+
+1. 부품마다 `cq.exporters.export(part, "<이름>.step")` 으로 둥글리기 없는 STEP 을 낸다.
+2. 작업 파일을 쓴다. `radii` 는 큰 값부터 시도할 둥글기(mm)다 — 모든 모서리를 한 번에 둥글리다 실패하면 다음 값, 끝까지 실패하면 모서리를 하나씩 시도한다.
+
+   ```json
+   {"out_dir": "/abs/path/fusion-out", "parts": [{"name": "bag_hook", "step": "/abs/path/bag_hook.step", "radii": [3, 2.5, 2, 1.5, 1]}]}
+   ```
+
+3. 사용자에게 퓨전이 한 번 꺼졌다 켜진다고 알리고 돌린다.
+
+   ```bash
+   bash "<이 스킬 폴더>/scripts/fusion-fillet/fillet-job.sh" job.json
+   ```
+
+4. 결과를 읽는다. `out_dir` 에 부품마다 `<이름>.stl` 과 그림 네 장(`<이름>_iso` · `_front` · `_side` · `_top` .png)이 생긴다. `fillet-job.log` 의 `PART <이름> fillet=<값>` 이 쓰인 둥글기다 — 숫자면 한 번에, `하나씩 성공/전체` 면 모서리별로 둥글렸다. 하나씩일 때 실패 수가 많아도 대개 이미 매끈하게 이어진 모서리라 그림으로 판정한다.
+5. 그림 네 장을 사용자에게 보인다. 퓨전 화면 그림이 `render.py` 그림보다 면 이음이 정확하다.
+6. 종료 코드별로 다음을 한다.
+
+   | 코드 | 뜻 | 다음 |
+   | --- | --- | --- |
+   | 0 | 끝남 | 위 4 번처럼 결과를 읽는다 |
+   | 1 | 추가 기능이 실패 | 출력된 `fillet-job.log` 의 오류를 읽고 STEP · 작업 파일을 고친다 |
+   | 2 | 작업 파일 · 첫 STEP 경로 오류 | 경로를 고친다. 퓨전은 건드리지 않았다 |
+   | 3 | 시간 초과(`BAMBU_FUSION_TIMEOUT`, 기본 600 초) | 퓨전이 로그인 창에서 멈췄는지 사용자에게 묻는다 |
+   | 4 | 퓨전이 안 꺼짐 | 저장 안 한 문서를 사용자가 정리하고 퓨전을 직접 끈 뒤 다시 돌린다 |
+
+### 4. 원본 f3d 치수 바꾸기 (퓨전 360)
 
 1. 작업 파일을 쓴다.
 
@@ -76,14 +113,17 @@ bash "<이 스킬 폴더>/scripts/ensure-cadquery.sh"
    | 3 | 시간 초과(`BAMBU_FUSION_TIMEOUT`, 기본 600 초) | 퓨전이 로그인 창에서 멈췄는지 사용자에게 묻는다 |
    | 4 | 퓨전이 안 꺼짐 | 저장 안 한 문서를 사용자가 정리하고 퓨전을 직접 끈 뒤 다시 돌린다 |
 
-### 4. 출력 설정으로 넘기기
+### 5. 출력 설정으로 넘기기
 
 STL 이 확정되면 `/bambu-print-profile` 로 출력 설정을 만든다. 부품 이름 · 크기 · 결합 치수(공차가 필요한 구멍)를 같이 넘긴다.
 
 ## References
 
+- `references/charlie-design.md` — Charlie Design 371개 분석. 3D 출력용 굵기(폭 20~40 · 벽 5~8) · 한 윤곽 밀어 올리기 · C 자 집게 · 출력 방향
+- `references/design-language.md` — 기본 디자인 스타일. 제품 사진 33장 분석 · 공통 결정 10가지 · CadQuery 그리는 법 (사진은 `references/design-refs/`)
 - `scripts/ensure-cadquery.sh` — CadQuery · matplotlib · numpy-stl 확인 · 설치
 - `scripts/render.py` — STL 을 음영 그림 PNG 로
 - `scripts/fusion-job.sh` — 작업 파일대로 퓨전 추가 기능을 돌리고 걷어 낸다
 - `scripts/fusion-addin/` — 퓨전 추가 기능 본보기 (`fusion-job.sh` 가 복사해 쓴다)
+- `scripts/fusion-fillet/fillet-job.sh` — STEP 을 퓨전으로 열어 둥글리고 STL · 그림 네 장을 낸다 (`addin/` 을 복사해 쓴다)
 - 시험: `bambu-kit/evals/model-tools-test.sh` (`--fusion` 을 주면 진짜 퓨전으로 한 번 돈다)

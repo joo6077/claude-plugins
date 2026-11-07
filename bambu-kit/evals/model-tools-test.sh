@@ -2,6 +2,7 @@
 # bambu-model 스크립트(ensure-cadquery.sh · render.py · fusion-job.sh)가 약속한 대로 도는지 본다
 # 퓨전 명령(open · pkill · pgrep)과 python3 는 임시 폴더의 가짜로 바꿔 진짜 퓨전 · 진짜 파이썬 설치를 건드리지 않는다
 # --fusion 을 주면 진짜 퓨전을 한 번 껐다 켜서 옷걸이 원본을 32 mm 로 다시 뽑는다 (계약 bambu-kit-modeling-tools 스크립트-03)
+# 마감 시험(fillet-*)은 fusion-fillet/fillet-job.sh 를 자기 가짜 명령으로 잰다. --fusion 이면 fillet-real 이 진짜 퓨전으로 정육면체를 둥글린다
 # 종료 코드: 0 통과 · 1 실패 · 2 준비 실패
 set -uo pipefail
 
@@ -87,6 +88,59 @@ elapsed=$((SECONDS - started))
 check fusion-timeout "$([ "$code" != 0 ] && [ "$elapsed" -le 10 ] && grep -q '시간 초과' "$work/timeout.out" && [ ! -e "$work/addins/BambuKitFusionJob" ] && echo 1)" \
   "종료 $code, ${elapsed} 초, 추가 기능 남음=$([ -e "$work/addins/BambuKitFusionJob" ] && echo 예 || echo 아니오)"
 
+# 마감(fillet-job.sh) 시험 — 위 퓨전 시험과 섞이지 않게 자기 가짜 명령 폴더 · 기록 · AddIns 를 쓴다
+fillet="$scripts/fusion-fillet"
+fillet_fakes="$work/fillet-bin"
+fillet_addins="$work/fillet-addins"
+fillet_installed="$fillet_addins/BambuKitFusionFillet"
+for tool in pkill pgrep; do
+  fake_bin "$fillet_fakes" "$tool" "echo $tool \"\$*\" >> '$work/fillet-calls.log'; exit 1"
+done
+# 가짜 open: 불린 순간 추가 기능 세 파일이 깔려 있는지 적고, 퓨전 대신 끝 표시를 남긴다
+fake_bin "$fillet_fakes" open "echo open \"\$*\" >> '$work/fillet-calls.log'
+for f in BambuKitFusionFillet.py BambuKitFusionFillet.manifest job-path.txt; do [ -f '$fillet_installed'/\$f ] && echo \"있음 \$f\" >> '$work/fillet-installed.log'; done
+echo '00:00:00 DONE' >> '$work/out-fillet/fillet-job.log'"
+: > "$work/part.step"
+printf '{"out_dir": "%s/out-fillet", "parts": [{"name": "part", "step": "%s/part.step"}]}\n' "$work" "$work" > "$work/job-fillet.json"
+PATH="$fillet_fakes:$PATH" BAMBU_FUSION_ADDINS="$fillet_addins" BAMBU_FUSION_TIMEOUT=3 \
+  bash "$fillet/fillet-job.sh" "$work/job-fillet.json" > "$work/fillet-installs.out" 2>&1
+code=$?
+seen=$(grep -c '^있음 ' "$work/fillet-installed.log" 2>/dev/null || echo 0)
+check fillet-installs "$([ "$code" = 0 ] && [ "$seen" = 3 ] && [ ! -e "$fillet_installed" ] && echo 1)" \
+  "종료 $code, open 때 깔린 파일 $seen/3, 끝난 뒤 남음=$([ -e "$fillet_installed" ] && echo 예 || echo 아니오)"
+
+rm -f "$work/fillet-calls.log"
+printf '{"out_dir": "%s/out-fillet-missing", "parts": [{"name": "nope", "step": "%s/없는-부품.step"}]}\n' "$work" "$work" > "$work/job-fillet-missing.json"
+PATH="$fillet_fakes:$PATH" BAMBU_FUSION_ADDINS="$fillet_addins" bash "$fillet/fillet-job.sh" "$work/job-fillet-missing.json" > /dev/null 2> "$work/fillet-missing.err"
+code=$?
+check fillet-missing-step "$([ "$code" != 0 ] && [ ! -s "$work/fillet-calls.log" ] && grep -qF "$work/없는-부품.step" "$work/fillet-missing.err" && echo 1)" \
+  "종료 $code, 가짜 명령 기록 $(cat "$work/fillet-calls.log" 2>/dev/null | wc -l | tr -d ' ') 줄"
+
+# 시간 초과: open 이 끝 표시를 안 남기는 가짜 폴더
+fillet_silent="$work/fillet-silent-bin"
+for tool in open pkill pgrep; do
+  fake_bin "$fillet_silent" "$tool" "exit 1"
+done
+printf '{"out_dir": "%s/out-fillet-timeout", "parts": [{"name": "part", "step": "%s/part.step"}]}\n' "$work" "$work" > "$work/job-fillet-timeout.json"
+started=$SECONDS
+PATH="$fillet_silent:$PATH" BAMBU_FUSION_ADDINS="$fillet_addins" BAMBU_FUSION_TIMEOUT=3 \
+  bash "$fillet/fillet-job.sh" "$work/job-fillet-timeout.json" > "$work/fillet-timeout.out" 2>&1
+code=$?
+elapsed=$((SECONDS - started))
+check fillet-timeout "$([ "$code" != 0 ] && [ "$elapsed" -le 10 ] && grep -q '시간 초과' "$work/fillet-timeout.out" && [ ! -e "$fillet_installed" ] && echo 1)" \
+  "종료 $code, ${elapsed} 초, 추가 기능 남음=$([ -e "$fillet_installed" ] && echo 예 || echo 아니오)"
+
+# 걷어 내는 trap 줄을 뺀 사본은 같은 상황에서 추가 기능을 남겨야 한다 — 위 fillet-timeout 이 trap 을 재는지 본다
+nc="$work/fillet-nc"
+mkdir -p "$nc"
+cp -R "$fillet/addin" "$nc/addin"
+grep -q "^trap 'rm -rf \"\$installed\"' EXIT$" "$fillet/fillet-job.sh" || { echo "음성 대조 사본을 못 만든다 — trap 줄 모양이 바뀌었다" >&2; exit 2; }
+grep -v "^trap 'rm -rf \"\$installed\"' EXIT$" "$fillet/fillet-job.sh" > "$nc/fillet-job.sh"
+PATH="$fillet_silent:$PATH" BAMBU_FUSION_ADDINS="$fillet_addins" BAMBU_FUSION_TIMEOUT=3 \
+  bash "$nc/fillet-job.sh" "$work/job-fillet-timeout.json" > /dev/null 2>&1
+check fillet-negative-control "$([ -e "$fillet_installed" ] && echo 1)" "trap 을 빼도 추가 기능이 안 남는다 — fillet-timeout 이 걷어 내기를 못 잰다"
+rm -rf "$fillet_installed"
+
 if [ "${1:-}" = --fusion ]; then
   base="$HOME/Hub/60_3D Print/Settings/modular-coat-hanger"
   addins="$HOME/Library/Application Support/Autodesk/Autodesk Fusion 360/API/AddIns"
@@ -107,6 +161,28 @@ PY
   left=$([ -e "$addins/BambuKitFusionJob" ] && echo 1 || echo 0)
   check fusion-real "$([ "$code" = 0 ] && [ "$stl_count" -ge 1 ] && [ "$holes" -ge 1 ] && [ "${same%% *}" = 1 ] && [ "$left" = 0 ] && echo 1)" \
     "종료 $code, STL $stl_count 개, 막대 구멍 $holes 줄, 다리 받침 차이 ${same:-비교 실패}, 추가 기능 남음 $left"
+
+  # 마감: 20 mm 정육면체 STEP 을 퓨전이 둥글리면 삼각형이 12 개보다 많고 부피가 8000 mm³ 보다 작다
+  (cd "$work" && "$real_python" -c "import cadquery as cq; cq.exporters.export(cq.Workplane().box(20, 20, 20), 'cube20.step')") \
+    || { echo "정육면체 STEP 을 못 만든다" >&2; exit 2; }
+  printf '{"out_dir": "%s/out-fillet-real", "parts": [{"name": "cube20", "step": "%s/cube20.step", "radii": [3, 2, 1]}]}\n' "$work" "$work" > "$work/job-fillet-real.json"
+  bash "$fillet/fillet-job.sh" "$work/job-fillet-real.json"
+  code=$?
+  out="$work/out-fillet-real"
+  mesh_check=$("$real_python" - "$out/cube20.stl" <<'PY' 2>/dev/null
+import sys
+from stl import mesh
+part = mesh.Mesh.from_file(sys.argv[1])
+volume = abs(part.get_mass_properties()[0])
+print(1 if len(part.vectors) > 12 and 0 < volume < 8000 else 0, len(part.vectors), f"{volume:.0f}")
+PY
+)
+  pictures=0
+  for view in iso front side top; do [ -s "$out/cube20_$view.png" ] && pictures=$((pictures + 1)); done
+  part_line=$(grep -cE 'PART cube20 fillet=[0-9]' "$out/fillet-job.log" 2>/dev/null || echo 0)
+  left=$([ -e "$addins/BambuKitFusionFillet" ] && echo 1 || echo 0)
+  check fillet-real "$([ "$code" = 0 ] && [ "${mesh_check%% *}" = 1 ] && [ "$pictures" = 4 ] && [ "$part_line" -ge 1 ] && [ "$left" = 0 ] && echo 1)" \
+    "종료 $code, 삼각형 · 부피 ${mesh_check:-읽기 실패}, 그림 $pictures/4, PART 줄 $part_line, 추가 기능 남음 $left"
 fi
 
 [ "$fails" = 0 ]
