@@ -146,7 +146,7 @@ bash scripts/release.sh howto-kit patch
 - **Kaizen**: contract-kaizen, evaluator-kaizen, harness-kaizen으로 리서치 기반 지속 개선
 
 <!-- AUTO:skills-harness -->
-**스킬 9종** — `contract-kaizen`, `create-agent`, `create-skill`, `evaluator-kaizen`, `harness-kaizen`, `init`, `refactor-checklist`, `sprint`, `sprint-contract` · **에이전트 1종** — `qa-evaluator`
+**스킬 10종** — `contract-kaizen`, `create-agent`, `create-skill`, `evaluator-kaizen`, `harness-kaizen`, `init`, `perf-compare`, `refactor-checklist`, `sprint`, `sprint-contract` · **에이전트 1종** — `qa-evaluator`
 <!-- /AUTO:skills-harness -->
 
 **사용 시작:**
@@ -165,7 +165,7 @@ Flutter 프로젝트 전용 개발 워크플로우 스킬.
 - harness 플러그인과 연동 (`.harness/project.yaml`)
 
 <!-- AUTO:skills-flutter-toolkit -->
-**스킬 21종** — `flutter-api`, `flutter-audit`, `flutter-build`, `flutter-catalog`, `flutter-error`, `flutter-extract`, `flutter-feature`, `flutter-hooks`, `flutter-kaizen`, `flutter-l10n`, `flutter-preflight`, `flutter-provider`, `flutter-responsive`, `flutter-run`, `flutter-scenario-report`, `flutter-screen`, `flutter-skeleton`, `flutter-test`, `flutter-transition`, `flutter-ui-verify`, `flutter-widget` · **에이전트 1종** — `widget-inspector`
+**스킬 22종** — `flutter-api`, `flutter-audit`, `flutter-build`, `flutter-catalog`, `flutter-error`, `flutter-extract`, `flutter-feature`, `flutter-hooks`, `flutter-kaizen`, `flutter-l10n`, `flutter-perf-probe`, `flutter-preflight`, `flutter-provider`, `flutter-responsive`, `flutter-run`, `flutter-scenario-report`, `flutter-screen`, `flutter-skeleton`, `flutter-test`, `flutter-transition`, `flutter-ui-verify`, `flutter-widget` · **에이전트 1종** — `widget-inspector`
 <!-- /AUTO:skills-flutter-toolkit -->
 
 > 자세한 내용은 [flutter-toolkit/README.md](./flutter-toolkit/README.md) 참조.

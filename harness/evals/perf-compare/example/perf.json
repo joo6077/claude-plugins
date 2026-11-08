@@ -1,0 +1,45 @@
+{
+  "id": "PERF-001",
+  "title": "회의록 목록을 가볍게 받으면 랜딩 동시 호출과 전송량이 줄어든다",
+  "question": "서버가 lite=1 요청에 전문 4필드를 빼서 돌려주면 앱 시작 프리로드와 랜딩 API 16개가 빨라지고 전송 비용이 주는가",
+  "meta": {
+    "date": "2026-11-08 15:10",
+    "device": "iPhone 17 Pro 시뮬레이터 (iOS 26.2) · 로컬 Tomcat 9 + 운영 DB",
+    "a": {"label": "옛 서버", "ref": "origin/main bb9b0dd1"},
+    "b": {"label": "새 서버", "ref": "origin/main bb9b0dd1 + 수정 6개"}
+  },
+  "fixed": [
+    "같은 앱 디버그 빌드 (MODE=local)",
+    "같은 계정 · 같은 운영 DB",
+    "서버 WAR 만 교체"
+  ],
+  "order": "blocked",
+  "metrics": [
+    {"key": "landing_ms", "name": "랜딩 프리로드", "unit": "ms", "better": "lower", "role": "target", "warmup": 1,
+     "source": "앱 로그 [BOOT] landing_start → landing_done",
+     "a": [2410, 1869, 1602, 1783], "b": [1990, 1356, 1302, 1438]},
+    {"key": "burst_ms", "name": "랜딩 API 16개 동시 호출", "unit": "ms", "better": "lower", "role": "target", "warmup": 1,
+     "source": "curl 16개 병렬, 마지막 응답까지",
+     "a": [1650, 1208, 1207, 1026, 980, 1092], "b": [1120, 610, 616, 689, 703, 638]},
+    {"key": "landing_bytes", "name": "랜딩 응답 전송량", "unit": "bytes", "better": "lower", "role": "target",
+     "source": "curl size_download 16개 합",
+     "a": [5309776, 5309776, 5309776], "b": [532775, 532775, 532775]},
+    {"key": "main_ms", "name": "실행 → main()", "unit": "ms", "better": "lower", "role": "control", "warmup": 1,
+     "source": "앱 로그 [BOOT] process_start → main",
+     "a": [1300, 1002, 990, 1010], "b": [1290, 1018, 1003, 1020]}
+  ],
+  "equivalence": [
+    {"name": "teams-cust 5종 · todo 3종 · team-card · meet 전체", "same": true, "seen": "운영 응답과 JSON 비교 10건 동일"},
+    {"name": "meet lite 2종", "same": true, "seen": "전문 4필드만 null, 나머지 필드 동일 — 의도한 차이"}
+  ],
+  "budgets": [
+    {"metric": "landing_ms", "max": 1500, "why": "로딩 화면이 1.5초를 넘기면 이탈이 늘어난다는 팀 기준"}
+  ],
+  "cost": {
+    "currency": "USD",
+    "items": [
+      {"category": "network", "name": "랜딩 응답 전송", "metric": "landing_bytes", "scale": 1e-9, "volume": 90000,
+       "volume_source": "앱 시작 3,000회/일 × 30일 (가정)", "price": 0.09, "price_source": "egress 0.09 USD/GB (예시 단가)"}
+    ]
+  }
+}
