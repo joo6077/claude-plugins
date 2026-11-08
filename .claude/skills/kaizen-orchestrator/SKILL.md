@@ -531,6 +531,14 @@ exit_codes: [0, 2]
 
 > 플러그인 설명: [v0.3.1 · 2026-09-30] 사람이 손으로 하는 절차를 어느 화면 → 어느 메뉴 → 어느 항목 → 무슨 값 → 어떻게 확인까지 끊지 않고 안내하는 스택·도메인 무관 킷 — 대화 즉답(/howto) · 문서화(/howto-doc) · 기존 문서 재측정(/howto-audit). 출처 등급제(관측/문서/추정/미확인)로 '검증 불가 → 침묵'을 대체하고, 결정론 게이트 G1~G6 이 입도(G5 말단 액션 · G6 값·확인·분기·등급)를 기계 판정한다
 
+### Step 18: Phase 18 — perf-kit 카이젠
+
+**범위:** `perf-kit/skills/*/SKILL.md`, `perf-kit/skills/*/references/`, `perf-kit/evals/`
+
+공통 실행 패턴에 따라 `/perf-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 perf-kit 전 스킬을 전수 감사한다. perf-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
+
+> 플러그인 설명: [v0.1.0 · 2026-11-08] 스택 무관 성능 · 효율 · 비용 비교 킷 (perf-compare — 통계 판정 · 월 비용 환산 · 기기 부담 예산 · 스택별 측정 문서)
+
 <!-- /sync-orchestrator.py 자동 생성 끝. 다음 사이클 전에 marketplace.json 을 수정했으면 다시 실행하세요. -->
 <!-- AUTO:plugin_phases:end -->
 
