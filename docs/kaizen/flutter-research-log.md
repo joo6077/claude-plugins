@@ -201,3 +201,45 @@ insights 2026-06-04 Friction #3(과잉설계)의 Flutter 도메인 발현 대응
 ### PR
 
 - <https://github.com/joo6077/claude-plugins/pull/2>
+
+---
+
+## 2026-11-08
+
+**트리거:** manual (대상 한정 — 신규 스킬 `flutter-toolkit/skills/flutter-perf-probe`, 브랜치 `feat/perf-compare`)
+
+<!-- markdownlint-disable-next-line MD024 -->
+### 조사한 소스
+
+| # | 제목 | URL | 유형 | 신뢰도 | 결과 |
+| --- | ------ | ----- | ------ | -------- | ------ |
+| 1 | Measure performance with an integration test | <https://docs.flutter.dev/cookbook/testing/integration/profiling> | 공식 | 높음 | 채택 |
+| 2 | TimelineSummary.summaryJson · kBuildBudget | <https://api.flutter.dev/flutter/flutter_driver/TimelineSummary/summaryJson.html> | 공식 | 높음 | 채택 |
+| 3 | flutter_tools tracing.dart (start_up_info.json) | <https://flutter.googlesource.com/mirrors/flutter/+/refs/heads/master/packages/flutter_tools/lib/src/tracing.dart> | 공식 소스 | 높음 | 채택 |
+| 4 | App startup time (TTID · am start -S -W) | <https://developer.android.com/topic/performance/vitals/launch-time> | 공식 | 높음 | 채택 |
+| 5 | Frozen frames | <https://developer.android.com/topic/performance/vitals/frozen> | 공식 | 높음 | 채택 (700ms 확인) |
+| 6 | Thermal mitigation | <https://source.android.com/docs/core/power/thermal-mitigation> | 공식 | 높음 | 채택 |
+| 7 | dumpsys | <https://developer.android.com/tools/dumpsys> | 공식 | 높음 | 채택 |
+| 8 | Battery Historian 설정 · 전력 테스트 | <https://developer.android.com/topic/performance/power/setup-battery-historian> · <https://developer.android.com/topic/performance/power/test-power> | 공식 | 높음 | 채택 |
+| 9 | ProcessInfo.ThermalState | <https://developer.apple.com/documentation/foundation/processinfo/thermalstate> | 공식 | 높음 | 폐기 — 본문이 스크립트로 그려져 원문 대조 실패 (GATE 2) |
+
+<!-- markdownlint-disable-next-line MD024 -->
+### 채택한 인사이트 (사실 정정 — unit 계수 제외 대상 + 배터리 경로 1 unit)
+
+- `timeToFirstFrameMicros` 는 첫 프레임 빌드 시각(옛 벤치마크 호환), 실제 그려진 시각은 `timeToFirstFrameRasterizedMicros` — 시작 시간 지표를 후자로 교체
+- `missed_*_budget_count` 는 `kBuildBudget` 16ms 고정: "does not take into account the real device frame rate" — 120Hz 재계산 안내
+- cookbook: 실기기 · 에뮬레이터는 `--no-dds`, 결과 파일 이름이 `reportKey` 와 다를 수 있어 `ls build/*.timeline_summary.json`
+- Android TTID 는 `am start -S -W` 의 `TotalTime` · logcat `Displayed`
+- 열 상태 0~6 확인, `dumpsys thermalservice` 출력 형식은 공식 문서에 없음 → `PowerManager.getCurrentThermalStatus()` 를 기본 경로로
+- `batterystats --reset` · `battery unplug` · `battery reset` 은 출처가 두 문서로 나뉨, "Estimated power use" 문구는 공식 문서에 없음 → 정정. Battery Historian 관리 중단 안내 → Power Profiler · Macrobenchmark power metric 우선
+- iOS `thermalState` 원시값 0~3 은 미확인 → 단계 이름으로 기록하도록 정정
+
+### 검증 증거
+
+- `scripts/validate-plugin.py flutter-toolkit` → `Exit: 0`
+- 실기기 실행은 하지 않았다 — 측정 명령 자체의 실행 검증은 `[미검증]` (막는 것: 이 세션에 연결된 실기기 없음 · 시도한 우회: 공식 문서 원문 대조 · 통제 불가 사유: 실기기 · profile 빌드 필요 · 재검증 명령: 실기기에서 flutter-metrics.md 의 각 블록 1 회)
+
+<!-- markdownlint-disable-next-line MD024 -->
+### PR
+
+- 미생성 — 사용자 지시로 커밋 · 푸시 보류

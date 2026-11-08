@@ -17,6 +17,7 @@ Flutter 프로젝트 공통 개발 스킬 모음. 프로젝트의 아키텍처, 
 | `flutter-hooks` | Flutter Hooks 패턴 가이드. |
 | `flutter-kaizen` | Flutter 스킬을 학술 논문·공식 문서·커뮤니티 리서치·skills.sh 마켓플레이스 기반으로 점진적으로 개선하는 카이젠 스킬. |
 | `flutter-l10n` | i18n 파일에 번역 문자열을 추가/수정하고 codegen을 재생성한다. |
+| `flutter-perf-probe` | Flutter 앱의 콜드 스타트 · 프레임 드랍 · 메모리 · CPU · 발열 · 배터리 · 화면당 전송량을 두 버전에서 반복 측정해 원시 표본을 모으고, harness 의 perf-compare 기록 형식(perf.json)으로 넘겨 통계 판정 · 비용 환산 · 예산 대조를 받는다. |
 | `flutter-preflight` | Pre-commit quality gate. |
 | `flutter-provider` | Riverpod Notifier + State 클래스를 생성한다. |
 | `flutter-responsive` | 화면에 반응형 레이아웃을 적용하거나 기존 화면을 반응형으로 전환한다. |
