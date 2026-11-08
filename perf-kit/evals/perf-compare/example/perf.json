@@ -21,7 +21,7 @@
     {"key": "burst_ms", "name": "랜딩 API 16개 동시 호출", "unit": "ms", "better": "lower", "role": "target", "warmup": 1,
      "source": "curl 16개 병렬, 마지막 응답까지",
      "a": [1650, 1208, 1207, 1026, 980, 1092], "b": [1120, 610, 616, 689, 703, 638]},
-    {"key": "landing_bytes", "name": "랜딩 응답 전송량", "unit": "bytes", "better": "lower", "role": "target",
+    {"key": "landing_bytes", "name": "랜딩 응답 전송량", "unit": "bytes", "better": "lower", "role": "target", "deterministic": true,
      "source": "curl size_download 16개 합",
      "a": [5309776, 5309776, 5309776], "b": [532775, 532775, 532775]},
     {"key": "main_ms", "name": "실행 → main()", "unit": "ms", "better": "lower", "role": "control", "warmup": 1,
