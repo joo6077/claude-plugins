@@ -63,9 +63,9 @@ class MannWhitney(unittest.TestCase):
         self.assertEqual(u, 1)
         self.assertAlmostEqual(p, 4 / 20)
 
-    def test_scipy_documented_example(self):
+    def test_documented_example(self):
         # SciPy mannwhitneyu 문서 예제: males 대 females 양측 exact → U1 = 17, p = 0.1111…
-        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html
+        # 문서 주소는 references/experiment-design.md §출처 에 있다
         u, p, _ = pc.mann_whitney([19, 22, 16, 29, 24], [20, 11, 17, 12])
         self.assertEqual(u, 17)
         self.assertAlmostEqual(p, 0.1111111111111111)
@@ -77,11 +77,17 @@ class MannWhitney(unittest.TestCase):
         self.assertEqual(u, 1)
         self.assertAlmostEqual(p, 6 / 20)
 
+    def test_ties_with_tiny_side_stay_exact(self):
+        # [1,2] 대 [1]×19 — a 가 2 를 가지는 경우는 210 가지 중 20 가지라 p = 가장 작은 p = 20/210
+        _, p, p_floor = pc.mann_whitney([1, 2], [1] * 19)
+        self.assertAlmostEqual(p, 20 / 210)
+        self.assertAlmostEqual(p_floor, 20 / 210)
+
     def test_ties_all_equal(self):
         _, p, _ = pc.mann_whitney([5, 5, 5], [5, 5, 5])
         self.assertAlmostEqual(p, 1.0)
 
-    def test_large_sample_uses_normal(self):
+    def test_large_separated_sample(self):
         a = list(range(0, 15))
         b = list(range(100, 115))
         _, p, floor = pc.mann_whitney(a, b)
@@ -113,11 +119,45 @@ class Judge(unittest.TestCase):
         self.assertEqual(r["verdict"], pc.VERDICT_SMALL)
 
     def test_deterministic_values(self):
-        # 표본이 2 개씩이어도 양쪽 편차가 0 이면 결정값이라 확정 판정한다
-        r = pc.judge(metric([500, 500], [100, 100]), 0.05)
+        # 결정값이라고 표시한 지표는 표본이 2 개씩이어도 검정 없이 확정 판정한다
+        r = pc.judge(metric([500, 500], [100, 100], deterministic=True), 0.05)
         self.assertEqual(r["verdict"], pc.VERDICT_BETTER)
-        r = pc.judge(metric([500, 500], [500, 500]), 0.05)
+        r = pc.judge(metric([500, 500], [500, 500], deterministic=True), 0.05)
         self.assertEqual(r["verdict"], pc.VERDICT_NONE)
+
+    def test_repeated_values_without_flag_are_tested(self):
+        # 표시가 없으면 값이 같아도 검정한다 — [100,100] 대 [90,90] 은 순열 6 가지 중 극단 2 → p = 1/3
+        r = pc.judge(metric([100, 100], [90, 90]), 0.05)
+        self.assertAlmostEqual(r["p"], 1 / 3)
+        self.assertEqual(r["verdict"], pc.VERDICT_SHORT)
+
+    def test_negative_values_keep_direction(self):
+        # 중앙값 -10.1 → -20.1 은 낮을수록 좋은 지표에서 개선이다. 변화율은 -10 / 10.1
+        a, b = [-10, -10.5, -9.8, -10.2, -10.1], [-20, -20.5, -19.8, -20.2, -20.1]
+        r = pc.judge(metric(a, b), 0.05)
+        self.assertEqual(r["verdict"], pc.VERDICT_BETTER)
+        self.assertAlmostEqual(r["delta_pct"], -10 / 10.1 * 100)
+        r = pc.judge(metric(a, [-5, -5.5, -4.8, -5.2, -5.1], better="higher"), 0.05)
+        self.assertEqual(r["verdict"], pc.VERDICT_BETTER)
+
+    def test_equal_medians_are_small_even_with_zero_min_effect(self):
+        # 분포는 갈려도 중앙값이 5 → 5 면 방향을 정할 수 없다
+        a, b = [1] * 6 + [5] * 7, [5] * 7 + [9] * 6
+        for better in ("lower", "higher"):
+            r = pc.judge(metric(a, b, better=better, min_effect_pct=0), 0.05)
+            self.assertLess(r["p"], 0.05)
+            self.assertEqual(r["verdict"], pc.VERDICT_SMALL)
+
+    def test_paired_signed_rank(self):
+        # 여섯 짝이 모두 정확히 -10% — 부호가 전부 같을 확률은 2 / 2^6 = 0.03125
+        a = [100, 1000, 200, 2000, 300, 3000]
+        b = [x * 0.9 for x in a]
+        r = pc.judge(metric(a, b), 0.05, paired=True)
+        self.assertAlmostEqual(r["p"], 2 / 64)
+        self.assertAlmostEqual(r["delta_pct"], -10)
+        self.assertEqual(r["verdict"], pc.VERDICT_BETTER)
+        # 같은 수치를 독립 표본으로 보면 갈리지 않는다
+        self.assertEqual(pc.judge(metric(a, b), 0.05)["verdict"], pc.VERDICT_NONE)
 
     def test_no_difference(self):
         r = pc.judge(metric([1, 3, 5, 7, 9], [2, 4, 6, 8, 10]), 0.05)
@@ -144,6 +184,44 @@ class Analyze(unittest.TestCase):
         self.assertTrue(any("대조 지표" in c and "표본 부족" in c for c in an["caveats"]))
         self.assertTrue(any("blocked" in c for c in an["caveats"]))
         self.assertFalse(any("한 방향" in c for c in an["caveats"]))
+
+    def test_cost_uses_mean(self):
+        # 요청당 사용량 [1,1,100] 의 평균은 34 — 한 달 3 번이면 102. 중앙값(1)으로 치면 3 이 나온다
+        rec = copy.deepcopy(self.rec)
+        rec["metrics"].append(metric([1, 1, 100], [2, 2, 2], key="u"))
+        rec["cost"]["items"] = [{"category": "network", "name": "전송", "metric": "u", "scale": 1, "volume": 3,
+                                 "volume_source": "가정 (가정)", "price": 1, "price_source": "예시 (예시 단가)"}]
+        c = pc.analyze(rec)["costs"][0]
+        self.assertAlmostEqual(c["a"], 102)
+        self.assertAlmostEqual(c["b"], 6)
+
+    def test_budget_worst(self):
+        # [0,0,0,2,3] 은 중앙값 0 이라 상한 0 을 지키지만, 최악값 3 으로 보면 넘는다
+        rec = copy.deepcopy(self.rec)
+        rec["metrics"].append(metric([0, 1, 0, 2, 1], [0, 0, 0, 2, 3], key="frozen"))
+        rec["budgets"] = [{"metric": "frozen", "max": 0, "why": "멈춤 0"},
+                          {"metric": "frozen", "max": 0, "stat": "worst", "why": "멈춤 0"}]
+        median_b, worst_b = (b["ok"]["b"] for b in pc.analyze(rec)["budgets"])
+        self.assertTrue(median_b)
+        self.assertFalse(worst_b)
+
+    def test_controls_are_holm_corrected(self):
+        # 대조 지표 둘이 각각 p = 0.0317 — 홀름 보정이면 작은 쪽이 0.0635 라 무효가 아니다. 하나뿐이면 무효
+        rec = copy.deepcopy(self.rec)
+        ctl = [metric([4, 7, 8, 9, 10], [1, 2, 3, 5, 6], key=k, role="control") for k in ("c1", "c2")]
+        rec["metrics"] = [m for m in rec["metrics"] if m["role"] != "control"] + ctl
+        an = pc.analyze(rec)
+        self.assertAlmostEqual(an["results"]["c1"]["p"], 2 * an["results"]["c1"]["p_raw"])
+        self.assertEqual(an["invalid"], [])
+        rec["metrics"] = rec["metrics"][:-1]
+        self.assertTrue(pc.analyze(rec)["invalid"])
+
+    def test_unchecked_is_not_reported_as_passed(self):
+        rec = copy.deepcopy(self.rec)
+        rec["equivalence"] = []
+        an = pc.analyze(rec)
+        self.assertIn("결과 동일성 확인 없음", an["unchecked"])
+        self.assertNotIn("통과했다", pc.render(rec, an, "<!-- title --><!-- body -->"))
 
     def test_cost_known_answer(self):
         # 5,309,776 bytes × 1e-9 × 90,000 × 0.09 = 43.009 USD
@@ -233,6 +311,29 @@ class Check(unittest.TestCase):
             del r["cost"]["items"][1]["price_source"]
         # 둘째 항목만 빠뜨려도 잡혀야 한다 (첫 칸만 읽기 방지)
         self.assertTrue(any("items[1].price_source" in e for e in self.errs_after(mutate)))
+
+    def test_wrong_types_are_errors_not_crashes(self):
+        for path, value in ((("metrics", 0, "better"), []), (("metrics", 0, "role"), {}), (("order",), ["randomized"]),
+                            (("metrics", 0, "key"), ["x"]), (("cost", "items", 0, "volume_source"), None),
+                            (("cost", "items", 0, "price_source"), False)):
+            rec = copy.deepcopy(self.rec)
+            obj = rec
+            for k in path[:-1]:
+                obj = obj[k]
+            obj[path[-1]] = value
+            self.assertTrue(pc.check(rec), path)
+
+    def test_deterministic_flag_needs_constant_values(self):
+        rec = copy.deepcopy(self.rec)
+        rec["metrics"][2]["b"] = [532775, 532776, 532775]
+        self.assertTrue(any("deterministic" in e for e in pc.check(rec)))
+
+    def test_duet_needs_equal_pairs(self):
+        rec = copy.deepcopy(self.rec)
+        rec["order"] = "duet"
+        self.assertEqual(pc.check(rec), [])  # 예시는 지표마다 a · b 수가 같다
+        rec["metrics"][1]["b"] = rec["metrics"][1]["b"][:-1]
+        self.assertTrue(any("duet" in e for e in pc.check(rec)))
 
     def test_budget_both_bounds(self):
         def mutate(r):
