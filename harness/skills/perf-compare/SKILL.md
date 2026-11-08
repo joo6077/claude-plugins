@@ -2,10 +2,10 @@
 name: perf-compare
 description: >
   두 버전(옛 · 새 코드, 옛 · 새 서버, 설정 두 가지)의 성능 · 효율 · 비용을 같은 조건에서 반복 측정해 비교하고,
-  통계 판정 · 월 비용 환산 · 기기 부담 예산 대조를 HTML 보고서 한 장으로 만든다. 스택 무관.
-  "성능 비교", "전후 성능 측정", "벤치마크 비교", "최적화 효과 측정", "비용 환산", "얼마나 빨라졌는지" 같은 요청 시 트리거.
-  Flutter 앱의 콜드 스타트 · 프레임 · 메모리 · 발열 수치를 모으는 일은 flutter-toolkit 의 flutter-perf-probe 가 먼저 맡고, 모은 표본을 이 스킬로 넘긴다.
-  한 버전만 프로파일링해 병목을 찾는 요청에는 트리거하지 않는다.
+  통계 판정 · 월 비용 환산 · 기기 부담 예산 대조를 HTML 보고서 한 장으로 만든다.
+  스택을 감지해 맞는 측정 문서만 읽는다 — 서버 · HTTP, Flutter 앱(콜드 스타트 · 프레임 · 발열 · 배터리), Rust(criterion · hyperfine), 웹 · Tauri(Lighthouse · 번들), 부하 시험(k6 · wrk).
+  "성능 비교", "전후 성능 측정", "벤치마크 비교", "최적화 효과 측정", "비용 환산", "얼마나 빨라졌는지", "프레임 드랍 비교", "앱 시작 시간 비교", "부하 시험 비교" 같은 요청 시 트리거.
+  한 버전만 프로파일링해 병목을 찾는 요청과 코드를 읽고 성능 문제를 지적하는 감사에는 트리거하지 않는다.
 argument-hint: "[비교할 두 버전 또는 바꾼 것]"
 user-invocable: true
 ---
@@ -44,7 +44,18 @@ user-invocable: true
 
 ## Process
 
-### 1. 비교 설계와 사용자 확인
+### 1. 스택 감지와 비교 설계
+
+- 아래 표로 스택을 정하고 해당 문서만 읽는다. 둘 이상 해당하면 모두 읽는다 — 앱만 바꿨어도 대조 지표는 `server.md` 에서 고를 수 있다
+
+| 감지 | 읽을 문서 |
+| --- | --- |
+| 비교 대상이 HTTP API · 서버 구간 | `references/stacks/server.md` |
+| `pubspec.yaml` 에 `flutter:` | `references/stacks/flutter.md` — 문서의 환경 다섯 줄을 측정 전에 응답에 남긴다 |
+| `Cargo.toml` | `references/stacks/rust.md` |
+| `package.json` 에 화면 라이브러리 · `vite`, 또는 `src-tauri/` | `references/stacks/web.md` |
+| 처리량 · 동시 접속 · p95 · p99 를 비교 | `references/stacks/load.md` |
+| 해당 없음 | 사용자에게 무엇으로 잴지 묻는다. 새 스택 문서가 필요하면 보고에 적는다 |
 
 - `references/experiment-design.md` 를 읽고 설계한다
 - 아래 표를 채워 한 번 보여 주고 확인받는다. 확인 전에는 측정하지 않는다
@@ -66,7 +77,8 @@ user-invocable: true
 
 ### 2. 측정 도구 확인 — 알려진 답 대조
 
-- 측정 방법은 `references/measure-recipes.md` 에서 고른다. 앱 쪽 수치는 스택 킷 어댑터가 모은다 — Flutter 는 `flutter-toolkit:flutter-perf-probe`
+- 측정 방법은 1 에서 읽은 스택 문서에서 고르고, 그 문서의 함정을 측정 전에 한 번 읽는다
+- 스택 문서가 "첫 회에 확인" 이라고 적은 출력 형식(JSON 키 · 로그 줄 · 파일 위치)은 첫 회 원문을 보고 맞춘다 — 도구 판이 바뀌면 형식이 바뀐다
 - 이번에 새로 짠 측정 명령(로그 파싱 · bytes 합산 · CPU 시간 차)은 본 측정 전에 손으로 답을 셀 수 있는 작은 입력으로 돌려 기대값 · 실제값 · 명령을 남긴다. 둘이 다르면 고친 뒤 넘어간다
 - 측정이 0 이나 빈 값을 내면(프레임 0 개, 로그 줄 0 개) 그 지표는 측정 실패다. 측정 경로를 바꾸거나 지표를 빼고 보고에 적는다 — 0 을 "문제 없음" 으로 읽지 않는다
 
@@ -130,7 +142,7 @@ python3 "{스킬 폴더}/scripts/perf_compare.py" report "{결과 폴더}/perf.j
 ## References
 
 - `references/experiment-design.md` (이 스킬 폴더) — 변수 하나 · 예열 · 표본 수 · 순서 · 대조 지표 · 결과 동일성
-- `references/measure-recipes.md` (이 스킬 폴더) — HTTP · 서버 자원 · DB · 외부 API 측정 명령
+- `references/stacks/` (이 스킬 폴더) — 스택별 감지 · 함정 · 측정 명령 · 출처. `server.md` · `flutter.md` · `rust.md` · `web.md` · `load.md`. 새 스택은 같은 절 순서(감지 → 함정 → 지표별 경로 → 명령 → 출처)로 문서 하나를 더하고 1 의 감지 표에 한 줄을 더한다
 - `references/cost-model.md` (이 스킬 폴더) — 비용 네 범주의 계산식 · 출처 규칙 · 기기 부담 예산
 - `references/samples-format.md` (이 스킬 폴더) — `perf.json` 의 키와 스크립트가 막는 것
 - `scripts/perf_compare.py` (이 스킬 폴더) — 검사 · 판정 · 비용 계산 · 보고서. 파이썬 표준 라이브러리만 쓴다

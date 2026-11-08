@@ -774,3 +774,21 @@ N/A — 리서치 기반 예방적 개선 (실측 동기는 viseo365 TC-056 의 
 ### PR
 
 - 미생성 — 사용자 지시로 커밋 · 푸시 보류 (`feat/perf-compare` 작업 트리)
+
+### 2026-11-08 (2) — 한 스킬로 통합 · 스택 문서 추가
+
+**결정:** 스택별 어댑터 스킬(`flutter-perf-probe` 등)을 키트마다 두지 않고 `perf-compare` 하나에 `references/stacks/` 를 둔다. 같은 원칙이 키트마다 복사되면 형제 스킬 비대칭(§8.8)이 생기기 때문이다.
+
+| # | 제목 | URL | 유형 | 결과 |
+| --- | ------ | ----- | ------ | ------ |
+| 1 | Claude Code 플러그인 의존성 | <https://code.claude.com/docs/en/plugins/dependencies.md> | 공식 | 채택 (구조 판단 근거) |
+| 2 | 마켓플레이스 안 심볼릭 링크 공유 | <https://code.claude.com/docs/en/plugins/host-marketplace.md> | 공식 | 보류 — git 호스팅에서만 교차 플러그인 링크 유지, 로컬 경로 설치에서는 건너뜀 |
+| 3 | criterion CSV 출력 · 명령줄 옵션 | <https://bheisler.github.io/criterion.rs/book/user_guide/csv_output.html> | 공식 | 채택 — JSON 은 내부 구현, `raw.csv` 열 정의 사용 |
+| 4 | hyperfine README | <https://github.com/sharkdp/hyperfine> | 공식 | 채택 |
+| 5 | Lighthouse 변동성 · CLI | <https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md> | 공식 | 채택 — 5 회 중앙값 |
+| 6 | INP · TBT | <https://web.dev/articles/inp> | 공식 | 채택 |
+| 7 | k6 열린 · 닫힌 모델 · constant-arrival-rate · handleSummary | <https://grafana.com/docs/k6/latest/using-k6/scenarios/concepts/open-vs-closed/> | 공식 | 채택 — `dropped_iterations` 는 원문 미확인이라 뺌 |
+| 8 | Vite CLI · wrk README | <https://vite.dev/guide/cli> | 공식 | 채택 |
+
+- **DEFERRED to phase-1 (guide-kaizen):** `skill-design-guide.md` §8.9 의 "킷은 따로 설치되어 harness 파일을 읽지 못한다" 는 런타임 파일 읽기로는 여전히 맞지만, 설치 묶음은 `plugin.json` 의 `dependencies` 로 선언할 수 있다 ("Besides `claude plugin install`, these operations also install any missing declared dependency."). 형제 규약 숫자 복제 방식을 재검토할 근거다
+- 검증: 알려진 답 — criterion `raw.csv` 파서 세 줄 사본 → 400.0 (기대 400) · `validate-plugin.py` 전체 `Exit: 0` · 단위 테스트 36 개 OK

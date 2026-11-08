@@ -1,7 +1,28 @@
-# Flutter 지표별 측정 방법
+# 스택: Flutter 앱
 
-`{FLUTTER}` 는 프로젝트 감지가 정한 명령 접두(`fvm flutter` 등), `{PKG}` 는 Android 패키지 이름, `{BUNDLE}` 은 iOS 번들 ID 다.
-한 번 실행이 표본 하나다. 쪽마다 예열 1 회 + 5 회 이상 반복한다.
+감지: `pubspec.yaml` 에 `flutter:` 가 있다. 명령 접두는 `.fvmrc` 가 있으면 `fvm flutter`, 없으면 `flutter` 다 — 아래 `{FLUTTER}` 자리에 넣는다.
+`{PKG}` 는 Android 패키지 이름, `{BUNDLE}` 은 iOS 번들 ID 다. 한 번 실행이 표본 하나다.
+
+## 환경 다섯 줄 — 측정 전에 응답에 남긴다
+
+```text
+빌드 모드: {profile | release | debug}
+기기: {실기기 모델명 | 시뮬레이터 · 에뮬레이터 이름}
+주사율: {60 | 90 | 120}Hz → 프레임 예산 {16.7 | 11.1 | 8.3}ms
+렌더러: {Impeller | Skia}
+호스트 상태: {swap 사용량 · memory pressure} (시뮬레이터일 때)
+```
+
+모르면 `미확인` 이라 적는다. 디버그 빌드나 시뮬레이터면 잴 수 있는 지표를 서버를 기다리는 구간(랜딩 프리로드)과 전송량으로 좁히고 사용자에게 알린다.
+
+## 함정
+
+- **profile mode · 실기기가 아니면 앱 쪽 수치는 근거가 아니다** — 공식 문서는 성능 측정을 물리 기기 + `--profile` 에서 하라고 하고, profile mode 는 simulator/emulator 에서 꺼져 있다 (<https://docs.flutter.dev/perf/ui-performance>). 프레임 · CPU · 메모리 · 발열 · 배터리는 실기기 profile 빌드에서만 잰다
+- **프레임 0 개는 "버벅임 없음" 이 아니라 측정 실패다** — 2026-11-08 viseo365 TC-056 에서 MCP 프레임 지표가 세 번 모두 `No Frame events captured` 를 돌려줬다. 회마다 `frame_count > 0` 을 보고, 0 인 회는 버리고 그 수를 보고에 적는다. 0 이 이어지면 아래 integration_test 경로로 바꾼다
+- **프레임 예산은 기기 주사율로 정한다** — `TimelineSummary` 의 `missed_*_budget_count` 는 주사율과 관계없이 16ms 고정값(`kBuildBudget`)으로 센다. 120Hz 기기는 프레임 시간 목록에서 다시 센다
+- **시간 마커 임시 코드는 측정 뒤 되돌린다** — 되돌린 뒤 `git diff --stat` 출력을 보고에 남긴다
+- **시뮬레이터 · 에뮬레이터의 발열 · 배터리 값은 쓰지 않는다** — 실기기에서 온 값이 아니면 지표에서 빼고 이유를 적는다
+- **MCP 서버와 도구 이름은 이 문서에 적지 않는다** — 프레임 · 네트워크 · 성능 지표 도구가 있는지는 프로젝트에 등록된 서버의 도구 목록으로 확인한다
 
 ## 어느 경로로 잴까
 

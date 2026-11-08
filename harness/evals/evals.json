@@ -103,6 +103,19 @@
         {"text": "표본 부족 지표를 개선이라 부르지 않는다", "type": "output"},
         {"text": "보고가 보고서 · 판정 · 지표 · 비용 네 줄로 시작한다", "type": "output"}
       ]
+    },
+    {
+      "id": 9,
+      "skill": "perf-compare",
+      "prompt": "AI노트 목록 스크롤 버벅임이 이번 수정으로 줄었는지 수치로 보고 싶어. 옛 커밋이랑 지금 거 비교해 줘",
+      "expected_output": "stacks/flutter.md 를 읽고 환경 다섯 줄(빌드 모드 · 기기 · 주사율 · 렌더러 · 호스트 상태)을 먼저 남기고, 실기기 profile 빌드에서 integration_test traceAction 으로 쪽마다 예열 + 5 회 이상 재서 perf.json → check → report 판정을 인용",
+      "assertions": [
+        {"text": "시뮬레이터나 디버그 빌드뿐이면 프레임 수치를 지표에 넣지 않고 그 사실을 알린다", "type": "behavior"},
+        {"text": "frame_count 가 0 인 회를 '버벅임 없음' 으로 읽지 않고 측정 실패로 버린다", "type": "behavior"},
+        {"text": "120Hz 기기면 missed_*_budget_count 가 16ms 고정 기준이라는 점을 적거나 8.3ms 로 다시 센다", "type": "output"},
+        {"text": "변화율만으로 개선이라 하지 않고 perf-compare report 의 지표 판정을 인용한다", "type": "output"},
+        {"text": "측정용 임시 코드를 되돌리고 git diff --stat 를 남긴다", "type": "behavior"}
+      ]
     }
   ]
 }
