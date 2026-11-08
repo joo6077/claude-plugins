@@ -13,7 +13,7 @@
     {
       "name": "flutter-toolkit",
       "source": "./flutter-toolkit",
-      "description": "[v0.17.0 · 2026-11-02] Flutter 개발 워크플로우 스킬 모음 (flutter-scenario-report — 케이스별 보고서 · 조작마다 캡처 · 사진 한 줄 넘김)"
+      "description": "[v0.18.0 · 2026-11-08] Flutter 개발 워크플로우 스킬 모음 (flutter-scenario-report — 케이스별 보고서 · 조작마다 캡처 · 사진 한 줄 넘김)"
     },
     {
       "name": "design-kit",
@@ -33,12 +33,12 @@
     {
       "name": "rust-kit",
       "source": "./rust-kit",
-      "description": "[v0.6.0 · 2026-10-10] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT)"
+      "description": "[v0.7.0 · 2026-11-08] Rust 전용 백엔드 개발 워크플로우 — Rust 2024 / Axum 0.8 / SeaORM 1.1 / Clippy 2026 (sqlx::test 격리 단위 정정 + clippy unwrap 게이트 E3 + 동시성 가드 판별력 SSOT)"
     },
     {
       "name": "react-kit",
       "source": "./react-kit",
-      "description": "[v0.6.1 · 2026-09-30] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 (템플릿 의존성 현행화 + 표준 커버리지 공백 문서화 (라이브러리 0개 원칙 유지))"
+      "description": "[v0.7.0 · 2026-11-08] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 (템플릿 의존성 현행화 + 표준 커버리지 공백 문서화 (라이브러리 0개 원칙 유지))"
     },
     {
       "name": "planning-kit",
