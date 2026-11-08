@@ -63,9 +63,9 @@ class MannWhitney(unittest.TestCase):
         self.assertEqual(u, 1)
         self.assertAlmostEqual(p, 4 / 20)
 
-    def test_scipy_documented_example(self):
+    def test_documented_example(self):
         # SciPy mannwhitneyu 문서 예제: males 대 females 양측 exact → U1 = 17, p = 0.1111…
-        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html
+        # 문서 주소는 references/experiment-design.md §출처 에 있다
         u, p, _ = pc.mann_whitney([19, 22, 16, 29, 24], [20, 11, 17, 12])
         self.assertEqual(u, 17)
         self.assertAlmostEqual(p, 0.1111111111111111)
