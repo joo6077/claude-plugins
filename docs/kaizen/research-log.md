@@ -733,3 +733,69 @@ Phase 2~10에서 research-log 인사이트를 스킬 Gotchas/Process에 반영. 
 ### PR
 
 - (이 세션에서 PR 생성 예정)
+
+---
+
+## 2026-11-08
+
+**트리거:** manual (대상 한정 — 신규 스킬 `harness/skills/perf-compare`, 브랜치 `feat/perf-compare`)
+**모드:** 리서치 전용 (글로벌 피드백 0 건)
+
+<!-- markdownlint-disable-next-line MD024 -->
+### 조사한 소스
+
+| # | 제목 | URL | 유형 | 신뢰도 | 결과 |
+| --- | ------ | ----- | ------ | -------- | ------ |
+| 1 | Conducting Repeatable Experiments in Highly Variable Cloud Computing Environments (Abedi, Brecht · ICPE 2017) | <https://research.spec.org/icpe_proceedings/2017/proceedings/p287.pdf> | peer-reviewed `[dated: 2017-04]` | 높음 | 채택 |
+| 2 | Duet Benchmarking: Improving Measurement Accuracy in the Cloud (Bulej et al.) | <https://arxiv.org/abs/2001.05811> | `[preprint]` `[dated: 2020-01]` | 중간 | 채택 |
+| 3 | Virtual Machine Warmup Blows Hot and Cold (Barrett et al. · OOPSLA 2017) | <https://arxiv.org/abs/1602.00602> | peer-reviewed `[dated: 2017-10]` | 높음 | 채택 |
+| 4 | SciPy `mannwhitneyu` 문서 1.18 | <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html> | 공식 | 높음 | 채택 |
+| 5 | Rigorous Benchmarking in Reasonable Time (Kalibera, Jones · ISMM 2013) | <https://kar.kent.ac.uk/id/document/3127886> | peer-reviewed | 높음 | 보류 — 원문 미대조 (GATE 2 미실행) |
+
+<!-- markdownlint-disable-next-line MD024 -->
+### 채택한 인사이트
+
+- **RMIT:** 원문 "the randomized multiple interleaved trials methodology randomly reorders alternatives for each round" · "scenarios do exist where periodic changes in the cloud computing environment adversely affect the multiple interleaved trials technique" — 측정 순서 기본값을 `randomized` 로, 고정 번갈아 재기(`interleaved`)에 `주의:` — 적용 영역: skill + script
+- **Duet:** 원문 "executing the measured artifacts in parallel and evaluating their relative performance together, rather than individually" · "improvements in accuracy ranging from 2.3x to 12.5x (5.03x on average) … from 23.8x to 82.4x (37.4x on average)" — 순서 `duet` 추가 (비율만 쓴다) — 적용 영역: skill + script
+- **정상 상태 미도달:** 원문 "small, deterministic, widely studied microbenchmarks often fail to reach a steady state of peak performance" · "at most 43.5% of <VM, benchmark> pairs consistently reach a steady state of peak performance" — 예열 뒤 4 개 이상 한 방향이면 `주의:` — 적용 영역: script + eval
+- **동순위:** 원문 "No correction is made for ties" · "If there are ties and either samples is small (fewer than ~10 observations), consider passing an instance of PermutationMethod" — 기존 중간 순위 순열 검정 유지, 문서 예제(U1 17 · p 0.1111)를 알려진 답 테스트로 고정 — 적용 영역: eval
+
+### /insights 마찰 대조
+
+N/A — 리서치 기반 예방적 개선 (실측 동기는 viseo365 TC-056 의 3:3 표본 · 몰아 재기 · 프레임 0 건)
+
+### 검증 증거
+
+- `python3 -m unittest discover -s harness/evals/perf-compare` → `Ran 36 tests … OK`
+- 틀린 사본: 동순위 무시 사본 `FAILED (failures=1)` · 추세 감지 끈 사본 `FAILED (failures=2)`
+- `scripts/validate-plugin.py` 전체 → `Exit: 0`
+
+<!-- markdownlint-disable-next-line MD024 -->
+### PR
+
+- 미생성 — 사용자 지시로 커밋 · 푸시 보류 (`feat/perf-compare` 작업 트리)
+
+### 2026-11-08 (2) — 한 스킬로 통합 · 스택 문서 추가
+
+**결정:** 스택별 어댑터 스킬(`flutter-perf-probe` 등)을 키트마다 두지 않고 `perf-compare` 하나에 `references/stacks/` 를 둔다. 같은 원칙이 키트마다 복사되면 형제 스킬 비대칭(§8.8)이 생기기 때문이다.
+
+| # | 제목 | URL | 유형 | 결과 |
+| --- | ------ | ----- | ------ | ------ |
+| 1 | Claude Code 플러그인 의존성 | <https://code.claude.com/docs/en/plugins/dependencies.md> | 공식 | 채택 (구조 판단 근거) |
+| 2 | 마켓플레이스 안 심볼릭 링크 공유 | <https://code.claude.com/docs/en/plugins/host-marketplace.md> | 공식 | 보류 — git 호스팅에서만 교차 플러그인 링크 유지, 로컬 경로 설치에서는 건너뜀 |
+| 3 | criterion CSV 출력 · 명령줄 옵션 | <https://bheisler.github.io/criterion.rs/book/user_guide/csv_output.html> | 공식 | 채택 — JSON 은 내부 구현, `raw.csv` 열 정의 사용 |
+| 4 | hyperfine README | <https://github.com/sharkdp/hyperfine> | 공식 | 채택 |
+| 5 | Lighthouse 변동성 · CLI | <https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md> | 공식 | 채택 — 5 회 중앙값 |
+| 6 | INP · TBT | <https://web.dev/articles/inp> | 공식 | 채택 |
+| 7 | k6 열린 · 닫힌 모델 · constant-arrival-rate · handleSummary | <https://grafana.com/docs/k6/latest/using-k6/scenarios/concepts/open-vs-closed/> | 공식 | 채택 — `dropped_iterations` 는 원문 미확인이라 뺌 |
+| 8 | Vite CLI · wrk README | <https://vite.dev/guide/cli> | 공식 | 채택 |
+
+- **DEFERRED to phase-1 (guide-kaizen):** `skill-design-guide.md` §8.9 의 "킷은 따로 설치되어 harness 파일을 읽지 못한다" 는 런타임 파일 읽기로는 여전히 맞지만, 설치 묶음은 `plugin.json` 의 `dependencies` 로 선언할 수 있다 ("Besides `claude plugin install`, these operations also install any missing declared dependency."). 형제 규약 숫자 복제 방식을 재검토할 근거다
+- 검증: 알려진 답 — criterion `raw.csv` 파서 세 줄 사본 → 400.0 (기대 400) · `validate-plugin.py` 전체 `Exit: 0` · 단위 테스트 36 개 OK
+
+### 2026-11-08 (3) — perf-kit 으로 분리 · 스택 킷 의존성
+
+- `perf-compare` 를 harness 에서 떼어 훅 없는 `perf-kit` 으로 옮겼다. harness 를 의존성으로 걸면 harness 훅 7 개가 함께 켜지기 때문이다
+- `flutter-toolkit` · `rust-kit` · `react-kit` · `backend-kit` 의 `plugin.json` 에 `"dependencies": ["perf-kit"]`. 레포 태그 형식(`킷/vX.Y.Z`)이 공식 버전 범위 해석 형식(`이름--v버전`)과 달라 버전 범위는 걸지 않았다
+- 검증: `claude plugin validate` 5 개 플러그인 · 마켓플레이스 통과, 양성 대조로 `dependencies: [123]` · `"perf-kit"`(문자열) 사본이 각각 `Validation failed` · `validate-plugin.py` 15 개 킷 `Exit: 0`
+- 남은 일: 카이젠 오케스트레이터에 perf-kit 단계가 없다 — 이후 `perf-compare` 개선은 수동 카이젠으로 돈다

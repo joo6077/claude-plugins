@@ -160,6 +160,10 @@ jobs:
       - name: Flutter-toolkit scenario report test (보고서 틀 · 예시 보고서)
         run: python3 -m unittest discover -s flutter-toolkit/evals/scenario-report -v
 
+      # perf-compare 의 판정 · 비용 계산은 알려진 답(SciPy 문서 예제 · 손으로 센 순열 수)으로 고정했다
+      - name: Perf-kit compare test (통계 판정 · 비용 · 보고서)
+        run: python3 -m unittest discover -s perf-kit/evals/perf-compare -v
+
       - name: Design-kit decision gate test (결정 전파 검사 종료 코드)
         run: bash design-kit/evals/decision-gate-test.sh
 

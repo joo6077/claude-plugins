@@ -329,6 +329,24 @@ Step 1 표의 1차 출처이고, 아래 URL 은 모두 `docs/howto/` 문서나 `
 - **매 스텝 `verify` 필수와 G5(마지막 동작까지 적었는지) · G6(스텝 하나의 크기) 검사는 표준 인용이 아니라 도메인 실패 기록에 근거한 강화다.** 스타일 가이드에 같은 규정이 없다는 이유로 되돌리지 마라.
 - **howto-kit 은 킷별 리서치 기록 파일이 없다.** 조회 결과는 각 `docs/howto/*.md` 의 `last_updated` 와 `provenance-notes.md` 에 남긴다 — 사용 규칙 1 번의 킷별 `research-log.md` 를 howto 에는 새로 만들지 않는다.
 
+## Phase 18 — perf-kit
+
+perf-kit 은 두 버전의 성능 · 효율 · 비용을 반복 측정해 비교한다. 스택별 측정 명령은 도구 판이 바뀌면 틀리므로
+**적힌 출처가 지금도 같은 명령 · 키를 말하는지 다시 보는 것**이 이 Phase 리서치의 목적이다. 전체 목록은 `.claude/skills/perf-kaizen/references/research-sources.md`.
+
+| # | 소스 | 유형 | 조회 이유 | Fallback |
+| - | ---- | ---- | --------- | -------- |
+| 1 | [Flutter cookbook — Measure performance with an integration test](https://docs.flutter.dev/cookbook/testing/integration/profiling) | 공식 | `stacks/flutter.md` 의 드라이버 코드 · `--no-dds` · summary 키 | [`TimelineSummary.summaryJson`](https://api.flutter.dev/flutter/flutter_driver/TimelineSummary/summaryJson.html) |
+| 2 | [criterion CSV 출력](https://bheisler.github.io/criterion.rs/book/user_guide/csv_output.html) | 공식 | `stacks/rust.md` 의 `raw.csv` 열 · CSV 폐지 일정 | [cargo-criterion External Tools](https://bheisler.github.io/criterion.rs/book/cargo_criterion/external_tools.html) |
+| 3 | [k6 custom summary](https://grafana.com/docs/k6/latest/results-output/end-of-test/custom-summary/) | 공식 | `stacks/load.md` 의 요약 JSON 모양 — v2 에서 새 형식이 기본 | k6 릴리스 노트 |
+| 4 | [Lighthouse variability](https://github.com/GoogleChrome/lighthouse/blob/main/docs/variability.md) | 공식 | `stacks/web.md` 의 반복 횟수 근거 | WebFetch |
+| 5 | [SciPy `mannwhitneyu`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html) | 공식 | 판정 방법과 알려진 답 예제가 그대로인지 | WebFetch |
+
+주의할 점 두 가지:
+
+- **원문에서 확인 못 한 항목은 사실로 승격하지 않는다.** Apple `thermalState` 원시값 · k6 `dropped_iterations` · `dumpsys thermalservice` 출력 형식은 확인 실패로 남아 있다.
+- **perf-kit 은 킷별 리서치 기록 파일이 없다.** 조회 결과는 `docs/kaizen/research-log.md` 에 남긴다.
+
 ## 사용 규칙
 
 1. **리서치 로그 저장** — 각 Phase 종료 시 `docs/<kit>/research-log.md` (또는 `docs/kaizen/research-log.md`) 에 조회한 소스를 "2026-MM-DD" 엔트리로 기록.

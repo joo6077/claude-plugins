@@ -1771,6 +1771,7 @@ def render_data_pool(
         "| 15 Tone | tone-kit/skills/* | §0 + §1 tone-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
         "| 16 Api | api-kit/skills/* | §0 + §1 api-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
         "| 17 Howto | howto-kit/skills/* | §0 + §1 howto-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |",
+        "| 18 Perf | perf-kit/skills/* | §0 + §5 validate-plugin 현재 상태 |",
         "",
     ]
 

@@ -20,5 +20,8 @@
     "grpc",
     "docker",
     "hexagonal"
+  ],
+  "dependencies": [
+    "perf-kit"
   ]
 }
