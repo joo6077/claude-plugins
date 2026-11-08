@@ -2,17 +2,17 @@
 name: kaizen-orchestrator
 description: >
   카이젠 전체 실행을 의존성 순서에 맞춰 오케스트레이션한다.
-  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit → reflect-kit → bambu-kit → onboarding-kit → tone-kit → api-kit → howto-kit 순서로
+  설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit → reflect-kit → bambu-kit → onboarding-kit → tone-kit → api-kit → howto-kit → perf-kit 순서로
   Phase별 실행하며, 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
   주 1회 cron 자동 실행, 또는 수동 호출("/kaizen", "카이젠 전체 실행").
   개별 플러그인만 카이젠하려면 해당 카이젠 스킬을 직접 사용.
-argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|phase7|phase8|phase9|phase10|phase11|phase12|phase13|phase14|phase15|phase16|phase17|final]"
+argument-hint: "[phase1|phase2|phase3|phase4|phase5|phase6|phase7|phase8|phase9|phase10|phase11|phase12|phase13|phase14|phase15|phase16|phase17|phase18|final]"
 user-invocable: true
 ---
 
 # Kaizen Orchestrator
 
-설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit → reflect-kit → bambu-kit → onboarding-kit → tone-kit → api-kit → howto-kit 순서로 카이젠을 실행한다.
+설계 가이드 → contract → evaluator → harness → flutter-toolkit → design-kit → backend-kit → infra-kit → rust-kit → react-kit → planning-kit → reflect-kit → bambu-kit → onboarding-kit → tone-kit → api-kit → howto-kit → perf-kit 순서로 카이젠을 실행한다.
 각 Phase마다 자체 리서치 + Sprint Contract + QA Evaluator를 실행한다.
 전체 Phase 완료 후 크로스 Phase 정합성을 최종 검증한다.
 
@@ -101,6 +101,8 @@ Phase 16: Api-kit 카이젠 (api-kaizen)
     ↓
 Phase 17: Howto-kit 카이젠 (howto-kaizen)
     ↓
+Phase 18: Perf-kit 카이젠 (perf-kaizen)
+    ↓
 Final: 전체 정합성 검증
 ```
 
@@ -123,6 +125,7 @@ Final: 전체 정합성 검증
 15. Tone-kit 카이젠 — 코딩 톤·유지보수성 게이트 스킬 개선 (docs/tone/ 리서치 기준). 근거 등급 3등급(MUST / SHOULD / 관측 컨벤션)을 공개 출처 없이 승격하지 않는다
 16. Api-kit 카이젠 — 블랙박스 API 계약 검증 스킬 개선 (docs/api/ 리서치 기준). 문서 기재와 실측이 다르면 실측을 채택한다
 17. Howto-kit 카이젠 — 사람이 손으로 하는 절차 안내 스킬 개선 (docs/howto/ 리서치 기준, 게이트 G1~G6 · 출처 등급)
+18. Perf-kit 카이젠 — 성능 · 효율 · 비용 비교 스킬 개선 (스택 측정 문서의 명령 · 키 이름을 출처와 재대조, 통계 판정은 알려진 답 테스트로 고정)
 
 ## 트리거 조건
 
@@ -170,7 +173,8 @@ Final: 전체 정합성 검증
 - `/kaizen-orchestrator phase15` — tone-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase16` — api-kaizen만 (Phase 1 완료 전제)
 - `/kaizen-orchestrator phase17` — howto-kaizen만 (Phase 1 완료 전제)
-- `/kaizen-orchestrator final` — Final QA만 (Phase 1~17 완료 전제)
+- `/kaizen-orchestrator phase18` — perf-kaizen만 (Phase 1 완료 전제)
+- `/kaizen-orchestrator final` — Final QA만 (Phase 1~18 완료 전제)
 
 ## Process
 
@@ -315,6 +319,7 @@ exit_codes: [0, 2]
 | 15 Tone | §0 + §1 tone-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
 | 16 Api | §0 + §1 api-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
 | 17 Howto | §0 + §1 howto-kit 관련 feedback (있을 시), §5 validate-plugin 현재 상태 |
+| 18 Perf | §0 + §5 validate-plugin 현재 상태 |
 
 **각 Phase 서브에이전트 프롬프트에 데이터 풀 경로 전달 필수:**
 
@@ -590,7 +595,7 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 
 ### Step F1: Final — 전체 정합성 검증 (구 Step 11)
 
-**범위:** Phase 1~17 전체 변경사항 (Phase 11 planning-kit · Phase 12 reflect-kit · Phase 13 bambu-kit · Phase 14 onboarding-kit · Phase 15 tone-kit · Phase 16 api-kit · Phase 17 howto-kit 포함 전수 체크)
+**범위:** Phase 1~18 전체 변경사항 (Phase 11 planning-kit · Phase 12 reflect-kit · Phase 13 bambu-kit · Phase 14 onboarding-kit · Phase 15 tone-kit · Phase 16 api-kit · Phase 17 howto-kit · Phase 18 perf-kit 포함 전수 체크)
 
 1. **판 번호 원본 목록 뽑기 (계약 전):** 판 번호(머리 설정 `version`)를 바꾼 원본 문서를 손으로 모으면 빠진다. 사이클 시작 판을 `BASE`, 끝 판(지금 `HEAD`)을 `END` 에 넣고 저장소 폴더에서 돌린다. 나온 목록이 2 번 계약의 「버전 번호」 조건 입력이다 — 계약을 쓴 뒤에 뽑으면 조건은 이미 손으로 모은 목록으로 봉인된다.
 
@@ -608,9 +613,9 @@ Phase 당 `### Step` 헤딩은 AUTO 영역에 **정확히 하나**만 존재한�
 2. **Final Sprint Contract 생성:**
 
    - 크로스 Phase 정합성 조건:
-     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~17 변경에 반영되었는가 (planning-kit 12 스킬 + planning-reviewer 에이전트 + reflect-kit 4 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 + api-kit 5 스킬 + api-reviewer 에이전트 + howto-kit 3 스킬 + howto-reviewer 에이전트 포함)
+     - Phase 1에서 업데이트된 설계 원칙이 Phase 2~18 변경에 반영되었는가 (planning-kit 12 스킬 + planning-reviewer 에이전트 + reflect-kit 4 스킬 + 3 훅 + bambu-kit + onboarding-kit + tone-kit 3 스킬 + api-kit 5 스킬 + api-reviewer 에이전트 + howto-kit 3 스킬 + howto-reviewer 에이전트 + perf-kit 1 스킬 포함)
      - Phase 2 contract 변경이 Phase 3 evaluator와 정합하는가
-     - Phase 4 harness 변경이 Phase 5~17 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit, tone-kit, api-kit, howto-kit)과 충돌하지 않는가
+     - Phase 4 harness 변경이 Phase 5~18 (flutter-toolkit, design-kit, backend-kit, infra-kit, rust-kit, react-kit, planning-kit, reflect-kit, bambu-kit, onboarding-kit, tone-kit, api-kit, howto-kit, perf-kit)과 충돌하지 않는가
      - tone-kit 의 규칙 강도 3등급(MUST / SHOULD / 관측 컨벤션)이 공개 출처 없이 승격되지 않았는가
      - tone-kit 트리거 어휘가 타 킷과 set intersection · substring containment 양쪽에서 공집합인가
      - api-kit 의 `pin` 정의(경로별 명시 assertion)와 확정 결정 5 건(exact 본문 한정 · enum 3 샘플 · prod GET/HEAD/OPTIONS · RFC 8785 JCS · exit code 분리)이 유지되는가
