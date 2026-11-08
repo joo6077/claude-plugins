@@ -474,7 +474,7 @@ exit_codes: [0, 2]
 
 공통 실행 패턴에 따라 `/react-kaizen` 서브에이전트로 실행. Phase 1 에서 설계 가이드가 변경되었으면 react-kit 전 스킬을 전수 감사한다. react-kit 플러그인 전용 리서치는 해당 카이젠 스킬이 수행한다.
 
-> 플러그인 설명: [v0.6.1 · 2026-09-30] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 (템플릿 의존성 현행화 + 표준 커버리지 공백 문서화 (라이브러리 0개 원칙 유지))
+> 플러그인 설명: [v0.7.0 · 2026-11-08] React + Vite + Tauri 2 + Rust WASM 개발 워크플로우 — React 19 / TanStack Query v5 / Tauri 2 GA / Tailwind v4 / Zustand v5, 라이브러리 0개 애니메이션 (템플릿 의존성 현행화 + 표준 커버리지 공백 문서화 (라이브러리 0개 원칙 유지))
 
 ### Step 11: Phase 11 — planning-kit 카이젠
 
