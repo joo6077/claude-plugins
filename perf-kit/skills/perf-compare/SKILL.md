@@ -147,4 +147,4 @@ python3 "{스킬 폴더}/scripts/perf_compare.py" report "{결과 폴더}/perf.j
 - `references/samples-format.md` (이 스킬 폴더) — `perf.json` 의 키와 스크립트가 막는 것
 - `scripts/perf_compare.py` (이 스킬 폴더) — 검사 · 판정 · 비용 계산 · 보고서. 파이썬 표준 라이브러리만 쓴다
 - `templates/perf-report.html` (이 스킬 폴더) — 보고서 틀. 스크립트가 `<!-- body -->` 한 곳에 내용을 끼운다
-- `evals/perf-compare/` (플러그인 폴더) — 단위 테스트와 TC-056 숫자로 만든 예시 기록. 스크립트를 고치면 `python3 -m unittest discover -s harness/evals/perf-compare` 를 돌린다
+- `evals/perf-compare/` (플러그인 폴더) — 단위 테스트와 TC-056 숫자로 만든 예시 기록. 스크립트를 고치면 `python3 -m unittest discover -s perf-kit/evals/perf-compare` 를 돌린다

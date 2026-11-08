@@ -792,3 +792,10 @@ N/A — 리서치 기반 예방적 개선 (실측 동기는 viseo365 TC-056 의 
 
 - **DEFERRED to phase-1 (guide-kaizen):** `skill-design-guide.md` §8.9 의 "킷은 따로 설치되어 harness 파일을 읽지 못한다" 는 런타임 파일 읽기로는 여전히 맞지만, 설치 묶음은 `plugin.json` 의 `dependencies` 로 선언할 수 있다 ("Besides `claude plugin install`, these operations also install any missing declared dependency."). 형제 규약 숫자 복제 방식을 재검토할 근거다
 - 검증: 알려진 답 — criterion `raw.csv` 파서 세 줄 사본 → 400.0 (기대 400) · `validate-plugin.py` 전체 `Exit: 0` · 단위 테스트 36 개 OK
+
+### 2026-11-08 (3) — perf-kit 으로 분리 · 스택 킷 의존성
+
+- `perf-compare` 를 harness 에서 떼어 훅 없는 `perf-kit` 으로 옮겼다. harness 를 의존성으로 걸면 harness 훅 7 개가 함께 켜지기 때문이다
+- `flutter-toolkit` · `rust-kit` · `react-kit` · `backend-kit` 의 `plugin.json` 에 `"dependencies": ["perf-kit"]`. 레포 태그 형식(`킷/vX.Y.Z`)이 공식 버전 범위 해석 형식(`이름--v버전`)과 달라 버전 범위는 걸지 않았다
+- 검증: `claude plugin validate` 5 개 플러그인 · 마켓플레이스 통과, 양성 대조로 `dependencies: [123]` · `"perf-kit"`(문자열) 사본이 각각 `Validation failed` · `validate-plugin.py` 15 개 킷 `Exit: 0`
+- 남은 일: 카이젠 오케스트레이터에 perf-kit 단계가 없다 — 이후 `perf-compare` 개선은 수동 카이젠으로 돈다

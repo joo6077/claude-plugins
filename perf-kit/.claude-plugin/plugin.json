@@ -1,0 +1,21 @@
+{
+  "name": "perf-kit",
+  "description": "스택 무관 성능 · 효율 · 비용 비교 킷 — 두 버전을 같은 조건에서 반복 측정해 통계 판정(Mann-Whitney) · 월 비용 환산 · 기기 부담 예산 대조를 보고서 한 장으로. 스택별 측정 문서(서버 · Flutter · Rust · 웹 · 부하 시험)를 감지해 읽는다",
+  "version": "0.1.0",
+  "author": {
+    "name": "Jackson Kim"
+  },
+  "repository": "https://github.com/joo6077/claude-plugins",
+  "license": "MIT",
+  "keywords": [
+    "performance",
+    "benchmark",
+    "cost",
+    "statistics",
+    "mann-whitney",
+    "flutter",
+    "rust",
+    "lighthouse",
+    "k6"
+  ]
+}

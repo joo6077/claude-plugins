@@ -1,4 +1,4 @@
-"""perf-compare 의 perf_compare.py 단위 테스트. 사용: python3 -m unittest discover -s harness/evals/perf-compare -v
+"""perf-compare 의 perf_compare.py 단위 테스트. 사용: python3 -m unittest discover -s perf-kit/evals/perf-compare -v
 
 PERF_COMPARE_SCRIPT 환경 변수로 대상 스크립트를 바꿀 수 있다 — 계산을 일부러 틀린 사본으로 돌려 테스트가 떨어지는지 볼 때 쓴다.
 손으로 셀 수 있는 작은 입력으로 기대값을 고정한다 (skill-design-guide §3.7 알려진 답 대조).

@@ -21,5 +21,8 @@
     "clean-architecture",
     "pure-animation",
     "no-library"
+  ],
+  "dependencies": [
+    "perf-kit"
   ]
 }

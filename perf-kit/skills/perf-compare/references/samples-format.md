@@ -2,7 +2,7 @@
 
 비교 하나에 `perf.json` 하나를 둔다. `scripts/perf_compare.py check` 가 검사하고 `report` 가 같은 폴더에 `perf-report.html` 을 쓴다.
 스크립트는 아래 표에 없는 키를 오타로 보고 막는다. 표에 키를 더하려면 스크립트의 `*_FIELDS` 도 같이 고친다.
-예시는 `harness/evals/perf-compare/example/perf.json` 이다.
+예시는 `perf-kit/evals/perf-compare/example/perf.json` 이다.
 
 ## 케이스
 
