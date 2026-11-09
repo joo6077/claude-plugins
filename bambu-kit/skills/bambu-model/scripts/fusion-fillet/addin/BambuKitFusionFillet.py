@@ -259,7 +259,7 @@ class ReadyHandler(adsk.core.CustomEventHandler):
                 options = exporter.createSTLExportOptions(body, prefix + ".stl")
                 if "join" in part:
                     # join 부품만 촘촘히 — 이웃 삼각형 법선 차이 15° · 면 오차 0.1 mm. «높음» 품질은 둥글기 2 mm 면을 33~36° 씩 꺾어 나눠
-                    # seam-check.py(기준 30°)가 매끈한 둥글기를 날카롭다고 잡았다 (2026-11-09 실측). 쟁반 하나에 약 95 MB 라 일반 부품은 «높음» 그대로.
+                    # seam-check.py(기준 30°)가 매끈한 둥글기를 날카롭다고 잡았다 (2026-11-09 실측). 합친 부품 하나에 약 95 MB 라 일반 부품은 «높음» 그대로.
                     # 단위: 라디안 · cm (공식 문서 STLExportOptions.normalDeviation · surfaceDeviation)
                     options.normalDeviation = math.radians(15)
                     options.surfaceDeviation = 0.01
