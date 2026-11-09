@@ -1,6 +1,6 @@
-# fusion-job.sh 가 깔아 두면 퓨전이 켜질 때 한 번 돈다. 작업 파일대로 f3d 를 열어 매개변수를 바꾸고 보이는 몸체마다 STL 과 크기 · 작은 원통 구멍을 남긴다
+# fusion-job.sh 가 깔아 두면 퓨전이 켜질 때 한 번 돈다. 작업 파일대로 f3d 를 열어 매개변수를 바꾸고 보이는 몸체마다 STL · 같은 좌표의 STEP 과 크기 · 작은 원통 구멍을 남긴다
 # 작업 파일 경로는 옆의 job-path.txt 에 있다. 끝 표시는 <out_dir>/fusion-job.log 의 DONE · FAIL 줄이다
-import adsk.core, adsk.fusion, json, os, re, threading, time, traceback
+import adsk.core, adsk.fusion, hashlib, json, os, re, threading, time, traceback
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EVENT_ID = "BambuKitFusionJobReady"
@@ -50,6 +50,28 @@ def hole_lines(body, label, limit_mm):
     return lines
 
 
+def addin_digest():
+    """깔린 이 파일의 sha256 앞 16 자리 — 기록에 남겨 어느 판 추가 기능이 결과를 냈는지 가린다."""
+    with open(os.path.abspath(__file__), "rb") as source_file:
+        return hashlib.sha256(source_file.read()).hexdigest()[:16]
+
+
+def export_steps(design, targets):
+    """targets: [(STEP 경로, 몸체)]. 퓨전 STEP 내보내기의 대상은 Component 뿐이라(공식 문서 createSTEPExportOptions)
+    몸체마다 임시 사본을 새 컴포넌트 하나에 담아 내보낸다. STL 내보내기는 몸체를 하위 부품 자기 좌표로 쓰고,
+    어셈블리 문맥 몸체의 사본은 전역 좌표로 떠진다. 그래서 사본은 원본 몸체(nativeObject)에서 떠 STL 과 같은 좌표로 맞춘다
+    — 문맥 몸체에서 뜨면 하위 부품 위치만큼 밀린다(2026-11-09 실측, 쟁반 x 200 · z 60).
+    직접 모델링으로 바꿔야 매개변수 없이 몸체를 더할 수 있다 — 문서는 저장하지 않고 닫으므로 원본은 그대로다."""
+    temp = adsk.fusion.TemporaryBRepManager.get()
+    copies = [(path, temp.copy(body.nativeObject or body)) for path, body in targets]
+    design.designType = adsk.fusion.DesignTypes.DirectDesignType
+    exporter = design.exportManager
+    for path, copy in copies:
+        occurrence = design.rootComponent.occurrences.addNewComponent(adsk.core.Matrix3D.create())
+        occurrence.component.bRepBodies.add(copy)
+        exporter.execute(exporter.createSTEPExportOptions(path, occurrence.component))
+
+
 class ReadyHandler(adsk.core.CustomEventHandler):
     def notify(self, args):
         app = adsk.core.Application.get()
@@ -69,6 +91,7 @@ class ReadyHandler(adsk.core.CustomEventHandler):
                 parameter.expression = expression
                 report.append(f"PARAM {name}={parameter.expression}")
             exporter = design.exportManager
+            step_targets = []
             for owner, body in visible_bodies(design):
                 label = f"{owner}/{body.name}"
                 box = body.boundingBox
@@ -77,6 +100,8 @@ class ReadyHandler(adsk.core.CustomEventHandler):
                 report += hole_lines(body, label, float(job.get("holes_under_mm", 40)))
                 stl_path = os.path.join(job["out_dir"], f"{file_safe(owner)}__{file_safe(body.name)}.stl")
                 exporter.execute(exporter.createSTLExportOptions(body, stl_path))
+                step_targets.append((stl_path[:-4] + ".step", body))
+            export_steps(design, step_targets)
             with open(os.path.join(job["out_dir"], "report.txt"), "w", encoding="utf-8") as report_file:
                 report_file.write("\n".join(report) + "\n")
             document.close(False)
@@ -102,7 +127,7 @@ def run(context):
     try:
         job = load_job()
         os.makedirs(job["out_dir"], exist_ok=True)
-        append_log(job, "추가 기능 시작")
+        append_log(job, f"추가 기능 시작 ADDIN sha256={addin_digest()}")
         app = adsk.core.Application.get()
         event = app.registerCustomEvent(EVENT_ID)
         handler = ReadyHandler()
