@@ -120,9 +120,42 @@ def seam_edges(body, base, tools):
     return found, smooth
 
 
+def base_touch_edges(body, base, tools, seam):
+    """바탕 표면 위에만 있고(붙인 것 표면 위가 아님) 이음매 모서리와 꼭짓점을 공유하는, 이미 매끈하지 않은 모서리.
+    바탕의 각진 모서리가 이음매 꼭짓점으로 이어지면 이음매 둥글기가 그 각에 부딪혀 날카로운 자리가 남는다 (2026-11-09 실측)."""
+    on = adsk.fusion.PointContainment.PointOnPointContainment
+    seam_vertices = {v.entityToken for e in seam for v in (e.startVertex, e.endVertex)}
+    found = []
+    for edge in body.edges:
+        if edge.startVertex.entityToken not in seam_vertices and edge.endVertex.entityToken not in seam_vertices:
+            continue
+        ok, start, end = edge.evaluator.getParameterExtents()
+        if not ok:
+            continue
+        ok, middle = edge.evaluator.getPointAtParameter((start + end) / 2)
+        if ok and base.pointContainment(middle) == on and not any(tool.pointContainment(middle) == on for tool in tools) \
+                and not is_tangent(edge, middle):
+            found.append(edge)
+    return found
+
+
+def tool_only_edges(body, base, tools):
+    """합친 몸체에서 붙인 몸체 표면 위에만 있고 바탕 표면 위에는 없는 모서리 — 붙인 몸체 자기 모서리 가운데 밖으로 드러난 것."""
+    on = adsk.fusion.PointContainment.PointOnPointContainment
+    found = []
+    for edge in body.edges:
+        ok, start, end = edge.evaluator.getParameterExtents()
+        if not ok:
+            continue
+        ok, middle = edge.evaluator.getPointAtParameter((start + end) / 2)
+        if ok and base.pointContainment(middle) != on and any(tool.pointContainment(middle) == on for tool in tools):
+            found.append(edge)
+    return found
+
+
 def join_part(app, part):
     """바탕 STEP 을 새 문서로 열고 붙일 STEP 들을 같은 문서에 들인다. 직접 모델링으로 바꿔 몸체 사본을 한 컴포넌트에 모으고,
-    붙일 몸체만 둥글린 뒤 바탕과 합쳐 이음매 모서리만 다시 둥글린다. (문서, 디자인, 결과 몸체, 기록 문자열).
+    합친 뒤 붙인 몸체에서 온 모서리를 radii 로, 새 이음매를 seam_radii 로 둥글린다 — 바탕 자기 모서리는 건드리지 않는다. (문서, 디자인, 결과 몸체, 기록 문자열).
     STEP 하나에 몸체가 여럿이면(면으로만 맞닿아 떨어진 조각 등) 모두 쓴다 — 바탕은 첫 STEP 의 가장 큰 몸체, 나머지는 전부 붙일 것.
     가장 큰 것만 쓰면 조각이 조용히 사라진다(2026-11-09 실측)."""
     paths = part["join"]
@@ -150,9 +183,9 @@ def join_part(app, part):
     base = root.bRepBodies.add(base_copy)
     for copy in rest_copies:
         root.bRepBodies.add(copy)
-    added = [root.bRepBodies.add(copy) for copy in tool_copies]
-    tool_used = finish(design, root, [edge for body in added for edge in body.edges], part.get("radii", [3.0, 2.5, 2.0, 1.5, 1.0]))
-    tool_bodies = [b for b in root.bRepBodies if b.entityToken != base.entityToken]
+    tool_bodies = [root.bRepBodies.add(copy) for copy in tool_copies]
+    # 합치기 전에 붙일 몸체를 둥글리면 바탕 벽과 같은 평면으로 맞닿을 모서리까지 깎여 홈이 생긴다 (2026-11-09 실측).
+    # 그래서 먼저 합치고, 붙인 몸체에서 온 모서리(바탕 표면 위가 아닌 것)를 둥글린 뒤 이음매를 둥글린다.
     base_original = temp.copy(base)
     tool_originals = [temp.copy(b) for b in tool_bodies]
     tools = adsk.core.ObjectCollection.create()
@@ -165,9 +198,17 @@ def join_part(app, part):
     edges, smooth = seam_edges(merged, base_original, tool_originals)
     if not edges and not smooth:
         raise RuntimeError("이음매 모서리 0 개 — 두 몸체가 닿지 않는다")
-    seam_used = finish(design, root, edges, part.get("seam_radii", [3.0, 2.5, 2.0, 1.5, 1.0])) if edges else "없음"
+    tool_edges = tool_only_edges(merged, base_original, tool_originals)
+    tool_used = finish(design, root, tool_edges, part.get("radii", [3.0, 2.5, 2.0, 1.5, 1.0])) if tool_edges else "없음"
     merged = largest(list(root.bRepBodies))
-    return document, design, merged, f"fillet={tool_used} seam={len(edges)} seam_smooth={smooth} seam_fillet={seam_used}"
+    edges, smooth = seam_edges(merged, base_original, tool_originals)
+    # 선택: round_base_touch 면 이음매 꼭짓점으로 이어진 바탕의 각진 모서리도 이음매와 한 번에 둥글린다.
+    # 따로 먼저 둥글리면 이음매 자리 바탕 면이 바뀌어 이음매를 못 찾는다 (2026-11-09 실측 seam=0). 한 번에 해야 꼭짓점이 같이 계산된다
+    base_edges = base_touch_edges(merged, base_original, tool_originals, edges) if part.get("round_base_touch") else []
+    seam_used = finish(design, root, edges + base_edges, part.get("seam_radii", [3.0, 2.5, 2.0, 1.5, 1.0])) if edges else "없음"
+    base_note = f" base={len(base_edges)}" if part.get("round_base_touch") else ""
+    merged = largest(list(root.bRepBodies))
+    return document, design, merged, f"fillet={tool_used} seam={len(edges)} seam_smooth={smooth} seam_fillet={seam_used}{base_note}"
 
 
 def save_views(app, body, prefix):
@@ -216,7 +257,14 @@ class ReadyHandler(adsk.core.CustomEventHandler):
                 prefix = os.path.join(job["out_dir"], part["name"])
                 exporter = design.exportManager
                 options = exporter.createSTLExportOptions(body, prefix + ".stl")
-                options.meshRefinement = adsk.fusion.MeshRefinementSettings.MeshRefinementHigh
+                if "join" in part:
+                    # join 부품만 촘촘히 — 이웃 삼각형 법선 차이 15° · 면 오차 0.1 mm. «높음» 품질은 둥글기 2 mm 면을 33~36° 씩 꺾어 나눠
+                    # seam-check.py(기준 30°)가 매끈한 둥글기를 날카롭다고 잡았다 (2026-11-09 실측). 쟁반 하나에 약 95 MB 라 일반 부품은 «높음» 그대로.
+                    # 단위: 라디안 · cm (공식 문서 STLExportOptions.normalDeviation · surfaceDeviation)
+                    options.normalDeviation = math.radians(15)
+                    options.surfaceDeviation = 0.01
+                else:
+                    options.meshRefinement = adsk.fusion.MeshRefinementSettings.MeshRefinementHigh
                 exporter.execute(options)
                 save_views(app, body, prefix)
                 append_log(job, f"PART {part['name']} {note}")

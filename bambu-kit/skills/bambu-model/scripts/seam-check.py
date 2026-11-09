@@ -4,6 +4,7 @@
 #   이음매 근처 = 모서리 가운데 점이 원본 A 표면과 원본 B 표면 양쪽에서 near 안에 있는 곳.
 #   날카로움 = 이웃한 두 삼각형 면이 꺾인 각도가 angle 보다 큰 모서리 (오목 · 볼록 둘 다).
 #   원본 A · B 에 이미 있던 날카로운 모서리 근처(0.3 mm)는 빼고 센다 — 합쳐서 새로 생긴 것만 본다.
+#   높이 0.002 mm 미만 바늘 삼각형은 법선이 흔들려 각도 계산에서 뺀다.
 # 출력: 마지막 줄 `SEAM sharp=<개수> checked=<이음매 근처 모서리 수> angle=<도> near=<mm>`, 날카로운 자리는 최대 10 줄.
 # 종료 코드: 0 통과(날카로움 0) · 1 날카로운 모서리 있음 · 2 입력 오류(파일 없음 · 이음매 근처 모서리 0 개)
 import argparse
@@ -14,6 +15,9 @@ from scipy.spatial import cKDTree
 from stl import mesh as stl_mesh
 
 EXCLUDE_MM = 0.3
+# 높이(넓이 × 2 / 가장 긴 변)가 이보다 낮은 바늘 삼각형은 법선을 믿을 수 없어 각도 계산에서 뺀다.
+# 퓨전을 촘촘하게 내면 높이 0.00004 mm 삼각형끼리 41° 로 잡혔다 (2026-11-09 실측). 프린터가 못 그리는 크기다
+MIN_HEIGHT_MM = 0.002
 
 
 def load(path):
@@ -35,7 +39,8 @@ def sharp_edges(tris, angle_deg):
         first.setdefault(vid[i][0], pts[i * 3]); first.setdefault(vid[i][1], pts[i * 3 + 1]); first.setdefault(vid[i][2], pts[i * 3 + 2])
     normals = np.cross(tris[:, 1] - tris[:, 0], tris[:, 2] - tris[:, 0])
     area = np.linalg.norm(normals, axis=1)
-    ok = area > 1e-9
+    longest = np.max(np.linalg.norm(tris - np.roll(tris, 1, axis=1), axis=2), axis=1)
+    ok = (area > 1e-9) & (area / np.maximum(longest, 1e-12) > MIN_HEIGHT_MM)
     normals[ok] /= area[ok, None]
     owners = {}
     for f in np.nonzero(ok)[0]:
