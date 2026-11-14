@@ -72,9 +72,11 @@ class BuildReportTest(unittest.TestCase):
             (case_dir / name).write_bytes(png_bytes(3, 7))
         return case_dir
 
-    def run_script(self, *args, script=SCRIPT):
+    def run_script(self, *args, script=SCRIPT, env=None):
+        # 시험이 돌 때마다 브라우저 탭이 열리지 않게 기본은 열기를 끈다
+        env = env if env is not None else {**os.environ, "SCENARIO_REPORT_NO_OPEN": "1"}
         done = subprocess.run([sys.executable, str(script), str(self.root), *args],
-                              capture_output=True, text=True, encoding="utf-8")
+                              capture_output=True, text=True, encoding="utf-8", env=env)
         return done.returncode, done.stdout, done.stderr
 
     def assert_rejected(self, record, *expected, images=IMAGES):
@@ -599,6 +601,41 @@ class BuildReportTest(unittest.TestCase):
             keys |= fields.keys()
         self.assertEqual(sorted(key for key in keys if f"`{key}`" not in doc), [])
 
+
+    def fake_open_env(self, **extra):
+        """open 명령을 받은 인자를 적는 가짜로 바꾼 환경. 진짜 브라우저는 안 뜬다."""
+        bin_dir = Path(tempfile.mkdtemp())
+        log = bin_dir / "open.log"
+        fake = bin_dir / "open"
+        fake.write_text(f'#!/bin/sh\necho "$@" >> "{log}"\n', encoding="utf-8")
+        fake.chmod(0o755)
+        env = {k: v for k, v in os.environ.items() if k != "SCENARIO_REPORT_NO_OPEN"}
+        env["PATH"] = f"{bin_dir}{os.pathsep}{env.get('PATH', '')}"
+        env.update(extra)
+        return env, log
+
+    @unittest.skipUnless(sys.platform == "darwin", "브라우저 열기는 맥에서만 한다")
+    def test_opens_only_newest_case_page_after_build(self):
+        self.make_case(VALID, folder="TC-001-transfer")
+        newer = {**VALID, "id": "TC-002"}
+        self.make_case(newer, folder="TC-002-later")
+        old = self.root / "TC-001-transfer" / "record.json"
+        os.utime(old, (old.stat().st_atime - 600, old.stat().st_mtime - 600))
+        env, log = self.fake_open_env()
+        code, stdout, stderr = self.run_script(env=env)
+        self.assertEqual(code, 0, stderr)
+        self.assertEqual(log.read_text(encoding="utf-8").split(), [str(self.root / "TC-002-later" / "index.html")])
+        self.assertIn("열었다:", stdout)
+
+    @unittest.skipUnless(sys.platform == "darwin", "브라우저 열기는 맥에서만 한다")
+    def test_does_not_open_on_check_or_when_turned_off(self):
+        self.make_case(VALID)
+        for args, extra in ((("--check",), {}), (("--no-open",), {}), ((), {"SCENARIO_REPORT_NO_OPEN": "1"})):
+            env, log = self.fake_open_env(**extra)
+            code, stdout, stderr = self.run_script(*args, env=env)
+            self.assertEqual(code, 0, stderr)
+            self.assertFalse(log.exists(), f"{args} {extra} 인데 열었다")
+            self.assertNotIn("열었다:", stdout)
 
 if __name__ == "__main__":
     unittest.main()
