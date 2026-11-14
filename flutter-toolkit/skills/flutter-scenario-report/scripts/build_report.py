@@ -2,13 +2,16 @@
 
 사용: python3 build_report.py <test-evidence 폴더> [--check]
   --check  검사만 하고 파일을 쓰지 않는다
+  --no-open  다 만든 뒤 브라우저로 열지 않는다 (맥에서만 연다)
 종료 코드: 0 성공 · 1 기록 오류 · 2 사용법 오류
 """
 import argparse
 import html
 import json
 import math
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import quote
@@ -330,6 +333,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="record.json 을 모아 시나리오 테스트 보고서를 만든다")
     parser.add_argument("root", type=Path, help="test-evidence 폴더")
     parser.add_argument("--check", action="store_true", help="검사만 하고 파일을 쓰지 않는다")
+    parser.add_argument("--no-open", action="store_true", help="다 만든 뒤 브라우저로 열지 않는다")
     args = parser.parse_args(argv)
     if not args.root.is_dir():
         print(f"오류: {args.root} 폴더가 없다", file=sys.stderr)
@@ -372,6 +376,13 @@ def main(argv=None):
     for output, body in pages:
         output.write_text(template.replace(SLOT, body), encoding="utf-8")
     print(f"보고서: {args.root / 'index.html'} — {summary} · 케이스 페이지 {len(cases)}개")
+    # 다 만든 그 자리에서 방금 기록한 케이스 보고서를 연다. 답을 끝낼 때 여는 훅에 맡기면
+    # 다른 훅이 답을 붙잡은 뒤 · 답에 경로를 안 적었을 때 · 같은 경로 두 번째일 때 안 뜬다
+    if sys.platform == "darwin" and not args.no_open and not os.environ.get("SCENARIO_REPORT_NO_OPEN"):
+        newest = max(cases, key=lambda case: (args.root / case["folder"] / "record.json").stat().st_mtime)
+        opened = args.root / newest["folder"] / "index.html"
+        subprocess.run(["open", str(opened)], check=False)
+        print(f"열었다: {opened}")
     return 0
 
 
