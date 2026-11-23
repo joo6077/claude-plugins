@@ -33,6 +33,7 @@ user-invocable: true
 8. **CadQuery 의 모서리 둥글리기 · 윤곽 굵히기가 깨지면 STEP 으로 내보내 퓨전에서 마감한다.** 복잡한 모양에서 `fillet` 이
    `BRep_API: command not done` 으로 죽거나 고체가 깨진다(실측 2026-11-07, 옷 거는 부속 4 종). 모양만 CadQuery 로 정하고
    `cq.exporters.export(part, "<이름>.step")` 으로 낸 뒤 `scripts/fusion-fillet/fillet-job.sh` 가 둥글리기 · STL · 그림을 맡게 한다.
+   벽 끝이 솟아 둥글게 말린 테두리(컵 통 · 홈 가장자리)는 띠를 붙이거나 오목 둥글리기를 하지 말고, 벽 전체를 덧대고 깎는다 — 둥근 끝은 칼 단면에 넣는다. 방법 · 높이 식 · 함정은 `references/raised-rim.md`.
 9. **부품 끝에 공을 붙이지 마라.** 끝 공은 고체를 자주 깨뜨리고 사용자가 「끝 공은 앞으로 하지마」 라고 했다.
    끝은 둥근 마감(굵기 그대로 반원)이나 살짝 들린 갈고리로 끝낸다.
 10. **확인 그림에 부품 이름을 넣는다.** 비슷한 걸이를 여러 개 보이면 사용자가 「어떤게 헤드셋이고 어떤게 가방임?」 하고 묻는다.
@@ -189,6 +190,7 @@ STL 이 확정되면 `/bambu-print-profile` 로 출력 설정을 만든다. 부�
 
 - `references/charlie-design.md` — Charlie Design 371개 분석. 3D 출력용 굵기(폭 20~40 · 벽 5~8) · 한 윤곽 밀어 올리기 · C 자 집게 · 출력 방향
 - `references/design-language.md` — 기본 디자인 스타일. 제품 사진 33장 분석 · 공통 결정 10가지 · CadQuery 그리는 법 (사진은 `references/design-refs/`)
+- `references/raised-rim.md` — 솟은 테두리를 덧대고 깎아 만드는 법. 칼 단면 둥근 끝 높이 식 · ruled loft 함정 · 단면 실측 (2026-11-23 컵 도킹)
 - `scripts/ensure-cadquery.sh` — CadQuery · matplotlib · numpy-stl 확인 · 설치
 - `scripts/render.py` — STL 을 음영 그림 PNG 로
 - `scripts/fusion-job.sh` — 작업 파일대로 퓨전 추가 기능을 돌리고 걷어 낸다
