@@ -30,6 +30,9 @@
 
 ```python
 # lip-height profile
+import math
+
+
 def _smooth(x):
     x = max(0.0, min(1.0, x))
     return x * x * (3 - 2 * x)
