@@ -35,7 +35,7 @@
 | **PLA Sparkle** | `Bambu PLA Sparkle @base` | 220 / 55 / 12 | 55°C 8h | 가능 | hardened 권장 | cosmetic: 펄/스파클, 속도 낮춤 |
 | **PLA Marble** | `Bambu PLA Marble @base` | 220 / 55 / 12 | 55°C 8h | 가능 | 0.4+ 권장 | cosmetic: 석재 질감, 디테일보다 외관 |
 | **PLA Metal** | `Bambu PLA Metal @base` | 220 / 55 / 21 | 55°C 8h | 가능 | SS/HS, 비가열 | cosmetic: 금속 질감 (실 금속 충전 아님) |
-| **PLA Wood** | `Bambu PLA Wood @base` | 220 / 55 / 18 | 55°C 8h | 가능 | 0.4+ 권장 | cosmetic: 목재 질감, 막힘 주의 |
+| **PLA Wood** | `Bambu PLA Wood @base` | 220 / 55 / 18 | 55°C 8h | 가능 | 0.4+ 권장 | cosmetic: 목재 질감, 막힘 주의. 하중을 오래 받는 부품(걸이 · 받침)이면 나무 가루가 섞여 PLA Basic 보다 약하다고 사용자에게 알린다 (추정 — 실측 없음) |
 | **PLA Translucent** | `Bambu PLA Translucent @base` | 220 / 55-60 / 12 | 55°C 8h | 가능 | SS/HS, 비가열 | cosmetic: 반투명, 느린 출력 유리 |
 | **PLA Dynamic** | `Bambu PLA Dynamic @base` | 220 / 55 / 21 | 55°C 8h | 가능 | SS/HS, 비가열 | cosmetic: 색/효과 계열 |
 | **PETG Basic** | `Bambu PETG Basic @base` | 245 / 70 / 18-21 | 65°C 8h 권장, AMS HT 가능 | 가능 | SS/HS, 챔버 낮게 | functional: PLA보다 내열/내수성 우수 |

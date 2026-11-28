@@ -2309,6 +2309,19 @@ print(f"OK {target}: 키 {baked} 개를 박았다. 출력 안 함 부품은 건�
 PY
 ```
 
+**제작자 3mf 가 다른 프린터(P1S · X1C 등)용이면 위 블록으로는 안 된다 (2026-11-28 신규).** 값 박기 블록은 프린터를 바꾸지 못한다 —
+`type` 이 process · filament 가 아니면 멈추고, 프린터 이름과 시작 명령은 제작자 3mf 것(P1S)을 그대로 둔다. 이때는
+아래 변환 스크립트로 3mf 를 새로 만든다. 형상은 제작자 3mf 에서, 프린터 설정은 H2S 로 저장한 아무 3mf(템플릿)에서,
+process · 필라멘트 값은 시스템 부모 사슬을 펼쳐 넣는다. 부품은 H2S 판 가운데로 옮기고 회전은 제작자 값을 둔다.
+템플릿이 H2S 가 아니거나 필라멘트 이름이 시스템에 없으면 출력 파일 없이 `FAIL` 한 줄을 찍고 멈춘다.
+
+```bash
+python3 "<이 스킬 폴더>/scripts/build-h2s-3mf.py" "<제작자.3mf>" "<H2S 템플릿.3mf>" "<process.json>" "<필라멘트 시스템 이름>" "<출력.3mf>"
+```
+
+- 템플릿의 소재 칸 수가 그대로 남는다. 칸이 2 개면 둘 다 같은 필라멘트로 채워지고 부품은 1 번 칸만 쓴다 — 보낼 때 1 번을 AMS 슬롯에 잇는다고 알린다.
+- 실측(2026-11-28 테이블 걸이, P1S 3mf → H2S · PLA Wood): 명령줄 자르기 rc 0, 아래 대조 `MISMATCH` 0 줄. 변환 없이 제작자 3mf 를 그대로 자르면 `MISMATCH` 22 줄이었다.
+
 (2) **보낸 뒤 G-code 로 대조한다.** 스튜디오가 자른 G-code 는
 `$(getconf DARWIN_USER_TEMP_DIR)/bamboo_model/<날짜>/<세션>/Metadata/.<번호>.0.gcode` 에 남는다. 세션마다 폴더가 따로 생기고
 스튜디오를 닫아도 지워지지 않는다(실측 2026-09-19). `latest` 를 주면 가장 최근에 자른 것을 읽는다. `MISMATCH` 가 1 개라도 나오면 출력을 멈추고 값을 박은 3mf 부터 다시 연다.
@@ -2424,6 +2437,12 @@ rm -rf "$T"
 `/Applications/BambuStudio.app/Contents/MacOS/BambuStudio --slice 1 --outputdir <빈 폴더> <3mf>` 가 `plate_1.gcode` 를 낸다.
 화면에서는 경고인 "감김 감지 구역에 너무 가깝다" 가 명령줄에서는 오류(`return_code -64`)로 멈추므로 비교용 사본의
 `enable_wrapping_detection` 을 `"0"` 으로 둔다. 비정상 종료하면 사용자 화면에 종료 창이 뜨니 돌리기 전에 알린다.
+
+**띄우기 · 앱이 떠 있을 때 (2026-11-28 실측, 02.09.01.70)**
+
+- 뱀부 스튜디오가 떠 있어도 명령줄 `--slice` 는 rc 0 으로 돈다 — 사용자가 연 프로젝트를 닫게 하지 않아도 된다.
+- 만든 3mf 는 `open -a BambuStudio "<3mf>"` 로 띄운다. 이미 떠 있으면 새 창(새 프로세스)으로 열려 저장 안 된 프로젝트를 건드리지 않았다. 그래도 그 사실은 사용자에게 알린다.
+- 열렸는지는 `osascript -e 'tell application "System Events" to get name of every window of (every process whose name is "BambuStudio")'` 로 창 제목에 3mf 이름이 있는지 본다. 프로세스가 둘이면 `first process` 로는 옛 창만 보이니 `every process` 로 묻는다.
 
 **G-code 로 길이 재기 (2026-09-25 신규)** — 갭필 · 허공 위 · 다림질 길이처럼 G-code 에서 잰 수치를 근거로 쓸 때는 이 블록으로 잰다.
 세션마다 새로 짠 스크립트가 호(`G2` · `G3`)를 빠뜨렸다 — 호 길이가 빠지고, 호에서 좌표를 안 옮기면 다음 직선이 부풀어 총합이
